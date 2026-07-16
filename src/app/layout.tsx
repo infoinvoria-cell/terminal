@@ -32,13 +32,18 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const simpleGatePassword =
+    process.env.SIMPLE_GATE_PASSWORD?.trim() ||
+    process.env.NEXT_PUBLIC_SIMPLE_GATE_PASSWORD?.trim() ||
+    "inno";
+
   return (
     <html
       lang="en"
       className={`${montserrat.variable} ${nunito.variable} h-full antialiased`}
     >
       <body className="h-full overflow-hidden bg-[#0c0d10] text-white">
-        <ClientProviders>
+        <ClientProviders simpleGatePassword={simpleGatePassword}>
           {children}
         </ClientProviders>
       </body>

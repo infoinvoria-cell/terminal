@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "audit:github-safe": "node scripts/audit-github-safe.mjs",
+    "safe:predeploy": "npm run audit:github-safe && npm run build",
+    "safe:prepush": "npm run audit:github-safe && npm run build",
     "launch": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/launcher/start-capitalife-dashboard.ps1",
     "create-shortcut": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/launcher/create-desktop-shortcut.ps1",
     "build:qqq-pine": "node tools/fsportfolio/build-qqq-invest-pine.mjs",
