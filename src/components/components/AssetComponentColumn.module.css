@@ -1,0 +1,221 @@
+.col {
+  display: flex;
+  flex-direction: column;
+  min-width: 108px;
+  flex: 1;
+  padding: 10px 9px 10px;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.col:last-child {
+  border-right: none;
+}
+
+/* ── Identity — fixed min-height for cross-column alignment ── */
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 48px;
+}
+
+.iconWrap {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  border-radius: 50%;
+}
+
+.iconFallback {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.02em;
+}
+
+.names {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.symbol {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.labelText {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Meta — fixed min-height so modes start at same Y across all columns ── */
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 38px;
+  padding-top: 2px;
+  padding-bottom: 4px;
+}
+
+.metaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+}
+
+.metaKey {
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.32);
+}
+
+.metaVal {
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.52);
+}
+
+/* ── Divider ── */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin-bottom: 6px;
+}
+
+/* ── Modes ── */
+.modes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ── Mode toggle ── */
+.modeBlock {
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.modeBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 5px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 10px;
+  text-align: left;
+  transition: background 0.12s, color 0.12s;
+  border-radius: 5px;
+}
+
+.modeBtn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.modeLabel {
+  flex: 1;
+  font-size: 10px;
+  font-weight: 500;
+  color: inherit;
+}
+
+.modeCount {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.coreDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(76, 175, 80, 0.85);
+  flex-shrink: 0;
+}
+
+.modeChevron {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.28);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+/* ── Collapsed summary ── */
+.modeSummary {
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.38);
+  padding: 0 5px 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Expanded details: stat grid ── */
+.modeDetails {
+  padding: 5px 6px 7px;
+  background: rgba(0, 0, 0, 0.22);
+  border-radius: 0 0 5px 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.statGrid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 8px;
+}
+
+.statKey {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.40);
+}
+
+.statVal {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.78);
+  text-align: right;
+}
+
+/* ── Detail names ── */
+.detailNames {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  padding-top: 3px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.detailName {
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.50);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 1px 5px;
+  border-radius: 3px;
+}

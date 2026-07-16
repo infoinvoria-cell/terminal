@@ -1,0 +1,484 @@
+{
+  "updated_at": "2026-07-09",
+  "target_date": "2026-07-09",
+  "source": "Invoria Dashboard + monitoring_asset_universe.json",
+  "total_assets": 34,
+  "assets": [
+    {
+      "symbol": "ZC1!",
+      "name": "Corn",
+      "group": "Agrar",
+      "exchange": "CBOT",
+      "source": "CBOT:ZC1!",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "ZW1!",
+      "name": "Wheat",
+      "group": "Agrar",
+      "exchange": "CBOT",
+      "source": "CBOT:ZW1!",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "CC1!",
+      "name": "Cocoa",
+      "group": "Agrar",
+      "exchange": "ICE",
+      "source": "ICEUS:CC1!",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "OJ1!",
+      "name": "Orange Juice",
+      "group": "Agrar",
+      "exchange": "ICE",
+      "source": "ICEUS:OJ1!",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "SB1!",
+      "name": "Sugar",
+      "group": "Agrar",
+      "exchange": "ICE",
+      "source": "ICEUS:SB1!",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "CT1!",
+      "name": "Cotton",
+      "group": "Agrar",
+      "exchange": "ICE",
+      "source": "ICEUS:CT1!",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "KC1!",
+      "name": "Coffee",
+      "group": "Agrar",
+      "exchange": "ICE",
+      "source": "ICEUS:KC1!",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "ZS1!",
+      "name": "Soybeans",
+      "group": "Agrar",
+      "exchange": "CBOT",
+      "source": "CBOT:ZS1!",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "GC1!",
+      "name": "Gold",
+      "group": "Metals",
+      "exchange": "COMEX",
+      "source": "COMEX:GC1!",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "SI1!",
+      "name": "Silver",
+      "group": "Metals",
+      "exchange": "COMEX",
+      "source": "COMEX:SI1!",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "PA1!",
+      "name": "Palladium",
+      "group": "Metals",
+      "exchange": "NYMEX",
+      "source": "NYMEX:PA1!",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "PL1!",
+      "name": "Platinum",
+      "group": "Metals",
+      "exchange": "NYMEX",
+      "source": "NYMEX:PL1!",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "CL1!",
+      "name": "Crude Oil WTI",
+      "group": "Energy",
+      "exchange": "NYMEX",
+      "source": "NYMEX:CL1!",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "YM1!",
+      "name": "Dow Jones Futures",
+      "group": "Indices",
+      "exchange": "n/a",
+      "source": "CBOT_MINI:YM1!",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "UKX!",
+      "name": "FTSE 100",
+      "group": "Indices",
+      "exchange": "n/a",
+      "source": "TVC:UKX!",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "NQ1!",
+      "name": "Nasdaq 100 Futures",
+      "group": "Indices",
+      "exchange": "n/a",
+      "source": "CME_MINI:NQ1!",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "FDAX1!",
+      "name": "DAX Futures",
+      "group": "Indices",
+      "exchange": "EUREX",
+      "source": "EUREX:FDAX1!",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "ES1!",
+      "name": "S&P 500 Futures",
+      "group": "Indices",
+      "exchange": "n/a",
+      "source": "CME_MINI:ES1!",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "EURUSD",
+      "name": "Euro / US Dollar",
+      "group": "Forex",
+      "exchange": "n/a",
+      "source": "OANDA:EURUSD",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "GBPUSD",
+      "name": "British Pound / US Dollar",
+      "group": "Forex",
+      "exchange": "n/a",
+      "source": "OANDA:GBPUSD",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "USDCHF",
+      "name": "US Dollar / Swiss Franc",
+      "group": "Forex",
+      "exchange": "n/a",
+      "source": "OANDA:USDCHF",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "AAPL",
+      "name": "Apple Inc",
+      "group": "Aktien",
+      "exchange": "NASDAQ",
+      "source": "NASDAQ:AAPL",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "AMZN",
+      "name": "Amazon.com",
+      "group": "Aktien",
+      "exchange": "NASDAQ",
+      "source": "NASDAQ:AMZN",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "GOOGL",
+      "name": "Alphabet (Google)",
+      "group": "Aktien",
+      "exchange": "NASDAQ",
+      "source": "NASDAQ:GOOGL",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "META",
+      "name": "Meta Platforms",
+      "group": "Aktien",
+      "exchange": "NASDAQ",
+      "source": "NASDAQ:META",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "MSFT",
+      "name": "Microsoft",
+      "group": "Aktien",
+      "exchange": "NASDAQ",
+      "source": "NASDAQ:MSFT",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "NVDA",
+      "name": "Nvidia",
+      "group": "Aktien",
+      "exchange": "NASDAQ",
+      "source": "NASDAQ:NVDA",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "NAS100USD_E_STEP_INVEST",
+      "name": "E-Step Invest",
+      "group": "Invest",
+      "exchange": "n/a",
+      "source": "OANDA:NAS100USD",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "NAS100USD_ONLY_LONG_VALUATION_TREND_EMA",
+      "name": "Only Long Valuation Trend EMA",
+      "group": "Invest",
+      "exchange": "n/a",
+      "source": "OANDA:NAS100USD",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "USDCHF_CHF_INVEST",
+      "name": "CHF Invest",
+      "group": "Invest",
+      "exchange": "n/a",
+      "source": "OANDA:USDCHF",
+      "timeframes": [
+        "1D"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "DE30EUR_1H",
+      "name": "DAX Intraday 1H",
+      "group": "Intraday",
+      "exchange": "n/a",
+      "source": "OANDA:DE30EUR",
+      "timeframes": [
+        "1H"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "DE30EUR_2H",
+      "name": "DAX Intraday 2H",
+      "group": "Intraday",
+      "exchange": "n/a",
+      "source": "OANDA:DE30EUR",
+      "timeframes": [
+        "2H"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "EURUSD_30M",
+      "name": "EURUSD Intraday 30M",
+      "group": "Intraday",
+      "exchange": "n/a",
+      "source": "OANDA:EURUSD",
+      "timeframes": [
+        "30M"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    },
+    {
+      "symbol": "GBPUSD_30M",
+      "name": "GBPUSD Intraday 30M",
+      "group": "Intraday",
+      "exchange": "n/a",
+      "source": "OANDA:GBPUSD",
+      "timeframes": [
+        "30M"
+      ],
+      "status": "pending",
+      "last_bar_date": null,
+      "has_data": true,
+      "has_strategy": true
+    }
+  ]
+}

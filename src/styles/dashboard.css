@@ -1,0 +1,14 @@
+/* Design tokens — imported from globals.css */
+:root {
+  --dash-bg: #0c0d10;
+  --dash-card-top: #1c1d20;
+  --dash-card-bottom: #141517;
+  --dash-border: #2a2b30;
+  --dash-positive: #e2ca7a;
+  --dash-negative: #a1a1aa;
+  /** Premium accent — use sparingly (hairlines, active micro-states) */
+  --dash-gold: #e2ca7a;
+  --dash-gold-soft: rgba(226, 202, 122, 0.38);
+  --dash-muted: #737373;
+  --dash-section-label: #6b6b6b;
+}

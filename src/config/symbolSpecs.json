@@ -1,0 +1,74 @@
+[
+  {
+    "symbol": "ZW1!",
+    "source": "CBOT:ZW1!",
+    "pointValue": null,
+    "minLot": 1,
+    "lotStep": 1,
+    "maxLot": 500,
+    "contractMultiplier": 1
+  },
+  {
+    "symbol": "ZC1!",
+    "source": "CBOT:ZC1!",
+    "pointValue": null,
+    "minLot": 1,
+    "lotStep": 1,
+    "maxLot": 500,
+    "contractMultiplier": 1
+  },
+  {
+    "symbol": "CC1!",
+    "source": "ICEUS:CC1!",
+    "pointValue": null,
+    "minLot": 1,
+    "lotStep": 1,
+    "maxLot": 500,
+    "contractMultiplier": 1
+  },
+  {
+    "symbol": "KC1!",
+    "source": "ICEUS:KC1!",
+    "pointValue": null,
+    "minLot": 1,
+    "lotStep": 1,
+    "maxLot": 500,
+    "contractMultiplier": 1
+  },
+  {
+    "symbol": "SB1!",
+    "source": "ICEUS:SB1!",
+    "pointValue": null,
+    "minLot": 1,
+    "lotStep": 1,
+    "maxLot": 500,
+    "contractMultiplier": 1
+  },
+  {
+    "symbol": "CT1!",
+    "source": "ICEUS:CT1!",
+    "pointValue": null,
+    "minLot": 1,
+    "lotStep": 1,
+    "maxLot": 500,
+    "contractMultiplier": 1
+  },
+  {
+    "symbol": "OJ1!",
+    "source": "ICEUS:OJ1!",
+    "pointValue": null,
+    "minLot": 1,
+    "lotStep": 1,
+    "maxLot": 500,
+    "contractMultiplier": 1
+  },
+  {
+    "symbol": "ZS1!",
+    "source": "CBOT:ZS1!",
+    "pointValue": null,
+    "minLot": 1,
+    "lotStep": 1,
+    "maxLot": 500,
+    "contractMultiplier": 1
+  }
+]

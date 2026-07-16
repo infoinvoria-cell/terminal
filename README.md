@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Capitalife Fund Manager Dashboard
 
-## Getting Started
+Private/internal research dashboard for Capitalife strategy monitoring, analytics and local AI tooling.
 
-First, run the development server:
+## Scope
+- Research and monitoring only
+- No live execution
+- No broker connection
+- No order routing
+- No financial portfolio management by Capitalife GbR
 
+## Setup
 ```bash
+npm install
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment
+- Set `CAPITALIFE_BRAIN_PATH` per machine in `.env.local`
+- Do not commit `.env.local`
+- App must also run without OpenAI/Anthropic keys
+- Ollama is optional and local
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Providers
+- Local/Ollama optional
+- OpenAI optional with own key
+- Claude/Anthropic optional with own key
+- Missing keys must not crash the app
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Brain Integration
+- Capitalife Brain remains Source of Truth
+- Graphify is index, not truth
+- Local Brain connection is configured via `CAPITALIFE_BRAIN_PATH`
+- Partners must use their own local Brain/data paths
 
-## Learn More
+## Data Policy
+- No raw Brain vault contents in this repo
+- No broker statements
+- No raw trading exports
+- No private screenshots
+- No API keys or tokens
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Security
+- `.env.local` must never be committed
+- Run `npm run audit:github-safe` before commit or push
+- Review `.gitignore`, `SECURITY.md`, `docs/GITHUB_REPO_GUIDE.md` and `docs/DATA_PRIVACY.md`
