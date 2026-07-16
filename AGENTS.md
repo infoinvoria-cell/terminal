@@ -40,6 +40,18 @@ This version has breaking changes - APIs, conventions, and file structure may al
 - Before deployment run `npm run safe:predeploy`.
 - Work on a feature branch, never direct on `main`.
 
+## Public/Vercel Env Rules
+
+- `.env.local` is local only and must never be committed.
+- `.env.example` may contain placeholders or example values only.
+- Vercel Environment Variables are the source for the preview access word.
+- Public preview access word is currently `inno`.
+- Simple gate is not high-security authentication.
+- Public repo only after `npm run audit:github-safe` and a sensitive-data scan.
+- Never expose Brain, Vault, raw data, or API keys.
+- No direct push to `main`.
+- Never use `git add .`
+
 ## Capitalife Agent Efficiency Rules
 
 - Use RTK for token-light terminal output:

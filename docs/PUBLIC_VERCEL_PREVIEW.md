@@ -11,6 +11,9 @@
 - browser-local lockout after 3 failures
 - this is not professional authentication
 - prefer `SIMPLE_GATE_PASSWORD` in Vercel env over relying on fallback
+- `.env.example` contains preview-safe placeholders only
+- `.env.local` stays local and must never be committed
+- Jeroen enters the final preview password in Vercel Environment Variables
 
 ## Vercel Setup
 1. Make the GitHub repo public later only after audit is clean, or connect Vercel to the private repo
@@ -22,7 +25,9 @@
 NEXT_PUBLIC_APP_MODE=public-preview
 NEXT_PUBLIC_RESEARCH_ONLY=true
 SIMPLE_GATE_PASSWORD=inno
+NEXT_PUBLIC_SIMPLE_GATE_PASSWORD=inno
 INVORIA_BRIDGE_ENABLED=false
+INVORIA_BRIDGE_MODE=readonly
 SENTINEL_DEFAULT_PROVIDER=disabled
 CAPITALIFE_BRAIN_PATH=
 ```
