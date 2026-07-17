@@ -1,0 +1,5 @@
+tradingview-datafeed
+pandas
+python-dotenv
+pyarrow
+openpyxl

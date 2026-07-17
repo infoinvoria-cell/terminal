@@ -4,6 +4,10 @@ node_modules/
 .npm/
 .yarn/
 
+# python bytecode / caches
+__pycache__/
+*.pyc
+
 # next/build
 .next/
 out/
@@ -76,10 +80,7 @@ GRAPH_REPORT.md
 
 # screenshots/private QA
 screenshots/
-*.png
-*.jpg
-*.jpeg
-*.webp
+_design_reference/
 
 # misc private/generated artifacts
 .claude/
@@ -87,18 +88,14 @@ artifacts/
 test-results/
 tools/market-data/.env
 public/generated/
-public/asset-icons/
-public/assets/
-public/branding/
-public/profile.png
-public/profile_jeroen.png
-public/logo.png
-public/CAPITALIFE_ICON.png
-public/Sentinel.png
+
+# personal photos - personal data, never commit (matches at any depth)
 profile.png
 profile_jeroen.png
-Logo.png
-CAPITALIFE_ICON.png
+
+# private root-level artifacts (anchored: public/ equivalents are shipped assets)
+/Logo.png
+/CAPITALIFE_ICON.png
 *.htm
 *.html
 *.statement.pdf
@@ -120,3 +117,5 @@ GRAPH_REPORT.md
 .env
 .env.*
 !.env.example
+
+.vercel

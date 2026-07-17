@@ -1,0 +1,10 @@
+{
+  "symbols": ["SPY", "SPMO", "QQQ", "GLD", "DBC", "NAS100USD"],
+  "intervals": ["1m", "1D"],
+  "n_bars": 5000,
+  "cache_dir": "<ABSOLUTE_PATH_TO>\\.capitalife-cache\\market-data\\tradingview",
+  "poll_seconds": 60,
+  "stale_after_seconds": 180,
+  "search": true,
+  "strict": false
+}
