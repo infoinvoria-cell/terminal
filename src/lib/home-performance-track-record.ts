@@ -1,6 +1,8 @@
-import account2Data from "@/data/capitalife/account2-myfxbook-visible-trades.json";
-import monthlyData from "@/data/capitalife/performance-monthly.json";
-import combinedEvidence from "@/data/capitalife/white-swan-combined-evidence.json";
+import {
+  account2Trades as account2Data,
+  performanceMonthly as monthlyData,
+  whiteSwanCombinedEvidence as combinedEvidence,
+} from "@/lib/capitalife-data";
 import {
   compoundGains,
   type PerformanceAggregation,

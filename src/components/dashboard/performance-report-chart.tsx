@@ -15,7 +15,7 @@ import {
   YAxis,
 } from "recharts";
 
-import monthlyData from "@/data/capitalife/performance-monthly.json";
+import { performanceMonthly as monthlyData } from "@/lib/capitalife-data";
 import {
   compoundGains,
   deserializeTrades,

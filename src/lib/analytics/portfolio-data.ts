@@ -1,7 +1,9 @@
-import analyticsGenerated from "@/data/capitalife/analytics-generated.json";
-import annualData from "@/data/capitalife/white-swan-annual-returns.json";
-import combinedEvidence from "@/data/capitalife/white-swan-combined-evidence.json";
-import monthlyPerf from "@/data/capitalife/performance-monthly.json";
+import {
+  analyticsGenerated,
+  whiteSwanAnnualReturns as annualData,
+  whiteSwanCombinedEvidence as combinedEvidence,
+  performanceMonthly as monthlyPerf,
+} from "@/lib/capitalife-data";
 import type { FSPortfolioSnapshot } from "@/lib/fsportfolio/types";
 
 export type AnalyticsTab = "whiteSwan" | "invest" | "combined";

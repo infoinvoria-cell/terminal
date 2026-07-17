@@ -1,6 +1,6 @@
 import "server-only";
 
-import rawConfig from "@/data/capitalife/fsportfolio-live-core.config.json";
+import { fsportfolioConfigJson as rawConfig } from "@/lib/capitalife-data";
 import type { FSPortfolioConfig } from "@/lib/fsportfolio/types";
 
 function round6(value: number) {

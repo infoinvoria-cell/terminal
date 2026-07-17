@@ -27,7 +27,7 @@ import {
   type AnalyticsTab,
   getAnalyticsDataset,
 } from "@/lib/analytics/portfolio-data";
-import combinedEvidence from "@/data/capitalife/white-swan-combined-evidence.json";
+import { whiteSwanCombinedEvidence as combinedEvidence } from "@/lib/capitalife-data";
 import type { EquityPoint, FSPortfolioSnapshot } from "@/lib/fsportfolio/types";
 import { aggregateReturns, computePortfolioMetrics } from "@/lib/fsportfolio/metrics";
 import { useGlobalRefresh } from "@/hooks/use-global-refresh";
