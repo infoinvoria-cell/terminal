@@ -39,59 +39,118 @@ type NetworkData = {
   links: NetworkLink[];
 };
 
+type NodeColor = {
+  fill: string;
+  stroke: string;
+  glow: string;
+  label: string;
+  category: string;
+};
+
+// ── Color clusters ──────────────────────────────────────────────────────────
+
+const CLUSTER_LEGEND: Array<{ category: string; stroke: string; label: string }> = [
+  { category: "ai",          stroke: "#4ade80", label: "AI / Brain" },
+  { category: "strategies",  stroke: "#e2ca7a", label: "Strategien" },
+  { category: "manuals",     stroke: "#60a5fa", label: "Manuals" },
+  { category: "backtest",    stroke: "#a78bfa", label: "Backtesting" },
+  { category: "qa",          stroke: "#fb923c", label: "QA / Haftung" },
+  { category: "index",       stroke: "#d0d4d8", label: "Index" },
+  { category: "components",  stroke: "#22d3ee", label: "Components" },
+  { category: "lib",         stroke: "#818cf8", label: "Lib / Hooks" },
+  { category: "routes",      stroke: "#34d399", label: "Routes / API" },
+  { category: "other",       stroke: "#6b7280", label: "Sonstiges" },
+];
+
+function getNodeColor(node: NetworkNode): NodeColor {
+  const file = (node.sourceFile ?? "").replace(/\\/g, "/").toLowerCase();
+
+  if (node.source === "brain") {
+    if (file.includes("/09_ai/"))
+      return { fill: "rgba(74,222,128,0.16)", stroke: "#4ade80", glow: "#4ade80", label: "#6ee7b7", category: "ai" };
+    if (file.includes("/04_strategies/"))
+      return { fill: "rgba(226,202,122,0.18)", stroke: "#e2ca7a", glow: "#e2ca7a", label: "#f0e2a2", category: "strategies" };
+    if (file.includes("/13_manuals/"))
+      return { fill: "rgba(96,165,250,0.14)", stroke: "#60a5fa", glow: "#60a5fa", label: "#93c5fd", category: "manuals" };
+    if (file.includes("/16_backtesting"))
+      return { fill: "rgba(167,139,250,0.14)", stroke: "#a78bfa", glow: "#a78bfa", label: "#c4b5fd", category: "backtest" };
+    if (file.includes("/17_haftungsdach"))
+      return { fill: "rgba(251,146,60,0.14)", stroke: "#fb923c", glow: "#fb923c", label: "#fdba74", category: "qa" };
+    if (file.includes("/00_index/"))
+      return { fill: "rgba(208,212,216,0.16)", stroke: "#d0d4d8", glow: "#d0d4d8", label: "#e0e4ea", category: "index" };
+    return { fill: "rgba(180,184,192,0.10)", stroke: "rgba(190,196,204,0.40)", glow: "#b0b8c0", label: "#b8c0ca", category: "other" };
+  }
+
+  // dashboard source
+  if (file.includes("src/components/"))
+    return { fill: "rgba(34,211,238,0.12)", stroke: "#22d3ee", glow: "#22d3ee", label: "#67e8f9", category: "components" };
+  if (file.includes("src/lib/") || file.includes("src/hooks/") || file.includes("src/context/"))
+    return { fill: "rgba(129,140,248,0.12)", stroke: "#818cf8", glow: "#818cf8", label: "#a5b4fc", category: "lib" };
+  if (file.includes("src/app/"))
+    return { fill: "rgba(52,211,153,0.12)", stroke: "#34d399", glow: "#34d399", label: "#6ee7b7", category: "routes" };
+  return { fill: "rgba(100,110,120,0.08)", stroke: "rgba(130,140,150,0.30)", glow: "#6b7280", label: "#9ca3af", category: "other" };
+}
+
+function getNodeRadius(degree: number): number {
+  if (degree >= 30) return 9;
+  if (degree >= 20) return 7;
+  if (degree >= 12) return 5;
+  if (degree >= 6)  return 3.5;
+  return 2.2;
+}
+
 function shortDateTime(value: string | null) {
   if (!value) return "--.-- ----";
   try {
-    return new Date(value).toLocaleString("de-DE", {
-      day: "2-digit",
-      month: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return value;
-  }
+    return new Date(value).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+  } catch { return value; }
 }
 
 function shortDate(value: string | null) {
   if (!value) return "--.--";
   try {
     return new Date(value).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
-  } catch {
-    return value;
-  }
+  } catch { return value; }
 }
 
-function graphNodeTone(node: NetworkNode) {
-  const file = (node.sourceFile ?? "").toLowerCase();
-  const label = node.label.toLowerCase();
-  if (file.includes("ai_project_brain_current") || label.includes("source of truth")) {
-    return { fill: "#f6edd4", stroke: "#e1c873", text: "#fffaf0" };
-  }
-  if (
-    file.includes("strategy") ||
-    file.includes("portfolio") ||
-    file.includes("graphify") ||
-    label.includes("strategy") ||
-    label.includes("portfolio") ||
-    label.includes("graphify") ||
-    label.includes("sentinel") ||
-    label.includes("signal") ||
-    label.includes("monitoring")
-  ) {
-    return { fill: "rgba(214,189,104,0.18)", stroke: "rgba(214,189,104,0.88)", text: "#f6ebbe" };
-  }
-  if (node.degree >= 20) {
-    return { fill: "rgba(244,245,247,0.20)", stroke: "rgba(244,245,247,0.56)", text: "#f4f5f7" };
-  }
-  if (node.degree >= 8) {
-    return { fill: "rgba(201,205,210,0.14)", stroke: "rgba(211,215,220,0.34)", text: "#dfe3e8" };
-  }
-  if (node.source === "brain") {
-    return { fill: "rgba(234,236,239,0.12)", stroke: "rgba(232,235,239,0.22)", text: "#ebeef2" };
-  }
-  return { fill: "rgba(120,124,130,0.10)", stroke: "rgba(158,163,169,0.22)", text: "#d0d4d8" };
+// ── SVG defs: glow filters ──────────────────────────────────────────────────
+
+function SvgDefs() {
+  return (
+    <defs>
+      <filter id="glow-sm" x="-60%" y="-60%" width="220%" height="220%">
+        <feGaussianBlur stdDeviation="2.5" result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+      <filter id="glow-md" x="-80%" y="-80%" width="260%" height="260%">
+        <feGaussianBlur stdDeviation="4.5" result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+      <filter id="glow-lg" x="-100%" y="-100%" width="300%" height="300%">
+        <feGaussianBlur stdDeviation="7" result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+      <filter id="edge-glow" x="-20%" y="-200%" width="140%" height="500%">
+        <feGaussianBlur stdDeviation="1.8" result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+    </defs>
+  );
 }
+
+// ── Graph canvas ─────────────────────────────────────────────────────────────
 
 function BrainNetworkGraph({
   data,
@@ -108,39 +167,42 @@ function BrainNetworkGraph({
 }) {
   const [transform, setTransform] = useState({ scale: 1.14, x: 0, y: 0 });
   const dragRef = useRef<{ x: number; y: number; startX: number; startY: number } | null>(null);
-  const nodeMap = useMemo(() => new Map((data?.nodes ?? []).map((node) => [node.id, node])), [data]);
+  const nodeMap = useMemo(() => new Map((data?.nodes ?? []).map((n) => [n.id, n])), [data]);
 
-  useEffect(() => {
-    setTransform({ scale: 1.14, x: 0, y: 0 });
-  }, [data]);
+  // Pre-compute active node IDs and their neighbors
+  const activeId = selectedId ?? hoveredId;
+  const activeNeighbors = useMemo(() => {
+    if (!activeId || !data) return new Set<string>();
+    const neighbors = new Set<string>();
+    for (const link of data.links) {
+      if (link.source === activeId) neighbors.add(link.target);
+      if (link.target === activeId) neighbors.add(link.source);
+    }
+    return neighbors;
+  }, [activeId, data]);
+
+  useEffect(() => { setTransform({ scale: 1.14, x: 0, y: 0 }); }, [data]);
 
   const onWheel = useCallback((event: React.WheelEvent<SVGSVGElement>) => {
     event.preventDefault();
-    setTransform((current) => ({
-      ...current,
-      scale: Math.max(0.82, Math.min(2.8, current.scale + (event.deltaY < 0 ? 0.08 : -0.08))),
+    setTransform((cur) => ({
+      ...cur,
+      scale: Math.max(0.5, Math.min(4, cur.scale * (event.deltaY < 0 ? 1.1 : 0.9))),
     }));
   }, []);
 
   const onPointerDown = (event: React.PointerEvent<SVGSVGElement>) => {
-    dragRef.current = {
-      x: transform.x,
-      y: transform.y,
-      startX: event.clientX,
-      startY: event.clientY,
-    };
+    dragRef.current = { x: transform.x, y: transform.y, startX: event.clientX, startY: event.clientY };
   };
 
   const onPointerMove = (event: React.PointerEvent<SVGSVGElement>) => {
     if (!dragRef.current) return;
     const dx = event.clientX - dragRef.current.startX;
     const dy = event.clientY - dragRef.current.startY;
-    setTransform((current) => ({ ...current, x: dragRef.current!.x + dx, y: dragRef.current!.y + dy }));
+    setTransform((cur) => ({ ...cur, x: dragRef.current!.x + dx, y: dragRef.current!.y + dy }));
   };
 
-  const endDrag = () => {
-    dragRef.current = null;
-  };
+  const endDrag = () => { dragRef.current = null; };
 
   if (!data || data.nodes.length === 0) {
     return (
@@ -153,6 +215,9 @@ function BrainNetworkGraph({
     );
   }
 
+  const colorMap = new Map(data.nodes.map((n) => [n.id, getNodeColor(n)]));
+  const alwaysLabelDegree = 18;
+
   return (
     <svg
       viewBox="0 0 1600 1080"
@@ -163,30 +228,68 @@ function BrainNetworkGraph({
       onPointerUp={endDrag}
       onPointerLeave={endDrag}
     >
+      <SvgDefs />
+
       <g transform={`translate(${transform.x} ${transform.y}) scale(${transform.scale})`}>
-        {data.links.map((link, index) => {
-          const source = nodeMap.get(link.source);
-          const target = nodeMap.get(link.target);
-          if (!source || !target) return null;
-          const active = selectedId && (link.source === selectedId || link.target === selectedId);
+
+        {/* ── Dim edge layer (all non-active edges) ──────────────────────── */}
+        {data.links.map((link, i) => {
+          const src = nodeMap.get(link.source);
+          const tgt = nodeMap.get(link.target);
+          if (!src || !tgt) return null;
+          const isActive = activeId && (link.source === activeId || link.target === activeId);
+          if (isActive) return null;
           return (
             <line
-              key={`${link.source}-${link.target}-${index}`}
-              x1={source.x}
-              y1={source.y}
-              x2={target.x}
-              y2={target.y}
-              stroke={active ? "rgba(225,200,115,0.26)" : "rgba(255,255,255,0.09)"}
-              strokeWidth={active ? 1.0 : 0.62}
+              key={`dim-${link.source}-${link.target}-${i}`}
+              x1={src.x} y1={src.y} x2={tgt.x} y2={tgt.y}
+              stroke="rgba(255,255,255,0.055)"
+              strokeWidth={0.5}
             />
           );
         })}
+
+        {/* ── Active edge layer (glowing) ────────────────────────────────── */}
+        {data.links.map((link, i) => {
+          const src = nodeMap.get(link.source);
+          const tgt = nodeMap.get(link.target);
+          if (!src || !tgt) return null;
+          const isActive = activeId && (link.source === activeId || link.target === activeId);
+          if (!isActive) return null;
+          const color = colorMap.get(activeId!) ?? { stroke: "#e2ca7a" };
+          return (
+            <line
+              key={`act-${link.source}-${link.target}-${i}`}
+              x1={src.x} y1={src.y} x2={tgt.x} y2={tgt.y}
+              stroke={color.stroke}
+              strokeWidth={1.1}
+              strokeOpacity={0.55}
+              filter="url(#edge-glow)"
+            />
+          );
+        })}
+
+        {/* ── Nodes ─────────────────────────────────────────────────────── */}
         {data.nodes.map((node) => {
-          const tone = graphNodeTone(node);
-          const selected = node.id === selectedId;
-          const hovered = node.id === hoveredId;
-          const active = selected || hovered;
-          const radius = node.degree >= 20 ? 7.8 : node.degree >= 8 ? 4.8 : 2.4;
+          const color = colorMap.get(node.id)!;
+          const isSelected = node.id === selectedId;
+          const isHovered = node.id === hoveredId;
+          const isNeighbor = activeNeighbors.has(node.id);
+          const isActive = isSelected || isHovered;
+          const isDimmed = activeId !== null && !isActive && !isNeighbor;
+          const r = getNodeRadius(node.degree);
+
+          const filter = isSelected
+            ? "url(#glow-lg)"
+            : isHovered
+            ? "url(#glow-md)"
+            : node.degree >= 20
+            ? "url(#glow-sm)"
+            : undefined;
+
+          const fillOpacity = isDimmed ? 0.25 : 1;
+          const strokeOpacity = isDimmed ? 0.18 : 1;
+
           return (
             <g
               key={node.id}
@@ -195,40 +298,173 @@ function BrainNetworkGraph({
               onMouseEnter={() => onHover(node)}
               onMouseLeave={() => onHover(null)}
               className="cursor-pointer"
+              style={{ opacity: fillOpacity }}
             >
+              {/* Outer ring for selected */}
+              {isSelected && (
+                <circle
+                  r={r + 5}
+                  fill="transparent"
+                  stroke={color.stroke}
+                  strokeWidth={1}
+                  strokeOpacity={0.35}
+                  filter="url(#glow-md)"
+                />
+              )}
+              {/* Core node */}
               <circle
-                r={radius + (active ? 3.2 : 0)}
-                fill={active ? "rgba(214,189,104,0.09)" : "transparent"}
-                stroke={active ? "#e2ca7a" : "transparent"}
-                strokeWidth={active ? 1.2 : 0}
+                r={r}
+                fill={color.fill}
+                stroke={color.stroke}
+                strokeWidth={isActive ? 1.2 : 0.75}
+                strokeOpacity={strokeOpacity}
+                filter={filter}
               />
-              <circle r={radius} fill={tone.fill} stroke={tone.stroke} strokeWidth={active ? 1.05 : 0.82} />
-              {active ? (
-                <g transform={`translate(${radius + 8} -4)`}>
-                  <rect
-                    x={-5}
-                    y={-12}
-                    rx={4}
-                    width={Math.max(104, node.label.length * 6.6)}
-                    height={30}
-                    fill="rgba(10,11,14,0.90)"
-                    stroke="rgba(255,255,255,0.08)"
-                  />
-                  <text x={4} y={0} fill={tone.text} fontSize="11" style={{ fontFamily: "Montserrat, system-ui, sans-serif" }}>
-                    {node.label}
-                  </text>
-                  <text x={4} y={13} fill="rgba(163,168,176,0.88)" fontSize="9" style={{ fontFamily: "Montserrat, system-ui, sans-serif" }}>
-                    {(node.fileType ?? "unknown")} · {node.degree} links
-                  </text>
-                </g>
-              ) : null}
+              {/* Always-visible label for high-degree nodes */}
+              {node.degree >= alwaysLabelDegree && !isActive && (
+                <text
+                  x={r + 5}
+                  y={4}
+                  fill={color.label}
+                  fontSize="9"
+                  opacity={isDimmed ? 0.2 : 0.72}
+                  style={{ fontFamily: "Montserrat, system-ui, sans-serif", pointerEvents: "none" }}
+                >
+                  {node.label.length > 28 ? node.label.slice(0, 26) + "…" : node.label}
+                </text>
+              )}
             </g>
           );
         })}
+
+        {/* ── Hover / selected tooltip ──────────────────────────────────── */}
+        {(hoveredId ?? selectedId) && (() => {
+          const node = nodeMap.get(hoveredId ?? selectedId ?? "");
+          if (!node) return null;
+          const color = colorMap.get(node.id)!;
+          const r = getNodeRadius(node.degree);
+          const labelText = node.label.length > 36 ? node.label.slice(0, 34) + "…" : node.label;
+          const subText = `${node.fileType ?? "?"} · ${node.degree} Verbindungen`;
+          const boxW = Math.max(130, Math.max(labelText.length, subText.length) * 6.4 + 20);
+          const boxX = node.x + r + 10;
+          const boxY = node.y - 18;
+
+          return (
+            <g key="tooltip" style={{ pointerEvents: "none" }}>
+              <rect
+                x={boxX - 6} y={boxY - 2}
+                rx={5} ry={5}
+                width={boxW} height={36}
+                fill="rgba(7,8,10,0.92)"
+                stroke={color.stroke}
+                strokeWidth={0.7}
+                strokeOpacity={0.5}
+              />
+              <text x={boxX + 2} y={boxY + 12} fill={color.label} fontSize="11" fontWeight="600"
+                style={{ fontFamily: "Montserrat, system-ui, sans-serif" }}>
+                {labelText}
+              </text>
+              <text x={boxX + 2} y={boxY + 25} fill="rgba(160,168,178,0.85)" fontSize="9"
+                style={{ fontFamily: "Montserrat, system-ui, sans-serif" }}>
+                {subText}
+              </text>
+            </g>
+          );
+        })()}
+
       </g>
     </svg>
   );
 }
+
+// ── Node detail side panel ───────────────────────────────────────────────────
+
+function NodeDetailPanel({ node, onClose }: { node: NetworkNode; onClose: () => void }) {
+  const color = getNodeColor(node);
+  const cluster = CLUSTER_LEGEND.find((c) => c.category === color.category);
+  const filePath = node.sourceFile ?? "—";
+  const shortPath = filePath.length > 60 ? "…" + filePath.slice(-58) : filePath;
+
+  return (
+    <div
+      className="absolute right-0 top-0 z-30 flex h-full w-[260px] flex-col border-l border-white/[0.06] bg-[#0b0c10]/95 backdrop-blur-sm"
+      style={{ boxShadow: "-8px 0 32px rgba(0,0,0,0.55)" }}
+    >
+      <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#6b7280]">Node Info</span>
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-[#6b7280] transition hover:text-white"
+          aria-label="Close"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-4 py-4 text-[11px]">
+        {/* Color dot + label */}
+        <div className="mb-4 flex items-start gap-2">
+          <span
+            className="mt-1 inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+            style={{ background: color.stroke, boxShadow: `0 0 6px ${color.stroke}` }}
+          />
+          <span className="break-all leading-4 text-[#f4f5f7] font-medium">{node.label}</span>
+        </div>
+
+        <Row label="Kategorie" value={cluster?.label ?? color.category} valueColor={color.label} />
+        <Row label="Quelle" value={node.source === "brain" ? "Capitalife Brain" : "Dashboard"} />
+        <Row label="Typ" value={node.fileType ?? "—"} />
+        <Row label="Verbindungen" value={String(node.degree)} valueColor="#e2ca7a" />
+        {node.community !== null && <Row label="Community" value={`#${node.community}`} />}
+
+        <div className="mt-4 border-t border-white/[0.05] pt-3">
+          <div className="mb-1 text-[9px] uppercase tracking-[0.15em] text-[#6b7280]">Pfad</div>
+          <div className="break-all text-[9px] leading-4 text-[#8b9098]">{shortPath}</div>
+        </div>
+
+        {node.sourceLocation && (
+          <div className="mt-3">
+            <div className="mb-1 text-[9px] uppercase tracking-[0.15em] text-[#6b7280]">Symbol</div>
+            <div className="break-all text-[9px] leading-4 text-[#8b9098]">{node.sourceLocation}</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Row({ label, value, valueColor }: { label: string; value: string; valueColor?: string }) {
+  return (
+    <div className="mb-2 flex items-baseline justify-between gap-2">
+      <span className="shrink-0 text-[#6b7280]">{label}</span>
+      <span className="text-right" style={{ color: valueColor ?? "#c8cdd4" }}>{value}</span>
+    </div>
+  );
+}
+
+// ── Cluster legend ───────────────────────────────────────────────────────────
+
+function ClusterLegend({ hasPanel }: { hasPanel: boolean }) {
+  return (
+    <div
+      className="pointer-events-none absolute z-20 flex flex-col gap-1.5"
+      style={{ bottom: 48, right: hasPanel ? 276 : 16 }}
+    >
+      {CLUSTER_LEGEND.map((item) => (
+        <div key={item.category} className="flex items-center gap-1.5">
+          <span
+            className="inline-block h-2 w-2 rounded-full shrink-0"
+            style={{ background: item.stroke, boxShadow: `0 0 5px ${item.stroke}60` }}
+          />
+          <span className="text-[9px] text-[#6b7280]">{item.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Status strip ─────────────────────────────────────────────────────────────
 
 function BrainLatestMiniText({ status }: { status: StatusData | null }) {
   const latestItems = (status?.changes ?? [])
@@ -249,6 +485,8 @@ function BrainLatestMiniText({ status }: { status: StatusData | null }) {
   );
 }
 
+// ── Shell ────────────────────────────────────────────────────────────────────
+
 export function BrainGraphShell() {
   const [status, setStatus] = useState<StatusData | null>(null);
   const [network, setNetwork] = useState<NetworkData | null>(null);
@@ -256,25 +494,52 @@ export function BrainGraphShell() {
   const [hoveredNode, setHoveredNode] = useState<NetworkNode | null>(null);
 
   useEffect(() => {
-    fetch("/api/brain-graph/status").then((response) => response.json()).then((data: StatusData) => setStatus(data)).catch(() => null);
-    fetch("/api/brain-graph/network").then((response) => response.json()).then((data: NetworkData) => setNetwork(data)).catch(() => null);
+    fetch("/api/brain-graph/status")
+      .then((r) => r.json())
+      .then((d: StatusData) => setStatus(d))
+      .catch(() => null);
+    fetch("/api/brain-graph/network")
+      .then((r) => r.json())
+      .then((d: NetworkData) => setNetwork(d))
+      .catch(() => null);
   }, []);
+
+  const handleSelect = (node: NetworkNode) => {
+    setSelectedNode((prev) => (prev?.id === node.id ? null : node));
+  };
 
   return (
     <HomeDashboardProvider initialReportTrades={[]} initialBalanceRows={[]}>
       <div className="flex h-[100dvh] min-h-0 overflow-hidden bg-[#07080a]">
         <Sidebar />
         <main className="relative min-h-0 flex-1 overflow-hidden bg-[#07080a]">
-          <div className="absolute inset-0">
+          {/* Graph canvas */}
+          <div
+            className="absolute inset-0"
+            style={{ right: selectedNode ? 260 : 0, transition: "right 0.2s ease" }}
+          >
             <BrainNetworkGraph
               data={network}
               selectedId={selectedNode?.id ?? null}
               hoveredId={hoveredNode?.id ?? null}
-              onSelect={setSelectedNode}
+              onSelect={handleSelect}
               onHover={setHoveredNode}
             />
           </div>
+
+          {/* Status strip */}
           <BrainLatestMiniText status={status} />
+
+          {/* Cluster legend */}
+          <ClusterLegend hasPanel={!!selectedNode} />
+
+          {/* Node detail panel */}
+          {selectedNode && (
+            <NodeDetailPanel
+              node={selectedNode}
+              onClose={() => setSelectedNode(null)}
+            />
+          )}
         </main>
       </div>
     </HomeDashboardProvider>
