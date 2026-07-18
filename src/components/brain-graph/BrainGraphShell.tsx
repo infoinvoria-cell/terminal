@@ -16,6 +16,8 @@ type NetworkNode = {
   degree: number;
   community: number | null;
   source: "brain" | "dashboard";
+  x?: number;
+  y?: number;
 };
 
 type NetworkLink = { source: string; target: string };
@@ -35,9 +37,9 @@ function topThreshold(nodes: NetworkNode[]): number {
 
 function nodeColor(degree: number, top: number): string {
   if (degree >= top) return "#e2ca7a";
-  if (degree >= 4)   return "#f0dfa0";
-  if (degree >= 1)   return "#888888";
-  return "#444444";
+  if (degree >= 4)   return "#c8b96e";
+  if (degree >= 1)   return "#8a8a8a";
+  return "#555555";
 }
 
 function nodeVal(degree: number, top: number): number {
@@ -69,7 +71,9 @@ function BrainCanvas({ data }: { data: NetworkData }) {
   }, []);
 
   const graphData = {
-    nodes: data.nodes.map((n) => ({ ...n, name: n.label })),
+    // Strip pre-set x/y — all nodes share the same position (800,540) which
+    // produces NaN in d3-force repulsion (distance=0) and kills the render loop.
+    nodes: data.nodes.map(({ x: _x, y: _y, ...n }) => ({ ...n, name: n.label })),
     links: data.links,
   };
 
@@ -84,14 +88,10 @@ function BrainCanvas({ data }: { data: NetworkData }) {
         nodeVal={(n) => nodeVal((n as NetworkNode).degree, top)}
         nodeColor={(n) => nodeColor((n as NetworkNode).degree, top)}
         nodeLabel={(n) => (n as NetworkNode).label}
+        nodeRelSize={6}
         // Link appearance
-        linkColor={() => "#2a2a2a"}
-        linkWidth={0.5}
-        // Force config — tight Obsidian-style layout
-        d3AlphaDecay={0.02}
-        d3VelocityDecay={0.4}
-        cooldownTicks={200}
-        cooldownTime={8000}
+        linkColor={() => "#3a3a3a"}
+        linkWidth={0.8}
         // Interaction
         onNodeClick={(n) => {
           const node = n as NetworkNode;
