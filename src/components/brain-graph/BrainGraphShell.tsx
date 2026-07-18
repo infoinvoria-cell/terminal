@@ -1,485 +1,457 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  forceSimulation,
+  forceManyBody,
+  forceLink,
+  forceCenter,
+  type SimulationNodeDatum,
+  type SimulationLinkDatum,
+} from "d3-force";
 import { HomeDashboardProvider } from "@/context/home-dashboard-context";
 import { Sidebar } from "@/components/dashboard/sidebar";
 
-type ChangeItem = {
-  title: string;
-  source: string;
-  status: "ok" | "partial" | "missing";
-  updatedAt: string | null;
-};
-
-type StatusData = {
-  lastUpdated: string | null;
-  changes: ChangeItem[];
-};
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 type NetworkNode = {
   id: string;
   label: string;
-  fileType: string | null;
-  sourceFile: string | null;
-  sourceLocation: string | null;
   degree: number;
   community: number | null;
   source: "brain" | "dashboard";
-  x: number;
-  y: number;
 };
 
-type NetworkLink = {
-  source: string;
-  target: string;
+type NetworkLink = { source: string; target: string };
+type NetworkData  = { nodes: NetworkNode[]; links: NetworkLink[] };
+
+type StatusData = {
+  lastUpdated: string | null;
+  changes: { title: string; updatedAt: string | null }[];
 };
 
-type NetworkData = {
-  nodes: NetworkNode[];
-  links: NetworkLink[];
-};
+// ── Node style by degree ──────────────────────────────────────────────────────
 
-type NodeColor = {
-  fill: string;
-  stroke: string;
-  glow: string;
-  label: string;
-};
-
-// ── Degree-based monochrome palette ─────────────────────────────────────────
-// More connections → goldener and brighter.
-
-function getNodeColor(degree: number): NodeColor {
-  if (degree >= 30)
-    return { fill: "rgba(226,202,122,0.22)", stroke: "#e2ca7a", glow: "#e2ca7a", label: "#f0dfa0" };
-  if (degree >= 18)
-    return { fill: "rgba(240,223,160,0.14)", stroke: "#f0dfa0", glow: "#f0dfa0", label: "#f0dfa0" };
-  if (degree >= 8)
-    return { fill: "rgba(255,255,255,0.12)", stroke: "#ffffff", glow: "#ffffff", label: "#cccccc" };
-  return { fill: "rgba(136,136,136,0.10)", stroke: "#888888", glow: "#888888", label: "#888888" };
+function nodeStyle(degree: number, topThreshold: number) {
+  if (degree >= topThreshold) return { r: 10,  fill: "#e2ca7a" };
+  if (degree >= 4)            return { r: 6,   fill: "#f0dfa0" };
+  if (degree >= 1)            return { r: 4,   fill: "#aaaaaa" };
+  return                             { r: 2.5, fill: "#555555" };
 }
 
-function getNodeRadius(degree: number): number {
-  if (degree >= 30) return 9;
-  if (degree >= 20) return 7;
-  if (degree >= 12) return 5;
-  if (degree >= 6)  return 3.5;
-  return 2.2;
-}
+// ── Canvas graph ──────────────────────────────────────────────────────────────
 
-function shortDateTime(value: string | null) {
-  if (!value) return "--.-- ----";
-  try {
-    return new Date(value).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-  } catch { return value; }
-}
+type D3Node = SimulationNodeDatum & NetworkNode;
+type D3Link = SimulationLinkDatum<D3Node>;
 
-function shortDate(value: string | null) {
-  if (!value) return "--.--";
-  try {
-    return new Date(value).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
-  } catch { return value; }
-}
+function BrainCanvas({ data }: { data: NetworkData }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const simRef    = useRef<ReturnType<typeof forceSimulation<D3Node>> | null>(null);
+  const nodesRef  = useRef<D3Node[]>([]);
+  const linksRef  = useRef<D3Link[]>([]);
 
-// ── SVG defs: glow filters ──────────────────────────────────────────────────
+  // Pan/zoom state
+  const viewRef = useRef({ x: 0, y: 0, scale: 1 });
+  const dragRef = useRef<{ startX: number; startY: number; ox: number; oy: number } | null>(null);
 
-function SvgDefs() {
-  return (
-    <defs>
-      <filter id="glow-sm" x="-60%" y="-60%" width="220%" height="220%">
-        <feGaussianBlur stdDeviation="2.5" result="blur" />
-        <feMerge>
-          <feMergeNode in="blur" />
-          <feMergeNode in="SourceGraphic" />
-        </feMerge>
-      </filter>
-      <filter id="glow-md" x="-80%" y="-80%" width="260%" height="260%">
-        <feGaussianBlur stdDeviation="4.5" result="blur" />
-        <feMerge>
-          <feMergeNode in="blur" />
-          <feMergeNode in="SourceGraphic" />
-        </feMerge>
-      </filter>
-      <filter id="glow-lg" x="-100%" y="-100%" width="300%" height="300%">
-        <feGaussianBlur stdDeviation="7" result="blur" />
-        <feMerge>
-          <feMergeNode in="blur" />
-          <feMergeNode in="SourceGraphic" />
-        </feMerge>
-      </filter>
-      <filter id="edge-glow" x="-20%" y="-200%" width="140%" height="500%">
-        <feGaussianBlur stdDeviation="1.8" result="blur" />
-        <feMerge>
-          <feMergeNode in="blur" />
-          <feMergeNode in="SourceGraphic" />
-        </feMerge>
-      </filter>
-    </defs>
-  );
-}
+  // Hover state
+  const [hoveredNode, setHoveredNode] = useState<D3Node | null>(null);
+  const [selectedNode, setSelectedNode] = useState<D3Node | null>(null);
+  const hoveredRef  = useRef<D3Node | null>(null);
+  const selectedRef = useRef<D3Node | null>(null);
 
-// ── Graph canvas ─────────────────────────────────────────────────────────────
+  const topThreshold = (() => {
+    const ds = data.nodes.map((n) => n.degree).sort((a, b) => a - b);
+    return ds[Math.floor(ds.length * 0.95)] ?? 999;
+  })();
 
-function BrainNetworkGraph({
-  data,
-  selectedId,
-  hoveredId,
-  onSelect,
-  onHover,
-}: {
-  data: NetworkData | null;
-  selectedId: string | null;
-  hoveredId: string | null;
-  onSelect: (node: NetworkNode) => void;
-  onHover: (node: NetworkNode | null) => void;
-}) {
-  const [transform, setTransform] = useState({ scale: 1.14, x: 0, y: 0 });
-  const dragRef = useRef<{ x: number; y: number; startX: number; startY: number } | null>(null);
-  const nodeMap = useMemo(() => new Map((data?.nodes ?? []).map((n) => [n.id, n])), [data]);
+  // Init simulation — deferred to rAF so canvas has layout dimensions
+  useEffect(() => {
+    let timerId: ReturnType<typeof setTimeout>;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-  // Pre-compute active node IDs and their neighbors
-  const activeId = selectedId ?? hoveredId;
-  const activeNeighbors = useMemo(() => {
-    if (!activeId || !data) return new Set<string>();
-    const neighbors = new Set<string>();
-    for (const link of data.links) {
-      if (link.source === activeId) neighbors.add(link.target);
-      if (link.target === activeId) neighbors.add(link.source);
+    // Defer past layout — setTimeout(0) fires after browser layout is committed
+    timerId = setTimeout(() => {
+      const parent = canvas.parentElement;
+      const W = parent?.clientWidth  || 1200;
+      const H = parent?.clientHeight || 800;
+      canvas.width  = W;
+      canvas.height = H;
+
+      const simNodes: D3Node[] = data.nodes.map((n) => ({ ...n }));
+      const idMap = new Map(simNodes.map((n) => [n.id, n]));
+      const simLinks: D3Link[] = data.links
+        .filter((l) => idMap.has(l.source) && idMap.has(l.target))
+        .map((l) => ({ source: l.source, target: l.target }));
+
+      nodesRef.current = simNodes;
+      linksRef.current = simLinks;
+
+      // Spread initial positions around center
+      for (const n of simNodes) {
+        n.x = W / 2 + (Math.random() - 0.5) * W * 0.5;
+        n.y = H / 2 + (Math.random() - 0.5) * H * 0.5;
+      }
+
+      const sim = forceSimulation<D3Node>(simNodes)
+        .force("charge", forceManyBody<D3Node>().strength(-2))
+        .force(
+          "link",
+          forceLink<D3Node, D3Link>(simLinks)
+            .id((d) => d.id)
+            .distance(10)
+            .strength(1.0),
+        )
+        .force("center", forceCenter(W / 2, H / 2).strength(1.0))
+        .stop();
+
+      sim.tick(300);
+
+      // Bounding-box fit
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      for (const n of simNodes) {
+        if (n.x == null) continue;
+        if (n.x  < minX) minX = n.x;
+        if (n.x  > maxX) maxX = n.x;
+        if (n.y! < minY) minY = n.y!;
+        if (n.y! > maxY) maxY = n.y!;
+      }
+      const gw    = maxX - minX || 1;
+      const gh    = maxY - minY || 1;
+      const scale = Math.min((W * 0.85) / gw, (H * 0.85) / gh);
+      const cx    = (minX + maxX) / 2;
+      const cy    = (minY + maxY) / 2;
+      viewRef.current = { scale, x: W / 2 - cx * scale, y: H / 2 - cy * scale };
+
+      simRef.current = sim;
+      draw();
+    }, 0);
+
+    return () => { clearTimeout(timerId); simRef.current?.stop(); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
+
+  // Draw function
+  function draw() {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const { x, y, scale } = viewRef.current;
+    const W = canvas.width;
+    const H = canvas.height;
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(scale, scale);
+
+    const hov = hoveredRef.current;
+    const sel = selectedRef.current;
+    const activeId = sel?.id ?? hov?.id ?? null;
+
+    // Build neighbour set for active node
+    const neighbours = new Set<string>();
+    if (activeId) {
+      for (const lk of linksRef.current) {
+        const s = typeof lk.source === "object" ? (lk.source as D3Node).id : String(lk.source);
+        const t = typeof lk.target === "object" ? (lk.target as D3Node).id : String(lk.target);
+        if (s === activeId) neighbours.add(t);
+        if (t === activeId) neighbours.add(s);
+      }
     }
-    return neighbors;
-  }, [activeId, data]);
 
-  useEffect(() => { setTransform({ scale: 1.14, x: 0, y: 0 }); }, [data]);
+    // Draw edges
+    ctx.lineWidth = 0.5;
+    for (const lk of linksRef.current) {
+      const s = lk.source as D3Node;
+      const t = lk.target as D3Node;
+      if (s.x == null || t.x == null) continue;
+      const isActive = activeId && (s.id === activeId || t.id === activeId);
+      ctx.globalAlpha = activeId ? (isActive ? 0.75 : 0.06) : 0.18;
+      ctx.strokeStyle = isActive ? "#888888" : "#333333";
+      ctx.beginPath();
+      ctx.moveTo(s.x, s.y!);
+      ctx.lineTo(t.x!, t.y!);
+      ctx.stroke();
+    }
 
-  const onWheel = useCallback((event: React.WheelEvent<SVGSVGElement>) => {
-    event.preventDefault();
-    setTransform((cur) => ({
-      ...cur,
-      scale: Math.max(0.5, Math.min(4, cur.scale * (event.deltaY < 0 ? 1.1 : 0.9))),
-    }));
-  }, []);
+    // Draw nodes
+    ctx.globalAlpha = 1;
+    for (const n of nodesRef.current) {
+      if (n.x == null) continue;
+      const style  = nodeStyle(n.degree, topThreshold);
+      const isActive  = n.id === activeId;
+      const isNeighbor = neighbours.has(n.id);
+      const isDimmed   = !!activeId && !isActive && !isNeighbor;
 
-  const onPointerDown = (event: React.PointerEvent<SVGSVGElement>) => {
-    dragRef.current = { x: transform.x, y: transform.y, startX: event.clientX, startY: event.clientY };
-  };
+      ctx.globalAlpha = isDimmed ? 0.12 : 1;
 
-  const onPointerMove = (event: React.PointerEvent<SVGSVGElement>) => {
-    if (!dragRef.current) return;
-    const dx = event.clientX - dragRef.current.startX;
-    const dy = event.clientY - dragRef.current.startY;
-    setTransform((cur) => ({ ...cur, x: dragRef.current!.x + dx, y: dragRef.current!.y + dy }));
-  };
+      // Glow for top/hovered nodes
+      if (isActive || style.r >= 6) {
+        ctx.shadowColor  = style.fill;
+        ctx.shadowBlur   = isActive ? 12 : 6;
+      } else {
+        ctx.shadowBlur = 0;
+      }
 
-  const endDrag = () => { dragRef.current = null; };
+      ctx.fillStyle = style.fill;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y!, isActive ? style.r + 2 : style.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
-  if (!data || data.nodes.length === 0) {
-    return (
-      <div className="flex h-full min-h-[620px] items-center justify-center text-center">
-        <div>
-          <div className="text-[14px] text-[#f4f4f5]">Graph index not available</div>
-          <div className="mt-2 text-[10px] text-[#6f747c]">Run Graphify/RTK index build</div>
-        </div>
-      </div>
-    );
+    ctx.shadowBlur   = 0;
+    ctx.globalAlpha  = 1;
+
+    // Draw hover label
+    if (hov?.x != null) {
+      const style = nodeStyle(hov.degree, topThreshold);
+      const label = hov.label.length > 40 ? hov.label.slice(0, 38) + "…" : hov.label;
+      const sub   = `deg ${hov.degree}`;
+      const bw    = Math.max(100, label.length * 6.5 + 20);
+
+      ctx.fillStyle    = "rgba(7,8,12,0.92)";
+      ctx.strokeStyle  = "rgba(255,255,255,0.08)";
+      ctx.lineWidth    = 0.6;
+      roundRect(ctx, hov.x! + style.r + 8, hov.y! - 18, bw, 34, 5);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = style.fill;
+      ctx.font      = "bold 11px Montserrat,system-ui,sans-serif";
+      ctx.fillText(label, hov.x! + style.r + 15, hov.y! - 5);
+      ctx.fillStyle = "#6b7280";
+      ctx.font      = "9px Montserrat,system-ui,sans-serif";
+      ctx.fillText(sub, hov.x! + style.r + 15, hov.y! + 9);
+    }
+
+    ctx.restore();
   }
 
-  const colorMap = new Map(data.nodes.map((n) => [n.id, getNodeColor(n.degree)]));
-  const alwaysLabelDegree = 18;
+  function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.arcTo(x + w, y, x + w, y + r, r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+    ctx.lineTo(x + r, y + h);
+    ctx.arcTo(x, y + h, x, y + h - r, r);
+    ctx.lineTo(x, y + r);
+    ctx.arcTo(x, y, x + r, y, r);
+    ctx.closePath();
+  }
 
-  return (
-    <svg
-      viewBox="0 0 1600 1080"
-      className="h-full w-full cursor-grab active:cursor-grabbing"
-      onWheel={onWheel}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={endDrag}
-      onPointerLeave={endDrag}
-    >
-      <SvgDefs />
-
-      <g transform={`translate(${transform.x} ${transform.y}) scale(${transform.scale})`}>
-
-        {/* ── Dim edge layer (all non-active edges) ──────────────────────── */}
-        {data.links.map((link, i) => {
-          const src = nodeMap.get(link.source);
-          const tgt = nodeMap.get(link.target);
-          if (!src || !tgt) return null;
-          const isActive = activeId && (link.source === activeId || link.target === activeId);
-          if (isActive) return null;
-          return (
-            <line
-              key={`dim-${link.source}-${link.target}-${i}`}
-              x1={src.x} y1={src.y} x2={tgt.x} y2={tgt.y}
-              stroke="rgba(255,255,255,0.055)"
-              strokeWidth={0.5}
-            />
-          );
-        })}
-
-        {/* ── Active edge layer (glowing) ────────────────────────────────── */}
-        {data.links.map((link, i) => {
-          const src = nodeMap.get(link.source);
-          const tgt = nodeMap.get(link.target);
-          if (!src || !tgt) return null;
-          const isActive = activeId && (link.source === activeId || link.target === activeId);
-          if (!isActive) return null;
-          return (
-            <line
-              key={`act-${link.source}-${link.target}-${i}`}
-              x1={src.x} y1={src.y} x2={tgt.x} y2={tgt.y}
-              stroke="#555555"
-              strokeWidth={1.1}
-              strokeOpacity={0.8}
-              filter="url(#edge-glow)"
-            />
-          );
-        })}
-
-        {/* ── Nodes ─────────────────────────────────────────────────────── */}
-        {data.nodes.map((node) => {
-          const color = colorMap.get(node.id)!;
-          const isSelected = node.id === selectedId;
-          const isHovered = node.id === hoveredId;
-          const isNeighbor = activeNeighbors.has(node.id);
-          const isActive = isSelected || isHovered;
-          const isDimmed = activeId !== null && !isActive && !isNeighbor;
-          const r = getNodeRadius(node.degree);
-
-          const filter = isSelected
-            ? "url(#glow-lg)"
-            : isHovered
-            ? "url(#glow-md)"
-            : node.degree >= 20
-            ? "url(#glow-sm)"
-            : undefined;
-
-          const fillOpacity = isDimmed ? 0.25 : 1;
-          const strokeOpacity = isDimmed ? 0.18 : 1;
-
-          return (
-            <g
-              key={node.id}
-              transform={`translate(${node.x} ${node.y})`}
-              onClick={() => onSelect(node)}
-              onMouseEnter={() => onHover(node)}
-              onMouseLeave={() => onHover(null)}
-              className="cursor-pointer"
-              style={{ opacity: fillOpacity }}
-            >
-              {/* Outer ring for selected */}
-              {isSelected && (
-                <circle
-                  r={r + 5}
-                  fill="transparent"
-                  stroke={color.stroke}
-                  strokeWidth={1}
-                  strokeOpacity={0.35}
-                  filter="url(#glow-md)"
-                />
-              )}
-              {/* Core node */}
-              <circle
-                r={r}
-                fill={color.fill}
-                stroke={color.stroke}
-                strokeWidth={isActive ? 1.2 : 0.75}
-                strokeOpacity={strokeOpacity}
-                filter={filter}
-              />
-              {/* Always-visible label for high-degree nodes */}
-              {node.degree >= alwaysLabelDegree && !isActive && (
-                <text
-                  x={r + 5}
-                  y={4}
-                  fill={color.label}
-                  fontSize="9"
-                  opacity={isDimmed ? 0.2 : 0.72}
-                  style={{ fontFamily: "Montserrat, system-ui, sans-serif", pointerEvents: "none" }}
-                >
-                  {node.label.length > 28 ? node.label.slice(0, 26) + "…" : node.label}
-                </text>
-              )}
-            </g>
-          );
-        })}
-
-        {/* ── Hover / selected tooltip ──────────────────────────────────── */}
-        {(hoveredId ?? selectedId) && (() => {
-          const node = nodeMap.get(hoveredId ?? selectedId ?? "");
-          if (!node) return null;
-          const color = colorMap.get(node.id)!;
-          const r = getNodeRadius(node.degree);
-          const labelText = node.label.length > 36 ? node.label.slice(0, 34) + "…" : node.label;
-          const subText = `${node.fileType ?? "?"} · ${node.degree} Verbindungen`;
-          const boxW = Math.max(130, Math.max(labelText.length, subText.length) * 6.4 + 20);
-          const boxX = node.x + r + 10;
-          const boxY = node.y - 18;
-
-          return (
-            <g key="tooltip" style={{ pointerEvents: "none" }}>
-              <rect
-                x={boxX - 6} y={boxY - 2}
-                rx={5} ry={5}
-                width={boxW} height={36}
-                fill="rgba(7,8,10,0.92)"
-                stroke={color.stroke}
-                strokeWidth={0.7}
-                strokeOpacity={0.5}
-              />
-              <text x={boxX + 2} y={boxY + 12} fill={color.label} fontSize="11" fontWeight="600"
-                style={{ fontFamily: "Montserrat, system-ui, sans-serif" }}>
-                {labelText}
-              </text>
-              <text x={boxX + 2} y={boxY + 25} fill="rgba(160,168,178,0.85)" fontSize="9"
-                style={{ fontFamily: "Montserrat, system-ui, sans-serif" }}>
-                {subText}
-              </text>
-            </g>
-          );
-        })()}
-
-      </g>
-    </svg>
-  );
-}
-
-// ── Node detail side panel ───────────────────────────────────────────────────
-
-function NodeDetailPanel({ node, onClose }: { node: NetworkNode; onClose: () => void }) {
-  const color = getNodeColor(node.degree);
-  const filePath = node.sourceFile ?? "—";
-  const shortPath = filePath.length > 60 ? "…" + filePath.slice(-58) : filePath;
-
-  return (
-    <div
-      className="absolute right-0 top-0 z-30 flex h-full w-[260px] flex-col border-l border-white/[0.06] bg-[#0b0c10]/95 backdrop-blur-sm"
-      style={{ boxShadow: "-8px 0 32px rgba(0,0,0,0.55)" }}
-    >
-      <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#6b7280]">Node Info</span>
-        <button
-          type="button"
-          onClick={onClose}
-          className="text-[#6b7280] transition hover:text-white"
-          aria-label="Close"
-        >
-          ✕
-        </button>
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-4 py-4 text-[11px]">
-        <div className="mb-4 flex items-start gap-2">
-          <span
-            className="mt-1 inline-block h-2.5 w-2.5 shrink-0 rounded-full"
-            style={{ background: color.stroke, boxShadow: `0 0 6px ${color.stroke}` }}
-          />
-          <span className="break-all leading-4 text-[#f4f5f7] font-medium">{node.label}</span>
-        </div>
-
-        <Row label="Quelle" value={node.source === "brain" ? "Capitalife Brain" : "Dashboard"} />
-        <Row label="Typ" value={node.fileType ?? "—"} />
-        <Row label="Verbindungen" value={String(node.degree)} valueColor="#e2ca7a" />
-        {node.community !== null && <Row label="Community" value={`#${node.community}`} />}
-
-        <div className="mt-4 border-t border-white/[0.05] pt-3">
-          <div className="mb-1 text-[9px] uppercase tracking-[0.15em] text-[#6b7280]">Pfad</div>
-          <div className="break-all text-[9px] leading-4 text-[#8b9098]">{shortPath}</div>
-        </div>
-
-        {node.sourceLocation && (
-          <div className="mt-3">
-            <div className="mb-1 text-[9px] uppercase tracking-[0.15em] text-[#6b7280]">Symbol</div>
-            <div className="break-all text-[9px] leading-4 text-[#8b9098]">{node.sourceLocation}</div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function Row({ label, value, valueColor }: { label: string; value: string; valueColor?: string }) {
-  return (
-    <div className="mb-2 flex items-baseline justify-between gap-2">
-      <span className="shrink-0 text-[#6b7280]">{label}</span>
-      <span className="text-right" style={{ color: valueColor ?? "#c8cdd4" }}>{value}</span>
-    </div>
-  );
-}
-
-// ── Status strip ─────────────────────────────────────────────────────────────
-
-function BrainLatestMiniText({ status }: { status: StatusData | null }) {
-  const latestItems = (status?.changes ?? [])
-    .filter((item) => item.title.toLowerCase() !== "context pack available")
-    .slice(0, 4);
-
-  return (
-    <div className="pointer-events-none absolute bottom-6 left-5 z-20 text-[10px] leading-5 text-[#8b9098]">
-      <div className="text-[#c9ced4]">Updated {shortDateTime(status?.lastUpdated ?? null)}</div>
-      {latestItems.map((item, index) => (
-        <div key={`${item.title}-${index}`}>
-          <span className="mr-2 text-[#d6bd68]">{shortDate(item.updatedAt)}</span>
-          <span>{item.title}</span>
-        </div>
-      ))}
-      <div className="pt-1 text-[#6f747c]">Graphify ist Index · Brain bleibt Source of Truth</div>
-    </div>
-  );
-}
-
-// ── Shell ────────────────────────────────────────────────────────────────────
-
-export function BrainGraphShell() {
-  const [status, setStatus] = useState<StatusData | null>(null);
-  const [network, setNetwork] = useState<NetworkData | null>(null);
-  const [selectedNode, setSelectedNode] = useState<NetworkNode | null>(null);
-  const [hoveredNode, setHoveredNode] = useState<NetworkNode | null>(null);
-
+  // Resize: re-run sim init when container changes size
   useEffect(() => {
-    fetch("/api/brain-graph/status")
-      .then((r) => r.json())
-      .then((d: StatusData) => setStatus(d))
-      .catch(() => null);
-    fetch("/api/brain-graph/network")
-      .then((r) => r.json())
-      .then((d: NetworkData) => setNetwork(d))
-      .catch(() => null);
+    const canvas = canvasRef.current;
+    if (!canvas || !canvas.parentElement) return;
+    const ro = new ResizeObserver(() => {
+      if (!nodesRef.current.length) return;
+      canvas.width  = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      draw();
+    });
+    ro.observe(canvas.parentElement);
+    return () => ro.disconnect();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSelect = (node: NetworkNode) => {
-    setSelectedNode((prev) => (prev?.id === node.id ? null : node));
+  // Screen → simulation coordinates
+  function toSim(cx: number, cy: number) {
+    const canvas = canvasRef.current!;
+    const rect   = canvas.getBoundingClientRect();
+    const { x, y, scale } = viewRef.current;
+    return {
+      sx: (cx - rect.left - x) / scale,
+      sy: (cy - rect.top  - y) / scale,
+    };
+  }
+
+  // Find nearest node within hit radius
+  function findNode(cx: number, cy: number): D3Node | null {
+    const { sx, sy } = toSim(cx, cy);
+    let best: D3Node | null = null;
+    let bestD2 = 200; // max hit px² in sim space
+    for (const n of nodesRef.current) {
+      if (n.x == null) continue;
+      const dx = n.x - sx, dy = n.y! - sy;
+      const d2 = dx * dx + dy * dy;
+      const r  = nodeStyle(n.degree, topThreshold).r + 4;
+      if (d2 < r * r && d2 < bestD2) { bestD2 = d2; best = n; }
+    }
+    return best;
+  }
+
+  // Wheel zoom
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const handler = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect  = canvas.getBoundingClientRect();
+      const mx    = e.clientX - rect.left;
+      const my    = e.clientY - rect.top;
+      const factor = e.deltaY < 0 ? 1.12 : 0.9;
+      const v     = viewRef.current;
+      const ns    = Math.max(0.1, Math.min(10, v.scale * factor));
+      viewRef.current = {
+        scale: ns,
+        x: mx - (mx - v.x) * (ns / v.scale),
+        y: my - (my - v.y) * (ns / v.scale),
+      };
+      draw();
+    };
+    canvas.addEventListener("wheel", handler, { passive: false });
+    return () => canvas.removeEventListener("wheel", handler);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    // Pan
+    if (dragRef.current) {
+      viewRef.current = {
+        ...viewRef.current,
+        x: dragRef.current.ox + e.clientX - dragRef.current.startX,
+        y: dragRef.current.oy + e.clientY - dragRef.current.startY,
+      };
+      draw();
+      return;
+    }
+    // Hover
+    const found = findNode(e.clientX, e.clientY);
+    if (found?.id !== hoveredRef.current?.id) {
+      hoveredRef.current = found;
+      setHoveredNode(found);
+      draw();
+    }
   };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    dragRef.current = { startX: e.clientX, startY: e.clientY, ox: viewRef.current.x, oy: viewRef.current.y };
+  };
+
+  const handleMouseUp = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const wasDrag = dragRef.current &&
+      (Math.abs(e.clientX - dragRef.current.startX) > 3 || Math.abs(e.clientY - dragRef.current.startY) > 3);
+    dragRef.current = null;
+    if (!wasDrag) {
+      const found = findNode(e.clientX, e.clientY);
+      selectedRef.current = found?.id === selectedRef.current?.id ? null : found;
+      setSelectedNode(selectedRef.current);
+      draw();
+    }
+  };
+
+  return (
+    <div className="relative h-full w-full">
+      <canvas
+        ref={canvasRef}
+        className="h-full w-full cursor-grab active:cursor-grabbing"
+        style={{ background: "#07080a" }}
+        onMouseMove={handleMouseMove}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={() => { hoveredRef.current = null; setHoveredNode(null); draw(); }}
+      />
+      {selectedNode && (
+        <NodePanel
+          node={selectedNode}
+          topThreshold={topThreshold}
+          onClose={() => { selectedRef.current = null; setSelectedNode(null); draw(); }}
+        />
+      )}
+    </div>
+  );
+}
+
+// ── Node detail panel ─────────────────────────────────────────────────────────
+
+function NodePanel({ node, topThreshold, onClose }: { node: D3Node; topThreshold: number; onClose: () => void }) {
+  const style = nodeStyle(node.degree, topThreshold);
+  return (
+    <div className="absolute right-0 top-0 h-full w-[240px] border-l border-white/[0.05] bg-[#09090c]/95 backdrop-blur-sm"
+         style={{ boxShadow: "-8px 0 32px rgba(0,0,0,0.6)" }}>
+      <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#555]">Node</span>
+        <button type="button" onClick={onClose} className="text-[#555] hover:text-white transition text-sm">✕</button>
+      </div>
+      <div className="p-4 text-[11px]">
+        <div className="mb-4 flex gap-2 items-start">
+          <span className="mt-1 h-2 w-2 shrink-0 rounded-full inline-block" style={{ background: style.fill }} />
+          <span className="break-all font-medium text-[#e8eaed] leading-[1.5]">{node.label}</span>
+        </div>
+        <Row label="Quelle"      value={node.source === "brain" ? "Capitalife Brain" : "Dashboard"} />
+        <Row label="Verbindungen" value={String(node.degree)} accent="#e2ca7a" />
+        {node.community !== null && <Row label="Community" value={`#${node.community}`} />}
+      </div>
+    </div>
+  );
+}
+
+function Row({ label, value, accent }: { label: string; value: string; accent?: string }) {
+  return (
+    <div className="mb-2 flex justify-between gap-2">
+      <span className="text-[#555]">{label}</span>
+      <span style={{ color: accent ?? "#9ca0aa" }}>{value}</span>
+    </div>
+  );
+}
+
+// ── Status strip ──────────────────────────────────────────────────────────────
+
+function fmt(v: string | null) {
+  if (!v) return "--.--.";
+  try { return new Date(v).toLocaleString("de-DE", { day: "2-digit", month: "2-digit" }); } catch { return v; }
+}
+
+function StatusStrip({ status }: { status: StatusData | null }) {
+  const items = (status?.changes ?? []).filter((c) => c.title !== "context pack available").slice(0, 4);
+  return (
+    <div className="pointer-events-none absolute bottom-5 left-5 z-20 text-[10px] leading-5 text-[#8b9098]">
+      <div className="text-[#c9ced4]">Updated {status?.lastUpdated
+        ? new Date(status.lastUpdated).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
+        : "--"}</div>
+      {items.map((c, i) => (
+        <div key={i}><span className="mr-2 text-[#d6bd68]">{fmt(c.updatedAt)}</span>{c.title}</div>
+      ))}
+      <div className="pt-1 text-[#4b5058]">Graphify ist Index · Brain bleibt Source of Truth</div>
+    </div>
+  );
+}
+
+// ── Shell ─────────────────────────────────────────────────────────────────────
+
+export function BrainGraphShell() {
+  const [status,  setStatus]  = useState<StatusData | null>(null);
+  const [network, setNetwork] = useState<NetworkData | null>(null);
+
+  useEffect(() => {
+    fetch("/api/brain-graph/status").then((r) => r.json()).then(setStatus).catch(() => null);
+    fetch("/api/brain-graph/network").then((r) => r.json()).then(setNetwork).catch(() => null);
+  }, []);
 
   return (
     <HomeDashboardProvider initialReportTrades={[]} initialBalanceRows={[]}>
       <div className="flex h-[100dvh] min-h-0 overflow-hidden bg-[#07080a]">
         <Sidebar />
-        <main className="relative min-h-0 flex-1 overflow-hidden bg-[#07080a]">
-          {/* Graph canvas */}
-          <div
-            className="absolute inset-0"
-            style={{ right: selectedNode ? 260 : 0, transition: "right 0.2s ease" }}
-          >
-            <BrainNetworkGraph
-              data={network}
-              selectedId={selectedNode?.id ?? null}
-              hoveredId={hoveredNode?.id ?? null}
-              onSelect={handleSelect}
-              onHover={setHoveredNode}
-            />
-          </div>
-
-          {/* Status strip */}
-          <BrainLatestMiniText status={status} />
-
-          {/* Node detail panel */}
-          {selectedNode && (
-            <NodeDetailPanel
-              node={selectedNode}
-              onClose={() => setSelectedNode(null)}
-            />
-          )}
+        <main className="relative min-h-0 flex-1 overflow-hidden">
+          {network && network.nodes.length > 0
+            ? <BrainCanvas data={network} />
+            : (
+              <div className="flex h-full items-center justify-center">
+                <div className="text-center">
+                  <div className="text-sm text-[#f4f4f5]">
+                    {network ? "Graph index not available" : "Loading graph…"}
+                  </div>
+                  {network && <div className="mt-1 text-[10px] text-[#555]">Run Graphify/RTK index build</div>}
+                </div>
+              </div>
+            )}
+          <StatusStrip status={status} />
         </main>
       </div>
     </HomeDashboardProvider>
