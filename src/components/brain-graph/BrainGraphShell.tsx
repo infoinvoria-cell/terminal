@@ -87,7 +87,7 @@ function BrainCanvas({ data }: { data: NetworkData }) {
         // Force simulation
         d3AlphaDecay={0.02}
         d3VelocityDecay={0.3}
-        warmupTicks={200}
+        warmupTicks={50}
         // Interaction
         onNodeClick={(n) => {
           const node = n as NetworkNode;

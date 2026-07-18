@@ -18,7 +18,9 @@ export type NetworkNode = {
 
 type NetworkLink = { source: string; target: string };
 
-const EXCLUDED_DIRS = [".obsidian", "90_Inbox"];
+const EXCLUDED_DIRS = [".obsidian", "node_modules"];
+const NODE_CAP  = 5000;
+const LINK_CAP  = 10000;
 
 function slugify(name: string): string {
   return name.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^\w-]/g, "");
@@ -143,5 +145,15 @@ export function GET() {
   }
 
   const { nodes, links } = buildObsidianGraph(brainRoot);
-  return NextResponse.json({ nodes, links });
+
+  // Cap: keep highest-degree nodes first
+  const cappedNodes = nodes
+    .sort((a, b) => b.degree - a.degree)
+    .slice(0, NODE_CAP);
+  const keepIds = new Set(cappedNodes.map((n) => n.id));
+  const cappedLinks = links
+    .filter((l) => keepIds.has(l.source) && keepIds.has(l.target))
+    .slice(0, LINK_CAP);
+
+  return NextResponse.json({ nodes: cappedNodes, links: cappedLinks });
 }
