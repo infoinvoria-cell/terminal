@@ -30,23 +30,17 @@ type StatusData = {
 
 // ── Node colour / size helpers ────────────────────────────────────────────────
 
-function topThreshold(nodes: NetworkNode[]): number {
-  const ds = nodes.map((n) => n.degree).sort((a, b) => a - b);
-  return ds[Math.floor(ds.length * 0.95)] ?? 999;
+function nodeColor(degree: number): string {
+  if (degree >= 10) return "#e2ca7a";
+  if (degree >= 4)  return "#f0dfa0";
+  if (degree >= 1)  return "#aaaaaa";
+  return "#888888";
 }
 
-function nodeColor(degree: number, top: number): string {
-  if (degree >= top) return "#e2ca7a";
-  if (degree >= 4)   return "#c8b96e";
-  if (degree >= 1)   return "#8a8a8a";
-  return "#555555";
-}
-
-function nodeVal(degree: number, top: number): number {
-  if (degree >= top) return 12;
-  if (degree >= 4)   return 5;
-  if (degree >= 1)   return 2.5;
-  return 1;
+function nodeVal(degree: number): number {
+  if (degree === 0) return 0.5;
+  if (degree <= 3)  return 1;
+  return Math.min(degree / 3, 8);
 }
 
 // ── Graph canvas ──────────────────────────────────────────────────────────────
@@ -55,8 +49,6 @@ function BrainCanvas({ data }: { data: NetworkData }) {
   const containerRef  = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 1200, h: 800 });
   const [selected, setSelected] = useState<NetworkNode | null>(null);
-
-  const top = topThreshold(data.nodes);
 
   // Observe container size
   useEffect(() => {
@@ -85,13 +77,17 @@ function BrainCanvas({ data }: { data: NetworkData }) {
         height={dims.h}
         backgroundColor="#07080a"
         // Node appearance
-        nodeVal={(n) => nodeVal((n as NetworkNode).degree, top)}
-        nodeColor={(n) => nodeColor((n as NetworkNode).degree, top)}
+        nodeVal={(n) => nodeVal((n as NetworkNode).degree)}
+        nodeColor={(n) => nodeColor((n as NetworkNode).degree)}
         nodeLabel={(n) => (n as NetworkNode).label}
         nodeRelSize={6}
         // Link appearance
-        linkColor={() => "#3a3a3a"}
-        linkWidth={0.8}
+        linkColor={() => "#222222"}
+        linkWidth={0.3}
+        // Force simulation
+        d3AlphaDecay={0.02}
+        d3VelocityDecay={0.3}
+        warmupTicks={200}
         // Interaction
         onNodeClick={(n) => {
           const node = n as NetworkNode;
@@ -100,7 +96,7 @@ function BrainCanvas({ data }: { data: NetworkData }) {
         onBackgroundClick={() => setSelected(null)}
       />
       {selected && (
-        <NodePanel node={selected} top={top} onClose={() => setSelected(null)} />
+        <NodePanel node={selected} onClose={() => setSelected(null)} />
       )}
     </div>
   );
@@ -108,8 +104,8 @@ function BrainCanvas({ data }: { data: NetworkData }) {
 
 // ── Node detail panel ─────────────────────────────────────────────────────────
 
-function NodePanel({ node, top, onClose }: { node: NetworkNode; top: number; onClose: () => void }) {
-  const color = nodeColor(node.degree, top);
+function NodePanel({ node, onClose }: { node: NetworkNode; onClose: () => void }) {
+  const color = nodeColor(node.degree);
   return (
     <div
       className="absolute right-0 top-0 h-full w-[240px] border-l border-white/[0.05] bg-[#09090c]/95 backdrop-blur-sm"
