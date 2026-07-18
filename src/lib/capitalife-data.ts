@@ -306,15 +306,23 @@ const FALLBACK_FSPORTFOLIO_CONFIG: FSPortfolioConfigJson = {
   caveats: [],
 };
 
-// Server-side dynamic load. Uses indirect eval so bundlers (Turbopack /
-// Webpack) don't try to statically resolve or bundle the JSON file.
-// Client bundles have no Node `require` global, so this path throws and the
-// caller falls back to the skeleton — the real data never reaches the browser.
+// Server-side dynamic load.
+//
+// On Vercel: VERCEL env var is always set → early return → skeleton used.
+// Local dev/build: CJS `require` is available server-side → real JSONs loaded.
+// Client bundle: `typeof window !== "undefined"` guard → null → skeleton.
+//
+// `require` is referenced via `typeof` check so the bundler sees a variable
+// access, not a static `require(...)` call, keeping JSON files out of the
+// static module graph even when the file is imported by "use client" components.
 function loadJsonFromDisk<T>(fileName: string): T | null {
   if (typeof window !== "undefined") return null;
+  // On Vercel the JSON files are absent — always use skeleton.
+  if (process.env.VERCEL) return null;
   try {
-    // Indirect eval keeps this out of the bundler's static graph.
-    const nodeRequire = (0, eval)("require") as NodeRequire | undefined;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const nodeRequire: NodeRequire | undefined =
+      typeof require !== "undefined" ? require : undefined;
     if (!nodeRequire) return null;
     const fs = nodeRequire("node:fs") as typeof import("node:fs");
     const path = nodeRequire("node:path") as typeof import("node:path");
