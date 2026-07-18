@@ -82,8 +82,8 @@ function BrainCanvas({ data }: { data: NetworkData }) {
         nodeLabel={(n) => (n as NetworkNode).label}
         nodeRelSize={6}
         // Link appearance
-        linkColor={() => "#222222"}
-        linkWidth={0.3}
+        linkColor={() => "rgba(255,255,255,0.15)"}
+        linkWidth={0.8}
         // Force simulation
         d3AlphaDecay={0.02}
         d3VelocityDecay={0.3}
