@@ -27,7 +27,7 @@ import {
   type AnalyticsTab,
   getAnalyticsDataset,
 } from "@/lib/analytics/portfolio-data";
-import { whiteSwanCombinedEvidence as combinedEvidence } from "@/lib/capitalife-data";
+import type { CapalifeData } from "@/lib/capitalife-data";
 import type { EquityPoint, FSPortfolioSnapshot } from "@/lib/fsportfolio/types";
 import { aggregateReturns, computePortfolioMetrics } from "@/lib/fsportfolio/metrics";
 import { useGlobalRefresh } from "@/hooks/use-global-refresh";
@@ -352,6 +352,7 @@ function buildKpiCards(
   dataset: AnalyticsDataset,
   lineMode: LineMode,
   benchmarkSeries: AnalyticsSeriesPoint[],
+  capalifeData: CapalifeData,
 ): KpiCard[] {
   const inBenchmark = lineMode === "benchmark";
   const bTotal = inBenchmark ? computeBenchmarkTotalReturn(benchmarkSeries) : null;
@@ -427,7 +428,7 @@ function buildKpiCards(
   }
 
   if (dataset.mode === "live" && dataset.tab === "whiteSwan") {
-    const official = combinedEvidence.official_kpis;
+    const official = capalifeData.whiteSwanCombinedEvidence.official_kpis;
     return [
       { label: "Total Return", value: formatPercent(official.combined_return_pct, 1) },
       { label: "Compounded", value: formatPercent(official.compounded_return_pct, 1) },
@@ -1311,7 +1312,7 @@ function ControlPanel({
   );
 }
 
-export function AnalyticsDashboard({ fsportfolio }: { fsportfolio: FSPortfolioSnapshot }) {
+export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio: FSPortfolioSnapshot; capalifeData: CapalifeData }) {
   const router = useRouter();
   const [tab, setTab] = useState<AnalyticsTab>("whiteSwan");
   const [mode, setMode] = useState<AnalyticsMode>("live");
@@ -1324,7 +1325,7 @@ export function AnalyticsDashboard({ fsportfolio }: { fsportfolio: FSPortfolioSn
     Object.fromEntries(LIVE_ASSET_SYMBOLS.map((sym) => [sym, true]))
   );
 
-  const baseDataset = useMemo(() => getAnalyticsDataset(tab, mode, fsportfolio), [tab, mode, fsportfolio]);
+  const baseDataset = useMemo(() => getAnalyticsDataset(tab, mode, fsportfolio, capalifeData), [tab, mode, fsportfolio, capalifeData]);
   const dataset = useMemo(() => {
     if (tab === "invest") {
       return buildScopedInvestDataset(fsportfolio, mode, investWeights, investEnabled, startFilter, baseDataset);
@@ -1388,7 +1389,7 @@ export function AnalyticsDashboard({ fsportfolio }: { fsportfolio: FSPortfolioSn
           </div>
 
           <div className="col-span-12 xl:col-span-4">
-            <KpiGrid cards={buildKpiCards(dataset, lineMode, dataset.benchmarkSeries)} />
+            <KpiGrid cards={buildKpiCards(dataset, lineMode, dataset.benchmarkSeries, capalifeData)} />
           </div>
 
           <div className="col-span-12 xl:col-span-8">

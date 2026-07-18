@@ -1,18 +1,20 @@
-import {
-  account2Trades as account2Data,
-  performanceMonthly as monthlyData,
-  whiteSwanCombinedEvidence as combinedEvidence,
-} from "@/lib/capitalife-data";
+import type { CapalifeData } from "@/lib/capitalife-data";
 import {
   compoundGains,
   type PerformanceAggregation,
   type TradeRow,
 } from "@/lib/trades-analytics";
 
-export const HOME_TRACK_RECORD_EXPECTED_END = combinedEvidence.official_kpis.combined_return_pct;
-export const HOME_TRACK_RECORD_ACCOUNT1_END = combinedEvidence.official_kpis.account1_return_pct;
-export const HOME_TRACK_RECORD_ACCOUNT2_END = combinedEvidence.official_kpis.account2_return_pct;
 export const HOME_TRACK_RECORD_TOLERANCE = 0.15;
+
+export function getHomeTrackRecordKpis(data: CapalifeData) {
+  const kpis = data.whiteSwanCombinedEvidence.official_kpis;
+  return {
+    expectedEnd: kpis.combined_return_pct,
+    account1End: kpis.account1_return_pct,
+    account2End: kpis.account2_return_pct,
+  };
+}
 
 export type HomeTrackPoint = {
   key: string;
@@ -51,10 +53,12 @@ type PeriodReturnRow = {
   periodReturnPct: number;
 };
 
-const ACCOUNT2_ROWS: TradeRow[] = account2Data.trades.map((trade) => ({
-  date: new Date(trade.close_time),
-  gainPct: trade.gain_pct,
-}));
+function toAccount2Rows(data: CapalifeData): TradeRow[] {
+  return data.account2Trades.trades.map((trade) => ({
+    date: new Date(trade.close_time),
+    gainPct: trade.gain_pct,
+  }));
+}
 
 function round2(value: number) {
   return Math.round(value * 100) / 100;
@@ -155,8 +159,8 @@ function buildAccountContributionMap(rows: TradeRow[], aggregation: "1D" | "1W")
   return cumulativeByKey;
 }
 
-function parseMonthlyRows(): MonthlyReturnRow[] {
-  return monthlyData.monthly_returns.map((row) => ({
+function parseMonthlyRows(data: CapalifeData): MonthlyReturnRow[] {
+  return data.performanceMonthly.monthly_returns.map((row) => ({
     key: row.month,
     label: row.label,
     year: row.year,
@@ -165,8 +169,8 @@ function parseMonthlyRows(): MonthlyReturnRow[] {
   }));
 }
 
-export function buildHomePeriodReturns(aggregation: PerformanceAggregation): PeriodReturnRow[] {
-  const rows = parseMonthlyRows();
+export function buildHomePeriodReturns(aggregation: PerformanceAggregation, data: CapalifeData): PeriodReturnRow[] {
+  const rows = parseMonthlyRows(data);
   if (aggregation === "1M") {
     return rows.map((row) => ({
       key: row.key,
@@ -197,26 +201,29 @@ export function buildHomePeriodReturns(aggregation: PerformanceAggregation): Per
 export function buildHomeLineSeries(
   account1Rows: TradeRow[],
   aggregation: PerformanceAggregation,
+  data: CapalifeData,
 ): HomeTrackPoint[] {
   if (aggregation === "1D" || aggregation === "1W") {
-    return buildDailyOrWeeklyHomeSeries(account1Rows, aggregation);
+    return buildDailyOrWeeklyHomeSeries(account1Rows, aggregation, data);
   }
-  return buildOfficialMonthlyDerivedSeries(aggregation);
+  return buildOfficialMonthlyDerivedSeries(aggregation, data);
 }
 
 function buildDailyOrWeeklyHomeSeries(
   account1Rows: TradeRow[],
   aggregation: "1D" | "1W",
+  data: CapalifeData,
 ): HomeTrackPoint[] {
+  const kpis = getHomeTrackRecordKpis(data);
   const acc1CumulativeRaw = buildAccountContributionMap(account1Rows, aggregation);
-  const acc2CumulativeRaw = buildAccountContributionMap(ACCOUNT2_ROWS, aggregation);
+  const acc2CumulativeRaw = buildAccountContributionMap(toAccount2Rows(data), aggregation);
   const allKeys = [...new Set([...acc1CumulativeRaw.keys(), ...acc2CumulativeRaw.keys()])].sort();
   if (!allKeys.length) return [];
 
   const acc1FinalRaw = [...acc1CumulativeRaw.values()].at(-1) ?? 0;
   const acc2FinalRaw = [...acc2CumulativeRaw.values()].at(-1) ?? 0;
-  const acc1Scale = acc1FinalRaw !== 0 ? HOME_TRACK_RECORD_ACCOUNT1_END / acc1FinalRaw : 0;
-  const acc2Scale = acc2FinalRaw !== 0 ? HOME_TRACK_RECORD_ACCOUNT2_END / acc2FinalRaw : 0;
+  const acc1Scale = acc1FinalRaw !== 0 ? kpis.account1End / acc1FinalRaw : 0;
+  const acc2Scale = acc2FinalRaw !== 0 ? kpis.account2End / acc2FinalRaw : 0;
 
   let lastAcc1Scaled = 0;
   let lastAcc2Scaled = 0;
@@ -262,17 +269,19 @@ function buildDailyOrWeeklyHomeSeries(
 
 function buildOfficialMonthlyDerivedSeries(
   aggregation: "1M" | "3M" | "1Y",
+  data: CapalifeData,
 ): HomeTrackPoint[] {
-  const periods = buildHomePeriodReturns(aggregation);
+  const periods = buildHomePeriodReturns(aggregation, data);
   if (!periods.length) return [];
 
+  const expectedEnd = getHomeTrackRecordKpis(data).expectedEnd;
   let compoundedEquity = 100;
   const cumulativeRaw = periods.map((period) => {
     compoundedEquity *= 1 + period.periodReturnPct / 100;
     return round2((compoundedEquity / 100 - 1) * 100);
   });
   const finalRaw = cumulativeRaw.at(-1) ?? 0;
-  const scale = finalRaw !== 0 ? HOME_TRACK_RECORD_EXPECTED_END / finalRaw : 0;
+  const scale = finalRaw !== 0 ? expectedEnd / finalRaw : 0;
 
   let previousScaled = 0;
   return periods.map((period, index) => {
@@ -296,8 +305,10 @@ function buildOfficialMonthlyDerivedSeries(
 export function validateHomeTrackRecordSeries(
   aggregation: PerformanceAggregation,
   series: HomeTrackPoint[],
-  expectedEnd = HOME_TRACK_RECORD_EXPECTED_END,
+  data: CapalifeData,
+  expectedEnd?: number,
 ): HomeTrackValidation {
+  if (expectedEnd === undefined) expectedEnd = getHomeTrackRecordKpis(data).expectedEnd;
   const lastPoint = series.at(-1);
   const lastValue = lastPoint?.cumulativePct ?? null;
   const status =

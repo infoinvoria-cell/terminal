@@ -7,11 +7,13 @@ import {
   type TimeFrame,
   type ViewMode,
 } from "@/components/dashboard/performance-report-chart";
+import type { CapalifeData } from "@/lib/capitalife-data";
 import type { DashboardKpis, SerializedTrade } from "@/lib/trades-analytics";
 
 type PortfolioSectionProps = {
   trades: SerializedTrade[];
   kpis: DashboardKpis;
+  capalifeData: CapalifeData;
 };
 
 function Btn({
@@ -48,7 +50,7 @@ function Btn({
   );
 }
 
-export function PortfolioSection({ trades, kpis }: PortfolioSectionProps) {
+export function PortfolioSection({ trades, kpis, capalifeData }: PortfolioSectionProps) {
   const [view, setView] = useState<ViewMode>("Line");
   const [timeframe, setTimeframe] = useState<TimeFrame>("1D");
   const [lastLineTimeframe, setLastLineTimeframe] = useState<TimeFrame>("1D");
@@ -183,7 +185,7 @@ export function PortfolioSection({ trades, kpis }: PortfolioSectionProps) {
             paddingBottom: 12,
           }}
         >
-          <PerformanceReportChart trades={trades} timeframe={timeframe} view={view} />
+          <PerformanceReportChart trades={trades} timeframe={timeframe} view={view} capalifeData={capalifeData} />
         </div>
       </div>
     </div>

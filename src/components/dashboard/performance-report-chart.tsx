@@ -15,7 +15,7 @@ import {
   YAxis,
 } from "recharts";
 
-import { performanceMonthly as monthlyData } from "@/lib/capitalife-data";
+import type { CapalifeData } from "@/lib/capitalife-data";
 import {
   compoundGains,
   deserializeTrades,
@@ -25,9 +25,7 @@ import {
 import {
   buildHomeLineSeries,
   buildHomePeriodReturns,
-  HOME_TRACK_RECORD_ACCOUNT1_END,
-  HOME_TRACK_RECORD_ACCOUNT2_END,
-  HOME_TRACK_RECORD_EXPECTED_END,
+  getHomeTrackRecordKpis,
   validateHomeTrackRecordSeries,
 } from "@/lib/home-performance-track-record";
 
@@ -38,6 +36,7 @@ type Props = {
   trades: SerializedTrade[];
   timeframe: TimeFrame;
   view: ViewMode;
+  capalifeData: CapalifeData;
 };
 
 type MonthlyReturnRow = {
@@ -53,8 +52,8 @@ function formatSignedPercent(value: number, digits = 1) {
   return `${value >= 0 ? "+" : ""}${value.toFixed(digits)}%`;
 }
 
-function parseMonthlyRows(): MonthlyReturnRow[] {
-  return monthlyData.monthly_returns.map((row) => ({
+function parseMonthlyRows(data: CapalifeData): MonthlyReturnRow[] {
+  return data.performanceMonthly.monthly_returns.map((row) => ({
     year: row.year,
     month: Number(row.month.slice(5, 7)),
     label: row.label,
@@ -62,8 +61,8 @@ function parseMonthlyRows(): MonthlyReturnRow[] {
   }));
 }
 
-function groupMonthlyReturns(aggregation: TimeFrame) {
-  const rows = parseMonthlyRows();
+function groupMonthlyReturns(aggregation: TimeFrame, data: CapalifeData) {
+  const rows = parseMonthlyRows(data);
   if (aggregation === "1M") {
     return rows.map((row) => ({
       key: `${row.year}-${String(row.month).padStart(2, "0")}`,
@@ -94,9 +93,9 @@ function groupMonthlyReturns(aggregation: TimeFrame) {
   }));
 }
 
-function buildLineData(trades: SerializedTrade[], aggregation: TimeFrame) {
+function buildLineData(trades: SerializedTrade[], aggregation: TimeFrame, data: CapalifeData) {
   const tradeRows = deserializeTrades(trades);
-  return buildHomeLineSeries(tradeRows, aggregation).map((p) => ({
+  return buildHomeLineSeries(tradeRows, aggregation, data).map((p) => ({
     key: p.key,
     label: p.label,
     cumulativePct: p.cumulativePct,
@@ -109,9 +108,9 @@ function buildLineData(trades: SerializedTrade[], aggregation: TimeFrame) {
   }));
 }
 
-function buildBarData(trades: SerializedTrade[], aggregation: TimeFrame) {
+function buildBarData(trades: SerializedTrade[], aggregation: TimeFrame, data: CapalifeData) {
   if (aggregation === "1M" || aggregation === "3M" || aggregation === "1Y") {
-    return buildHomePeriodReturns(aggregation).map((row) => ({
+    return buildHomePeriodReturns(aggregation, data).map((row) => ({
       label: row.label,
       returnPct: Number(row.periodReturnPct.toFixed(2)),
       acc1ReturnPct: null as number | null,
@@ -120,7 +119,7 @@ function buildBarData(trades: SerializedTrade[], aggregation: TimeFrame) {
     }));
   }
 
-  return buildLineData(trades, aggregation).map((p) => ({
+  return buildLineData(trades, aggregation, data).map((p) => ({
     label: p.label,
     returnPct: p.periodReturnPct,
     acc1ReturnPct: p.acc1ReturnPct as number | null,
@@ -129,8 +128,8 @@ function buildBarData(trades: SerializedTrade[], aggregation: TimeFrame) {
   }));
 }
 
-function buildTableMatrix() {
-  const rows = parseMonthlyRows();
+function buildTableMatrix(data: CapalifeData) {
+  const rows = parseMonthlyRows(data);
   const byYear = new Map<number, Map<number, number>>();
 
   for (const row of rows) {
@@ -147,17 +146,17 @@ function buildTableMatrix() {
     }));
 }
 
-function buildTableList(trades: SerializedTrade[], aggregation: TimeFrame) {
+function buildTableList(trades: SerializedTrade[], aggregation: TimeFrame, data: CapalifeData) {
   if (aggregation === "1M") return [];
 
   if (aggregation === "3M" || aggregation === "1Y") {
-    return buildHomePeriodReturns(aggregation).map((row) => ({
+    return buildHomePeriodReturns(aggregation, data).map((row) => ({
       label: row.label,
       periodReturnPct: Number(row.periodReturnPct.toFixed(2)),
     }));
   }
 
-  return buildLineData(trades, aggregation).map((row) => ({
+  return buildLineData(trades, aggregation, data).map((row) => ({
     label: row.label,
     periodReturnPct: row.periodReturnPct,
   }));
@@ -249,8 +248,9 @@ function ToolTip({
   );
 }
 
-function MatrixTable() {
-  const matrix = buildTableMatrix();
+function MatrixTable({ data }: { data: CapalifeData }) {
+  const kpis = getHomeTrackRecordKpis(data);
+  const matrix = buildTableMatrix(data);
   return (
     <div style={{ height: "100%", overflow: "auto" }}>
       <table
@@ -295,10 +295,10 @@ function MatrixTable() {
               Combined
             </td>
             <td colSpan={12} style={{ padding: "8px 10px", borderTop: "1px solid rgba(255,255,255,0.08)", textAlign: "right", color: "#9ca0aa" }}>
-              Account 1 {formatSignedPercent(HOME_TRACK_RECORD_ACCOUNT1_END, 2)} · Account 2 {formatSignedPercent(HOME_TRACK_RECORD_ACCOUNT2_END, 2)}
+              Account 1 {formatSignedPercent(kpis.account1End, 2)} · Account 2 {formatSignedPercent(kpis.account2End, 2)}
             </td>
             <td style={{ padding: "8px 8px", textAlign: "right", borderTop: "1px solid rgba(255,255,255,0.08)", color: "#f0e2a2", fontWeight: 700 }}>
-              {formatSignedPercent(HOME_TRACK_RECORD_EXPECTED_END, 1)}
+              {formatSignedPercent(kpis.expectedEnd, 1)}
             </td>
           </tr>
         </tfoot>
@@ -307,7 +307,8 @@ function MatrixTable() {
   );
 }
 
-function ListTable({ rows }: { rows: Array<{ label: string; periodReturnPct: number }> }) {
+function ListTable({ rows, data }: { rows: Array<{ label: string; periodReturnPct: number }>; data: CapalifeData }) {
+  const kpis = getHomeTrackRecordKpis(data);
   return (
     <div style={{ height: "100%", overflow: "auto" }}>
       <table
@@ -339,7 +340,7 @@ function ListTable({ rows }: { rows: Array<{ label: string; periodReturnPct: num
           <tr style={{ background: "rgba(255,255,255,0.03)" }}>
             <td style={{ padding: "8px 10px", borderTop: "1px solid rgba(255,255,255,0.08)", color: "#e2e6ed", fontWeight: 700 }}>Combined Total</td>
             <td style={{ padding: "8px 10px", textAlign: "right", borderTop: "1px solid rgba(255,255,255,0.08)", color: "#f0e2a2", fontWeight: 700 }}>
-              {formatSignedPercent(HOME_TRACK_RECORD_EXPECTED_END, 1)}
+              {formatSignedPercent(kpis.expectedEnd, 1)}
             </td>
           </tr>
         </tfoot>
@@ -367,13 +368,13 @@ function Acc2Note({ lastDate }: { lastDate: string | null }) {
   );
 }
 
-export function PerformanceReportChart({ trades, timeframe, view }: Props) {
-  const lineData = useMemo(() => buildLineData(trades, timeframe), [trades, timeframe]);
-  const barData = useMemo(() => buildBarData(trades, timeframe), [trades, timeframe]);
-  const tableRows = useMemo(() => buildTableList(trades, timeframe), [trades, timeframe]);
+export function PerformanceReportChart({ trades, timeframe, view, capalifeData }: Props) {
+  const lineData = useMemo(() => buildLineData(trades, timeframe, capalifeData), [trades, timeframe, capalifeData]);
+  const barData = useMemo(() => buildBarData(trades, timeframe, capalifeData), [trades, timeframe, capalifeData]);
+  const tableRows = useMemo(() => buildTableList(trades, timeframe, capalifeData), [trades, timeframe, capalifeData]);
   const validation = useMemo(
-    () => validateHomeTrackRecordSeries(timeframe, lineData),
-    [timeframe, lineData]
+    () => validateHomeTrackRecordSeries(timeframe, lineData, capalifeData),
+    [timeframe, lineData, capalifeData]
   );
   const lineInterval = tickInterval(lineData.length);
   const barInterval = tickInterval(barData.length);
@@ -392,7 +393,7 @@ export function PerformanceReportChart({ trades, timeframe, view }: Props) {
   }
 
   if (view === "Table") {
-    return timeframe === "1M" ? <MatrixTable /> : <ListTable rows={tableRows} />;
+    return timeframe === "1M" ? <MatrixTable data={capalifeData} /> : <ListTable rows={tableRows} data={capalifeData} />;
   }
 
   if (view === "Line") {

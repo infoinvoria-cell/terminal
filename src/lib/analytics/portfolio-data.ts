@@ -1,9 +1,4 @@
-import {
-  analyticsGenerated,
-  whiteSwanAnnualReturns as annualData,
-  whiteSwanCombinedEvidence as combinedEvidence,
-  performanceMonthly as monthlyPerf,
-} from "@/lib/capitalife-data";
+import type { CapalifeData } from "@/lib/capitalife-data";
 import type { FSPortfolioSnapshot } from "@/lib/fsportfolio/types";
 
 export type AnalyticsTab = "whiteSwan" | "invest" | "combined";
@@ -106,22 +101,22 @@ function buildDrawdownFromReturns(points: AnalyticsSeriesPoint[]) {
   });
 }
 
-function livePerformanceSeries() {
+function livePerformanceSeries(data: CapalifeData) {
   let cum = 100;
-  return monthlyPerf.monthly_returns.map((row) => {
+  return data.performanceMonthly.monthly_returns.map((row) => {
     cum *= 1 + row.return_pct / 100;
     return { date: `${row.month}-01`, value: Number((cum - 100).toFixed(2)) };
   });
 }
 
-function liveAnnualBars() {
-  return annualData.annual_returns.map((item) => ({ label: item.year, value: item.return_pct }));
+function liveAnnualBars(data: CapalifeData) {
+  return data.whiteSwanAnnualReturns.annual_returns.map((item) => ({ label: item.year, value: item.return_pct }));
 }
 
-function seasonalityFromLiveMonths() {
+function seasonalityFromLiveMonths(data: CapalifeData) {
   const monthOrder = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const grouped = new Map<string, number[]>();
-  for (const row of monthlyPerf.monthly_returns) {
+  for (const row of data.performanceMonthly.monthly_returns) {
     const label = new Date(`${row.month}-01`).toLocaleString("en-US", { month: "short", timeZone: "UTC" });
     grouped.set(label, [...(grouped.get(label) ?? []), row.return_pct]);
   }
@@ -131,13 +126,13 @@ function seasonalityFromLiveMonths() {
   });
 }
 
-function createBacktestDataset(tab: AnalyticsTab): AnalyticsDataset {
+function createBacktestDataset(tab: AnalyticsTab, data: CapalifeData): AnalyticsDataset {
   const raw = (
     tab === "whiteSwan"
-      ? analyticsGenerated.whiteSwanBacktest
+      ? data.analyticsGenerated.whiteSwanBacktest
       : tab === "invest"
-        ? analyticsGenerated.investBacktest
-        : analyticsGenerated.combinedBacktest
+        ? data.analyticsGenerated.investBacktest
+        : data.analyticsGenerated.combinedBacktest
   ) as {
     performanceSeries: Array<{ date: string; value: number | null }>;
     drawdownSeries: Array<{ date: string; value: number | null }>;
@@ -194,10 +189,11 @@ function createBacktestDataset(tab: AnalyticsTab): AnalyticsDataset {
   };
 }
 
-function createLiveDataset(tab: AnalyticsTab): AnalyticsDataset {
-  const series = livePerformanceSeries();
+function createLiveDataset(tab: AnalyticsTab, data: CapalifeData): AnalyticsDataset {
+  const series = livePerformanceSeries(data);
   const drawdown = buildDrawdownFromReturns(series);
   const isWhiteSwan = tab === "whiteSwan";
+  const combinedEvidence = data.whiteSwanCombinedEvidence;
 
   return {
     tab,
@@ -211,8 +207,8 @@ function createLiveDataset(tab: AnalyticsTab): AnalyticsDataset {
     drawdownSeries: isWhiteSwan ? drawdown : [],
     benchmarkSeries: [],
     groupSeries: {},
-    annualReturns: isWhiteSwan ? liveAnnualBars() : [],
-    monthlyReturns: isWhiteSwan ? seasonalityFromLiveMonths() : [],
+    annualReturns: isWhiteSwan ? liveAnnualBars(data) : [],
+    monthlyReturns: isWhiteSwan ? seasonalityFromLiveMonths(data) : [],
     groupBars: [],
     strategyBars: [],
     metrics: isWhiteSwan
@@ -438,15 +434,10 @@ function createInvestDatasetFromSnapshot(mode: AnalyticsMode, fsportfolio: FSPor
   };
 }
 
-const DATASETS: Record<AnalyticsTab, Record<AnalyticsMode, AnalyticsDataset>> = {
-  whiteSwan: { live: createLiveDataset("whiteSwan"), backtest: createBacktestDataset("whiteSwan") },
-  invest: { live: createLiveDataset("invest"), backtest: createBacktestDataset("invest") },
-  combined: { live: createLiveDataset("combined"), backtest: createBacktestDataset("combined") },
-};
-
-export function getAnalyticsDataset(tab: AnalyticsTab, mode: AnalyticsMode, fsportfolio?: FSPortfolioSnapshot) {
+export function getAnalyticsDataset(tab: AnalyticsTab, mode: AnalyticsMode, fsportfolio: FSPortfolioSnapshot | undefined, data: CapalifeData) {
   if (tab === "invest" && fsportfolio) {
     return createInvestDatasetFromSnapshot(mode, fsportfolio);
   }
-  return DATASETS[tab][mode];
+  if (mode === "backtest") return createBacktestDataset(tab, data);
+  return createLiveDataset(tab, data);
 }
