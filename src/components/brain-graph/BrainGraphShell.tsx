@@ -44,51 +44,19 @@ type NodeColor = {
   stroke: string;
   glow: string;
   label: string;
-  category: string;
 };
 
-// ── Color clusters ──────────────────────────────────────────────────────────
+// ── Degree-based monochrome palette ─────────────────────────────────────────
+// More connections → goldener and brighter.
 
-const CLUSTER_LEGEND: Array<{ category: string; stroke: string; label: string }> = [
-  { category: "ai",          stroke: "#4ade80", label: "AI / Brain" },
-  { category: "strategies",  stroke: "#e2ca7a", label: "Strategien" },
-  { category: "manuals",     stroke: "#60a5fa", label: "Manuals" },
-  { category: "backtest",    stroke: "#a78bfa", label: "Backtesting" },
-  { category: "qa",          stroke: "#fb923c", label: "QA / Haftung" },
-  { category: "index",       stroke: "#d0d4d8", label: "Index" },
-  { category: "components",  stroke: "#22d3ee", label: "Components" },
-  { category: "lib",         stroke: "#818cf8", label: "Lib / Hooks" },
-  { category: "routes",      stroke: "#34d399", label: "Routes / API" },
-  { category: "other",       stroke: "#6b7280", label: "Sonstiges" },
-];
-
-function getNodeColor(node: NetworkNode): NodeColor {
-  const file = (node.sourceFile ?? "").replace(/\\/g, "/").toLowerCase();
-
-  if (node.source === "brain") {
-    if (file.includes("/09_ai/"))
-      return { fill: "rgba(74,222,128,0.16)", stroke: "#4ade80", glow: "#4ade80", label: "#6ee7b7", category: "ai" };
-    if (file.includes("/04_strategies/"))
-      return { fill: "rgba(226,202,122,0.18)", stroke: "#e2ca7a", glow: "#e2ca7a", label: "#f0e2a2", category: "strategies" };
-    if (file.includes("/13_manuals/"))
-      return { fill: "rgba(96,165,250,0.14)", stroke: "#60a5fa", glow: "#60a5fa", label: "#93c5fd", category: "manuals" };
-    if (file.includes("/16_backtesting"))
-      return { fill: "rgba(167,139,250,0.14)", stroke: "#a78bfa", glow: "#a78bfa", label: "#c4b5fd", category: "backtest" };
-    if (file.includes("/17_haftungsdach"))
-      return { fill: "rgba(251,146,60,0.14)", stroke: "#fb923c", glow: "#fb923c", label: "#fdba74", category: "qa" };
-    if (file.includes("/00_index/"))
-      return { fill: "rgba(208,212,216,0.16)", stroke: "#d0d4d8", glow: "#d0d4d8", label: "#e0e4ea", category: "index" };
-    return { fill: "rgba(180,184,192,0.10)", stroke: "rgba(190,196,204,0.40)", glow: "#b0b8c0", label: "#b8c0ca", category: "other" };
-  }
-
-  // dashboard source
-  if (file.includes("src/components/"))
-    return { fill: "rgba(34,211,238,0.12)", stroke: "#22d3ee", glow: "#22d3ee", label: "#67e8f9", category: "components" };
-  if (file.includes("src/lib/") || file.includes("src/hooks/") || file.includes("src/context/"))
-    return { fill: "rgba(129,140,248,0.12)", stroke: "#818cf8", glow: "#818cf8", label: "#a5b4fc", category: "lib" };
-  if (file.includes("src/app/"))
-    return { fill: "rgba(52,211,153,0.12)", stroke: "#34d399", glow: "#34d399", label: "#6ee7b7", category: "routes" };
-  return { fill: "rgba(100,110,120,0.08)", stroke: "rgba(130,140,150,0.30)", glow: "#6b7280", label: "#9ca3af", category: "other" };
+function getNodeColor(degree: number): NodeColor {
+  if (degree >= 30)
+    return { fill: "rgba(226,202,122,0.22)", stroke: "#e2ca7a", glow: "#e2ca7a", label: "#f0dfa0" };
+  if (degree >= 18)
+    return { fill: "rgba(240,223,160,0.14)", stroke: "#f0dfa0", glow: "#f0dfa0", label: "#f0dfa0" };
+  if (degree >= 8)
+    return { fill: "rgba(255,255,255,0.12)", stroke: "#ffffff", glow: "#ffffff", label: "#cccccc" };
+  return { fill: "rgba(136,136,136,0.10)", stroke: "#888888", glow: "#888888", label: "#888888" };
 }
 
 function getNodeRadius(degree: number): number {
@@ -215,7 +183,7 @@ function BrainNetworkGraph({
     );
   }
 
-  const colorMap = new Map(data.nodes.map((n) => [n.id, getNodeColor(n)]));
+  const colorMap = new Map(data.nodes.map((n) => [n.id, getNodeColor(n.degree)]));
   const alwaysLabelDegree = 18;
 
   return (
@@ -256,14 +224,13 @@ function BrainNetworkGraph({
           if (!src || !tgt) return null;
           const isActive = activeId && (link.source === activeId || link.target === activeId);
           if (!isActive) return null;
-          const color = colorMap.get(activeId!) ?? { stroke: "#e2ca7a" };
           return (
             <line
               key={`act-${link.source}-${link.target}-${i}`}
               x1={src.x} y1={src.y} x2={tgt.x} y2={tgt.y}
-              stroke={color.stroke}
+              stroke="#555555"
               strokeWidth={1.1}
-              strokeOpacity={0.55}
+              strokeOpacity={0.8}
               filter="url(#edge-glow)"
             />
           );
@@ -380,8 +347,7 @@ function BrainNetworkGraph({
 // ── Node detail side panel ───────────────────────────────────────────────────
 
 function NodeDetailPanel({ node, onClose }: { node: NetworkNode; onClose: () => void }) {
-  const color = getNodeColor(node);
-  const cluster = CLUSTER_LEGEND.find((c) => c.category === color.category);
+  const color = getNodeColor(node.degree);
   const filePath = node.sourceFile ?? "—";
   const shortPath = filePath.length > 60 ? "…" + filePath.slice(-58) : filePath;
 
@@ -403,7 +369,6 @@ function NodeDetailPanel({ node, onClose }: { node: NetworkNode; onClose: () => 
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4 text-[11px]">
-        {/* Color dot + label */}
         <div className="mb-4 flex items-start gap-2">
           <span
             className="mt-1 inline-block h-2.5 w-2.5 shrink-0 rounded-full"
@@ -412,7 +377,6 @@ function NodeDetailPanel({ node, onClose }: { node: NetworkNode; onClose: () => 
           <span className="break-all leading-4 text-[#f4f5f7] font-medium">{node.label}</span>
         </div>
 
-        <Row label="Kategorie" value={cluster?.label ?? color.category} valueColor={color.label} />
         <Row label="Quelle" value={node.source === "brain" ? "Capitalife Brain" : "Dashboard"} />
         <Row label="Typ" value={node.fileType ?? "—"} />
         <Row label="Verbindungen" value={String(node.degree)} valueColor="#e2ca7a" />
@@ -439,27 +403,6 @@ function Row({ label, value, valueColor }: { label: string; value: string; value
     <div className="mb-2 flex items-baseline justify-between gap-2">
       <span className="shrink-0 text-[#6b7280]">{label}</span>
       <span className="text-right" style={{ color: valueColor ?? "#c8cdd4" }}>{value}</span>
-    </div>
-  );
-}
-
-// ── Cluster legend ───────────────────────────────────────────────────────────
-
-function ClusterLegend({ hasPanel }: { hasPanel: boolean }) {
-  return (
-    <div
-      className="pointer-events-none absolute z-20 flex flex-col gap-1.5"
-      style={{ bottom: 48, right: hasPanel ? 276 : 16 }}
-    >
-      {CLUSTER_LEGEND.map((item) => (
-        <div key={item.category} className="flex items-center gap-1.5">
-          <span
-            className="inline-block h-2 w-2 rounded-full shrink-0"
-            style={{ background: item.stroke, boxShadow: `0 0 5px ${item.stroke}60` }}
-          />
-          <span className="text-[9px] text-[#6b7280]">{item.label}</span>
-        </div>
-      ))}
     </div>
   );
 }
@@ -529,9 +472,6 @@ export function BrainGraphShell() {
 
           {/* Status strip */}
           <BrainLatestMiniText status={status} />
-
-          {/* Cluster legend */}
-          <ClusterLegend hasPanel={!!selectedNode} />
 
           {/* Node detail panel */}
           {selectedNode && (
