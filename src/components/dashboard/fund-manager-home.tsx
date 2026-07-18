@@ -25,6 +25,7 @@ import { SubIbSystemDashboard } from "@/components/manager/sub-ib-system-dashboa
 import { InvestorAnalyticsDashboard } from "@/components/manager/investor-analytics-dashboard";
 import { SentinelDashboard } from "@/components/sentinel/sentinel-dashboard";
 import { AnalyticsDashboard } from "@/components/analytics/analytics-dashboard";
+import type { CapalifeData } from "@/lib/capitalife-data";
 import type { FSPortfolioSnapshot } from "@/lib/fsportfolio/types";
 import {
   applyRrReportingMode,
@@ -42,6 +43,7 @@ type FundManagerHomeProps = {
   portfolioKpisBaseline: DashboardKpis;
   universal: UniversalKpiStrings;
   fsportfolio: FSPortfolioSnapshot;
+  capalifeData: CapalifeData;
   initialPage?: DashboardPage;
 };
 
@@ -50,6 +52,7 @@ type HomeShellProps = {
   portfolioKpisBaseline: DashboardKpis;
   universal: UniversalKpiStrings;
   fsportfolio: FSPortfolioSnapshot;
+  capalifeData: CapalifeData;
 };
 
 export function FundManagerHome({
@@ -59,6 +62,7 @@ export function FundManagerHome({
   portfolioKpisBaseline,
   universal,
   fsportfolio,
+  capalifeData,
   initialPage,
 }: FundManagerHomeProps) {
   return (
@@ -72,6 +76,7 @@ export function FundManagerHome({
         portfolioKpisBaseline={portfolioKpisBaseline}
         universal={universal}
         fsportfolio={fsportfolio}
+        capalifeData={capalifeData}
       />
     </HomeDashboardProvider>
   );
@@ -87,6 +92,7 @@ function HomeShell({
   portfolioKpisBaseline,
   universal,
   fsportfolio,
+  capalifeData,
 }: HomeShellProps) {
   const { page, homeTab, rrReportingMode, setPage } = useHomeDashboard();
   const { setCurrentPage } = useGlobalPage();
@@ -145,6 +151,7 @@ function HomeShell({
                   <PortfolioSection
                     trades={effectiveSerialized}
                     kpis={portfolioKpisBaseline}
+                    capalifeData={capalifeData}
                   />
                 ) : null}
                 {homeTab === "risk" ? (
@@ -178,7 +185,7 @@ function HomeShell({
             </div>
           ) : page === "analytics" ? (
             <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
-              <AnalyticsDashboard fsportfolio={fsportfolio} />
+              <AnalyticsDashboard fsportfolio={fsportfolio} capalifeData={capalifeData} />
             </div>
           ) : (
             <div className="h-full min-h-0 overflow-y-auto overflow-x-hidden pr-1">

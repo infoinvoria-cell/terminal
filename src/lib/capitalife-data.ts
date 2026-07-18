@@ -363,3 +363,22 @@ export const analyticsGenerated: AnalyticsGenerated =
 export const fsportfolioConfigJson: FSPortfolioConfigJson =
   loadJsonFromDisk<FSPortfolioConfigJson>("fsportfolio-live-core.config.json") ??
   FALLBACK_FSPORTFOLIO_CONFIG;
+
+// Typed bundle of all capitalife data — call server-side, pass as props to client components.
+export type CapalifeData = {
+  performanceMonthly: PerformanceMonthly;
+  account2Trades: Account2Trades;
+  whiteSwanCombinedEvidence: WhiteSwanCombinedEvidence;
+  whiteSwanAnnualReturns: WhiteSwanAnnualReturns;
+  analyticsGenerated: AnalyticsGenerated;
+};
+
+export function getCapalifeData(): CapalifeData {
+  return {
+    performanceMonthly,
+    account2Trades,
+    whiteSwanCombinedEvidence,
+    whiteSwanAnnualReturns,
+    analyticsGenerated,
+  };
+}
