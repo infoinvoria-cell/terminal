@@ -398,11 +398,18 @@ function MessageActions({ content, onRegenerate, regenDisabled }: { content: str
 
   return (
     <div className="mact-row">
-      {/* small static Aurum dot */}
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink:0, marginRight:4 }}>
-        <circle cx="7" cy="7" r="6" stroke="rgba(214,184,108,0.30)" strokeWidth="0.8" />
-        <circle cx="7" cy="7" r="3.5" fill="rgba(214,184,108,0.18)" />
-        <circle cx="7" cy="7" r="1.8" fill="rgba(214,184,108,0.55)" />
+      {/* Aurum mini — same arc design as fullscreen, static */}
+      <svg width="22" height="22" viewBox="0 0 260 260" fill="none" style={{ flexShrink:0, marginRight:5 }}>
+        <circle cx="130" cy="130" r="100" stroke="rgba(255,255,255,0.10)" strokeWidth="6" />
+        <circle cx="130" cy="130" r="88"  stroke="rgba(214,184,108,0.18)" strokeWidth="7" />
+        <circle cx="130" cy="130" r="74"  stroke="rgba(255,255,255,0.08)" strokeWidth="5" />
+        <circle cx="130" cy="130" r="100" stroke="#d6b86c" strokeWidth="18"
+          strokeDasharray="138 490" strokeLinecap="round"
+          style={{ filter:"drop-shadow(0 0 8px rgba(214,184,108,0.85))" }} />
+        <circle cx="130" cy="130" r="88"  stroke="rgba(244,239,230,0.70)" strokeWidth="13"
+          strokeDasharray="160 353" strokeLinecap="round" />
+        <circle cx="130" cy="130" r="74"  stroke="rgba(214,184,108,0.80)" strokeWidth="12"
+          strokeDasharray="90 365" strokeLinecap="round" />
       </svg>
       <button type="button" className={`mact-btn${copied ? " mact-copied" : ""}`} onClick={handleCopy} title={copied ? "Kopiert" : "Kopieren"}>
         {copied ? <Check size={12} /> : <Copy size={12} />}
