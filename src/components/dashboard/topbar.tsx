@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -30,7 +30,7 @@ export function Topbar({ sectionLabel }: TopbarProps) {
   const router = useRouter();
   const [profileOpen, setProfileOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [noTransition, setNoTransition] = useState(true);
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [dropdownPos, setDropdownPos] = useState<{ top: number; right: number } | null>(null);
@@ -39,20 +39,26 @@ export function Topbar({ sectionLabel }: TopbarProps) {
   const searchRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  useEffect(() => {
+  // Read localStorage synchronously before first paint — no visible jump
+  useLayoutEffect(() => {
     try {
       if (window.localStorage.getItem(HEADER_HIDDEN_KEY) === "1") setHidden(true);
     } catch { /* ignore */ }
-    setMounted(true);
+    // Enable transitions after first paint so correction has no animation
+    const t = setTimeout(() => setNoTransition(false), 100);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Keep CSS variable in sync synchronously (before paint) on every change
+  useLayoutEffect(() => {
+    document.documentElement.style.setProperty("--header-height", `${hidden ? 0 : EXPANDED_H}px`);
+  }, [hidden]);
+
+  useEffect(() => {
     const onVisibility = (e: CustomEvent<{ hidden: boolean }>) => setHidden(e.detail.hidden);
     window.addEventListener("header-visibility-toggle", onVisibility as EventListener);
     return () => window.removeEventListener("header-visibility-toggle", onVisibility as EventListener);
   }, []);
-
-  useEffect(() => {
-    const h = hidden ? 0 : EXPANDED_H;
-    document.documentElement.style.setProperty("--header-height", `${h}px`);
-  }, [hidden]);
 
   useEffect(() => {
     if (!profileOpen && !searchOpen) return;
@@ -73,10 +79,10 @@ export function Topbar({ sectionLabel }: TopbarProps) {
       )
     : PAGES;
 
-  const h = mounted ? (hidden ? 0 : EXPANDED_H) : EXPANDED_H;
+  const h = hidden ? 0 : EXPANDED_H;
 
   return (
-    <div style={{ height: h, overflow: "clip", transition: mounted ? "height 200ms ease" : "none", flexShrink: 0 }}>
+    <div style={{ height: h, overflow: "clip", transition: noTransition ? "none" : "height 200ms ease", flexShrink: 0 }}>
       <header className="flex shrink-0 items-center justify-between gap-4 px-8 pb-3 pt-4" style={{ overflow: "visible" }}>
         <div>
           <h1 className="text-[24px] font-bold leading-tight tracking-tight text-white [font-family:var(--font-montserrat),sans-serif]">
@@ -199,7 +205,7 @@ export function Topbar({ sectionLabel }: TopbarProps) {
           </div>
 
           {/* Profile dropdown — portal so it escapes overflow:clip */}
-          {profileOpen && dropdownPos && mounted && createPortal(
+          {profileOpen && dropdownPos && createPortal(
             <div
               ref={dropdownRef}
               style={{ position: "fixed", top: dropdownPos.top, right: dropdownPos.right, zIndex: 9999 }}
