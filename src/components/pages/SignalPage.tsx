@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ChartNoAxesCombined } from "lucide-react";
+import { BarChart2, ChartNoAxesCombined } from "lucide-react";
 import { useRouter } from "next/navigation";
 import MonitoringChart from "@/components/monitoring/MonitoringChart";
 import StrategyTesterDrawdownChart from "@/components/monitoring/StrategyTesterDrawdownChart";
@@ -18,17 +18,40 @@ const STORAGE_KEYS = {
   monitoringContext: "capitalife.monitoring.context",
 };
 
-const FILTERS: SignalCardFilter[] = ["all", "long", "short", "cash", "open", "validation"];
+const FILTERS: SignalCardFilter[] = ["open", "all", "long", "short", "cash", "validation"];
 const FILTER_LABELS: Record<SignalCardFilter, string> = {
-  all: "ALL", long: "LONG", short: "SHORT", cash: "CASH", open: "OPEN", validation: "VAL",
+  open: "AKTUELL", all: "ALLE", long: "LONG", short: "SHORT", cash: "CASH", validation: "VAL",
 };
+
+// Parse "Fr 25.07." / "Do 23.07." labels → days from today (null if no concrete date found)
+function nextLabelDaysAhead(label: string | undefined): number | null {
+  if (!label) return null;
+  const match = label.match(/(\d{2})\.(\d{2})\./);
+  if (!match) return null;
+  const [, dd, mm] = match;
+  const year = new Date().getFullYear();
+  const date = new Date(`${year}-${mm}-${dd}T00:00:00`);
+  if (!isFinite(date.getTime())) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return Math.floor((date.getTime() - today.getTime()) / 86_400_000);
+}
 
 function matchesFilter(card: SignalCardData, filter: SignalCardFilter): boolean {
   if (filter === "all") return true;
+  if (filter === "open") {
+    // C1: active direction + recent signalDate
+    if ((card.direction === "LONG" || card.direction === "SHORT") && card.signalDate != null) return true;
+    // C2: concrete tp + sl present (open position with levels)
+    if (card.tp != null && card.sl != null) return true;
+    // C3: next signal is within 3 days (concrete date in label)
+    const daysAhead = nextLabelDaysAhead(card.nextSignalLabel);
+    if (daysAhead != null && daysAhead >= 0 && daysAhead <= 3) return true;
+    return false;
+  }
   if (filter === "long") return card.direction === "LONG";
   if (filter === "short") return card.direction === "SHORT";
   if (filter === "cash") return card.direction === "CASH" || card.direction === "PENDING";
-  if (filter === "open") return card.status === "OPEN";
   return card.status === "VALIDATION" || card.status === "PARITY_PENDING" || card.category === "research_validation";
 }
 
@@ -113,139 +136,67 @@ function FilterBar({ active, onChange }: { active: SignalCardFilter; onChange: (
   );
 }
 
+// ── Asset icon ─────────────────────────────────────────────────────────────────
+
+function AssetIcon({ iconKey, assetSymbol, assetName, displaySymbol, size, className }: {
+  iconKey?: string; assetSymbol?: string; assetName?: string; displaySymbol?: string;
+  size: number; className?: string;
+}) {
+  const url = getMonitoringAssetIconUrl({ code: assetSymbol ?? "", assetId: iconKey, name: assetName ?? "", displaySymbol: displaySymbol ?? "" });
+  if (!url) return <div style={{ width: size, height: size }} className={`rounded bg-zinc-800 ${className ?? ""}`} />;
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={url} alt={assetName ?? ""} width={size} height={size} className={className} />;
+}
+
 // ── Signal card ────────────────────────────────────────────────────────────────
 
-function SignalCard({
-  card,
-  active,
-  onSelect,
-}: {
-  card: SignalCardData;
-  active: boolean;
-  onSelect: (card: SignalCardData) => void;
-}) {
-  const router = useRouter();
-  const iconUrl = getMonitoringAssetIconUrl({
-    code: card.assetSymbol,
-    assetId: card.iconKey,
-    name: card.assetName,
-    displaySymbol: card.displaySymbol,
-  });
-
-  const openMonitoring = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
-    if (typeof window !== "undefined" && card.monitoringTarget) {
-      window.localStorage.setItem(
-        STORAGE_KEYS.monitoringContext,
-        JSON.stringify({
-          tab: card.monitoringTarget.tab,
-          asset: card.monitoringTarget.asset,
-          strategyId: card.monitoringTarget.strategyId ?? null,
-          source: "signal-page",
-          timestamp: new Date().toISOString(),
-        }),
-      );
-    }
-    if (card.monitoringTarget) {
-      writeMonitoringSignalJump({
-        tabId: card.monitoringTarget.tab,
-        targetCode: card.monitoringTarget.strategyId ?? card.monitoringTarget.asset,
-        investStrategyId: card.monitoringTarget.strategyId ?? null,
-      });
-    }
-    router.push("/monitoring");
-  };
-
-  const isWS = card.group === "white_swan";
+const SignalCard = ({ card, active, onSelect }: { card: SignalCardData; active: boolean; onSelect: (c: SignalCardData) => void }) => {
+  const pct = card.changePct
+  const pctText = pct == null ? "" : `${pct >= 0 ? "+" : ""}${pct.toFixed(2)}%`
 
   return (
     <div
-      role="button"
-      tabIndex={0}
       onClick={() => onSelect(card)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(card); }
-      }}
-      className={`flex w-full flex-col gap-[5px] rounded-[10px] border px-2.5 py-2 text-left transition cursor-pointer ${
-        active
-          ? "border-white/[0.14] bg-[#232323]"
-          : "border-white/[0.07] bg-[#1a1a1a] hover:border-white/[0.12] hover:bg-[#1e1e1e]"
-      }`}
+      className={`cursor-pointer rounded-xl p-3 flex flex-col gap-[5px] border transition-colors ${active ? "border-zinc-600 bg-gradient-to-b from-[#1c1d20] to-[#141517] shadow-[2px_2px_0_0_rgba(255,255,255,0.08)]" : "border-zinc-800 bg-gradient-to-b from-[#1c1d20] to-[#141517] hover:border-zinc-700"}`}
     >
-      {/* Row 1: icon · symbol · name · change% */}
-      <div className="flex items-center gap-1.5">
-        {iconUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={iconUrl} alt="" className="h-[22px] w-[22px] flex-shrink-0 rounded-[5px] border border-white/[0.07] object-cover" />
-        ) : (
-          <div className="h-[22px] w-[22px] flex-shrink-0 rounded-[5px] border border-white/[0.06] bg-white/[0.03]" />
-        )}
-        <div className="min-w-0 flex-1 flex items-baseline gap-1">
-          <span className="text-[11px] font-bold text-white leading-none shrink-0">{card.displaySymbol}</span>
-          <span className="truncate text-[9px] text-zinc-500 leading-none">{card.assetName}</span>
+      {/* Zeile 1: Symbol fett groß · AssetName · % rechts */}
+      <div className="flex items-start justify-between">
+        <div>
+          <span className="text-[13px] font-bold text-white">{card.displaySymbol}</span>
+          <span className="text-[9px] text-zinc-400 ml-1.5">{card.assetName}</span>
         </div>
-        <span className={`text-[10px] font-medium flex-shrink-0 tabular-nums ${changePctClass(card.changePct)}`}>
-          {formatPct(card.changePct)}
+        {pct != null && (
+          <span className={`text-[11px] font-semibold ${pct >= 0 ? "text-emerald-400" : "text-rose-400"}`}>{pctText}</span>
+        )}
+      </div>
+
+      {/* Zeile 2: Strategie-Name */}
+      <div className="text-[10px] font-semibold text-zinc-300 leading-tight truncate">{card.strategyName}</div>
+
+      {/* Zeile 3: TP/SL + Signal-Datum */}
+      <div className="flex items-center gap-2">
+        {card.tp != null && <span className="text-[8px] font-medium text-emerald-400">TP: {card.tp}</span>}
+        {card.sl != null && <span className="text-[8px] font-medium text-rose-500">SL: {card.sl}</span>}
+        <span className="text-[8.5px] text-zinc-500">
+          {card.signalDate
+            ? `${card.signalDate}${card.ageDays != null ? ` · ${card.ageDays}T` : ""}`
+            : (card.nextSignalLabel && !card.nextSignalLabel.includes("täglich"))
+              ? `nächste: ${card.nextSignalLabel}`
+              : null}
         </span>
       </div>
 
-      {/* Row 2: signal date / next signal */}
-      <div className="text-[8px] text-zinc-600 leading-none">
-        {card.signalDate
-          ? `Signal: ${card.signalDate}${card.ageDays != null ? ` · vor ${card.ageDays} T` : ""}`
-          : card.nextSignalLabel
-            ? `nächste: ${card.nextSignalLabel}`
-            : <span className="text-zinc-800">—</span>
-        }
-      </div>
-
-      {/* Row 3: WS → strategy name | CI → TP/SL */}
-      <div className="flex items-center gap-2 min-h-[12px]">
-        {isWS ? (
-          <span className="text-[8.5px] text-zinc-500 truncate">{card.strategyName}</span>
-        ) : (
-          <>
-            {card.tp != null && <span className="text-[9px] font-medium text-emerald-400">TP: {formatPrice(card.tp)}</span>}
-            {card.sl != null && <span className="text-[9px] font-medium text-rose-400">SL: {formatPrice(card.sl)}</span>}
-            {card.tp == null && card.sl == null && (
-              <span className="text-[8.5px] text-zinc-600 truncate">{card.strategyName}</span>
-            )}
-          </>
-        )}
-      </div>
-
-      {/* Row 4: WS → status label only | CI → direction badge + chart icon */}
-      <div className="flex items-center justify-between">
-        {isWS ? (
-          <span className="text-[9px] text-zinc-500 leading-none">
-            {card.status === "PAPER_ONLY" ? "— PAPER"
-              : card.status === "PARITY_PENDING" ? "⧖ PARITY PENDING"
-              : card.direction === "LONG" ? "▲ LONG"
-              : card.direction === "SHORT" ? "▼ SHORT"
-              : `— ${card.direction}`}
+      {/* Zeile 4: Badge · Chart-Icon */}
+      <div className="flex items-center justify-between mt-0.5">
+        {(card.direction === "LONG" || card.direction === "SHORT") ? (
+          <span className={`text-[10px] font-bold flex items-center gap-1 ${card.direction === "LONG" ? "text-emerald-400" : "text-rose-400"}`}>
+            {card.direction === "LONG" ? "▲" : "▼"} {card.direction}
           </span>
-        ) : (
-          <>
-            <span className={`text-[10px] font-semibold leading-none ${directionClass(card.direction)}`}>
-              {card.direction === "LONG" ? "▲ LONG"
-                : card.direction === "SHORT" ? "▼ SHORT"
-                : card.status === "PAPER_ONLY" ? "— PAPER"
-                : card.direction === "PENDING" ? "⧖ PARITY PENDING"
-                : `— ${card.direction}`}
-            </span>
-            <button
-              type="button"
-              onClick={openMonitoring}
-              aria-label="Open monitoring"
-              className="flex h-5 w-5 items-center justify-center rounded-full border border-white/[0.07] bg-white/[0.02] text-zinc-600 transition hover:border-[#d8bc67]/30 hover:text-[#d8bc67]/80"
-            >
-              <ChartNoAxesCombined className="h-2.5 w-2.5" strokeWidth={1.6} />
-            </button>
-          </>
-        )}
+        ) : <span />}
+        <BarChart2 size={12} className="text-zinc-600" />
       </div>
     </div>
-  );
+  )
 }
 
 // ── Section block ──────────────────────────────────────────────────────────────
@@ -334,8 +285,8 @@ function buildInitialCard(data: SignalPageData): string | null {
 export default function SignalPage({ data }: { data: SignalPageData }) {
   const mounted = useClientMounted();
   const [selectedCardId, setSelectedCardId] = useState<string | null>(() => buildInitialCard(data));
-  const [whiteSwanFilter, setWhiteSwanFilter] = useState<SignalCardFilter>("all");
-  const [coreInvestFilter, setCoreInvestFilter] = useState<SignalCardFilter>("all");
+  const [whiteSwanFilter, setWhiteSwanFilter] = useState<SignalCardFilter>("open");
+  const [coreInvestFilter, setCoreInvestFilter] = useState<SignalCardFilter>("open");
 
   const selectedCard = useMemo(
     () => data.cards.find((c) => c.id === selectedCardId) ?? data.cards[0] ?? null,
@@ -358,8 +309,8 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
       return Boolean(p?.chart || p?.performance);
     });
     setSelectedCardId(first?.id ?? buildInitialCard(data));
-    setWhiteSwanFilter("all");
-    setCoreInvestFilter("all");
+    setWhiteSwanFilter("open");
+    setCoreInvestFilter("open");
   }, [data.cards, mounted]);
 
   useEffect(() => {

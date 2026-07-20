@@ -48,6 +48,7 @@ export default function RootLayout({
       className={`${montserrat.variable} ${nunito.variable} h-full antialiased`}
     >
       <body className="h-full overflow-hidden bg-[#0c0d10] text-white">
+        <script dangerouslySetInnerHTML={{__html: `try{var h=localStorage.getItem('fmd_header_hidden');if(h==='1'||h==='true')document.documentElement.style.setProperty('--header-height','0px')}catch(e){}`}} />
         <ClientProviders simpleGatePassword={simpleGatePassword}>
           {children}
         </ClientProviders>

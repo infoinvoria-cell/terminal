@@ -18,7 +18,7 @@ import {
   PieChart,
   Settings,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   useHomeDashboard,
@@ -157,10 +157,7 @@ export function Sidebar() {
   const router = useRouter();
 
   const [headerHidden, setHeaderHidden] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-
-  const expandTimer  = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const collapseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const expanded = false; // hover-expand disabled; sidebar stays collapsed
 
   useEffect(() => {
     try {
@@ -171,16 +168,6 @@ export function Sidebar() {
     window.addEventListener("header-hidden-sync", onSync as EventListener);
     return () => window.removeEventListener("header-hidden-sync", onSync as EventListener);
   }, []);
-
-  const handleMouseEnter = () => {
-    if (collapseTimer.current) { clearTimeout(collapseTimer.current); collapseTimer.current = null; }
-    expandTimer.current = setTimeout(() => setExpanded(true), 800);
-  };
-
-  const handleMouseLeave = () => {
-    if (expandTimer.current) { clearTimeout(expandTimer.current); expandTimer.current = null; }
-    collapseTimer.current = setTimeout(() => setExpanded(false), 300);
-  };
 
   const toggleHeader = () => {
     const next = !headerHidden;
@@ -214,8 +201,6 @@ export function Sidebar() {
 
   return (
     <aside
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
       style={{
         width: expanded ? EXPANDED_W : COLLAPSED_W,
         transition: `width 250ms ${EASE}`,

@@ -1,12 +1,13 @@
 @import "tailwindcss";
 @import "../styles/dashboard.css";
 
-@keyframes pageFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+/* content-fade: layout stays opaque (no black flash), only content fades in */
+@keyframes contentFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-.page-fade {
-  animation: pageFadeIn 100ms ease both;
+.content-fade > * {
+  animation: contentFadeIn 120ms ease both;
 }
 
 @keyframes globeRotateY {

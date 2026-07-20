@@ -54,7 +54,7 @@ type NetworkNode = {
 };
 
 type NetworkLink = { source: string; target: string };
-type NetworkData  = { nodes: NetworkNode[]; links: NetworkLink[] };
+type NetworkData  = { nodes: NetworkNode[]; links: NetworkLink[]; source?: string };
 
 type StatusData = {
   lastUpdated: string | null;
@@ -243,13 +243,21 @@ function PlayButton({ spinning, onToggle }: { spinning: boolean; onToggle: () =>
 
 // ── Status strip ──────────────────────────────────────────────────────────────
 
-function StatusStrip({ status, nodeCount, linkCount }: { status: StatusData | null; nodeCount: number; linkCount: number }) {
+function StatusStrip({ status, nodeCount, linkCount, dataSource }: {
+  status: StatusData | null; nodeCount: number; linkCount: number; dataSource?: string;
+}) {
   const date = status?.lastUpdated
     ? new Date(status.lastUpdated).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
     : "--";
+  const sourceLabel = dataSource === "obsidian-api" ? "obsidian" : dataSource === "filesystem" ? "fs" : null;
   return (
-    <div className="pointer-events-none absolute bottom-4 left-5 z-20 text-[10px] text-[#4a4f58]">
-      {nodeCount} Nodes · {linkCount} Links · {date}
+    <div className="pointer-events-none absolute bottom-4 left-5 z-20 flex items-center gap-2 text-[10px] text-[#4a4f58]">
+      <span>{nodeCount} Nodes · {linkCount} Links · {date}</span>
+      {sourceLabel && (
+        <span className={`rounded px-1 py-px text-[8px] font-medium ${dataSource === "obsidian-api" ? "bg-[#7c3aed]/20 text-[#a78bfa]" : "bg-white/[0.04] text-[#4a4f58]"}`}>
+          {sourceLabel}
+        </span>
+      )}
     </div>
   );
 }
@@ -295,7 +303,7 @@ export function BrainGraphShell() {
                 </div>
               </div>
             )}
-            <StatusStrip status={status} nodeCount={nodeCount} linkCount={linkCount} />
+            <StatusStrip status={status} nodeCount={nodeCount} linkCount={linkCount} dataSource={network?.source} />
             {network && network.nodes.length > 0 && (
               <PlayButton spinning={spinning} onToggle={() => setSpinning((s) => !s)} />
             )}

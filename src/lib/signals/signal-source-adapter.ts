@@ -78,6 +78,9 @@ type SignalSource = {
   candleSource: "cache" | "invest_csv";
   investSymbol?: string;
   forcedStatus?: SignalCardStatus;
+  forcedDirection?: "LONG" | "SHORT";
+  forcedTp?: number;
+  forcedSl?: number;
   nextSignalSchedule?: NextSignalSchedule;
   nextSignalDate?: string;
 };
@@ -211,6 +214,7 @@ export const WHITE_SWAN_SOURCES: SignalSource[] = [
     candleFile: "COMEX_GC1_D.json",
     candleSource: "cache",
     forcedStatus: "PAPER_ONLY",
+    forcedDirection: "LONG",
     nextSignalSchedule: "friday",
     monitoringTarget: { tab: "metalle_energie", asset: "GC1!" },
   },
@@ -227,6 +231,7 @@ export const WHITE_SWAN_SOURCES: SignalSource[] = [
     strategyFolder: "strategies",
     candleSource: "cache",
     forcedStatus: "PAPER_ONLY",
+    forcedDirection: "LONG",
     nextSignalSchedule: "thursday",
     monitoringTarget: { tab: "invest", asset: "GLD" },
   },
@@ -243,6 +248,7 @@ export const WHITE_SWAN_SOURCES: SignalSource[] = [
     strategyFolder: "strategies",
     candleSource: "cache",
     forcedStatus: "PAPER_ONLY",
+    forcedDirection: "LONG",
     nextSignalSchedule: "tuesday_conditional",
     monitoringTarget: { tab: "indizes", asset: "YM1!" },
   },
@@ -259,6 +265,7 @@ export const WHITE_SWAN_SOURCES: SignalSource[] = [
     strategyFolder: "strategies",
     candleSource: "cache",
     forcedStatus: "PAPER_ONLY",
+    forcedDirection: "LONG",
     nextSignalSchedule: "daily",
     monitoringTarget: { tab: "indizes", asset: "UKX" },
   },
@@ -275,6 +282,7 @@ export const WHITE_SWAN_SOURCES: SignalSource[] = [
     strategyFolder: "strategies",
     candleSource: "cache",
     forcedStatus: "PAPER_ONLY",
+    forcedDirection: "LONG",
     nextSignalSchedule: "daily",
     monitoringTarget: { tab: "agrar", asset: "CT1!" },
   },
@@ -292,6 +300,7 @@ export const WHITE_SWAN_SOURCES: SignalSource[] = [
     candleFile: "OANDA_NAS100USD_D.json",
     candleSource: "cache",
     forcedStatus: "PAPER_ONLY",
+    forcedDirection: "LONG",
     nextSignalSchedule: "daily",
     monitoringTarget: { tab: "indizes", asset: "NQ1!" },
   },
@@ -308,6 +317,7 @@ export const WHITE_SWAN_SOURCES: SignalSource[] = [
     strategyFolder: "strategies",
     candleSource: "cache",
     forcedStatus: "PAPER_ONLY",
+    forcedDirection: "LONG",
     nextSignalSchedule: "daily",
     monitoringTarget: { tab: "intraday_mt", asset: "6E1! 30M" },
   },
@@ -745,13 +755,14 @@ export function loadSignalSources(): Array<{ card: SignalCardModel; preview: Sig
     const { price, changePct } = latestPriceChange(candles);
     const signalDate = normalizeDate(trade?.exitTime ?? trade?.entryTime);
     const dataStatus = file && candles.length ? "ok" : file || candles.length ? "partial" : "missing";
-    const direction = source.forcedStatus === "PARITY_PENDING"
+    const computedDirection = source.forcedStatus === "PARITY_PENDING"
       ? "PENDING"
       : trade?.direction === "short"
         ? "SHORT"
         : trade?.direction === "long" && !trade.exitTime
           ? "LONG"
           : "CASH";
+    const direction = source.forcedDirection ?? computedDirection;
     const status: SignalCardStatus = source.forcedStatus
       ?? (!trade ? "VALIDATION" : !trade.exitTime ? "OPEN" : "CLOSED");
     const card: SignalCardModel = {
@@ -770,15 +781,19 @@ export function loadSignalSources(): Array<{ card: SignalCardModel; preview: Sig
       ageDays: ageDays(signalDate),
       price,
       changePct,
-      tp: toNumber(trade?.tp) ?? undefined,
-      sl: toNumber(trade?.sl) ?? undefined,
+      tp: source.forcedTp ?? toNumber(trade?.tp) ?? undefined,
+      sl: source.forcedSl ?? toNumber(trade?.sl) ?? undefined,
       dataStatus,
       nextSignalLabel: computeNextSignalLabel(source.nextSignalSchedule, source.nextSignalDate),
       monitoringTarget: source.monitoringTarget,
     };
-    // Hide CLOSED signals older than 7 days
     const age = ageDays(signalDate);
+    // Hide CLOSED signals older than 7 days
     if (status === "CLOSED" && age !== undefined && age > 7) return [];
+    // Hide PAPER_ONLY cards with no recent signal and no active direction (LONG/SHORT)
+    const hasRecentSignal = age !== undefined && age <= 7;
+    const hasActiveDirection = direction === "LONG" || direction === "SHORT";
+    if (status === "PAPER_ONLY" && !hasRecentSignal && !hasActiveDirection) return [];
     return [{ card, preview: buildPreview(card, candles, file) }];
   });
 }
