@@ -1,43 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import dynamic from "next/dynamic";
-import { forceManyBody, forceLink } from "d3-force";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { HomeDashboardProvider } from "@/context/home-dashboard-context";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Topbar } from "@/components/dashboard/topbar";
 import { HeaderDivider } from "@/components/dashboard/header-divider";
-
-const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), { ssr: false });
-
-// ── Layout cache ──────────────────────────────────────────────────────────────
-
-const LAYOUT_KEY = "brain-graph-layout";
-
-function dataFingerprint(data: NetworkData): string {
-  return `${data.nodes.length}:${data.links.length}:${data.nodes.slice(0, 8).map((n) => n.id).join(",")}`;
-}
-
-type CachedLayout = { fingerprint: string; positions: Record<string, { x: number; y: number }> };
-
-function loadLayout(fp: string): Record<string, { x: number; y: number }> | null {
-  try {
-    const raw = sessionStorage.getItem(LAYOUT_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as CachedLayout;
-    return parsed.fingerprint === fp ? parsed.positions : null;
-  } catch { return null; }
-}
-
-function saveLayout(fp: string, nodes: { id: string; x?: number; y?: number }[]) {
-  try {
-    const positions: Record<string, { x: number; y: number }> = {};
-    for (const n of nodes) {
-      if (n.x != null && n.y != null) positions[n.id] = { x: n.x, y: n.y };
-    }
-    sessionStorage.setItem(LAYOUT_KEY, JSON.stringify({ fingerprint: fp, positions }));
-  } catch { /* non-critical */ }
-}
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -49,8 +16,6 @@ type NetworkNode = {
   degree: number;
   community: number | null;
   source: "brain" | "dashboard";
-  x?: number;
-  y?: number;
 };
 
 type NetworkLink = { source: string; target: string };
@@ -61,7 +26,7 @@ type StatusData = {
   changes: { title: string; updatedAt: string | null }[];
 };
 
-// ── Colour / size helpers ─────────────────────────────────────────────────────
+// ── Folder metadata ───────────────────────────────────────────────────────────
 
 const FOLDER_COLORS: Record<string, string> = {
   "00_Index":                  "#f0dfa0",
@@ -81,8 +46,21 @@ const FOLDER_LABELS: Record<string, string> = {
   "17_Haftungsdach_QA":        "Haftung",
 };
 
+// ── Fibonacci sphere ──────────────────────────────────────────────────────────
 
-// ── Graph canvas ──────────────────────────────────────────────────────────────
+function fibonacciSphere(n: number): [number, number, number][] {
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  const pts: [number, number, number][] = [];
+  for (let i = 0; i < n; i++) {
+    const y = 1 - (i / Math.max(n - 1, 1)) * 2;
+    const r = Math.sqrt(Math.max(0, 1 - y * y));
+    const theta = golden * i;
+    pts.push([Math.cos(theta) * r, y, Math.sin(theta) * r]);
+  }
+  return pts;
+}
+
+// ── Globe canvas ──────────────────────────────────────────────────────────────
 
 type CanvasProps = {
   data: NetworkData;
@@ -91,18 +69,41 @@ type CanvasProps = {
   selected: NetworkNode | null;
 };
 
-function BrainCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
+function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const wrapRef      = useRef<HTMLDivElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const graphRef  = useRef<any>(null);
-  const zoomedRef = useRef(false);
+  const canvasRef    = useRef<HTMLCanvasElement>(null);
+  const angleRef     = useRef(0);
+  const rafRef       = useRef<number>(0);
+  const projRef      = useRef<{ px: number; py: number; idx: number }[]>([]);
   const [dims, setDims] = useState({ w: 1200, h: 800 });
 
-  const fp = dataFingerprint(data);
-  const cachedPositions = loadLayout(fp);
-  const hasCached = cachedPositions !== null;
+  // Refs that the RAF loop reads so it never needs to restart
+  const spinningRef = useRef(spinning);
+  const selectedRef = useRef(selected);
+  const dataRef     = useRef(data);
+  useEffect(() => { spinningRef.current = spinning; }, [spinning]);
+  useEffect(() => { selectedRef.current = selected; }, [selected]);
+  useEffect(() => { dataRef.current = data; }, [data]);
 
+  // Pre-compute sphere positions + link index pairs — only when data changes
+  const { spherePos, linkPairs } = useMemo(() => {
+    const sp = fibonacciSphere(data.nodes.length);
+    const idxMap = new Map(data.nodes.map((nd, i) => [nd.id, i]));
+    const lp: [number, number][] = [];
+    for (const l of data.links) {
+      const si = idxMap.get(l.source);
+      const ti = idxMap.get(l.target);
+      if (si != null && ti != null) lp.push([si, ti]);
+    }
+    return { spherePos: sp, linkPairs: lp };
+  }, [data]);
+
+  const spherePosRef = useRef(spherePos);
+  const linkPairsRef = useRef(linkPairs);
+  useEffect(() => { spherePosRef.current = spherePos; }, [spherePos]);
+  useEffect(() => { linkPairsRef.current = linkPairs; }, [linkPairs]);
+
+  // Resize observer — drives canvas width/height
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -112,63 +113,114 @@ function BrainCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
     return () => ro.disconnect();
   }, []);
 
+  // Single RAF loop — started once, reads everything via refs
   useEffect(() => {
-    if (hasCached) return;
-    const g = graphRef.current;
-    if (!g) return;
-    g.d3Force("charge", forceManyBody().strength(-15));
-    g.d3Force("link",   forceLink().distance(20).strength(0.8));
-  }, [data, hasCached]);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-  const graphData = {
-    nodes: data.nodes.map(({ x: _x, y: _y, ...n }) => {
-      const pos = cachedPositions?.[n.id];
-      if (pos) return { ...n, name: n.label, x: pos.x, y: pos.y, fx: pos.x, fy: pos.y };
-      return { ...n, name: n.label };
-    }),
-    links: data.links,
-  };
+    function draw() {
+      if (!ctx) return;
+      const w = canvas!.width;
+      const h = canvas!.height;
+      const d = dataRef.current;
+      const sp = spherePosRef.current;
+      const lp = linkPairsRef.current;
+      const sel = selectedRef.current;
+
+      ctx.clearRect(0, 0, w, h);
+
+      const scale = Math.min(w, h) * 0.42;
+      const cx = w / 2;
+      const cy = h / 2;
+      const angle = angleRef.current;
+      const cosA = Math.cos(angle);
+      const sinA = Math.sin(angle);
+
+      // Project nodes to 2D (rotateY around vertical axis)
+      const projected = sp.map(([x, y, z], i) => {
+        const rx = x * cosA - z * sinA;
+        const rz = x * sinA + z * cosA;
+        const px = cx + rx * scale;
+        const py = cy - y * scale; // y-up in sphere → y-down in canvas
+        const depth = rz; // -1 back → 1 front
+        // alpha: front nodes are fully bright, back nodes dim
+        const t = (depth + 1) / 2; // 0–1
+        const alpha = 0.15 + 0.85 * t;
+        const deg = d.nodes[i]?.degree ?? 0;
+        const r = deg === 0 ? 1 : deg < 5 ? 1.5 : deg < 20 ? 2 : 2.8;
+        return { px, py, depth, alpha, r, idx: i };
+      });
+
+      // Store for hit testing
+      projRef.current = projected.map(({ px, py, idx }) => ({ px, py, idx }));
+
+      // Draw all links in a single batched path — very fast for 10k links
+      ctx.beginPath();
+      ctx.lineWidth = 0.4;
+      ctx.strokeStyle = "rgba(255,255,255,0.06)";
+      for (const [si, ti] of lp) {
+        const s = projected[si];
+        const t = projected[ti];
+        if (!s || !t) continue;
+        ctx.moveTo(s.px, s.py);
+        ctx.lineTo(t.px, t.py);
+      }
+      ctx.stroke();
+
+      // Draw nodes back → front for depth illusion
+      const sorted = [...projected].sort((a, b) => a.depth - b.depth);
+      for (const { px, py, alpha, r, idx } of sorted) {
+        const isSelected = d.nodes[idx]?.id === sel?.id;
+        ctx.beginPath();
+        ctx.arc(px, py, isSelected ? r + 2 : r, 0, Math.PI * 2);
+        if (isSelected) {
+          ctx.fillStyle = "#e2ca7a";
+        } else {
+          // Depth-faded white
+          const v = Math.floor(100 + 155 * alpha);
+          ctx.fillStyle = `rgba(${v},${v},${v},${alpha.toFixed(2)})`;
+        }
+        ctx.fill();
+      }
+    }
+
+    function loop() {
+      if (spinningRef.current) angleRef.current += 0.003;
+      draw();
+      rafRef.current = requestAnimationFrame(loop);
+    }
+    rafRef.current = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const onClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    const rect = canvasRef.current!.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    let nearest: { dist: number; idx: number } | null = null;
+    for (const { px, py, idx } of projRef.current) {
+      const dist = Math.hypot(px - mx, py - my);
+      if (dist < 12 && (!nearest || dist < nearest.dist)) nearest = { dist, idx };
+    }
+    if (nearest) {
+      const node = dataRef.current.nodes[nearest.idx];
+      onSelect(selectedRef.current?.id === node.id ? null : node);
+    } else {
+      onSelect(null);
+    }
+  }, [onSelect]);
 
   return (
     <div ref={containerRef} className="relative h-full w-full">
-      {/* Spinning wrapper — CSS rotateY applied here */}
-      <div
-        ref={wrapRef}
-        className={spinning ? "globe-spin" : undefined}
-        style={{ width: "100%", height: "100%" }}
-      >
-        <ForceGraph2D
-          ref={graphRef}
-          graphData={graphData}
-          width={dims.w}
-          height={dims.h}
-          backgroundColor="#07080a"
-          nodeVal={(n) => Math.max(2, Math.log(((n as NetworkNode).degree || 0) + 1) * 3)}
-          nodeColor={(n) => {
-            const d = (n as NetworkNode).degree;
-            return d === 0 ? "#444444" : d < 5 ? "#888888" : d < 20 ? "#cccccc" : "#e2ca7a";
-          }}
-          nodeLabel={() => ""}
-          nodeRelSize={4}
-          linkColor={() => "rgba(255,255,255,0.15)"}
-          linkWidth={0.5}
-          d3AlphaDecay={0.005}
-          d3VelocityDecay={0.2}
-          warmupTicks={hasCached ? 0 : 500}
-          cooldownTicks={0}
-          onEngineStop={() => {
-            if (zoomedRef.current) return;
-            zoomedRef.current = true;
-            saveLayout(fp, graphData.nodes as { id: string; x?: number; y?: number }[]);
-            graphRef.current?.zoomToFit(800, 100);
-          }}
-          onNodeClick={(n) => {
-            const node = n as NetworkNode;
-            onSelect(selected?.id === node.id ? null : node);
-          }}
-          onBackgroundClick={() => onSelect(null)}
-        />
-      </div>
+      <canvas
+        ref={canvasRef}
+        width={dims.w}
+        height={dims.h}
+        onClick={onClick}
+        style={{ display: "block", cursor: "crosshair" }}
+      />
     </div>
   );
 }
@@ -226,13 +278,11 @@ function PlayButton({ spinning, onToggle }: { spinning: boolean; onToggle: () =>
       className="absolute bottom-5 right-5 z-20 flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.08] bg-[#0c0e12]/80 text-[#4a4f58] backdrop-blur-sm transition-colors hover:border-white/[0.15] hover:text-[#9ca0aa]"
     >
       {spinning ? (
-        // Pause icon
         <svg width="11" height="12" viewBox="0 0 11 12" fill="currentColor">
           <rect x="0.5" y="0" width="3.5" height="12" rx="1" />
-          <rect x="7" y="0" width="3.5" height="12" rx="1" />
+          <rect x="7"   y="0" width="3.5" height="12" rx="1" />
         </svg>
       ) : (
-        // Play icon
         <svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor">
           <path d="M0 0 L10 6 L0 12 Z" />
         </svg>
@@ -251,10 +301,10 @@ function StatusStrip({ status, nodeCount, linkCount, dataSource }: {
     : "--";
   const sourceLabel = dataSource === "obsidian-api" ? "obsidian" : dataSource === "filesystem" ? "fs" : null;
   return (
-    <div className="pointer-events-none absolute bottom-4 left-5 z-20 flex items-center gap-2 text-[10px] text-[#4a4f58]">
+    <div className="pointer-events-none absolute bottom-4 left-5 z-20 flex items-center gap-2 text-sm text-[#6b7280]">
       <span>{nodeCount} Nodes · {linkCount} Links · {date}</span>
       {sourceLabel && (
-        <span className={`rounded px-1 py-px text-[8px] font-medium ${dataSource === "obsidian-api" ? "bg-[#7c3aed]/20 text-[#a78bfa]" : "bg-white/[0.04] text-[#4a4f58]"}`}>
+        <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${dataSource === "obsidian-api" ? "bg-[#7c3aed]/20 text-[#a78bfa]" : "bg-white/[0.04] text-[#555]"}`}>
           {sourceLabel}
         </span>
       )}
@@ -268,7 +318,7 @@ export function BrainGraphShell() {
   const [status,   setStatus]   = useState<StatusData | null>(null);
   const [network,  setNetwork]  = useState<NetworkData | null>(null);
   const [selected, setSelected] = useState<NetworkNode | null>(null);
-  const [spinning, setSpinning] = useState(false);
+  const [spinning, setSpinning] = useState(true);
 
   useEffect(() => {
     fetch("/api/brain-graph/status").then((r) => r.json()).then(setStatus).catch(() => null);
@@ -288,7 +338,7 @@ export function BrainGraphShell() {
           <main className="relative min-h-0 flex-1 overflow-hidden">
             {network && network.nodes.length > 0 ? (
               <>
-                <BrainCanvas
+                <GlobeCanvas
                   data={network}
                   spinning={spinning}
                   onSelect={setSelected}
