@@ -398,6 +398,12 @@ function MessageActions({ content, onRegenerate, regenDisabled }: { content: str
 
   return (
     <div className="mact-row">
+      {/* small static Aurum dot */}
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink:0, marginRight:4 }}>
+        <circle cx="7" cy="7" r="6" stroke="rgba(214,184,108,0.30)" strokeWidth="0.8" />
+        <circle cx="7" cy="7" r="3.5" fill="rgba(214,184,108,0.18)" />
+        <circle cx="7" cy="7" r="1.8" fill="rgba(214,184,108,0.55)" />
+      </svg>
       <button type="button" className={`mact-btn${copied ? " mact-copied" : ""}`} onClick={handleCopy} title={copied ? "Kopiert" : "Kopieren"}>
         {copied ? <Check size={12} /> : <Copy size={12} />}
       </button>
@@ -822,10 +828,6 @@ export function SentinelDashboard() {
                     ? <SentinelMarkdown content={entry.content} />
                     : entry.content}
                 </div>
-                {entry.role === "assistant" && entry.content && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src="/Sentinel.png" alt="" width={20} height={20} style={{ display:"block", objectFit:"contain", opacity:0.50, marginTop:6 }} />
-                )}
                 {entry.role === "assistant" && entry.meta?.sources?.length ? (
                   <SourcesToggle sources={entry.meta.sources} confidence={entry.meta.confidence} />
                 ) : null}
