@@ -398,18 +398,24 @@ function MessageActions({ content, onRegenerate, regenDisabled }: { content: str
 
   return (
     <div className="mact-row">
-      {/* Aurum mini — same arc design as fullscreen, static */}
+      {/* Aurum mini — alternating arc directions like fullscreen */}
       <svg width="22" height="22" viewBox="0 0 260 260" fill="none" style={{ flexShrink:0, marginRight:5 }}>
         <circle cx="130" cy="130" r="100" stroke="rgba(255,255,255,0.10)" strokeWidth="6" />
         <circle cx="130" cy="130" r="88"  stroke="rgba(214,184,108,0.18)" strokeWidth="7" />
         <circle cx="130" cy="130" r="74"  stroke="rgba(255,255,255,0.08)" strokeWidth="5" />
+        {/* arc1 cw — starts at top */}
         <circle cx="130" cy="130" r="100" stroke="#d6b86c" strokeWidth="18"
           strokeDasharray="138 490" strokeLinecap="round"
+          transform="rotate(-90 130 130)"
           style={{ filter:"drop-shadow(0 0 8px rgba(214,184,108,0.85))" }} />
+        {/* arc2 ccw — starts at bottom-right */}
         <circle cx="130" cy="130" r="88"  stroke="rgba(244,239,230,0.70)" strokeWidth="13"
-          strokeDasharray="160 353" strokeLinecap="round" />
+          strokeDasharray="160 353" strokeLinecap="round"
+          transform="rotate(110 130 130)" />
+        {/* arc3 cw — starts at left */}
         <circle cx="130" cy="130" r="74"  stroke="rgba(214,184,108,0.80)" strokeWidth="12"
-          strokeDasharray="90 365" strokeLinecap="round" />
+          strokeDasharray="90 365" strokeLinecap="round"
+          transform="rotate(200 130 130)" />
       </svg>
       <button type="button" className={`mact-btn${copied ? " mact-copied" : ""}`} onClick={handleCopy} title={copied ? "Kopiert" : "Kopieren"}>
         {copied ? <Check size={12} /> : <Copy size={12} />}
