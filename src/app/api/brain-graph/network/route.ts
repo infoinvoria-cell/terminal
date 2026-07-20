@@ -297,7 +297,8 @@ export async function GET() {
     if (!brainRoot) {
       return NextResponse.json({ nodes: [], links: [], source: "unavailable", message: "Obsidian API unreachable and CAPITALIFE_BRAIN_PATH missing" });
     }
-    const { nodes, links } = await getCached(`fs:${brainRoot}`, () => buildFsGraph(brainRoot));
+    // No cache for filesystem fallback — Obsidian is retried on every request
+    const { nodes, links } = await buildFsGraph(brainRoot);
     return NextResponse.json({ ...cap(nodes, links), source: "filesystem" });
   }
 }

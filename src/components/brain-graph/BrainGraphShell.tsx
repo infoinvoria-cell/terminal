@@ -85,8 +85,8 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
   useEffect(() => { selectedRef.current = selected; }, [selected]);
   useEffect(() => { dataRef.current = data; }, [data]);
 
-  // Pre-compute sphere positions + link index pairs — only when data changes
-  const { spherePos, linkPairs } = useMemo(() => {
+  // Pre-compute sphere positions, link pairs, and per-node size jitter — only when data changes
+  const { spherePos, linkPairs, sizeJitter } = useMemo(() => {
     const sp = fibonacciSphere(data.nodes.length);
     const idxMap = new Map(data.nodes.map((nd, i) => [nd.id, i]));
     const lp: [number, number][] = [];
@@ -95,13 +95,20 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
       const ti = idxMap.get(l.target);
       if (si != null && ti != null) lp.push([si, ti]);
     }
-    return { spherePos: sp, linkPairs: lp };
+    // 15% of nodes get a random size boost (pre-computed to avoid per-frame flicker)
+    const jitter = new Float32Array(data.nodes.length);
+    for (let i = 0; i < jitter.length; i++) {
+      jitter[i] = Math.random() < 0.15 ? 1.5 + Math.random() * 2 : 1;
+    }
+    return { spherePos: sp, linkPairs: lp, sizeJitter: jitter };
   }, [data]);
 
-  const spherePosRef = useRef(spherePos);
-  const linkPairsRef = useRef(linkPairs);
-  useEffect(() => { spherePosRef.current = spherePos; }, [spherePos]);
-  useEffect(() => { linkPairsRef.current = linkPairs; }, [linkPairs]);
+  const spherePosRef  = useRef(spherePos);
+  const linkPairsRef  = useRef(linkPairs);
+  const sizeJitterRef = useRef(sizeJitter);
+  useEffect(() => { spherePosRef.current  = spherePos;  }, [spherePos]);
+  useEffect(() => { linkPairsRef.current  = linkPairs;  }, [linkPairs]);
+  useEffect(() => { sizeJitterRef.current = sizeJitter; }, [sizeJitter]);
 
   // Resize observer — drives canvas width/height
   useEffect(() => {
@@ -131,12 +138,14 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
 
       ctx.clearRect(0, 0, w, h);
 
-      const scale = Math.min(w, h) * 0.42;
-      const cx = w / 2;
-      const cy = h / 2;
+      const scale = Math.min(w, h) * 0.38;
+      const cx = canvas!.width  / 2;
+      const cy = canvas!.height / 2;
       const angle = angleRef.current;
       const cosA = Math.cos(angle);
       const sinA = Math.sin(angle);
+
+      const jitter = sizeJitterRef.current;
 
       // Project nodes to 2D (rotateY around vertical axis)
       const projected = sp.map(([x, y, z], i) => {
@@ -145,12 +154,12 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
         const px = cx + rx * scale;
         const py = cy - y * scale; // y-up in sphere → y-down in canvas
         const depth = rz; // -1 back → 1 front
-        // alpha: front nodes are fully bright, back nodes dim
         const t = (depth + 1) / 2; // 0–1
         const alpha = 0.15 + 0.85 * t;
         const deg = d.nodes[i]?.degree ?? 0;
-        // Size tiers: ~70% → 1px, ~20% → 2px, ~8% → 3.5px, ~2% → 5px
-        const r = deg === 0 ? 1 : deg < 3 ? 1 : deg < 8 ? 2 : deg < 25 ? 3.5 : 5;
+        // Base size tiers by degree; 15% get a random jitter multiplier (pre-computed)
+        const baseR = deg === 0 ? 1 : deg < 3 ? 1 : deg < 8 ? 2 : deg < 25 ? 3.5 : 5;
+        const r = baseR * (jitter[i] ?? 1);
         // Bright highlights for high-degree cluster nodes
         const nodeAlpha = deg >= 25 ? Math.min(0.95, alpha * 1.1)
                         : deg >= 8  ? Math.min(0.85, alpha * 0.95)

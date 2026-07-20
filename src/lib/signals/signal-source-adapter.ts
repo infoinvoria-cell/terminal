@@ -249,7 +249,8 @@ export const WHITE_SWAN_SOURCES: SignalSource[] = [
     candleSource: "cache",
     forcedStatus: "PAPER_ONLY",
     forcedDirection: "LONG",
-    nextSignalSchedule: "tuesday_conditional",
+    nextSignalSchedule: "date_specific",
+    nextSignalDate: "2026-07-21",
     monitoringTarget: { tab: "indizes", asset: "YM1!" },
   },
   {
@@ -703,16 +704,31 @@ function buildPreview(
           close: bar.close,
         })),
         signals: [],
-        trades: mergedTrades.map((trade) => ({
-          direction: trade.direction,
-          entryTime: trade.entryTime,
-          exitTime: trade.exitTime ?? null,
-          entry: trade.entry,
-          exit: trade.exit ?? null,
-          sl: trade.sl ?? null,
-          tp: trade.tp ?? null,
-          exitReason: trade.exitReason,
-        })),
+        trades: [
+          ...mergedTrades.map((trade) => ({
+            direction: trade.direction,
+            entryTime: trade.entryTime,
+            exitTime: trade.exitTime ?? null,
+            entry: trade.entry,
+            exit: trade.exit ?? null,
+            sl: trade.sl ?? null,
+            tp: trade.tp ?? null,
+            exitReason: trade.exitReason,
+          })),
+          // Synthetic open trade for forced TP/SL overlay when no live trade exists
+          ...(card.tp != null || card.sl != null) && !mergedTrades.some((t) => !t.exitTime)
+            ? [{
+                direction: "long" as const,
+                entryTime: card.signalDate ?? candles.at(-1)?.time ?? "",
+                exitTime: null,
+                entry: (card.price ?? candles.at(-1)?.close ?? 0) as number,
+                exit: null,
+                sl: card.sl ?? null,
+                tp: card.tp ?? null,
+                exitReason: undefined,
+              }]
+            : [],
+        ],
         boxes: [],
         variant: "large",
         timeframe: "D",
