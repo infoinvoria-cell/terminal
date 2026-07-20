@@ -1,5 +1,7 @@
 import { classifyMessage } from "@/lib/sentinel/model-registry";
 import { anthropicProvider } from "./anthropic-provider";
+import { cerebrasProvider } from "./cerebras-provider";
+import { cohereProvider } from "./cohere-provider";
 import { customProvider } from "./custom-provider";
 import { groqProvider } from "./groq-provider";
 import { localProvider } from "./local-provider";
@@ -30,7 +32,9 @@ const PROVIDERS: Record<SentinelProviderId, SentinelProvider> = {
   local: localProvider,
   ollama: ollamaProvider,
   groq: groqProvider,
+  cerebras: cerebrasProvider,
   mistral: mistralProvider,
+  cohere: cohereProvider,
   anthropic: anthropicProvider,
   custom: customProvider,
 };
@@ -88,6 +92,9 @@ function normalizeRequestedProvider(input?: string): SentinelProviderId | null {
   if (normalized === "local") return "local";
   if (normalized === "ollama") return "ollama";
   if (normalized === "groq") return "groq";
+  if (normalized === "cerebras") return "cerebras";
+  if (normalized === "mistral") return "mistral";
+  if (normalized === "cohere") return "cohere";
   if (normalized === "anthropic" || normalized === "custom") return normalized;
   return null;
 }
@@ -100,7 +107,9 @@ function modeToProvider(mode: SentinelRouterMode): SentinelProviderId | null {
 function providerAllowed(providerId: SentinelProviderId, config = getSentinelEnvConfig()): boolean {
   if (providerId === "local" || providerId === "ollama") return true;
   if (providerId === "groq") return !!(process.env.GROQ_API_KEY?.trim()) || config.allowPaidApi;
+  if (providerId === "cerebras") return !!(process.env.CEREBRAS_API_KEY?.trim()) || config.allowPaidApi;
   if (providerId === "mistral") return !!(process.env.MISTRAL_API_KEY?.trim()) || config.allowPaidApi;
+  if (providerId === "cohere") return !!(process.env.COHERE_API_KEY?.trim()) || config.allowPaidApi;
   if (providerId === "custom") return config.allowCustomApi;
   return config.allowPaidApi;
 }
@@ -151,14 +160,14 @@ function buildProviderOrder(
   const byId = new Map(providers.map((provider) => [provider.id, provider]));
   const canAutoUse = (providerId: SentinelProviderId) => byId.get(providerId)?.usable ?? false;
 
-  // Smart routing: Groq first (complex/trading), Mistral as fallback.
-  // Ollama is lazy — only added as last resort when both cloud providers are unavailable.
+  // Routing order: Groq → Cerebras → Mistral → Cohere → Anthropic
+  // Ollama/local only as last resort when all cloud providers are unavailable.
   const groqLimited = groqDailyLimitReached();
   const cloudOrder: SentinelProviderId[] = groqLimited
-    ? ["mistral", "groq"]
-    : ["groq", "mistral"];
+    ? ["cerebras", "mistral", "cohere", "groq"]
+    : ["groq", "cerebras", "mistral", "cohere"];
 
-  // Ollama/local only appended if neither cloud provider is usable
+  // Ollama/local only appended if no cloud provider is usable
   const cloudUsable = cloudOrder.some((id) => providerAllowed(id, config) && canAutoUse(id));
   const lazyLocal: SentinelProviderId[] = cloudUsable ? [] : ["ollama", "local"];
 

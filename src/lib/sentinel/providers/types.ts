@@ -1,8 +1,8 @@
 export type MessageRole = "system" | "user" | "assistant";
 
 export type SentinelProviderType = "local" | "anthropic" | "custom";
-export type SentinelProviderId = "local" | "ollama" | "groq" | "mistral" | "anthropic" | "custom";
-export type SentinelRouterMode = "auto" | "local" | "ollama" | "groq" | "mistral" | "anthropic" | "custom";
+export type SentinelProviderId = "local" | "ollama" | "groq" | "cerebras" | "mistral" | "cohere" | "anthropic" | "custom";
+export type SentinelRouterMode = "auto" | "local" | "ollama" | "groq" | "cerebras" | "mistral" | "cohere" | "anthropic" | "custom";
 export type ProviderAvailabilityReason =
   | "ready"
   | "key_missing"
