@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import useSWR from "swr";
 import { HomeDashboardProvider } from "@/context/home-dashboard-context";
 import { Sidebar } from "@/components/dashboard/sidebar";
+import { swrJsonFetcher } from "@/components/performance/swr-fetcher";
 import type { SentinelStatusPayload } from "@/lib/sentinel/sentinel-session-store";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -146,17 +148,20 @@ function LangOption({ value, label, current, onSelect }: { value: string; label:
 
 export function SettingsPage() {
   const [mounted, setMounted] = useState(false);
-  const [status, setStatus] = useState<SentinelStatusPayload | null>(null);
-  const [info, setInfo] = useState<InfoPayload | null>(null);
   const [lang, setLangState] = useState("de");
   const [preferred, setPreferredState] = useState("");
+  const { data: status } = useSWR<SentinelStatusPayload>("/api/sentinel/status", swrJsonFetcher, {
+    refreshInterval: 20_000,
+    keepPreviousData: true,
+  });
+  const { data: info } = useSWR<InfoPayload>("/api/settings/info", swrJsonFetcher, {
+    keepPreviousData: true,
+  });
 
   useEffect(() => {
     setMounted(true);
     setLangState(lsGet(LANG_KEY, "de"));
     setPreferredState(lsGet(PREF_PROVIDER_KEY, ""));
-    fetch("/api/sentinel/status").then((r) => r.json()).then(setStatus).catch(() => null);
-    fetch("/api/settings/info").then((r) => r.json()).then(setInfo).catch(() => null);
   }, []);
 
   const setLang = (v: string) => { setLangState(v); lsSet(LANG_KEY, v); };

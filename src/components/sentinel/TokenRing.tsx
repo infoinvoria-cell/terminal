@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import useSWR from "swr";
+import { swrJsonFetcher } from "@/components/performance/swr-fetcher";
 
 type ProviderUsage = {
   provider: string;
@@ -32,26 +34,16 @@ function formatReset(iso: string): string {
 }
 
 export function TokenRing({ activeProvider }: Props) {
-  const [usage, setUsage] = useState<ProviderUsage | null>(null);
   const [open, setOpen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
 
   const provider = activeProvider ?? "groq";
-
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        const res = await fetch("/api/sentinel/token-usage");
-        if (!res.ok) return;
-        const data = await res.json() as Record<string, ProviderUsage>;
-        if (!cancelled) setUsage(data[provider] ?? null);
-      } catch { /* ignore */ }
-    }
-    void load();
-    const id = setInterval(load, 30_000);
-    return () => { cancelled = true; clearInterval(id); };
-  }, [provider]);
+  const { data: usageByProvider } = useSWR<Record<string, ProviderUsage>>(
+    "/api/sentinel/token-usage",
+    swrJsonFetcher,
+    { refreshInterval: 30_000, keepPreviousData: true },
+  );
+  const usage = usageByProvider?.[provider] ?? null;
 
   // Close popup on outside click
   useEffect(() => {
