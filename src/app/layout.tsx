@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Montserrat, Nunito } from "next/font/google";
+import { cookies } from "next/headers";
 import { ClientProviders } from "@/components/providers";
 import "./globals.css";
 
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -42,13 +43,16 @@ export default function RootLayout({
     process.env.NEXT_PUBLIC_SIMPLE_GATE_PASSWORD?.trim() ||
     "inno";
 
+  const cookieStore = await cookies();
+  const initialHeaderHidden = cookieStore.get("fmd_header_hidden")?.value === "1";
+
   return (
     <html
       lang="en"
       className={`${montserrat.variable} ${nunito.variable} h-full antialiased`}
     >
       <body className="h-full overflow-hidden bg-[#0c0d10] text-white">
-        <ClientProviders simpleGatePassword={simpleGatePassword}>
+        <ClientProviders simpleGatePassword={simpleGatePassword} initialHeaderHidden={initialHeaderHidden}>
           {children}
         </ClientProviders>
       </body>

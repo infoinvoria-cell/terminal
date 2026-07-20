@@ -18,16 +18,16 @@ import {
   PieChart,
   Settings,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   useHomeDashboard,
   type DashboardPage,
 } from "@/context/home-dashboard-context";
+import { useHeaderState } from "@/context/header-state-context";
 
 const LAST_PAGE_KEY = "fmd_last_page";
-const RESTORE_FLAG = "fmd_restore";
-const HEADER_HIDDEN_KEY = "fmd_header_hidden";
+const RESTORE_FLAG  = "fmd_restore";
 
 const COLLAPSED_W = 72;
 const EXPANDED_W  = 200;
@@ -156,25 +156,8 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const [headerHidden, setHeaderHidden] = useState(false);
+  const { headerHidden, toggleHeader } = useHeaderState();
   const expanded = false; // hover-expand disabled; sidebar stays collapsed
-
-  useEffect(() => {
-    try {
-      if (window.localStorage.getItem(HEADER_HIDDEN_KEY) === "1") setHeaderHidden(true);
-    } catch { /* ignore */ }
-
-    const onSync = (e: CustomEvent<{ hidden: boolean }>) => setHeaderHidden(e.detail.hidden);
-    window.addEventListener("header-hidden-sync", onSync as EventListener);
-    return () => window.removeEventListener("header-hidden-sync", onSync as EventListener);
-  }, []);
-
-  const toggleHeader = () => {
-    const next = !headerHidden;
-    setHeaderHidden(next);
-    try { window.localStorage.setItem(HEADER_HIDDEN_KEY, next ? "1" : "0"); } catch { /* ignore */ }
-    window.dispatchEvent(new CustomEvent("header-visibility-toggle", { detail: { hidden: next } }));
-  };
 
   const monitoringActive  = pathname?.startsWith("/monitoring") ?? false;
   const signalActive      = pathname?.startsWith("/signal") ?? false;
