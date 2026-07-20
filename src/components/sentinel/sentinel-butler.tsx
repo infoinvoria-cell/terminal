@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useGlobalPage } from "@/context/global-page-context";
 import { useSentinelChat } from "@/hooks/use-sentinel-chat";
 
@@ -103,6 +104,7 @@ function renderInline(text: string): React.ReactNode {
 // ── Main Butler component ─────────────────────────────────────────────────────
 
 export function SentinelButler() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const { currentPage, currentTab, currentMode, visibleTitle } = useGlobalPage();
   const { messages, busy, input, setInput, send, clearChat, hasQueued } = useSentinelChat(BUTLER_STORAGE_KEY);
@@ -165,6 +167,11 @@ export function SentinelButler() {
     window.dispatchEvent(new CustomEvent("sentinel-butler-open-full"));
     setOpen(false);
   };
+
+  // Mobile shell (/m/*) has its own dedicated Sentinel page and bottom-nav —
+  // the desktop floating butler must not overlay it. Desktop behaviour is unchanged.
+  // Guard on the exact "/m/" prefix so desktop routes like /monitoring stay unaffected.
+  if (pathname === "/m" || pathname?.startsWith("/m/")) return null;
 
   return (
     <>
