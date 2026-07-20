@@ -25,7 +25,8 @@ type AnomalyJson = {
   oosStartDate?: string;
   equityCurve: { full: AnomalyPoint[]; is_?: AnomalyPoint[]; oos?: AnomalyPoint[] };
   drawdownCurve?: { full?: AnomalyPoint[] };
-  summary?: { full?: { cagr?: number; maxDrawdownPercent?: number; avgDrawdownPercent?: number; top5DrawdownsPercent?: number[]; totalReturnPercent?: number; sharpe?: number } };
+  trades?: { pnl: number; exit_time: string }[];
+  summary?: { full?: { cagr?: number; maxDrawdownPercent?: number; avgDrawdownPercent?: number; top5DrawdownsPercent?: number[]; totalReturnPercent?: number; sharpe?: number; avgLoss?: number } };
 };
 type EquitySeries = { date: string; equity: number | null; equityOos: number | null; dd: number | null }[];
 
@@ -336,9 +337,9 @@ function SectionBlock({
 
 function PreviewMetric({ label, value }: { label: string; value: string; tone?: "positive" | "negative" | "neutral" }) {
   return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-3">
-      <div className="text-[9px] uppercase tracking-wider text-zinc-500">{label}</div>
-      <div className="mt-1.5 text-[18px] font-bold leading-none text-white">{value}</div>
+    <div className="flex flex-col justify-between rounded-lg border border-zinc-800 bg-gradient-to-b from-[#1c1d20] to-[#141517] p-2 h-full">
+      <div className="text-[9px] uppercase tracking-wider text-zinc-500 leading-none">{label}</div>
+      <div className="text-[16px] font-bold leading-none text-white">{value}</div>
     </div>
   );
 }
@@ -358,11 +359,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
   const [anomalyPerf, setAnomalyPerf] = useState<{
     equityCurve: { time: string; value: number }[];
     drawdownCurve: { time: string; value: number }[];
-    cagr?: number;
     maxDrawdownPercent?: number;
-    avgDrawdownPercent?: number;
-    top5DrawdownsPercent?: number[];
-    totalReturnPercent?: number;
   } | null>(null);
 
   const selectedCard = useMemo(
@@ -404,29 +401,44 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
       .then((r) => r.json() as Promise<AnomalyJson>)
       .then((json) => {
         if (cancelled) return;
+        // R-based equity + drawdown from trades (no compounding)
+        const trades = json.trades ?? [];
+        const rUnit = Math.abs(json.summary?.full?.avgLoss ?? 0) || 1;
+        let cumR = 0;
+        let peakR = 0;
+        const equityCurve: { time: string; value: number }[] = [];
+        const drawdownCurve: { time: string; value: number }[] = [];
+        if (trades.length) {
+          equityCurve.push({ time: trades[0]!.exit_time, value: 0 });
+          drawdownCurve.push({ time: trades[0]!.exit_time, value: 0 });
+        }
+        for (const t of trades) {
+          cumR += t.pnl / rUnit;
+          if (cumR > peakR) peakR = cumR;
+          equityCurve.push({ time: t.exit_time, value: cumR });
+          drawdownCurve.push({ time: t.exit_time, value: cumR - peakR });
+        }
+        const maxDd = drawdownCurve.reduce((m, p) => Math.min(m, p.value), 0);
+        // Equityseries for main chart (unchanged %-compounded)
         const oosStart = json.oosStartDate ?? "";
         const full = json.equityCurve.full ?? [];
-        if (!full.length) { setEquitySeries(null); setAnomalyPerf(null); return; }
-        const base = full[0]!.value;
-        const ddFull = json.drawdownCurve?.full ?? [];
-        const series: EquitySeries = full.map((p, i) => {
-          const isOos = p.time >= oosStart;
-          const eq = ((p.value / base) - 1) * 100;
-          const dd = ddFull[i]?.value ?? 0;
-          return { date: p.time, equity: isOos ? null : eq, equityOos: isOos ? eq : null, dd };
-        });
-        const equityCurve = full.map((p) => ({ time: p.time, value: ((p.value / base) - 1) * 100 }));
-        const drawdownCurve = ddFull.length ? ddFull : full.map((_, i) => ({ time: full[i]!.time, value: series[i]!.dd ?? 0 }));
-        const sum = json.summary?.full;
-        setEquitySeries(series);
+        if (full.length) {
+          const base = full[0]!.value;
+          const ddFull = json.drawdownCurve?.full ?? [];
+          const series: EquitySeries = full.map((p, i) => {
+            const isOos = p.time >= oosStart;
+            const eq = ((p.value / base) - 1) * 100;
+            const dd = ddFull[i]?.value ?? 0;
+            return { date: p.time, equity: isOos ? null : eq, equityOos: isOos ? eq : null, dd };
+          });
+          setEquitySeries(series);
+        } else {
+          setEquitySeries(null);
+        }
         setAnomalyPerf({
           equityCurve,
           drawdownCurve,
-          cagr: sum?.cagr,
-          maxDrawdownPercent: sum?.maxDrawdownPercent,
-          avgDrawdownPercent: sum?.avgDrawdownPercent,
-          top5DrawdownsPercent: sum?.top5DrawdownsPercent,
-          totalReturnPercent: sum?.totalReturnPercent,
+          maxDrawdownPercent: maxDd,
         });
       })
       .catch(() => { if (!cancelled) { setEquitySeries(null); setAnomalyPerf(null); } });
@@ -514,6 +526,8 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
               avgDrawdownPercent: selectedPreview.performance.summary.avgDrawdownPercent,
               top5DrawdownsPercent: selectedPreview.performance.summary.top5DrawdownsPercent,
             } : null);
+            // For anomaly cards cagr/totalReturnPercent are not R-based; pass undefined
+            const isAnomaly = Boolean(anomalyPerf);
             return (
               <div className="flex flex-col overflow-hidden border-b border-white/[0.04]" style={{ height: "40vh" }}>
                 {mounted && perf ? (
@@ -521,8 +535,8 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
                     <div className="min-h-0 overflow-hidden p-1.5" style={{ height: "65%" }}>
                       <StrategyTesterEquityChart
                         data={perf.equityCurve}
-                        totalReturnPercent={perf.totalReturnPercent}
-                        cagr={perf.cagr}
+                        totalReturnPercent={isAnomaly ? undefined : (perf as { totalReturnPercent?: number }).totalReturnPercent}
+                        cagr={isAnomaly ? undefined : (perf as { cagr?: number }).cagr}
                         fillContainer
                       />
                     </div>
@@ -530,8 +544,8 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
                       <StrategyTesterDrawdownChart
                         data={perf.drawdownCurve}
                         maxDrawdownPercent={perf.maxDrawdownPercent}
-                        avgDrawdownPercent={"avgDrawdownPercent" in perf ? perf.avgDrawdownPercent : undefined}
-                        top5DrawdownsPercent={"top5DrawdownsPercent" in perf ? perf.top5DrawdownsPercent : undefined}
+                        avgDrawdownPercent={isAnomaly ? undefined : (perf as { avgDrawdownPercent?: number }).avgDrawdownPercent}
+                        top5DrawdownsPercent={isAnomaly ? undefined : (perf as { top5DrawdownsPercent?: number[] }).top5DrawdownsPercent}
                         fillContainer
                       />
                     </div>
@@ -545,8 +559,8 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
             );
           })()}
 
-          {/* Row 3 — KPI 5er reihe 10vh */}
-          <div className="grid grid-cols-5 gap-1 p-2" style={{ height: "10vh" }}>
+          {/* Row 3 — KPI 5er reihe 7vh */}
+          <div className="grid grid-cols-5 gap-2 p-2" style={{ height: "7vh" }}>
             {(selectedPreview?.kpis ?? []).slice(0, 5).map((metric) => (
               <PreviewMetric key={metric.label} label={metric.label} value={metric.value} tone={metric.tone} />
             ))}

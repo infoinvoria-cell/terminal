@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:auto": "nodemon --watch src --ext ts,tsx,css --ignore .next --exec \"npm run dev\"",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
