@@ -337,6 +337,7 @@ export const CORE_INVEST_SOURCES: SignalSource[] = [
     strategyFolder: "strategies",
     candleSource: "invest_csv",
     investSymbol: "QQQ",
+    forcedDirection: "LONG",
     monitoringTarget: { tab: "invest", asset: "QQQ_PINE_1", strategyId: "QQQ_PINE_1" },
   },
   {
@@ -352,6 +353,7 @@ export const CORE_INVEST_SOURCES: SignalSource[] = [
     strategyFolder: "strategies",
     candleSource: "invest_csv",
     investSymbol: "QQQ",
+    forcedDirection: "LONG",
     monitoringTarget: { tab: "invest", asset: "QQQ_PINE_2_EMA", strategyId: "QQQ_PINE_2_EMA" },
   },
   {
@@ -367,6 +369,7 @@ export const CORE_INVEST_SOURCES: SignalSource[] = [
     strategyFolder: "strategies",
     candleFile: "COMEX_HG1_D.json",
     candleSource: "cache",
+    forcedDirection: "LONG",
     monitoringTarget: { tab: "invest", asset: "COPPER_HG", strategyId: "COPPER_HG" },
   },
   {
@@ -383,6 +386,7 @@ export const CORE_INVEST_SOURCES: SignalSource[] = [
     candleFile: "CME_6S1_D.json",
     candleSource: "cache",
     forcedStatus: "PARITY_PENDING",
+    forcedDirection: "LONG",
     monitoringTarget: { tab: "invest", asset: "CHF_6S", strategyId: "CHF_6S" },
   },
   {
