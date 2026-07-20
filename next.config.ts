@@ -13,21 +13,25 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ["lucide-react", "recharts"],
   },
   async headers() {
+    const immutableAssetHeaders = [
+      { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+    ];
+
     return [
       // Note: /_next/static/* is managed by Next.js automatically (immutable).
       // Public branding/icons
       {
         source: "/branding/:path*",
-        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+        headers: immutableAssetHeaders,
       },
       // Public image assets
       {
-        source: "/:path*.png",
-        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+        source: "/:path*\\.(png|jpg|jpeg|webp|avif|gif|svg|ico)",
+        headers: immutableAssetHeaders,
       },
       {
-        source: "/:path*.jpg",
-        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+        source: "/:path*\\.(woff|woff2|ttf|otf|eot)",
+        headers: immutableAssetHeaders,
       },
       // Dynamic generated data: no cache
       {
