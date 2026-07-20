@@ -44,7 +44,8 @@ export default async function RootLayout({
     "inno";
 
   const cookieStore = await cookies();
-  const initialHeaderHidden = cookieStore.get("fmd_header_hidden")?.value === "1";
+  // Default: hidden. Only visible if cookie explicitly set to "0".
+  const initialHeaderHidden = cookieStore.get("fmd_header_hidden")?.value !== "0";
 
   return (
     <html

@@ -87,7 +87,19 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
 
   // Pre-compute sphere positions, link pairs, and per-node size jitter — only when data changes
   const { spherePos, linkPairs, sizeJitter } = useMemo(() => {
-    const sp = fibonacciSphere(data.nodes.length);
+    const raw = fibonacciSphere(data.nodes.length);
+
+    // Map high-degree nodes → equatorial positions, isolates → poles
+    // Sort positions by |y| ascending (|y|≈0 = equator, |y|≈1 = pole)
+    const sortedPos = [...raw].sort((a, b) => Math.abs(a[1]) - Math.abs(b[1]));
+    // Sort node indices by degree descending
+    const byDeg = data.nodes
+      .map((nd, i) => ({ i, deg: nd.degree }))
+      .sort((a, b) => b.deg - a.deg);
+    // Assign: highest-degree node → most equatorial position
+    const sp: [number, number, number][] = new Array(data.nodes.length);
+    for (let k = 0; k < byDeg.length; k++) sp[byDeg[k].i] = sortedPos[k];
+
     const idxMap = new Map(data.nodes.map((nd, i) => [nd.id, i]));
     const lp: [number, number][] = [];
     for (const l of data.links) {

@@ -15,7 +15,7 @@ type HeaderStateCtx = {
 };
 
 const HeaderCtx = createContext<HeaderStateCtx>({
-  headerHidden: false,
+  headerHidden: true, // default: hidden
   toggleHeader: () => {},
 });
 
