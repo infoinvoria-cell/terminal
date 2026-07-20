@@ -14,22 +14,26 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
-      // Note: /_next/static/* is managed by Next.js automatically (immutable).
-      // Public branding/icons
       {
-        source: "/branding/:path*",
+        source: "/(branding|assets|fonts)/:path*",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
-      // Public image assets
       {
-        source: "/:path*.png",
-        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+        source: "/:file([^/]+\\.(?:png|jpg|jpeg|webp|avif|svg|ico|woff|woff2|ttf|otf))",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
       {
-        source: "/:path*.jpg",
-        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+        source: "/api/brain-graph/:path*",
+        headers: [{ key: "Cache-Control", value: "public, s-maxage=3600, stale-while-revalidate=3600" }],
       },
-      // Dynamic generated data: no cache
+      {
+        source: "/api/signal/:path*",
+        headers: [{ key: "Cache-Control", value: "public, s-maxage=60, stale-while-revalidate=60" }],
+      },
+      {
+        source: "/api/monitoring/:path*",
+        headers: [{ key: "Cache-Control", value: "public, s-maxage=60, stale-while-revalidate=60" }],
+      },
       {
         source: "/generated/:path*",
         headers: [{ key: "Cache-Control", value: "no-store" }],
