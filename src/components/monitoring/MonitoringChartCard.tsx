@@ -513,7 +513,7 @@ function MonitoringChartCardInner({
       {item && hasBars ? (
         <MonitoringChart
           data={chartData}
-          maxBars={radar ? 160 : (isDashboardMini ? 500 : isAllStrategiesMini ? 800 : (item?.universeGroup === "Intraday MT" ? 600 : 2500))}
+          maxBars={radar ? 160 : (isDashboardMini ? 500 : isAllStrategiesMini ? 800 : (2500))}
           initialVisibleBars={radar ? (radarActiveSignal ? radarOpenSignalVisibleBars(strategyTrades) : 18) : (isDashboardMini ? 20 : (item?.universeGroup === "Intraday MT" ? intradayInitialVisibleBars(strategyTrades) : (item?.universeGroup === "Indizes" ? indicesInitialVisibleBars(strategyTrades) : undefined)))}
           allDashboardMode={isDashboardMini || radar}
           showFullscreenControl

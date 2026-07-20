@@ -5,7 +5,7 @@ export async function routeChat(args: { messages: ChatMessage[]; requestedProvid
   return ask(args.messages, { requestedProvider: args.requestedProvider });
 }
 
-export async function getProviderStatuses(activeProvider?: "local" | "openai" | "anthropic" | "custom" | null) {
+export async function getProviderStatuses(activeProvider?: "local" | "ollama" | "groq" | "anthropic" | "custom" | null) {
   return healthCheckProviders(activeProvider ?? null);
 }
 

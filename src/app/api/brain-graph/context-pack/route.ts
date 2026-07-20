@@ -104,14 +104,11 @@ export async function POST(req: NextRequest) {
   const brainRoot = getCapitalifeBrainPath();
   const handoffRoot = brainRoot ? path.join(brainRoot, "_ChatGPT_Handoff") : null;
 
-  // Write to handoff dir
-  try {
-    if (handoffRoot) {
-      if (!fs.existsSync(handoffRoot)) fs.mkdirSync(handoffRoot, { recursive: true });
-      fs.writeFileSync(path.join(handoffRoot, "AI_Context_Pack.md"), markdown, "utf8");
-    }
-  } catch {
-    // non-fatal — still return the preview
+  // Write to handoff dir (fire-and-forget — non-blocking)
+  if (handoffRoot) {
+    fs.promises.mkdir(handoffRoot, { recursive: true })
+      .then(() => fs.promises.writeFile(path.join(handoffRoot, "AI_Context_Pack.md"), markdown, "utf8"))
+      .catch(() => { /* non-fatal */ });
   }
 
   return NextResponse.json({ files, preview: markdown });

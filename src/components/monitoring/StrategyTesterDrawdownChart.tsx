@@ -148,7 +148,6 @@ export default function StrategyTesterDrawdownChart({
   const maxDdLabel = Number.isFinite(maxDD) ? fmtPct(-Math.abs(maxDD)) : "n/a";
   const avgDdLabel = Number.isFinite(avgDD) ? fmtPct(avgDD <= 0 ? avgDD : -Math.abs(avgDD)) : "n/a";
   const hasChartSize = size.width > 0 && size.height > 0;
-  const chartKey = `${segmentedData.length}:${timeRangeFrom ?? "all"}`;
   const compactStats = hasChartSize && size.width < 460;
   const showTop5Chip = !compactStats || top5.length <= 1;
 
@@ -178,7 +177,7 @@ export default function StrategyTesterDrawdownChart({
       </div>
       <div ref={chartRef} className={wrapClass}>
         {hasChartSize ? (
-          <ComposedChart key={chartKey} width={Math.max(size.width, 1)} height={Math.max(size.height, 1)} data={segmentedData} margin={{ top: 4, right: 18, bottom: 0, left: 0 }}>
+          <ComposedChart width={Math.max(size.width, 1)} height={Math.max(size.height, 1)} data={segmentedData} margin={{ top: 4, right: 18, bottom: 0, left: 0 }}>
             <defs>
               <linearGradient id="ddFillTest" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#95a2b3" stopOpacity={0.12} />

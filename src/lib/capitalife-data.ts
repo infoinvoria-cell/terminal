@@ -79,6 +79,20 @@ export type WhiteSwanCombinedEvidence = {
     profit_eur: number;
     note: string;
   }>;
+  optimal_portfolio?: {
+    label: string;
+    frozen_at: string;
+    weights: Array<{ strategy: string; weight_pct: number }>;
+    oos_sharpe: number;
+    cagr_pct: number;
+    max_dd_pct: number;
+    calmar: number;
+    wf_folds_positive: number;
+    wf_folds_total: number;
+    mc_p5_sharpe: number;
+    mc_loss_prob_5y_pct: number;
+    note: string;
+  };
 };
 
 export type WhiteSwanAnnualReturns = {
@@ -118,6 +132,22 @@ export type AnalyticsGenerated = {
   whiteSwanBacktest: AnalyticsBacktestBlock;
   investBacktest: AnalyticsBacktestBlock;
   combinedBacktest: AnalyticsBacktestBlock;
+};
+
+export type WsPortfolioEquityFile = {
+  meta: {
+    generated: string;
+    is_start: string;
+    oos_start: string;
+    strategies: string[];
+    weights: Record<string, number>;
+    note?: string;
+  };
+  isOosSplit: string;
+  equityCurve: Array<{ time: string; value: number }>;
+  drawdownCurve?: Array<{ time: string; value: number }>;
+  summary?: Record<string, number>;
+  yearly?: Array<{ year: number; return: number }>;
 };
 
 export type FSPortfolioConfigJson = {
@@ -364,6 +394,27 @@ export const fsportfolioConfigJson: FSPortfolioConfigJson =
   loadJsonFromDisk<FSPortfolioConfigJson>("fsportfolio-live-core.config.json") ??
   FALLBACK_FSPORTFOLIO_CONFIG;
 
+function loadPublicJson<T>(relativePath: string): T | null {
+  if (typeof window !== "undefined") return null;
+  if (process.env.VERCEL) return null;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const nodeRequire: NodeRequire | undefined =
+      typeof require !== "undefined" ? require : undefined;
+    if (!nodeRequire) return null;
+    const fs = nodeRequire("node:fs") as typeof import("node:fs");
+    const path = nodeRequire("node:path") as typeof import("node:path");
+    const filePath = path.join(process.cwd(), "public", relativePath);
+    if (!fs.existsSync(filePath)) return null;
+    return JSON.parse(fs.readFileSync(filePath, "utf-8")) as T;
+  } catch {
+    return null;
+  }
+}
+
+export const wsPortfolioEquity: WsPortfolioEquityFile | null =
+  loadPublicJson<WsPortfolioEquityFile>("data/whiteswan/portfolio_f10_equity.json");
+
 // Typed bundle of all capitalife data — call server-side, pass as props to client components.
 export type CapalifeData = {
   performanceMonthly: PerformanceMonthly;
@@ -371,6 +422,7 @@ export type CapalifeData = {
   whiteSwanCombinedEvidence: WhiteSwanCombinedEvidence;
   whiteSwanAnnualReturns: WhiteSwanAnnualReturns;
   analyticsGenerated: AnalyticsGenerated;
+  wsPortfolioEquity: WsPortfolioEquityFile | null;
 };
 
 export function getCapalifeData(): CapalifeData {
@@ -380,5 +432,6 @@ export function getCapalifeData(): CapalifeData {
     whiteSwanCombinedEvidence,
     whiteSwanAnnualReturns,
     analyticsGenerated,
+    wsPortfolioEquity,
   };
 }

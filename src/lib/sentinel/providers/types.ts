@@ -1,8 +1,8 @@
 export type MessageRole = "system" | "user" | "assistant";
 
-export type SentinelProviderType = "local" | "openai" | "anthropic" | "custom";
-export type SentinelProviderId = "local" | "openai" | "anthropic" | "custom";
-export type SentinelRouterMode = "auto" | "local" | "openai" | "anthropic" | "custom";
+export type SentinelProviderType = "local" | "anthropic" | "custom";
+export type SentinelProviderId = "local" | "ollama" | "groq" | "mistral" | "anthropic" | "custom";
+export type SentinelRouterMode = "auto" | "local" | "ollama" | "groq" | "mistral" | "anthropic" | "custom";
 export type ProviderAvailabilityReason =
   | "ready"
   | "key_missing"
@@ -24,6 +24,7 @@ export type ChatResult = {
   model: string;
   provider: SentinelProviderId;
   fallbackUsed?: boolean;
+  tokensUsed?: number;
 };
 
 export type ProviderHealth = {

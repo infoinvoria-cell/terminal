@@ -34,6 +34,17 @@ const ASSET_TERM_BY_CODE: Record<string, string> = {
 };
 
 const INVEST_LABEL_BY_CODE: Record<string, MonitoringChartLabel> = {
+  // CI v2.0 ETF Core
+  SPY: { symbol: "SPY", term: "S&P 500 ETF" },
+  QQQ_PASSIVE: { symbol: "QQQ", term: "Nasdaq ETF (passiv)" },
+  SPMO: { symbol: "SPMO", term: "S&P Momentum" },
+  GLD: { symbol: "GLD", term: "Gold ETF" },
+  // CI v2.0 Sleeves
+  QQQ_PINE_1: { symbol: "QQQ", term: "QQQ Pine 1" },
+  QQQ_PINE_2_EMA: { symbol: "QQQ", term: "QQQ Pine 2 EMA" },
+  COPPER_HG: { symbol: "HG1!", term: "Copper Sleeve" },
+  CHF_6S: { symbol: "6S1!", term: "CHF Sleeve" },
+  // Legacy
   NAS100USD_E_STEP_INVEST: { symbol: "NQ", term: "Nasdaq" },
   NAS100USD_ONLY_LONG_VALUATION_TREND_EMA: { symbol: "NQ", term: "Nasdaq" },
   USDCHF_CHF_INVEST: { symbol: "CHF", term: "USDCHF" },

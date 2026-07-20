@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Montserrat, Nunito } from "next/font/google";
 import { ClientProviders } from "@/components/providers";
 import "./globals.css";
@@ -16,6 +16,11 @@ const nunito = Nunito({
   display: "swap",
   weight: ["500", "600", "700", "800"],
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
   title: "Capitalife Terminal",

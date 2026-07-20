@@ -1,6 +1,6 @@
 "use client";
 
-import { Layers3, Star } from "lucide-react";
+import { Layers3, Star, Zap } from "lucide-react";
 import type { MonitoringPrimaryTabId } from "@/config/monitoringTabConfig";
 import { getMonitoringTabIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
 
@@ -18,6 +18,19 @@ export function MonitoringTabIcon({ tabId, active }: TabIconProps) {
     return (
       <span className={className} aria-hidden>
         <Star
+          size={ICON_SIZE}
+          strokeWidth={active ? 2 : 1.6}
+          fill={active ? "currentColor" : "none"}
+          className="monitoring-tab-icon-svg"
+        />
+      </span>
+    );
+  }
+
+  if (tabId === "anomaly") {
+    return (
+      <span className={className} aria-hidden>
+        <Zap
           size={ICON_SIZE}
           strokeWidth={active ? 2 : 1.6}
           fill={active ? "currentColor" : "none"}

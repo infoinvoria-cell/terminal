@@ -56,6 +56,8 @@ type CandleFile = {
   bars?: CandleBar[];
 };
 
+type NextSignalSchedule = "friday" | "thursday" | "tuesday_conditional" | "daily" | "date_specific";
+
 type SignalSource = {
   id: string;
   group: SignalCardGroup;
@@ -76,7 +78,29 @@ type SignalSource = {
   candleSource: "cache" | "invest_csv";
   investSymbol?: string;
   forcedStatus?: SignalCardStatus;
+  nextSignalSchedule?: NextSignalSchedule;
+  nextSignalDate?: string;
 };
+
+function nextWeekday(targetDay: number): string {
+  const now = new Date();
+  const today = now.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+  let daysAhead = targetDay - today;
+  if (daysAhead <= 0) daysAhead += 7;
+  const next = new Date(now);
+  next.setDate(now.getDate() + daysAhead);
+  return next.toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit" });
+}
+
+function computeNextSignalLabel(schedule: NextSignalSchedule | undefined, date?: string): string | undefined {
+  if (!schedule) return undefined;
+  if (schedule === "friday") return `Fr ${nextWeekday(5)}`;
+  if (schedule === "thursday") return `Do ${nextWeekday(4)}`;
+  if (schedule === "tuesday_conditional") return `Di ${nextWeekday(2)} (nur bei neg. Mo)`;
+  if (schedule === "daily") return "täglich prüfen";
+  if (schedule === "date_specific") return date ?? "Datum TBD";
+  return undefined;
+}
 
 const PROJECT_ROOT = process.cwd();
 const GENERATED_ROOT = path.join(PROJECT_ROOT, "public", "generated", "monitoring");
@@ -91,7 +115,9 @@ const INVEST_OHLC_FILES: Record<string, string[]> = {
 
 export const SIGNAL_SOURCE_FILTERS = ["all", "long", "short", "cash", "open", "validation"] as const;
 
-export const WHITE_SWAN_SOURCES: SignalSource[] = [
+// ── ARCHIVED: old Universe sources (WS_PORTFOLIO_WORKING_V0) ──────────────────
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const ARCHIVED_WHITE_SWAN_SOURCES: SignalSource[] = [
   {
     id: "ws-wheat-valuation",
     group: "white_swan",
@@ -169,6 +195,124 @@ export const WHITE_SWAN_SOURCES: SignalSource[] = [
   },
 ];
 
+// ── ACTIVE: F+10% Portfolio (WS-F+10%) ────────────────────────────────────────
+export const WHITE_SWAN_SOURCES: SignalSource[] = [
+  {
+    id: "fp10-gc1-friday-long",
+    group: "white_swan",
+    category: "seasonal",
+    strategyId: "FP10_GC1_FRIDAY_LONG",
+    strategyName: "GC1! Friday Long",
+    symbol: "GC1!",
+    assetName: "Gold Futures",
+    iconKey: "gold",
+    strategyFile: "FP10_GC1_friday_long_events.json",
+    strategyFolder: "strategies",
+    candleFile: "COMEX_GC1_D.json",
+    candleSource: "cache",
+    forcedStatus: "PAPER_ONLY",
+    nextSignalSchedule: "friday",
+    monitoringTarget: { tab: "metalle_energie", asset: "GC1!" },
+  },
+  {
+    id: "fp10-gld-thursday-long",
+    group: "white_swan",
+    category: "seasonal",
+    strategyId: "FP10_GLD_THURSDAY_LONG",
+    strategyName: "GLD Thursday Long",
+    symbol: "GLD",
+    assetName: "Gold ETF (GLD)",
+    iconKey: "gold",
+    strategyFile: "FP10_GLD_thursday_long_events.json",
+    strategyFolder: "strategies",
+    candleSource: "cache",
+    forcedStatus: "PAPER_ONLY",
+    nextSignalSchedule: "thursday",
+    monitoringTarget: { tab: "invest", asset: "GLD" },
+  },
+  {
+    id: "fp10-ym1-tat",
+    group: "white_swan",
+    category: "macro",
+    strategyId: "FP10_YM1_TAT",
+    strategyName: "YM1! TAT",
+    symbol: "YM1!",
+    assetName: "Dow Jones Futures",
+    iconKey: "dowJones",
+    strategyFile: "FP10_YM1_tat_events.json",
+    strategyFolder: "strategies",
+    candleSource: "cache",
+    forcedStatus: "PAPER_ONLY",
+    nextSignalSchedule: "tuesday_conditional",
+    monitoringTarget: { tab: "indizes", asset: "YM1!" },
+  },
+  {
+    id: "fp10-ukx-valuation",
+    group: "white_swan",
+    category: "valuation",
+    strategyId: "FP10_UKX_VALUATION",
+    strategyName: "UKX Valuation",
+    symbol: "UKX",
+    assetName: "FTSE 100",
+    iconKey: "gbp",
+    strategyFile: "FP10_UKX_valuation_events.json",
+    strategyFolder: "strategies",
+    candleSource: "cache",
+    forcedStatus: "PAPER_ONLY",
+    nextSignalSchedule: "daily",
+    monitoringTarget: { tab: "indizes", asset: "UKX" },
+  },
+  {
+    id: "fp10-ct1-macro-a",
+    group: "white_swan",
+    category: "macro",
+    strategyId: "FP10_CT1_MACRO_A",
+    strategyName: "CT1 Macro A",
+    symbol: "CT1!",
+    assetName: "Cotton Futures",
+    iconKey: "cotton",
+    strategyFile: "FP10_CT1_macro_a_events.json",
+    strategyFolder: "strategies",
+    candleSource: "cache",
+    forcedStatus: "PAPER_ONLY",
+    nextSignalSchedule: "daily",
+    monitoringTarget: { tab: "agrar", asset: "CT1!" },
+  },
+  {
+    id: "fp10-nq1-trend-lo",
+    group: "white_swan",
+    category: "valuation",
+    strategyId: "FP10_NQ1_TREND_LO",
+    strategyName: "NQ1 Trend LO",
+    symbol: "NQ1!",
+    assetName: "Nasdaq Futures",
+    iconKey: "nasdaq",
+    strategyFile: "FP10_NQ1_trend_lo_events.json",
+    strategyFolder: "strategies",
+    candleFile: "OANDA_NAS100USD_D.json",
+    candleSource: "cache",
+    forcedStatus: "PAPER_ONLY",
+    nextSignalSchedule: "daily",
+    monitoringTarget: { tab: "indizes", asset: "NQ1!" },
+  },
+  {
+    id: "fp10-intraday-mt-v3f",
+    group: "white_swan",
+    category: "macro",
+    strategyId: "FP10_INTRADAY_MT_V3F",
+    strategyName: "Intraday MT v3-F",
+    symbol: "EURUSD",
+    assetName: "Intraday Multi-Asset",
+    iconKey: "eur",
+    strategyFile: "FP10_intraday_mt_v3f_events.json",
+    strategyFolder: "strategies",
+    candleSource: "cache",
+    forcedStatus: "PAPER_ONLY",
+    nextSignalSchedule: "daily",
+    monitoringTarget: { tab: "intraday_mt", asset: "6E1! 30M" },
+  },
+];
+
 export const CORE_INVEST_SOURCES: SignalSource[] = [
   {
     id: "ci-qqq-pine-1",
@@ -230,6 +374,84 @@ export const CORE_INVEST_SOURCES: SignalSource[] = [
     candleSource: "cache",
     forcedStatus: "PARITY_PENDING",
     monitoringTarget: { tab: "invest", asset: "CHF_6S", strategyId: "CHF_6S" },
+  },
+  {
+    id: "ci-spy-passive",
+    group: "core_invest",
+    category: "core_strategy",
+    strategyId: "CI_SPY_PASSIVE",
+    strategyName: "SPY passiv",
+    symbol: "SPY",
+    assetName: "S&P 500 ETF (SPY)",
+    iconKey: "esSp",
+    strategyFile: "CI_SPY_passive_events.json",
+    strategyFolder: "strategies",
+    candleFile: "BATS_SPY_D.json",
+    candleSource: "cache",
+    forcedStatus: "OPEN",
+    monitoringTarget: { tab: "invest", asset: "SPY" },
+  },
+  {
+    id: "ci-qqq-passive",
+    group: "core_invest",
+    category: "core_strategy",
+    strategyId: "CI_QQQ_PASSIVE",
+    strategyName: "QQQ passiv",
+    symbol: "QQQ",
+    assetName: "Nasdaq ETF passiv (QQQ)",
+    iconKey: "nasdaq",
+    strategyFile: "CI_QQQ_passive_events.json",
+    strategyFolder: "strategies",
+    candleSource: "cache",
+    forcedStatus: "OPEN",
+    monitoringTarget: { tab: "invest", asset: "QQQ_PASSIVE" },
+  },
+  {
+    id: "ci-spmo-passive",
+    group: "core_invest",
+    category: "core_strategy",
+    strategyId: "CI_SPMO_PASSIVE",
+    strategyName: "SPMO passiv",
+    symbol: "SPMO",
+    assetName: "S&P Momentum (SPMO)",
+    iconKey: "esSp",
+    strategyFile: "CI_SPMO_passive_events.json",
+    strategyFolder: "strategies",
+    candleSource: "cache",
+    forcedStatus: "OPEN",
+    monitoringTarget: { tab: "invest", asset: "SPMO" },
+  },
+  {
+    id: "ci-gld-passive",
+    group: "core_invest",
+    category: "core_strategy",
+    strategyId: "CI_GLD_PASSIVE",
+    strategyName: "GLD passiv",
+    symbol: "GLD",
+    assetName: "Gold ETF (GLD)",
+    iconKey: "gold",
+    strategyFile: "CI_GLD_passive_events.json",
+    strategyFolder: "strategies",
+    candleSource: "cache",
+    forcedStatus: "OPEN",
+    monitoringTarget: { tab: "invest", asset: "GLD" },
+  },
+  {
+    id: "ci-quarterly-rebalancing",
+    group: "core_invest",
+    category: "research_validation",
+    strategyId: "CI_QUARTERLY_REBALANCING",
+    strategyName: "Quarterly Rebalancing",
+    symbol: "CI2.0",
+    assetName: "Core Invest v2.0 Portfolio",
+    iconKey: "esSp",
+    strategyFile: "CI_quarterly_rebalancing_events.json",
+    strategyFolder: "strategies",
+    candleSource: "cache",
+    forcedStatus: "PAPER_ONLY",
+    nextSignalSchedule: "date_specific",
+    nextSignalDate: "Okt 2026",
+    monitoringTarget: { tab: "invest", asset: "SPY" },
   },
 ];
 
@@ -386,6 +608,67 @@ function monthBreakdown(trades: MonitoringTrade[]): Array<{ month: string; value
   return [...monthly.entries()].map(([month, value]) => ({ month, value }));
 }
 
+type ValidatedKpi = { label: string; value: string; tone?: "positive" | "negative" | "neutral" };
+
+const VALIDATED_METRICS: Record<string, ValidatedKpi[]> = {
+  "fp10-gc1-friday-long": [
+    { label: "Sharpe", value: "1.54", tone: "positive" },
+    { label: "CAGR", value: "+4.18%", tone: "positive" },
+    { label: "Max Drawdown", value: "-6.87%", tone: "negative" },
+    { label: "Profit Factor", value: "2.07", tone: "positive" },
+    { label: "Winrate", value: "61.8%", tone: "positive" },
+    { label: "Trades", value: "377", tone: "neutral" },
+  ],
+  "fp10-gld-thursday-long": [
+    { label: "Sharpe", value: "0.51", tone: "positive" },
+    { label: "CAGR", value: "+3.38%", tone: "positive" },
+    { label: "Max Drawdown", value: "-7.29%", tone: "negative" },
+    { label: "Profit Factor", value: "1.21", tone: "neutral" },
+    { label: "Winrate", value: "54.6%", tone: "positive" },
+    { label: "Trades", value: "379", tone: "neutral" },
+  ],
+  "fp10-ym1-tat": [
+    { label: "Sharpe", value: "0.35", tone: "positive" },
+    { label: "CAGR", value: "+1.24%", tone: "positive" },
+    { label: "Max Drawdown", value: "-6.64%", tone: "negative" },
+    { label: "Profit Factor", value: "1.21", tone: "neutral" },
+    { label: "Winrate", value: "53.7%", tone: "positive" },
+    { label: "Trades", value: "164", tone: "neutral" },
+  ],
+  "fp10-ukx-valuation": [
+    { label: "Sharpe", value: "0.93", tone: "positive" },
+    { label: "CAGR", value: "+11.8%", tone: "positive" },
+    { label: "Max Drawdown", value: "-21.1%", tone: "negative" },
+    { label: "Profit Factor", value: "1.9", tone: "positive" },
+    { label: "Winrate", value: "57%", tone: "positive" },
+    { label: "Trades", value: "485", tone: "neutral" },
+  ],
+  "fp10-ct1-macro-a": [
+    { label: "Sharpe", value: "0.63", tone: "positive" },
+    { label: "CAGR", value: "+9.5%", tone: "positive" },
+    { label: "Max Drawdown", value: "-28.7%", tone: "negative" },
+    { label: "Profit Factor", value: "1.51", tone: "positive" },
+    { label: "Winrate", value: "59%", tone: "positive" },
+    { label: "Trades", value: "142", tone: "neutral" },
+  ],
+  "fp10-nq1-trend-lo": [
+    { label: "Sharpe", value: "0.44", tone: "positive" },
+    { label: "CAGR", value: "+8.3%", tone: "positive" },
+    { label: "Max Drawdown", value: "-35.9%", tone: "negative" },
+    { label: "Profit Factor", value: "1.5", tone: "positive" },
+    { label: "Winrate", value: "54%", tone: "positive" },
+    { label: "Trades", value: "100", tone: "neutral" },
+  ],
+  "ci-qqq-pine-1": [
+    { label: "Sharpe IS", value: "0.25", tone: "positive" },
+    { label: "OOS", value: "positiv", tone: "positive" },
+    { label: "CAGR", value: "n/a", tone: "neutral" },
+    { label: "Max Drawdown", value: "n/a", tone: "neutral" },
+    { label: "Profit Factor", value: "n/a", tone: "neutral" },
+    { label: "Trades", value: "n/a", tone: "neutral" },
+  ],
+};
+
 function buildPreview(
   card: SignalCardModel,
   candles: MonitoringCandle[],
@@ -433,12 +716,14 @@ function buildPreview(
   const monthly = monthBreakdown(monitoringTrades);
   const positiveMonths = monthly.length ? monthly.filter((entry) => entry.value > 0).length : 0;
 
+  const validatedKpis = !performance ? (VALIDATED_METRICS[card.id] ?? null) : null;
+
   return {
     chart,
     performance,
-    testerStatus: performance ? "ready" : "missing",
-    testerMessage: performance ? null : "Tester-Daten fuer dieses Signal fehlen",
-    kpis: [
+    testerStatus: performance ? "ready" : validatedKpis ? "validated" : "missing",
+    testerMessage: performance ? null : validatedKpis ? null : "Tester-Daten fuer dieses Signal fehlen",
+    kpis: validatedKpis ?? [
       { label: "Net Return", value: performance ? formatPct(performance.summary.totalReturnPercent) : "n/a", tone: performance && performance.summary.totalReturnPercent > 0 ? "positive" : performance && performance.summary.totalReturnPercent < 0 ? "negative" : "neutral" },
       { label: "CAGR", value: performance ? formatPct(performance.summary.cagr) : "n/a", tone: performance && performance.summary.cagr > 0 ? "positive" : performance && performance.summary.cagr < 0 ? "negative" : "neutral" },
       { label: "Max Drawdown", value: performance ? formatPct(-Math.abs(performance.summary.maxDrawdownPercent)) : "n/a", tone: performance && performance.summary.maxDrawdownPercent > 0 ? "negative" : "neutral" },
@@ -488,8 +773,12 @@ export function loadSignalSources(): Array<{ card: SignalCardModel; preview: Sig
       tp: toNumber(trade?.tp) ?? undefined,
       sl: toNumber(trade?.sl) ?? undefined,
       dataStatus,
+      nextSignalLabel: computeNextSignalLabel(source.nextSignalSchedule, source.nextSignalDate),
       monitoringTarget: source.monitoringTarget,
     };
+    // Hide CLOSED signals older than 7 days
+    const age = ageDays(signalDate);
+    if (status === "CLOSED" && age !== undefined && age > 7) return [];
     return [{ card, preview: buildPreview(card, candles, file) }];
   });
 }

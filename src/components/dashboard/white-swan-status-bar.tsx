@@ -3,12 +3,12 @@ import Image from "next/image";
 type Pill = { label: string; value: string; open?: boolean };
 
 const PILLS: Pill[] = [
-  { label: "Portfolio",    value: "WS_PORTFOLIO_WORKING_V0" },
-  { label: "Sleeves",      value: "5 active" },
+  { label: "Portfolio",    value: "WS-F+10%" },
+  { label: "Sleeves",      value: "6 active" },
   { label: "Entries",      value: "35 active" },
   { label: "Universe",     value: "42 confirmed · #43 open" },
   { label: "Seasonal",     value: "21 patterns" },
-  { label: "Group weights", value: "OPEN", open: true },
+  { label: "Group weights", value: "FROZEN", open: true },
   { label: "AuM",          value: "€0 · no live portfolio" },
 ];
 
@@ -35,7 +35,7 @@ export function WhiteSwanStatusBar() {
             className="flex items-center gap-1.5 text-[10.5px] [font-family:var(--font-montserrat),sans-serif]"
           >
             <span className="text-zinc-600">{p.label}:</span>
-            <span className={p.open ? "text-amber-500/80" : "text-zinc-400"}>
+            <span className={p.open ? "text-emerald-400/90" : "text-zinc-400"}>
               {p.value}
             </span>
           </span>

@@ -191,7 +191,18 @@ const MONITORING_ICON_FILE_BY_KEY: Record<string, string> = {
   AMZN: MONITORING_ASSET_ICON_FILES.amazon,
   AMAZON: MONITORING_ASSET_ICON_FILES.amazon,
 
-  // Invest
+  // Invest — CI v2.0 ETF Core
+  SPY: MONITORING_ASSET_ICON_FILES.esSp,
+  QQQ: MONITORING_ASSET_ICON_FILES.nasdaq,
+  QQQ_PASSIVE: MONITORING_ASSET_ICON_FILES.nasdaq,
+  SPMO: MONITORING_ASSET_ICON_FILES.esSp,
+  GLD: MONITORING_ASSET_ICON_FILES.gold,
+  // CI v2.0 Sleeves
+  QQQ_PINE_1: MONITORING_ASSET_ICON_FILES.nasdaq,
+  QQQ_PINE_2_EMA: MONITORING_ASSET_ICON_FILES.nasdaq,
+  COPPER_HG: MONITORING_ASSET_ICON_FILES.copper,
+  CHF_6S: MONITORING_ASSET_ICON_FILES.chf,
+  // Legacy Invest
   NAS100USD: MONITORING_ASSET_ICON_FILES.nasdaq,
   NAS100: MONITORING_ASSET_ICON_FILES.nasdaq,
   NASDAQ: MONITORING_ASSET_ICON_FILES.nasdaq,
@@ -325,12 +336,12 @@ type MonitoringAssetIconLookup = {
 };
 
 /** Top-left / first chart per tab — used for tab bar icons. */
-const MONITORING_TAB_TOP_ASSET: Record<Exclude<MonitoringPrimaryTabId, "fx" | "all" | "live">, MonitoringAssetIconLookup> = {
+const MONITORING_TAB_TOP_ASSET: Record<Exclude<MonitoringPrimaryTabId, "fx" | "all" | "live" | "anomaly">, MonitoringAssetIconLookup> = {
   agrar: { code: "ZW1!", assetId: "wheat", name: "Wheat", tv: "CBOT:ZW1!", source: "CBOT:ZW1!" },
   metalle_energie: { code: "GC1!", name: "Gold" },
   indizes: { code: "ES1!", name: "S&P 500" },
   aktien: { code: "AAPL", name: "Apple", assetId: "apple" },
-  invest: { code: "NAS100USD", name: "NASDAQ" },
+  invest: { code: "SPY", name: "S&P 500 ETF" },
   intraday_mt: {
     code: "DE30EUR",
     displaySymbol: "DE30EUR 2H",
@@ -341,7 +352,7 @@ const MONITORING_TAB_TOP_ASSET: Record<Exclude<MonitoringPrimaryTabId, "fx" | "a
 };
 
 export function getMonitoringTabIconUrl(tabId: MonitoringPrimaryTabId): string | null {
-  if (tabId === "fx" || tabId === "all" || tabId === "live") return null;
+  if (tabId === "fx" || tabId === "all" || tabId === "live" || tabId === "anomaly") return null;
   return getMonitoringAssetIconUrl(MONITORING_TAB_TOP_ASSET[tabId]);
 }
 

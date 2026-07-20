@@ -172,10 +172,22 @@ export function SentinelSessionProvider({ children }: { children: React.ReactNod
 
       const contentType = res.headers.get("content-type") ?? "";
       const providerUsed = res.headers.get("x-sentinel-provider") as SentinelStatusPayload["activeProvider"];
+      const tokensUsedHeader = res.headers.get("x-sentinel-tokens-used");
 
       if (providerUsed) {
         setCurrentRun((previous) => ({ ...previous, provider: providerUsed, updatedAt: nowIso() }));
         setStatus((previous) => previous ? { ...previous, activeProvider: providerUsed } : previous);
+      }
+
+      if (tokensUsedHeader && providerUsed) {
+        const tokens = parseInt(tokensUsedHeader, 10);
+        if (!isNaN(tokens) && tokens > 0) {
+          void fetch("/api/sentinel/token-usage", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ provider: providerUsed, tokens }),
+          }).catch(() => { /* ignore */ });
+        }
       }
 
       if (!res.ok || contentType.includes("application/json")) {

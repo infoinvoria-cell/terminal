@@ -1,6 +1,23 @@
 @import "tailwindcss";
 @import "../styles/dashboard.css";
 
+@keyframes pageFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.page-fade {
+  animation: pageFadeIn 100ms ease both;
+}
+
+@keyframes globeRotateY {
+  from { transform: perspective(900px) rotateY(0deg); }
+  to   { transform: perspective(900px) rotateY(360deg); }
+}
+.globe-spin {
+  animation: globeRotateY 8s linear infinite;
+  transform-style: preserve-3d;
+}
+
 :root {
   --background: #0c0d10;
   --foreground: #fafafa;

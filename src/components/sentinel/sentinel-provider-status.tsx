@@ -76,6 +76,8 @@ export function SentinelProviderStatusBar({
 }) {
   if (!status) return null;
   const localProvider = status.providers.find((provider) => provider.id === "local") ?? null;
+  const ollamaProvider = status.providers.find((provider) => provider.id === "ollama") ?? null;
+  const groqProvider = status.providers.find((provider) => provider.id === "groq") ?? null;
   const localLabel = localProvider?.label ?? "Local";
   const localStatus = localProvider ? providerValue(localProvider) : "offline";
   const localTitle = localProvider
@@ -92,6 +94,24 @@ export function SentinelProviderStatusBar({
             value={localStatus}
             title={localTitle}
             tone={providerTone(localProvider)}
+            compact
+          />
+        ) : null}
+        {groqProvider ? (
+          <StatusChip
+            label="Groq"
+            value={providerValue(groqProvider)}
+            title={`Groq: ${providerValue(groqProvider)}${groqProvider.model ? ` | ${groqProvider.model}` : ""}`}
+            tone={providerTone(groqProvider)}
+            compact
+          />
+        ) : null}
+        {ollamaProvider ? (
+          <StatusChip
+            label="Ollama"
+            value={providerValue(ollamaProvider)}
+            title={`Ollama: ${providerValue(ollamaProvider)}${ollamaProvider.model ? ` | ${ollamaProvider.model}` : ""}`}
+            tone={providerTone(ollamaProvider)}
             compact
           />
         ) : null}

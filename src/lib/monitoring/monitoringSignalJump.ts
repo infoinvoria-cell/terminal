@@ -1,7 +1,7 @@
 export const MONITORING_SIGNAL_JUMP_KEY = "monitoring_signal_jump_v1";
 
 export type MonitoringSignalJumpPayload = {
-  tabId: "agrar" | "metalle_energie" | "indizes" | "aktien" | "invest" | "fx" | "intraday_mt" | "live" | "all";
+  tabId: "agrar" | "metalle_energie" | "indizes" | "aktien" | "invest" | "fx" | "anomaly" | "intraday_mt" | "live" | "all";
   targetCode?: string | null;
   targetItemKey?: string | null;
   investStrategyId?: string | null;

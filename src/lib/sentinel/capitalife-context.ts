@@ -161,3 +161,11 @@ export function getCapalifeContext(): string {
   cachedAt = now;
   return cached;
 }
+
+const BRAIN_KEYWORDS = /\b(strategi|portfolio|backtest|signal|brain|sleeve|entry|entries|invest|track.?record|performance|drawdown|sharpe|symbol|asset|agrar|metal|forex|energy|indic|seasonal|produc|white.?swan|capitalife|aum|execution|universe|register)\b/i;
+
+export function getCapalifeContextConditional(question?: string): string {
+  const needsBrain = !question || BRAIN_KEYWORDS.test(question);
+  if (needsBrain) return getCapalifeContext();
+  return STATIC_CONTEXT;
+}

@@ -82,11 +82,158 @@ function computeBenchmarkCagr(benchmarkSeries: AnalyticsSeriesPoint[]): number |
 
 const LIVE_PHASE_A_START = "2025-05-01";
 const LIVE_PHASE_B_START = "2026-05-01";
-// Core Invest target weights (Core Invest v1 spec 2026-07-10)
-const LIVE_DEFAULT_WEIGHTS: Record<string, number> = { SPY: 15, SPMO: 35, QQQ: 15, GLD: 10, WHITE_SWAN_NAS_EMA: 7.5, QQQ_PINE_2_EMA: 7.5, COPPER_HG: 5, CHF_6S: 5 };
-const LIVE_ORIGINAL_WEIGHTS: Record<string, number> = { SPY: 15, SPMO: 35, QQQ: 15, GLD: 10, WHITE_SWAN_NAS_EMA: 7.5, QQQ_PINE_2_EMA: 7.5, COPPER_HG: 5, CHF_6S: 5 };
+// Core Invest target weights (Core Invest v2.0 — frozen 2026-07-20)
+const LIVE_DEFAULT_WEIGHTS: Record<string, number> = { SPY: 5, SPMO: 5, QQQ: 45, GLD: 25, WHITE_SWAN_NAS_EMA: 5, QQQ_PINE_2_EMA: 5, COPPER_HG: 5, CHF_6S: 5 };
+const LIVE_ORIGINAL_WEIGHTS: Record<string, number> = { SPY: 5, SPMO: 5, QQQ: 45, GLD: 25, WHITE_SWAN_NAS_EMA: 5, QQQ_PINE_2_EMA: 5, COPPER_HG: 5, CHF_6S: 5 };
 const LIVE_ASSET_SYMBOLS = ["SPY", "SPMO", "QQQ", "GLD", "WHITE_SWAN_NAS_EMA", "QQQ_PINE_2_EMA", "COPPER_HG", "CHF_6S"] as const;
 const LIVE_ASSET_LABELS: Record<string, string> = { SPY: "SPY", SPMO: "SPMO", QQQ: "QQQ passive", GLD: "GLD", WHITE_SWAN_NAS_EMA: "QQQ Pine 1", QQQ_PINE_2_EMA: "QQQ Pine 2 EMA", COPPER_HG: "Copper/HG", CHF_6S: "CHF/6S" };
+
+// ── White Swan v1.1 constants ─────────────────────────────────────────────────
+const WS_STRATEGY_IDS = [
+  "GC1 Friday Long", "GLD Thursday Long", "YM1 TAT",
+  "UKX Valuation", "CT1 Macro A", "NQ1 Trend LO",
+  "Intraday MT v3-F",
+] as const;
+// v1.1 frozen weights: 6 WS × 0.70 + Intraday 30%
+const WS_FROZEN_WEIGHTS: Record<string, number> = {
+  "GC1 Friday Long":   13.86,
+  "GLD Thursday Long": 13.86,
+  "YM1 TAT":           13.86,
+  "UKX Valuation":     13.86,
+  "CT1 Macro A":        7.56,
+  "NQ1 Trend LO":       7.00,
+  "Intraday MT v3-F":  30.00,
+};
+const WS_STRATEGY_SHORT: Record<string, string> = {
+  "GC1 Friday Long":   "GC1! Friday",
+  "GLD Thursday Long": "GLD Thursday",
+  "YM1 TAT":           "YM1! TAT",
+  "UKX Valuation":     "UKX Val",
+  "CT1 Macro A":       "CT1 Macro",
+  "NQ1 Trend LO":      "NQ1 Trend",
+  "Intraday MT v3-F":  "Intraday v3-F",
+};
+const WS_INTRADAY_ID = "Intraday MT v3-F" as const;
+
+function SwanIcon({ size = 16 }: { size?: number }) {
+  return (
+    <img
+      src="/branding/white-swan-logo.png"
+      alt="White Swan"
+      width={size}
+      height={size}
+      style={{ width: size, height: size, objectFit: "contain" }}
+    />
+  );
+}
+
+function buildScopedWsDataset(
+  baseDataset: AnalyticsDataset,
+  wsWeights: Record<string, number>,
+  wsEnabled: Record<string, boolean>,
+  wsRiskMultiplier: number,
+): AnalyticsDataset {
+  const groupSeries = baseDataset.groupSeries;
+
+  // Convert cumulative % equity curves → per-month decimal returns
+  const stratMonthlyR: Record<string, Record<string, number>> = {};
+  for (const stratId of WS_STRATEGY_IDS) {
+    const curve = groupSeries[stratId];
+    if (!curve?.length) continue;
+    const monthR: Record<string, number> = {};
+    let prevCum = 0;
+    for (const point of curve) {
+      const month = point.date.slice(0, 7);
+      monthR[month] = (1 + point.value / 100) / (1 + prevCum / 100) - 1;
+      prevCum = point.value;
+    }
+    stratMonthlyR[stratId] = monthR;
+  }
+
+  const allMonths = [...new Set(
+    (WS_STRATEGY_IDS as readonly string[]).flatMap(id => Object.keys(stratMonthlyR[id] ?? {}))
+  )].sort();
+
+  const activeStrats = WS_STRATEGY_IDS.filter(id => wsEnabled[id] !== false && stratMonthlyR[id]);
+  const rawTotalW = activeStrats.reduce((s, id) => s + (wsWeights[id] ?? 0), 0);
+  const normW: Record<string, number> = {};
+  for (const id of activeStrats) normW[id] = rawTotalW > 0 ? (wsWeights[id] ?? 0) / rawTotalW : 0;
+
+  let equity = 100;
+  const performanceSeries: AnalyticsSeriesPoint[] = [];
+  const monthlyRetsRec: Record<string, number> = {};
+
+  for (const month of allMonths) {
+    const avail = activeStrats.filter(id => stratMonthlyR[id]![month] !== undefined);
+    const availW = avail.reduce((s, id) => s + (normW[id] ?? 0), 0);
+    let r = 0;
+    if (availW > 0) {
+      for (const id of avail) r += stratMonthlyR[id]![month]! * (normW[id] ?? 0) / availW;
+    }
+    r *= wsRiskMultiplier;
+    equity *= 1 + r;
+    monthlyRetsRec[month] = r;
+    // pick a real date from any strategy curve for that month, else use month-28
+    const date =
+      Object.values(groupSeries).flatMap(c => c ?? []).find(p => p.date.startsWith(month))?.date
+      ?? `${month}-28`;
+    performanceSeries.push({ date, value: Number((equity - 100).toFixed(2)) });
+  }
+
+  const drawdownSeries = computeDrawdown(performanceSeries);
+
+  // Annual returns
+  const annualGroups = new Map<string, number[]>();
+  for (const [month, r] of Object.entries(monthlyRetsRec)) {
+    const yr = month.slice(0, 4);
+    if (!annualGroups.has(yr)) annualGroups.set(yr, []);
+    annualGroups.get(yr)!.push(r);
+  }
+  const annualReturns = [...annualGroups.entries()].sort().map(([yr, rs]) => ({
+    label: yr,
+    value: Number(((rs.reduce((s, r) => s * (1 + r), 1) - 1) * 100).toFixed(2)),
+  }));
+  const monthlyReturns = allMonths.map(m => ({
+    label: m,
+    value: Number(((monthlyRetsRec[m] ?? 0) * 100).toFixed(2)),
+  }));
+
+  // Compute metrics (monthly annualization: sqrt(12))
+  const mDec = allMonths.map(m => monthlyRetsRec[m] ?? 0);
+  const n = mDec.length;
+  const totalReturn = equity - 100;
+  const cagrPct = n > 0 ? (Math.pow(equity / 100, 12 / n) - 1) * 100 : 0;
+  const meanM = n > 0 ? mDec.reduce((s, r) => s + r, 0) / n : 0;
+  const varM = n > 1 ? mDec.reduce((s, r) => s + (r - meanM) ** 2, 0) / (n - 1) : 0;
+  const stdM = Math.sqrt(varM);
+  const annualizedVolatilityPct = stdM * Math.sqrt(12) * 100;
+  const sharpe = stdM > 0 ? (meanM / stdM) * Math.sqrt(12) : 0;
+  const downRets = mDec.filter(r => r < 0);
+  const downVar = downRets.length > 0 ? downRets.reduce((s, r) => s + r * r, 0) / downRets.length : 0;
+  const sortino = downVar > 0 ? (meanM / Math.sqrt(downVar)) * Math.sqrt(12) : null;
+  const maxDrawdownPct = Math.min(...drawdownSeries.map(p => p.value), 0);
+  const calmar = maxDrawdownPct < 0 ? cagrPct / Math.abs(maxDrawdownPct) : null;
+  const positiveMonthsPct = n > 0 ? (mDec.filter(r => r > 0).length / n) * 100 : null;
+  const worstYearPct = annualReturns.length ? Math.min(...annualReturns.map(a => a.value)) : null;
+
+  const metrics: Record<string, number | string> = {
+    totalReturnPct: totalReturn,
+    cagrPct,
+    maxDrawdownPct,
+    annualizedVolatilityPct,
+    sharpe,
+    sortino: sortino ?? "n/a",
+    calmar: calmar ?? "n/a",
+    positiveMonthsPct: positiveMonthsPct ?? "n/a",
+    worstYearPct: worstYearPct ?? "n/a",
+    correlationToSpy: "n/a",
+    betaToSpy: "n/a",
+    tradeCount: "OOS 2019+",
+    dataPoints: n,
+  };
+
+  return { ...baseDataset, performanceSeries, drawdownSeries, annualReturns, monthlyReturns, metrics };
+}
 
 function computeBenchmarkExtended(series: AnalyticsSeriesPoint[]) {
   if (series.length < 10) return null;
@@ -427,6 +574,32 @@ function buildKpiCards(
     ];
   }
 
+  if (dataset.mode === "backtest" && dataset.tab === "whiteSwan") {
+    const pTotal = parseMetricNumber(dataset.metrics.totalReturnPct);
+    const pCagr = parseMetricNumber(dataset.metrics.cagrPct);
+    const pMaxDD = parseMetricNumber(dataset.metrics.maxDrawdownPct);
+    const pVol = parseMetricNumber(dataset.metrics.annualizedVolatilityPct);
+    const pSharpe = parseMetricNumber(dataset.metrics.sharpe);
+    const pSortino = parseMetricNumber(dataset.metrics.sortino);
+    const pCalmar = parseMetricNumber(dataset.metrics.calmar);
+    const pPosM = parseMetricNumber(dataset.metrics.positiveMonthsPct);
+    const bExt = inBenchmark ? computeBenchmarkExtended(benchmarkSeries) : null;
+    return [
+      deltaCard("Total Return", formatPercent(pTotal), pTotal, bTotal),
+      deltaCard("CAGR", formatPercent(pCagr), pCagr, bCagr),
+      deltaCard("Max Drawdown", formatPercent(pMaxDD), pMaxDD, bMaxDD, true),
+      deltaCard("Volatility", formatPercentNoPlus(pVol), pVol, bExt?.vol ?? null, false),
+      deltaCard("Sharpe", formatNumber(pSharpe), pSharpe, bExt?.sharpe ?? null, true, "ratio"),
+      deltaCard("Sortino", formatNumber(pSortino), pSortino, bExt?.sortino ?? null, true, "ratio"),
+      deltaCard("Calmar", formatNumber(pCalmar, 1), pCalmar, bExt?.calmar ?? null, true, "ratio"),
+      deltaCard("Pos. Months", formatPercentNoPlus(pPosM), pPosM, bExt?.posMonths ?? null),
+      { label: "Corr. to SPY", value: formatNumber(parseMetricNumber(dataset.metrics.correlationToSpy)) },
+      { label: "Beta to SPY", value: formatNumber(parseMetricNumber(dataset.metrics.betaToSpy)) },
+      { label: "Worst Year", value: formatPercent(parseMetricNumber(dataset.metrics.worstYearPct)) },
+      { label: "Data / Trades", value: `${formatCount(dataset.metrics.dataPoints)} / ${formatCount(dataset.metrics.tradeCount)}` },
+    ];
+  }
+
   if (dataset.mode === "live" && dataset.tab === "whiteSwan") {
     const official = capalifeData.whiteSwanCombinedEvidence.official_kpis;
     return [
@@ -445,6 +618,32 @@ function buildKpiCards(
     ];
   }
 
+  if (dataset.tab === "combined") {
+    const pTotal = parseMetricNumber(dataset.metrics.totalReturnPct);
+    const pCagr = parseMetricNumber(dataset.metrics.cagrPct);
+    const pMaxDD = parseMetricNumber(dataset.metrics.maxDrawdownPct);
+    const pSharpe = parseMetricNumber(dataset.metrics.sharpe);
+    const pCalmar = parseMetricNumber(dataset.metrics.calmar);
+    const pPosM = parseMetricNumber(dataset.metrics.positiveMonthsPct);
+    const bExt = inBenchmark ? computeBenchmarkExtended(benchmarkSeries) : null;
+    const wsG = dataset.groups.find(g => g.id === "White Swan");
+    const ciG = dataset.groups.find(g => g.id === "Core Invest");
+    return [
+      deltaCard("Total Return", formatPercent(pTotal), pTotal, bTotal),
+      deltaCard("CAGR", formatPercent(pCagr), pCagr, bCagr),
+      deltaCard("Max Drawdown", formatPercent(pMaxDD), pMaxDD, bMaxDD, true),
+      deltaCard("Sharpe", formatNumber(pSharpe), pSharpe, bExt?.sharpe ?? null, true, "ratio"),
+      deltaCard("Calmar", formatNumber(pCalmar, 1), pCalmar, bExt?.calmar ?? null, true, "ratio"),
+      deltaCard("Pos. Months", formatPercentNoPlus(pPosM), pPosM, bExt?.posMonths ?? null),
+      { label: "White Swan", value: wsG ? `${Math.round((wsG.weight ?? 0) * 100)}%` : "50%", delta: "F+10%" },
+      { label: "Core Invest", value: ciG ? `${Math.round((ciG.weight ?? 0) * 100)}%` : "50%", delta: "v2.0" },
+      { label: "Zeitraum", value: dataset.period.start && dataset.period.end ? `${dataset.period.start.slice(0, 4)}–${dataset.period.end.slice(0, 4)}` : "n/a" },
+      { label: "Data Points", value: formatCount(dataset.metrics.dataPoints) },
+      { label: "Source", value: "WS Backtest + CI v2.0" },
+      { label: "Status", value: "Research Preview" },
+    ];
+  }
+
   const metrics = dataset.metrics;
   const entryCount = dataset.groups.reduce((sum, group) => sum + (group.assets ?? 0), 0);
   const baseCards: KpiCard[] = dataset.mode === "backtest"
@@ -460,7 +659,7 @@ function buildKpiCards(
         { label: "Sleeves", value: formatCount(metrics.strategyCount ?? dataset.groups.length) },
         { label: "Entries", value: formatCount(entryCount) },
         { label: "Zeitraum", value: dataset.period.start && dataset.period.end ? `${dataset.period.start.slice(0, 4)}-${dataset.period.end.slice(0, 4)}` : "n/a" },
-        { label: "Status", value: dataset.tab === "combined" ? "Preview" : "Internal" },
+        { label: "Status", value: "Internal" },
       ]
     : [
         { label: "Status", value: formatCount(metrics.status) },
@@ -490,16 +689,17 @@ function buildKpiCards(
 function buildOverviewRows(dataset: AnalyticsDataset): Array<[string, string]> {
   if (dataset.tab === "invest" && dataset.mode === "live") {
     return [
-      ["Strategy", "Core Invest"],
-      ["Live Scope", "Forward tracking"],
-      ["Phase A", `QQQ Pine 100% from ${dataset.qqpineForwardDate ?? "2025-05-01"}`],
-      ["Phase B", `Full mix from ${dataset.portfolioLiveDate ?? "2026-05-01"}`],
-      ["ETF Core", "SPY · SPMO · QQQ · GLD (75%)"],
-      ["Sleeves", "QQQ Pine 1 · Pine 2 EMA · HG · CHF (25%)"],
-      ["Benchmark", `SPY from ${dataset.qqpineForwardDate ?? "2025-05-01"}`],
-      ["Execution", "none · not live"],
-      ["AuM", "EUR 0"],
-      ["Caveat", "Research/Pre-Fund · not live execution"],
+      ["Strategy", "Core Invest v2.0"],
+      ["Version", "v2.0 — frozen 2026-07-20 · APPROVED"],
+      ["ETF Core", "QQQ 45% · GLD 25% · SPMO 5% · SPY 5% (80%)"],
+      ["Sleeves", "Pine1 5% · Pine2 5% · HG1! 5% · 6S1! 5% (20%)"],
+      ["OOS CAGR", "17.11% (2019–2026)"],
+      ["OOS Sharpe", "1.152"],
+      ["OOS MaxDD", "−21.7%"],
+      ["OOS Calmar", "0.787"],
+      ["WF Beat", "60% · PASS"],
+      ["Gate", "APPROVED v2.0 · Frozen 2026-07-20"],
+      ["Execution", "none · Paper Trading only"],
     ];
   }
 
@@ -507,16 +707,17 @@ function buildOverviewRows(dataset: AnalyticsDataset): Array<[string, string]> {
     const adaptiveStart = dataset.metrics.adaptiveStart ? String(dataset.metrics.adaptiveStart) : "n/a";
     const fullCoreStart = dataset.metrics.fullCoreStart ? String(dataset.metrics.fullCoreStart) : "n/a";
     return [
-      ["Strategy", "Core Invest"],
-      ["ETF Core", "SPY · SPMO · QQQ · GLD (75%)"],
-      ["Sleeves", "QQQ Pine 1 · Pine 2 EMA · HG · CHF (25%)"],
-      ["Proxy Start", "2000-01-31"],
-      ["WF/OOS", "2008-01-31 – 2023-12-31"],
-      ["Forward", "ab 2024-01-31"],
+      ["Strategy", "Core Invest v2.0"],
+      ["ETF Core", "QQQ 45% · GLD 25% · SPMO 5% · SPY 5% (80%)"],
+      ["Sleeves", "Pine1 5% · Pine2 5% · HG1! 5% · 6S1! 5% (20%)"],
+      ["IS (2000-2018)", "CAGR 7.79% · Sh 0.669 · DD -34.5% · Cal 0.226"],
+      ["OOS (2019-2026)", "CAGR 17.11% · Sh 1.152 · DD -21.7% · Cal 0.787"],
+      ["WF Beat", "60% · PASS"],
+      ["Gate", "APPROVED v2.0 · Frozen 2026-07-20"],
       ["Adaptive Start", adaptiveStart],
       ["Full-Core Start", fullCoreStart],
       ["Market Data", "OHLC + QQQ Pine + HG + CHF"],
-      ["Execution", "none · not live"],
+      ["Execution", "none · Paper Trading only"],
     ];
   }
 
@@ -533,15 +734,56 @@ function buildOverviewRows(dataset: AnalyticsDataset): Array<[string, string]> {
     ];
   }
 
-  if (dataset.mode === "backtest") {
-    const isCombined = dataset.tab === "combined";
+  if (dataset.tab === "combined") {
+    const wsG = dataset.groups.find(g => g.id === "White Swan");
+    const ciG = dataset.groups.find(g => g.id === "Core Invest");
+    const wsW = wsG ? Math.round((wsG.weight ?? 0.5) * 100) : 50;
+    const ciW = ciG ? Math.round((ciG.weight ?? 0.5) * 100) : 50;
+    const pCagr = parseMetricNumber(dataset.metrics.cagrPct);
+    const pMaxDD = parseMetricNumber(dataset.metrics.maxDrawdownPct);
+    const pSharpe = parseMetricNumber(dataset.metrics.sharpe);
+    const pCalmar = parseMetricNumber(dataset.metrics.calmar);
     return [
-      ["Registry", isCombined ? "combined preview sources" : "final_production_sleeves.json v2"],
+      ["Portfolio", "Combined · WS + Core Invest"],
+      ["White Swan", `${wsW}% (F+10%)`],
+      ["Core Invest", `${ciW}% (v2.0)`],
+      ["__sep__", ""],
+      ["CAGR", formatPercent(pCagr)],
+      ["Max DD", formatPercent(pMaxDD)],
+      ["Sharpe", formatNumber(pSharpe)],
+      ["Calmar", formatNumber(pCalmar, 1)],
+      ["__sep__", ""],
+      ["Zeitraum", dataset.period.start && dataset.period.end ? `${dataset.period.start.slice(0, 7)} – ${dataset.period.end.slice(0, 7)}` : "n/a"],
+      ["Benchmark", "SPY (gestrichelt)"],
+      ["Status", "Research Preview · not live"],
+    ];
+  }
+
+  if (dataset.mode === "backtest" && dataset.tab === "whiteSwan") {
+    return [
+      ["Portfolio", "White Swan v1.1"],
+      ["Strategien", "7 (6 WS + Intraday)"],
+      ["GC1 Friday Long", "13.86%"],
+      ["GLD Thursday Long", "13.86%"],
+      ["YM1 TAT", "13.86%"],
+      ["UKX Valuation", "13.86%"],
+      ["CT1 Macro A", "7.56%"],
+      ["NQ1 Trend LO", "7.00%"],
+      ["Intraday MT v3-F", "30.00%"],
+      ["__sep__", ""],
+      ["OOS ab", "2019-01-01"],
+      ["Status", "PAPER_ONLY · Frozen 2026-07-20"],
+    ];
+  }
+
+  if (dataset.mode === "backtest") {
+    return [
+      ["Registry", "final_production_sleeves.json v2"],
       ["Sleeves", formatCount(dataset.metrics.strategyCount ?? dataset.groups.length)],
       ["Entries", formatCount(dataset.groups.reduce((sum, group) => sum + (group.assets ?? 0), 0))],
       ["Zeitraum", `${dataset.period.start ?? "n/a"} - ${dataset.period.end ?? "n/a"}`],
-      ["Gewichte", isCombined ? "open / preview" : "open"],
-      ["Status", isCombined ? "internal preview, not final" : "internal OOS/backtest"],
+      ["Gewichte", "open"],
+      ["Status", "internal OOS/backtest"],
       ["Source", dataset.sourceLabel],
       ["Track Record", "not external track record"],
     ];
@@ -603,7 +845,7 @@ function TopTabs({
             )}
           >
             {item.id === "whiteSwan" ? (
-              <Image src="/branding/white-swan-icon.png" alt="White Swan" width={15} height={15} className="rounded-sm object-contain" />
+              <SwanIcon size={14} />
             ) : item.id === "invest" ? (
               <TrendingUp size={14} strokeWidth={1.8} />
             ) : (
@@ -615,7 +857,7 @@ function TopTabs({
       </div>
 
       <div className="flex items-center gap-2">
-        {(["live", "backtest"] as AnalyticsMode[]).map((item) => (
+{(["live", "backtest"] as AnalyticsMode[]).map((item) => (
           <button
             key={item}
             type="button"
@@ -826,7 +1068,13 @@ function PerformanceCard({
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <EmptyHint message={dataset.mode === "live" ? "Keine belegte Live-/Forward-Serie fuer diesen Modus." : "Keine sichtbare Performance-Serie fuer diesen Modus."} />
+            <EmptyHint message={
+              dataset.mode === "live" && dataset.tab === "whiteSwan"
+                ? "Live-Daten ab Juli 2026 aus Forward Logger — in Vorbereitung."
+                : dataset.mode === "live"
+                  ? "Keine belegte Live-/Forward-Serie fuer diesen Modus."
+                  : "Keine sichtbare Performance-Serie fuer diesen Modus."
+            } />
           )}
         </div>
       </div>
@@ -867,21 +1115,34 @@ function KpiGrid({ cards }: { cards: KpiCard[] }) {
   );
 }
 
-function DrawdownCard({ dataset, visibleSeries }: { dataset: AnalyticsDataset; visibleSeries: AnalyticsSeriesPoint[] }) {
-  const chartSeries = useMemo(() => {
+function DrawdownCard({ dataset, visibleSeries, benchmarkEnabled, lineMode }: { dataset: AnalyticsDataset; visibleSeries: AnalyticsSeriesPoint[]; benchmarkEnabled: boolean; lineMode: LineMode }) {
+  const bmActive = benchmarkEnabled || lineMode === "benchmark";
+  const { chartData, hasBm } = useMemo(() => {
     const datasetSeries = filterSeries(dataset.drawdownSeries, "Max");
-    const source = datasetSeries.length ? datasetSeries : computeDrawdown(visibleSeries);
-    return downsampleSeries(source);
-  }, [dataset.drawdownSeries, visibleSeries]);
+    const portDD = downsampleSeries(datasetSeries.length ? datasetSeries : computeDrawdown(visibleSeries));
+    if (!bmActive || !dataset.benchmarkSeries.length) {
+      return { chartData: portDD, hasBm: false };
+    }
+    const spyDD = downsampleSeries(computeDrawdown(dataset.benchmarkSeries));
+    const spyMap = new Map<string, number>(spyDD.map(p => [p.date, p.value]));
+    // forward-fill SPY DD onto portfolio dates
+    let lastSpy = 0;
+    const merged = portDD.map(p => {
+      const s = spyMap.get(p.date);
+      if (s !== undefined) lastSpy = s;
+      return { date: p.date, value: p.value, spy: lastSpy };
+    });
+    return { chartData: merged, hasBm: true };
+  }, [dataset.drawdownSeries, dataset.benchmarkSeries, visibleSeries, bmActive]);
 
   return (
     <Card>
       <CardHeader title="Drawdown" />
       <div className="min-h-0 flex-1 px-2 pb-1.5 pt-1">
         <div className="h-full min-h-[58px]">
-          {chartSeries.length ? (
+          {chartData.length ? (
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartSeries} margin={{ top: 3, right: 10, bottom: 0, left: -12 }}>
+              <AreaChart data={chartData} margin={{ top: 3, right: 10, bottom: 0, left: -12 }}>
                 <defs>
                   <linearGradient id="analytics-drawdown-fill" x1="0" y1="1" x2="0" y2="0">
                     <stop offset="0%" stopColor="rgba(124,58,67,0.30)" />
@@ -894,6 +1155,9 @@ function DrawdownCard({ dataset, visibleSeries }: { dataset: AnalyticsDataset; v
                 <Tooltip content={<ChartTooltip />} />
                 <ReferenceLine y={0} stroke="rgba(255,255,255,0.16)" strokeWidth={1} />
                 <Area type="monotone" dataKey="value" name="Drawdown" stroke="rgba(172,96,104,0.86)" strokeWidth={1.45} fill="url(#analytics-drawdown-fill)" dot={false} />
+                {hasBm && (
+                  <Line type="monotone" dataKey="spy" name="SPY DD" stroke="#d8c071" strokeWidth={1.1} strokeDasharray="4 3" dot={false} />
+                )}
               </AreaChart>
             </ResponsiveContainer>
           ) : (
@@ -936,30 +1200,44 @@ function BarsCard({ title, items }: { title: string; items: Array<{ label: strin
 }
 
 function OverviewCard({ rows }: { rows: Array<[string, string]> }) {
-  const maxRows = 10;
-  const limited = rows.slice(0, maxRows);
-  const pairs: Array<[[string, string], [string, string] | null]> = [];
-  for (let index = 0; index < limited.length; index += 2) {
-    pairs.push([limited[index]!, limited[index + 1] ?? null]);
+  type Item = { type: "sep" } | { type: "pair"; left: [string, string]; right: [string, string] | null };
+  const items: Item[] = [];
+  const dataRows = rows.slice(0, 20);
+  let i = 0;
+  while (i < dataRows.length) {
+    if (dataRows[i]![0] === "__sep__") {
+      items.push({ type: "sep" });
+      i += 1;
+    } else if (dataRows[i + 1]?.[0] === "__sep__") {
+      items.push({ type: "pair", left: dataRows[i]!, right: null });
+      i += 1; // leave __sep__ for next iteration
+    } else {
+      items.push({ type: "pair", left: dataRows[i]!, right: dataRows[i + 1] ?? null });
+      i += 2;
+    }
   }
   return (
     <Card>
       <CardHeader title="Overview" />
       <div className="flex flex-1 flex-col justify-between gap-0.5 px-4 py-2">
-        {pairs.map(([left, right]) => (
-          <div key={left[0]} className="grid grid-cols-2 gap-x-4">
-            <div className="grid grid-cols-[72px_minmax(0,1fr)] gap-2">
-              <p className="text-[9px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">{left[0]}</p>
-              <p className="line-clamp-1 text-[10px] text-zinc-200 [font-family:var(--font-montserrat),sans-serif]">{left[1]}</p>
-            </div>
-            {right ? (
+        {items.map((item, idx) =>
+          item.type === "sep" ? (
+            <div key={`sep-${idx}`} className="border-t border-white/[0.06] my-0.5" />
+          ) : (
+            <div key={item.left[0]} className="grid grid-cols-2 gap-x-4">
               <div className="grid grid-cols-[72px_minmax(0,1fr)] gap-2">
-                <p className="text-[9px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">{right[0]}</p>
-                <p className="line-clamp-1 text-[10px] text-zinc-200 [font-family:var(--font-montserrat),sans-serif]">{right[1]}</p>
+                <p className="text-[9px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">{item.left[0]}</p>
+                <p className="line-clamp-1 text-[10px] text-zinc-200 [font-family:var(--font-montserrat),sans-serif]">{item.left[1]}</p>
               </div>
-            ) : <div />}
-          </div>
-        ))}
+              {item.right ? (
+                <div className="grid grid-cols-[72px_minmax(0,1fr)] gap-2">
+                  <p className="text-[9px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">{item.right[0]}</p>
+                  <p className="line-clamp-1 text-[10px] text-zinc-200 [font-family:var(--font-montserrat),sans-serif]">{item.right[1]}</p>
+                </div>
+              ) : <div />}
+            </div>
+          )
+        )}
       </div>
     </Card>
   );
@@ -1107,6 +1385,199 @@ function buildScopedInvestDataset(
   return { ...baseDataset, performanceSeries, drawdownSeries, benchmarkSeries, groupSeries, annualReturns, monthlyReturns, metrics };
 }
 
+// ── WS dataset from portfolio_f10_equity.json (monthly equity curve) ─────
+function buildWsDatasetFromEquityFile(
+  file: import("@/lib/capitalife-data").WsPortfolioEquityFile | null,
+  benchmarkSeries: AnalyticsSeriesPoint[],
+): AnalyticsDataset {
+  const empty: AnalyticsDataset = {
+    tab: "whiteSwan", mode: "backtest", title: "White Swan F+10%",
+    sourceLabel: "portfolio_f10_equity.json", sourceFiles: [],
+    period: {}, groups: [], performanceSeries: [], drawdownSeries: [],
+    benchmarkSeries, groupSeries: {}, annualReturns: [], monthlyReturns: [],
+    groupBars: [], strategyBars: [], metrics: {}, notes: [],
+  };
+  if (!file?.equityCurve?.length) return empty;
+  const curve = file.equityCurve;
+  const v0 = curve[0]!.value;
+  if (!v0) return empty;
+  const performanceSeries: AnalyticsSeriesPoint[] = curve.map(p => ({
+    date: p.time,
+    value: Number(((p.value / v0 - 1) * 100).toFixed(2)),
+  }));
+  const drawdownSeries = computeDrawdown(performanceSeries);
+  const start = curve[0]!.time;
+  const end = curve.at(-1)!.time;
+  return { ...empty, performanceSeries, drawdownSeries, period: { start, end }, benchmarkSeries };
+}
+
+// ── Combined dataset (WS F+10% + CI v2.0, monthly spine from WS) ─────────
+function buildCombinedDataset(
+  wsDataset: AnalyticsDataset,
+  ciDataset: AnalyticsDataset,
+  wsWeight: number, // 0–1
+): AnalyticsDataset {
+  const ciWeight = 1 - wsWeight;
+  const wsSeries = wsDataset.performanceSeries;
+  const ciSeries = ciDataset.performanceSeries;
+
+  const emptyResult = (): AnalyticsDataset => ({
+    tab: "combined", mode: "backtest", title: "Combined Portfolio",
+    sourceLabel: `WS F+10% ${Math.round(wsWeight * 100)}% · CI v2.0 ${Math.round(ciWeight * 100)}%`,
+    sourceFiles: [], period: {}, groups: [], performanceSeries: [], drawdownSeries: [],
+    benchmarkSeries: wsDataset.benchmarkSeries, groupSeries: {}, annualReturns: [],
+    monthlyReturns: [], groupBars: [], strategyBars: [], metrics: {}, notes: [],
+  });
+  if (!wsSeries.length || !ciSeries.length) return emptyResult();
+
+  // CI daily → sorted date array + value map for floor-lookup
+  const ciSorted = [...ciSeries].sort((a, b) => a.date.localeCompare(b.date));
+  const ciDates = ciSorted.map(p => p.date);
+  const ciByDate = new Map<string, number>(ciSorted.map(p => [p.date, p.value]));
+  function ciFloor(wsDate: string): number {
+    let lo = 0, hi = ciDates.length - 1;
+    while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (ciDates[mid]! <= wsDate) lo = mid; else hi = mid - 1; }
+    const d = ciDates[lo]; return (d && d <= wsDate) ? (ciByDate.get(d) ?? 0) : 0;
+  }
+
+  let prevWsCum = wsSeries[0]?.value ?? 0;
+  let prevCiCum = wsSeries.length ? ciFloor(wsSeries[0]!.date) : 0;
+  let equity = 100;
+  const performanceSeries: AnalyticsSeriesPoint[] = [];
+  const monthlyRets: number[] = [];
+  const annualGroups = new Map<string, number[]>();
+
+  for (const wsPoint of wsSeries) {
+    const wsCum = wsPoint.value;
+    const ciCum = ciFloor(wsPoint.date);
+    const wsR = (1 + wsCum / 100) / (1 + prevWsCum / 100) - 1;
+    const ciR = (1 + ciCum / 100) / (1 + prevCiCum / 100) - 1;
+    const r = wsR * wsWeight + ciR * ciWeight;
+    equity *= 1 + r;
+    prevWsCum = wsCum; prevCiCum = ciCum;
+    performanceSeries.push({ date: wsPoint.date, value: Number((equity - 100).toFixed(2)) });
+    monthlyRets.push(r);
+    const yr = wsPoint.date.slice(0, 4);
+    if (!annualGroups.has(yr)) annualGroups.set(yr, []);
+    annualGroups.get(yr)!.push(r);
+  }
+
+  const drawdownSeries = computeDrawdown(performanceSeries);
+  const annualReturns = [...annualGroups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([yr, rets]) => ({
+    label: yr, value: Number(((rets.reduce((p, r) => p * (1 + r), 1) - 1) * 100).toFixed(2)),
+  }));
+  const monthlyReturns = wsSeries.map((p, i) => ({
+    label: p.date.slice(0, 7), value: Number(((monthlyRets[i] ?? 0) * 100).toFixed(2)),
+  }));
+
+  const n = monthlyRets.length;
+  const meanM = n > 0 ? monthlyRets.reduce((s, r) => s + r, 0) / n : 0;
+  const varM = n > 1 ? monthlyRets.reduce((s, r) => s + (r - meanM) ** 2, 0) / (n - 1) : 0;
+  const stdM = Math.sqrt(varM);
+  const nYears = n / 12;
+  const finalEq = equity / 100;
+  const cagrPct = nYears > 0 ? (Math.pow(finalEq, 1 / nYears) - 1) * 100 : 0;
+  const sharpe = stdM > 0 ? (meanM / stdM) * Math.sqrt(12) : 0;
+  const maxDdPct = Math.min(...drawdownSeries.map(p => p.value), 0);
+  const calmar = maxDdPct < 0 ? cagrPct / Math.abs(maxDdPct) : 0;
+  const posMonths = n > 0 ? (monthlyRets.filter(r => r > 0).length / n) * 100 : 0;
+
+  const start = wsSeries[0]?.date; const end = wsSeries.at(-1)?.date;
+  const benchmarkSeries = wsDataset.benchmarkSeries.filter(p => (!start || p.date >= start) && (!end || p.date <= end));
+  const groupSeries: Record<string, AnalyticsSeriesPoint[]> = {
+    "White Swan": wsSeries,
+    "Core Invest": ciSeries.filter(p => (!start || p.date >= start) && (!end || p.date <= end)),
+  };
+
+  return {
+    tab: "combined", mode: "backtest", title: "Combined Portfolio",
+    sourceLabel: `WS F+10% ${Math.round(wsWeight * 100)}% · CI v2.0 ${Math.round(ciWeight * 100)}%`,
+    sourceFiles: [], period: { start, end },
+    groups: [
+      { id: "White Swan", label: "White Swan F+10%", active: true, weight: wsWeight },
+      { id: "Core Invest", label: "Core Invest v2.0", active: true, weight: ciWeight },
+    ],
+    performanceSeries, drawdownSeries, benchmarkSeries, groupSeries, annualReturns, monthlyReturns,
+    groupBars: [], strategyBars: [],
+    metrics: {
+      totalReturnPct: finalEq > 0 ? (finalEq - 1) * 100 : 0,
+      cagrPct, maxDrawdownPct: maxDdPct, sharpe, calmar,
+      positiveMonthsPct: posMonths, dataPoints: n,
+    },
+    notes: [],
+  };
+}
+
+function CombinedControlPanel({
+  wsWeight,
+  riskMultiplier,
+  onWsWeightChange,
+  onRiskChange,
+  onReset,
+}: {
+  wsWeight: number;
+  riskMultiplier: number;
+  onWsWeightChange: (v: number) => void;
+  onRiskChange: (m: number) => void;
+  onReset: () => void;
+}) {
+  const ciWeight = 100 - wsWeight;
+
+  function AllocCell({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
+    return (
+      <div className="flex items-center gap-1 rounded-[8px] border border-white/[0.12] bg-white/[0.03] px-1.5 py-0.5">
+        <span className="min-w-0 flex-1 block truncate text-[8px] font-medium leading-tight text-zinc-200 [font-family:var(--font-montserrat),sans-serif]">
+          {label}
+        </span>
+        <input
+          type="number" min={0} max={100} step={5} value={value}
+          onChange={e => onChange(Math.min(100, Math.max(0, Number(e.target.value))))}
+          className="w-7 rounded border border-white/[0.08] bg-white/[0.04] px-0.5 py-0.5 text-right text-[8px] text-white [font-family:var(--font-montserrat),sans-serif] focus:border-white/20 focus:outline-none"
+        />
+        <span className="text-[7px] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">%</span>
+      </div>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader title="Gewichtung anpassen" />
+      <div className="flex flex-1 flex-col px-3 py-1.5 gap-0.5">
+        <div className="grid grid-cols-2 gap-1">
+          <AllocCell label="White Swan" value={wsWeight} onChange={onWsWeightChange} />
+          <AllocCell label="Core Invest" value={ciWeight} onChange={v => onWsWeightChange(100 - v)} />
+        </div>
+        <div className="flex items-center justify-between px-0.5 pt-0.5">
+          <span className="text-[8px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">
+            Σ {wsWeight + ciWeight}%
+          </span>
+          <button
+            type="button" onClick={onReset}
+            className="text-[8px] text-zinc-600 hover:text-zinc-300 [font-family:var(--font-montserrat),sans-serif] transition-colors"
+          >
+            ↺ Reset
+          </button>
+        </div>
+        <div className="border-t border-white/[0.06] pt-1">
+          <p className="mb-0.5 text-[8px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">
+            Gesamtrisiko (WS)
+          </p>
+          <div className="flex gap-1">
+            {([1, 1.5, 2, 2.5, 3] as const).map(m => (
+              <PillButton key={m} active={riskMultiplier === m} onClick={() => onRiskChange(m)}>
+                {m}×
+              </PillButton>
+            ))}
+          </div>
+        </div>
+        <p className="mt-0.5 text-[7px] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">
+          Combined · Research Preview · not live
+        </p>
+      </div>
+    </Card>
+  );
+}
+
 function LiveControlPanel({
   weights,
   enabled,
@@ -1142,35 +1613,23 @@ function LiveControlPanel({
 
   function AssetCell({ sym }: { sym: string }) {
     const isOn = enabled[sym] !== false;
-    const wInput = weights[sym] ?? 0;
-    const iconSrc = INVEST_ICONS[sym];
     return (
       <div className={cn(
-        "flex items-center gap-1.5 rounded-[8px] border px-2 py-1.5 transition-colors",
+        "flex items-center gap-1 rounded-[8px] border px-1.5 py-0.5 transition-colors",
         isOn ? "border-white/[0.12] bg-white/[0.03]" : "border-white/[0.05]",
       )}>
-        {iconSrc && (
-          <img
-            src={iconSrc}
-            alt={LIVE_ASSET_LABELS[sym]}
-            width={22}
-            height={22}
-            className={cn("shrink-0 rounded-full object-cover", isOn ? "opacity-100" : "opacity-30")}
-            style={{ borderRadius: "9999px" }}
-          />
-        )}
         <button
           type="button"
           onClick={() => onToggle(sym)}
           className="min-w-0 flex-1 text-left"
         >
           <span className={cn(
-            "block truncate text-[9px] font-medium leading-tight [font-family:var(--font-montserrat),sans-serif]",
+            "block truncate text-[8px] font-medium leading-tight [font-family:var(--font-montserrat),sans-serif]",
             isOn ? "text-zinc-200" : "text-zinc-600",
           )}>
             {LIVE_ASSET_LABELS[sym]}
           </span>
-          <span className="text-[8px] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">
+          <span className="text-[7px] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">
             {isOn ? "on" : "off"}
           </span>
         </button>
@@ -1179,12 +1638,12 @@ function LiveControlPanel({
           min={0}
           max={100}
           step={0.5}
-          value={wInput}
+          value={weights[sym] ?? 0}
           disabled={!isOn}
           onChange={(e) => onWeightChange(sym, Math.max(0, Number(e.target.value)))}
-          className="w-10 rounded border border-white/[0.08] bg-white/[0.04] px-1 py-0.5 text-right text-[10px] text-white disabled:opacity-30 [font-family:var(--font-montserrat),sans-serif] focus:border-white/20 focus:outline-none"
+          className="w-7 rounded border border-white/[0.08] bg-white/[0.04] px-0.5 py-0.5 text-right text-[8px] text-white disabled:opacity-30 [font-family:var(--font-montserrat),sans-serif] focus:border-white/20 focus:outline-none"
         />
-        <span className="text-[8px] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">%</span>
+        <span className="text-[7px] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">%</span>
       </div>
     );
   }
@@ -1192,30 +1651,27 @@ function LiveControlPanel({
   return (
     <Card>
       <CardHeader title="Core Invest" />
-      <div className="flex flex-1 flex-col px-3 py-2.5 gap-1.5">
+      <div className="flex flex-1 flex-col px-3 py-1.5 gap-0.5">
         {assetPairs.map(([left, right]) => (
-          <div key={left} className="grid grid-cols-2 gap-1.5">
+          <div key={left} className="grid grid-cols-2 gap-1">
             <AssetCell sym={left} />
-            {right ? (
-              <AssetCell sym={right} />
-            ) : (
-              <div className="flex items-center justify-between px-1">
-                <span className="text-[9px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">
-                  Σ {totalW.toFixed(1)}%
-                </span>
-                <button
-                  type="button"
-                  onClick={onReset}
-                  className="text-[9px] text-zinc-600 hover:text-zinc-300 [font-family:var(--font-montserrat),sans-serif] transition-colors"
-                >
-                  ↺ Reset
-                </button>
-              </div>
-            )}
+            {right && <AssetCell sym={right} />}
           </div>
         ))}
-        <p className="mt-0.5 text-[8px] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">
-          Core Invest · Research Scenario · not live execution
+        <div className="flex items-center justify-between px-0.5 pt-0.5">
+          <span className="text-[8px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">
+            Σ {totalW.toFixed(1)}%
+          </span>
+          <button
+            type="button"
+            onClick={onReset}
+            className="text-[8px] text-zinc-600 hover:text-zinc-300 [font-family:var(--font-montserrat),sans-serif] transition-colors"
+          >
+            ↺ Reset
+          </button>
+        </div>
+        <p className="mt-0.5 text-[7px] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">
+          Core Invest v2.0 · PAPER_ONLY · Frozen 2026-07-20
         </p>
       </div>
     </Card>
@@ -1312,6 +1768,118 @@ function ControlPanel({
   );
 }
 
+function WsLiveControlPanel({
+  weights,
+  enabled,
+  riskMultiplier,
+  onWeightChange,
+  onToggle,
+  onRiskChange,
+  onReset,
+}: {
+  weights: Record<string, number>;
+  enabled: Record<string, boolean>;
+  riskMultiplier: number;
+  onWeightChange: (id: string, val: number) => void;
+  onToggle: (id: string) => void;
+  onRiskChange: (mult: number) => void;
+  onReset: () => void;
+}) {
+  const activeIds = WS_STRATEGY_IDS.filter(id => enabled[id] !== false);
+  const totalW = activeIds.reduce((s, id) => s + (weights[id] ?? 0), 0);
+
+  // 6 WS strategies in 3 rows of 2; Intraday gets its own full-width row
+  const wsPairs: Array<[string, string]> = [
+    ["GC1 Friday Long", "GLD Thursday Long"],
+    ["YM1 TAT",         "UKX Valuation"],
+    ["CT1 Macro A",     "NQ1 Trend LO"],
+  ];
+
+  function StratCell({ id, wide = false }: { id: string; wide?: boolean }) {
+    const isOn = enabled[id] !== false;
+    const isIntraday = id === WS_INTRADAY_ID;
+    return (
+      <div className={cn(
+        "flex items-center gap-1 rounded-[8px] border px-1.5 py-0.5 transition-colors",
+        isOn
+          ? isIntraday
+            ? "border-amber-500/30 bg-amber-500/[0.04]"
+            : "border-white/[0.12] bg-white/[0.03]"
+          : "border-white/[0.05]",
+      )}>
+        <button type="button" onClick={() => onToggle(id)} className="min-w-0 flex-1 text-left">
+          <span className={cn(
+            "block truncate text-[8px] font-medium leading-tight [font-family:var(--font-montserrat),sans-serif]",
+            isOn ? (isIntraday ? "text-amber-300" : "text-zinc-200") : "text-zinc-600",
+          )}>
+            {WS_STRATEGY_SHORT[id]}
+          </span>
+          <span className={cn(
+            "text-[7px] [font-family:var(--font-montserrat),sans-serif]",
+            isIntraday ? "text-amber-700" : "text-zinc-700",
+          )}>
+            {isIntraday ? "v3-F · EUR/DAX/GBP/DAX2H" : isOn ? "on" : "off"}
+          </span>
+        </button>
+        <input
+          type="number" min={0} max={100} step={0.5}
+          value={weights[id] ?? 0}
+          disabled={!isOn}
+          onChange={e => onWeightChange(id, Math.max(0, Number(e.target.value)))}
+          className="w-7 rounded border border-white/[0.08] bg-white/[0.04] px-0.5 py-0.5 text-right text-[8px] text-white disabled:opacity-30 [font-family:var(--font-montserrat),sans-serif] focus:border-white/20 focus:outline-none"
+        />
+        <span className="text-[7px] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">%</span>
+      </div>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader title="Gewichtung anpassen" />
+      <div className="flex flex-1 flex-col px-3 py-1.5 gap-0.5">
+        {/* 6 WS strategies in 2-column grid */}
+        {wsPairs.map(([left, right]) => (
+          <div key={left} className="grid grid-cols-2 gap-1">
+            <StratCell id={left} />
+            <StratCell id={right} />
+          </div>
+        ))}
+        {/* Intraday group — full-width, visually distinct */}
+        <div className="border-t border-amber-500/20 pt-0.5">
+          <StratCell id={WS_INTRADAY_ID} wide />
+        </div>
+        {/* Footer */}
+        <div className="flex items-center justify-between px-0.5 pt-0.5">
+          <span className="text-[8px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">
+            Σ {totalW.toFixed(1)}%
+          </span>
+          <button
+            type="button" onClick={onReset}
+            className="text-[8px] text-zinc-600 hover:text-zinc-300 [font-family:var(--font-montserrat),sans-serif] transition-colors"
+          >
+            ↺ Reset
+          </button>
+        </div>
+        <div className="border-t border-white/[0.06] pt-1">
+          <p className="mb-0.5 text-[8px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">
+            Gesamtrisiko
+          </p>
+          <div className="flex gap-1">
+            {([1, 1.5, 2, 2.5, 3] as const).map(m => (
+              <PillButton key={m} active={riskMultiplier === m} onClick={() => onRiskChange(m)}>
+                {m}×
+              </PillButton>
+            ))}
+          </div>
+        </div>
+        <p className="mt-0.5 text-[7px] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">
+          White Swan v1.1 · PAPER_ONLY · Frozen 2026-07-20
+        </p>
+      </div>
+    </Card>
+  );
+}
+
 export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio: FSPortfolioSnapshot; capalifeData: CapalifeData }) {
   const router = useRouter();
   const [tab, setTab] = useState<AnalyticsTab>("whiteSwan");
@@ -1324,14 +1892,40 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
   const [investEnabled, setInvestEnabled] = useState<Record<string, boolean>>(
     Object.fromEntries(LIVE_ASSET_SYMBOLS.map((sym) => [sym, true]))
   );
+  const [wsWeights, setWsWeights] = useState<Record<string, number>>(() => {
+    try { const s = typeof window !== "undefined" ? localStorage.getItem("ws-weights") : null; return s ? (JSON.parse(s) as Record<string, number>) : { ...WS_FROZEN_WEIGHTS }; } catch { return { ...WS_FROZEN_WEIGHTS }; }
+  });
+  const [wsEnabled, setWsEnabled] = useState<Record<string, boolean>>(
+    () => Object.fromEntries(WS_STRATEGY_IDS.map(id => [id, true] as [string, boolean]))
+  );
+  const [wsRiskMultiplier, setWsRiskMultiplier] = useState<number>(() => {
+    try { const s = typeof window !== "undefined" ? localStorage.getItem("ws-risk-multiplier") : null; return s ? Number(s) : 2.5; } catch { return 2.5; }
+  });
+  const [combinedWsWeight, setCombinedWsWeight] = useState(50);
+
+  useEffect(() => {
+    try { localStorage.setItem("ws-weights", JSON.stringify(wsWeights)); } catch { /* ignore */ }
+  }, [wsWeights]);
+  useEffect(() => {
+    try { localStorage.setItem("ws-risk-multiplier", String(wsRiskMultiplier)); } catch { /* ignore */ }
+  }, [wsRiskMultiplier]);
 
   const baseDataset = useMemo(() => getAnalyticsDataset(tab, mode, fsportfolio, capalifeData), [tab, mode, fsportfolio, capalifeData]);
+  const ciBaseForCombined = useMemo(() => tab === "combined" ? getAnalyticsDataset("invest", "backtest", fsportfolio, capalifeData) : null, [tab, fsportfolio, capalifeData]);
   const dataset = useMemo(() => {
     if (tab === "invest") {
       return buildScopedInvestDataset(fsportfolio, mode, investWeights, investEnabled, startFilter, baseDataset);
     }
+    if (tab === "whiteSwan" && mode === "backtest") {
+      return buildScopedWsDataset(baseDataset, wsWeights, wsEnabled, wsRiskMultiplier);
+    }
+    if (tab === "combined" && ciBaseForCombined) {
+      const ciScoped = buildScopedInvestDataset(fsportfolio, "backtest", investWeights, investEnabled, startFilter, ciBaseForCombined);
+      const wsDatasetForCombined = buildWsDatasetFromEquityFile(capalifeData.wsPortfolioEquity, ciScoped.benchmarkSeries);
+      return buildCombinedDataset(wsDatasetForCombined, ciScoped, combinedWsWeight / 100);
+    }
     return baseDataset;
-  }, [baseDataset, tab, mode, fsportfolio, investWeights, investEnabled, startFilter]);
+  }, [baseDataset, ciBaseForCombined, tab, mode, fsportfolio, investWeights, investEnabled, startFilter, wsWeights, wsEnabled, wsRiskMultiplier, combinedWsWeight, capalifeData.wsPortfolioEquity]);
   const [activeGroups, setActiveGroups] = useState<string[]>(dataset.groups.map((group) => group.id));
   const refreshAnalytics = useEffectEvent(() => {
     if (tab === "invest") router.refresh();
@@ -1393,7 +1987,7 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
           </div>
 
           <div className="col-span-12 xl:col-span-8">
-            <DrawdownCard dataset={dataset} visibleSeries={filteredPerformanceSeries} />
+            <DrawdownCard dataset={dataset} visibleSeries={filteredPerformanceSeries} benchmarkEnabled={benchmarkEnabled} lineMode={lineMode} />
           </div>
 
           <div className="col-span-12 xl:col-span-4">
@@ -1405,11 +1999,33 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
           </div>
 
           <div className="col-span-12 md:col-span-4">
-            <BarsCard title="Monthly Returns" items={dataset.monthlyReturns} />
+            <BarsCard
+              title={tab === "whiteSwan" && mode === "backtest" ? "Seasonality (Ø Jan–Dez)" : "Monthly Returns"}
+              items={tab === "whiteSwan" && mode === "backtest" ? (() => {
+                const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                const groups: number[][] = Array.from({ length: 12 }, () => []);
+                for (const bar of dataset.monthlyReturns) {
+                  const m = parseInt(bar.label.slice(5, 7), 10) - 1;
+                  if (m >= 0 && m < 12) groups[m]!.push(bar.value);
+                }
+                return groups.map((vals, i) => ({
+                  label: MONTHS[i]!,
+                  value: vals.length ? Number((vals.reduce((s, v) => s + v, 0) / vals.length).toFixed(2)) : 0,
+                }));
+              })() : dataset.monthlyReturns}
+            />
           </div>
 
           <div className="col-span-12 md:col-span-4">
-            {tab === "invest" ? (
+            {tab === "combined" ? (
+              <CombinedControlPanel
+                wsWeight={combinedWsWeight}
+                riskMultiplier={wsRiskMultiplier}
+                onWsWeightChange={setCombinedWsWeight}
+                onRiskChange={setWsRiskMultiplier}
+                onReset={() => setCombinedWsWeight(50)}
+              />
+            ) : tab === "invest" ? (
               <LiveControlPanel
                 weights={investWeights}
                 enabled={investEnabled}
@@ -1419,6 +2035,30 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
                   setInvestWeights({ ...LIVE_DEFAULT_WEIGHTS });
                   setInvestEnabled(Object.fromEntries(LIVE_ASSET_SYMBOLS.map((s) => [s, true])));
                 }}
+              />
+            ) : tab === "whiteSwan" && mode === "backtest" ? (
+              <WsLiveControlPanel
+                weights={wsWeights}
+                enabled={wsEnabled}
+                riskMultiplier={wsRiskMultiplier}
+                onWeightChange={(id, val) => setWsWeights(prev => ({ ...prev, [id]: val }))}
+                onToggle={id => setWsEnabled(prev => ({ ...prev, [id]: !(prev[id] !== false) }))}
+                onRiskChange={setWsRiskMultiplier}
+                onReset={() => {
+                  setWsWeights({ ...WS_FROZEN_WEIGHTS });
+                  setWsEnabled(Object.fromEntries(WS_STRATEGY_IDS.map(id => [id, true])));
+                  setWsRiskMultiplier(2.5);
+                }}
+              />
+            ) : tab === "whiteSwan" ? (
+              <ControlPanel
+                dataset={dataset}
+                startFilter={startFilter}
+                lineMode={lineMode}
+                activeGroups={activeGroups}
+                onStartFilter={setStartFilter}
+                onLineMode={setLineMode}
+                onToggleGroup={group => setActiveGroups(cur => cur.includes(group) ? cur.filter(g => g !== group) : [...cur, group])}
               />
             ) : (
               <ControlPanel

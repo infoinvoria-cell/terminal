@@ -1,0 +1,152 @@
+{
+  "generated": "2026-07-20",
+  "oos_window": "2019-01 \u2013 2026-07",
+  "v3f_weights": {
+    "EUR30m": 0.4,
+    "DAX1H": 0.4,
+    "GBP30m": 0.05,
+    "DAX2H": 0.15
+  },
+  "ws_weights": {
+    "GC1 Friday Long": 0.198,
+    "GLD Thursday Long": 0.198,
+    "YM1 TAT": 0.198,
+    "UKX Valuation": 0.198,
+    "CT1 Macro A": 0.10800000000000001,
+    "NQ1 Trend LO": 0.1
+  },
+  "reference_ws": {
+    "label": "WS v1.0 (0% Intraday)",
+    "months": 91,
+    "cagr": 7.23,
+    "max_dd": 2.62,
+    "calmar": 2.766,
+    "sharpe": 1.644,
+    "sortino": 2.162,
+    "pos_m": 70.3,
+    "total_r": 68.81,
+    "worst_yr": 1.66
+  },
+  "reference_intraday": {
+    "label": "Intraday v3-F solo",
+    "months": 91,
+    "cagr": 15.66,
+    "max_dd": 7.04,
+    "calmar": 2.225,
+    "sharpe": 1.628,
+    "sortino": 2.328,
+    "pos_m": 63.7,
+    "total_r": 197.55,
+    "worst_yr": -4.43
+  },
+  "sweep_results": [
+    {
+      "label": "WS+IT 5%",
+      "months": 91,
+      "cagr": 7.67,
+      "max_dd": 2.05,
+      "calmar": 3.737,
+      "sharpe": 1.815,
+      "sortino": 2.304,
+      "pos_m": 73.6,
+      "total_r": 73.99,
+      "worst_yr": 2.18
+    },
+    {
+      "label": "WS+IT 10%",
+      "months": 91,
+      "cagr": 8.1,
+      "max_dd": 2.15,
+      "calmar": 3.772,
+      "sharpe": 1.974,
+      "sortino": 2.538,
+      "pos_m": 73.6,
+      "total_r": 79.29,
+      "worst_yr": 2.7
+    },
+    {
+      "label": "WS+IT 15%",
+      "months": 91,
+      "cagr": 8.53,
+      "max_dd": 2.24,
+      "calmar": 3.803,
+      "sharpe": 2.11,
+      "sortino": 2.779,
+      "pos_m": 72.5,
+      "total_r": 84.71,
+      "worst_yr": 3.22
+    },
+    {
+      "label": "WS+IT 20%",
+      "months": 91,
+      "cagr": 8.96,
+      "max_dd": 2.34,
+      "calmar": 3.832,
+      "sharpe": 2.213,
+      "sortino": 2.969,
+      "pos_m": 71.4,
+      "total_r": 90.26,
+      "worst_yr": 3.74
+    },
+    {
+      "label": "WS+IT 25%",
+      "months": 91,
+      "cagr": 9.39,
+      "max_dd": 2.43,
+      "calmar": 3.858,
+      "sharpe": 2.279,
+      "sortino": 3.044,
+      "pos_m": 71.4,
+      "total_r": 95.94,
+      "worst_yr": 3.82
+    },
+    {
+      "label": "WS+IT 30%",
+      "months": 91,
+      "cagr": 9.82,
+      "max_dd": 2.53,
+      "calmar": 3.881,
+      "sharpe": 2.306,
+      "sortino": 3.006,
+      "pos_m": 72.5,
+      "total_r": 101.75,
+      "worst_yr": 3.26
+    },
+    {
+      "label": "WS+IT 35%",
+      "months": 91,
+      "cagr": 10.24,
+      "max_dd": 2.62,
+      "calmar": 3.902,
+      "sharpe": 2.301,
+      "sortino": 2.867,
+      "pos_m": 74.7,
+      "total_r": 107.69,
+      "worst_yr": 2.7
+    },
+    {
+      "label": "WS+IT 40%",
+      "months": 91,
+      "cagr": 10.67,
+      "max_dd": 2.72,
+      "calmar": 3.921,
+      "sharpe": 2.271,
+      "sortino": 2.829,
+      "pos_m": 74.7,
+      "total_r": 113.76,
+      "worst_yr": 2.14
+    }
+  ],
+  "best": {
+    "label": "WS+IT 40%",
+    "months": 91,
+    "cagr": 10.67,
+    "max_dd": 2.72,
+    "calmar": 3.921,
+    "sharpe": 2.271,
+    "sortino": 2.829,
+    "pos_m": 74.7,
+    "total_r": 113.76,
+    "worst_yr": 2.14
+  }
+}

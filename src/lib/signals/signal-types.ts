@@ -34,6 +34,7 @@ export type SignalCardModel = {
   tp?: number;
   sl?: number;
   dataStatus: SignalDataStatus;
+  nextSignalLabel?: string;
   monitoringTarget?: {
     tab: MonitoringPrimaryTabId;
     asset: string;
@@ -44,7 +45,7 @@ export type SignalCardModel = {
 export type SignalCardPreview = {
   chart: MonitoringChartData | null;
   performance: StrategyPerformanceResult | null;
-  testerStatus: "ready" | "missing";
+  testerStatus: "ready" | "validated" | "missing";
   testerMessage: string | null;
   kpis: Array<{ label: string; value: string; tone?: "positive" | "negative" | "neutral" }>;
 };

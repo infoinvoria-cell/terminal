@@ -14,7 +14,42 @@ import type {
 
 export const runtime = "nodejs";
 
+const V3F_PARAMS: Record<string, {
+  sl: string; tp: string; be?: string; ema?: number; notes?: string;
+}> = {
+  "6E1! 30M":  { sl: "13pip", tp: "3R",   be: "1R",   ema: 5 },
+  "FDAX1! 1H": { sl: "40pt",  tp: "2.5R", be: "1.5R", ema: 2 },
+  "6B1! 30M":  { sl: "10pip", tp: "3.5R" },
+  "FDAX1! 2H": { sl: "ATR",   tp: "ATR",  notes: "Long-Only" },
+};
+
 const EVENTS_FILE_CANDIDATES: Record<string, string[]> = {
+  // v3-F validated engines (Python-generated, OOS 2018-2026)
+  "FDAX1! 2H": [
+    "FDAX1_2H_v3f_events.json",
+    "OANDA_DE30EUR_2H_events.json",
+    "OANDA_DE30EUR_2H_package_events.json",
+    "OANDA_DE30EUR_2H_hybrid_events.json",
+  ],
+  "6B1! 30M": [
+    "6B1_30M_v3f_events.json",
+    "OANDA_GBPUSD_30M_events.json",
+    "OANDA_GBPUSD_30M_package_events.json",
+    "OANDA_GBPUSD_30M_hybrid_events.json",
+  ],
+  "FDAX1! 1H": [
+    "FDAX1_1H_v3f_events.json",
+    "OANDA_DE30EUR_1H_events.json",
+    "OANDA_DE30EUR_1H_package_events.json",
+    "OANDA_DE30EUR_1H_hybrid_events.json",
+  ],
+  "6E1! 30M": [
+    "6E1_30M_v3f_events.json",
+    "OANDA_EURUSD_30M_events.json",
+    "OANDA_EURUSD_30M_package_events.json",
+    "OANDA_EURUSD_30M_hybrid_events.json",
+  ],
+  // Legacy keys (keep for any direct references)
   "DAX40 2H": [
     "OANDA_DE30EUR_2H_events.json",
     "OANDA_DE30EUR_2H_package_events.json",
@@ -98,6 +133,8 @@ function pickEventsFile(strategiesDir: string, candidates: string[]): { path: st
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const symbol = decodeURIComponent(searchParams.get("symbol") ?? "").trim();
+  const fromParam = (searchParams.get("from") ?? "").trim();
+  const fromDate: string | null = fromParam && /^\d{4}-\d{2}-\d{2}$/.test(fromParam) ? fromParam : null;
 
   if (!symbol) {
     return NextResponse.json({ error: "symbol is required" }, { status: 400 });
@@ -149,9 +186,14 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const rawTrades = (json.trades ?? []).filter(
-    (t) => !t.isOpen && t.exitTime && t.exit != null,
-  );
+  const rawTrades = (json.trades ?? []).filter((t) => {
+    if (t.isOpen || !t.exitTime || t.exit == null) return false;
+    if (fromDate) {
+      const exitDay = String(t.exitTime ?? "").slice(0, 10);
+      if (exitDay < fromDate) return false;
+    }
+    return true;
+  });
 
   let cumulativePnl = 0;
   let cumulativeReturnPct = 0;
@@ -233,6 +275,7 @@ export async function GET(request: NextRequest) {
     mode: "single",
     historyMode: "full_history",
     backtestStart: trades[0]?.entryDate ?? null,
+    v3fParams: V3F_PARAMS[symbol] ?? null,
   };
 
   return NextResponse.json(response);

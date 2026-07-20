@@ -99,9 +99,16 @@ function readChangelog(limit: number): ChangeEntry[] {
   return entries;
 }
 
+const CHANGES_CACHE_TTL_MS = 2 * 60 * 1000;
+let _changesCache: { payload: object; ts: number } | null = null;
+
 export const dynamic = "force-dynamic";
 
 export function GET() {
+  const now = Date.now();
+  if (_changesCache && now - _changesCache.ts < CHANGES_CACHE_TTL_MS) {
+    return NextResponse.json(_changesCache.payload);
+  }
   const brainRoot = getCapitalifeBrainPath();
   const changelogPath = brainRoot ? path.join(brainRoot, "09_AI", "BRAIN_CHANGELOG.md") : null;
   const agentUpdatesRoot = brainRoot ? path.join(brainRoot, "09_AI", "agent_updates") : null;
@@ -109,9 +116,11 @@ export function GET() {
     .sort((a, b) => (b.updatedAt ?? "").localeCompare(a.updatedAt ?? ""))
     .slice(0, 8);
 
-  return NextResponse.json({
+  const payload = {
     changelogExists: changelogPath ? fs.existsSync(changelogPath) : false,
     agentUpdatesExists: agentUpdatesRoot ? fs.existsSync(agentUpdatesRoot) : false,
     entries,
-  });
+  };
+  _changesCache = { payload, ts: now };
+  return NextResponse.json(payload);
 }

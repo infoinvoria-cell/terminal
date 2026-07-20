@@ -16,15 +16,8 @@ import {
   useHomeDashboard,
   type DashboardPage,
 } from "@/context/home-dashboard-context";
-import { PortfolioSection } from "@/components/portfolio/portfolio-section";
-import { QuantDashboard } from "@/components/quant/quant-dashboard";
-import { RiskDashboard } from "@/components/risk/risk-dashboard";
-import { TradesDashboard } from "@/components/trades/trades-dashboard";
-import { ManagerOverviewDashboard } from "@/components/manager/manager-overview-dashboard";
-import { SubIbSystemDashboard } from "@/components/manager/sub-ib-system-dashboard";
-import { InvestorAnalyticsDashboard } from "@/components/manager/investor-analytics-dashboard";
-import { SentinelDashboard } from "@/components/sentinel/sentinel-dashboard";
-import { AnalyticsDashboard } from "@/components/analytics/analytics-dashboard";
+import dynamic from "next/dynamic";
+import { SentinelFloatingWindow } from "@/components/sentinel/SentinelFloatingWindow";
 import type { CapalifeData } from "@/lib/capitalife-data";
 import type { FSPortfolioSnapshot } from "@/lib/fsportfolio/types";
 import {
@@ -36,6 +29,42 @@ import {
 } from "@/lib/trades-analytics";
 import type { ParsedBalanceRow, ParsedReportTrade } from "@/lib/mt-report-parser";
 
+const PortfolioSection = dynamic(
+  () => import("@/components/portfolio/portfolio-section").then((m) => m.PortfolioSection),
+  { ssr: false }
+);
+const QuantDashboard = dynamic(
+  () => import("@/components/quant/quant-dashboard").then((m) => m.QuantDashboard),
+  { ssr: false }
+);
+const RiskDashboard = dynamic(
+  () => import("@/components/risk/risk-dashboard").then((m) => m.RiskDashboard),
+  { ssr: false }
+);
+const TradesDashboard = dynamic(
+  () => import("@/components/trades/trades-dashboard").then((m) => m.TradesDashboard),
+  { ssr: false }
+);
+const ManagerOverviewDashboard = dynamic(
+  () => import("@/components/manager/manager-overview-dashboard").then((m) => m.ManagerOverviewDashboard),
+  { ssr: false }
+);
+const SubIbSystemDashboard = dynamic(
+  () => import("@/components/manager/sub-ib-system-dashboard").then((m) => m.SubIbSystemDashboard),
+  { ssr: false }
+);
+const InvestorAnalyticsDashboard = dynamic(
+  () => import("@/components/manager/investor-analytics-dashboard").then((m) => m.InvestorAnalyticsDashboard),
+  { ssr: false }
+);
+const SentinelDashboard = dynamic(
+  () => import("@/components/sentinel/sentinel-dashboard").then((m) => m.SentinelDashboard),
+  { ssr: false }
+);
+const AnalyticsDashboard = dynamic(
+  () => import("@/components/analytics/analytics-dashboard").then((m) => m.AnalyticsDashboard),
+  { ssr: false }
+);
 type FundManagerHomeProps = {
   serialized: SerializedTrade[];
   reportTrades: ParsedReportTrade[];
@@ -133,6 +162,7 @@ function HomeShell({
 
   return (
     <div className="flex h-[100dvh] min-h-0 overflow-hidden bg-[#0c0d10]">
+      <SentinelFloatingWindow />
       <Sidebar />
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <Topbar sectionLabel={pageLabel(page)} />

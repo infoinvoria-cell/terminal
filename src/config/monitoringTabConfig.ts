@@ -5,6 +5,7 @@ export type MonitoringPrimaryTabId =
   | "fx"
   | "aktien"
   | "invest"
+  | "anomaly"
   | "intraday_mt"
   | "live"
   | "all";
@@ -86,13 +87,24 @@ export const MONITORING_TAB_CONFIG: MonitoringTabDefinition[] = [
   {
     tabId: "invest",
     title: "Invest",
-    assets: ["NAS100USD_E_STEP_INVEST", "NAS100USD_ONLY_LONG_VALUATION_TREND_EMA", "USDCHF_CHF_INVEST"],
+    assets: ["SPY", "QQQ_PASSIVE", "SPMO", "GLD", "QQQ_PINE_1", "QQQ_PINE_2_EMA", "HG1!", "6S1!"],
     gridMode: "flex",
     defaultTimeframe: "D",
     strategyMode: "event_json_engine",
     dataSourceMode: "tv_cache_first",
     preferredDensity: "balanced",
     universeGroups: ["Invest"],
+  },
+  {
+    tabId: "anomaly",
+    title: "Anomaly",
+    assets: ["GC1!", "GLD", "YM1!", "FDAX1!"],
+    gridMode: "flex",
+    defaultTimeframe: "D",
+    strategyMode: "event_json_engine",
+    dataSourceMode: "tv_cache_first",
+    preferredDensity: "balanced",
+    universeGroups: ["Anomaly"],
   },
   {
     tabId: "intraday_mt",

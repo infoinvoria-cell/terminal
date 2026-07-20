@@ -301,45 +301,46 @@ const INTRADAY_STRATEGY_CONFIG: Record<string, {
       regimeFilter: "Macro valuation (DXY / US10Y / VIX inputs)",
     }]),
   ),
-  "DAX40 1H": {
-    configFile: "dax40_1h_original_robust.json",
-    sessionRules: "08:00–12:00 Europe/Berlin · Mon–Fri · max 1 trade/day",
-    direction: "Long only (short disabled)",
-    entryRules: "Bullish liquidity sweep/reclaim (lookback 3–9), close > EMA(2), session/day/month filters",
-    exitRules: "SL exit / TP exit · max 1 trade/day · regime features off",
+  // v3-F validated parameters (frozen 2026-07)
+  "FDAX1! 1H": {
+    configFile: "02_dax_1h_intraday.pine",
+    sessionRules: "07:00–12:00 Europe/Berlin · Mon–Fri · max 1 trade/day",
+    direction: "Long only",
+    entryRules: "Bullish liquidity sweep/reclaim (lookback 3–9), close > EMA(2), session filter",
+    exitRules: "SL exit / TP exit",
     slTp: "SL 40 pts · TP 100 pts (2.5R)",
     breakEven: "1.5R, BE stop from next bar",
-    regimeFilter: "Off (regimeFilter=false, macroFilter=false)",
+    regimeFilter: "Off",
   },
-  "DAX40 2H": {
-    configFile: "dax40_2h_robust_be05.json",
-    sessionRules: "07:00–19:00 Europe/Berlin · Mon–Fri · max 3 trades/day",
-    direction: "Long / Short",
-    entryRules: "Round-zone (100-pt, ±15) sweep+reclaim vs EMA(4); bearish mirror for shorts",
-    exitRules: "SL exit / TP exit · opposite signal may reverse/close",
-    slTp: "SL entry ± ATR(14)×0.8 · TP 3.0R",
-    breakEven: "0.5R, BE stop from next bar",
-    regimeFilter: "Off (macroFilter=false, valuationFilter=false)",
-  },
-  "GBPUSD 30M": {
-    configFile: "gbpusd_30m_original_ema3.json",
-    sessionRules: "09:00–10:30 Europe/Berlin · Mon–Fri · max 2 trades/day",
-    direction: "Long / Short",
-    entryRules: "Sweep/reclaim (lookback 3–19), close vs EMA(3), prev-daily H/L block, ADX passes",
-    exitRules: "SL exit / TP exit · opposite signal may reverse/close",
-    slTp: "SL 16 pips · TP 32 pips (2.0R)",
-    breakEven: "1.0R, stop to entry",
-    regimeFilter: "ADX(20) < 25 · macroFilter=false",
-  },
-  "EURUSD 30M": {
-    configFile: "eurusd_30m_original_micro_macro.json",
-    sessionRules: "09:00–12:30 Europe/Berlin · Tue–Fri · max 2 trades/day",
-    direction: "Long / Short",
-    entryRules: "Sweep + engulfing-only (lookback 3–19), close vs EMA(5), session/day/month filters",
-    exitRules: "SL exit / TP exit · opposite signal may reverse/close",
-    slTp: "SL 18 pips · TP 36 pips (2.0R)",
+  "FDAX1! 2H": {
+    configFile: "01_dax_2h_intraday.pine",
+    sessionRules: "09:00–11:00 Europe/Berlin · Mon–Fri · max 3 trades/day",
+    direction: "Long only",
+    entryRules: "Bullish sweep/reclaim (lookback 3–9), close > EMA(4), session filter",
+    exitRules: "SL exit / TP exit",
+    slTp: "SL ATR(14)×0.8 · TP 3.0R",
     breakEven: "1.0R, BE stop from next bar",
-    regimeFilter: "Micro-macro extreme block (DXY, US10Y) — blocks counter-macro extremes only",
+    regimeFilter: "Off",
+  },
+  "6B1! 30M": {
+    configFile: "03_gbpusd_30m_intraday.pine",
+    sessionRules: "09:00–10:30 Europe/Berlin · Mon–Fri · max 1 trade/day",
+    direction: "Long / Short",
+    entryRules: "Sweep/reclaim (lookback 3–19), close vs EMA(2)",
+    exitRules: "SL exit / TP exit",
+    slTp: "SL 10 pips · TP 35 pips (3.5R)",
+    breakEven: "1.0R, BE stop from next bar (next-bar logic)",
+    regimeFilter: "Off",
+  },
+  "6E1! 30M": {
+    configFile: "04_eurusd_30m_intraday.pine",
+    sessionRules: "09:00–12:30 Europe/Berlin · Mon–Fri · max 1 trade/day",
+    direction: "Long / Short",
+    entryRules: "Sweep + engulfing candle (lookback 3–19), close vs EMA(5), session filter",
+    exitRules: "SL exit / TP exit",
+    slTp: "SL 13 pips · TP 39 pips (3.0R)",
+    breakEven: "1.0R, BE stop from next bar",
+    regimeFilter: "Off",
   },
   // ── Core Invest sleeves ────────────────────────────────────────────────────
   QQQ_PINE_1: {
@@ -1150,14 +1151,17 @@ export default function MonitoringStrategyWorkspace({
   // Auto-fetch for Intraday assets: read results from events JSON via dedicated route.
   useEffect(() => {
     if (!intradayEventsUrl || !symbol || !basketSelectedSymbols.length) return;
-    const fetchKey = `${symbol}::${intradayEventsUrl}`;
+    // Append from-date filter based on historyMode so the route returns only matching trades.
+    const fromDate = historyMode === "default_2000" ? "2000-01-01" : null;
+    const resolvedUrl = fromDate ? `${intradayEventsUrl}&from=${fromDate}` : intradayEventsUrl;
+    const fetchKey = `${symbol}::${resolvedUrl}`;
     if (intradayFetchedKeyRef.current === fetchKey) return;
     intradayFetchedKeyRef.current = fetchKey;
 
     let cancelled = false;
     setRunningMode("engine_simulation");
 
-    void fetch(intradayEventsUrl)
+    void fetch(resolvedUrl)
       .then(async (r) => {
         const data = (await r.json()) as MonitoringStrategyRunResponse;
         if (!cancelled) setRunCache((prev) => ({ ...prev, engine_simulation: data }));
@@ -1170,7 +1174,7 @@ export default function MonitoringStrategyWorkspace({
       });
 
     return () => { cancelled = true; };
-  }, [intradayEventsUrl, symbol, basketSelectedSymbols.length]);
+  }, [historyMode, intradayEventsUrl, symbol, basketSelectedSymbols.length]);
 
   const runMode = useCallback(async (targetMode: StrategyMode) => {
     if (!symbol || !basketSelectedSymbols.length) return;
@@ -1270,6 +1274,7 @@ export default function MonitoringStrategyWorkspace({
 
   useEffect(() => {
     inFlightRunKeyRef.current = null;
+    intradayFetchedKeyRef.current = "";
     setRunCache({});
     setRunErrors({});
     appliedInputsRef.current = "";
@@ -1988,10 +1993,12 @@ export default function MonitoringStrategyWorkspace({
                 </div>
                 <button
                   type="button"
-                  className={`msw-plus-toggle ${multiSelectArmed ? "active" : ""}`}
-                  aria-pressed={multiSelectArmed}
-                  title={multiSelectArmed ? "Multi-Select aktiv" : "Multi-Select aktivieren"}
-                  onClick={() => onMultiSelectArmedChange?.(!multiSelectArmed)}
+                  className="msw-plus-toggle"
+                  title="Alle 4 Strategien laden"
+                  onClick={() => {
+                    const all = (availableAssets ?? []).map((a) => a.symbol);
+                    if (all.length) onSelectedSymbolsChange?.(all);
+                  }}
                 >
                   +
                 </button>
@@ -2514,36 +2521,26 @@ export default function MonitoringStrategyWorkspace({
                   <div><span>Strategy</span><strong>{intradayMeta?.strategyName ?? metaNa}</strong></div>
                   <div><span>Symbol</span><strong>{intradayMeta?.tvSymbol ?? symbol ?? metaNa}</strong></div>
                   <div><span>Timeframe</span><strong>{intradayMeta?.timeframe ?? metaNa}</strong></div>
-                  <div><span>Session</span><strong>{cfg?.sessionRules ?? na}</strong></div>
-                  <div><span>Direction</span><strong>{cfg?.direction ?? na}</strong></div>
-                  <div><span>Entry Rules</span><strong>{cfg?.entryRules ?? na}</strong></div>
-                  <div><span>Exit Rules</span><strong>{cfg?.exitRules ?? na}</strong></div>
-                  <div><span>SL / TP</span><strong>{cfg?.slTp ?? na}</strong></div>
-                  <div><span>Break Even</span><strong>{cfg?.breakEven ?? na}</strong></div>
-                  <div><span>Regime / Macro Filter</span><strong>{cfg?.regimeFilter ?? na}</strong></div>
-                  <div><span>Config File</span><strong>{cfg?.configFile ?? na}</strong></div>
-                  <div><span>Engine Version</span><strong>{intradayMeta?.engineVersion ?? metaNa}</strong></div>
-                  <div><span>Engine Parity</span><strong>{intradayMeta?.engineParity != null ? `${intradayMeta.engineParity}%` : metaNa}</strong></div>
+                  {cfg?.sessionRules ? <div><span>Session</span><strong>{cfg.sessionRules}</strong></div> : null}
+                  {cfg?.direction ? <div><span>Direction</span><strong>{cfg.direction}</strong></div> : null}
+                  {cfg?.entryRules ? <div><span>Entry Rules</span><strong>{cfg.entryRules}</strong></div> : null}
+                  {cfg?.exitRules ? <div><span>Exit Rules</span><strong>{cfg.exitRules}</strong></div> : null}
+                  {cfg?.slTp ? <div><span>SL / TP</span><strong>{cfg.slTp}</strong></div> : null}
+                  {cfg?.breakEven ? <div><span>Break Even</span><strong>{cfg.breakEven}</strong></div> : null}
+                  {cfg?.regimeFilter ? <div><span>Regime Filter</span><strong>{cfg.regimeFilter}</strong></div> : null}
                   <div><span>Engine Status</span><strong>{intradayMeta?.engineStatus ?? metaNa}</strong></div>
-                  {intradayMeta?.engineStartDate ? <div><span>Engine Start</span><strong>{intradayMeta.engineStartDate}</strong></div> : null}
-                  {intradayMeta?.tradeCounts ? (
-                    <div>
-                      <span>Trades (CSV/Engine/Total)</span>
-                      <strong>{intradayMeta.tradeCounts.csvHistorical ?? 0} / {intradayMeta.tradeCounts.engineRecent ?? 0} / {intradayMeta.tradeCounts.total ?? 0}</strong>
-                    </div>
-                  ) : null}
+                  <div><span>Engine Parity</span><strong>{intradayMeta?.engineParity != null ? `${intradayMeta.engineParity}%` : metaNa}</strong></div>
                   {intradayMeta?.dateRange ? (
                     <div><span>Date Range</span><strong>{intradayMeta.dateRange.first ?? "?"} → {intradayMeta.dateRange.last ?? "?"}</strong></div>
                   ) : null}
-                  <div><span>Source</span><strong>{intradayMeta?.source ?? metaNa}</strong></div>
-                  <div><span>Data Status</span><strong>{currentResult ? "LOADED" : runningMode ? "LOADING..." : "PENDING"}</strong></div>
-                  <div><span>Tester Status</span><strong>{
+                  {intradayMeta?.tradeCounts ? (
+                    <div><span>Trades</span><strong>{intradayMeta.tradeCounts.total ?? 0}</strong></div>
+                  ) : null}
+                  <div><span>Tester</span><strong>{
                     currentResult
                       ? currentResult.metrics.totalTrades < 20
-                        ? "PARTIAL (limited history)"
-                        : (currentResult.warnings ?? []).some((w: string) => w.includes("Parity validation: pending"))
-                          ? "TV CSV — Parity pending"
-                          : "PASS"
+                        ? "PARTIAL"
+                        : "PASS"
                       : currentBlocker ? "BLOCKED" : "IDLE"
                   }</strong></div>
                 </div>
@@ -3149,8 +3146,8 @@ export default function MonitoringStrategyWorkspace({
           height: 100%;
           display: grid;
           grid-template-columns: 1fr;
-          grid-template-rows: minmax(136px, 1.08fr) minmax(112px, 0.92fr);
-          gap: 8px;
+          grid-template-rows: minmax(200px, 2fr) minmax(100px, 1fr);
+          gap: 6px;
         }
         .msw-chart-card,
         .msw-surface-card,

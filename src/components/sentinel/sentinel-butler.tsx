@@ -131,6 +131,13 @@ export function SentinelButler() {
     if (open) setTimeout(() => textareaRef.current?.focus(), 120);
   }, [open]);
 
+  // External toggle (e.g. from topbar button)
+  useEffect(() => {
+    const handler = () => setOpen((v) => !v);
+    window.addEventListener("sentinel-butler-toggle", handler);
+    return () => window.removeEventListener("sentinel-butler-toggle", handler);
+  }, []);
+
   const handleSend = () => {
     const text = input.trim();
     if (!text) return;
@@ -176,36 +183,6 @@ export function SentinelButler() {
         .butler-action-btn { background:none; border:none; cursor:pointer; padding:4px; border-radius:6px; transition:background 0.15s,color 0.15s; }
         .butler-action-btn:hover { background:rgba(255,255,255,0.08); }
       `}</style>
-
-      {/* Floating button */}
-      <button
-        type="button"
-        className="butler-btn"
-        onClick={() => setOpen(v => !v)}
-        aria-label="Sentinel Butler öffnen"
-        style={{
-          position: "fixed",
-          bottom: 24,
-          right: 24,
-          zIndex: 9000,
-          width: 46,
-          height: 46,
-          borderRadius: "50%",
-          background: "rgba(20,21,23,0.95)",
-          border: "1px solid rgba(214,184,108,0.20)",
-          boxShadow: open
-            ? "0 0 0 1px rgba(214,184,108,0.25), 0 8px 32px rgba(0,0,0,0.7)"
-            : "0 4px 20px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          transition: "box-shadow 0.2s, background 0.2s, transform 0.15s",
-          animation: busy && open ? "butler-pulse 1.4s ease-in-out infinite" : undefined,
-        }}
-      >
-        <SentinelMini size={26} animate={busy && open} />
-      </button>
 
       {/* Pop-up */}
       {open && (

@@ -41,7 +41,7 @@ export type UpdateSubIbInput = {
 };
 
 export type ActiveProfile = {
-  id: "jeroen" | "joris";
+  id: "jeroen" | "joris" | "janluca";
   name: string;
   avatarSrc: string;
   verified: boolean;
@@ -84,6 +84,12 @@ const AVAILABLE_PROFILES: ActiveProfile[] = [
     avatarSrc: "/profile.png",
     verified: true,
   },
+  {
+    id: "janluca",
+    name: "Jan Luca",
+    avatarSrc: "/profile.png",
+    verified: false,
+  },
 ];
 
 export function HomeDashboardProvider({
@@ -119,8 +125,13 @@ export function HomeDashboardProvider({
     } catch { /* ignore */ }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialPage]);
-  const [activeProfileId, setActiveProfileId] =
-    useState<ActiveProfile["id"]>("jeroen");
+  const [activeProfileId, setActiveProfileId] = useState<ActiveProfile["id"]>(() => {
+    try {
+      const stored = window?.localStorage?.getItem("fmd_active_profile");
+      if (stored === "jeroen" || stored === "joris" || stored === "janluca") return stored;
+    } catch { /* ignore */ }
+    return "jeroen";
+  });
   const [homeTab, setHomeTab] = useState<HomeSubTab>("portfolio");
   const [rrReportingMode, setRrReportingMode] = useState(false);
   const [baseTrades] = useState(initialState.baseTrades);
@@ -197,6 +208,7 @@ export function HomeDashboardProvider({
   );
 
   const setActiveProfile = useCallback((profileId: ActiveProfile["id"]) => {
+    try { window.localStorage.setItem("fmd_active_profile", profileId); } catch { /* ignore */ }
     setActiveProfileId(profileId);
   }, []);
 

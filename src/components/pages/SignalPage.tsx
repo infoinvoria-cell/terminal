@@ -67,7 +67,13 @@ function SectionLead({ section }: { section: SignalPageSection["id"] }) {
     return (
       <div className="flex items-center gap-2">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/branding/white-swan-icon.png" alt="" className="h-4 w-4 object-contain opacity-90" />
+        <img
+          src="/branding/white-swan-logo.png"
+          alt="White Swan"
+          width={18}
+          height={18}
+          style={{ width: 18, height: 18, objectFit: "contain" }}
+        />
         <span className="text-[14px] font-semibold text-white/90">White Swan</span>
         <span className="text-[9px] text-zinc-600">Live Signals</span>
       </div>
@@ -150,6 +156,8 @@ function SignalCard({
     router.push("/monitoring");
   };
 
+  const isWS = card.group === "white_swan";
+
   return (
     <div
       role="button"
@@ -158,61 +166,83 @@ function SignalCard({
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(card); }
       }}
-      className={`flex w-full flex-col gap-1.5 rounded-[14px] border px-3 py-2.5 text-left transition cursor-pointer ${
+      className={`flex w-full flex-col gap-[5px] rounded-[10px] border px-2.5 py-2 text-left transition cursor-pointer ${
         active
-          ? "border-white/[0.12] bg-white/[0.04]"
-          : "border-white/[0.06] bg-white/[0.02] hover:border-white/[0.10] hover:bg-white/[0.03]"
+          ? "border-white/[0.14] bg-[#232323]"
+          : "border-white/[0.07] bg-[#1a1a1a] hover:border-white/[0.12] hover:bg-[#1e1e1e]"
       }`}
     >
-      {/* Row 1: icon + symbol/name + changePct */}
-      <div className="flex items-center gap-2">
+      {/* Row 1: icon · symbol · name · change% */}
+      <div className="flex items-center gap-1.5">
         {iconUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={iconUrl} alt="" className="h-[26px] w-[26px] flex-shrink-0 rounded-[7px] border border-white/[0.08] object-cover" />
+          <img src={iconUrl} alt="" className="h-[22px] w-[22px] flex-shrink-0 rounded-[5px] border border-white/[0.07] object-cover" />
         ) : (
-          <div className="h-[26px] w-[26px] flex-shrink-0 rounded-[7px] border border-white/[0.06] bg-white/[0.03]" />
+          <div className="h-[22px] w-[22px] flex-shrink-0 rounded-[5px] border border-white/[0.06] bg-white/[0.03]" />
         )}
-        <div className="min-w-0 flex-1">
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-[10px] font-bold text-white/90 leading-none">{card.displaySymbol}</span>
-            <span className="truncate text-[8.5px] text-zinc-500 leading-none">{card.assetName}</span>
-          </div>
-          <div className="mt-0.5 text-[8px] text-zinc-700 leading-none">
-            {card.signalDate ?? "—"}
-            {card.ageDays != null ? ` · vor ${card.ageDays}T` : ""}
-          </div>
+        <div className="min-w-0 flex-1 flex items-baseline gap-1">
+          <span className="text-[11px] font-bold text-white leading-none shrink-0">{card.displaySymbol}</span>
+          <span className="truncate text-[9px] text-zinc-500 leading-none">{card.assetName}</span>
         </div>
-        <span className={`text-[9px] font-medium flex-shrink-0 ${changePctClass(card.changePct)}`}>
+        <span className={`text-[10px] font-medium flex-shrink-0 tabular-nums ${changePctClass(card.changePct)}`}>
           {formatPct(card.changePct)}
         </span>
       </div>
 
-      {/* Row 2: strategy + TP/SL */}
-      <div className="flex items-center justify-between gap-2">
-        <span className="truncate text-[8px] text-zinc-600">{card.strategyName}</span>
-        {(card.tp != null || card.sl != null) && (
-          <span className="flex-shrink-0 text-[7.5px] text-zinc-700">
-            {card.tp != null && <span className="text-emerald-500/60">TP {formatPrice(card.tp)}</span>}
-            {card.tp != null && card.sl != null && <span className="mx-1 text-zinc-800">·</span>}
-            {card.sl != null && <span className="text-rose-500/60">SL {formatPrice(card.sl)}</span>}
-          </span>
+      {/* Row 2: signal date / next signal */}
+      <div className="text-[8px] text-zinc-600 leading-none">
+        {card.signalDate
+          ? `Signal: ${card.signalDate}${card.ageDays != null ? ` · vor ${card.ageDays} T` : ""}`
+          : card.nextSignalLabel
+            ? `nächste: ${card.nextSignalLabel}`
+            : <span className="text-zinc-800">—</span>
+        }
+      </div>
+
+      {/* Row 3: WS → strategy name | CI → TP/SL */}
+      <div className="flex items-center gap-2 min-h-[12px]">
+        {isWS ? (
+          <span className="text-[8.5px] text-zinc-500 truncate">{card.strategyName}</span>
+        ) : (
+          <>
+            {card.tp != null && <span className="text-[9px] font-medium text-emerald-400">TP: {formatPrice(card.tp)}</span>}
+            {card.sl != null && <span className="text-[9px] font-medium text-rose-400">SL: {formatPrice(card.sl)}</span>}
+            {card.tp == null && card.sl == null && (
+              <span className="text-[8.5px] text-zinc-600 truncate">{card.strategyName}</span>
+            )}
+          </>
         )}
       </div>
 
-      {/* Row 3: direction + monitoring link */}
+      {/* Row 4: WS → status label only | CI → direction badge + chart icon */}
       <div className="flex items-center justify-between">
-        <span className={`text-[8.5px] font-semibold ${directionClass(card.direction)}`}>
-          {card.direction === "LONG" ? "▲ " : card.direction === "SHORT" ? "▼ " : ""}
-          {card.direction === "PENDING" ? "PARITY PENDING" : card.direction}
-        </span>
-        <button
-          type="button"
-          onClick={openMonitoring}
-          aria-label="Open monitoring"
-          className="flex h-5 w-5 items-center justify-center rounded-full border border-white/[0.07] bg-white/[0.02] text-zinc-600 transition hover:border-[#d8bc67]/30 hover:text-[#d8bc67]/80"
-        >
-          <ChartNoAxesCombined className="h-2.5 w-2.5" strokeWidth={1.6} />
-        </button>
+        {isWS ? (
+          <span className="text-[9px] text-zinc-500 leading-none">
+            {card.status === "PAPER_ONLY" ? "— PAPER"
+              : card.status === "PARITY_PENDING" ? "⧖ PARITY PENDING"
+              : card.direction === "LONG" ? "▲ LONG"
+              : card.direction === "SHORT" ? "▼ SHORT"
+              : `— ${card.direction}`}
+          </span>
+        ) : (
+          <>
+            <span className={`text-[10px] font-semibold leading-none ${directionClass(card.direction)}`}>
+              {card.direction === "LONG" ? "▲ LONG"
+                : card.direction === "SHORT" ? "▼ SHORT"
+                : card.status === "PAPER_ONLY" ? "— PAPER"
+                : card.direction === "PENDING" ? "⧖ PARITY PENDING"
+                : `— ${card.direction}`}
+            </span>
+            <button
+              type="button"
+              onClick={openMonitoring}
+              aria-label="Open monitoring"
+              className="flex h-5 w-5 items-center justify-center rounded-full border border-white/[0.07] bg-white/[0.02] text-zinc-600 transition hover:border-[#d8bc67]/30 hover:text-[#d8bc67]/80"
+            >
+              <ChartNoAxesCombined className="h-2.5 w-2.5" strokeWidth={1.6} />
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

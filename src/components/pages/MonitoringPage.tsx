@@ -167,7 +167,7 @@ const MONITORING_HEADER_TABS: MonitoringHeaderTabItem[] = [
   { key: "aktien", kind: "tab", tabId: "aktien", title: "Aktien" },
   { key: "invest", kind: "tab", tabId: "invest", title: "Invest" },
   { key: "forex", kind: "tab", tabId: "fx", title: "Forex" },
-  { key: "anomaly", kind: "placeholder", title: "Anomaly" },
+  { key: "anomaly", kind: "tab", tabId: "anomaly", title: "Anomaly" },
   { key: "intraday", kind: "tab", tabId: "intraday_mt", title: "Intraday" },
   { key: "live", kind: "tab", tabId: "live", title: "Live" },
   { key: "all", kind: "tab", tabId: "all", title: "All" },
@@ -183,9 +183,16 @@ const FALLBACK_AKTIEN_UNIVERSE_ITEMS: UniverseAssetItem[] = [
 ];
 
 const FALLBACK_INVEST_UNIVERSE_ITEMS: UniverseAssetItem[] = [
-  { tab: "Invest", symbol: "NAS100USD_E_STEP_INVEST", requestSymbol: "NAS100USD", source: "OANDA:NAS100USD", name: "E-Step Invest", timeframe: "D", hasData: true, hasStrategy: true, strategyStatus: "mapped", buildable: true },
-  { tab: "Invest", symbol: "NAS100USD_ONLY_LONG_VALUATION_TREND_EMA", requestSymbol: "NAS100USD", source: "OANDA:NAS100USD", name: "Only Long Valuation Trend EMA", timeframe: "D", hasData: true, hasStrategy: true, strategyStatus: "mapped", buildable: true },
-  { tab: "Invest", symbol: "USDCHF_CHF_INVEST", requestSymbol: "USDCHF", source: "OANDA:USDCHF", name: "CHF Invest", timeframe: "D", hasData: true, hasStrategy: true, strategyStatus: "mapped", buildable: true },
+  // CI v2.0 — ETF Core (passive)
+  { tab: "Invest", symbol: "SPY",           requestSymbol: "SPY",   source: "BATS:SPY",    name: "S&P 500 ETF (SPY)",      timeframe: "D", hasData: true,  hasStrategy: false, strategyStatus: "passive",  buildable: false },
+  { tab: "Invest", symbol: "QQQ_PASSIVE",   requestSymbol: "QQQ",   source: "NASDAQ:QQQ",  name: "Nasdaq ETF passiv (QQQ)", timeframe: "D", hasData: false, hasStrategy: false, strategyStatus: "passive",  buildable: false },
+  { tab: "Invest", symbol: "SPMO",          requestSymbol: "SPMO",  source: "BATS:SPMO",   name: "S&P Momentum (SPMO)",    timeframe: "D", hasData: false, hasStrategy: false, strategyStatus: "passive",  buildable: false },
+  { tab: "Invest", symbol: "GLD",           requestSymbol: "GLD",   source: "AMEX:GLD",    name: "Gold ETF (GLD)",         timeframe: "D", hasData: false, hasStrategy: false, strategyStatus: "passive",  buildable: false },
+  // CI v2.0 — Active Sleeves
+  { tab: "Invest", symbol: "QQQ_PINE_1",    requestSymbol: "QQQ",   source: "NASDAQ:QQQ",  name: "QQQ Pine 1",             timeframe: "D", hasData: false, hasStrategy: true,  strategyStatus: "mapped",   buildable: true,  strategyId: "QQQ_PINE_1" },
+  { tab: "Invest", symbol: "QQQ_PINE_2_EMA",requestSymbol: "QQQ",   source: "NASDAQ:QQQ",  name: "QQQ Pine 2 EMA",         timeframe: "D", hasData: false, hasStrategy: true,  strategyStatus: "mapped",   buildable: true,  strategyId: "QQQ_PINE_2_EMA" },
+  { tab: "Invest", symbol: "HG1!",          requestSymbol: "HG1!",  source: "COMEX:HG1!",  name: "Copper Sleeve (HG1!)",   timeframe: "D", hasData: true,  hasStrategy: true,  strategyStatus: "mapped",   buildable: true,  strategyId: "COPPER_HG" },
+  { tab: "Invest", symbol: "6S1!",          requestSymbol: "6S1!",  source: "CME:6S1!",    name: "CHF Sleeve (6S1!)",      timeframe: "D", hasData: true,  hasStrategy: true,  strategyStatus: "mapped",   buildable: true,  strategyId: "CHF_6S" },
 ];
 
 const INVEST_WORKSPACE_ASSETS = [
@@ -617,44 +624,61 @@ const ORDERED_ASSETS: AgrarAssetConfig[] = [
 const INTRADAY_MT_ASSETS: IntradayMtAssetConfig[] = [
   {
     slot: "top_left",
-    displaySymbol: "DAX40 2H",
+    displaySymbol: "FDAX1! 2H",
+    // source stays OANDA so existing candle cache files load; displaySymbol shows futures name
     requestSymbol: "DE30EUR",
     source: "OANDA:DE30EUR",
-    name: "DAX40",
+    name: "DAX Future (TM)",
     timeframe: "2H",
     strategyId: "dax_2h",
     strategyScriptFile: "workspace/input/pine_strategies/01_dax_2h_intraday.pine",
   },
   {
     slot: "top_right",
-    displaySymbol: "GBPUSD 30M",
+    displaySymbol: "6B1! 30M",
     requestSymbol: "GBPUSD",
     source: "OANDA:GBPUSD",
-    name: "GBPUSD",
+    name: "GBP Future (MT)",
     timeframe: "30M",
     strategyId: "gbpusd_30m",
     strategyScriptFile: "workspace/input/pine_strategies/03_gbpusd_30m_intraday.pine",
   },
   {
     slot: "bottom_left",
-    displaySymbol: "DAX40 1H",
+    displaySymbol: "FDAX1! 1H",
     requestSymbol: "DE30EUR",
     source: "OANDA:DE30EUR",
-    name: "DAX40",
+    name: "DAX Future (MT)",
     timeframe: "1H",
     strategyId: "dax_1h",
     strategyScriptFile: "workspace/input/pine_strategies/02_dax_1h_intraday.pine",
   },
   {
     slot: "bottom_right",
-    displaySymbol: "EURUSD 30M",
+    displaySymbol: "6E1! 30M",
     requestSymbol: "EURUSD",
     source: "OANDA:EURUSD",
-    name: "EURUSD",
+    name: "EUR Future (MT)",
     timeframe: "30M",
     strategyId: "eurusd_30m",
     strategyScriptFile: "workspace/input/pine_strategies/04_eurusd_30m_intraday.pine",
   },
+];
+
+type AnomalyMtAssetConfig = {
+  slot: "top_left" | "top_right" | "bottom_left" | "bottom_right";
+  displaySymbol: string;
+  requestSymbol: string;
+  source: string;
+  name: string;
+  timeframe: string;
+};
+
+const ANOMALY_MT_ASSETS: AnomalyMtAssetConfig[] = [
+  { slot: "top_left",     displaySymbol: "GC1! 1D",   requestSymbol: "GC1!",   source: "COMEX:GC1!",     name: "Gold Freitag Long (GC1!)",    timeframe: "1D" },
+  { slot: "top_right",    displaySymbol: "GLD 1D",    requestSymbol: "GLD",    source: "AMEX:GLD",       name: "Gold Donnerstag Long (GLD)",  timeframe: "1D" },
+  { slot: "bottom_left",  displaySymbol: "YM1! 1D",   requestSymbol: "YM1!",   source: "CBOT_MINI:YM1!", name: "Dow Jones TAT (YM1!)",        timeframe: "1D" },
+  { slot: "bottom_right", displaySymbol: "FDAX1! 1D", requestSymbol: "FDAX1!", source: "EUREX:FDAX1!",   name: "DAX Futures TAT (FDAX1!)",    timeframe: "1D" },
 ];
 
 const WAVE1_GROUP_BY_TAB: Partial<Record<TabId, Wave1GroupId>> = {
@@ -2303,7 +2327,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
   const customEs1EnginePilotEnabled = monitoringFeatureFlags.useCustomEs1EnginePilot;
   const customPa1EnginePilotEnabled = monitoringFeatureFlags.useCustomPa1EnginePilot;
   const customPl1EnginePilotEnabled = monitoringFeatureFlags.useCustomPl1EnginePilot;
-  const ALL_TAB_IDS: TabId[] = ["agrar", "metalle_energie", "indizes", "aktien", "invest", "fx", "intraday_mt", "live", "all"];
+  const ALL_TAB_IDS: TabId[] = ["agrar", "metalle_energie", "indizes", "aktien", "invest", "fx", "anomaly", "intraday_mt", "live", "all"];
   const [activeTab, setActiveTab] = useState<TabId>("agrar");
   const setActiveTabPersisted = useCallback((tab: TabId) => {
     try {
@@ -2458,6 +2482,18 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
   const mainWorkspaceRef = useRef<HTMLDivElement | null>(null);
   const execLayoutRef = useRef<HTMLDivElement | null>(null);
 
+  // ── Forward Logger ──────────────────────────────────────────────────────────
+  type FwdTrade = Record<string, string> & { lastClose?: number | null; lastCloseDate?: string | null; unrealizedPct?: number | null };
+  type ForwardLoggerData = { available: boolean; asOf?: string; openTrades?: FwdTrade[]; activeSignals?: FwdTrade[]; recentClosed?: FwdTrade[]; counts?: { open: number; activeSignals: number; recentClosed: number } };
+  const [forwardLogger, setForwardLogger] = useState<ForwardLoggerData | null>(null);
+  useEffect(() => {
+    if (activeTab !== "live") return;
+    fetch("/api/monitoring/forward-logger")
+      .then((r) => r.json())
+      .then((d: ForwardLoggerData) => setForwardLogger(d))
+      .catch(() => setForwardLogger({ available: false }));
+  }, [activeTab]);
+
   // Load persisted live-panel width once on mount (clamped to the current viewport).
   useEffect(() => {
     try {
@@ -2526,7 +2562,8 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
   // Agrar code path (XLSX inputs + engine run), not the events-url path.
   const useUnifiedIndicesWorkspace = activeTab === "indizes" && showStrategyTesterWorkspace;
   const useUnifiedInvestWorkspace = activeTab === "invest" && showStrategyTesterWorkspace;
-  const useUnifiedNonAgrarWorkspace = useUnifiedIntradayWorkspace || useUnifiedIndicesWorkspace || useUnifiedInvestWorkspace;
+  const useUnifiedAnomalyWorkspace = activeTab === "anomaly" && showStrategyTesterWorkspace;
+  const useUnifiedNonAgrarWorkspace = useUnifiedIntradayWorkspace || useUnifiedIndicesWorkspace || useUnifiedInvestWorkspace || useUnifiedAnomalyWorkspace;
   const intradayEventsUrl = useMemo(() => {
     if (!useUnifiedIntradayWorkspace) return undefined;
     const sym = selectedStrategySymbols[0] ?? null;
@@ -2550,6 +2587,15 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     if (!sym || !isInvestStrategyId(sym)) return undefined;
     return `/api/monitoring/strategy-tester/run-invest?symbol=${encodeURIComponent(sym)}`;
   }, [investSelectedStrategyId, selectedStrategySymbols, useUnifiedInvestWorkspace]);
+
+  const anomalyEventsUrl = useMemo(() => {
+    if (!useUnifiedAnomalyWorkspace) return undefined;
+    const sym = selectedStrategySymbols[0] ?? null;
+    if (!sym) return undefined;
+    const hasConfig = ANOMALY_MT_ASSETS.some((a) => a.displaySymbol === sym);
+    if (!hasConfig) return undefined;
+    return `/api/monitoring/strategy-tester/run-anomaly?symbol=${encodeURIComponent(sym)}`;
+  }, [useUnifiedAnomalyWorkspace, selectedStrategySymbols]);
 
   useEffect(() => {
     startMonitoringRuntime();
@@ -3644,6 +3690,23 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     [],
   );
 
+  const anomalyMtUniverseItems = useMemo<UniverseAssetItem[]>(
+    () =>
+      ANOMALY_MT_ASSETS.map((row) => ({
+        tab: "Anomaly",
+        symbol: row.displaySymbol,
+        requestSymbol: row.requestSymbol,
+        source: row.source,
+        name: row.name,
+        timeframe: row.timeframe,
+        hasData: true,
+        hasStrategy: true,
+        strategyStatus: "mapped" as const,
+        buildable: true,
+      })),
+    [],
+  );
+
   const effectiveUniverseAssets = useMemo(() => {
     if (productionUniverseAssets.length === 0) return universeAssets;
     const keep = universeAssets.filter((asset) => {
@@ -3668,6 +3731,9 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
   const filteredUniverseItems = useMemo(() => {
     if (activeTab === "intraday_mt") {
       return intradayMtUniverseItems;
+    }
+    if (activeTab === "anomaly") {
+      return anomalyMtUniverseItems;
     }
     if (activeTab === "indizes") {
       return WAVE1_INDICES_ASSETS;
@@ -3695,7 +3761,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     const scoped = effectiveUniverseAssets.filter((asset) => groups.has(normalizeGroup(asset.tab)));
     const replaceAgrar = activeTab === "agrar" || groups.has("Agrar");
     return applyMonitoringUniverseFilters(scoped, { replaceAgrarWithOrdered: replaceAgrar });
-  }, [activeTab, effectiveUniverseAssets, fallbackUniverseByTab, intradayMtUniverseItems]);
+  }, [activeTab, anomalyMtUniverseItems, effectiveUniverseAssets, fallbackUniverseByTab, intradayMtUniverseItems]);
 
   useEffect(() => {
     const activeKeys: string[] = [];
@@ -4208,6 +4274,36 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
             timeframe: tf,
             universeGroup: "Intraday MT",
             eventsFile: eventsFile ?? undefined,
+          });
+          if (uiPrefs.language === "de") {
+            return { ...labeled, name: translateMonitoringTerm(labeled.name, "de") };
+          }
+          return labeled;
+        });
+    }
+
+    if (activeTab === "anomaly") {
+      const slotOrder: Array<AnomalyMtAssetConfig["slot"]> = ["top_left", "top_right", "bottom_left", "bottom_right"];
+      const bySlot = new Map<AnomalyMtAssetConfig["slot"], UniverseAssetItem>();
+      for (const item of filteredUniverseItems) {
+        const spec = ANOMALY_MT_ASSETS.find((row) => row.displaySymbol === item.symbol);
+        if (!spec) continue;
+        bySlot.set(spec.slot, item);
+      }
+      return slotOrder
+        .map((slot) => bySlot.get(slot) ?? null)
+        .filter((it): it is UniverseAssetItem => Boolean(it))
+        .map((it) => {
+          const spec = ANOMALY_MT_ASSETS.find((row) => row.displaySymbol === it.symbol);
+          const labeled = applyMonitoringChartLabel({
+            key: `anomaly:${it.symbol}`,
+            code: spec?.displaySymbol ?? it.symbol,
+            tv: it.source,
+            strategy: "",
+            payload: null,
+            variant: "large" as const,
+            timeframe: it.timeframe,
+            universeGroup: "Anomaly",
           });
           if (uiPrefs.language === "de") {
             return { ...labeled, name: translateMonitoringTerm(labeled.name, "de") };
@@ -5758,10 +5854,20 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     setSelectedStrategySymbols(Array.from(new Set(symbols.filter((symbol) => available.has(symbol)))));
   }, [monitoringAgriAssets]);
 
+  const monitoringAnomalyAssets = useMemo(
+    () => ANOMALY_MT_ASSETS.map((row) => ({ symbol: row.displaySymbol, name: row.name })),
+    [],
+  );
+
   const handleIntradayStrategySelectionChange = useCallback((symbols: string[]) => {
     const available = new Set(monitoringIntradayAssets.map((item) => item.symbol));
     setSelectedStrategySymbols(Array.from(new Set(symbols.filter((symbol) => available.has(symbol)))));
   }, [monitoringIntradayAssets]);
+
+  const handleAnomalyStrategySelectionChange = useCallback((symbols: string[]) => {
+    const available = new Set(monitoringAnomalyAssets.map((item) => item.symbol));
+    setSelectedStrategySymbols(Array.from(new Set(symbols.filter((symbol) => available.has(symbol)))));
+  }, [monitoringAnomalyAssets]);
 
   const handleIndicesStrategySelectionChange = useCallback((symbols: string[]) => {
     const available = new Set(monitoringIndicesAssets.map((item) => item.symbol));
@@ -6215,6 +6321,55 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
               Research monitoring · not live approved
             </span>
           </div>
+          {forwardLogger?.available && (forwardLogger.openTrades?.length ?? 0) > 0 && (
+            <div className="monitoring-fwd-section">
+              <div className="monitoring-fwd-header">
+                <span className="monitoring-fwd-title">Forward Positionen</span>
+                <span className="monitoring-fwd-count monitoring-live-chip is-open">{forwardLogger.openTrades!.length} offen</span>
+                {forwardLogger.asOf && (
+                  <span className="monitoring-live-sub">Stand: {forwardLogger.asOf.slice(0, 10)}</span>
+                )}
+              </div>
+              <div className="monitoring-fwd-table">
+                <div className="monitoring-fwd-row monitoring-fwd-row--head">
+                  <span>Asset</span>
+                  <span>Strategie</span>
+                  <span>Dir</span>
+                  <span>Entry</span>
+                  <span>SL</span>
+                  <span>TP</span>
+                  <span>RR</span>
+                  <span>P&amp;L %</span>
+                  <span>Entry-Datum</span>
+                </div>
+                {forwardLogger.openTrades!.map((t, i) => {
+                  const dir = (t.direction ?? "").toUpperCase();
+                  const rr = t.model_rr ? `${parseFloat(t.model_rr).toFixed(1)}R` : "–";
+                  const entryP = t.entry_price ? parseFloat(t.entry_price).toLocaleString("de-CH", { maximumFractionDigits: 4 }) : "–";
+                  const slP = t.sl_price ? parseFloat(t.sl_price).toLocaleString("de-CH", { maximumFractionDigits: 4 }) : "–";
+                  const tpP = t.tp_price ? parseFloat(t.tp_price).toLocaleString("de-CH", { maximumFractionDigits: 4 }) : "–";
+                  const pnl = t.unrealizedPct ?? null;
+                  const pnlStr = pnl != null ? `${pnl >= 0 ? "+" : ""}${pnl.toFixed(2)}%` : "–";
+                  const pnlClass = pnl == null ? "" : pnl > 0 ? "is-pnl-pos" : pnl < 0 ? "is-pnl-neg" : "";
+                  return (
+                    <div key={i} className="monitoring-fwd-row">
+                      <span className="monitoring-fwd-symbol">{t.symbol ?? "–"}</span>
+                      <span className="monitoring-fwd-strategy">{t.strategy ?? "–"}</span>
+                      <span className={`monitoring-fwd-dir ${dir === "LONG" ? "is-long" : "is-short"}`}>{dir}</span>
+                      <span>{entryP}</span>
+                      <span className="monitoring-fwd-sl">{slP}</span>
+                      <span className="monitoring-fwd-tp">{tpP}</span>
+                      <span>{rr}</span>
+                      <span className={`monitoring-fwd-pnl ${pnlClass}`} title={t.lastClose != null ? `Close: ${t.lastClose} (${t.lastCloseDate ?? ""})` : "Kein Preis"}>
+                        {pnlStr}
+                      </span>
+                      <span className="monitoring-live-sub">{t.entry_date ?? "–"}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           {!allTabsEnabled || !nonAgrarGridEnabled ? (
             <div className="monitoring-live-empty">
               <div className="monitoring-live-empty-title">Live-Ansicht pausiert</div>
@@ -6765,14 +6920,15 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
                   symbol={unifiedStrategyChart?.code ?? null}
                   assetName={unifiedStrategyChart?.name ?? null}
                   selectedSymbols={selectedStrategySymbols}
-                  availableAssets={useUnifiedIndicesWorkspace ? monitoringIndicesAssets : monitoringIntradayAssets}
-                  onSelectedSymbolsChange={useUnifiedIndicesWorkspace ? handleIndicesStrategySelectionChange : handleIntradayStrategySelectionChange}
+                  availableAssets={useUnifiedIndicesWorkspace ? monitoringIndicesAssets : useUnifiedAnomalyWorkspace ? monitoringAnomalyAssets : monitoringIntradayAssets}
+                  onSelectedSymbolsChange={useUnifiedIndicesWorkspace ? handleIndicesStrategySelectionChange : useUnifiedAnomalyWorkspace ? handleAnomalyStrategySelectionChange : handleIntradayStrategySelectionChange}
                   onFocusSymbol={handleStrategyFocusSymbol}
                   multiSelectArmed={strategyMultiSelectArmed}
                   onMultiSelectArmedChange={setStrategyMultiSelectArmed}
                   onEngineResultCache={handleStrategyEngineResultCache}
                   uiPrefs={uiPrefs}
-                  intradayEventsUrl={useUnifiedIndicesWorkspace ? indicesEventsUrl : intradayEventsUrl}
+                  intradayEventsUrl={useUnifiedIndicesWorkspace ? indicesEventsUrl : useUnifiedAnomalyWorkspace ? anomalyEventsUrl : intradayEventsUrl}
+                  adapterLabel={useUnifiedAnomalyWorkspace ? "Anomaly" : undefined}
                   topContent={
                     showGrid ? (
                       <MonitoringFlexibleGrid
@@ -7470,6 +7626,87 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
         .monitoring-live-empty-sub {
           font-size: 11px;
           color: #5a606e;
+        }
+        .monitoring-fwd-section {
+          flex: 0 0 auto;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          padding: 8px 12px;
+        }
+        .monitoring-fwd-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 6px;
+        }
+        .monitoring-fwd-title {
+          font-size: 11px;
+          font-weight: 700;
+          color: #c7ccd4;
+          letter-spacing: 0.02em;
+        }
+        .monitoring-fwd-count {
+          font-size: 9px;
+        }
+        .monitoring-fwd-table {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        .monitoring-fwd-row {
+          display: grid;
+          grid-template-columns: 60px 1fr 46px 90px 90px 90px 36px 60px 90px;
+          gap: 0 10px;
+          align-items: center;
+          font-size: 10px;
+          color: #c7ccd4;
+          padding: 3px 4px;
+          border-radius: 4px;
+        }
+        .monitoring-fwd-row--head {
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.04em;
+          color: #5a606e;
+          padding-bottom: 2px;
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .monitoring-fwd-row:not(.monitoring-fwd-row--head):hover {
+          background: rgba(255,255,255,0.03);
+        }
+        .monitoring-fwd-symbol {
+          font-weight: 700;
+          color: #f5f7fa;
+        }
+        .monitoring-fwd-strategy {
+          color: #7b8190;
+          font-size: 9px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .monitoring-fwd-dir.is-long {
+          color: #22c55e;
+          font-weight: 700;
+        }
+        .monitoring-fwd-dir.is-short {
+          color: #f87171;
+          font-weight: 700;
+        }
+        .monitoring-fwd-sl {
+          color: #f87171;
+        }
+        .monitoring-fwd-tp {
+          color: #22c55e;
+        }
+        .monitoring-fwd-pnl {
+          font-weight: 700;
+          font-variant-numeric: tabular-nums;
+        }
+        .monitoring-fwd-pnl.is-pnl-pos {
+          color: #22c55e;
+        }
+        .monitoring-fwd-pnl.is-pnl-neg {
+          color: #f87171;
         }
         .monitoringContent {
           z-index: 1;

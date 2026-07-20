@@ -126,7 +126,8 @@ export default function StrategyTesterEquityChart({
 
   if (!pctData.length) return null;
   const hasChartSize = size.width > 0 && size.height > 0;
-  const chartKey = `${pctData.length}:${timeRangeFrom ?? "all"}`;
+  // No key on ComposedChart — avoids full remount on data updates, which caused Y-axis flicker
+  // because Recharts would re-animate axes from scratch on every render cycle.
   const compactStats = hasChartSize && size.width < 460;
 
   const wrapClass = fillContainer
@@ -197,7 +198,7 @@ export default function StrategyTesterEquityChart({
       </div>
       <div ref={chartRef} className={wrapClass}>
         {hasChartSize ? (
-          <ComposedChart key={chartKey} width={Math.max(size.width, 1)} height={Math.max(size.height, 1)} data={pctData} margin={{ top: 4, right: 18, bottom: 0, left: 0 }}>
+          <ComposedChart width={Math.max(size.width, 1)} height={Math.max(size.height, 1)} data={pctData} margin={{ top: 4, right: 18, bottom: 0, left: 0 }}>
             <defs>
               <linearGradient id="eqGradTest" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#aab4c2" stopOpacity={0.12} />

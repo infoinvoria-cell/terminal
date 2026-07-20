@@ -32,7 +32,11 @@ const MONTHLY_OVERRIDE_PCT: Record<string, number> = {
   "2026-04": 0.93,
 };
 
-export const getTradesData = cache(async (): Promise<TradesPayload> => {
+// Module-level cache — prevents re-reading CSV/HTML on every page navigation
+let _tradesCache: { data: TradesPayload; ts: number } | null = null;
+const TRADES_TTL_MS = 30 * 1000; // 30 s
+
+const _fetchTradesData = cache(async (): Promise<TradesPayload> => {
   const reportPath = await findHtmlReportPath();
   let reportTrades: ParsedReportTrade[] = [];
   let balanceRows: ParsedBalanceRow[] = [];
@@ -60,6 +64,14 @@ export const getTradesData = cache(async (): Promise<TradesPayload> => {
     reportPath,
   };
 });
+
+export async function getTradesData(): Promise<TradesPayload> {
+  const now = Date.now();
+  if (_tradesCache && now - _tradesCache.ts < TRADES_TTL_MS) return _tradesCache.data;
+  const data = await _fetchTradesData();
+  _tradesCache = { data, ts: now };
+  return data;
+}
 
 async function loadLegacyCsvRows() {
   const csvPath = path.join(

@@ -13,7 +13,7 @@ export type AssistantMeta = {
 export type ChatEntry = { role: SentinelRole; content: string; meta?: AssistantMeta };
 
 export type SentinelProviderStatus = {
-  id: "local" | "openai" | "anthropic" | "custom";
+  id: "local" | "ollama" | "groq" | "anthropic" | "custom";
   label: string;
   configured: boolean;
   enabled: boolean;
@@ -27,7 +27,7 @@ export type SentinelProviderStatus = {
 
 export type SentinelStatusPayload = {
   activeProvider: SentinelProviderStatus["id"] | null;
-  mode: "auto" | "local" | "openai" | "anthropic" | "custom";
+  mode: "auto" | "local" | "ollama" | "groq" | "anthropic" | "custom";
   fallbackProvider: SentinelProviderStatus["id"] | null;
   providers: SentinelProviderStatus[];
   brain: { available: boolean; loaded: boolean; message: string };

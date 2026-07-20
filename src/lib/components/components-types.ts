@@ -15,7 +15,7 @@ export type ComponentModeStats = {
   trades: string;
   winrate: string;
   wfOos: string;
-  status: "final_core" | "final_limited" | "research" | "paper_only" | "open";
+  status: "final_core" | "final_limited" | "research" | "paper_only" | "open" | "archived";
   source?: string;
   placeholder: boolean;
 };

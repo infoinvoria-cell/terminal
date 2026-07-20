@@ -66,11 +66,12 @@ function formatAssetStatusSummary(statuses: Record<string, { status: string }>) 
 }
 
 const WHITE_SWAN_GROUPS = [
-  { id: "Agrar", label: "Agrar", assets: 8, strategies: 1, weight: null },
-  { id: "Metalle", label: "Metalle", assets: 5, strategies: 1, weight: null },
-  { id: "Energy", label: "Energy", assets: 3, strategies: 1, weight: null },
-  { id: "Indizes", label: "Indizes", assets: 5, strategies: 1, weight: null },
-  { id: "Forex", label: "Forex", assets: 8, strategies: 1, weight: null },
+  { id: "GC1 Friday Long", label: "GC1 Friday Long", assets: 1, strategies: 1, weight: 0.198 },
+  { id: "GLD Thursday Long", label: "GLD Thursday Long", assets: 1, strategies: 1, weight: 0.198 },
+  { id: "YM1 TAT", label: "YM1 TAT", assets: 1, strategies: 1, weight: 0.198 },
+  { id: "UKX Valuation", label: "UKX Valuation", assets: 1, strategies: 1, weight: 0.198 },
+  { id: "CT1 Macro A", label: "CT1 Macro A", assets: 1, strategies: 1, weight: 0.108 },
+  { id: "NQ1 Trend LO", label: "NQ1 Trend LO", assets: 1, strategies: 1, weight: 0.100 },
 ] as const;
 
 const COMBINED_GROUPS = [...WHITE_SWAN_GROUPS, { id: "Invest", label: "Invest", assets: 1, strategies: 1, weight: null }] as const;
@@ -181,7 +182,7 @@ function createBacktestDataset(tab: AnalyticsTab, data: CapalifeData): Analytics
     groupBars: (raw.groupBars as Array<{ group: string; value: number }>).map((item) => ({ label: item.group, value: item.value, group: item.group })),
     strategyBars: (raw.strategyBars as Array<{ strategy: string; group: string; value: number }>).map((item) => ({ label: item.strategy, value: item.value, group: item.group })),
     metrics: tab === "whiteSwan"
-      ? { totalReturnPct: "88.65%", cagrPct: "1.13%", maxDrawdownPct: "-1.23%", tradeCount: "Asset curves", strategyCount: "5 sleeves" }
+      ? { totalReturnPct: "128.11%", cagrPct: "11.63%", maxDrawdownPct: "-15.16%", sharpe: "2.11", calmar: "0.77", tradeCount: "OOS weekly", strategyCount: "6 strategies", dataPoints: String(performanceSeries.length) }
       : tab === "invest"
         ? { totalReturnPct: "172.31%", cagrPct: "5.81%", maxDrawdownPct: "-21.06%", tradeCount: "1101", strategyCount: "3 strategies" }
         : { totalReturnPct: "Combined proxy", cagrPct: "White Swan + Invest", maxDrawdownPct: "Derived from grouped curves", tradeCount: "1101 + White Swan curves", strategyCount: "6 groups" },

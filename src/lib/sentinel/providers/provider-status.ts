@@ -16,7 +16,8 @@ export type SentinelEnvConfig = {
   ollamaBaseUrl: string;
   ollamaModel: string | null;
   ollamaThink: boolean;
-  openaiModel: string | null;
+  groqModel: string | null;
+  mistralModel: string | null;
   anthropicModel: string | null;
   customModel: string | null;
   customApiUrl: string | null;
@@ -56,9 +57,9 @@ export function getSentinelEnvConfig(): SentinelEnvConfig {
   const allowPaidApi = envBool(process.env.SENTINEL_ALLOW_PAID_API, false);
   const allowCustomApi = envBool(process.env.SENTINEL_ALLOW_CUSTOM_API, false);
   const normalizedMode: SentinelRouterMode =
-    mode === "local" || mode === "openai" || mode === "anthropic" || mode === "custom" ? mode : "auto";
+    mode === "local" || mode === "ollama" || mode === "groq" || mode === "mistral" || mode === "anthropic" || mode === "custom" ? mode : "auto";
   const normalizedProvider: SentinelProviderId =
-    defaultProvider === "openai" || defaultProvider === "anthropic" || defaultProvider === "custom" ? defaultProvider : "local";
+    defaultProvider === "ollama" || defaultProvider === "groq" || defaultProvider === "mistral" || defaultProvider === "anthropic" || defaultProvider === "custom" ? defaultProvider : "local";
   const enforcedMode: SentinelRouterMode = !allowPaidApi && !allowCustomApi ? "local" : normalizedMode;
   const enforcedProvider: SentinelProviderId = !allowPaidApi && !allowCustomApi ? "local" : normalizedProvider;
 
@@ -75,7 +76,8 @@ export function getSentinelEnvConfig(): SentinelEnvConfig {
     ollamaBaseUrl: envText(process.env.OLLAMA_BASE_URL) ?? envText(process.env.OLLAMA_API_URL) ?? "http://localhost:11434",
     ollamaModel: envText(process.env.OLLAMA_MODEL) ?? envText(process.env.SENTINEL_DEFAULT_MODEL),
     ollamaThink: envBool(process.env.OLLAMA_THINK, false),
-    openaiModel: envText(process.env.OPENAI_MODEL) ?? envText(process.env.OPENAI_DEFAULT_MODEL),
+    groqModel: envText(process.env.GROQ_MODEL) ?? "llama-3.3-70b-versatile",
+    mistralModel: envText(process.env.MISTRAL_MODEL) ?? "mistral-small-latest",
     anthropicModel: envText(process.env.ANTHROPIC_MODEL),
     customModel: envText(process.env.CUSTOM_CHAT_MODEL),
     customApiUrl: envText(process.env.CUSTOM_CHAT_API_URL),

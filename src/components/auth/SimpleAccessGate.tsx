@@ -169,16 +169,5 @@ export function SimpleAccessGate({
     );
   }
 
-  return (
-    <>
-      <button
-        type="button"
-        onClick={handleLogout}
-        className="fixed right-5 top-5 z-[70] rounded-full border border-white/10 bg-[#121318]/88 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70 backdrop-blur transition hover:border-[#bf9d4a]/60 hover:text-white"
-      >
-        Logout
-      </button>
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }

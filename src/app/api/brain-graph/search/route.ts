@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCapitalifeBrainPath } from "@/lib/brain/brain-path";
 
 const DASHBOARD_ROOT = process.cwd();
+const GRAPH_CACHE_TTL_MS = 5 * 60 * 1000;
+let _graphCache: { nodes: GraphNode[]; root: string; ts: number } | null = null;
 
 type GraphNode = {
   id: string;
@@ -22,19 +24,24 @@ type GraphData = {
 };
 
 function loadGraph(root: string): GraphNode[] {
+  const now = Date.now();
+  if (_graphCache && _graphCache.root === root && now - _graphCache.ts < GRAPH_CACHE_TTL_MS) {
+    return _graphCache.nodes;
+  }
   const p = path.join(root, "graphify-out", "graph.json");
   if (!fs.existsSync(p)) return [];
   try {
     const g = JSON.parse(fs.readFileSync(p, "utf8")) as GraphData;
     const nodes = g.nodes ?? [];
     const links = g.links ?? [];
-    // attach degree
     const degMap = new Map<string, number>();
     for (const link of links) {
       degMap.set(link.source, (degMap.get(link.source) ?? 0) + 1);
       degMap.set(link.target, (degMap.get(link.target) ?? 0) + 1);
     }
-    return nodes.map((n) => ({ ...n, degree: degMap.get(n.id) ?? 0 }));
+    const result = nodes.map((n) => ({ ...n, degree: degMap.get(n.id) ?? 0 }));
+    _graphCache = { nodes: result, root, ts: now };
+    return result;
   } catch {
     return [];
   }

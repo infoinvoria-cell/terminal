@@ -540,6 +540,14 @@ function buildReadySnapshot(): FSPortfolioSnapshot {
   };
 }
 
+// Module-level cache — avoids re-reading OHLC files on every page request
+let _snapshotCache: { data: ReturnType<typeof buildReadySnapshot>; ts: number } | null = null;
+const SNAPSHOT_TTL_MS = 60 * 1000; // 60 s
+
 export function getFSPortfolioSnapshot() {
-  return buildReadySnapshot();
+  const now = Date.now();
+  if (_snapshotCache && now - _snapshotCache.ts < SNAPSHOT_TTL_MS) return _snapshotCache.data;
+  const data = buildReadySnapshot();
+  _snapshotCache = { data, ts: now };
+  return data;
 }
