@@ -73,7 +73,33 @@ function pushChange(
   changes.push({ title, source, updatedAt, status });
 }
 
-export const revalidate = 300;
+export const revalidate = 3600;
+
+function getVaultSizeGb(brainRoot: string): number | null {
+  try {
+    let totalBytes = 0;
+    let fileCount = 0;
+    const SKIP_DIRS = new Set([".git", "node_modules", ".obsidian"]);
+    function walk(dir: string, depth: number) {
+      if (depth > 8 || fileCount > 150_000) return;
+      let entries: fs.Dirent[];
+      try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
+      catch { return; }
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          if (!SKIP_DIRS.has(entry.name)) walk(path.join(dir, entry.name), depth + 1);
+        } else {
+          try { totalBytes += fs.statSync(path.join(dir, entry.name)).size; fileCount++; }
+          catch { /* skip */ }
+        }
+      }
+    }
+    walk(brainRoot, 0);
+    return Math.round((totalBytes / 1_073_741_824) * 10) / 10;
+  } catch {
+    return null;
+  }
+}
 
 export function GET() {
   const brainRoot = getCapitalifeBrainPath();
@@ -140,5 +166,6 @@ export function GET() {
     brainStatus: aiBrainFile && fs.existsSync(aiBrainFile) ? "loaded" : "missing",
     lastUpdated: allTimes[0] ?? null,
     changes,
+    vaultSizeGb: brainRoot ? getVaultSizeGb(brainRoot) : null,
   });
 }

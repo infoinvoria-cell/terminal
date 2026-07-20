@@ -122,6 +122,7 @@ function SidebarLink({
   return (
     <Link
       href={href}
+      prefetch={true}
       aria-label={label}
       aria-current={active ? "page" : undefined}
       className={itemBase(active)}
@@ -285,6 +286,7 @@ export function Sidebar() {
         <div className="mt-1 w-full">
           <Link
             href="/settings"
+            prefetch={true}
             aria-label="Settings"
             aria-current={settingsActive ? "page" : undefined}
             className={cn(

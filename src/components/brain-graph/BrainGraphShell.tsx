@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import useSWR from "swr";
 import { HomeDashboardProvider } from "@/context/home-dashboard-context";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Topbar } from "@/components/dashboard/topbar";
@@ -24,6 +25,7 @@ type NetworkData  = { nodes: NetworkNode[]; links: NetworkLink[]; source?: strin
 type StatusData = {
   lastUpdated: string | null;
   changes: { title: string; updatedAt: string | null }[];
+  vaultSizeGb?: number | null;
 };
 
 // ── Folder metadata ───────────────────────────────────────────────────────────
@@ -332,18 +334,36 @@ function PlayButton({ spinning, onToggle }: { spinning: boolean; onToggle: () =>
 
 // ── Status strip ──────────────────────────────────────────────────────────────
 
+const DOT = <span className="text-[#3a3f48] select-none mx-0.5">•</span>;
+
 function StatusStrip({ status, nodeCount, linkCount, dataSource }: {
   status: StatusData | null; nodeCount: number; linkCount: number; dataSource?: string;
 }) {
-  const date = status?.lastUpdated
-    ? new Date(status.lastUpdated).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
-    : "--";
-  const sourceLabel = dataSource === "obsidian-api" ? "obsidian" : dataSource === "filesystem" ? "fs" : null;
+  const today = new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+  const isObsidian = dataSource === "obsidian-api";
+  const isFs = dataSource === "filesystem";
+  const brainActive = isObsidian || isFs;
+  const gbStr = status?.vaultSizeGb != null ? `${status.vaultSizeGb} GB` : null;
+  const sourceLabel = isObsidian ? "obsidian" : isFs ? "fs" : null;
+
   return (
-    <div className="pointer-events-none absolute bottom-4 left-5 z-20 flex items-center gap-2 text-sm text-[#6b7280]">
-      <span>{nodeCount} Nodes · {linkCount} Links · {date}</span>
+    <div className="pointer-events-none absolute bottom-4 left-5 z-20 flex items-center text-sm text-[#6b7280]">
+      <span>{nodeCount} Nodes</span>
+      {DOT}
+      <span>{linkCount} Links</span>
+      {gbStr && <>{DOT}<span>{gbStr}</span></>}
+      {DOT}
+      <span>{today}</span>
+      {brainActive && (
+        <>
+          {DOT}
+          <span className={isObsidian ? "text-white/70" : "text-[#6b7280]"}>
+            {isObsidian ? "✓" : "○"} Capitalife Brain Active
+          </span>
+        </>
+      )}
       {sourceLabel && (
-        <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${dataSource === "obsidian-api" ? "bg-[#7c3aed]/20 text-[#a78bfa]" : "bg-white/[0.04] text-[#555]"}`}>
+        <span className={`ml-2 rounded px-1.5 py-0.5 text-xs font-medium ${isObsidian ? "bg-[#7c3aed]/20 text-[#a78bfa]" : "bg-white/[0.04] text-[#555]"}`}>
           {sourceLabel}
         </span>
       )}
@@ -353,16 +373,13 @@ function StatusStrip({ status, nodeCount, linkCount, dataSource }: {
 
 // ── Shell ─────────────────────────────────────────────────────────────────────
 
+const swrFetcher = (url: string) => fetch(url).then((r) => r.json());
+
 export function BrainGraphShell() {
-  const [status,   setStatus]   = useState<StatusData | null>(null);
-  const [network,  setNetwork]  = useState<NetworkData | null>(null);
+  const { data: status }  = useSWR<StatusData>("/api/brain-graph/status",  swrFetcher, { refreshInterval: 3_600_000 });
+  const { data: network } = useSWR<NetworkData>("/api/brain-graph/network", swrFetcher, { refreshInterval: 3_600_000 });
   const [selected, setSelected] = useState<NetworkNode | null>(null);
   const [spinning, setSpinning] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/brain-graph/status").then((r) => r.json()).then(setStatus).catch(() => null);
-    fetch("/api/brain-graph/network").then((r) => r.json()).then(setNetwork).catch(() => null);
-  }, []);
 
   const nodeCount = network?.nodes.length ?? 0;
   const linkCount = network?.links.length ?? 0;
@@ -392,7 +409,7 @@ export function BrainGraphShell() {
                 </div>
               </div>
             )}
-            <StatusStrip status={status} nodeCount={nodeCount} linkCount={linkCount} dataSource={network?.source} />
+            <StatusStrip status={status ?? null} nodeCount={nodeCount} linkCount={linkCount} dataSource={network?.source} />
             {network && network.nodes.length > 0 && (
               <PlayButton spinning={spinning} onToggle={() => setSpinning((s) => !s)} />
             )}

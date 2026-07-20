@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { BarChart2, ChartNoAxesCombined } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, YAxis } from "recharts";
@@ -23,7 +24,8 @@ type AnomalyPoint = { time: string; value: number };
 type AnomalyJson = {
   oosStartDate?: string;
   equityCurve: { full: AnomalyPoint[]; is_?: AnomalyPoint[]; oos?: AnomalyPoint[] };
-  summary?: { full?: { cagr?: number; maxDrawdownPercent?: number; sharpe?: number } };
+  drawdownCurve?: { full?: AnomalyPoint[] };
+  summary?: { full?: { cagr?: number; maxDrawdownPercent?: number; avgDrawdownPercent?: number; top5DrawdownsPercent?: number[]; totalReturnPercent?: number; sharpe?: number } };
 };
 type EquitySeries = { date: string; equity: number | null; equityOos: number | null; dd: number | null }[];
 
@@ -34,7 +36,7 @@ const STORAGE_KEYS = {
   monitoringContext: "capitalife.monitoring.context",
 };
 
-const FILTERS: SignalCardFilter[] = ["open", "all", "long", "short", "cash", "validation"];
+const FILTERS: SignalCardFilter[] = ["open", "all"];
 const FILTER_LABELS: Record<SignalCardFilter, string> = {
   open: "AKTUELL", all: "ALLE", long: "LONG", short: "SHORT", cash: "CASH", validation: "VAL",
 };
@@ -126,11 +128,6 @@ function changePctClass(pct: number | null | undefined): string {
   return pct >= 0 ? "text-emerald-400/70" : "text-rose-400/70";
 }
 
-function metricTone(tone?: "positive" | "negative" | "neutral"): string {
-  if (tone === "positive") return "text-emerald-300/90";
-  if (tone === "negative") return "text-rose-300/90";
-  return "text-white/90";
-}
 
 // ── Section lead ───────────────────────────────────────────────────────────────
 
@@ -138,13 +135,13 @@ function SectionLead({ section }: { section: SignalPageSection["id"] }) {
   if (section === "white_swan") {
     return (
       <div className="flex items-center gap-2">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src="/branding/white-swan-logo.png"
           alt="White Swan"
           width={18}
           height={18}
-          style={{ width: 18, height: 18, objectFit: "contain" }}
+          style={{ objectFit: "contain" }}
+          priority
         />
         <span className="text-[14px] font-semibold text-white/90">White Swan</span>
         <span className="text-[9px] text-zinc-600">Live Signals</span>
@@ -153,13 +150,13 @@ function SectionLead({ section }: { section: SignalPageSection["id"] }) {
   }
   return (
     <div className="flex items-center gap-2">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         src="/branding/capitalife-favicon.png"
         alt="Capitalife"
         width={18}
         height={18}
-        style={{ width: 18, height: 18, objectFit: "contain" }}
+        style={{ objectFit: "contain" }}
+        priority
       />
       <span className="text-[14px] font-semibold text-white/90">Core Invest</span>
       <span className="text-[9px] text-zinc-600">Live Signals</span>
@@ -223,10 +220,20 @@ const SignalCard = ({ card, active, onSelect }: { card: SignalCardData; active: 
       {pct != null && (
         <span className={`absolute top-2.5 right-3 text-[11px] font-semibold ${pct >= 0 ? "text-emerald-400" : "text-rose-400"}`}>{pctText}</span>
       )}
-      {/* Zeile 1: Symbol fett groß · AssetName */}
-      <div className="pr-14">
-        <span className="text-[13px] font-bold text-white">{card.displaySymbol}</span>
-        <span className="text-[9px] text-zinc-400 ml-1.5">{card.assetName}</span>
+      {/* Zeile 1: Icon · Symbol · AssetName */}
+      <div className="flex items-center gap-2 pr-14">
+        <AssetIcon
+          assetSymbol={card.assetSymbol}
+          iconKey={card.iconKey}
+          assetName={card.assetName}
+          displaySymbol={card.displaySymbol}
+          size={20}
+          className="rounded-[5px] border border-white/[0.08] object-cover flex-shrink-0"
+        />
+        <div className="min-w-0">
+          <span className="text-[13px] font-bold text-white">{card.displaySymbol}</span>
+          <span className="text-[9px] text-zinc-400 ml-1.5">{card.assetName}</span>
+        </div>
       </div>
 
       {/* Zeile 2: Strategie-Name · Datum kompakt */}
@@ -327,11 +334,11 @@ function SectionBlock({
 
 // ── KPI card ───────────────────────────────────────────────────────────────────
 
-function PreviewMetric({ label, value, tone }: { label: string; value: string; tone?: "positive" | "negative" | "neutral" }) {
+function PreviewMetric({ label, value }: { label: string; value: string; tone?: "positive" | "negative" | "neutral" }) {
   return (
-    <div className="rounded-[10px] border border-white/[0.06] bg-[#111216] px-3 py-2">
-      <div className="truncate text-[7px] uppercase tracking-[0.10em] text-zinc-600">{label}</div>
-      <div className={`mt-1 text-[12px] font-semibold leading-none ${metricTone(tone)}`}>{value}</div>
+    <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-3">
+      <div className="text-[9px] uppercase tracking-wider text-zinc-500">{label}</div>
+      <div className="mt-1.5 text-[18px] font-bold leading-none text-white">{value}</div>
     </div>
   );
 }
@@ -348,6 +355,15 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
   const [whiteSwanFilter, setWhiteSwanFilter] = useState<SignalCardFilter>("open");
   const [coreInvestFilter, setCoreInvestFilter] = useState<SignalCardFilter>("open");
   const [equitySeries, setEquitySeries] = useState<EquitySeries | null>(null);
+  const [anomalyPerf, setAnomalyPerf] = useState<{
+    equityCurve: { time: string; value: number }[];
+    drawdownCurve: { time: string; value: number }[];
+    cagr?: number;
+    maxDrawdownPercent?: number;
+    avgDrawdownPercent?: number;
+    top5DrawdownsPercent?: number[];
+    totalReturnPercent?: number;
+  } | null>(null);
 
   const selectedCard = useMemo(
     () => data.cards.find((c) => c.id === selectedCardId) ?? data.cards[0] ?? null,
@@ -382,7 +398,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
   // Load anomaly equity data for selected card
   useEffect(() => {
     const filePath = selectedCardId ? ANOMALY_FILES[selectedCardId] : undefined;
-    if (!filePath) { setEquitySeries(null); return; }
+    if (!filePath) { setEquitySeries(null); setAnomalyPerf(null); return; }
     let cancelled = false;
     fetch(filePath)
       .then((r) => r.json() as Promise<AnomalyJson>)
@@ -390,20 +406,30 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
         if (cancelled) return;
         const oosStart = json.oosStartDate ?? "";
         const full = json.equityCurve.full ?? [];
-        if (!full.length) { setEquitySeries(null); return; }
+        if (!full.length) { setEquitySeries(null); setAnomalyPerf(null); return; }
         const base = full[0]!.value;
-        // compute equity % and drawdown
-        let peak = base;
-        const series: EquitySeries = full.map((p) => {
+        const ddFull = json.drawdownCurve?.full ?? [];
+        const series: EquitySeries = full.map((p, i) => {
           const isOos = p.time >= oosStart;
           const eq = ((p.value / base) - 1) * 100;
-          if (p.value > peak) peak = p.value;
-          const dd = peak > 0 ? ((p.value - peak) / peak) * 100 : 0;
+          const dd = ddFull[i]?.value ?? 0;
           return { date: p.time, equity: isOos ? null : eq, equityOos: isOos ? eq : null, dd };
         });
+        const equityCurve = full.map((p) => ({ time: p.time, value: ((p.value / base) - 1) * 100 }));
+        const drawdownCurve = ddFull.length ? ddFull : full.map((_, i) => ({ time: full[i]!.time, value: series[i]!.dd ?? 0 }));
+        const sum = json.summary?.full;
         setEquitySeries(series);
+        setAnomalyPerf({
+          equityCurve,
+          drawdownCurve,
+          cagr: sum?.cagr,
+          maxDrawdownPercent: sum?.maxDrawdownPercent,
+          avgDrawdownPercent: sum?.avgDrawdownPercent,
+          top5DrawdownsPercent: sum?.top5DrawdownsPercent,
+          totalReturnPercent: sum?.totalReturnPercent,
+        });
       })
-      .catch(() => { if (!cancelled) setEquitySeries(null); });
+      .catch(() => { if (!cancelled) { setEquitySeries(null); setAnomalyPerf(null); } });
     return () => { cancelled = true; };
   }, [selectedCardId]);
 
@@ -448,12 +474,11 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
           </div>
         </div>
 
-        {/* ── RIGHT: detail panel (scrollable) ─────────────────────────────── */}
-        <div className="flex min-h-0 flex-col gap-3 overflow-y-auto">
+        {/* ── RIGHT: detail panel — 50/40/10 layout ───────────────────────── */}
+        <div className="flex min-h-0 flex-col overflow-hidden">
 
-          {/* Chart + header overlay */}
-          <div className="flex-shrink-0 h-[340px] relative overflow-hidden rounded-[16px] border border-white/[0.06] bg-[#09090a]">
-            {/* header — icon + symbol + strategy */}
+          {/* Row 1 — Chart 50vh */}
+          <div className="relative overflow-hidden border-b border-white/[0.04] bg-[#09090a]" style={{ height: "50vh" }}>
             <div className="pointer-events-none absolute left-3 top-3 z-10 flex items-center gap-2 rounded-[10px] border border-white/[0.08] bg-black/60 px-2.5 py-1.5 backdrop-blur-sm">
               {selectedIconUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -466,105 +491,66 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
                 <span className="text-[9px] text-zinc-400 ml-1.5 leading-none">{selectedCard?.strategyName ?? ""}</span>
               </div>
             </div>
-
             {mounted && selectedPreview?.chart ? (
               <MonitoringChart data={selectedPreview.chart} maxBars={320} initialVisibleBars={56} />
             ) : (
-              <div className="grid h-full place-items-center flex-col gap-1">
-                <div className="text-[10px] text-zinc-600">Keine OHLC-Daten für {selectedCard?.displaySymbol ?? "dieses Asset"}</div>
-                <div className="text-[8px] text-zinc-700">{selectedCard?.strategyName ?? ""}</div>
+              <div className="grid h-full place-items-center">
+                <div className="text-center">
+                  <div className="text-[10px] text-zinc-600">Keine OHLC-Daten für {selectedCard?.displaySymbol ?? "dieses Asset"}</div>
+                  <div className="text-[8px] text-zinc-700 mt-0.5">{selectedCard?.strategyName ?? ""}</div>
+                </div>
               </div>
             )}
           </div>
 
-          {/* Anomaly equity + drawdown — loaded from /data/anomaly/*.json */}
-          {mounted && equitySeries && equitySeries.length > 0 && (
-            <div className="flex-shrink-0 rounded-[16px] border border-white/[0.06] bg-[#0b0c0f] overflow-hidden">
-              <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-2">
-                <span className="text-[10px] font-semibold text-white/70">Equity-Kurve (IS / OOS)</span>
-                <span className="text-[9px] font-semibold text-emerald-400/80 border border-emerald-400/20 bg-emerald-400/5 rounded px-1.5 py-0.5">VALIDIERT</span>
-              </div>
-              {/* Equity chart */}
-              <div className="h-[110px] px-1 pt-1">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={equitySeries} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="eqIs" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#71717a" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#71717a" stopOpacity={0} />
-                      </linearGradient>
-                      <linearGradient id="eqOos" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#e4e4e7" stopOpacity={0.25} />
-                        <stop offset="95%" stopColor="#e4e4e7" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <YAxis hide domain={["auto", "auto"]} />
-                    <Tooltip
-                      contentStyle={{ background: "#111216", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, fontSize: 10 }}
-                      labelStyle={{ color: "#71717a" }}
-                      formatter={(v) => { const n = Number(v); return [`${n >= 0 ? "+" : ""}${n.toFixed(1)}%`, ""] as [string, string]; }}
-                    />
-                    <Area type="monotone" dataKey="equity" stroke="#71717a" strokeWidth={1.2} fill="url(#eqIs)" dot={false} connectNulls={false} name="IS" />
-                    <Area type="monotone" dataKey="equityOos" stroke="#e4e4e7" strokeWidth={1.5} fill="url(#eqOos)" dot={false} connectNulls={false} name="OOS" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-              {/* Drawdown chart */}
-              <div className="h-[60px] px-1 pb-1">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={equitySeries} margin={{ top: 0, right: 4, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="ddGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#f87171" stopOpacity={0.4} />
-                        <stop offset="95%" stopColor="#f87171" stopOpacity={0.05} />
-                      </linearGradient>
-                    </defs>
-                    <YAxis hide domain={["auto", 0]} />
-                    <Area type="monotone" dataKey="dd" stroke="#f87171" strokeWidth={1} fill="url(#ddGrad)" dot={false} connectNulls />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          )}
-
-          {/* Live tester — only when full performance data exists (CI strategies with backtest) */}
-          {mounted && !equitySeries && selectedPreview?.performance && (
-            <div className="flex-shrink-0 h-[200px] flex flex-col overflow-hidden rounded-[16px] border border-white/[0.06] bg-[#0b0c0f]">
-              <div className="flex-shrink-0 border-b border-white/[0.06] px-4 py-2">
-                <span className="text-[10px] font-semibold text-white/70">Strategie Tester</span>
-              </div>
-              <div className="min-h-0 flex-1 overflow-hidden">
-                <div className="grid h-full min-h-0 grid-rows-[1.44fr_1fr] gap-2 p-2">
-                  <div className="min-h-0 overflow-hidden rounded-[12px] border border-white/[0.05] bg-[#0a0c0f] p-1.5">
-                    <StrategyTesterEquityChart
-                      data={selectedPreview.performance.equityCurve}
-                      totalReturnPercent={selectedPreview.performance.summary.totalReturnPercent}
-                      cagr={selectedPreview.performance.summary.cagr}
-                      fillContainer
-                    />
+          {/* Row 2 — Equity + DD 40vh */}
+          {(() => {
+            const perf = anomalyPerf ?? (selectedPreview?.performance ? {
+              equityCurve: selectedPreview.performance.equityCurve,
+              drawdownCurve: selectedPreview.performance.drawdownCurve,
+              cagr: selectedPreview.performance.summary.cagr,
+              maxDrawdownPercent: selectedPreview.performance.summary.maxDrawdownPercent,
+              totalReturnPercent: selectedPreview.performance.summary.totalReturnPercent,
+              avgDrawdownPercent: selectedPreview.performance.summary.avgDrawdownPercent,
+              top5DrawdownsPercent: selectedPreview.performance.summary.top5DrawdownsPercent,
+            } : null);
+            return (
+              <div className="flex flex-col overflow-hidden border-b border-white/[0.04]" style={{ height: "40vh" }}>
+                {mounted && perf ? (
+                  <>
+                    <div className="min-h-0 overflow-hidden p-1.5" style={{ height: "65%" }}>
+                      <StrategyTesterEquityChart
+                        data={perf.equityCurve}
+                        totalReturnPercent={perf.totalReturnPercent}
+                        cagr={perf.cagr}
+                        fillContainer
+                      />
+                    </div>
+                    <div className="min-h-0 overflow-hidden border-t border-white/[0.04] p-1.5" style={{ height: "35%" }}>
+                      <StrategyTesterDrawdownChart
+                        data={perf.drawdownCurve}
+                        maxDrawdownPercent={perf.maxDrawdownPercent}
+                        avgDrawdownPercent={"avgDrawdownPercent" in perf ? perf.avgDrawdownPercent : undefined}
+                        top5DrawdownsPercent={"top5DrawdownsPercent" in perf ? perf.top5DrawdownsPercent : undefined}
+                        fillContainer
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div className="grid h-full place-items-center">
+                    <span className="text-[10px] text-zinc-700">Kein Backtest verfügbar</span>
                   </div>
-                  <div className="min-h-0 overflow-hidden rounded-[12px] border border-white/[0.05] bg-[#0a0c0f] p-1.5">
-                    <StrategyTesterDrawdownChart
-                      data={selectedPreview.performance.drawdownCurve}
-                      maxDrawdownPercent={selectedPreview.performance.summary.maxDrawdownPercent}
-                      avgDrawdownPercent={selectedPreview.performance.summary.avgDrawdownPercent}
-                      top5DrawdownsPercent={selectedPreview.performance.summary.top5DrawdownsPercent}
-                      fillContainer
-                    />
-                  </div>
-                </div>
+                )}
               </div>
-            </div>
-          )}
+            );
+          })()}
 
-          {/* KPI boxes — 6 metrics always fully visible */}
-          {(selectedPreview?.kpis ?? []).length > 0 && (
-            <div className="flex-shrink-0 grid grid-cols-3 gap-2">
-              {(selectedPreview?.kpis ?? []).slice(0, 6).map((metric) => (
-                <PreviewMetric key={metric.label} label={metric.label} value={metric.value} tone={metric.tone} />
-              ))}
-            </div>
-          )}
+          {/* Row 3 — KPI 5er reihe 10vh */}
+          <div className="grid grid-cols-5 gap-1 p-2" style={{ height: "10vh" }}>
+            {(selectedPreview?.kpis ?? []).slice(0, 5).map((metric) => (
+              <PreviewMetric key={metric.label} label={metric.label} value={metric.value} tone={metric.tone} />
+            ))}
+          </div>
         </div>
       </div>
     </div>
