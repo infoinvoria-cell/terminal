@@ -85,39 +85,67 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
   useEffect(() => { selectedRef.current = selected; }, [selected]);
   useEffect(() => { dataRef.current = data; }, [data]);
 
-  // Pre-compute sphere positions and per-node size jitter — only when data changes
-  const { spherePos, sizeJitter } = useMemo(() => {
-    const raw = fibonacciSphere(data.nodes.length);
+  // Pre-compute sphere positions via BFS traversal — connected nodes get adjacent Fibonacci slots
+  const { spherePos, sizeJitter, top5Set } = useMemo(() => {
+    const n = data.nodes.length;
+    const raw = fibonacciSphere(n);
 
-    // Sort positions: equatorial first (|y| ascending)
-    const sortedPos = [...raw].sort((a, b) => Math.abs(a[1]) - Math.abs(b[1]));
+    // Index map for O(1) lookups
+    const indexMap = new Map<string, number>();
+    data.nodes.forEach((nd, i) => indexMap.set(nd.id, i));
 
-    // Sort nodes: primary = degree tier (hubs first), secondary = community (clusters same-community together)
-    const tierOf = (deg: number) => deg > 20 ? 0 : deg > 5 ? 1 : deg > 2 ? 2 : 3;
-    const sorted = data.nodes
-      .map((nd, i) => ({ i, deg: nd.degree, comm: nd.community ?? 99 }))
-      .sort((a, b) => {
-        const dt = tierOf(a.deg) - tierOf(b.deg);
-        if (dt !== 0) return dt;
-        if (a.comm !== b.comm) return a.comm - b.comm; // group same community
-        return b.deg - a.deg;
-      });
+    // Build adjacency list
+    const adj: number[][] = Array.from({ length: n }, () => []);
+    for (const lnk of data.links) {
+      const si = indexMap.get(lnk.source);
+      const ti = indexMap.get(lnk.target);
+      if (si != null && ti != null) {
+        adj[si].push(ti);
+        adj[ti].push(si);
+      }
+    }
 
-    const sp: [number, number, number][] = new Array(data.nodes.length);
-    for (let k = 0; k < sorted.length; k++) sp[sorted[k].i] = sortedPos[k];
+    // BFS traversal — start from highest-degree node, visit neighbors sorted by degree
+    const visited = new Uint8Array(n);
+    const order: number[] = [];
+    const byDeg = data.nodes
+      .map((nd, i) => ({ i, deg: nd.degree }))
+      .sort((a, b) => b.deg - a.deg);
 
-    // Pre-computed jitter: 12% of nodes get a modest size boost (stable, no flicker)
-    const jitter = new Float32Array(data.nodes.length);
-    for (let i = 0; i < jitter.length; i++) {
+    for (const { i: start } of byDeg) {
+      if (visited[start]) continue;
+      const queue = [start];
+      visited[start] = 1;
+      while (queue.length > 0) {
+        const cur = queue.shift()!;
+        order.push(cur);
+        const neighbors = [...adj[cur]].sort((a, b) => data.nodes[b].degree - data.nodes[a].degree);
+        for (const nb of neighbors) {
+          if (!visited[nb]) { visited[nb] = 1; queue.push(nb); }
+        }
+      }
+    }
+
+    // Map BFS order → Fibonacci positions (adjacent in BFS = spatially close on sphere)
+    const sp: [number, number, number][] = new Array(n);
+    for (let k = 0; k < order.length; k++) sp[order[k]] = raw[k];
+
+    // Top-5 nodes by degree → 10px dots
+    const top5Set = new Set(byDeg.slice(0, 5).map((x) => x.i));
+
+    const jitter = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
       jitter[i] = Math.random() < 0.12 ? 1.2 + Math.random() * 0.8 : 1;
     }
-    return { spherePos: sp, sizeJitter: jitter };
+    return { spherePos: sp, sizeJitter: jitter, top5Set };
   }, [data]);
 
   const spherePosRef  = useRef(spherePos);
   const sizeJitterRef = useRef(sizeJitter);
+  const top5Ref       = useRef(top5Set);
   useEffect(() => { spherePosRef.current  = spherePos;  }, [spherePos]);
   useEffect(() => { sizeJitterRef.current = sizeJitter; }, [sizeJitter]);
+  useEffect(() => { top5Ref.current       = top5Set;    }, [top5Set]);
 
   // Resize observer — drives canvas width/height
   useEffect(() => {
@@ -154,25 +182,25 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
       const sinA = Math.sin(angle);
 
       const jitter = sizeJitterRef.current;
+      const top5   = top5Ref.current;
 
       // Project nodes to 2D (rotateY around vertical axis)
       const projected = sp.map(([x, y, z], i) => {
         const rx = x * cosA - z * sinA;
         const rz = x * sinA + z * cosA;
         const px = cx + rx * scale;
-        const py = cy - y * scale; // y-up in sphere → y-down in canvas
-        const depth = rz; // -1 back → 1 front
-        const t = (depth + 1) / 2; // 0–1
+        const py = cy - y * scale;
+        const depth = rz;
+        const t = (depth + 1) / 2;
         const alpha = 0.15 + 0.85 * t;
         const deg = d.nodes[i]?.degree ?? 0;
-        // Clear 4-tier size hierarchy — distinct steps, not gradual
-        const baseR = deg > 20 ? 7 : deg > 5 ? 4 : deg > 2 ? 2.5 : 1;
+        // 4-tier sizes: 1 / 3 / 6 / 10px — clear visual hierarchy
+        const baseR = top5.has(i) ? 10 : deg > 5 ? 6 : deg > 2 ? 3 : 1;
         const r = baseR * (jitter[i] ?? 1);
-        // Alpha: hubs bright, mass dim; always depth-modulated
-        const nodeAlpha = deg > 20 ? Math.min(0.95, alpha * 1.15)
-                        : deg > 5  ? Math.min(0.88, alpha * 1.0)
-                        : deg > 2  ? alpha * 0.80
-                        :            alpha * 0.40;
+        const nodeAlpha = top5.has(i)  ? Math.min(0.97, alpha * 1.2)
+                        : deg > 5      ? Math.min(0.90, alpha * 1.05)
+                        : deg > 2      ? alpha * 0.80
+                        :                alpha * 0.38;
         return { px, py, depth, alpha: nodeAlpha, r, deg, idx: i };
       });
 
@@ -187,8 +215,8 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
         ctx.arc(px, py, isSelected ? r + 2 : r, 0, Math.PI * 2);
         if (isSelected) {
           ctx.fillStyle = "#e2ca7a";
-        } else if (deg > 20) {
-          ctx.fillStyle = `rgba(255,255,255,${Math.min(0.9, alpha).toFixed(2)})`;
+        } else if (top5.has(idx)) {
+          ctx.fillStyle = `rgba(255,255,255,${Math.min(0.95, alpha).toFixed(2)})`;
         } else {
           const v = Math.floor(80 + 175 * alpha);
           ctx.fillStyle = `rgba(${v},${v},${v},${alpha.toFixed(2)})`;
@@ -198,7 +226,7 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
     }
 
     function loop() {
-      if (spinningRef.current) angleRef.current += 0.0008;
+      if (spinningRef.current) angleRef.current += 0.0004;
       draw();
       rafRef.current = requestAnimationFrame(loop);
     }
