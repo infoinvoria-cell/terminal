@@ -48,16 +48,16 @@ const FOLDER_LABELS: Record<string, string> = {
   "17_Haftungsdach_QA":        "Haftung",
 };
 
-// ── Fibonacci sphere ──────────────────────────────────────────────────────────
+// ── Random uniform sphere ─────────────────────────────────────────────────────
+// phi via arccos gives uniform latitude (no pole clustering)
 
-function fibonacciSphere(n: number): [number, number, number][] {
-  const golden = Math.PI * (3 - Math.sqrt(5));
+function randomSphere(n: number): [number, number, number][] {
   const pts: [number, number, number][] = [];
   for (let i = 0; i < n; i++) {
-    const y = 1 - (i / Math.max(n - 1, 1)) * 2;
-    const r = Math.sqrt(Math.max(0, 1 - y * y));
-    const theta = golden * i;
-    pts.push([Math.cos(theta) * r, y, Math.sin(theta) * r]);
+    const phi   = Math.acos(2 * Math.random() - 1);
+    const theta = 2 * Math.PI * Math.random();
+    const s = Math.sin(phi);
+    pts.push([s * Math.cos(theta), Math.cos(phi), s * Math.sin(theta)]);
   }
   return pts;
 }
@@ -87,66 +87,59 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
   useEffect(() => { selectedRef.current = selected; }, [selected]);
   useEffect(() => { dataRef.current = data; }, [data]);
 
-  // Pre-compute sphere positions via BFS traversal — connected nodes get adjacent Fibonacci slots
-  const { spherePos, sizeJitter, top5Set } = useMemo(() => {
+  // Random uniform sphere + hub clustering + percentile-based dot sizes
+  const { spherePos, nodeSizeR, top5Set } = useMemo(() => {
     const n = data.nodes.length;
-    const raw = fibonacciSphere(n);
+    const sp = randomSphere(n);
 
-    // Index map for O(1) lookups
-    const indexMap = new Map<string, number>();
-    data.nodes.forEach((nd, i) => indexMap.set(nd.id, i));
-
-    // Build adjacency list
-    const adj: number[][] = Array.from({ length: n }, () => []);
-    for (const lnk of data.links) {
-      const si = indexMap.get(lnk.source);
-      const ti = indexMap.get(lnk.target);
-      if (si != null && ti != null) {
-        adj[si].push(ti);
-        adj[ti].push(si);
-      }
-    }
-
-    // BFS traversal — start from highest-degree node, visit neighbors sorted by degree
-    const visited = new Uint8Array(n);
-    const order: number[] = [];
+    // Rank nodes by degree
     const byDeg = data.nodes
       .map((nd, i) => ({ i, deg: nd.degree }))
       .sort((a, b) => b.deg - a.deg);
 
-    for (const { i: start } of byDeg) {
-      if (visited[start]) continue;
-      const queue = [start];
-      visited[start] = 1;
-      while (queue.length > 0) {
-        const cur = queue.shift()!;
-        order.push(cur);
-        const neighbors = [...adj[cur]].sort((a, b) => data.nodes[b].degree - data.nodes[a].degree);
-        for (const nb of neighbors) {
-          if (!visited[nb]) { visited[nb] = 1; queue.push(nb); }
-        }
+    const top5Set = new Set(byDeg.slice(0, 5).map((x) => x.i));
+
+    // Hub clustering: nodes with degree > 5 get nudged 20-40% toward nearest hub (within 15°)
+    const hubArr = byDeg.filter((x) => x.deg > 5).map((x) => x.i);
+    const COS15 = Math.cos(Math.PI / 12);
+    for (const hi of hubArr) {
+      const [hx, hy, hz] = sp[hi];
+      let bestDot = -Infinity;
+      let bestJ = -1;
+      for (const hj of hubArr) {
+        if (hj === hi) continue;
+        const [jx, jy, jz] = sp[hj];
+        const dot = hx * jx + hy * jy + hz * jz;
+        if (dot > bestDot) { bestDot = dot; bestJ = hj; }
+      }
+      if (bestJ >= 0 && bestDot < COS15) {
+        const t = 0.2 + Math.random() * 0.2;
+        const [jx, jy, jz] = sp[bestJ];
+        const nx = hx + (jx - hx) * t;
+        const ny = hy + (jy - hy) * t;
+        const nz = hz + (jz - hz) * t;
+        const len = Math.sqrt(nx * nx + ny * ny + nz * nz);
+        sp[hi] = [nx / len, ny / len, nz / len];
       }
     }
 
-    // Map BFS order → Fibonacci positions (adjacent in BFS = spatially close on sphere)
-    const sp: [number, number, number][] = new Array(n);
-    for (let k = 0; k < order.length; k++) sp[order[k]] = raw[k];
+    // Percentile sizes: top 2% → 7px, top 8% → 4px, top 20% → 2px, rest → 1px
+    const nodeSizeR = new Float32Array(n);
+    byDeg.forEach(({ i }, rank) => {
+      if (rank < n * 0.02)      nodeSizeR[i] = 7;
+      else if (rank < n * 0.08) nodeSizeR[i] = 4;
+      else if (rank < n * 0.20) nodeSizeR[i] = 2;
+      else                      nodeSizeR[i] = 1;
+    });
 
-    // Top-5 nodes by degree → 10px dots
-    const top5Set = new Set(byDeg.slice(0, 5).map((x) => x.i));
-
-    const jitter = new Float32Array(n);
-    for (let i = 0; i < n; i++) {
-      jitter[i] = Math.random() < 0.12 ? 1.2 + Math.random() * 0.8 : 1;
-    }
-    return { spherePos: sp, sizeJitter: jitter, top5Set };
+    return { spherePos: sp, nodeSizeR, top5Set };
   }, [data]);
 
   const spherePosRef  = useRef(spherePos);
-  const sizeJitterRef = useRef(sizeJitter);
+  const nodeSizeRRef  = useRef(nodeSizeR);
   const top5Ref       = useRef(top5Set);
   useEffect(() => { spherePosRef.current  = spherePos;  }, [spherePos]);
-  useEffect(() => { sizeJitterRef.current = sizeJitter; }, [sizeJitter]);
+  useEffect(() => { nodeSizeRRef.current  = nodeSizeR;  }, [nodeSizeR]);
   useEffect(() => { top5Ref.current       = top5Set;    }, [top5Set]);
 
   // Resize observer — drives canvas width/height
@@ -183,8 +176,8 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
       const cosA = Math.cos(angle);
       const sinA = Math.sin(angle);
 
-      const jitter = sizeJitterRef.current;
-      const top5   = top5Ref.current;
+      const sizeR = nodeSizeRRef.current;
+      const top5  = top5Ref.current;
 
       // Project nodes to 2D (rotateY around vertical axis)
       const projected = sp.map(([x, y, z], i) => {
@@ -195,15 +188,12 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
         const depth = rz;
         const t = (depth + 1) / 2;
         const alpha = 0.15 + 0.85 * t;
-        const deg = d.nodes[i]?.degree ?? 0;
-        // 4-tier sizes: 1 / 3 / 6 / 10px — clear visual hierarchy
-        const baseR = top5.has(i) ? 10 : deg > 5 ? 6 : deg > 2 ? 3 : 1;
-        const r = baseR * (jitter[i] ?? 1);
-        const nodeAlpha = top5.has(i)  ? Math.min(0.97, alpha * 1.2)
-                        : deg > 5      ? Math.min(0.90, alpha * 1.05)
-                        : deg > 2      ? alpha * 0.80
-                        :                alpha * 0.38;
-        return { px, py, depth, alpha: nodeAlpha, r, deg, idx: i };
+        const r = sizeR[i] ?? 1;
+        const nodeAlpha = r >= 7  ? Math.min(0.97, alpha * 1.2)
+                        : r >= 4  ? Math.min(0.90, alpha * 1.05)
+                        : r >= 2  ? alpha * 0.80
+                        :           alpha * 0.38;
+        return { px, py, depth, alpha: nodeAlpha, r, idx: i };
       });
 
       // Store for hit testing
@@ -211,7 +201,7 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
 
       // Draw nodes back → front for depth illusion
       const sorted = [...projected].sort((a, b) => a.depth - b.depth);
-      for (const { px, py, alpha, r, deg, idx } of sorted) {
+      for (const { px, py, alpha, r, idx } of sorted) {
         const isSelected = d.nodes[idx]?.id === sel?.id;
         ctx.beginPath();
         ctx.arc(px, py, isSelected ? r + 2 : r, 0, Math.PI * 2);
