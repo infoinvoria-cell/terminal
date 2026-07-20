@@ -85,41 +85,38 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
   useEffect(() => { selectedRef.current = selected; }, [selected]);
   useEffect(() => { dataRef.current = data; }, [data]);
 
-  // Pre-compute sphere positions, link pairs, and per-node size jitter — only when data changes
-  const { spherePos, linkPairs, sizeJitter } = useMemo(() => {
+  // Pre-compute sphere positions and per-node size jitter — only when data changes
+  const { spherePos, sizeJitter } = useMemo(() => {
     const raw = fibonacciSphere(data.nodes.length);
 
-    // Map high-degree nodes → equatorial positions, isolates → poles
-    // Sort positions by |y| ascending (|y|≈0 = equator, |y|≈1 = pole)
+    // Sort positions: equatorial first (|y| ascending)
     const sortedPos = [...raw].sort((a, b) => Math.abs(a[1]) - Math.abs(b[1]));
-    // Sort node indices by degree descending
-    const byDeg = data.nodes
-      .map((nd, i) => ({ i, deg: nd.degree }))
-      .sort((a, b) => b.deg - a.deg);
-    // Assign: highest-degree node → most equatorial position
-    const sp: [number, number, number][] = new Array(data.nodes.length);
-    for (let k = 0; k < byDeg.length; k++) sp[byDeg[k].i] = sortedPos[k];
 
-    const idxMap = new Map(data.nodes.map((nd, i) => [nd.id, i]));
-    const lp: [number, number][] = [];
-    for (const l of data.links) {
-      const si = idxMap.get(l.source);
-      const ti = idxMap.get(l.target);
-      if (si != null && ti != null) lp.push([si, ti]);
-    }
-    // 15% of nodes get a random size boost (pre-computed to avoid per-frame flicker)
+    // Sort nodes: primary = degree tier (hubs first), secondary = community (clusters same-community together)
+    const tierOf = (deg: number) => deg > 20 ? 0 : deg > 5 ? 1 : deg > 2 ? 2 : 3;
+    const sorted = data.nodes
+      .map((nd, i) => ({ i, deg: nd.degree, comm: nd.community ?? 99 }))
+      .sort((a, b) => {
+        const dt = tierOf(a.deg) - tierOf(b.deg);
+        if (dt !== 0) return dt;
+        if (a.comm !== b.comm) return a.comm - b.comm; // group same community
+        return b.deg - a.deg;
+      });
+
+    const sp: [number, number, number][] = new Array(data.nodes.length);
+    for (let k = 0; k < sorted.length; k++) sp[sorted[k].i] = sortedPos[k];
+
+    // Pre-computed jitter: 12% of nodes get a modest size boost (stable, no flicker)
     const jitter = new Float32Array(data.nodes.length);
     for (let i = 0; i < jitter.length; i++) {
-      jitter[i] = Math.random() < 0.15 ? 1.5 + Math.random() * 2 : 1;
+      jitter[i] = Math.random() < 0.12 ? 1.2 + Math.random() * 0.8 : 1;
     }
-    return { spherePos: sp, linkPairs: lp, sizeJitter: jitter };
+    return { spherePos: sp, sizeJitter: jitter };
   }, [data]);
 
   const spherePosRef  = useRef(spherePos);
-  const linkPairsRef  = useRef(linkPairs);
   const sizeJitterRef = useRef(sizeJitter);
   useEffect(() => { spherePosRef.current  = spherePos;  }, [spherePos]);
-  useEffect(() => { linkPairsRef.current  = linkPairs;  }, [linkPairs]);
   useEffect(() => { sizeJitterRef.current = sizeJitter; }, [sizeJitter]);
 
   // Resize observer — drives canvas width/height
@@ -145,7 +142,6 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
       const h = canvas!.height;
       const d = dataRef.current;
       const sp = spherePosRef.current;
-      const lp = linkPairsRef.current;
       const sel = selectedRef.current;
 
       ctx.clearRect(0, 0, w, h);
@@ -169,33 +165,19 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
         const t = (depth + 1) / 2; // 0–1
         const alpha = 0.15 + 0.85 * t;
         const deg = d.nodes[i]?.degree ?? 0;
-        // Base size tiers by degree; 15% get a random jitter multiplier (pre-computed)
-        const baseR = deg === 0 ? 1 : deg < 3 ? 1 : deg < 8 ? 2 : deg < 25 ? 3.5 : 5;
+        // Clear 4-tier size hierarchy — distinct steps, not gradual
+        const baseR = deg > 20 ? 7 : deg > 5 ? 4 : deg > 2 ? 2.5 : 1;
         const r = baseR * (jitter[i] ?? 1);
-        // Bright highlights for high-degree cluster nodes
-        const nodeAlpha = deg >= 25 ? Math.min(0.95, alpha * 1.1)
-                        : deg >= 8  ? Math.min(0.85, alpha * 0.95)
-                        : deg >= 3  ? alpha * 0.75
-                        :             alpha * 0.45;
+        // Alpha: hubs bright, mass dim; always depth-modulated
+        const nodeAlpha = deg > 20 ? Math.min(0.95, alpha * 1.15)
+                        : deg > 5  ? Math.min(0.88, alpha * 1.0)
+                        : deg > 2  ? alpha * 0.80
+                        :            alpha * 0.40;
         return { px, py, depth, alpha: nodeAlpha, r, deg, idx: i };
       });
 
       // Store for hit testing
       projRef.current = projected.map(({ px, py, idx }) => ({ px, py, idx }));
-
-      // Draw links — only between nodes with degree > 2 to reduce noise
-      ctx.beginPath();
-      ctx.lineWidth = 0.4;
-      ctx.strokeStyle = "rgba(255,255,255,0.06)";
-      for (const [si, ti] of lp) {
-        const s = projected[si];
-        const t = projected[ti];
-        if (!s || !t) continue;
-        if ((d.nodes[si]?.degree ?? 0) <= 2 || (d.nodes[ti]?.degree ?? 0) <= 2) continue;
-        ctx.moveTo(s.px, s.py);
-        ctx.lineTo(t.px, t.py);
-      }
-      ctx.stroke();
 
       // Draw nodes back → front for depth illusion
       const sorted = [...projected].sort((a, b) => a.depth - b.depth);
@@ -205,8 +187,7 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
         ctx.arc(px, py, isSelected ? r + 2 : r, 0, Math.PI * 2);
         if (isSelected) {
           ctx.fillStyle = "#e2ca7a";
-        } else if (deg >= 25) {
-          // Bright highlight cluster nodes
+        } else if (deg > 20) {
           ctx.fillStyle = `rgba(255,255,255,${Math.min(0.9, alpha).toFixed(2)})`;
         } else {
           const v = Math.floor(80 + 175 * alpha);
