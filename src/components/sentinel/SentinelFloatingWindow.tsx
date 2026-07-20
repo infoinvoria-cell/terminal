@@ -1,9 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { X, Minus, Maximize2 } from "lucide-react";
-import { SentinelDashboard } from "@/components/sentinel/sentinel-dashboard";
 import { SentinelSessionProvider } from "@/components/sentinel/sentinel-session-provider";
+
+const SentinelDashboard = dynamic(
+  () => import("@/components/sentinel/sentinel-dashboard").then((module) => module.SentinelDashboard),
+  { ssr: false },
+);
 
 // ── Snap positions ────────────────────────────────────────────────────────────
 type SnapPos = "TL" | "TC" | "TR" | "ML" | "MC" | "MR" | "BL" | "BC" | "BR";
