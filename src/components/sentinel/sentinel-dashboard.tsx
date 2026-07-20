@@ -294,12 +294,38 @@ function SourcesToggle({ sources, confidence }: { sources: SourceItem[]; confide
   );
 }
 
+// ── Sentinel Spinner (icon + spinning gold ring) ──────────────────────────────
+
+function SentinelSpinner() {
+  return (
+    <div className="snt-sp-wrap">
+      <div className="snt-sp-ring" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/Sentinel.png" alt="" width={20} height={20} className="snt-sp-icon" />
+      <style jsx>{`
+        .snt-sp-wrap {
+          position:relative;width:28px;height:28px;flex:0 0 28px;
+          display:flex;align-items:center;justify-content:center;
+        }
+        .snt-sp-ring {
+          position:absolute;inset:0;border-radius:50%;
+          border:1.5px solid rgba(226,202,122,0.15);
+          border-top-color:#e2ca7a;
+          animation:snt-spin 1.2s linear infinite;
+        }
+        @keyframes snt-spin { to { transform:rotate(360deg); } }
+        .snt-sp-icon { object-fit:contain;opacity:0.88; }
+      `}</style>
+    </div>
+  );
+}
+
 // ── Loading indicator ────────────────────────────────────────────────────────
 
 function AurumLoading() {
   return (
     <div className="snt-aload">
-      <MiniAurumRings />
+      <SentinelSpinner />
       <span className="snt-aload-label">Sentinel antwortet…</span>
       <style jsx>{`
         .snt-aload { display:inline-flex;align-items:center;gap:10px;padding:4px 0; }
@@ -796,6 +822,10 @@ export function SentinelDashboard() {
                     ? <SentinelMarkdown content={entry.content} />
                     : entry.content}
                 </div>
+                {entry.role === "assistant" && entry.content && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src="/Sentinel.png" alt="" width={20} height={20} style={{ display:"block", objectFit:"contain", opacity:0.50, marginTop:6 }} />
+                )}
                 {entry.role === "assistant" && entry.meta?.sources?.length ? (
                   <SourcesToggle sources={entry.meta.sources} confidence={entry.meta.confidence} />
                 ) : null}
