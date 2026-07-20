@@ -149,14 +149,20 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
         const t = (depth + 1) / 2; // 0–1
         const alpha = 0.15 + 0.85 * t;
         const deg = d.nodes[i]?.degree ?? 0;
-        const r = deg === 0 ? 1 : deg < 5 ? 1.5 : deg < 20 ? 2 : 2.8;
-        return { px, py, depth, alpha, r, idx: i };
+        // Size tiers: ~70% → 1px, ~20% → 2px, ~8% → 3.5px, ~2% → 5px
+        const r = deg === 0 ? 1 : deg < 3 ? 1 : deg < 8 ? 2 : deg < 25 ? 3.5 : 5;
+        // Bright highlights for high-degree cluster nodes
+        const nodeAlpha = deg >= 25 ? Math.min(0.95, alpha * 1.1)
+                        : deg >= 8  ? Math.min(0.85, alpha * 0.95)
+                        : deg >= 3  ? alpha * 0.75
+                        :             alpha * 0.45;
+        return { px, py, depth, alpha: nodeAlpha, r, deg, idx: i };
       });
 
       // Store for hit testing
       projRef.current = projected.map(({ px, py, idx }) => ({ px, py, idx }));
 
-      // Draw all links in a single batched path — very fast for 10k links
+      // Draw links — only between nodes with degree > 2 to reduce noise
       ctx.beginPath();
       ctx.lineWidth = 0.4;
       ctx.strokeStyle = "rgba(255,255,255,0.06)";
@@ -164,6 +170,7 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
         const s = projected[si];
         const t = projected[ti];
         if (!s || !t) continue;
+        if ((d.nodes[si]?.degree ?? 0) <= 2 || (d.nodes[ti]?.degree ?? 0) <= 2) continue;
         ctx.moveTo(s.px, s.py);
         ctx.lineTo(t.px, t.py);
       }
@@ -171,15 +178,17 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
 
       // Draw nodes back → front for depth illusion
       const sorted = [...projected].sort((a, b) => a.depth - b.depth);
-      for (const { px, py, alpha, r, idx } of sorted) {
+      for (const { px, py, alpha, r, deg, idx } of sorted) {
         const isSelected = d.nodes[idx]?.id === sel?.id;
         ctx.beginPath();
         ctx.arc(px, py, isSelected ? r + 2 : r, 0, Math.PI * 2);
         if (isSelected) {
           ctx.fillStyle = "#e2ca7a";
+        } else if (deg >= 25) {
+          // Bright highlight cluster nodes
+          ctx.fillStyle = `rgba(255,255,255,${Math.min(0.9, alpha).toFixed(2)})`;
         } else {
-          // Depth-faded white
-          const v = Math.floor(100 + 155 * alpha);
+          const v = Math.floor(80 + 175 * alpha);
           ctx.fillStyle = `rgba(${v},${v},${v},${alpha.toFixed(2)})`;
         }
         ctx.fill();
@@ -187,7 +196,7 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
     }
 
     function loop() {
-      if (spinningRef.current) angleRef.current += 0.003;
+      if (spinningRef.current) angleRef.current += 0.0008;
       draw();
       rafRef.current = requestAnimationFrame(loop);
     }
