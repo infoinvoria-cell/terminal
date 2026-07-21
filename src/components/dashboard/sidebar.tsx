@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
+import DeviceMockups from "@/components/preview/DeviceMockups";
 import { cn } from "@/lib/utils";
 import {
   useHomeDashboard,
@@ -451,11 +452,13 @@ export function Sidebar() {
           document.body
         )}
 
-        {/* ── Modus 3: Split View — iPhone + MacBook nebeneinander ── */}
+        {/* ── Modus 3: Split View — iPhone + Desktop Mockup nebeneinander ── */}
         {mounted && previewMode === "split" && createPortal(
-          <div style={{ position: "fixed", inset: 0, zIndex: 900, background: "#000", display: "flex", alignItems: "center", justifyContent: "center", gap: 56 }}>
-            <IPhone15Frame url={mobileUrl} scale={phoneScale} />
-            <MonitorFrame url={desktopUrl} scale={macScale} />
+          <div style={{ position: "fixed", inset: 0, zIndex: 900, background: "#000" }}>
+            <DeviceMockups
+              mobile={<iframe src={mobileUrl} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: "none" }} title="Mobile Preview" />}
+              desktop={<iframe src={desktopUrl} style={{ width: "100%", height: "100%", border: "none", display: "block" }} title="Desktop Preview" />}
+            />
             <FloatToggleBtn onClick={cyclePreview} label="Desktop →" />
           </div>,
           document.body

@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "../styles/dashboard.css";
+@import "../components/preview/mockups.css";
 
 /* Mobile Preview split-view panel offset (left side) */
 :root { --mobile-preview-left: 0px; }

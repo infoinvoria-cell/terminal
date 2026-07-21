@@ -1,0 +1,124 @@
+/* Device mockup classes — imported globally via globals.css */
+
+.mockup-stage {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 64px;
+  padding: 48px;
+  flex-wrap: wrap;
+}
+
+.device-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* ── iPhone mockup ── */
+
+.iphone-mockup {
+  position: relative;
+  width: 300px;
+  aspect-ratio: 393/852;
+  padding: 9px;
+  border-radius: 54px;
+  background: linear-gradient(145deg, #454545, #0b0b0b 42%, #2b2b2b);
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, 0.22),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+
+.iphone-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 46px;
+  background: #000;
+}
+
+.dynamic-island {
+  position: absolute;
+  z-index: 2;
+  top: 12px;
+  left: 50%;
+  width: 92px;
+  height: 27px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: #050505;
+}
+
+.iphone-button {
+  position: absolute;
+  display: block;
+  width: 3px;
+  background: #242424;
+}
+
+.iphone-button--left-top {
+  top: 104px;
+  left: -3px;
+  height: 26px;
+  border-radius: 3px 0 0 3px;
+}
+
+.iphone-button--left-middle {
+  top: 148px;
+  left: -3px;
+  height: 50px;
+  border-radius: 3px 0 0 3px;
+}
+
+.iphone-button--left-bottom {
+  top: 210px;
+  left: -3px;
+  height: 50px;
+  border-radius: 3px 0 0 3px;
+}
+
+.iphone-button--right {
+  top: 166px;
+  right: -3px;
+  height: 74px;
+  border-radius: 0 3px 3px 0;
+}
+
+/* ── Desktop mockup ── */
+
+.desktop-mockup {
+  position: relative;
+  width: min(720px, 82vw);
+  aspect-ratio: 16/10;
+  padding: 12px;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #4b4b4b, #121212 48%, #343434);
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, 0.2),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+
+.desktop-screen {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #000;
+  position: relative;
+}
+
+.desktop-camera {
+  position: absolute;
+  z-index: 2;
+  top: 5px;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: #080808;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
