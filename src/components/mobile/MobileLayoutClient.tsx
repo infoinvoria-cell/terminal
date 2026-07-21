@@ -11,7 +11,7 @@ const NAV_H = "calc(76px + env(safe-area-inset-bottom, 34px) + 14px)";
 const HEADER_H = 52;
 
 // Pages where header is always hidden (no toggle)
-const NO_HEADER_PREFIXES = ["/m/monitoring"];
+const NO_HEADER_PREFIXES = ["/m/monitoring", "/m/onboarding"];
 
 export function MobileLayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

@@ -4,14 +4,15 @@ import { useState } from "react";
 import { useUser, APP_USERS, type AppUser } from "@/context/user-context";
 
 const PAGES = [
-  { label: "Home",        href: "/m/home"     },
-  { label: "Monitoring",  href: "/monitoring"  },
-  { label: "Sentinel",    href: "/m/sentinel"  },
-  { label: "Signale",     href: "/m/signale"   },
-  { label: "Brain Graph", href: "/brain"       },
-  { label: "Analytics",   href: "/analytics"   },
-  { label: "Komponenten", href: "/komponenten" },
-  { label: "Settings",    href: "/settings"    },
+  { label: "Home",        href: "/m/home"        },
+  { label: "Monitoring",  href: "/m/monitoring"  },
+  { label: "Sentinel",    href: "/m/sentinel"    },
+  { label: "Signale",     href: "/m/signale"     },
+  { label: "Onboarding",  href: "/m/onboarding"  },
+  { label: "Brain Graph", href: "/brain"         },
+  { label: "Analytics",   href: "/analytics"     },
+  { label: "Komponenten", href: "/komponenten"   },
+  { label: "Settings",    href: "/settings"      },
 ];
 
 function IconSearch() {
