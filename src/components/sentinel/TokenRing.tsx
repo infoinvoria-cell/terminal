@@ -55,8 +55,16 @@ function providerLabel(id: string): string {
   const map: Record<string, string> = {
     groq: "Groq", mistral: "Mistral", anthropic: "Anthropic",
     ollama: "Ollama", local: "Lokal", custom: "Custom",
+    cerebras: "Cerebras", cohere: "Cohere",
   };
   return map[id] ?? id;
+}
+
+function ringColor(fraction: number | null): string {
+  if (fraction == null) return "rgba(255,255,255,0.18)";
+  if (fraction >= 0.9) return "#ef4444";
+  if (fraction >= 0.7) return "#f59e0b";
+  return "#e2ca7a";
 }
 
 export function TokenRing({ activeProvider }: Props) {
@@ -88,7 +96,6 @@ export function TokenRing({ activeProvider }: Props) {
     return () => { cancelled = true; clearInterval(id); };
   }, []);
 
-  // Close on outside click / touch
   useEffect(() => {
     if (!open) return;
     const h = (e: MouseEvent | TouchEvent) => {
@@ -99,20 +106,26 @@ export function TokenRing({ activeProvider }: Props) {
     return () => { window.removeEventListener("mousedown", h); window.removeEventListener("touchstart", h); };
   }, [open]);
 
+  // Only show usable providers that have usage data
+  const usableIds = new Set(
+    (status?.providers ?? []).filter(p => p.usable).map(p => p.id)
+  );
+  const usableUsage = Object.values(allUsage).filter(u => usableIds.has(u.provider));
+
   const usage     = allUsage[provider] ?? null;
   const used      = usage?.tokensUsed  ?? 0;
   const limit     = usage?.dailyLimit  ?? 0;
   const unlimited = usage?.unlimited   ?? false;
-  const fraction  = (unlimited || !limit) ? 0 : Math.min(1, used / limit);
-  const dashOffset = CIRC * (1 - fraction);
+  const fraction  = (unlimited || !limit) ? null : Math.min(1, used / limit);
+  const dashOffset = fraction == null ? 0 : CIRC * (1 - fraction);
+  const color     = ringColor(fraction);
 
-  const ringColor = unlimited || !usage
-    ? "rgba(255,255,255,0.18)"
-    : fraction >= 0.9 ? "#ef4444"
-    : fraction >= 0.7 ? "#f59e0b"
-    : "#e2ca7a";
+  // Totals across all usable limited providers
+  const totalUsed  = usableUsage.filter(u => !u.unlimited).reduce((s, u) => s + u.tokensUsed, 0);
+  const totalLimit = usableUsage.filter(u => !u.unlimited).reduce((s, u) => s + u.dailyLimit, 0);
+  const totalFrac  = totalLimit > 0 ? Math.min(1, totalUsed / totalLimit) : null;
 
-  // Model for active provider from status
+  // Model for active provider
   const activeModel = status?.providers.find(p => p.id === provider)?.model ?? null;
 
   return (
@@ -132,21 +145,18 @@ export function TokenRing({ activeProvider }: Props) {
       >
         <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} style={{ transform: "rotate(-90deg)" }}>
           <circle cx={SIZE/2} cy={SIZE/2} r={R} fill="none" stroke="#2a2a2a" strokeWidth={STROKE} />
-          {unlimited || !usage ? (
-            <circle cx={SIZE/2} cy={SIZE/2} r={R} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth={STROKE} />
-          ) : (
-            <circle
-              cx={SIZE/2} cy={SIZE/2} r={R} fill="none"
-              stroke={ringColor} strokeWidth={STROKE}
-              strokeDasharray={CIRC} strokeDashoffset={dashOffset}
-              strokeLinecap="round"
-              style={{ transition: "stroke-dashoffset 500ms ease, stroke 300ms ease" }}
-            />
-          )}
+          <circle
+            cx={SIZE/2} cy={SIZE/2} r={R} fill="none"
+            stroke={fraction == null ? "rgba(255,255,255,0.18)" : color}
+            strokeWidth={STROKE}
+            strokeDasharray={CIRC}
+            strokeDashoffset={fraction == null ? 0 : dashOffset}
+            strokeLinecap="round"
+            style={{ transition: "stroke-dashoffset 500ms ease, stroke 300ms ease" }}
+          />
         </svg>
       </button>
 
-      {/* ── Popup ── */}
       {open && (
         <div
           ref={popupRef}
@@ -154,7 +164,7 @@ export function TokenRing({ activeProvider }: Props) {
             position: "absolute",
             bottom: "calc(100% + 10px)",
             right: 0,
-            width: 230,
+            width: 240,
             background: "#111315",
             border: "1px solid rgba(255,255,255,0.10)",
             borderRadius: 12,
@@ -166,88 +176,94 @@ export function TokenRing({ activeProvider }: Props) {
             color: "#c8cdd6",
           }}
         >
-          {/* ── Active provider + model ── */}
+          {/* ── Gesamt ── */}
+          {totalLimit > 0 && (
+            <>
+              <div style={{ marginBottom: 8 }}>
+                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.30)", marginBottom: 6 }}>
+                  Gesamt heute
+                </div>
+                <div style={{ height: 5, borderRadius: 3, background: "#1e2024", overflow: "hidden", marginBottom: 6 }}>
+                  <div style={{
+                    height: "100%",
+                    width: `${((totalFrac ?? 0) * 100).toFixed(1)}%`,
+                    background: ringColor(totalFrac),
+                    borderRadius: 3,
+                    transition: "width 400ms ease",
+                  }} />
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ color: "rgba(255,255,255,0.38)", fontSize: 11 }}>Tokens</span>
+                  <span style={{ fontWeight: 700, color: ringColor(totalFrac), fontSize: 12 }}>
+                    {fmtNum(totalUsed)} / {fmtNum(totalLimit)}
+                  </span>
+                </div>
+              </div>
+              <div style={{ height: 1, background: "rgba(255,255,255,0.06)", marginBottom: 10 }} />
+            </>
+          )}
+
+          {/* ── Aktiver Provider + Model ── */}
           <div style={{ marginBottom: 10 }}>
             <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.30)", marginBottom: 5 }}>
-              Aktiver Provider
+              Aktiv
             </div>
             <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
               <span style={{ fontWeight: 700, color: "#ffffff", fontSize: 13 }}>
                 {providerLabel(provider)}
               </span>
               {activeModel && (
-                <span style={{ fontSize: 10, color: "rgba(214,184,108,0.70)", fontWeight: 600, textAlign: "right", maxWidth: 130, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <span style={{ fontSize: 10, color: "rgba(214,184,108,0.70)", fontWeight: 600, textAlign: "right", maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {activeModel}
                 </span>
               )}
             </div>
+            {usage && !unlimited && (
+              <Row label="Tokens" value={`${fmtNum(used)} / ${fmtNum(limit)}`} accent={color} />
+            )}
+            {usage && !unlimited && (
+              <Row label="Reset" value={fmtResetBerlin(usage.resetAt)} />
+            )}
+            {unlimited && (
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 4 }}>Kein Limit (lokal)</div>
+            )}
           </div>
 
-          <div style={{ height: 1, background: "rgba(255,255,255,0.06)", marginBottom: 10 }} />
-
-          {/* ── Usage block ── */}
-          {unlimited ? (
-            <p style={{ margin: 0, color: "rgba(255,255,255,0.38)", fontSize: 11 }}>
-              Kein Token-Limit für diesen Provider.
-            </p>
-          ) : !usage ? (
-            <p style={{ margin: 0, color: "rgba(255,255,255,0.28)", fontSize: 11 }}>
-              Keine Daten verfügbar.
-            </p>
-          ) : (
+          {/* ── Weitere usable Provider ── */}
+          {usableUsage.filter(u => u.provider !== provider).length > 0 && (
             <>
-              {/* Progress bar */}
-              <div style={{ height: 5, borderRadius: 3, background: "#1e2024", overflow: "hidden", marginBottom: 8 }}>
-                <div style={{
-                  height: "100%",
-                  width: `${(fraction * 100).toFixed(1)}%`,
-                  background: ringColor,
-                  borderRadius: 3,
-                  transition: "width 400ms ease",
-                }} />
-              </div>
-
-              <Row label="Verbraucht" value={`${fmtNum(used)} / ${fmtNum(limit)}`} accent={ringColor} />
-              <Row label="Noch verfügbar" value={fmtNum(Math.max(0, limit - used))} />
-              <Row label="Reset" value={fmtResetBerlin(usage.resetAt)} />
-
-              <div style={{ marginTop: 6, textAlign: "right" }}>
-                <span style={{ fontSize: 9.5, color: "rgba(255,255,255,0.22)", fontWeight: 600 }}>
-                  {(fraction * 100).toFixed(1)}% verbraucht
-                </span>
-              </div>
-            </>
-          )}
-
-          {/* ── All providers ── */}
-          {Object.keys(allUsage).length > 1 && (
-            <>
-              <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "10px 0 8px" }} />
+              <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "8px 0 8px" }} />
               <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)", marginBottom: 6 }}>
-                Alle Provider
+                Weitere verfügbar
               </div>
-              {Object.values(allUsage).map(u => {
+              {usableUsage.filter(u => u.provider !== provider).map(u => {
                 const f = u.unlimited || !u.dailyLimit ? null : Math.min(1, u.tokensUsed / u.dailyLimit);
-                const isActive = u.provider === provider;
-                const color = f == null ? "rgba(255,255,255,0.18)"
-                  : f >= 0.9 ? "#ef4444" : f >= 0.7 ? "#f59e0b" : "#e2ca7a";
+                const c = ringColor(f);
+                const mdl = status?.providers.find(p => p.id === u.provider)?.model ?? null;
                 return (
-                  <div key={u.provider} style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 5 }}>
-                    {/* Mini ring */}
-                    <svg width={12} height={12} viewBox="0 0 12 12" style={{ transform: "rotate(-90deg)", flexShrink: 0 }}>
-                      <circle cx={6} cy={6} r={4.5} fill="none" stroke="#2a2a2a" strokeWidth={1.8} />
-                      {f != null && (
-                        <circle cx={6} cy={6} r={4.5} fill="none" stroke={color} strokeWidth={1.8}
-                          strokeDasharray={2 * Math.PI * 4.5} strokeDashoffset={2 * Math.PI * 4.5 * (1 - f)}
-                          strokeLinecap="round" />
-                      )}
-                    </svg>
-                    <span style={{ flex: 1, fontSize: 11, color: isActive ? "#ffffff" : "rgba(255,255,255,0.50)", fontWeight: isActive ? 700 : 400 }}>
-                      {providerLabel(u.provider)}
-                    </span>
-                    <span style={{ fontSize: 10, color: isActive ? color : "rgba(255,255,255,0.30)", fontWeight: 600 }}>
-                      {u.unlimited ? "∞" : `${fmtNum(u.tokensUsed)}/${fmtNum(u.dailyLimit)}`}
-                    </span>
+                  <div key={u.provider} style={{ marginBottom: 7 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 2 }}>
+                      {/* Mini ring */}
+                      <svg width={10} height={10} viewBox="0 0 10 10" style={{ transform: "rotate(-90deg)", flexShrink: 0 }}>
+                        <circle cx={5} cy={5} r={3.5} fill="none" stroke="#2a2a2a" strokeWidth={1.6} />
+                        {f != null && (
+                          <circle cx={5} cy={5} r={3.5} fill="none" stroke={c} strokeWidth={1.6}
+                            strokeDasharray={2 * Math.PI * 3.5} strokeDashoffset={2 * Math.PI * 3.5 * (1 - f)}
+                            strokeLinecap="round" />
+                        )}
+                      </svg>
+                      <span style={{ flex: 1, fontSize: 11.5, color: "rgba(255,255,255,0.65)", fontWeight: 600 }}>
+                        {providerLabel(u.provider)}
+                      </span>
+                      <span style={{ fontSize: 10.5, color: c, fontWeight: 700 }}>
+                        {u.unlimited ? "∞" : `${fmtNum(u.tokensUsed)} / ${fmtNum(u.dailyLimit)}`}
+                      </span>
+                    </div>
+                    {mdl && (
+                      <div style={{ paddingLeft: 17, fontSize: 10, color: "rgba(255,255,255,0.28)", fontStyle: "italic" }}>
+                        {mdl}
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -261,7 +277,7 @@ export function TokenRing({ activeProvider }: Props) {
 
 function Row({ label, value, accent }: { label: string; value: string; accent?: string }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4, marginTop: 3 }}>
       <span style={{ color: "rgba(255,255,255,0.38)", fontSize: 11 }}>{label}</span>
       <span style={{ fontWeight: 600, color: accent ?? "#e2e6ed", fontSize: 11.5 }}>{value}</span>
     </div>
