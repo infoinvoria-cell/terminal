@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Check, ChevronDown, Clock, Copy, Grid2x2, Mic, MicOff,
+  Check, Clock, Copy, Grid2x2, Mic, MicOff,
   Pencil, Plus, RotateCcw, Send, SquarePen, Trash2, Volume2, VolumeX, X,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
@@ -508,7 +508,6 @@ export function MobileSentinelView() {
   const [speaking,         setSpeaking]         = useState(false);
   const [germanVoices,     setGermanVoices]     = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoiceUri, setSelectedVoiceUri] = useState<string | null>(() => { try { const v = lsGet<string>("snt_voice_uri", ""); return v || null; } catch { return null; } });
-  const [voiceDropOpen,    setVoiceDropOpen]    = useState(false);
   const [animPhase,        setAnimPhase]        = useState<"avatar" | "typing" | "done">("avatar");
   const [typedText,        setTypedText]        = useState("");
   const [historyOpen,      setHistoryOpen]      = useState(false);
@@ -522,7 +521,6 @@ export function MobileSentinelView() {
   const analyserRef    = useRef<AnalyserNode | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const animFrameRef   = useRef<number>(0);
-  const voiceDropRef   = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -537,13 +535,6 @@ export function MobileSentinelView() {
   useEffect(() => { lsSet(FAVORITES_KEY, favorites); }, [favorites]);
   useEffect(() => { lsSet(MUTE_KEY, muted ? "1" : "0"); }, [muted]);
   useEffect(() => { lsSet("snt_voice_uri", selectedVoiceUri ?? ""); }, [selectedVoiceUri]);
-
-  useEffect(() => {
-    if (!voiceDropOpen) return;
-    const h = (e: MouseEvent | TouchEvent) => { if (!voiceDropRef.current?.contains(e.target as Node)) setVoiceDropOpen(false); };
-    window.addEventListener("mousedown", h); window.addEventListener("touchstart", h);
-    return () => { window.removeEventListener("mousedown", h); window.removeEventListener("touchstart", h); };
-  }, [voiceDropOpen]);
 
   // Opening animation
   useEffect(() => {
@@ -798,7 +789,7 @@ export function MobileSentinelView() {
           flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden",
           display: "flex", flexDirection: "column",
           paddingTop: 58,
-          paddingBottom: 136,
+          paddingBottom: 168,
           scrollbarWidth: "none",
         }}>
 
@@ -895,7 +886,9 @@ export function MobileSentinelView() {
         opacity: animPhase === "done" ? 1 : 0,
         transition: animPhase === "done" ? "opacity 200ms ease" : "none",
         pointerEvents: animPhase === "done" ? "auto" : "none",
+        display: "flex", flexDirection: "column", gap: 6,
       }}>
+        {/* ── Pill: Vorlagen | textarea | Mikrofon ── */}
         <div style={{
           display: "flex", alignItems: "center",
           minHeight: 52,
@@ -948,49 +941,47 @@ export function MobileSentinelView() {
               {listening ? <MicOff size={15} /> : <Mic size={15} />}
             </button>
           )}
+        </div>
 
-          <button type="button" onClick={() => setMuted(m => !m)} title={muted ? "Stimme an" : "Stimme aus"}
-            style={{ ...iconBtn({}) }}>
-            {muted ? <VolumeX size={15} /> : <Volume2 size={15} />}
-          </button>
+        {/* ── Toolbar row ── */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingLeft: 4, paddingRight: 4 }}>
+          {/* Left: Neuer Chat | Lautstärke | Gespeicherte Chats */}
+          <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <button type="button" onClick={startNewChat} title="Neuer Chat"
+              style={{ ...iconBtn({}) }}>
+              <SquarePen size={16} />
+            </button>
+            <button type="button" onClick={() => setMuted(m => !m)} title={muted ? "Stimme an" : "Stimme aus"}
+              style={{ ...iconBtn({}) }}>
+              {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+            </button>
+            <button type="button" onClick={() => setHistoryOpen(true)} title="Gespeicherte Chats"
+              style={{ ...iconBtn({}) }}>
+              <Clock size={16} />
+            </button>
+          </div>
 
-          {germanVoices.length > 0 && (
-            <div ref={voiceDropRef} style={{ position: "relative", alignSelf: "center", flexShrink: 0 }}>
-              <button type="button" onClick={() => setVoiceDropOpen(o => !o)} title="Stimme wählen"
-                style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 22, height: 22, background: "none", border: "none", color: "rgba(255,255,255,0.40)", cursor: "pointer", opacity: muted ? 0.35 : 1, WebkitTapHighlightColor: "transparent" }}>
-                <ChevronDown size={12} />
-              </button>
-              {voiceDropOpen && (
-                <div style={{ position: "absolute", bottom: "calc(100% + 6px)", right: 0, background: "#141517", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 10, padding: "6px 0", zIndex: 400, boxShadow: "0 8px 32px rgba(0,0,0,0.7)", minWidth: 200, maxHeight: 230, overflowY: "auto", fontFamily: "inherit", fontSize: 12 }}>
-                  <p style={{ padding: "4px 12px 6px", fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", margin: 0 }}>DE Stimme</p>
-                  {germanVoices.map(v => {
-                    const active = selectedVoiceUri ? v.voiceURI === selectedVoiceUri : v === pickBestGermanVoice(germanVoices, null);
-                    return (
-                      <button key={v.voiceURI} type="button" onClick={() => { setSelectedVoiceUri(v.voiceURI); setVoiceDropOpen(false); }}
-                        style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "6px 12px", background: "none", border: "none", color: active ? "#e2ca7a" : "rgba(200,210,220,0.8)", cursor: "pointer", textAlign: "left", fontSize: 12, fontFamily: "inherit", WebkitTapHighlightColor: "transparent" }}>
-                        {active ? <Check size={11} style={{ flexShrink: 0, color: "#e2ca7a" }} /> : <span style={{ width: 11, flexShrink: 0 }} />}
-                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.name}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* New chat */}
-          <button type="button" onClick={startNewChat} title="Neuer Chat"
-            style={{ ...iconBtn({}) }}>
-            <SquarePen size={15} />
-          </button>
-
-          {/* Chat history */}
-          <button type="button" onClick={() => setHistoryOpen(true)} title="Chat-Verlauf"
-            style={{ ...iconBtn({}) }}>
-            <Clock size={15} />
-          </button>
-
-          <div style={{ display: "flex", alignItems: "center", paddingLeft: 4, paddingRight: 2 }}>
+          {/* Right: Modell-Chip | TokenRing */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {(currentRun.provider ?? status?.activeProvider) && (
+              <span style={{
+                fontSize: 10, fontWeight: 700,
+                color: "rgba(214,184,108,0.65)",
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+                background: "rgba(214,184,108,0.07)",
+                border: "1px solid rgba(214,184,108,0.15)",
+                borderRadius: 6,
+                padding: "2px 7px",
+                flexShrink: 0,
+                maxWidth: 110,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}>
+                {currentRun.provider ?? status?.activeProvider}
+              </span>
+            )}
             <TokenRing activeProvider={currentRun.provider ?? status?.activeProvider ?? null} />
           </div>
         </div>
