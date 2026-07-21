@@ -135,13 +135,18 @@ export function persistGlobeState(state: PersistedGlobeState): void {
     // no-op
   }
 
+  // history.replaceState called only inside an iframe.
+  // Calling it on every camera change (every ~420ms) races with Next.js router.pushState
+  // and reverts the URL after navigation, which breaks sidebar links from the Globe page.
   try {
-    const encoded = encodeState(safe);
-    const qp = new URLSearchParams(window.location.search);
-    qp.set("gls", encoded);
-    const next = `${window.location.pathname}?${qp.toString()}`;
-    window.history.replaceState(null, "", next);
-    window.parent?.postMessage({ type: "capitalife-globe-state", gls: encoded }, "*");
+    if (window.top !== window) {
+      const encoded = encodeState(safe);
+      const qp = new URLSearchParams(window.location.search);
+      qp.set("gls", encoded);
+      const next = `${window.location.pathname}?${qp.toString()}`;
+      window.history.replaceState(null, "", next);
+      window.parent?.postMessage({ type: "capitalife-globe-state", gls: encoded }, "*");
+    }
   } catch (_err) {
     // no-op
   }

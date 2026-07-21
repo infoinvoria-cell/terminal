@@ -4,6 +4,7 @@ import { HomeDashboardProvider } from "@/context/home-dashboard-context";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { HeaderDivider } from "@/components/dashboard/header-divider";
 import { Topbar } from "@/components/dashboard/topbar";
+import { GlobeErrorBoundary } from "@/components/globe/GlobeErrorBoundary";
 import dynamic from "next/dynamic";
 
 const GlobeApp = dynamic(() => import("@/components/globe/GlobeApp"), {
@@ -24,7 +25,9 @@ export function GlobeShell() {
           <Topbar sectionLabel="GLOBE" />
           <HeaderDivider />
           <div className="flex min-h-0 flex-1 overflow-hidden">
-            <GlobeApp />
+            <GlobeErrorBoundary>
+              <GlobeApp />
+            </GlobeErrorBoundary>
           </div>
         </div>
       </div>
