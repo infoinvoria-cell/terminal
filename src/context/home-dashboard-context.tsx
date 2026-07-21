@@ -73,21 +73,21 @@ const HomeDashboardContext = createContext<HomeDashboardContextValue | null>(
 
 const AVAILABLE_PROFILES: ActiveProfile[] = [
   {
-    id: "jeroen",
-    name: "Jeroen G.",
-    avatarSrc: "/profile_jeroen.png",
-    verified: true,
-  },
-  {
     id: "joris",
     name: "Joris G.",
     avatarSrc: "/profile.png",
     verified: true,
   },
   {
+    id: "jeroen",
+    name: "Jeroen G.",
+    avatarSrc: "/profile_jeroen.png",
+    verified: true,
+  },
+  {
     id: "janluca",
-    name: "Jan Luca",
-    avatarSrc: "/profile.png",
+    name: "Jan Luca M.",
+    avatarSrc: "/profile_jeroen.png",
     verified: false,
   },
 ];
