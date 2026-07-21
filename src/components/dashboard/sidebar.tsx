@@ -25,6 +25,7 @@ import {
   type DashboardPage,
 } from "@/context/home-dashboard-context";
 import { useHeaderState } from "@/context/header-state-context";
+import { useUser } from "@/context/user-context";
 
 const LAST_PAGE_KEY = "fmd_last_page";
 const RESTORE_FLAG  = "fmd_restore";
@@ -36,6 +37,42 @@ const EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
 // Icon is always at pl-[18px] inside a nav with px-2 → left edge at 26px from aside,
 // matching what justify-center gave it in the 44px collapsed button. Icons never move.
 const ICON_PL = "pl-[18px]";
+
+// ── User chip ──────────────────────────────────────────────────────────────
+
+function UserChip({ expanded }: { expanded: boolean }) {
+  const { user, clearUser } = useUser();
+  if (!user) return null;
+  const initials = user.name.split(" ").map(w => w[0]).join("").slice(0, 2);
+  return (
+    <button
+      type="button"
+      onClick={clearUser}
+      title={`${user.name} — Wechseln`}
+      aria-label={`Aktiver User: ${user.name}. Klicken zum Wechseln.`}
+      className={`mt-2 flex h-11 w-full shrink-0 items-center gap-3 rounded-lg border-0 bg-transparent transition-colors hover:bg-white/[0.06] ${ICON_PL}`}
+    >
+      {user.avatar ? (
+        <Image
+          src={user.avatar}
+          alt={user.name}
+          width={26}
+          height={26}
+          className="shrink-0 rounded-full object-contain"
+          style={{ background: "#1c1d20" }}
+        />
+      ) : (
+        <div
+          className="flex shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
+          style={{ width: 26, height: 26, background: "linear-gradient(135deg,#e2ca7a,#b8962e)", color: "#17181d" }}
+        >
+          {initials}
+        </div>
+      )}
+      <NavLabel label={user.name} expanded={expanded} />
+    </button>
+  );
+}
 
 // ── Label text that slides in when expanded ────────────────────────────────
 
@@ -300,6 +337,9 @@ export function Sidebar() {
             <NavLabel label="Settings" expanded={expanded} />
           </Link>
         </div>
+
+        {/* User avatar + name */}
+        <UserChip expanded={expanded} />
 
         {/* N badge — fixed at same left as icons */}
         <div className="mt-2 w-full" style={{ paddingLeft: 18 }}>

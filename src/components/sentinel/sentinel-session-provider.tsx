@@ -10,6 +10,7 @@ import {
   SENTINEL_DRAFT_KEY,
   SENTINEL_HISTORY_KEY,
   SENTINEL_SESSION_KEY,
+  sentinelHistoryKey,
   type SentinelCurrentRun,
   type SentinelSessionState,
   type SentinelStatusPayload,
@@ -56,9 +57,19 @@ function nowIso() {
   return new Date().toISOString();
 }
 
-export function SentinelSessionProvider({ children }: { children: React.ReactNode }) {
+export function SentinelSessionProvider({ children, userId }: { children: React.ReactNode; userId?: string }) {
+  const historyKey = userId ? sentinelHistoryKey(userId) : SENTINEL_HISTORY_KEY;
   const initialSession = loadInitialSession();
-  const [entries, setEntries] = useState<ChatEntry[]>(() => loadInitialEntries());
+  const [entries, setEntries] = useState<ChatEntry[]>(() => {
+    if (userId) {
+      try {
+        const raw = lsGet<unknown>(sentinelHistoryKey(userId), []);
+        if (!Array.isArray(raw)) return [];
+        return (raw as ChatEntry[]).filter((e) => e && typeof e === "object" && (e.content || "").trim());
+      } catch { return []; }
+    }
+    return loadInitialEntries();
+  });
   const [input, setInput] = useState(() => lsGet<string>(SENTINEL_DRAFT_KEY, ""));
   const [busy, setBusy] = useState(Boolean(initialSession.busy));
   const [sending, setSending] = useState(Boolean(initialSession.sending));
@@ -76,7 +87,7 @@ export function SentinelSessionProvider({ children }: { children: React.ReactNod
 
   useEffect(() => {
     entriesRef.current = entries;
-    lsSet(SENTINEL_HISTORY_KEY, entries.slice(-MAX_HISTORY));
+    lsSet(historyKey, entries.slice(-MAX_HISTORY));
   }, [entries]);
 
   useEffect(() => {
@@ -294,7 +305,7 @@ export function SentinelSessionProvider({ children }: { children: React.ReactNod
     setCurrentRun(DEFAULT_RUN);
     queuedMsgRef.current = null;
     setQueuedPreview(null);
-    lsClear(SENTINEL_HISTORY_KEY);
+    lsClear(historyKey);
     lsClear(SENTINEL_SESSION_KEY);
   }, []);
 

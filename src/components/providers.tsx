@@ -4,14 +4,14 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { GlobalPageProvider } from "@/context/global-page-context";
 import { HeaderStateProvider } from "@/context/header-state-context";
-import { SupabaseAuthGate } from "@/components/auth/SupabaseAuthGate";
+import { UserGate } from "@/components/auth/UserGate";
+import { useUser } from "@/context/user-context";
 import { SentinelButler } from "@/components/sentinel/sentinel-butler";
 import { SentinelSessionProvider } from "@/components/sentinel/sentinel-session-provider";
 
 const LAST_PAGE_KEY = "fmd_last_page";
 const RESTORE_FLAG = "fmd_restore";
 
-// Saves current path to localStorage on every navigation (skips root)
 function RouteTracker() {
   const pathname = usePathname();
   useEffect(() => {
@@ -22,7 +22,6 @@ function RouteTracker() {
   return null;
 }
 
-// After a logo-triggered hard nav to /, restores the last non-root page
 function PageRestorer() {
   const router = useRouter();
   useEffect(() => {
@@ -38,6 +37,19 @@ function PageRestorer() {
   return null;
 }
 
+// Inner wrapper — reads user from context, mounts per-user sentinel provider
+function AppShell({ children }: { children: React.ReactNode }) {
+  const { user } = useUser();
+  return (
+    <SentinelSessionProvider key={user?.id ?? "anon"} userId={user?.id}>
+      <RouteTracker />
+      <PageRestorer />
+      {children}
+      <SentinelButler />
+    </SentinelSessionProvider>
+  );
+}
+
 export function ClientProviders({
   children,
   initialHeaderHidden,
@@ -48,14 +60,11 @@ export function ClientProviders({
   return (
     <GlobalPageProvider>
       <HeaderStateProvider initialHidden={initialHeaderHidden}>
-        <SentinelSessionProvider>
-          <SupabaseAuthGate>
-            <RouteTracker />
-            <PageRestorer />
+        <UserGate>
+          <AppShell>
             {children}
-            <SentinelButler />
-          </SupabaseAuthGate>
-        </SentinelSessionProvider>
+          </AppShell>
+        </UserGate>
       </HeaderStateProvider>
     </GlobalPageProvider>
   );

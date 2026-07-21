@@ -66,6 +66,7 @@ export type SentinelSessionState = {
 export const SENTINEL_HISTORY_KEY = "fmd_sentinel_history";
 export const SENTINEL_DRAFT_KEY = "fmd_sentinel_draft";
 export const SENTINEL_SESSION_KEY = "fmd_sentinel_session";
+export const sentinelHistoryKey = (userId: string) => `sentinel_chat_${userId}`;
 export const MAX_HISTORY = 30;
 
 export function lsGet<T>(key: string, fallback: T): T {

@@ -645,8 +645,8 @@ export function AssetHeatmapPanel({
     const corrHeaderText = goldThemeEnabled ? "#ead7ab" : "#cfe0ff";
     const corrHeaderTextActive = goldThemeEnabled ? "#fff3d1" : "#dce8ff";
     const corrClusterBg = goldThemeEnabled ? "rgba(22,18,12,0.72)" : "rgba(8,18,34,0.72)";
-    const corrClusterLine = goldThemeEnabled ? "rgba(214,178,74,0.36)" : "rgba(71,85,105,0.88)";
-    const corrGridLine = goldThemeEnabled ? "rgba(214,178,74,0.22)" : "rgba(30,41,59,0.65)";
+    const corrClusterLine = goldThemeEnabled ? "rgba(226,202,122,0.36)" : "rgba(71,85,105,0.88)";
+    const corrGridLine = goldThemeEnabled ? "rgba(226,202,122,0.22)" : "rgba(30,41,59,0.65)";
     const clusters: Array<{ name: string; start: number; end: number; count: number }> = [];
     let start = 0;
     while (start < n) {

@@ -48,7 +48,7 @@ function sentimentMeta(sentiment: string, goldThemeEnabled = false): { label: st
   return {
     label: "Neutral",
     color: goldThemeEnabled ? "#e2ca7a" : "#78a7ff",
-    glow: goldThemeEnabled ? "rgba(214,178,74,0.45)" : "rgba(120,167,255,0.42)",
+    glow: goldThemeEnabled ? "rgba(226,202,122,0.45)" : "rgba(120,167,255,0.42)",
   };
 }
 

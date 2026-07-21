@@ -316,19 +316,19 @@ function GlobeCanvasComponent({
   const internalCameraRef = useRef<GlobeCameraState | null>(null);
   const themePrimaryHex = goldThemeEnabled ? "#e2ca7a" : "#2962ff";
   const themePrimarySoft = goldThemeEnabled ? "#c9a84a" : "#7ac8ff";
-  const themeFillStrong = goldThemeEnabled ? "rgba(214,178,74,0.84)" : "rgba(41,98,255,0.86)";
-  const themeFillSoft = goldThemeEnabled ? "rgba(214,178,74,0.70)" : "rgba(41,98,255,0.70)";
-  const themeFillOverlay = goldThemeEnabled ? "rgba(214,178,74,0.56)" : "rgba(41,98,255,0.56)";
-  const themeStrokeStrong = goldThemeEnabled ? "rgba(214,178,74,0.98)" : "rgba(96,149,255,0.98)";
+  const themeFillStrong = goldThemeEnabled ? "rgba(226,202,122,0.84)" : "rgba(41,98,255,0.86)";
+  const themeFillSoft = goldThemeEnabled ? "rgba(226,202,122,0.70)" : "rgba(41,98,255,0.70)";
+  const themeFillOverlay = goldThemeEnabled ? "rgba(226,202,122,0.56)" : "rgba(41,98,255,0.56)";
+  const themeStrokeStrong = goldThemeEnabled ? "rgba(226,202,122,0.98)" : "rgba(96,149,255,0.98)";
   const themeUiBg = goldThemeEnabled ? "rgba(17,14,9,0.90)" : "rgba(6,12,22,0.92)";
-  const themeUiBorder = goldThemeEnabled ? "rgba(214,178,74,0.55)" : "rgba(109,157,220,0.45)";
+  const themeUiBorder = goldThemeEnabled ? "rgba(226,202,122,0.55)" : "rgba(109,157,220,0.45)";
   const themeUiText = goldThemeEnabled ? "#fff2d2" : "#dfeaff";
   const themeUiSubText = goldThemeEnabled ? "#e8d5a7" : "#bcd2f5";
   const themeUiMuted = goldThemeEnabled ? "#d6be86" : "#a9bad2";
   const themeHoverBg = goldThemeEnabled ? "rgba(26,20,10,0.92)" : "rgba(12,24,40,0.9)";
-  const themeHoverBorder = goldThemeEnabled ? "rgba(214,178,74,0.76)" : "rgba(127,180,255,0.75)";
+  const themeHoverBorder = goldThemeEnabled ? "rgba(226,202,122,0.76)" : "rgba(127,180,255,0.75)";
   const themeDefaultBg = goldThemeEnabled ? "rgba(14,11,8,0.80)" : "rgba(6,12,22,0.76)";
-  const themeDefaultBorder = goldThemeEnabled ? "rgba(214,178,74,0.46)" : "rgba(73,108,154,0.5)";
+  const themeDefaultBorder = goldThemeEnabled ? "rgba(226,202,122,0.46)" : "rgba(73,108,154,0.5)";
   const logoSrc = goldThemeEnabled ? "/CAPITALIFE_Logo.png" : "/invoria_logo.png";
   const logoFallbackSrc = goldThemeEnabled ? "/CAPITALIFE_Logo.png" : "/invoria_logo.png";
   const logoAlt = goldThemeEnabled ? "Capitalife" : "Invoria Quant";
@@ -1363,7 +1363,7 @@ function GlobeCanvasComponent({
       <div
         ref={stageRef}
         className="absolute inset-0 z-[3]"
-        style={{ filter: `drop-shadow(0 0 10px ${goldThemeEnabled ? "rgba(214,178,74,0.22)" : "rgba(190,214,255,0.2)"})` }}
+        style={{ filter: `drop-shadow(0 0 10px ${goldThemeEnabled ? "rgba(226,202,122,0.22)" : "rgba(190,214,255,0.2)"})` }}
       >
         <Globe
           ref={globeRef}
@@ -1687,7 +1687,7 @@ function GlobeCanvasComponent({
             if (liquidityStroke) return liquidityStroke;
             if (riskStroke) return riskStroke;
             if (goldThemeEnabled && selectedOverlay === "none") {
-              return "rgba(214,178,74,0.58)";
+              return "rgba(226,202,122,0.58)";
             }
             return polygonStrokeColor(selectedOverlay, f, policyRateByCountry);
           }}

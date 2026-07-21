@@ -596,7 +596,7 @@ export function MacroFundamentalsPanel({
           chartOptions={{
             mode: "step",
             levels: [
-              { value: 80, color: goldThemeEnabled ? "rgba(214,178,74,0.9)" : "rgba(77,135,254,0.9)", dash: "2 3" },
+              { value: 80, color: goldThemeEnabled ? "rgba(226,202,122,0.9)" : "rgba(77,135,254,0.9)", dash: "2 3" },
               { value: 20, color: "rgba(255,56,76,0.9)", dash: "2 3" },
             ],
             showRightLabels: false,

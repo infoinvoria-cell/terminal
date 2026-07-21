@@ -704,8 +704,8 @@ export function MiniWorldMap({
   }, [assetMarkers, overlayMarkers]);
 
   const themePrimaryHex = goldThemeEnabled ? "#e2ca7a" : "#2962ff";
-  const themePrimaryFill = goldThemeEnabled ? "rgba(214,178,74,0.68)" : "rgba(41,98,255,0.68)";
-  const themeStroke = goldThemeEnabled ? "rgba(214,178,74,0.62)" : "rgba(41,98,255,0.62)";
+  const themePrimaryFill = goldThemeEnabled ? "rgba(226,202,122,0.68)" : "rgba(41,98,255,0.68)";
+  const themeStroke = goldThemeEnabled ? "rgba(226,202,122,0.62)" : "rgba(41,98,255,0.62)";
   const themeLandBase = goldThemeEnabled ? "rgba(86,74,43,0.20)" : "rgba(52,86,136,0.22)";
 
   return (

@@ -28,13 +28,13 @@ import {
   screenerTimeseriesCacheKey,
   timeseriesHasValidOhlcv,
   writeScreenerTimeseriesMemory,
-} from "@/lib/globe/screenerClientTimeseries";
+} from "@/lib/screener/screenerClientTimeseries";
 
 /** Screener chart is valid only with a real history window. */
 const MIN_SCREENER_OHLCV_BARS = 50;
-import { candlestickColors, zoneFillColors, type ScreenerCandlePaletteId } from "@/lib/globe/screenerCandlePalette";
-import { buildSupplyDemandZones, dedupeNearDuplicateZones, pickRelevantZones } from "@/lib/globe/supplyDemand";
-import type { PineSignalMarker, PineZone } from "@/lib/globe/screenerTypes";
+import { candlestickColors, zoneFillColors, type ScreenerCandlePaletteId } from "@/lib/screener/screenerCandlePalette";
+import { buildSupplyDemandZones, dedupeNearDuplicateZones, pickRelevantZones } from "@/lib/screener/supplyDemand";
+import type { PineSignalMarker, PineZone } from "@/lib/screener/screenerTypes";
 import type { EvaluationResponse, OhlcvPoint, SeasonalityResponse, TimeseriesResponse } from "@/lib/globe/globe-types";
 
 type Props = {
@@ -571,7 +571,7 @@ function CandleChartInner({
     ? "border border-[#e2ca7a]/75 bg-[#e2ca7a]/24 text-[#fff2cf]"
     : "border border-[#d4af37]/70 bg-[rgba(212,175,55,0.14)] text-[#f2f2f2] shadow-[0_0_10px_rgba(212,175,55,0.12)]";
   const inactiveBtnClass = "border border-zinc-600/75 bg-[rgba(8,8,8,0.84)] text-zinc-300";
-  const titleBorderColor = goldThemeEnabled ? "rgba(214,178,74,0.58)" : designTokens.stroke.accent;
+  const titleBorderColor = goldThemeEnabled ? "rgba(226,202,122,0.58)" : designTokens.stroke.accent;
   const titleTextColor = goldThemeEnabled ? "#fff3d1" : designTokens.text.secondary;
   const hasServerMarkers = Array.isArray(serverMarkers);
   const safeServerMarkers = Array.isArray(serverMarkers) ? serverMarkers : [];
@@ -884,12 +884,12 @@ function CandleChartInner({
         attributionLogo: false,
       },
       rightPriceScale: {
-        borderColor: "rgba(214,178,74,0.24)",
+        borderColor: "rgba(226,202,122,0.24)",
         scaleMargins: { top: 0.04, bottom: 0.02 },
         minimumWidth: 62,
       },
       timeScale: {
-        borderColor: "rgba(214,178,74,0.24)",
+        borderColor: "rgba(226,202,122,0.24)",
         secondsVisible: false,
         rightOffset: 10,
         barSpacing: 8.4,

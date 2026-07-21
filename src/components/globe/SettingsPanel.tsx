@@ -59,7 +59,7 @@ function TinyToggle({
 }) {
   const accentBg = goldThemeEnabled ? "bg-[#e2ca7a]/28" : "bg-[#2962ff]/30";
   const accentBorder = goldThemeEnabled ? "border-[#e2ca7a]/70" : "border-[#2962ff]/70";
-  const knobColor = goldThemeEnabled ? "bg-[#e2ca7a] shadow-[0_0_8px_rgba(214,178,74,.72)]" : "bg-[#2962ff] shadow-[0_0_8px_rgba(41,98,255,.72)]";
+  const knobColor = goldThemeEnabled ? "bg-[#e2ca7a] shadow-[0_0_8px_rgba(226,202,122,.72)]" : "bg-[#2962ff] shadow-[0_0_8px_rgba(41,98,255,.72)]";
   return (
     <button
       type="button"
