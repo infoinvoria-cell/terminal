@@ -467,8 +467,8 @@ export function MobileSentinelView() {
       iv = setInterval(() => {
         i++; setTypedText(GREETING.slice(0, i));
         if (i >= GREETING.length) { clearInterval(iv!); iv = null; setTimeout(() => setAnimPhase("done"), 200); }
-      }, 30);
-    }, 400);
+      }, 12);
+    }, 200);
     return () => { clearTimeout(t1); if (iv) clearInterval(iv); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -775,7 +775,7 @@ export function MobileSentinelView() {
 
       {/* ── Input bar — fixed above bottom nav ── */}
       <div style={{
-        position: "fixed", left: 0, right: 0, bottom: 64, zIndex: 100,
+        position: "fixed", left: 0, right: 0, bottom: 80, zIndex: 100,
         padding: "6px 12px 8px",
         opacity: animPhase === "done" ? 1 : 0,
         transition: animPhase === "done" ? "opacity 200ms ease" : "none",
@@ -812,7 +812,7 @@ export function MobileSentinelView() {
               background: "transparent", color: "#ffffff",
               border: "none", outline: "none",
               padding: "9px 6px",
-              fontSize: 16,
+              fontSize: 13,
               lineHeight: 1.5,
               fontFamily: "inherit", fontWeight: 500,
               alignSelf: "center",
