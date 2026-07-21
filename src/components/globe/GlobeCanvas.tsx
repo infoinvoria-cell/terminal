@@ -1375,7 +1375,7 @@ function GlobeCanvasComponent({
           globeImageUrl={OCEAN_TEXTURE}
           backgroundColor="rgba(0,0,0,0)"
           showAtmosphere
-          atmosphereColor={themePrimaryHex}
+          atmosphereColor={goldThemeEnabled ? "#e2ca7a" : "rgba(255,255,255,0.55)"}
           atmosphereAltitude={0.032}
           polygonsTransitionDuration={0}
           showGraticules={false}

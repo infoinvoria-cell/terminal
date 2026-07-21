@@ -47,8 +47,8 @@ function sentimentMeta(sentiment: string, goldThemeEnabled = false): { label: st
   if (probe.includes("bear")) return { label: "Bearish", color: designTokens.signal.bear, glow: withAlpha(designTokens.signal.bear, 0.45) };
   return {
     label: "Neutral",
-    color: goldThemeEnabled ? "#e2ca7a" : "#78a7ff",
-    glow: goldThemeEnabled ? "rgba(226,202,122,0.45)" : "rgba(120,167,255,0.42)",
+    color: goldThemeEnabled ? "#e2ca7a" : "rgba(255,255,255,0.6)",
+    glow: goldThemeEnabled ? "rgba(226,202,122,0.45)" : "rgba(255,255,255,0.2)",
   };
 }
 

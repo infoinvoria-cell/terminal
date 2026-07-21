@@ -57,9 +57,9 @@ function TinyToggle({
   goldThemeEnabled?: boolean;
   onClick: () => void;
 }) {
-  const accentBg = goldThemeEnabled ? "bg-[#e2ca7a]/28" : "bg-[#2962ff]/30";
-  const accentBorder = goldThemeEnabled ? "border-[#e2ca7a]/70" : "border-[#2962ff]/70";
-  const knobColor = goldThemeEnabled ? "bg-[#e2ca7a] shadow-[0_0_8px_rgba(226,202,122,.72)]" : "bg-[#2962ff] shadow-[0_0_8px_rgba(41,98,255,.72)]";
+  const accentBg = goldThemeEnabled ? "bg-[#e2ca7a]/28" : "bg-white/15";
+  const accentBorder = goldThemeEnabled ? "border-[#e2ca7a]/70" : "border-white/40";
+  const knobColor = goldThemeEnabled ? "bg-[#e2ca7a] shadow-[0_0_8px_rgba(226,202,122,.72)]" : "bg-white shadow-none";
   return (
     <button
       type="button"
@@ -214,9 +214,9 @@ export function SettingsPanel({
     return map;
   }, [groupedFull, orderedCategories, search]);
 
-  const accentBorder = goldThemeEnabled ? "border-[#e2ca7a]/72" : "border-[#2962ff]/72";
-  const accentHoverBorder = goldThemeEnabled ? "hover:border-[#e2ca7a]/50" : "hover:border-[#2962ff]/45";
-  const accentText = goldThemeEnabled ? "text-[#fff3d1]" : "text-[#d9e4ff]";
+  const accentBorder = goldThemeEnabled ? "border-[#e2ca7a]/72" : "border-white/25";
+  const accentHoverBorder = goldThemeEnabled ? "hover:border-[#e2ca7a]/50" : "hover:border-white/30";
+  const accentText = goldThemeEnabled ? "text-[#fff3d1]" : "text-white";
   const activeCoreCount = OVERLAY_OPTIONS_CORE.filter((opt) => Boolean(overlayState[opt.key])).length;
   const activeAdvancedCount = OVERLAY_OPTIONS_ADVANCED.filter((opt) => Boolean(overlayState[opt.key])).length;
   const anyOverlayLoading = useMemo(
@@ -258,7 +258,7 @@ export function SettingsPanel({
             <span className="ml-2 inline-flex items-center gap-1.5">
               <span
                 className={`text-[8px] font-semibold uppercase tracking-[0.08em] ${
-                  loading ? (goldThemeEnabled ? "text-[#f7e7be]" : "text-[#9fc2ff]") : (active ? accentText : "text-slate-400")
+                  loading ? (goldThemeEnabled ? "text-[#f7e7be]" : "text-[rgba(255,255,255,0.6)]") : (active ? accentText : "text-slate-400")
                 }`}
               >
                 {overlayStateText(opt.key, active)}
@@ -271,7 +271,7 @@ export function SettingsPanel({
                 className={`inline-flex h-4 w-4 items-center justify-center rounded-full border text-[9px] leading-none transition ${
                   goldThemeEnabled
                     ? "border-[#e2ca7a]/50 text-[#f7e7be] hover:border-[#e2ca7a]/75"
-                    : "border-slate-500/70 text-slate-300 hover:border-[#2962ff]/70 hover:text-[#dce8ff]"
+                    : "border-slate-500/70 text-slate-300 hover:border-white/50 hover:text-white"
                 }`}
                 onMouseEnter={(event) => {
                   event.stopPropagation();
@@ -349,7 +349,7 @@ export function SettingsPanel({
             <span className="ml-2 inline-flex items-center gap-1.5">
               <span
                 className={`text-[8px] font-semibold uppercase tracking-[0.08em] ${
-                  loading ? (goldThemeEnabled ? "text-[#f7e7be]" : "text-[#9fc2ff]") : (active ? accentText : "text-slate-400")
+                  loading ? (goldThemeEnabled ? "text-[#f7e7be]" : "text-[rgba(255,255,255,0.6)]") : (active ? accentText : "text-slate-400")
                 }`}
               >
                 {overlayStateText("assets", active)}
@@ -362,7 +362,7 @@ export function SettingsPanel({
                 className={`inline-flex h-4 w-4 items-center justify-center rounded-full border text-[9px] leading-none transition ${
                   goldThemeEnabled
                     ? "border-[#e2ca7a]/50 text-[#f7e7be] hover:border-[#e2ca7a]/75"
-                    : "border-slate-500/70 text-slate-300 hover:border-[#2962ff]/70 hover:text-[#dce8ff]"
+                    : "border-slate-500/70 text-slate-300 hover:border-white/50 hover:text-white"
                 }`}
                 onMouseEnter={(event) => {
                   event.stopPropagation();
@@ -404,12 +404,12 @@ export function SettingsPanel({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search"
-          className={`ivq-settings-search h-7 min-w-0 flex-1 rounded-md border border-slate-700/65 bg-transparent px-2 text-[11px] text-slate-100 outline-none placeholder:text-slate-500 ${goldThemeEnabled ? "focus:border-[#e2ca7a]/60" : "focus:border-[#2962ff]/60"}`}
+          className={`ivq-settings-search h-7 min-w-0 flex-1 rounded-md border border-slate-700/65 bg-transparent px-2 text-[11px] text-slate-100 outline-none placeholder:text-slate-500 ${goldThemeEnabled ? "focus:border-[#e2ca7a]/60" : "focus:border-white/40"}`}
         />
         <button
           type="button"
           onClick={onAllOn}
-          className={`ivq-settings-action h-7 rounded-md border bg-transparent px-2 text-[10px] font-semibold ${performanceMode ? "" : "transition"} ${accentBorder} ${accentText} ${goldThemeEnabled ? "hover:border-[#e2ca7a]/85" : "hover:border-[#2962ff]/85"}`}
+          className={`ivq-settings-action h-7 rounded-md border bg-transparent px-2 text-[10px] font-semibold ${performanceMode ? "" : "transition"} ${accentBorder} ${accentText} ${goldThemeEnabled ? "hover:border-[#e2ca7a]/85" : "hover:border-white/50"}`}
         >
           All On
         </button>
@@ -427,7 +427,7 @@ export function SettingsPanel({
             className={`ivq-settings-action h-7 rounded-md border bg-transparent px-2 text-[10px] font-semibold ${performanceMode ? "" : "transition"} ${
               goldThemeEnabled
                 ? "border-[#e2ca7a]/58 text-[#fff3d1] hover:border-[#e2ca7a]/85"
-                : "border-[#2962ff]/58 text-[#dce8ff] hover:border-[#2962ff]/85"
+                : "border-white/25 text-white hover:border-white/50"
             }`}
           >
             Refresh
@@ -470,7 +470,7 @@ export function SettingsPanel({
               </div>
 
               {!isCollapsed && (
-                <div className={`ivq-settings-category-grid grid grid-cols-1 gap-1 px-1.5 pb-1.5 min-[480px]:grid-cols-2 ${isOn ? "" : "opacity-55"}`}>
+                <div className={`ivq-settings-category-grid grid grid-cols-3 gap-1 px-1.5 pb-1.5 ${isOn ? "" : "opacity-55"}`}>
                   {list.map((asset) => {
                     const markerSelectable = asset.category !== "Cross Pairs" && asset.showOnGlobe !== false;
                     const checked = markerSelectable && enabledSet.has(asset.id);
@@ -480,9 +480,9 @@ export function SettingsPanel({
                         key={asset.id}
                         className={`ivq-settings-asset flex h-6 items-center gap-1 rounded-md border px-1 text-[10px] ${performanceMode ? "" : "transition"} ${
                           selected
-                            ? `${goldThemeEnabled ? "border-[#e2ca7a]/85 text-[#fff3d1]" : "border-[#2962ff]/85 text-[#d9e4ff]"} bg-transparent`
+                            ? `${goldThemeEnabled ? "border-[#e2ca7a]/85 text-[#fff3d1]" : "border-white/60 text-white"} bg-transparent`
                             : markerSelectable && checked
-                              ? `${goldThemeEnabled ? "border-[#e2ca7a]/55 text-[#fff3d1]" : "border-[#2962ff]/55 text-[#d9e4ff]"} bg-transparent`
+                              ? `${goldThemeEnabled ? "border-[#e2ca7a]/55 text-[#fff3d1]" : "border-white/30 text-white"} bg-transparent`
                               : "border-slate-700/60 bg-transparent text-slate-300"
                         }`}
                       >
@@ -502,7 +502,7 @@ export function SettingsPanel({
                             onClick={() => onToggleAsset(asset.id)}
                             className={`grid h-[12px] w-[12px] place-items-center rounded-[3px] border text-[8px] transition ${
                               checked
-                                ? `${goldThemeEnabled ? "border-[#e2ca7a]/90 text-[#fff3d1]" : "border-[#2962ff]/90 text-[#d9e4ff]"} bg-transparent`
+                                ? `${goldThemeEnabled ? "border-[#e2ca7a]/90 text-[#fff3d1]" : "border-white/50 text-white"} bg-transparent`
                                 : "border-slate-500/70 bg-transparent text-transparent"
                             }`}
                             title={checked ? "Marker ausblenden" : "Marker einblenden"}
@@ -526,7 +526,7 @@ export function SettingsPanel({
         <div className="mb-1 flex items-center justify-between gap-2">
           <div className="ivq-section-label mb-0">Overlay Control</div>
           <div className="inline-flex items-center gap-1 text-[9px] font-semibold tracking-[0.08em] uppercase">
-            <span className={anyOverlayLoading ? (goldThemeEnabled ? "text-[#f7e7be]" : "text-[#9fc2ff]") : "text-[#b2c5de]"}>
+            <span className={anyOverlayLoading ? (goldThemeEnabled ? "text-[#f7e7be]" : "text-[rgba(255,255,255,0.6)]") : "text-[#b2c5de]"}>
               {anyOverlayLoading ? "Loading" : "Ready"}
             </span>
           </div>
