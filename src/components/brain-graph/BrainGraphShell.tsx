@@ -226,7 +226,7 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
     return () => cancelAnimationFrame(rafRef.current);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const onClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+  const onClick = useCallback((e: React.MouseEvent<HTMLElement>) => {
     const rect = canvasRef.current!.getBoundingClientRect();
     const mx = e.clientX - rect.left;
     const my = e.clientY - rect.top;
@@ -244,13 +244,12 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
   }, [onSelect]);
 
   return (
-    <div ref={containerRef} className="relative h-full w-full">
+    <div ref={containerRef} className="relative h-full w-full overflow-hidden" onClick={onClick} style={{ cursor: "crosshair" }}>
       <canvas
         ref={canvasRef}
         width={dims.w}
         height={dims.h}
-        onClick={onClick}
-        style={{ display: "block", cursor: "crosshair" }}
+        style={{ display: "block", pointerEvents: "none" }}
       />
     </div>
   );
