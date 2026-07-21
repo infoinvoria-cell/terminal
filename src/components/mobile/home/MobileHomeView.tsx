@@ -23,90 +23,91 @@ const AUM_LS_KEY  = "fund-manager:aum-visible";
 // ── Eye icons ─────────────────────────────────────────────────────────────────
 function Eye({ off }: { off?: boolean }) {
   return off ? (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
       <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
       <line x1="1" y1="1" x2="23" y2="23"/>
     </svg>
   ) : (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
       <circle cx="12" cy="12" r="3"/>
     </svg>
   );
 }
 
-// ── AUM card ──────────────────────────────────────────────────────────────────
-function AumCard({ value }: { value: string }) {
+// ── Top KPI card — first one gets eye toggle for AuM ─────────────────────────
+export type TopKpiItem = { label: string; value: string; neg?: boolean; isAum?: boolean };
+
+function TopKpi({ label, value, neg, isAum }: TopKpiItem) {
   const [visible, setVisible] = useState(true);
   const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
+    if (!isAum) return;
     setMounted(true);
     try { if (localStorage.getItem(AUM_LS_KEY) === "false") setVisible(false); } catch {}
-  }, []);
+  }, [isAum]);
+
   const toggle = () => {
+    if (!isAum) return;
     const next = !visible;
     setVisible(next);
     try { localStorage.setItem(AUM_LS_KEY, String(next)); } catch {}
   };
+
+  const displayValue = isAum && mounted && !visible ? "—" : value;
+
   return (
     <div style={{
-      background: CARD_BG, border: `1px solid ${CARD_BORDER}`,
-      borderRadius: 10, boxShadow: CARD_SHADOW,
-      padding: "10px 12px",
-      display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
+      background: CARD_BG,
+      border: `1px solid ${CARD_BORDER}`,
+      borderRadius: 10,
+      boxShadow: CARD_SHADOW,
+      padding: "9px 9px 11px",
+      display: "flex", flexDirection: "column", justifyContent: "space-between",
+      gap: 6, minWidth: 0,
     }}>
-      <div>
-        <p style={{ margin: "0 0 3px", fontSize: 9.5, fontWeight: 600, color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-          Risk adjusted AuM
-        </p>
+      {/* Label row — eye on AuM card */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
         <p style={{
-          margin: 0, fontSize: 20, fontWeight: 700, lineHeight: 1,
-          letterSpacing: "-0.02em", fontFamily: "var(--font-nunito,sans-serif)",
-          color: "#fff", opacity: mounted && !visible ? 0.22 : 1, transition: "opacity 0.2s",
+          margin: 0, fontSize: 8, fontWeight: 600, color: MUTED,
+          fontFamily: "var(--font-montserrat,sans-serif)",
+          textTransform: "uppercase", letterSpacing: "0.01em", lineHeight: 1.2,
+          minWidth: 0, overflow: "hidden",
         }}>
-          {mounted && !visible ? "—" : value}
+          {label}
         </p>
+        {isAum && (
+          <button type="button" onClick={toggle}
+            style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.22)", padding: 0, lineHeight: 0, flexShrink: 0, WebkitTapHighlightColor: "transparent" }}>
+            {mounted ? <Eye off={!visible} /> : <Eye />}
+          </button>
+        )}
       </div>
-      <button type="button" onClick={toggle} aria-label={visible ? "Verbergen" : "Anzeigen"}
-        style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.25)", padding: 4, lineHeight: 0, WebkitTapHighlightColor: "transparent" }}>
-        {mounted ? <Eye off={!visible} /> : <Eye />}
-      </button>
-    </div>
-  );
-}
-
-// ── Top KPI card (4 in a row) ─────────────────────────────────────────────────
-function TopKpi({ label, value, neg }: { label: string; value: string; neg?: boolean }) {
-  return (
-    <div style={{
-      background: CARD_BG, border: `1px solid ${CARD_BORDER}`,
-      borderRadius: 10, boxShadow: CARD_SHADOW,
-      padding: "9px 10px 11px",
-      display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 5,
-    }}>
-      <p style={{ margin: 0, fontSize: 8.5, fontWeight: 600, color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", textTransform: "uppercase", letterSpacing: "0.01em", lineHeight: 1.2 }}>
-        {label}
-      </p>
+      {/* Value */}
       <p style={{
-        margin: 0, fontSize: 14, fontWeight: 700, lineHeight: 1,
-        letterSpacing: "-0.02em", fontFamily: "var(--font-nunito,sans-serif)",
+        margin: 0, fontSize: 13, fontWeight: 700, lineHeight: 1,
+        letterSpacing: "-0.02em",
+        fontFamily: "var(--font-nunito,sans-serif)",
         color: neg ? "rgba(161,161,170,1)" : "#ffffff",
-        wordBreak: "break-all",
+        opacity: isAum && mounted && !visible ? 0.22 : 1,
+        transition: "opacity 0.2s",
+        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
       }}>
-        {value}
+        {displayValue}
       </p>
     </div>
   );
 }
 
-// ── Tab button (no border pill — icon + text, white when active) ──────────────
+// ── Tab buttons (no pill, icon + text) ────────────────────────────────────────
 type HomeTab = "portfolio" | "risk" | "trades" | "quant";
 
-function IconLayers()   { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>; }
-function IconCircle()   { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/></svg>; }
-function IconBarChart() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="12" width="4" height="9"/><rect x="9.5" y="7" width="4" height="14"/><rect x="16" y="3" width="4" height="18"/></svg>; }
-function IconSparkles() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v1m0 16v1M4.22 4.22l.71.71m12.73 12.73.71.71M3 12h1m16 0h1M4.93 19.07l.71-.71M18.36 5.64l.71-.71"/><circle cx="12" cy="12" r="4"/></svg>; }
+function IconLayers()   { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>; }
+function IconCircle()   { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/></svg>; }
+function IconBarChart() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="12" width="4" height="9"/><rect x="9.5" y="7" width="4" height="14"/><rect x="16" y="3" width="4" height="18"/></svg>; }
+function IconSparkles() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v1m0 16v1M4.22 4.22l.71.71m12.73 12.73.71.71M3 12h1m16 0h1M4.93 19.07l.71-.71M18.36 5.64l.71-.71"/><circle cx="12" cy="12" r="4"/></svg>; }
 
 const TAB_ICONS: Record<HomeTab, () => React.ReactElement> = {
   portfolio: IconLayers,
@@ -121,9 +122,9 @@ function TabBtn({ id, label, active, onClick }: { id: HomeTab; label: string; ac
     <button type="button" onClick={onClick}
       style={{
         display: "flex", alignItems: "center", gap: 5,
-        background: "none", border: "none", padding: "4px 6px",
+        background: "none", border: "none", padding: "5px 8px",
         cursor: "pointer", WebkitTapHighlightColor: "transparent",
-        color: active ? "#ffffff" : "#5a5d66",
+        color: active ? "#ffffff" : "#55585f",
         fontSize: 12, fontWeight: active ? 600 : 500,
         fontFamily: "var(--font-montserrat,sans-serif)",
         transition: "color 0.12s",
@@ -134,30 +135,26 @@ function TabBtn({ id, label, active, onClick }: { id: HomeTab; label: string; ac
   );
 }
 
-// ── Secondary KPI card (4×2 grid) ────────────────────────────────────────────
+// ── Secondary KPI card (4×2) ──────────────────────────────────────────────────
 function SecKpi({ label, value, delta, deltaPos }: { label: string; value: string; delta?: string; deltaPos?: boolean }) {
   return (
     <div style={{
       background: CARD_BG, border: `1px solid ${CARD_BORDER}`,
       borderRadius: 10, boxShadow: CARD_SHADOW,
-      padding: "8px 9px 9px",
-      display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 4,
+      padding: "8px 9px 10px",
+      display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 5,
     }}>
-      <p style={{ margin: 0, fontSize: 8, fontWeight: 600, color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", textTransform: "uppercase", letterSpacing: "0.01em", lineHeight: 1.3 }}>
+      <p style={{ margin: 0, fontSize: 7.5, fontWeight: 600, color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", textTransform: "uppercase", letterSpacing: "0.01em", lineHeight: 1.3 }}>
         {label}
       </p>
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 2, minWidth: 0 }}>
-        <p style={{
-          margin: 0, fontSize: 13, fontWeight: 700, lineHeight: 1,
-          letterSpacing: "-0.02em", fontFamily: "var(--font-nunito,sans-serif)",
-          color: "#fff", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-        }}>
+        <p style={{ margin: 0, fontSize: 13, fontWeight: 700, lineHeight: 1, letterSpacing: "-0.02em", fontFamily: "var(--font-nunito,sans-serif)", color: "#fff", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {value}
         </p>
         {delta != null && deltaPos != null && (
           deltaPos
-            ? <span style={{ flexShrink: 0, border: "1px solid rgba(226,202,122,0.3)", borderRadius: 999, padding: "1px 3px", fontSize: 7.5, fontWeight: 700, color: "#e2ca7a", fontFamily: "var(--font-nunito,sans-serif)", lineHeight: 1.4, whiteSpace: "nowrap" }}>{delta}</span>
-            : <span style={{ flexShrink: 0, fontSize: 7.5, fontWeight: 600, color: "rgba(161,161,170,0.6)", fontFamily: "var(--font-nunito,sans-serif)", lineHeight: 1.4 }}>{delta}</span>
+            ? <span style={{ flexShrink: 0, border: "1px solid rgba(226,202,122,0.3)", borderRadius: 999, padding: "1px 3px", fontSize: 7, fontWeight: 700, color: "#e2ca7a", fontFamily: "var(--font-nunito,sans-serif)", lineHeight: 1.4, whiteSpace: "nowrap" }}>{delta}</span>
+            : <span style={{ flexShrink: 0, fontSize: 7, fontWeight: 600, color: "rgba(161,161,170,0.55)", fontFamily: "var(--font-nunito,sans-serif)", lineHeight: 1.4 }}>{delta}</span>
         )}
       </div>
     </div>
@@ -214,16 +211,12 @@ function useMonthlyStats(trades: SerializedTrade[]) {
 }
 
 // ── Main view ─────────────────────────────────────────────────────────────────
-export type TopKpiItem = { label: string; value: string; neg?: boolean };
-
 export function MobileHomeView({
-  riskAdjustedAum,
   topKpis,
   kpis: _kpis,
   trades,
   capalifeData,
 }: {
-  riskAdjustedAum: string;
   topKpis: TopKpiItem[];
   kpis: DashboardKpis;
   trades: SerializedTrade[];
@@ -266,26 +259,21 @@ export function MobileHomeView({
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", background: PAGE_BG, overflow: "hidden" }}>
 
-      {/* ── Page title ── */}
-      <div style={{ flexShrink: 0, padding: "10px 14px 6px" }}>
+      {/* ── Page title ─────────────────────────────────────── */}
+      <div style={{ flexShrink: 0, padding: "12px 14px 10px" }}>
         <p style={{ margin: "0 0 1px", fontSize: 9, fontWeight: 600, color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", textTransform: "uppercase", letterSpacing: "0.07em" }}>HOME</p>
         <h1 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#fafafa", fontFamily: "var(--font-montserrat,sans-serif)", letterSpacing: "-0.01em" }}>Portfolio</h1>
       </div>
 
-      {/* ── AUM card ── */}
-      <div style={{ flexShrink: 0, padding: "0 14px 6px" }}>
-        <AumCard value={riskAdjustedAum} />
-      </div>
-
-      {/* ── 4 top KPI cards in a single row ── */}
-      <div style={{ flexShrink: 0, padding: "0 14px 6px" }}>
+      {/* ── 4 top KPI cards (1×4) — Risk Adj. AuM | Total Return | Max DD | Annualized ── */}
+      <div style={{ flexShrink: 0, padding: "0 14px 16px" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 5 }}>
           {topKpis.map(k => <TopKpi key={k.label} {...k} />)}
         </div>
       </div>
 
-      {/* ── 4 tab buttons — no pill border, icon + text ── */}
-      <div style={{ flexShrink: 0, padding: "0 8px 4px", display: "flex", gap: 0 }}>
+      {/* ── 4 tab buttons ──────────────────────────────────── */}
+      <div style={{ flexShrink: 0, padding: "0 6px 16px", display: "flex", gap: 0 }}>
         {(["portfolio","risk","trades","quant"] as HomeTab[]).map(t => (
           <TabBtn key={t} id={t} label={t.charAt(0).toUpperCase() + t.slice(1)} active={tab === t} onClick={() => setTab(t)} />
         ))}
@@ -293,16 +281,16 @@ export function MobileHomeView({
 
       {tab === "portfolio" ? (
         <>
-          {/* ── 4×2 secondary KPI grid ── */}
-          <div style={{ flexShrink: 0, padding: "0 14px 6px" }}>
+          {/* ── 4×2 secondary KPI grid ─────────────────────── */}
+          <div style={{ flexShrink: 0, padding: "0 14px 16px" }}>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 5 }}>
               {secCards.map(c => <SecKpi key={c.label} {...c} />)}
             </div>
           </div>
 
-          {/* ── Performance Overview — fills remaining height ── */}
-          <div style={{ flex: 1, minHeight: 0, padding: "0 14px 8px", display: "flex", flexDirection: "column" }}>
-            <p style={{ flexShrink: 0, margin: "0 0 5px", fontSize: 11, fontWeight: 600, color: "#c8cad0", fontFamily: "var(--font-montserrat,sans-serif)", letterSpacing: "0.01em" }}>
+          {/* ── Performance Overview ───────────────────────── */}
+          <div style={{ flex: 1, minHeight: 0, padding: "0 14px 10px", display: "flex", flexDirection: "column" }}>
+            <p style={{ flexShrink: 0, margin: "0 0 8px", fontSize: 11, fontWeight: 600, color: "#c8cad0", fontFamily: "var(--font-montserrat,sans-serif)", letterSpacing: "0.01em" }}>
               Performance Overview
             </p>
             <div style={{ position: "relative", flex: 1, minHeight: 0, borderRadius: 10, border: `1px solid ${CARD_BORDER}`, background: CARD_BG, boxShadow: CARD_SHADOW, overflow: "hidden" }}>
@@ -330,7 +318,7 @@ export function MobileHomeView({
       ) : (
         <div style={{ flex: 1, minHeight: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <p style={{ color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", fontSize: 12 }}>
-            {tab.charAt(0).toUpperCase() + tab.slice(1)} — demnächst
+            {tab.charAt(0).toUpperCase() + tab.slice(1)} — demnächst verfügbar
           </p>
         </div>
       )}
