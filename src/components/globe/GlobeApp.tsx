@@ -1,6 +1,7 @@
 "use client";
 
 import { lazy, useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
+import Image from "next/image";
 import { Maximize2, Minimize2 } from "lucide-react";
 
 import { GlobeCanvas } from "@/components/globe/GlobeCanvas";
@@ -1768,520 +1769,220 @@ export default function GlobeApp() {
   const dashboardLoadingHeadline = dashboardLoadingLabels[0] || "Loading data...";
 
   return (
-    <main className={`ivq-app-bg relative min-h-screen overflow-x-hidden overflow-y-visible bg-transparent p-0 text-slate-100 ${goldThemeEnabled ? "ivq-theme-gold" : ""}`}>
-      <div className="ivq-page-grid relative z-10 grid grid-cols-1 gap-4 px-3 pb-4 pt-16 min-[769px]:min-h-screen min-[769px]:grid-cols-[55%_45%] min-[769px]:px-4 min-[769px]:pt-0">
-        <section className="ivq-layout-wrapper flex flex-col">
-          <div ref={globeShellRef} className="ivq-globe-shell group relative">
-            {isGlobeFullscreen ? (
-              <div className="grid h-full grid-cols-[minmax(460px,48%)_minmax(0,52%)] gap-4">
-                <div className="grid min-h-0 grid-rows-[minmax(0,1.08fr)_minmax(240px,0.92fr)] gap-4 overflow-hidden">
-                  <div className="min-h-0 overflow-hidden">
-                    <SettingsPanel
-                      assets={assets}
-                      enabledSet={enabledSet}
-                      categoryEnabled={categoryEnabled}
-                      selectedAssetId={selectedAssetId}
-                      goldThemeEnabled={goldThemeEnabled}
-                      onSelectAsset={onSelectAssetFromWatchlist}
-                      onToggleAsset={onToggleAsset}
-                      onToggleCategory={onToggleCategory}
-                      onAllOn={onAllOn}
-                      onAllOff={onAllOff}
-                      onRefreshData={onRefreshData}
-                      overlayState={overlayState}
-                      overlayLoadingState={overlayLoadingState}
-                      onToggleOverlay={onToggleOverlay}
-                    />
-                  </div>
+    <div className="relative h-full w-full overflow-hidden bg-[#0c0d10] text-white">
+      {/* ── 3-column layout: [left 260px] [center flex] [right 340px] ── */}
+      <div className="grid h-full w-full grid-cols-[260px_minmax(0,1fr)_340px] grid-rows-[minmax(0,1fr)_minmax(180px,240px)] gap-2 p-2">
 
-                  <div className="min-h-0 overflow-hidden">
-                    <MiniWorldMap
-                      markers={visibleMarkers}
-                      selectedAssetId={selectedAssetId}
-                      selectedAssetCategory={selectedAsset?.category ?? ""}
-                      selectedAssetLocations={selectedAssetLocations}
-                      crossPairColor={crossPairPath?.color ?? null}
-                      geoEvents={geoEvents}
-                      shipTracking={activeShipTracking}
-                      overlayRoutes={activeRouteOverlays}
-                      commodityRegions={activeCommodityRegions}
-                      globalRiskRegions={activeGlobalRiskRegions}
-                      globalLiquidityRegions={activeGlobalLiquidityRegions}
-                      regionHighlight={activeRegionHighlight}
-                      selectedOverlay={selectedOverlay}
-                      cameraAltitude={Number(camera?.altitude ?? 1.8)}
-                      goldThemeEnabled={goldThemeEnabled}
-                      assetUsage={assetUsage}
-                      onSelectPoint={onSelectPointFromMiniMap}
-                    />
-                  </div>
-                </div>
-
-                <div className="glass-panel glass-panel--flush relative min-h-0 overflow-hidden rounded-xl">
-                  <div className="ivq-globe-hover-controls absolute right-3 top-3 z-30">
-                    <button
-                      type="button"
-                      onClick={onToggleGlobeFullscreen}
-                      className="ivq-globe-icon-btn"
-                      title="Exit fullscreen"
-                      aria-label="Exit fullscreen"
-                    >
-                      <Minimize2 size={15} strokeWidth={1.9} />
-                    </button>
-                  </div>
-
-                  <GlobeCanvas
-                    markers={visibleMarkers}
-                    selectedAssetId={selectedAssetId}
-                    selectedAssetCategory={selectedAsset?.category ?? ""}
-                    selectedAssetLocations={selectedAssetLocations}
-                    crossPairPath={crossPairPath}
-                    focusAssetId={focusAssetId}
-                    focusLocation={focusLocation}
-                    selectedOverlay={selectedOverlay}
-                    inflationByCountry={emptyInflationByCountry}
-                    policyRateByCountry={emptyPolicyRateByCountry}
-                    volatilityScore={50}
-                    volatilityRegime="Neutral"
-                    commodityRegionScores={emptyCommodityRegionScores}
-                    commodityMode="Normal"
-                    geoEvents={geoEvents}
-                    shipTracking={activeShipTracking}
-                    overlayRoutes={activeRouteOverlays}
-                    commodityRegions={activeCommodityRegions}
-                    globalRiskRegions={activeGlobalRiskRegions}
-                    globalLiquidityRegions={activeGlobalLiquidityRegions}
-                    regionHighlight={activeRegionHighlight}
-                    overlayState={overlayState}
-                    camera={camera}
-                    active={isPageActive}
-                    autoRotateEnabled={isPageActive && effectiveAutoRotateEnabled}
-                    autoRotateSpeed={effectiveAutoRotateSpeed}
-                    goldThemeEnabled={goldThemeEnabled}
-                    onCameraChange={setCamera}
-                    onSelectAsset={onGlobeSelectAsset}
-                    onFocusHandled={onFocusHandled}
-                    onFocusLocationHandled={onFocusLocationHandled}
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className={`grid ${globeGridLayoutClass} gap-4`} style={globeGridLayoutStyle}>
-                <div className="min-h-0 min-[769px]:row-span-2">
-                  <SettingsPanel
-                    assets={assets}
-                    enabledSet={enabledSet}
-                    categoryEnabled={categoryEnabled}
-                    selectedAssetId={selectedAssetId}
-                    goldThemeEnabled={goldThemeEnabled}
-                    onSelectAsset={onSelectAssetFromWatchlist}
-                    onToggleAsset={onToggleAsset}
-                    onToggleCategory={onToggleCategory}
-                    onAllOn={onAllOn}
-                    onAllOff={onAllOff}
-                    onRefreshData={onRefreshData}
-                    overlayState={overlayState}
-                    overlayLoadingState={overlayLoadingState}
-                    onToggleOverlay={onToggleOverlay}
-                  />
-                </div>
-
-                <div className="glass-panel glass-panel--flush relative min-h-[320px] overflow-hidden rounded-xl min-[769px]:min-h-0">
-                  <div className="ivq-globe-hover-controls absolute right-3 top-3 z-30">
-                    <button
-                      type="button"
-                      onClick={onToggleGlobeFullscreen}
-                      className="ivq-globe-icon-btn"
-                      title="Fullscreen"
-                      aria-label="Fullscreen"
-                    >
-                      <Maximize2 size={15} strokeWidth={1.9} />
-                    </button>
-                  </div>
-
-                  <GlobeCanvas
-                    markers={visibleMarkers}
-                    selectedAssetId={selectedAssetId}
-                    selectedAssetCategory={selectedAsset?.category ?? ""}
-                    selectedAssetLocations={selectedAssetLocations}
-                    crossPairPath={crossPairPath}
-                    focusAssetId={focusAssetId}
-                    focusLocation={focusLocation}
-                    selectedOverlay={selectedOverlay}
-                    inflationByCountry={emptyInflationByCountry}
-                    policyRateByCountry={emptyPolicyRateByCountry}
-                    volatilityScore={50}
-                    volatilityRegime="Neutral"
-                    commodityRegionScores={emptyCommodityRegionScores}
-                    commodityMode="Normal"
-                    geoEvents={geoEvents}
-                    shipTracking={activeShipTracking}
-                    overlayRoutes={activeRouteOverlays}
-                    commodityRegions={activeCommodityRegions}
-                    globalRiskRegions={activeGlobalRiskRegions}
-                    globalLiquidityRegions={activeGlobalLiquidityRegions}
-                    regionHighlight={activeRegionHighlight}
-                    overlayState={overlayState}
-                    camera={camera}
-                    active={isPageActive}
-                    autoRotateEnabled={isPageActive && effectiveAutoRotateEnabled}
-                    autoRotateSpeed={effectiveAutoRotateSpeed}
-                    goldThemeEnabled={goldThemeEnabled}
-                    onCameraChange={setCamera}
-                    onSelectAsset={onGlobeSelectAsset}
-                    onFocusHandled={onFocusHandled}
-                    onFocusLocationHandled={onFocusLocationHandled}
-                  />
-                </div>
-
-                <div className="min-h-[180px] min-[769px]:min-h-0">
-                  <MiniWorldMap
-                    markers={visibleMarkers}
-                    selectedAssetId={selectedAssetId}
-                    selectedAssetCategory={selectedAsset?.category ?? ""}
-                    selectedAssetLocations={selectedAssetLocations}
-                    crossPairColor={crossPairPath?.color ?? null}
-                    geoEvents={geoEvents}
-                    shipTracking={activeShipTracking}
-                    overlayRoutes={activeRouteOverlays}
-                    commodityRegions={activeCommodityRegions}
-                    globalRiskRegions={activeGlobalRiskRegions}
-                    globalLiquidityRegions={activeGlobalLiquidityRegions}
-                    regionHighlight={activeRegionHighlight}
-                    selectedOverlay={selectedOverlay}
-                    cameraAltitude={Number(camera?.altitude ?? 1.8)}
-                    goldThemeEnabled={goldThemeEnabled}
-                    assetUsage={assetUsage}
-                    onSelectPoint={onSelectPointFromMiniMap}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div
-            className="mt-4 h-auto min-h-[320px] min-[769px]:h-[360px] min-[769px]:min-h-[360px]"
-            onMouseEnter={() => activateSection("news")}
-            onClick={() => activateSection("news")}
-          >
-            <NewsColumns
-              globalNews={globalNews}
-              assetNews={assetNews}
-              assetName={selectedAsset?.name ?? "Asset"}
-              assetIconUrl={selectedAsset ? iconUrlForAsset(selectedAsset) : undefined}
-              goldThemeEnabled={goldThemeEnabled}
+        {/* ── LEFT COL (spans both rows): Logo + SettingsPanel ── */}
+        <div className="row-span-2 flex min-h-0 flex-col overflow-hidden rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(28,29,32,0.8)]">
+          {/* Logo */}
+          <div className="flex shrink-0 items-center gap-2 border-b border-[rgba(255,255,255,0.06)] px-3 py-2">
+            <Image
+              src="/CAPITALIFE_Logo.png"
+              alt="Capitalife"
+              width={120}
+              height={30}
+              style={{ height: 22, width: "auto", objectFit: "contain", opacity: 0.85 }}
             />
           </div>
-
-          <div
-            className="mt-4 h-auto min-h-[620px] min-[769px]:h-[980px] min-[769px]:min-h-[980px]"
-            onMouseEnter={() => activateSection("heatmap")}
-            onClick={() => activateSection("heatmap")}
-          >
-            <AssetHeatmapPanel
+          {/* Asset list */}
+          <div className="min-h-0 flex-1 overflow-hidden">
+            <SettingsPanel
+              assets={assets}
+              enabledSet={enabledSet}
+              categoryEnabled={categoryEnabled}
               selectedAssetId={selectedAssetId}
-              dataSource={dataSource}
               goldThemeEnabled={goldThemeEnabled}
-              enabled={deferredSections.heatmap}
+              onSelectAsset={onSelectAssetFromWatchlist}
+              onToggleAsset={onToggleAsset}
+              onToggleCategory={onToggleCategory}
+              onAllOn={onAllOn}
+              onAllOff={onAllOff}
+              onRefreshData={onRefreshData}
+              overlayState={overlayState}
+              overlayLoadingState={overlayLoadingState}
+              onToggleOverlay={onToggleOverlay}
             />
           </div>
-        </section>
+        </div>
 
-        <section className="ivq-layout-wrapper grid grid-cols-1 gap-4 min-[769px]:grid-rows-[766px_360px_96px_860px]">
-          <div
-            className={`${
-              isChartStackFullscreen
-                ? "ivq-chart-stack-overlay fixed inset-0 z-[70] grid grid-cols-1 grid-rows-[minmax(0,1.06fr)_minmax(220px,0.55fr)_minmax(220px,0.55fr)] gap-4 p-4 min-[769px]:grid-cols-2 min-[769px]:grid-rows-[minmax(0,1.28fr)_minmax(0,0.88fr)]"
-                : "grid min-h-0 grid-cols-1 grid-rows-[minmax(320px,44vh)_220px_220px] gap-4 min-[769px]:grid-rows-[398px_168px_168px]"
-            }`}
-            style={isChartStackFullscreen ? {
-              background: goldThemeEnabled
-                ? "radial-gradient(980px 640px at 8% 8%, rgba(226,202,122,0.18), transparent 62%), radial-gradient(880px 620px at 92% 12%, rgba(226,202,122,0.12), transparent 68%), linear-gradient(180deg, #030303 0%, #090807 50%, #040404 100%)"
-                : "radial-gradient(980px 640px at 8% 8%, rgba(100, 158, 250, 0.20), transparent 62%), radial-gradient(880px 620px at 92% 12%, rgba(86, 145, 236, 0.15), transparent 68%), linear-gradient(180deg, #030915 0%, #071325 50%, #060d1b 100%)",
-            } : undefined}
-          >
-            <div className={`glass-panel ivq-panel group relative min-h-0 p-[18px] ${isChartStackFullscreen ? "col-span-2 row-start-1" : ""}`}>
-              <div className="h-full min-h-0">
-                <Suspense fallback={<div className="grid h-full place-items-center text-xs text-slate-400">Loading chart...</div>}>
-                  <CandleChart
-                    payload={timeseries}
-                    evaluation={evaluation}
-                    seasonality={seasonality}
-                    dataSource={dataSource}
-                    title={chartHeaderLabel}
-                    sourceLabel={chartSourceLabel}
-                    goldThemeEnabled={goldThemeEnabled}
-                    themePrimary={goldThemeEnabled ? GOLD_PRIMARY : "#4d87fe"}
-                    isPanelLoading={panelLoading}
-                    isFullscreen={isChartStackFullscreen}
-                    active={isPageActive}
-                    onToggleFullscreen={() => setIsChartStackFullscreen((value) => !value)}
-                    loopReplayTick={visualLoopEnabled ? visualLoopTick : 0}
-                    onTimeRangeChange={onSharedTimeRangeChange}
-                    onRecentSignalChange={setRecentSignal}
-                    onTimeframeChange={setChartTimeframe}
-                  />
-                </Suspense>
-              </div>
-            </div>
-
-            <div
-              className={`glass-panel ivq-panel min-h-0 p-[14px] ${isChartStackFullscreen ? "col-start-1 row-start-2" : ""}`}
-              onMouseEnter={() => activateSection("valuation")}
-              onClick={() => activateSection("valuation")}
-            >
-              <div className="ivq-section-label">Valuation 10</div>
-              <div className="h-[calc(100%-26px)] min-h-0">
-                <Suspense fallback={<div className="grid h-full place-items-center text-xs text-slate-400">Loading eval...</div>}>
-                  <EvaluationChart payload={evaluation} mode="v10" timeframe={chartTimeframe} syncRange={sharedTimeRange} loopReplayTick={visualLoopEnabled ? visualLoopTick : 0} active={isPageActive} />
-                </Suspense>
-              </div>
-            </div>
-
-            <div
-              className={`glass-panel ivq-panel min-h-0 p-[14px] ${isChartStackFullscreen ? "col-start-2 row-start-2" : ""}`}
-              onMouseEnter={() => activateSection("valuation")}
-              onClick={() => activateSection("valuation")}
-            >
-              <div className="ivq-section-label">Valuation 20</div>
-              <div className="h-[calc(100%-26px)] min-h-0">
-                <Suspense fallback={<div className="grid h-full place-items-center text-xs text-slate-400">Loading eval...</div>}>
-                  <EvaluationChart payload={evaluation} mode="v20" timeframe={chartTimeframe} syncRange={sharedTimeRange} loopReplayTick={visualLoopEnabled ? visualLoopTick : 0} active={isPageActive} />
-                </Suspense>
-              </div>
-            </div>
-          </div>
-
-          <div
-            className="glass-panel ivq-panel flex min-h-0 flex-col p-[18px]"
-            onMouseEnter={() => activateSection("seasonality")}
-            onClick={() => activateSection("seasonality")}
-          >
-            <div className="ivq-section-label">Seasonality</div>
-            <div className="grid min-h-0 flex-1 grid-cols-1 gap-3.5 overflow-hidden min-[769px]:grid-cols-[minmax(0,1fr)_minmax(220px,260px)]">
-                <div className="ivq-subpanel relative h-full min-h-0 overflow-hidden rounded-md p-[2px]">
-                  <div className="h-full min-h-0">
-                    <Suspense fallback={<div className="grid h-full place-items-center text-xs text-slate-400">Loading seasonality...</div>}>
-                      <GlobeSeasonalityChart payload={seasonality} candles={timeseries?.ohlcv ?? []} loopReplayTick={visualLoopEnabled ? visualLoopTick : 0} active={isPageActive} />
-                    </Suspense>
-                  </div>
-                </div>
-              <div className="grid h-full min-h-0 grid-cols-2 gap-2.5 text-[10px] min-[769px]:grid-cols-1 min-[769px]:grid-rows-[repeat(5,minmax(0,1fr))]">
-                <div className="ivq-subpanel min-h-0 overflow-hidden p-2.5">
-                  <div className="mb-1 text-[#b2c5de]">Interpretation</div>
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="text-[13px] font-semibold leading-tight" style={{ color: currentPatternColor }}>
-                        {seasonInterpretation}
-                      </div>
-                      <div className="mt-1 text-[10px] font-semibold" style={{ color: currentPatternColor }}>
-                        {currentPatternStateLabel} / {currentPatternReturnLabel}
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-semibold text-slate-300">{seasonStats.samples} samples</span>
-                  </div>
-                  <div className="mt-1 h-1 rounded-full bg-slate-700/45">
-                    <div className="h-1 rounded-full" style={{ width: `${Math.max(0, Math.min(100, (finiteOr(seasonHorizon, 12) - 10) * 10))}%`, backgroundColor: currentPatternColor }} />
-                  </div>
-                </div>
-                <div className="ivq-subpanel min-h-0 overflow-hidden p-2.5">
-                  <div className="mb-1 text-[#b2c5de]" title="Primary seasonality quality metric. Higher means better risk-adjusted seasonal edge.">Sharpe Ratio</div>
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="min-w-[72px] text-[14px] font-semibold" style={{ color: sharpeColor }}>{sharpeLabel}</div>
-                    <span className="text-[10px] font-semibold text-slate-300">{seasonHorizonLabel}</span>
-                  </div>
-                  <div className="mt-1 h-1 rounded-full bg-slate-700/45">
-                    <div className="h-1 rounded-full" style={{ width: `${sharpePct}%`, backgroundColor: sharpeColor }} />
-                  </div>
-                </div>
-                <div className="ivq-subpanel min-h-0 overflow-hidden p-2.5">
-                  <div className="mb-1 text-[#b2c5de]" title="Directional seasonal win rate across the last 10 years.">Winrate</div>
-                  <div className="grid grid-cols-[minmax(0,1fr)_52px] items-center gap-2">
-                    <div className="min-w-0">
-                      <div className="text-[14px] font-semibold leading-none" style={{ color: winrateColor }}>
-                        {hitRateLabel}
-                      </div>
-                      <div className="mt-1 text-[10px] font-semibold" style={{ color: winrateColor }}>
-                        {seasonDirection === "LONG" ? "Bullish" : seasonDirection === "SHORT" ? "Bearish" : "Neutral"}
-                      </div>
-                    </div>
-                    <div
-                      className="grid h-[52px] w-[52px] place-items-center rounded-full border border-slate-600/65 text-[10px] font-semibold text-slate-100"
-                      style={{ background: winrateArc }}
-                    >
-                      <span className="grid h-[34px] w-[34px] place-items-center rounded-full bg-[#07101d]">
-                        {hitRateLabel}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="mt-1.5 h-[18px] w-full overflow-hidden rounded bg-[rgba(4,10,20,0.36)]">
-                    <svg viewBox="0 0 100 28" preserveAspectRatio="none" className="h-full w-full">
-                      {seasonWinrateSpark.area ? <path d={seasonWinrateSpark.area} fill={winrateColor} fillOpacity={0.14} /> : null}
-                      {seasonWinrateSpark.line ? <path d={seasonWinrateSpark.line} fill="none" stroke={winrateColor} strokeWidth={1.8} /> : null}
-                    </svg>
-                  </div>
-                </div>
-                <div className="ivq-subpanel min-h-0 overflow-hidden p-2.5">
-                  <div className="mb-1 text-[#b2c5de]" title="Sortino penalizes downside volatility only.">Sortino Ratio</div>
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="min-w-[72px] text-[14px] font-semibold" style={{ color: colorizeRiskMetric(seasonSortino) }}>{sortinoLabel}</div>
-                    <span className="text-[10px] font-semibold text-slate-300">Sortino</span>
-                  </div>
-                  <div className="mt-1 h-1 rounded-full bg-slate-700/45">
-                    <div className="h-1 rounded-full" style={{ width: `${sortinoPct}%`, backgroundColor: colorizeRiskMetric(seasonSortino) }} />
-                  </div>
-                </div>
-                <div className="ivq-subpanel min-h-0 overflow-hidden p-2.5">
-                  <div className="mb-1 text-[#b2c5de]" title="Average terminal return of the selected 10-20 day seasonal window.">Average Return</div>
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="min-w-[72px] text-[14px] font-semibold" style={{ color: avgReturn >= 0 ? designTokens.signal.bull : designTokens.signal.bear }}>{avgReturnLabel}</div>
-                    <span className="text-[10px] font-semibold text-slate-300">{currentSeasonPattern.holdLabel}</span>
-                  </div>
-                  <div className="mt-1 h-1 rounded-full bg-slate-700/45">
-                    <div className="h-1 rounded-full" style={{ width: `${avgReturnPct}%`, backgroundColor: avgReturn >= 0 ? designTokens.signal.bull : designTokens.signal.bear }} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="glass-panel ivq-panel h-auto min-h-[108px] overflow-hidden p-[18px] min-[769px]:h-[108px] min-[769px]:min-h-[108px]">
-            <KpiGrid
-              indicators={timeseries?.indicators}
-              aiScore={Number(timeseries?.aiScore?.total ?? 50)}
-              breakdown={timeseries?.aiScore?.breakdown}
-              valuation10={latestValuation.v10}
-              valuation20={latestValuation.v20}
-              goldThemeEnabled={goldThemeEnabled}
-            />
-          </div>
-
-          <div className="grid h-full min-h-0 grid-cols-1 gap-3 min-[769px]:grid-rows-[192px_minmax(0,1fr)_56px]">
-            <SignalDetailPanel
-              payload={signalDetail}
-              recentSignal={recentSignal}
-              goldThemeEnabled={goldThemeEnabled}
-              fallbackWhy={[
-                {
-                  label: "Valuation",
-                  value:
-                    Number(timeseries?.aiScore?.breakdown?.Valuation ?? 50) >= 55
-                      ? "Supportive"
-                      : "Neutral",
-                },
-                {
-                  label: "Seasonality Bias",
-                  value: seasonDirection,
-                },
-                {
-                  label: "Momentum",
-                  value: String(timeseries?.indicators?.trend ?? "Neutral"),
-                },
-                {
-                  label: "Supply/Demand Distance",
-                  value: `D ${Number(timeseries?.indicators?.distanceToDemand ?? 0).toFixed(2)} | S ${Number(timeseries?.indicators?.distanceToSupply ?? 0).toFixed(2)}`,
-                },
-                {
-                  label: "Volatility Regime",
-                  value: Number(timeseries?.indicators?.volatility ?? 0) >= 5 ? "Elevated" : "Calm",
-                },
-              ]}
-            />
-            <div
-              className="h-full min-h-0 min-[769px]:min-h-0"
-              onMouseEnter={() => activateSection("macro")}
-              onClick={() => activateSection("macro")}
-            >
-              <MacroFundamentalsPanel
+        {/* ── CENTER TOP: Globe ── */}
+        <div
+          ref={globeShellRef}
+          className="relative min-h-0 overflow-hidden rounded-xl border border-[rgba(255,255,255,0.06)]"
+        >
+          {isGlobeFullscreen ? (
+            /* Globe fullscreen overlay */
+            <div className="fixed inset-0 z-[70] overflow-hidden bg-[#0c0d10]">
+              <button
+                type="button"
+                onClick={onToggleGlobeFullscreen}
+                className="absolute right-4 top-4 z-30 flex h-8 w-8 items-center justify-center rounded-md border border-[rgba(255,255,255,0.12)] bg-[rgba(28,29,32,0.9)] text-white hover:border-[#e2ca7a] hover:text-[#e2ca7a]"
+                title="Exit fullscreen"
+                aria-label="Exit fullscreen"
+              >
+                <Minimize2 size={15} strokeWidth={1.9} />
+              </button>
+              <GlobeCanvas
+                markers={visibleMarkers}
+                selectedAssetId={selectedAssetId}
+                selectedAssetCategory={selectedAsset?.category ?? ""}
+                selectedAssetLocations={selectedAssetLocations}
+                crossPairPath={crossPairPath}
+                focusAssetId={focusAssetId}
+                focusLocation={focusLocation}
+                selectedOverlay={selectedOverlay}
+                inflationByCountry={emptyInflationByCountry}
+                policyRateByCountry={emptyPolicyRateByCountry}
+                volatilityScore={50}
+                volatilityRegime="Neutral"
+                commodityRegionScores={emptyCommodityRegionScores}
+                commodityMode="Normal"
+                geoEvents={geoEvents}
+                shipTracking={activeShipTracking}
+                overlayRoutes={activeRouteOverlays}
+                commodityRegions={activeCommodityRegions}
+                globalRiskRegions={activeGlobalRiskRegions}
+                globalLiquidityRegions={activeGlobalLiquidityRegions}
+                regionHighlight={activeRegionHighlight}
+                overlayState={overlayState}
+                camera={camera}
+                active={isPageActive}
+                autoRotateEnabled={isPageActive && effectiveAutoRotateEnabled}
+                autoRotateSpeed={effectiveAutoRotateSpeed}
                 goldThemeEnabled={goldThemeEnabled}
-                loopReplayTick={visualLoopEnabled ? visualLoopTick : 0}
-                enabled={isPageActive && deferredSections.macro}
+                onCameraChange={setCamera}
+                onSelectAsset={onGlobeSelectAsset}
+                onFocusHandled={onFocusHandled}
+                onFocusLocationHandled={onFocusLocationHandled}
               />
             </div>
-            <div className="glass-panel ivq-subpanel ivq-controls-compact grid h-auto min-h-[56px] grid-cols-1 items-center gap-2 px-2 py-2 min-[769px]:h-[56px] min-[769px]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_30px] min-[769px]:py-1.5">
-              <div className="flex flex-col items-stretch gap-2 min-[769px]:flex-row min-[769px]:items-center">
-                <div className="shrink-0 text-[9px] uppercase tracking-[0.11em] text-slate-300">Globe Motion</div>
-                <div className="grid flex-1 grid-cols-4 gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setGlobeRotateMode("off")}
-                    className={`ivq-glass-btn ${globeRotateMode === "off" ? "is-active" : ""}`}
-                  >
-                    <span className="ivq-glass-btn-dot" />
-                    Stopp
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setGlobeRotateMode("slow")}
-                    className={`ivq-glass-btn ${globeRotateMode === "slow" ? "is-active" : ""}`}
-                  >
-                    <span className="ivq-glass-btn-dot" />
-                    Langsam
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setGlobeRotateMode("normal")}
-                    className={`ivq-glass-btn ${globeRotateMode === "normal" ? "is-active" : ""}`}
-                  >
-                    <span className="ivq-glass-btn-dot" />
-                    Normal
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setVisualLoopEnabled((v) => !v)}
-                    className={`ivq-glass-btn ${visualLoopEnabled ? "is-active" : ""}`}
-                    title="Loop"
-                  >
-                    <span className="ivq-glass-btn-dot" />
-                    Loop
-                  </button>
-                </div>
-              </div>
-              <div className="flex flex-col items-stretch gap-2 min-[769px]:flex-row min-[769px]:items-center">
-                <div className="shrink-0 text-[9px] uppercase tracking-[0.11em] text-slate-300">Data Source</div>
-                <div className="grid flex-1 grid-cols-3 gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setDataSource("tradingview")}
-                    className={`ivq-glass-btn ${dataSource === "tradingview" ? "is-active" : ""}`}
-                  >
-                    TradingView
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setDataSource("dukascopy")}
-                    className={`ivq-glass-btn ${dataSource === "dukascopy" ? "is-active" : ""}`}
-                  >
-                    Dukascopy
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setDataSource("yahoo")}
-                    className={`ivq-glass-btn ${dataSource === "yahoo" ? "is-active" : ""}`}
-                  >
-                    Yahoo
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={onToggleGlobeFullscreen}
+                className="absolute right-3 top-3 z-30 flex h-7 w-7 items-center justify-center rounded-md border border-[rgba(255,255,255,0.12)] bg-[rgba(28,29,32,0.85)] text-white hover:border-[#e2ca7a] hover:text-[#e2ca7a]"
+                title="Fullscreen"
+                aria-label="Fullscreen"
+              >
+                <Maximize2 size={14} strokeWidth={1.9} />
+              </button>
+              <GlobeCanvas
+                markers={visibleMarkers}
+                selectedAssetId={selectedAssetId}
+                selectedAssetCategory={selectedAsset?.category ?? ""}
+                selectedAssetLocations={selectedAssetLocations}
+                crossPairPath={crossPairPath}
+                focusAssetId={focusAssetId}
+                focusLocation={focusLocation}
+                selectedOverlay={selectedOverlay}
+                inflationByCountry={emptyInflationByCountry}
+                policyRateByCountry={emptyPolicyRateByCountry}
+                volatilityScore={50}
+                volatilityRegime="Neutral"
+                commodityRegionScores={emptyCommodityRegionScores}
+                commodityMode="Normal"
+                geoEvents={geoEvents}
+                shipTracking={activeShipTracking}
+                overlayRoutes={activeRouteOverlays}
+                commodityRegions={activeCommodityRegions}
+                globalRiskRegions={activeGlobalRiskRegions}
+                globalLiquidityRegions={activeGlobalLiquidityRegions}
+                regionHighlight={activeRegionHighlight}
+                overlayState={overlayState}
+                camera={camera}
+                active={isPageActive}
+                autoRotateEnabled={isPageActive && effectiveAutoRotateEnabled}
+                autoRotateSpeed={effectiveAutoRotateSpeed}
+                goldThemeEnabled={goldThemeEnabled}
+                onCameraChange={setCamera}
+                onSelectAsset={onGlobeSelectAsset}
+                onFocusHandled={onFocusHandled}
+                onFocusLocationHandled={onFocusLocationHandled}
+              />
+            </>
+          )}
+        </div>
+
+        {/* ── RIGHT TOP: Candle Chart ── */}
+        <div className="min-h-0 overflow-hidden rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(28,29,32,0.8)] p-3">
+          <Suspense fallback={<div className="grid h-full place-items-center text-xs text-[rgba(255,255,255,0.3)]">Loading chart…</div>}>
+            <CandleChart
+              payload={timeseries}
+              evaluation={evaluation}
+              seasonality={seasonality}
+              dataSource={dataSource}
+              title={chartHeaderLabel}
+              sourceLabel={chartSourceLabel}
+              goldThemeEnabled={goldThemeEnabled}
+              themePrimary={GOLD_PRIMARY}
+              isPanelLoading={panelLoading}
+              isFullscreen={isChartStackFullscreen}
+              active={isPageActive}
+              onToggleFullscreen={() => setIsChartStackFullscreen((value) => !value)}
+              loopReplayTick={visualLoopEnabled ? visualLoopTick : 0}
+              onTimeRangeChange={onSharedTimeRangeChange}
+              onRecentSignalChange={setRecentSignal}
+              onTimeframeChange={setChartTimeframe}
+            />
+          </Suspense>
+        </div>
+
+        {/* ── CENTER BOTTOM: 2D Map ── */}
+        <div className="min-h-0 overflow-hidden rounded-xl border border-[rgba(255,255,255,0.06)]">
+          <MiniWorldMap
+            markers={visibleMarkers}
+            selectedAssetId={selectedAssetId}
+            selectedAssetCategory={selectedAsset?.category ?? ""}
+            selectedAssetLocations={selectedAssetLocations}
+            crossPairColor={crossPairPath?.color ?? null}
+            geoEvents={geoEvents}
+            shipTracking={activeShipTracking}
+            overlayRoutes={activeRouteOverlays}
+            commodityRegions={activeCommodityRegions}
+            globalRiskRegions={activeGlobalRiskRegions}
+            globalLiquidityRegions={activeGlobalLiquidityRegions}
+            regionHighlight={activeRegionHighlight}
+            selectedOverlay={selectedOverlay}
+            cameraAltitude={Number(camera?.altitude ?? 1.8)}
+            goldThemeEnabled={goldThemeEnabled}
+            assetUsage={assetUsage}
+            onSelectPoint={onSelectPointFromMiniMap}
+          />
+        </div>
+
+        {/* ── RIGHT BOTTOM: News columns ── */}
+        <div
+          className="min-h-0 overflow-hidden rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(28,29,32,0.8)]"
+          onMouseEnter={() => activateSection("news")}
+          onClick={() => activateSection("news")}
+        >
+          <NewsColumns
+            globalNews={globalNews}
+            assetNews={assetNews}
+            assetName={selectedAsset?.name ?? "Asset"}
+            assetIconUrl={selectedAsset ? iconUrlForAsset(selectedAsset) : undefined}
+            goldThemeEnabled={goldThemeEnabled}
+          />
+        </div>
       </div>
 
+      {/* ── Loading overlay ── */}
       {dashboardLoadingActive ? (
-        <div className="pointer-events-none absolute inset-0 z-20 grid place-items-center bg-[rgba(5,10,18,0.18)]">
-          <div className="rounded-lg border border-slate-700/70 bg-[rgba(7,13,22,0.88)] px-4 py-3 shadow-[0_14px_34px_rgba(0,0,0,0.45)]">
+        <div className="pointer-events-none absolute inset-0 z-20 grid place-items-center bg-[rgba(12,13,16,0.35)]">
+          <div className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(28,29,32,0.95)] px-5 py-4 shadow-[0_14px_34px_rgba(0,0,0,0.6)]">
             <div className="flex items-center gap-3">
               <div
-                className="h-9 w-9 animate-spin rounded-full border-2"
+                className="h-8 w-8 animate-spin rounded-full border-2"
                 style={{
-                  borderColor: goldThemeEnabled ? "rgba(226,202,122,0.24)" : "rgba(41,98,255,0.25)",
-                  borderTopColor: goldThemeEnabled ? GOLD_PRIMARY : "#2962ff",
+                  borderColor: "rgba(226,202,122,0.2)",
+                  borderTopColor: GOLD_PRIMARY,
                 }}
               />
-              <div className="flex min-w-[220px] flex-col">
-                <span className="text-[11px] font-semibold tracking-[0.05em] text-slate-100">{dashboardLoadingHeadline}</span>
-                <span className="text-[10px] text-slate-300">
+              <div className="flex min-w-[200px] flex-col gap-0.5">
+                <span className="text-[11px] font-semibold tracking-[0.05em] text-white">{dashboardLoadingHeadline}</span>
+                <span className="text-[10px] text-[rgba(255,255,255,0.4)]">
                   {dashboardLoadingLabels.length > 1
                     ? `${dashboardLoadingLabels.length} datasets loading`
                     : "Fetching latest dataset"}
@@ -2291,6 +1992,6 @@ export default function GlobeApp() {
           </div>
         </div>
       ) : null}
-    </main>
+    </div>
   );
 }
