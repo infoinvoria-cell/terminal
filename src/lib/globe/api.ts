@@ -1,0 +1,456 @@
+import type {
+  AlertsResponse,
+  AssetRegionHighlightResponse,
+  AssetSignalDetailResponse,
+  AssetsResponse,
+  CategoryHeatmapResponse,
+  CommodityStressMapResponse,
+  CommodityRegionsResponse,
+  CommodityShockResponse,
+  GlobalLiquidityMapResponse,
+  GlobalRiskLayerResponse,
+  OverlayRoutesResponse,
+  DiagnosticsResponse,
+  EvaluationResponse,
+  FundamentalOscillatorResponse,
+  GeoEventsResponse,
+  HeatmapAssetsResponse,
+  InflationResponse,
+  NewsResponse,
+  NewsTranslationResponse,
+  OpportunitiesResponse,
+  PolicyRateResponse,
+  RiskResponse,
+  SeasonalityResponse,
+  ShippingDisruptionsResponse,
+  ShipTrackingResponse,
+  TrackRecordResponse,
+  TimeseriesResponse,
+  VolatilityRegimeResponse,
+} from "@/lib/globe/globe-types";
+
+const cache = new Map<string, { expires: number; value: unknown }>();
+const inflightRequests = new Map<string, Promise<unknown>>();
+const loadingLabels = new Map<number, string>();
+const loadingListeners = new Set<(state: ApiLoadingSnapshot) => void>();
+let loadingRequestSeq = 0;
+const MARKET_CACHE_MS = 40 * 60 * 1000;
+const NEWS_CACHE_MS = 10 * 60 * 1000;
+const VALUATION_CACHE_MS = 40 * 60 * 1000;
+const SEASONALITY_CACHE_MS = 10 * 365 * 24 * 60 * 60 * 1000;
+
+export type ApiLoadingSnapshot = {
+  active: boolean;
+  count: number;
+  labels: string[];
+};
+
+function labelForUrl(url: string): string {
+  const u = String(url || "").toLowerCase();
+  if (u.includes("/events/earthquakes")) return "Loading earthquakes...";
+  if (u.includes("/events/wildfires")) return "Loading wildfires...";
+  if (u.includes("/events/conflicts")) return "Loading conflicts...";
+  if (u.includes("/overlay/ships")) return "Loading ship tracking...";
+  if (u.includes("/overlay/global_liquidity")) return "Loading liquidity map...";
+  if (u.includes("/overlay/global_risk")) return "Loading risk layer...";
+  if (u.includes("/overlay/shipping_disruptions")) return "Loading shipping disruptions...";
+  if (u.includes("/overlay/commodity_regions")) return "Loading commodity regions...";
+  if (u.includes("/overlay/commodity_stress")) return "Loading commodity stress map...";
+  if (u.includes("/news/translate")) return "Translating news...";
+  if (u.includes("/timeseries")) return "Loading candlestick data...";
+  if (u.includes("/evaluation")) return "Loading valuation data...";
+  if (u.includes("/seasonality")) return "Loading seasonality...";
+  if (u.includes("/heatmap")) return "Loading heatmap...";
+  if (u.includes("/news/")) return "Loading news...";
+  return "Loading macro data...";
+}
+
+function loadingSnapshot(): ApiLoadingSnapshot {
+  const labels = Array.from(new Set(Array.from(loadingLabels.values()))).slice(0, 4);
+  return {
+    active: loadingLabels.size > 0,
+    count: loadingLabels.size,
+    labels,
+  };
+}
+
+function notifyLoading(): void {
+  const snap = loadingSnapshot();
+  for (const cb of loadingListeners) cb(snap);
+}
+
+function beginLoading(url: string): () => void {
+  const id = loadingRequestSeq + 1;
+  loadingRequestSeq = id;
+  loadingLabels.set(id, labelForUrl(url));
+  notifyLoading();
+  return () => {
+    loadingLabels.delete(id);
+    notifyLoading();
+  };
+}
+
+export function subscribeApiLoading(listener: (state: ApiLoadingSnapshot) => void): () => void {
+  loadingListeners.add(listener);
+  listener(loadingSnapshot());
+  return () => {
+    loadingListeners.delete(listener);
+  };
+}
+
+function resolveApiBase(): string {
+  const envBase = (process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL || "").trim();
+  if (envBase) {
+    return envBase.replace(/\/+$/g, "");
+  }
+
+  if (typeof window === "undefined") {
+    return "";
+  }
+  try {
+    const qp = new URLSearchParams(window.location.search);
+    const qBase = qp.get("apiBase");
+    if (qBase && qBase.trim()) {
+      return decodeURIComponent(qBase).replace(/\/+$/g, "");
+    }
+  } catch (_err) {
+    // no-op
+  }
+
+  return "";
+}
+
+export const API_BASE = resolveApiBase();
+
+if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
+  try {
+    const pageOrigin = window.location.origin;
+    if (API_BASE) {
+      const apiOrigin = new URL(API_BASE, pageOrigin).origin;
+      if (apiOrigin !== pageOrigin) {
+        console.warn(
+          "[Globe API] NEXT_PUBLIC_API_BASE_URL points to a different origin than this page. " +
+            "Browser fetches go to that host (not Next.js /api). If nothing listens there, every request fails with \"Failed to fetch\". " +
+            "To use this app's Next API routes, remove NEXT_PUBLIC_API_BASE_URL (or leave it empty).",
+          { API_BASE, pageOrigin },
+        );
+      }
+    } else {
+      console.info("[Globe API] Using same-origin /api routes (API_BASE empty).");
+    }
+  } catch {
+    // ignore invalid API_BASE URL
+  }
+}
+
+/** Default: failures throw (critical paths). Set `required: false` + `fallback` for optional Globe/bootstrap calls. */
+export type FetchJsonOptions<T> = {
+  required?: boolean;
+  fallback?: T;
+};
+
+function currentPathnameForLog(): string | undefined {
+  if (typeof window === "undefined") return undefined;
+  try {
+    return window.location?.pathname;
+  } catch {
+    return undefined;
+  }
+}
+
+function logApiFetchFailed(url: string, err: unknown, extra?: Record<string, unknown>): void {
+  const page = currentPathnameForLog();
+  console.error("[ApiFetchFailed]", {
+    url,
+    page,
+    ...extra,
+    err,
+  });
+}
+
+async function fetchJson<T>(url: string, ttlMs: number, options?: FetchJsonOptions<T>): Promise<T> {
+  const required = options?.required !== false;
+  const fallback = options?.fallback;
+  const now = Date.now();
+  for (const [key, row] of cache.entries()) {
+    if (row.expires <= now) cache.delete(key);
+  }
+  const hit = cache.get(url);
+  if (hit && hit.expires > now) {
+    return hit.value as T;
+  }
+  const inflight = inflightRequests.get(url);
+  if (inflight) {
+    return inflight as Promise<T>;
+  }
+  const endLoading = beginLoading(url);
+  const request = (async () => {
+    console.log("FETCH START", url);
+    let res: Response;
+    try {
+      res = await fetch(url);
+    } catch (err) {
+      console.error("FETCH ERROR", url, err);
+      logApiFetchFailed(url, err, { phase: "network" });
+      if (!required && fallback !== undefined) {
+        return fallback;
+      }
+      throw err;
+    }
+    if (res == null) {
+      const err = new Error("No response");
+      logApiFetchFailed(url, err, { phase: "null-response" });
+      if (!required && fallback !== undefined) {
+        return fallback;
+      }
+      throw err;
+    }
+    console.log("FETCH RESPONSE", url, res.status, res.statusText);
+    if (!res.ok) {
+      let text = "";
+      try {
+        text = await res.text();
+      } catch (bodyErr) {
+        console.error("[GlobeApi] could not read error body", url, bodyErr);
+      }
+      console.error("[GlobeApi] error body", url, text?.slice?.(0, 2000) ?? text);
+      const err = new Error(`${res.status} ${res.statusText} for ${url}: ${text || "(no body)"}`);
+      logApiFetchFailed(url, err, { phase: "http", status: res.status, statusText: res.statusText });
+      if (!required && fallback !== undefined) {
+        return fallback;
+      }
+      throw err;
+    }
+    let parsed: T;
+    try {
+      parsed = (await res.json()) as T;
+    } catch (parseErr) {
+      logApiFetchFailed(url, parseErr, { phase: "json-parse" });
+      if (!required && fallback !== undefined) {
+        return fallback;
+      }
+      throw parseErr;
+    }
+    cache.set(url, { expires: now + ttlMs, value: parsed });
+    return parsed;
+  })()
+    .finally(() => {
+      inflightRequests.delete(url);
+      endLoading();
+    });
+
+  inflightRequests.set(url, request);
+  return request;
+}
+
+function endpoint(path: string): string {
+  const p = path.startsWith("/") ? path : `/${path}`;
+  return API_BASE ? `${API_BASE}${p}` : p;
+}
+
+/**
+ * Globe GET JSON that must not break the app if the network is down: logs `[ApiFetchFailed]`, returns `fallback`.
+ * Critical paths should keep using {@link GlobeApi} methods (default: throw on failure).
+ */
+export async function fetchOptionalGlobeJson<T>(relativePath: string, ttlMs: number, fallback: T): Promise<T> {
+  return fetchJson<T>(endpoint(relativePath), ttlMs, { required: false, fallback });
+}
+
+function normalizeCorrTf(value: string): string {
+  const tf = String(value || "D").trim().toUpperCase();
+  if (tf === "1M" || tf === "1MINUTE" || tf === "M1") return "1MIN";
+  if (tf === "5M" || tf === "5MINUTE" || tf === "M5") return "5MIN";
+  if (tf === "30M" || tf === "30MINUTE" || tf === "M30") return "30MIN";
+  if (tf === "H1" || tf === "1HOUR" || tf === "HOURLY") return "1H";
+  if (tf === "H4" || tf === "4HOUR") return "4H";
+  if (tf === "DAY" || tf === "DAILY") return "D";
+  if (tf === "WEEK" || tf === "WEEKLY") return "W";
+  if (tf === "MONTH" || tf === "MONTHLY") return "M";
+  return tf;
+}
+
+function heatmapCorrelationTtlMs(timeframe: string): number {
+  const tf = normalizeCorrTf(timeframe);
+  const ttlByTfMs: Record<string, number> = {
+    "1MIN": 5 * 60 * 1000,
+    "5MIN": 10 * 60 * 1000,
+    "30MIN": 20 * 60 * 1000,
+    "1H": 30 * 60 * 1000,
+    "4H": 60 * 60 * 1000,
+    "D": 4 * 60 * 60 * 1000,
+    "W": 24 * 60 * 60 * 1000,
+    "M": 24 * 60 * 60 * 1000,
+  };
+  return ttlByTfMs[tf] ?? (30 * 60 * 1000);
+}
+
+export const GlobeApi = {
+  clearCache(predicate?: (key: string) => boolean): void {
+    if (!predicate) {
+      cache.clear();
+      inflightRequests.clear();
+      return;
+    }
+    for (const key of Array.from(cache.keys())) {
+      if (predicate(key)) {
+        cache.delete(key);
+      }
+    }
+    for (const key of Array.from(inflightRequests.keys())) {
+      if (predicate(key)) {
+        inflightRequests.delete(key);
+      }
+    }
+  },
+  getAssets(): Promise<AssetsResponse> {
+    return fetchJson<AssetsResponse>(endpoint("/api/assets"), 60 * 60 * 1000);
+  },
+  getTimeseries(
+    assetId: string,
+    timeframe = "D",
+    source = "tradingview",
+    continuousMode: "regular" | "backadjusted" = "backadjusted",
+    refreshBucket?: number,
+  ): Promise<TimeseriesResponse> {
+    const tf = encodeURIComponent(String(timeframe || "D").toUpperCase());
+    const src = encodeURIComponent(String(source || "dukascopy").toLowerCase());
+    const mode = encodeURIComponent(String(continuousMode || "backadjusted").toLowerCase());
+    const hasRefreshBucket = Number.isFinite(Number(refreshBucket));
+    const refreshPart = hasRefreshBucket
+      ? `&refresh_bucket=${encodeURIComponent(String(Math.floor(Number(refreshBucket))))}`
+      : "";
+    return fetchJson<TimeseriesResponse>(
+      endpoint(`/api/asset/${assetId}/timeseries?tf=${tf}&source=${src}&continuous_mode=${mode}&allow_fallback=1${refreshPart}`),
+      MARKET_CACHE_MS,
+    );
+  },
+  getEvaluation(assetId: string, source = "tradingview"): Promise<EvaluationResponse> {
+    const src = encodeURIComponent(String(source || "dukascopy").toLowerCase());
+    return fetchJson<EvaluationResponse>(endpoint(`/api/asset/${assetId}/evaluation?v=6&source=${src}&allow_fallback=1`), VALUATION_CACHE_MS);
+  },
+  getSeasonality(assetId: string, source = "tradingview", years = 10): Promise<SeasonalityResponse> {
+    // version tag avoids stale in-memory cache collisions during active UI/data iterations
+    const src = encodeURIComponent(String(source || "dukascopy").toLowerCase());
+    const yearsParam = encodeURIComponent(String(Math.max(10, Math.floor(Number(years) || 10))));
+    return fetchJson<SeasonalityResponse>(endpoint(`/api/asset/${assetId}/seasonality?v=3&source=${src}&years=${yearsParam}&allow_fallback=1`), SEASONALITY_CACHE_MS);
+  },
+  getGlobalNews(): Promise<NewsResponse> {
+    return fetchJson<NewsResponse>(endpoint("/api/news/global"), NEWS_CACHE_MS);
+  },
+  getAssetNews(assetId: string): Promise<NewsResponse> {
+    return fetchJson<NewsResponse>(endpoint(`/api/news/asset/${assetId}`), NEWS_CACHE_MS);
+  },
+  getInflation(): Promise<InflationResponse> {
+    return fetchJson<InflationResponse>(endpoint("/api/macro/inflation"), 10 * 60 * 1000);
+  },
+  getRisk(): Promise<RiskResponse> {
+    return fetchJson<RiskResponse>(endpoint("/api/macro/risk"), 10 * 60 * 1000);
+  },
+  getPolicyRateMap(): Promise<PolicyRateResponse> {
+    return fetchJson<PolicyRateResponse>(endpoint("/api/macro/policy_rate"), 10 * 60 * 1000);
+  },
+  getVolatilityRegime(): Promise<VolatilityRegimeResponse> {
+    return fetchJson<VolatilityRegimeResponse>(endpoint("/api/macro/volatility_regime"), 10 * 60 * 1000);
+  },
+  getCommodityShock(): Promise<CommodityShockResponse> {
+    return fetchJson<CommodityShockResponse>(endpoint("/api/macro/commodity_shock"), 10 * 60 * 1000);
+  },
+  getFundamentalMacro(): Promise<FundamentalOscillatorResponse> {
+    return fetchJson<FundamentalOscillatorResponse>(endpoint("/api/macro/fundamental"), 10 * 60 * 1000);
+  },
+  getHeatmapAssets(timeframe = "D", source = "tradingview"): Promise<HeatmapAssetsResponse> {
+    const tfRaw = normalizeCorrTf(timeframe);
+    const tf = encodeURIComponent(tfRaw);
+    const src = encodeURIComponent(String(source || "dukascopy").toLowerCase());
+    return fetchJson<HeatmapAssetsResponse>(endpoint(`/api/heatmap/assets?tf=${tf}&source=${src}&v=9`), heatmapCorrelationTtlMs(tfRaw));
+  },
+  getCategoryHeatmap(category = "FX", sortBy = "ai_score", source = "tradingview"): Promise<CategoryHeatmapResponse> {
+    const cat = encodeURIComponent(String(category || "FX"));
+    const sort = encodeURIComponent(String(sortBy || "ai_score"));
+    const src = encodeURIComponent(String(source || "dukascopy").toLowerCase());
+    return fetchJson<CategoryHeatmapResponse>(endpoint(`/api/heatmap/category?category=${cat}&sort_by=${sort}&source=${src}`), 5 * 60 * 1000);
+  },
+  getOpportunities(source = "tradingview"): Promise<OpportunitiesResponse> {
+    const src = encodeURIComponent(String(source || "dukascopy").toLowerCase());
+    return fetchJson<OpportunitiesResponse>(endpoint(`/api/opportunities?source=${src}`), 5 * 60 * 1000);
+  },
+  getAssetSignalDetail(assetId: string, source = "tradingview"): Promise<AssetSignalDetailResponse> {
+    const src = encodeURIComponent(String(source || "dukascopy").toLowerCase());
+    return fetchJson<AssetSignalDetailResponse>(endpoint(`/api/asset/${assetId}/signal_detail?source=${src}`), VALUATION_CACHE_MS);
+  },
+  getReferenceTimeseries(symbol: string, timeframe = "D", source = "tradingview"): Promise<TimeseriesResponse> {
+    const ref = encodeURIComponent(String(symbol || "").trim());
+    const tf = encodeURIComponent(String(timeframe || "D").toUpperCase());
+    const src = encodeURIComponent(String(source || "dukascopy").toLowerCase());
+    return fetchJson<TimeseriesResponse>(endpoint(`/api/reference/timeseries?symbol=${ref}&tf=${tf}&source=${src}`), MARKET_CACHE_MS);
+  },
+  getAlerts(source = "tradingview"): Promise<AlertsResponse> {
+    const src = encodeURIComponent(String(source || "dukascopy").toLowerCase());
+    return fetchJson<AlertsResponse>(endpoint(`/api/alerts?source=${src}`), 5 * 60 * 1000);
+  },
+  getGeoEvents(layer = "geo_events"): Promise<GeoEventsResponse> {
+    const mode = String(layer || "geo_events").toLowerCase();
+    if (mode === "conflicts") {
+      return fetchJson<GeoEventsResponse>(endpoint("/api/events/conflicts"), 60 * 60 * 1000);
+    }
+    if (mode === "wildfires") {
+      return fetchJson<GeoEventsResponse>(endpoint("/api/events/wildfires"), 30 * 60 * 1000);
+    }
+    if (mode === "earthquakes") {
+      return fetchJson<GeoEventsResponse>(endpoint("/api/events/earthquakes"), 10 * 60 * 1000);
+    }
+    if (mode === "news_geo") {
+      return fetchJson<GeoEventsResponse>(endpoint("/api/events/news_geo"), 10 * 60 * 1000);
+    }
+    const encoded = encodeURIComponent(mode);
+    return fetchJson<GeoEventsResponse>(endpoint(`/api/geo/events?layer=${encoded}`), 10 * 60 * 1000);
+  },
+  translateNews(
+    newsId: string,
+    title: string,
+    description = "",
+    targetLanguage: "DE" | "EN" = "DE",
+  ): Promise<NewsTranslationResponse> {
+    const params = new URLSearchParams({
+      news_id: String(newsId || "").trim(),
+      title: String(title || ""),
+      description: String(description || ""),
+      target_language: String(targetLanguage || "DE").toUpperCase(),
+    });
+    return fetchJson<NewsTranslationResponse>(endpoint(`/api/news/translate?${params.toString()}`), 24 * 60 * 60 * 1000);
+  },
+  getShipTracking(): Promise<ShipTrackingResponse> {
+    return fetchJson<ShipTrackingResponse>(endpoint("/api/overlay/ships"), 5 * 60 * 1000);
+  },
+  getOilRoutes(): Promise<OverlayRoutesResponse> {
+    return fetchJson<OverlayRoutesResponse>(endpoint("/api/overlay/oil_routes"), 3 * 60 * 60 * 1000);
+  },
+  getContainerRoutes(): Promise<OverlayRoutesResponse> {
+    return fetchJson<OverlayRoutesResponse>(endpoint("/api/overlay/container_routes"), 3 * 60 * 60 * 1000);
+  },
+  getCommodityRegions(): Promise<CommodityRegionsResponse> {
+    return fetchJson<CommodityRegionsResponse>(endpoint("/api/overlay/commodity_regions"), 24 * 60 * 60 * 1000);
+  },
+  getGlobalRiskLayer(): Promise<GlobalRiskLayerResponse> {
+    return fetchJson<GlobalRiskLayerResponse>(endpoint("/api/overlay/global_risk"), 3 * 60 * 60 * 1000);
+  },
+  getGlobalLiquidityMap(): Promise<GlobalLiquidityMapResponse> {
+    return fetchJson<GlobalLiquidityMapResponse>(endpoint("/api/overlay/global_liquidity"), 60 * 60 * 1000);
+  },
+  getShippingDisruptions(): Promise<ShippingDisruptionsResponse> {
+    return fetchJson<ShippingDisruptionsResponse>(endpoint("/api/overlay/shipping_disruptions"), 10 * 60 * 1000);
+  },
+  getCommodityStressMap(): Promise<CommodityStressMapResponse> {
+    return fetchJson<CommodityStressMapResponse>(endpoint("/api/overlay/commodity_stress"), 2 * 60 * 60 * 1000);
+  },
+  getAssetRegions(assetId: string): Promise<AssetRegionHighlightResponse> {
+    const safe = encodeURIComponent(String(assetId || "").trim().toLowerCase());
+    return fetchJson<AssetRegionHighlightResponse>(endpoint(`/api/overlay/asset_regions/${safe}`), 30 * 60 * 1000);
+  },
+  getDiagnostics(): Promise<DiagnosticsResponse> {
+    return fetchJson<DiagnosticsResponse>(endpoint("/api/diagnostics"), 60 * 1000);
+  },
+  getTrackRecord(): Promise<TrackRecordResponse> {
+    return fetchJson<TrackRecordResponse>(endpoint("/api/track-record/trades"), 5 * 60 * 1000);
+  },
+};

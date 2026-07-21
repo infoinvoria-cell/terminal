@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { GlobalPageProvider } from "@/context/global-page-context";
 import { HeaderStateProvider } from "@/context/header-state-context";
-import { SimpleAccessGate } from "@/components/auth/SimpleAccessGate";
+import { SupabaseAuthGate } from "@/components/auth/SupabaseAuthGate";
 import { SentinelButler } from "@/components/sentinel/sentinel-butler";
 import { SentinelSessionProvider } from "@/components/sentinel/sentinel-session-provider";
 
@@ -40,23 +40,21 @@ function PageRestorer() {
 
 export function ClientProviders({
   children,
-  simpleGatePassword,
   initialHeaderHidden,
 }: {
   children: React.ReactNode;
-  simpleGatePassword: string;
   initialHeaderHidden: boolean;
 }) {
   return (
     <GlobalPageProvider>
       <HeaderStateProvider initialHidden={initialHeaderHidden}>
         <SentinelSessionProvider>
-          <SimpleAccessGate expectedPassword={simpleGatePassword}>
+          <SupabaseAuthGate>
             <RouteTracker />
             <PageRestorer />
             {children}
             <SentinelButler />
-          </SimpleAccessGate>
+          </SupabaseAuthGate>
         </SentinelSessionProvider>
       </HeaderStateProvider>
     </GlobalPageProvider>
