@@ -26,10 +26,24 @@ function nextLabelDaysAhead(label?: string): number | null {
 function matchesFilter(card: SignalCardModel, filter: SignalCardFilter): boolean {
   if (filter === "all") return true;
   if (filter === "open") {
-    const hasDir  = card.direction !== "CASH" && card.direction !== "PENDING";
+    const hasDir  = (card.direction === "LONG" || card.direction === "SHORT") && card.signalDate != null;
     const hasTpSl = card.tp != null && card.sl != null;
     const days    = nextLabelDaysAhead(card.nextSignalLabel);
-    return hasDir || hasTpSl || (days != null && days <= 1);
+    return hasDir || hasTpSl || (days != null && days >= 0 && days <= 1);
+  }
+  if (filter === "last7") {
+    if (card.ageDays != null && card.ageDays <= 7) return true;
+    if (card.signalDate) {
+      const d = new Date(`${card.signalDate}T00:00:00`);
+      const today = new Date(); today.setHours(0,0,0,0);
+      return (today.getTime() - d.getTime()) / 86_400_000 <= 7;
+    }
+    return false;
+  }
+  if (filter === "pending") {
+    if (card.direction === "PENDING") return true;
+    const days = nextLabelDaysAhead(card.nextSignalLabel);
+    return days != null && days >= 0 && days <= 2;
   }
   return true;
 }
@@ -108,7 +122,8 @@ function SignalCard({ card }: { card: SignalCardModel }) {
 
   return (
     <div style={{
-      background: "#080910",
+      background: "#0f1014",
+      border: "1px solid rgba(255,255,255,0.07)",
       borderRadius: 8,
       padding: "10px 10px 9px",
       display: "flex",
@@ -216,19 +231,19 @@ function SectionPanel({ section, logo }: { section: SignalPageSection; logo: str
         </span>
 
         {/* Filters right-aligned */}
-        <div style={{ marginLeft: "auto", display: "flex", gap: 3 }}>
-          {(["open", "all"] as SignalCardFilter[]).map(f => (
+        <div style={{ marginLeft: "auto", display: "flex", gap: 2 }}>
+          {([["open","AKTUELL"],["last7","7 TAGE"],["pending","AUSSTEHEND"]] as [SignalCardFilter,string][]).map(([f, label]) => (
             <button key={f} onClick={() => setFilter(f)} style={{
-              padding: "3px 8px",
+              padding: "3px 7px",
               background: filter === f ? "rgba(255,255,255,0.09)" : "transparent",
               border: "none", borderRadius: 4,
               color: filter === f ? "#fff" : "rgba(255,255,255,0.3)",
-              fontSize: 9, fontWeight: 700, letterSpacing: "0.06em",
+              fontSize: 8.5, fontWeight: 700, letterSpacing: "0.05em",
               cursor: "pointer",
               fontFamily: "var(--font-montserrat,sans-serif)",
               WebkitTapHighlightColor: "transparent",
             } as React.CSSProperties}>
-              {f === "open" ? "AKTUELL" : "ALLE"}
+              {label}
             </button>
           ))}
         </div>
@@ -284,7 +299,7 @@ export function MobileSignaleView({ data }: { data: SignalPageModel }) {
         <SectionPanel section={whiteSwan} logo="/branding/white-swan-icon.png" />
       )}
 
-      <div style={{ height: 1, flexShrink: 0, background: "rgba(255,255,255,0.08)" }} />
+      <div style={{ height: 6, flexShrink: 0, background: "rgba(255,255,255,0.05)", borderTop: "1px solid rgba(255,255,255,0.07)", borderBottom: "1px solid rgba(255,255,255,0.07)" }} />
 
       {coreInvest && (
         <SectionPanel section={coreInvest} logo="/branding/capitalife-favicon.png" />

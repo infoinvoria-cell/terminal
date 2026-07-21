@@ -37,9 +37,10 @@ const STORAGE_KEYS = {
   monitoringContext: "capitalife.monitoring.context",
 };
 
-const FILTERS: SignalCardFilter[] = ["open", "all"];
+const FILTERS: SignalCardFilter[] = ["open", "last7", "pending"];
 const FILTER_LABELS: Record<SignalCardFilter, string> = {
-  open: "AKTUELL", all: "ALLE", long: "LONG", short: "SHORT", cash: "CASH", validation: "VAL",
+  open: "AKTUELL", last7: "LETZTE 7 TAGE", pending: "AUSSTEHEND",
+  all: "ALLE", long: "LONG", short: "SHORT", cash: "CASH", validation: "VAL",
 };
 
 // Parse "Fr 25.07." / "Do 23.07." or ISO "2026-07-21" labels → days from today
@@ -100,6 +101,20 @@ function matchesFilter(card: SignalCardData, filter: SignalCardFilter): boolean 
     const daysAhead = nextLabelDaysAhead(card.nextSignalLabel);
     if (daysAhead != null && daysAhead >= 0 && daysAhead <= 1) return true;
     return false;
+  }
+  if (filter === "last7") {
+    if (card.ageDays != null && card.ageDays <= 7) return true;
+    if (card.signalDate) {
+      const d = new Date(`${card.signalDate}T00:00:00`);
+      const today = new Date(); today.setHours(0,0,0,0);
+      return (today.getTime() - d.getTime()) / 86_400_000 <= 7;
+    }
+    return false;
+  }
+  if (filter === "pending") {
+    if (card.direction === "PENDING") return true;
+    const daysAhead = nextLabelDaysAhead(card.nextSignalLabel);
+    return daysAhead != null && daysAhead >= 0 && daysAhead <= 2;
   }
   if (filter === "long") return card.direction === "LONG";
   if (filter === "short") return card.direction === "SHORT";

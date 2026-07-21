@@ -5,7 +5,7 @@ import type { StrategyPerformanceResult } from "@/lib/monitoring/types";
 export type SignalCardDirection = "LONG" | "SHORT" | "CASH" | "PENDING";
 export type SignalCardStatus = "OPEN" | "CLOSED" | "VALIDATION" | "PAPER_ONLY" | "PARITY_PENDING";
 export type SignalDataStatus = "ok" | "partial" | "missing";
-export type SignalCardFilter = "all" | "long" | "short" | "cash" | "open" | "validation";
+export type SignalCardFilter = "all" | "long" | "short" | "cash" | "open" | "validation" | "last7" | "pending";
 export type SignalCardGroup = "white_swan" | "core_invest";
 export type SignalCardCategory =
   | "valuation"
