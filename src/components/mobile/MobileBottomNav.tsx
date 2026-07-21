@@ -143,28 +143,27 @@ const SIDEBAR_GROUPS = [
   {
     label: "Navigation",
     items: [
-      { href: "/m/home",      label: "Home",       Icon: IconHome },
-      { href: "/m/sentinel",  label: "Sentinel",   Icon: IconMessageSquare },
-      { href: "/brain",       label: "Brain Graph", Icon: IconGitFork },
-      { href: "/globe",       label: "Globe",       Icon: IconGlobe   },
+      { href: "/m/home",       label: "Home",        Icon: IconHome },
+      { href: "/m/sentinel",   label: "Sentinel",    Icon: IconMessageSquare },
+      { href: "/m/brain",      label: "Brain",       Icon: IconGitFork },
+      { href: "/globe",        label: "Globe",       Icon: IconGlobe },
     ],
   },
   {
     label: "Tools",
     items: [
-      { href: "/m/signale",   label: "Signale",    Icon: IconBellRing },
-      { href: "/m/monitoring",  label: "Monitoring", Icon: IconActivity },
-      { href: "/analytics",   label: "Analytics",  Icon: IconChartColumn },
-      { href: "/komponenten", label: "Komponenten", Icon: IconPackage },
+      { href: "/m/signale",    label: "Signale",     Icon: IconBellRing },
+      { href: "/m/monitoring", label: "Monitoring",  Icon: IconActivity },
+      { href: "/m/analytics",  label: "Analytics",   Icon: IconChartColumn },
     ],
   },
   {
     label: "Manager",
     items: [
-      { href: "/manager",          label: "Manager",        Icon: IconBriefcase },
-      { href: "/investors",        label: "Investors",      Icon: IconPieChart },
-      { href: "/m/onboarding",      label: "Onboarding",     Icon: IconUsers },
-      { href: "/vermittler",       label: "Vermittler",     Icon: IconNetwork },
+      { href: "/m/manager",        label: "Manager",    Icon: IconBriefcase },
+      { href: "/m/investors-crm",  label: "Investoren", Icon: IconPieChart },
+      { href: "/m/onboarding",     label: "Onboarding", Icon: IconUsers },
+      { href: "/vermittler",       label: "Vermittler", Icon: IconNetwork },
     ],
   },
 ];

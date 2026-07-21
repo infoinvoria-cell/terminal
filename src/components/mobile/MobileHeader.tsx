@@ -9,10 +9,12 @@ const PAGES = [
   { label: "Sentinel",    href: "/m/sentinel"    },
   { label: "Signale",     href: "/m/signale"     },
   { label: "Onboarding",  href: "/m/onboarding"  },
-  { label: "Brain Graph", href: "/brain"         },
-  { label: "Analytics",   href: "/analytics"     },
-  { label: "Komponenten", href: "/komponenten"   },
-  { label: "Settings",    href: "/settings"      },
+  { label: "Analytics",   href: "/m/analytics"   },
+  { label: "Manager",     href: "/m/manager"     },
+  { label: "Investoren",  href: "/m/investors-crm" },
+  { label: "Brain",       href: "/m/brain"       },
+  { label: "Settings",    href: "/m/settings"    },
+  { label: "Globe",       href: "/globe"         },
 ];
 
 function IconSearch() {
