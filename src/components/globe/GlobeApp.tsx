@@ -343,9 +343,8 @@ type GlobeOverlayControlProps = {
 function GlobeOverlayControl({ overlayState, overlayLoadingState, onToggleOverlay }: GlobeOverlayControlProps) {
   const keys = Object.keys(OVERLAY_LABELS) as Array<keyof import("@/lib/globe/globe-types").OverlayToggleState>;
   return (
-    <div className="flex h-full flex-col p-2">
-      <div className="mb-2 shrink-0 text-[10px] font-semibold uppercase tracking-[0.1em] text-[rgba(255,255,255,0.35)]">Overlay Control</div>
-      <div className="min-h-0 flex-1 overflow-y-auto space-y-1">
+    <div className="h-full overflow-y-auto p-2">
+      <div className="grid gap-1.5" style={{ gridTemplateColumns: "1fr 1fr" }}>
         {keys.map((key) => {
           const active = Boolean(overlayState[key]);
           const loading = Boolean(overlayLoadingState?.[key]);
@@ -355,17 +354,21 @@ function GlobeOverlayControl({ overlayState, overlayLoadingState, onToggleOverla
               type="button"
               onClick={() => onToggleOverlay(key)}
               aria-pressed={active}
-              className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-[11px] font-medium transition"
+              className="flex flex-col items-start gap-0.5 rounded-[10px] px-2 py-2 text-left transition"
               style={{
-                background: active ? "rgba(255,255,255,0.08)" : "transparent",
-                border: `1px solid ${active ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.06)"}`,
-                color: active ? "#ffffff" : "rgba(255,255,255,0.4)",
+                background: active ? "rgba(255,255,255,0.09)" : "rgba(255,255,255,0.03)",
+                border: `1px solid ${active ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.06)"}`,
               }}
             >
-              <span style={{ fontSize: 13, lineHeight: 1 }}>{OVERLAY_EMOJI[key] ?? "◦"}</span>
-              <span className="min-w-0 flex-1 truncate">{OVERLAY_LABELS[key] ?? key}</span>
-              {loading && <span className="text-[9px] text-[rgba(255,255,255,0.35)]">…</span>}
-              {!loading && active && <span className="text-[9px] text-white">ON</span>}
+              <span style={{ fontSize: 14, lineHeight: 1 }}>{OVERLAY_EMOJI[key] ?? "◦"}</span>
+              <span
+                className="mt-1 w-full truncate text-[10px] font-medium leading-tight"
+                style={{ color: active ? "#ffffff" : "rgba(255,255,255,0.42)" }}
+              >
+                {OVERLAY_LABELS[key] ?? key}
+              </span>
+              {loading && <span className="text-[9px] text-white/30">…</span>}
+              {!loading && active && <span className="text-[8px] font-semibold tracking-wider text-white/50">ON</span>}
             </button>
           );
         })}
@@ -1031,9 +1034,9 @@ export default function GlobeApp() {
 
   useEffect(() => {
     if (!isPageActive) return;
-    if (!deferredSections.news || !selectedAssetId) return;
+    if (!deferredSections.news) return;
     loadGlobalNews(false);
-  }, [deferredSections.news, isPageActive, selectedAssetId, loadGlobalNews]);
+  }, [deferredSections.news, isPageActive, loadGlobalNews]);
 
   useEffect(() => {
     if (!isPageActive) return undefined;
@@ -1871,7 +1874,7 @@ export default function GlobeApp() {
   const dashboardLoadingHeadline = dashboardLoadingLabels[0] || "Loading data...";
 
   // Shared Analytics-style card styles
-  const CARD = "flex min-h-0 flex-col overflow-hidden rounded-[18px] border bg-[#17181b] shadow-[0_18px_45px_rgba(0,0,0,0.22)]";
+  const CARD = "flex min-h-0 flex-col overflow-hidden rounded-[18px] border bg-[#0b0c0f] shadow-[0_18px_45px_rgba(0,0,0,0.40)]";
   const CARD_BORDER = { borderColor: "rgba(255,255,255,0.075)" } as const;
   const CARD_HEADER = "shrink-0 border-b border-white/[0.06] px-4 py-2.5";
   const CARD_LABEL = "text-[11px] font-medium tracking-[0.05em] text-[#8d8f98] uppercase";
@@ -1959,8 +1962,8 @@ export default function GlobeApp() {
           </div>
         </div>
 
-        {/* ── CENTER: Globe + 2D Map (one big card) ── */}
-        <div className={CARD} style={CARD_BORDER}>
+        {/* ── CENTER: Globe + 2D Map — no card, floats on background ── */}
+        <div className="flex min-h-0 flex-col overflow-hidden">
           {/* Globe — 68% */}
           <div
             ref={globeShellRef}
@@ -1995,8 +1998,8 @@ export default function GlobeApp() {
               </>
             )}
           </div>
-          {/* Divider */}
-          <div className="shrink-0 border-t border-white/[0.06]" />
+          {/* Subtle divider between globe and 2D map */}
+          <div className="shrink-0 border-t border-white/[0.03]" />
           {/* 2D Map — remaining 32% */}
           <div className="min-h-0 flex-1 overflow-hidden">
             <MiniWorldMap

@@ -703,10 +703,10 @@ export function MiniWorldMap({
     return out;
   }, [assetMarkers, overlayMarkers]);
 
-  const themePrimaryHex = goldThemeEnabled ? "#e2ca7a" : "#2962ff";
-  const themePrimaryFill = goldThemeEnabled ? "rgba(226,202,122,0.68)" : "rgba(41,98,255,0.68)";
-  const themeStroke = goldThemeEnabled ? "rgba(226,202,122,0.62)" : "rgba(41,98,255,0.62)";
-  const themeLandBase = goldThemeEnabled ? "rgba(86,74,43,0.20)" : "rgba(52,86,136,0.22)";
+  const themePrimaryHex = goldThemeEnabled ? "#e2ca7a" : "#d4d4d8";
+  const themePrimaryFill = goldThemeEnabled ? "rgba(226,202,122,0.68)" : "rgba(212,212,216,0.65)";
+  const themeStroke = goldThemeEnabled ? "rgba(226,202,122,0.62)" : "rgba(200,200,208,0.60)";
+  const themeLandBase = goldThemeEnabled ? "rgba(86,74,43,0.20)" : "rgba(72,72,80,0.22)";
 
   return (
     <div className="glass-panel glass-panel--flush ivq-subpanel relative h-full min-h-0 w-full overflow-hidden px-1 py-0.5">
@@ -826,8 +826,8 @@ export function MiniWorldMap({
               }}
               className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-md px-1 py-[2px] text-[10px] leading-none shadow-[0_2px_8px_rgba(0,0,0,0.38)] transition ${
                 isSelected
-                  ? `${goldThemeEnabled ? "border-[#e2ca7a]/90 bg-[#e2ca7a]/24 text-[#fff3d1]" : "border-[#2962ff]/90 bg-[#2962ff]/28 text-[#e6eeff]"} border`
-                  : `border border-slate-600/75 bg-[rgba(8,14,24,0.78)] text-slate-100 ${goldThemeEnabled ? "hover:border-[#e2ca7a]/60" : "hover:border-[#2962ff]/60"}`
+                  ? `${goldThemeEnabled ? "border-[#e2ca7a]/90 bg-[#e2ca7a]/24 text-[#fff3d1]" : "border-white/60 bg-white/10 text-white"} border`
+                  : `border border-slate-600/75 bg-[rgba(8,14,24,0.78)] text-slate-100 ${goldThemeEnabled ? "hover:border-[#e2ca7a]/60" : "hover:border-white/40"}`
               }`}
               style={{ left: `${leftPct}%`, top: `${topPct}%` }}
               title={title}
