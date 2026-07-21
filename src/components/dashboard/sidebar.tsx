@@ -9,6 +9,7 @@ import {
   BriefcaseBusiness,
   ChartColumn,
   GitFork,
+  Globe,
   Home,
   Layers,
   MessageSquare,
@@ -21,7 +22,7 @@ import {
   Users,
 } from "lucide-react";
 import { createPortal } from "react-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   useHomeDashboard,
@@ -166,7 +167,7 @@ function toMobileUrl(path: string | null): string {
   if (path.startsWith("/signal") || path.startsWith("/monitoring")) return "/m/signale";
   if (path.startsWith("/brain")) return "/m/brain";
   if (path.startsWith("/settings")) return "/m/settings";
-  if (path.startsWith("/investors-crm")) return "/m/investors-crm";
+  if (path.startsWith("/onboarding") || path.startsWith("/investors-crm")) return "/m/investors-crm";
   return "/m/home";
 }
 
@@ -340,7 +341,17 @@ export function Sidebar() {
   const router = useRouter();
 
   const { headerHidden, toggleHeader } = useHeaderState();
-  const expanded = false; // hover-expand disabled; sidebar stays collapsed
+
+  const [expanded, setExpanded] = useState(false);
+  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const onMouseEnter = () => {
+    hoverTimerRef.current = setTimeout(() => setExpanded(true), 2000);
+  };
+  const onMouseLeave = () => {
+    if (hoverTimerRef.current) { clearTimeout(hoverTimerRef.current); hoverTimerRef.current = null; }
+    setExpanded(false);
+  };
 
   // ── Mobile Preview state ──────────────────────────────────────────────
   const [previewMode, setPreviewMode] = useState<PreviewMode>("desktop");
@@ -388,9 +399,10 @@ export function Sidebar() {
   const monitoringActive    = pathname?.startsWith("/monitoring") ?? false;
   const signalActive        = pathname?.startsWith("/signal") ?? false;
   const brainActive         = (pathname?.startsWith("/brain") ?? false) || (pathname?.startsWith("/brain-graph") ?? false);
+  const globeActive         = pathname?.startsWith("/globe") ?? false;
   const componentsActive    = pathname?.startsWith("/komponenten") ?? false;
   const settingsActive      = pathname?.startsWith("/settings") ?? false;
-  const investorsCRMActive  = pathname?.startsWith("/investors-crm") ?? false;
+  const investorsCRMActive  = (pathname?.startsWith("/onboarding") ?? false) || (pathname?.startsWith("/investors-crm") ?? false);
   const shellRouteActive    = pathname === "/" || !pathname;
 
   const sidebarPageState: DashboardPage =
@@ -411,6 +423,8 @@ export function Sidebar() {
 
   return (
     <aside
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       style={{
         width: expanded ? EXPANDED_W : COLLAPSED_W,
         transition: `width 250ms ${EASE}`,
@@ -458,6 +472,7 @@ export function Sidebar() {
         <SidebarIconButton page="home"  activePage={sidebarPageState} label="Home"     icon={Home}         onSelect={onSelectPage} expanded={expanded} />
         <SidebarIconButton page="chat"  activePage={sidebarPageState} label="Sentinel" icon={MessageSquare} onSelect={onSelectPage} expanded={expanded} />
         <SidebarLink href="/brain" active={brainActive} label="Brain Graph" icon={GitFork} expanded={expanded} />
+        <SidebarLink href="/globe" active={globeActive} label="Globe" icon={Globe} expanded={expanded} />
       </nav>
 
       <div className="mt-5 flex w-full flex-col items-center gap-3 px-2">
@@ -480,7 +495,7 @@ export function Sidebar() {
       <nav className={cn("mt-2", navClass)} aria-label="Manager">
         <SidebarIconButton page="manager-overview"  activePage={sidebarPageState} label="Manager"   icon={BriefcaseBusiness} onSelect={onSelectPage} expanded={expanded} />
         <SidebarIconButton page="investor-analytics" activePage={sidebarPageState} label="Investors" icon={PieChart}          onSelect={onSelectPage} expanded={expanded} />
-        <SidebarLink href="/investors-crm" active={investorsCRMActive} label="Early Access" icon={Users} expanded={expanded} />
+        <SidebarLink href="/onboarding" active={investorsCRMActive} label="Onboarding" icon={Users} expanded={expanded} />
         <SidebarIconButton page="sub-ib-system"     activePage={sidebarPageState} label="Vermittler" icon={Network}          onSelect={onSelectPage} expanded={expanded} />
       </nav>
 
