@@ -91,7 +91,7 @@ function PasswordScreen({ onSuccess }: { onSuccess: () => void }) {
   return (
     <div style={{ position: "fixed", inset: 0, background: "#000000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
       <Image
-        src="/logo.png"
+        src="/CAPITALIFE_Logo.png"
         alt="Capitalife"
         width={260}
         height={65}

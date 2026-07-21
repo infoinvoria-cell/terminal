@@ -239,7 +239,7 @@ export default function IntroAnimation() {
             }}
           >
             <img
-              src="/logo.png"
+              src="/CAPITALIFE_Logo.png"
               alt=""
               draggable={false}
               className="block h-auto w-full select-none"

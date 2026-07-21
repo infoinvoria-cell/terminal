@@ -254,7 +254,7 @@ export function Sidebar() {
           />
           {/* Full logo — visible when expanded */}
           <Image
-            src="/logo.png"
+            src="/CAPITALIFE_Logo.png"
             alt="Capitalife"
             width={160}
             height={40}
