@@ -179,43 +179,39 @@ function UserCard({ user, label, index, onSelect }: { user: AppUser; label: stri
       disabled={loading}
       aria-label={label}
       style={{
-        background: "linear-gradient(145deg, #2a1f0a 0%, #1a1208 40%, #2c1e08 70%, #3a2810 100%)",
-        border: "1px solid rgba(226,202,122,0.22)",
-        borderRadius: 20,
-        padding: "28px 20px 22px",
+        background: "none",
+        border: "none",
+        padding: 0,
         cursor: loading ? "default" : "pointer",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         gap: 0,
-        width: 120,
-        transition: "border-color 0.2s, transform 0.2s, opacity 0.2s",
-        opacity: loading ? 0.7 : 1,
+        transition: "transform 0.2s, opacity 0.2s",
+        opacity: loading ? 0.65 : 1,
       }}
       onMouseEnter={(e) => {
         if (loading) return;
-        (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(226,202,122,0.55)";
-        (e.currentTarget as HTMLButtonElement).style.transform = "scale(1.04)";
+        (e.currentTarget as HTMLButtonElement).style.transform = "scale(1.06)";
       }}
       onMouseLeave={(e) => {
-        (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(226,202,122,0.22)";
         (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
       }}
     >
       {/* Avatar */}
-      <div style={{ marginBottom: 16, position: "relative", width: 60, height: 60 }}>
-        <div style={{ width: 60, height: 60, borderRadius: "50%", overflow: "hidden", flexShrink: 0 }}>
+      <div style={{ marginBottom: 14, position: "relative", width: 72, height: 72 }}>
+        <div style={{ width: 72, height: 72, borderRadius: "50%", overflow: "hidden" }}>
           <Image
             src={index === 0 ? "/profile.png" : "/profile_jeroen.png"}
             alt={user.name}
-            width={60}
-            height={60}
+            width={72}
+            height={72}
             style={{ objectFit: "cover", width: "100%", height: "100%" }}
           />
         </div>
         {loading && (
           <div style={{
-            position: "absolute", inset: 0, borderRadius: "50%",
+            position: "absolute", inset: -3, borderRadius: "50%",
             border: "2px solid rgba(226,202,122,0.15)",
             borderTopColor: "#e2ca7a",
             animation: "user-spin 0.8s linear infinite",
@@ -238,7 +234,7 @@ function UserCard({ user, label, index, onSelect }: { user: AppUser; label: stri
 
       {/* Subtext */}
       <span style={{
-        color: "rgba(226,202,122,0.45)",
+        color: "rgba(255,255,255,0.38)",
         fontSize: 11,
         fontWeight: 500,
         lineHeight: 1,
