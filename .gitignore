@@ -90,8 +90,11 @@ tools/market-data/.env
 public/generated/
 
 # personal photos - personal data, never commit (matches at any depth)
+# Exception: public/ avatars used by the UserGate UI
 profile.png
 profile_jeroen.png
+!public/profile.png
+!public/profile_jeroen.png
 
 # private root-level artifacts (anchored: public/ equivalents are shipped assets)
 /Logo.png

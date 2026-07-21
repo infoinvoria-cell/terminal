@@ -204,24 +204,15 @@ function UserCard({ user, label, index, onSelect }: { user: AppUser; label: stri
     >
       {/* Avatar */}
       <div style={{ marginBottom: 16, position: "relative", width: 60, height: 60 }}>
-        {index === 0 ? (
-          <div style={{
-            width: 60, height: 60, borderRadius: "50%",
-            background: "linear-gradient(135deg,#e2ca7a,#b8962e)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 20, fontWeight: 700, color: "#17181d",
-          }}>
-            JG
-          </div>
-        ) : (
+        <div style={{ width: 60, height: 60, borderRadius: "50%", overflow: "hidden", flexShrink: 0 }}>
           <Image
-            src="/CAPITALIFE_ICON.png"
+            src={index === 0 ? "/profile.png" : "/profile_jeroen.png"}
             alt={user.name}
             width={60}
             height={60}
-            style={{ objectFit: "contain", mixBlendMode: "lighten" }}
+            style={{ objectFit: "cover", width: "100%", height: "100%" }}
           />
-        )}
+        </div>
         {loading && (
           <div style={{
             position: "absolute", inset: 0, borderRadius: "50%",
