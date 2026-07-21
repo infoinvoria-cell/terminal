@@ -50,6 +50,7 @@ function ChartCell({ code }: { code: string }) {
       display: "flex",
       flexDirection: "column",
       overflow: "hidden",
+      minHeight: 0,
     }}>
       {/* Minimal header */}
       <div style={{
@@ -69,7 +70,7 @@ function ChartCell({ code }: { code: string }) {
         flex: 1,
         position: "relative",
         background: "#080910",
-        minHeight: 80,
+        minHeight: 0,
       }}>
         {/* Horizontal grid lines */}
         <div style={{
@@ -257,7 +258,8 @@ export function MobileMonitoringView() {
               overflowX: "auto",
               gap: 2,
               padding: "0 10px 0 8px",
-            }}
+              scrollbarWidth: "none",
+            } as React.CSSProperties}
           >
             {SCROLL_TABS.map((tab, i) => tabBtn(tab, i + FIXED_TABS.length, true))}
           </div>
@@ -283,19 +285,23 @@ export function MobileMonitoringView() {
               key={tab.id}
               style={{
                 width: "100%",
+                height: "100%",
                 flexShrink: 0,
                 scrollSnapAlign: "start",
-                overflowY: "auto",
-                overflowX: "hidden",
+                overflow: "hidden",
+                display: "flex",
+                flexDirection: "column",
               }}
             >
               {tab.assets.length > 0 ? (
                 <div style={{
+                  flex: 1,
+                  minHeight: 0,
                   display: "grid",
                   gridTemplateColumns: "repeat(2, 1fr)",
+                  gridTemplateRows: `repeat(${Math.ceil(tab.assets.length / 2)}, 1fr)`,
                   gap: "1px",
                   background: "rgba(255,255,255,0.06)",
-                  borderTop: "1px solid rgba(255,255,255,0.06)",
                 }}>
                   {tab.assets.map(code => (
                     <ChartCell key={code} code={code} />
