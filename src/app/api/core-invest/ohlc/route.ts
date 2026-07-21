@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "node:fs";
 import path from "node:path";
 
-const INVEST_FOLDER = "C:\\Users\\joris\\Desktop\\Invest Portfolio";
+const INVEST_FOLDER = process.env.INVEST_PORTFOLIO_PATH ?? "C:\\Users\\joris\\Desktop\\Invest Portfolio";
 
 const SYMBOL_FILE_MAP: Record<string, string[]> = {
-  QQQ: ["QQQ.csv", "QQQ(1).csv", "QQQ(2).csv", "BATS_QQQ, 1D_9233b.csv"],
-  SPY: ["SPY.csv", "SPY(1).csv", "BATS_SPY, 1D_bb5e9.csv"],
-  SPMO: ["SPMO.csv", "SPMO(1).csv", "BATS_SPMO, 1D_fe070.csv"],
-  GLD: ["GLD.csv", "GLD(1).csv", "BATS_GLD, 1D_4975f.csv"],
+  QQQ:   ["QQQ.csv", "QQQ(1).csv", "QQQ(2).csv", "BATS_QQQ, 1D_9233b.csv"],
+  SPY:   ["SPY.csv", "SPY(1).csv", "BATS_SPY, 1D_bb5e9.csv"],
+  SPMO:  ["SPMO.csv", "SPMO(1).csv", "BATS_SPMO, 1D_fe070.csv"],
+  GLD:   ["GLD.csv", "GLD(1).csv", "BATS_GLD, 1D_4975f.csv"],
+  "GC1!": ["COMEX_DL_GC1!, 1D.csv", "GC1!.csv", "GC1.csv"],
   "HG1!": ["COMEX_DL_HG1!, 1D_9fc12.csv", "COMEX_DL_HG1!, 1D_9fc12(1).csv", "COMEX_DL_HG1!, 1D_9fc12(2).csv"],
   "6S1!": ["CME_DL_6S1!, 1D_b8f81.csv", "CME_DL_6S1!, 1D_b8f81(1).csv", "CME_DL_6S1!, 1D_b8f81(2).csv"],
 };
@@ -81,6 +82,9 @@ function parseCsvToOhlc(filePath: string): { bars: OhlcBar[]; error?: string } {
 }
 
 export async function GET(req: NextRequest) {
+  if (!process.env.INVEST_PORTFOLIO_PATH) {
+    return NextResponse.json({ available: false, reason: "INVEST_PORTFOLIO_PATH not configured" });
+  }
   const symbol = req.nextUrl.searchParams.get("symbol")?.toUpperCase() ?? "";
   if (!symbol) return NextResponse.json({ error: "symbol param required" }, { status: 400 });
 
