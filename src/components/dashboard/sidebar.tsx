@@ -570,8 +570,8 @@ export function Sidebar() {
           </Link>
         </div>
 
-        {/* N badge — fixed at same left as icons */}
-        <div className="mt-2 w-full" style={{ paddingLeft: 18 }}>
+        {/* N badge — center-aligned with icons (icon center ≈ 35.5px, badge w-8=32px → pl 12) */}
+        <div className="mt-2 w-full" style={{ paddingLeft: 12 }}>
           <div
             className="flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.12] bg-[#0f1013] text-[12px] font-bold text-zinc-300 [font-family:var(--font-nunito),sans-serif]"
             aria-label="Next.js"
