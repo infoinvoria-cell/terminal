@@ -93,8 +93,8 @@ function cardBadge(card: SignalCardData): { text: string; cls: string } | null {
 function matchesFilter(card: SignalCardData, filter: SignalCardFilter): boolean {
   if (filter === "all") return true;
   if (filter === "open") {
-    // C1: active direction + recent signalDate
-    if ((card.direction === "LONG" || card.direction === "SHORT") && card.signalDate != null) return true;
+    // C1: active direction (signalDate optional — on Vercel strategy files may be absent)
+    if (card.direction === "LONG" || card.direction === "SHORT") return true;
     // C2: concrete tp + sl present (open position with levels)
     if (card.tp != null && card.sl != null) return true;
     // C3: next signal is today or tomorrow

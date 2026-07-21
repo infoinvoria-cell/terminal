@@ -17,6 +17,7 @@ export type MonitoringTabLabel =
   | "Aktien"
   | "Invest"
   | "Intraday MT"
+  | "Anomaly"
   | "Alle Strategien";
 
 export type MonitoringLoadParams = {
@@ -133,6 +134,7 @@ const TAB_CACHE_DIR: Record<MonitoringTabLabel, string | null> = {
   Aktien: "aktien",
   Invest: "invest",
   "Intraday MT": "intraday_mt",
+  Anomaly: null,
   "Alle Strategien": null,
 };
 
@@ -614,7 +616,7 @@ export async function loadMonitoringCandles(
     // monitoring_ohlc Supabase table when the manifest file is missing on disk.
     if (!historyBars.length) {
       try {
-        const apiUrl = `/api/monitoring/ohlc?symbol=${encodeURIComponent(normalizeSymbol(params.symbol))}&timeframe=${encodeURIComponent(timeframe)}`;
+        const apiUrl = `/api/monitoring/ohlc?symbol=${encodeURIComponent(normalizeSymbol(universeAsset?.symbol ?? params.symbol))}&timeframe=${encodeURIComponent(timeframe)}`;
         const apiRes = await fetchMonitoringWithTimeout(apiUrl, 8000, signal);
         if (apiRes.ok) {
           const apiJson = (await apiRes.json()) as { bars?: MonitoringPayloadLite["bars"] };

@@ -887,6 +887,7 @@ function groupToMonitoringLabel(group: string): MonitoringTabLabel | null {
     case "Aktien":
     case "Invest":
     case "Intraday MT":
+    case "Anomaly":
       return normalized;
     default:
       return null;

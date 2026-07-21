@@ -1,6 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { createSupabaseServiceClient } from "@/lib/supabase-server";
 import type { AgricultureMvaDataBinding } from "./types";
 
 type OhlcBar = {
@@ -129,6 +130,30 @@ export async function buildMergedOhlcFile(binding: AgricultureMvaDataBinding): P
   for (const row of validatedBars) byDate.set(row.time, row);
   for (const row of liveBars) byDate.set(row.time, row);
   const mergedBars = Array.from(byDate.values()).sort((left, right) => left.time.localeCompare(right.time));
+  if (!mergedBars.length) {
+    try {
+      const db = createSupabaseServiceClient();
+      const assetKey = String(binding.symbol ?? "").trim().toUpperCase();
+      const { data } = await db
+        .from("monitoring_ohlc")
+        .select("date,open,high,low,close")
+        .eq("asset", assetKey)
+        .eq("timeframe", "D")
+        .order("date", { ascending: true });
+      if (data?.length) {
+        const byDate = new Map<string, OhlcBar>();
+        for (const r of data) {
+          const time = String(r.date ?? "").slice(0, 10);
+          const open = toNumber(r.open), high = toNumber(r.high), low = toNumber(r.low), close = toNumber(r.close);
+          if (!time || open == null || high == null || low == null || close == null) continue;
+          byDate.set(time, { time, open, high, low, close });
+        }
+        mergedBars.push(...Array.from(byDate.values()).sort((a, b) => a.time.localeCompare(b.time)));
+      }
+    } catch {
+      // Supabase unavailable — fall through to throw below
+    }
+  }
   if (!mergedBars.length) {
     throw new Error(`No OHLC rows available for ${binding.symbol}`);
   }
