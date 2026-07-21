@@ -244,7 +244,7 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
   }, [onSelect]);
 
   return (
-    <div ref={containerRef} className="relative h-full w-full" onClick={onClick} style={{ cursor: "crosshair" }}>
+    <div ref={containerRef} className="absolute inset-0" onClick={onClick} style={{ cursor: "crosshair" }}>
       <canvas
         ref={canvasRef}
         width={dims.w}
