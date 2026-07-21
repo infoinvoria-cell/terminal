@@ -1,7 +1,5 @@
-import { InvestorsCRMShell } from "@/components/investors-crm/InvestorsCRMShell";
-
-export const metadata = { title: "Early Access Investoren — Capitalife" };
+import { redirect } from "next/navigation";
 
 export default function InvestorsCRMPage() {
-  return <InvestorsCRMShell />;
+  redirect("/onboarding");
 }
