@@ -1,0 +1,1327 @@
+{
+  "cacheKey": "vWS-1.1",
+  "groups": [
+    {
+      "id": "agrar",
+      "title": "Agrar",
+      "sourceTab": "agrar",
+      "meta": "CBOT/ICEUS · vWS-1.1 · Paper-only",
+      "assets": [
+        {
+          "symbol": "ZW1!",
+          "symbolDisplay": "ZW1!",
+          "label": "Wheat",
+          "assetId": "wheat",
+          "exchange": "CBOT",
+          "iconFile": "/asset-icons/wheat.webp",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "anomaliesCount": 3,
+          "modes": []
+        },
+        {
+          "symbol": "ZC1!",
+          "symbolDisplay": "ZC1!",
+          "label": "Corn",
+          "assetId": "corn",
+          "exchange": "CBOT",
+          "iconFile": "/asset-icons/corn.png",
+          "version": "WS-1.1",
+          "dataCoverage": "ab 2019",
+          "anomaliesCount": 2,
+          "modes": [
+            {
+              "id": "seasonal",
+              "label": "Seasonal",
+              "stats": {
+                "count": 3,
+                "cagr": "+0.3%",
+                "maxDrawdown": "-5.3%",
+                "calmar": "0.06",
+                "sharpe": "0.167",
+                "profitFactor": "3.20",
+                "trades": "8",
+                "winrate": "62.5%",
+                "wfOos": "62%",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              },
+              "detailNames": [
+                "08.Jun h14",
+                "25.Feb h5",
+                "10.Nov h14"
+              ]
+            }
+          ]
+        },
+        {
+          "symbol": "ZS1!",
+          "symbolDisplay": "ZS1!",
+          "label": "Soybeans",
+          "assetId": "soybeans",
+          "exchange": "CBOT",
+          "iconFile": "/asset-icons/soybeans.png",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "anomaliesCount": 1,
+          "modes": []
+        },
+        {
+          "symbol": "CC1!",
+          "symbolDisplay": "CC1!",
+          "label": "Cocoa",
+          "assetId": "cocoa",
+          "exchange": "ICEUS",
+          "iconFile": "/asset-icons/cocoa.webp",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "anomaliesCount": 2,
+          "modes": []
+        },
+        {
+          "symbol": "KC1!",
+          "symbolDisplay": "KC1!",
+          "label": "Coffee",
+          "assetId": "coffee",
+          "exchange": "ICEUS",
+          "iconFile": "/asset-icons/coffee.png",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "anomaliesCount": 2,
+          "modes": []
+        },
+        {
+          "symbol": "SB1!",
+          "symbolDisplay": "SB1!",
+          "label": "Sugar",
+          "assetId": "sugar",
+          "exchange": "ICEUS",
+          "iconFile": "/asset-icons/sugar.png",
+          "version": "WS-1.1",
+          "dataCoverage": "ab 2019",
+          "anomaliesCount": 1,
+          "modes": [
+            {
+              "id": "seasonal",
+              "label": "Seasonal",
+              "stats": {
+                "count": 2,
+                "cagr": "+6.2%",
+                "maxDrawdown": "-6.7%",
+                "calmar": "0.93",
+                "sharpe": "0.519",
+                "profitFactor": "3.85",
+                "trades": "7",
+                "winrate": "66.7%",
+                "wfOos": "100%",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              },
+              "detailNames": [
+                "24.Feb h20",
+                "23.Sep h22"
+              ]
+            }
+          ]
+        },
+        {
+          "symbol": "CT1!",
+          "symbolDisplay": "CT1!",
+          "label": "Cotton",
+          "assetId": "cotton",
+          "exchange": "ICEUS",
+          "iconFile": "/asset-icons/cotton.png",
+          "version": "WS-1.1",
+          "dataCoverage": "ab 2019",
+          "anomaliesCount": 2,
+          "modes": [
+            {
+              "id": "seasonal",
+              "label": "Seasonal",
+              "stats": {
+                "count": 4,
+                "cagr": "+2.4%",
+                "maxDrawdown": "-1.9%",
+                "calmar": "1.26",
+                "sharpe": "0.663",
+                "profitFactor": "13.96",
+                "trades": "8",
+                "winrate": "75.0%",
+                "wfOos": "75%",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              },
+              "detailNames": [
+                "11.Apr h5",
+                "03.Jan h12",
+                "19.Dez h20",
+                "12.Sep h8"
+              ]
+            },
+            {
+              "id": "macro",
+              "label": "Macro",
+              "stats": {
+                "count": 1,
+                "cagr": "+9.5%",
+                "maxDrawdown": "-28.7%",
+                "calmar": "0.33",
+                "sharpe": "0.628",
+                "profitFactor": "1.47",
+                "trades": "142",
+                "winrate": "58.5%",
+                "wfOos": "75%",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              },
+              "detailNames": [
+                "MacroA Filter"
+              ]
+            }
+          ]
+        },
+        {
+          "symbol": "OJ1!",
+          "symbolDisplay": "OJ1!",
+          "label": "OJ",
+          "assetId": "orange_juice",
+          "exchange": "ICEUS",
+          "iconFile": "/asset-icons/orange_juice.jpg",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "anomaliesCount": 1,
+          "modes": []
+        }
+      ]
+    },
+    {
+      "id": "aktien",
+      "title": "Aktien",
+      "sourceTab": "aktien",
+      "meta": "NASDAQ · vWS-1.1",
+      "assets": [
+        {
+          "symbol": "AAPL",
+          "symbolDisplay": "AAPL",
+          "label": "Apple",
+          "assetId": "aapl",
+          "exchange": "NASDAQ",
+          "iconFile": "/asset-icons/apple.png",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "modes": []
+        },
+        {
+          "symbol": "MSFT",
+          "symbolDisplay": "MSFT",
+          "label": "Microsoft",
+          "assetId": "msft",
+          "exchange": "NASDAQ",
+          "iconFile": "/asset-icons/microsoft.png",
+          "version": "WS-1.1",
+          "dataCoverage": "ab 2019",
+          "modes": [
+            {
+              "id": "valuation",
+              "label": "Valuation",
+              "stats": {
+                "count": 1,
+                "sharpe": "0.409",
+                "cagr": "+2.9%",
+                "maxDrawdown": "-30.7%",
+                "calmar": "0.09",
+                "profitFactor": "1.23",
+                "trades": "143",
+                "winrate": "53.8%",
+                "wfOos": "88%",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              }
+            }
+          ]
+        },
+        {
+          "symbol": "NVDA",
+          "symbolDisplay": "NVDA",
+          "label": "Nvidia",
+          "assetId": "nvda",
+          "exchange": "NASDAQ",
+          "iconFile": "/asset-icons/nvidia.png",
+          "version": "WS-1.1",
+          "dataCoverage": "ab 2019",
+          "modes": [
+            {
+              "id": "valuation",
+              "label": "Valuation",
+              "stats": {
+                "count": 1,
+                "sharpe": "0.823",
+                "cagr": "+21.3%",
+                "maxDrawdown": "-32.3%",
+                "calmar": "0.66",
+                "profitFactor": "1.25",
+                "trades": "270",
+                "winrate": "54.8%",
+                "wfOos": "83%",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              }
+            }
+          ]
+        },
+        {
+          "symbol": "GOOGL",
+          "symbolDisplay": "GOOGL",
+          "label": "Alphabet",
+          "assetId": "googl",
+          "exchange": "NASDAQ",
+          "iconFile": "/asset-icons/google.png",
+          "version": "WS-1.1",
+          "dataCoverage": "ab 2019",
+          "modes": [
+            {
+              "id": "trend",
+              "label": "Trend",
+              "stats": {
+                "count": 1,
+                "sharpe": "0.657",
+                "cagr": "+16.9%",
+                "maxDrawdown": "-36.1%",
+                "calmar": "0.47",
+                "profitFactor": "1.45",
+                "trades": "121",
+                "winrate": "42.1%",
+                "wfOos": "77%",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              }
+            }
+          ]
+        },
+        {
+          "symbol": "META",
+          "symbolDisplay": "META",
+          "label": "Meta",
+          "assetId": "meta",
+          "exchange": "NASDAQ",
+          "iconFile": "/asset-icons/meta.png",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "modes": []
+        },
+        {
+          "symbol": "AMZN",
+          "symbolDisplay": "AMZN",
+          "label": "Amazon",
+          "assetId": "amzn",
+          "exchange": "NASDAQ",
+          "iconFile": "/asset-icons/amazon.png",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "modes": []
+        }
+      ]
+    },
+    {
+      "id": "metalle_energie",
+      "title": "Metalle + Energie",
+      "sourceTab": "metalle_energie",
+      "meta": "COMEX/NYMEX · vWS-1.1",
+      "assets": [
+        {
+          "symbol": "GC1!",
+          "symbolDisplay": "GC1!",
+          "label": "Gold",
+          "assetId": "gc1_",
+          "exchange": "COMEX",
+          "iconFile": "/asset-icons/gold.png",
+          "version": "WS-1.1",
+          "dataCoverage": "ab 2019",
+          "modes": [
+            {
+              "id": "valuation",
+              "label": "Valuation",
+              "stats": {
+                "count": 1,
+                "sharpe": "0.623",
+                "cagr": "+8.1%",
+                "maxDrawdown": "-23.6%",
+                "calmar": "0.34",
+                "profitFactor": "1.33",
+                "trades": "180",
+                "winrate": "57.8%",
+                "wfOos": "71%",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              }
+            },
+            {
+              "id": "macro",
+              "label": "Macro",
+              "stats": {
+                "count": 1,
+                "sharpe": "0.560",
+                "cagr": "+5.6%",
+                "maxDrawdown": "-25.5%",
+                "calmar": "0.22",
+                "profitFactor": "1.29",
+                "trades": "136",
+                "winrate": "59.6%",
+                "wfOos": "100%",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              }
+            }
+          ]
+        },
+        {
+          "symbol": "SI1!",
+          "symbolDisplay": "SI1!",
+          "label": "Silver",
+          "assetId": "si1_",
+          "exchange": "COMEX",
+          "iconFile": "/asset-icons/silver.png",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "modes": []
+        },
+        {
+          "symbol": "HG1!",
+          "symbolDisplay": "HG1!",
+          "label": "Copper",
+          "assetId": "hg1_",
+          "exchange": "COMEX",
+          "iconFile": "/asset-icons/Kupfer.webp",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "modes": []
+        },
+        {
+          "symbol": "PL1!",
+          "symbolDisplay": "PL1!",
+          "label": "Platinum",
+          "assetId": "pl1_",
+          "exchange": "NYMEX",
+          "iconFile": "/asset-icons/platinum.png",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "modes": []
+        },
+        {
+          "symbol": "PA1!",
+          "symbolDisplay": "PA1!",
+          "label": "Palladium",
+          "assetId": "pa1_",
+          "exchange": "NYMEX",
+          "iconFile": "/asset-icons/palladium.png",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "modes": []
+        },
+        {
+          "symbol": "CL1!",
+          "symbolDisplay": "CL1!",
+          "label": "Crude Oil WTI",
+          "assetId": "cl1_",
+          "exchange": "NYMEX",
+          "iconFile": "/asset-icons/crude_oil.png",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "modes": []
+        },
+        {
+          "symbol": "NG1!",
+          "symbolDisplay": "NG1!",
+          "label": "Natural Gas",
+          "assetId": "ng1_",
+          "exchange": "NYMEX",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "modes": []
+        },
+        {
+          "symbol": "RB1!",
+          "symbolDisplay": "RB1!",
+          "label": "RBOB Gasoline",
+          "assetId": "rb1_",
+          "exchange": "NYMEX",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "modes": []
+        }
+      ]
+    },
+    {
+      "id": "fx",
+      "title": "FX — Forex8",
+      "sourceTab": "fx",
+      "meta": "Spot FX · vWS-1.1",
+      "assets": [
+        {
+          "symbol": "EURGBP",
+          "symbolDisplay": "EURGBP",
+          "label": "EUR/GBP",
+          "assetId": "eurgbp",
+          "exchange": "FX",
+          "iconFile": "/asset-icons/eur.png",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "modes": []
+        },
+        {
+          "symbol": "GBPJPY",
+          "symbolDisplay": "GBPJPY",
+          "label": "GBP/JPY",
+          "assetId": "gbpjpy",
+          "exchange": "FX",
+          "iconFile": "/asset-icons/gbp.png",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "modes": []
+        },
+        {
+          "symbol": "MXNUSD",
+          "symbolDisplay": "MXNUSD",
+          "label": "MXN/USD",
+          "assetId": "mxnusd",
+          "exchange": "FX",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "modes": []
+        },
+        {
+          "symbol": "NOKUSD",
+          "symbolDisplay": "NOKUSD",
+          "label": "NOK/USD",
+          "assetId": "nokusd",
+          "exchange": "FX",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "modes": []
+        },
+        {
+          "symbol": "CLPUSD",
+          "symbolDisplay": "CLPUSD",
+          "label": "CLP/USD",
+          "assetId": "clpusd",
+          "exchange": "FX",
+          "version": "offen",
+          "dataCoverage": "offen",
+          "modes": []
+        },
+        {
+          "symbol": "SEKUSD",
+          "symbolDisplay": "SEKUSD",
+          "label": "SEK/USD",
+          "assetId": "sekusd",
+          "exchange": "FX",
+          "version": "WS-1.1",
+          "dataCoverage": "ab 2019",
+          "modes": [
+            {
+              "id": "valuation",
+              "label": "Valuation",
+              "stats": {
+                "count": 1,
+                "sharpe": "0.314",
+                "cagr": "+1.9%",
+                "maxDrawdown": "-20.6%",
+                "calmar": "0.09",
+                "profitFactor": "1.16",
+                "trades": "170",
+                "winrate": "52.4%",
+                "wfOos": "75%",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              }
+            }
+          ]
+        },
+        {
+          "symbol": "BRLUSD",
+          "symbolDisplay": "BRLUSD",
+          "label": "BRL/USD",
+          "assetId": "brlusd",
+          "exchange": "FX",
+          "version": "WS-1.1",
+          "dataCoverage": "ab 2019",
+          "modes": [
+            {
+              "id": "valuation",
+              "label": "Valuation",
+              "stats": {
+                "count": 1,
+                "sharpe": "0.320",
+                "cagr": "+2.4%",
+                "maxDrawdown": "-28.6%",
+                "calmar": "0.08",
+                "profitFactor": "1.20",
+                "trades": "124",
+                "winrate": "55.6%",
+                "wfOos": "57%",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              }
+            }
+          ]
+        },
+        {
+          "symbol": "ZARUSD",
+          "symbolDisplay": "ZARUSD",
+          "label": "ZAR/USD",
+          "assetId": "zarusd",
+          "exchange": "FX",
+          "version": "WS-1.1",
+          "dataCoverage": "ab 2019",
+          "modes": [
+            {
+              "id": "valuation",
+              "label": "Valuation",
+              "stats": {
+                "count": 1,
+                "sharpe": "0.624",
+                "cagr": "+2.0%",
+                "maxDrawdown": "-26.9%",
+                "calmar": "0.07",
+                "profitFactor": "1.27",
+                "trades": "249",
+                "winrate": "58.6%",
+                "wfOos": "91%",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "indizes",
+      "title": "Indizes",
+      "sourceTab": "indizes",
+      "meta": "EUREX/CME/LSE · vWS-1.1",
+      "assets": [
+        {
+          "symbol": "FDAX1!",
+          "symbolDisplay": "FDAX1!",
+          "label": "DAX Futures",
+          "assetId": "fdax1_",
+          "exchange": "EUREX",
+          "iconFile": "/asset-icons/dax.png",
+          "version": "WS-1.1",
+          "dataCoverage": "ab 2019",
+          "modes": [
+            {
+              "id": "seasonal",
+              "label": "Seasonal",
+              "stats": {
+                "count": 1,
+                "sharpe": "0.582",
+                "cagr": "+2.7%",
+                "maxDrawdown": "-2.4%",
+                "calmar": "1.13",
+                "profitFactor": "5.69",
+                "trades": "7",
+                "winrate": "57.1%",
+                "wfOos": "70%",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              }
+            }
+          ]
+        },
+        {
+          "symbol": "ES1!",
+          "symbolDisplay": "ES1!",
+          "label": "S&P 500 Futures",
+          "assetId": "es1_",
+          "exchange": "CME",
+          "iconFile": "/asset-icons/SP.png",
+          "version": "WS-1.1",
+          "dataCoverage": "ab 2019",
+          "modes": [
+            {
+              "id": "trend",
+              "label": "Trend",
+              "stats": {
+                "count": 1,
+                "sharpe": "0.322",
+                "cagr": "+4.8%",
+                "maxDrawdown": "-34.1%",
+                "calmar": "0.14",
+                "profitFactor": "1.22",
+                "trades": "128",
+                "winrate": "37.5%",
+                "wfOos": "65%",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              }
+            },
+            {
+              "id": "valuation",
+              "label": "Valuation",
+              "stats": {
+                "count": 1,
+                "sharpe": "0.891",
+                "cagr": "+6.8%",
+                "maxDrawdown": "-18.0%",
+                "calmar": "0.38",
+                "profitFactor": "1.74",
+                "trades": "125",
+                "winrate": "62.4%",
+                "wfOos": "82%",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              }
+            },
+            {
+              "id": "seasonal",
+              "label": "Seasonal",
+              "stats": {
+                "count": 1,
+                "sharpe": "0.355",
+                "cagr": "+1.2%",
+                "maxDrawdown": "-6.6%",
+                "calmar": "0.18",
+                "profitFactor": "2.38",
+                "trades": "7",
+                "winrate": "71.4%",
+                "wfOos": "75%",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              }
+            }
+          ]
+        },
+        {
+          "symbol": "YM1!",
+          "symbolDisplay": "YM1!",
+          "label": "Dow Jones Futures",
+          "assetId": "ym1_",
+          "exchange": "CBOT",
+          "iconFile": "/asset-icons/dow_jones.png",
+          "version": "WS-1.1",
+          "dataCoverage": "ab 2019",
+          "modes": [
+            {
+              "id": "tat",
+              "label": "TAT",
+              "stats": {
+                "count": 1,
+                "sharpe": "0.348",
+                "cagr": "+1.24%",
+                "maxDrawdown": "-6.64%",
+                "calmar": "0.19",
+                "profitFactor": "—",
+                "trades": "—",
+                "winrate": "—",
+                "wfOos": "—",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              }
+            }
+          ]
+        },
+        {
+          "symbol": "NQ1!",
+          "symbolDisplay": "NQ1!",
+          "label": "Nasdaq 100 Fut.",
+          "assetId": "nq1_",
+          "exchange": "CME",
+          "iconFile": "/asset-icons/nasdaq.png",
+          "version": "WS-1.1",
+          "dataCoverage": "ab 2019",
+          "modes": [
+            {
+              "id": "trend",
+              "label": "Trend LO",
+              "stats": {
+                "count": 1,
+                "sharpe": "0.444",
+                "cagr": "+8.3%",
+                "maxDrawdown": "-35.9%",
+                "calmar": "0.23",
+                "profitFactor": "1.35",
+                "trades": "96",
+                "winrate": "39.6%",
+                "wfOos": "94%",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              }
+            },
+            {
+              "id": "valuation",
+              "label": "Valuation",
+              "stats": {
+                "count": 1,
+                "sharpe": "0.421",
+                "cagr": "+5.0%",
+                "maxDrawdown": "-13.5%",
+                "calmar": "0.37",
+                "profitFactor": "1.16",
+                "trades": "328",
+                "winrate": "53.4%",
+                "wfOos": "100%",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              }
+            }
+          ]
+        },
+        {
+          "symbol": "UKX!",
+          "symbolDisplay": "UKX!",
+          "label": "FTSE 100",
+          "assetId": "ukx_",
+          "exchange": "LSE",
+          "version": "WS-1.1",
+          "dataCoverage": "ab 2019",
+          "modes": [
+            {
+              "id": "valuation",
+              "label": "Valuation",
+              "stats": {
+                "count": 1,
+                "sharpe": "0.950",
+                "cagr": "+11.8%",
+                "maxDrawdown": "-21.1%",
+                "calmar": "0.56",
+                "profitFactor": "0.93",
+                "trades": "41",
+                "winrate": "58.5%",
+                "wfOos": "97%",
+                "status": "paper_only",
+                "source": "WS v1.1 OOS 2019–2026",
+                "placeholder": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "invest",
+      "title": "Invest",
+      "sourceTab": "invest",
+      "meta": "vCI-2.0 · Sleeves + ETF",
+      "assets": [
+        {
+          "symbol": "QQQ_PINE_1",
+          "symbolDisplay": "QQQ Pine 1",
+          "label": "Nasdaq 100 Pine",
+          "assetId": "qqq_pine_1",
+          "exchange": "NASDAQ",
+          "iconFile": "/asset-icons/nasdaq.png",
+          "version": "CI-2.0",
+          "dataCoverage": "Core Invest",
+          "modes": [
+            {
+              "id": "sleeve",
+              "label": "Sleeve",
+              "stats": {
+                "count": 1,
+                "cagr": "—",
+                "maxDrawdown": "—",
+                "calmar": "—",
+                "sharpe": "—",
+                "profitFactor": "—",
+                "trades": "—",
+                "winrate": "—",
+                "wfOos": "—",
+                "status": "paper_only",
+                "source": "vCI-2.0",
+                "placeholder": false
+              },
+              "detailNames": [
+                "Aktiver Sleeve · vCI-2.0"
+              ]
+            }
+          ]
+        },
+        {
+          "symbol": "QQQ_PINE_2_EMA",
+          "symbolDisplay": "QQQ Pine 2",
+          "label": "Nasdaq 100 Pine EMA",
+          "assetId": "qqq_pine_2_ema",
+          "exchange": "NASDAQ",
+          "iconFile": "/asset-icons/nasdaq.png",
+          "version": "CI-2.0",
+          "dataCoverage": "Core Invest",
+          "modes": [
+            {
+              "id": "sleeve",
+              "label": "Sleeve",
+              "stats": {
+                "count": 1,
+                "cagr": "—",
+                "maxDrawdown": "—",
+                "calmar": "—",
+                "sharpe": "—",
+                "profitFactor": "—",
+                "trades": "—",
+                "winrate": "—",
+                "wfOos": "—",
+                "status": "paper_only",
+                "source": "vCI-2.0",
+                "placeholder": false
+              },
+              "detailNames": [
+                "Aktiver Sleeve · EMA · vCI-2.0"
+              ]
+            }
+          ]
+        },
+        {
+          "symbol": "HG1!",
+          "symbolDisplay": "HG1!",
+          "label": "Copper",
+          "assetId": "hg1_",
+          "exchange": "COMEX",
+          "iconFile": "/asset-icons/Kupfer.webp",
+          "version": "CI-2.0",
+          "dataCoverage": "Core Invest",
+          "modes": [
+            {
+              "id": "sleeve",
+              "label": "Sleeve",
+              "stats": {
+                "count": 1,
+                "cagr": "—",
+                "maxDrawdown": "—",
+                "calmar": "—",
+                "sharpe": "—",
+                "profitFactor": "—",
+                "trades": "—",
+                "winrate": "—",
+                "wfOos": "—",
+                "status": "paper_only",
+                "source": "vCI-2.0",
+                "placeholder": false
+              },
+              "detailNames": [
+                "Aktiver Sleeve · vCI-2.0"
+              ]
+            }
+          ]
+        },
+        {
+          "symbol": "6S1!",
+          "symbolDisplay": "6S1!",
+          "label": "Swiss Franc Fut.",
+          "assetId": "6s1_",
+          "exchange": "CME",
+          "iconFile": "/asset-icons/chf.png",
+          "version": "CI-2.0",
+          "dataCoverage": "Core Invest",
+          "modes": [
+            {
+              "id": "sleeve",
+              "label": "Sleeve",
+              "stats": {
+                "count": 1,
+                "cagr": "—",
+                "maxDrawdown": "—",
+                "calmar": "—",
+                "sharpe": "—",
+                "profitFactor": "—",
+                "trades": "—",
+                "winrate": "—",
+                "wfOos": "—",
+                "status": "paper_only",
+                "source": "vCI-2.0",
+                "placeholder": false
+              },
+              "detailNames": [
+                "Aktiver Sleeve · vCI-2.0"
+              ]
+            }
+          ]
+        },
+        {
+          "symbol": "SPY",
+          "symbolDisplay": "SPY",
+          "label": "S&P 500 ETF",
+          "assetId": "spy",
+          "exchange": "NYSE",
+          "iconFile": "/asset-icons/SP.png",
+          "version": "CI-2.0",
+          "dataCoverage": "Core Invest",
+          "modes": [
+            {
+              "id": "passive",
+              "label": "Passiv",
+              "stats": {
+                "count": 1,
+                "cagr": "—",
+                "maxDrawdown": "—",
+                "calmar": "—",
+                "sharpe": "—",
+                "profitFactor": "—",
+                "trades": "—",
+                "winrate": "—",
+                "wfOos": "—",
+                "status": "paper_only",
+                "source": "vCI-2.0",
+                "placeholder": false
+              },
+              "detailNames": [
+                "ETF passiv · Buy-and-Hold"
+              ]
+            }
+          ]
+        },
+        {
+          "symbol": "QQQ",
+          "symbolDisplay": "QQQ",
+          "label": "Nasdaq 100 ETF",
+          "assetId": "qqq",
+          "exchange": "NASDAQ",
+          "iconFile": "/asset-icons/nasdaq.png",
+          "version": "CI-2.0",
+          "dataCoverage": "Core Invest",
+          "modes": [
+            {
+              "id": "passive",
+              "label": "Passiv",
+              "stats": {
+                "count": 1,
+                "cagr": "—",
+                "maxDrawdown": "—",
+                "calmar": "—",
+                "sharpe": "—",
+                "profitFactor": "—",
+                "trades": "—",
+                "winrate": "—",
+                "wfOos": "—",
+                "status": "paper_only",
+                "source": "vCI-2.0",
+                "placeholder": false
+              },
+              "detailNames": [
+                "ETF passiv · Buy-and-Hold"
+              ]
+            }
+          ]
+        },
+        {
+          "symbol": "SPMO",
+          "symbolDisplay": "SPMO",
+          "label": "S&P Momentum ETF",
+          "assetId": "spmo",
+          "exchange": "NYSE",
+          "iconFile": "/asset-icons/SP.png",
+          "version": "CI-2.0",
+          "dataCoverage": "Core Invest",
+          "modes": [
+            {
+              "id": "passive",
+              "label": "Passiv",
+              "stats": {
+                "count": 1,
+                "cagr": "—",
+                "maxDrawdown": "—",
+                "calmar": "—",
+                "sharpe": "—",
+                "profitFactor": "—",
+                "trades": "—",
+                "winrate": "—",
+                "wfOos": "—",
+                "status": "paper_only",
+                "source": "vCI-2.0",
+                "placeholder": false
+              },
+              "detailNames": [
+                "ETF passiv · Buy-and-Hold"
+              ]
+            }
+          ]
+        },
+        {
+          "symbol": "GLD",
+          "symbolDisplay": "GLD",
+          "label": "Gold ETF",
+          "assetId": "gld",
+          "exchange": "NYSE",
+          "iconFile": "/asset-icons/gold.png",
+          "version": "CI-2.0",
+          "dataCoverage": "Core Invest",
+          "modes": [
+            {
+              "id": "passive",
+              "label": "Passiv",
+              "stats": {
+                "count": 1,
+                "cagr": "—",
+                "maxDrawdown": "—",
+                "calmar": "—",
+                "sharpe": "—",
+                "profitFactor": "—",
+                "trades": "—",
+                "winrate": "—",
+                "wfOos": "—",
+                "status": "paper_only",
+                "source": "vCI-2.0",
+                "placeholder": false
+              },
+              "detailNames": [
+                "ETF passiv · Buy-and-Hold"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "intraday_mt",
+      "title": "Intraday MT",
+      "sourceTab": "intraday_mt",
+      "meta": "OANDA · vIT-1.0 · PAPER_ONLY · v3-F",
+      "assets": [
+        {
+          "symbol": "DE30EUR_2H",
+          "symbolDisplay": "DE30EUR 2H",
+          "label": "DAX 2H",
+          "assetId": "de30eur_2h",
+          "exchange": "OANDA",
+          "iconFile": "/asset-icons/dax.png",
+          "version": "IT-1.0",
+          "dataCoverage": "IS 2007–2017",
+          "modes": [
+            {
+              "id": "intraday",
+              "label": "Intraday",
+              "stats": {
+                "count": 1,
+                "cagr": "+5.4%",
+                "maxDrawdown": "-19.9%",
+                "calmar": "0.270",
+                "sharpe": "1.526",
+                "profitFactor": "1.478",
+                "trades": "81",
+                "winrate": "44.4%",
+                "wfOos": "5/8",
+                "status": "paper_only",
+                "source": "vIT-1.0 OOS 2018–2026",
+                "placeholder": false
+              },
+              "detailNames": [
+                "Gewicht: 15% · V4 Long-Only · 7/8 OOS-Jahre +",
+                "IS PF 1.453 · Sweep+EMA · Sess 09–11 UTC",
+                "SL ATR×0.8 · TP 3R · IB 1.5pt / ~50pt SL"
+              ]
+            }
+          ]
+        },
+        {
+          "symbol": "DE30EUR_1H",
+          "symbolDisplay": "DE30EUR 1H",
+          "label": "DAX 1H",
+          "assetId": "de30eur_1h",
+          "exchange": "OANDA",
+          "iconFile": "/asset-icons/dax.png",
+          "version": "IT-1.0",
+          "dataCoverage": "IS 2007–2017",
+          "modes": [
+            {
+              "id": "intraday",
+              "label": "Intraday",
+              "stats": {
+                "count": 1,
+                "cagr": "+10.7%",
+                "maxDrawdown": "-12.4%",
+                "calmar": "0.865",
+                "sharpe": "2.683",
+                "profitFactor": "1.484",
+                "trades": "335",
+                "winrate": "33.4%",
+                "wfOos": "5/8",
+                "status": "paper_only",
+                "source": "vIT-1.0 OOS 2018–2026",
+                "placeholder": false
+              },
+              "detailNames": [
+                "Gewicht: 40% · Archiv SL40/TP2.5R/BE1.5R",
+                "SL 40pt · TP 2.5R · BE 1.5R next-bar · EMA 2",
+                "IB 1.5pt RT / 40pt SL · Long-only · 07–12 UTC"
+              ]
+            }
+          ]
+        },
+        {
+          "symbol": "EURUSD_30M",
+          "symbolDisplay": "EURUSD 30M",
+          "label": "EUR 30m",
+          "assetId": "eurusd_30m",
+          "exchange": "OANDA",
+          "iconFile": "/asset-icons/eurusd.png",
+          "version": "IT-1.0",
+          "dataCoverage": "IS 2007–2017",
+          "modes": [
+            {
+              "id": "intraday",
+              "label": "Intraday",
+              "stats": {
+                "count": 1,
+                "cagr": "+21.4%",
+                "maxDrawdown": "-18.7%",
+                "calmar": "1.145",
+                "sharpe": "—",
+                "profitFactor": "1.325",
+                "trades": "1 358",
+                "winrate": "25.5%",
+                "wfOos": "7/8",
+                "status": "paper_only",
+                "source": "vIT-1.0 OOS 2018–2026",
+                "placeholder": false
+              },
+              "detailNames": [
+                "Gewicht: 40% · Anker-Strategie · WF 7/8",
+                "SL 13 Pip · TP 3.0R · BE 1R next-bar · EMA 5",
+                "IB 1 pip RT · require_engulfing · 08–12:30 UTC"
+              ]
+            }
+          ]
+        },
+        {
+          "symbol": "GBPUSD_30M",
+          "symbolDisplay": "GBPUSD 30M",
+          "label": "GBP 30m",
+          "assetId": "gbpusd_30m",
+          "exchange": "OANDA",
+          "iconFile": "/asset-icons/gbpusd.png",
+          "version": "IT-1.0",
+          "dataCoverage": "IS 2007–2017",
+          "modes": [
+            {
+              "id": "intraday",
+              "label": "Intraday",
+              "stats": {
+                "count": 1,
+                "cagr": "+35.5% IS",
+                "maxDrawdown": "-14.7% IS",
+                "calmar": "2.414 IS",
+                "sharpe": "—",
+                "profitFactor": "1.743 IS",
+                "trades": "763 IS",
+                "winrate": "24.4%",
+                "wfOos": "8/8 IS",
+                "status": "paper_only",
+                "source": "vIT-1.0 OOS 2018–2026",
+                "placeholder": false
+              },
+              "detailNames": [
+                "Gewicht: 5% · IS-Edge 8/8 · OOS Gate-Fail",
+                "SL 10 Pip · TP 3.5R · BE 1R next-bar · 09–10:30",
+                "IB 2 pip RT / 10 pip SL · Korr EUR −0.17"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "intraday_portfolio",
+      "title": "Intraday Portfolio MT",
+      "sourceTab": "intraday_portfolio",
+      "meta": "4 Strategien · OOS 2018–2026 · v3-F",
+      "assets": [
+        {
+          "symbol": "IT_PORTFOLIO",
+          "symbolDisplay": "IT Portfolio",
+          "label": "v3-F · 4 Strategien",
+          "assetId": "it_portfolio",
+          "exchange": "OANDA",
+          "iconFile": "/asset-icons/eurusd.png",
+          "version": "IT-1.0",
+          "dataCoverage": "OOS 2018–2026",
+          "modes": [
+            {
+              "id": "portfolio",
+              "label": "Portfolio",
+              "stats": {
+                "count": 1,
+                "cagr": "+14.1%",
+                "maxDrawdown": "-8.1%",
+                "calmar": "1.732",
+                "sharpe": "1.526",
+                "profitFactor": "—",
+                "trades": "2 520",
+                "winrate": "—",
+                "wfOos": "—",
+                "status": "paper_only",
+                "source": "vIT-1.0 OOS 2018–2026",
+                "placeholder": false
+              },
+              "detailNames": [
+                "EUR 40% · DAX1H 40% · GBP 5% · DAX2H 15%",
+                "MAR 1.732 · MaxDD −8.1% · n=2 520",
+                "v3-F eingefroren 2026-07-18 · Grid-Sweep 49 Kombi"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "layout": {
+    "agrar": {
+      "colStart": 1,
+      "colSpan": 8,
+      "row": 1
+    },
+    "aktien": {
+      "colStart": 9,
+      "colSpan": 8,
+      "row": 1
+    },
+    "metalle_energie": {
+      "colStart": 1,
+      "colSpan": 8,
+      "row": 2
+    },
+    "indizes": {
+      "colStart": 9,
+      "colSpan": 5,
+      "row": 2
+    },
+    "invest": {
+      "colStart": 14,
+      "colSpan": 3,
+      "row": 2
+    },
+    "fx": {
+      "colStart": 1,
+      "colSpan": 8,
+      "row": 3
+    },
+    "intraday_mt": {
+      "colStart": 9,
+      "colSpan": 4,
+      "row": 3
+    },
+    "intraday_portfolio": {
+      "colStart": 13,
+      "colSpan": 4,
+      "row": 3
+    }
+  }
+}
