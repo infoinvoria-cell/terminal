@@ -1,0 +1,10 @@
+{
+  "equityMode": "base_balance",
+  "compounding": false,
+  "useClosedTradesOnlyForReference": true,
+  "openTradesAllowed": true,
+  "compareSignals": true,
+  "compareTrades": true,
+  "compareKpis": true,
+  "target": "TradingView Strategy Tester parity"
+}

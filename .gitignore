@@ -87,7 +87,14 @@ _design_reference/
 artifacts/
 test-results/
 tools/market-data/.env
-public/generated/
+public/generated/**
+# Static monitoring config committed for Vercel (no sensitive data, changes infrequently)
+!public/generated/monitoring/
+!public/generated/monitoring/config/
+!public/generated/monitoring/config/monitoring_asset_universe.json
+!public/generated/monitoring/config/strategy_runtime_routes.json
+!public/generated/monitoring/config/strategy_tester_config.json
+!public/generated/monitoring/manifest.json
 
 # personal photos - personal data, never commit (matches at any depth)
 # Exception: public/ avatars used by the UserGate UI
