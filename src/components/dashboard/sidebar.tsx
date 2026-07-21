@@ -154,22 +154,18 @@ function SidebarSep({ expanded }: { expanded: boolean }) {
 type PreviewMode = "desktop" | "mobile" | "split";
 const PREVIEW_LS_KEY = "fmd_preview_mode";
 
-// ── iPhone 15 Pro dimensions ───────────────────────────────────────────────
+// ── iPhone 15 Pro Black Titanium dimensions ────────────────────────────────
 const P_W = 393, P_H = 852, P_FP = 14, P_R = 48;
-const P_OUTER_W = P_W + P_FP * 2;      // 421
-const P_OUTER_H = P_H + P_FP * 2;      // 880
+const P_OUTER_W = P_W + P_FP * 2;   // 421
+const P_OUTER_H = P_H + P_FP * 2;   // 880
 
-// ── MacBook 14" dimensions ─────────────────────────────────────────────────
-// iframe renders at native 1280×800 then is scaled to fit in the lid screen
-const MAC_IFRAME_W = 1280, MAC_IFRAME_H = 800;
-const MAC_SCREEN_W = 960, MAC_SCREEN_H = 600;          // display clip size
-const MAC_INNER_SCALE = MAC_SCREEN_W / MAC_IFRAME_W;   // 0.75
-const MAC_LID_W = MAC_SCREEN_W + P_FP * 2;            // 988
-const MAC_LID_H = 12 + MAC_SCREEN_H + 36;             // 648
-const MAC_BASE_W = MAC_LID_W + 32;                     // 1020
-const MAC_BASE_H = 200;
-const MAC_OUTER_W = MAC_BASE_W;                        // 1020
-const MAC_OUTER_H = MAC_LID_H + 6 + MAC_BASE_H;       // 854
+// ── Monitor dimensions (iframe renders natively at MON_SW × MON_SH) ───────
+const MON_SW = 1280, MON_SH = 800;
+const MON_BT = 12, MON_BB = 34, MON_BS = 12;   // bezel top / bottom / sides
+const MON_MW = MON_SW + MON_BS * 2;              // 1304
+const MON_MH = MON_SH + MON_BT + MON_BB;        // 846
+const MON_OUTER_W = MON_MW;                      // 1304
+const MON_OUTER_H = MON_MH + 40 + 16;           // 902  (neck 40 + base 16)
 
 function toMobileUrl(path: string | null): string {
   if (!path) return "/m/home";
@@ -187,10 +183,10 @@ function computeScales(mounted: boolean, mode: PreviewMode): { phoneScale: numbe
     const s = Math.min(hAvail / P_OUTER_H, wAvail / P_OUTER_W, 1);
     return { phoneScale: Math.max(s, 0.3), macScale: 0 };
   }
-  // Split: both fit in available viewport
+  // Split: scale both to viewport height, then shrink if total width overflows
   const sP = hAvail / P_OUTER_H;
-  const sM = hAvail / MAC_OUTER_H;
-  const totalW = P_OUTER_W * sP + 56 + MAC_OUTER_W * sM;
+  const sM = hAvail / MON_OUTER_H;
+  const totalW = P_OUTER_W * sP + 56 + MON_OUTER_W * sM;
   const ratio = totalW > wAvail ? wAvail / totalW : 1;
   return { phoneScale: Math.max(sP * ratio, 0.3), macScale: Math.max(sM * ratio, 0.3) };
 }
@@ -205,63 +201,75 @@ function FloatToggleBtn({ onClick, label }: { onClick: (e: React.MouseEvent) => 
   );
 }
 
-// ── iPhone 15 Pro mockup (Dynamic Island) ─────────────────────────────────
+// ── iPhone 15 Pro Black Titanium mockup ───────────────────────────────────
+// Buttons are siblings of the shell (not children) so overflow:hidden
+// on the screen area never clips them.
 function IPhone15Frame({ url, scale }: { url: string; scale: number }) {
+  const btnL = { position: "absolute" as const, left: -4, width: 4, borderRadius: "3px 0 0 3px",
+    background: "linear-gradient(to right,#1a1a1c,#2c2c2e)",
+    boxShadow: "-1px 0 3px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05)" };
+  const btnR = { position: "absolute" as const, right: -4, width: 4, borderRadius: "0 3px 3px 0",
+    background: "linear-gradient(to left,#1a1a1c,#2c2c2e)",
+    boxShadow: "1px 0 3px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05)" };
   return (
     <div style={{ width: P_OUTER_W * scale, height: P_OUTER_H * scale, flexShrink: 0, position: "relative" }}>
-      <div style={{ width: P_OUTER_W, height: P_OUTER_H, transform: `scale(${scale})`, transformOrigin: "top left", position: "absolute" }}>
-        {/* Outer shell */}
-        <div style={{ width: P_OUTER_W, height: P_OUTER_H, borderRadius: P_R, background: "linear-gradient(160deg,#3a3a3c 0%,#1c1c1e 60%,#2a2a2c 100%)", boxShadow: "0 0 0 1px rgba(255,255,255,0.13), inset 0 0 0 1px rgba(0,0,0,0.4), 0 40px 100px rgba(0,0,0,0.85)", position: "relative", overflow: "hidden" }}>
-          {/* Side buttons — left: mute, vol+, vol- */}
-          <div style={{ position: "absolute", left: -2.5, top: 92,  width: 2.5, height: 28, background: "#3a3a3c", borderRadius: "2px 0 0 2px" }} />
-          <div style={{ position: "absolute", left: -2.5, top: 138, width: 2.5, height: 56, background: "#3a3a3c", borderRadius: "2px 0 0 2px" }} />
-          <div style={{ position: "absolute", left: -2.5, top: 210, width: 2.5, height: 56, background: "#3a3a3c", borderRadius: "2px 0 0 2px" }} />
-          {/* Side button — right: power */}
-          <div style={{ position: "absolute", right: -2.5, top: 172, width: 2.5, height: 84, background: "#3a3a3c", borderRadius: "0 2px 2px 0" }} />
-          {/* Screen area */}
-          <div style={{ position: "absolute", top: P_FP, left: P_FP, width: P_W, height: P_H, borderRadius: P_R - P_FP, overflow: "hidden", background: "#000" }}>
+      {/* Scaled container — overflow visible so buttons poke out */}
+      <div style={{ width: P_OUTER_W, height: P_OUTER_H, transform: `scale(${scale})`, transformOrigin: "top left", position: "absolute", overflow: "visible" }}>
+        {/* Phone shell — background only, no overflow:hidden */}
+        <div style={{ position: "absolute", inset: 0, borderRadius: P_R,
+          background: "linear-gradient(175deg,#2c2c2e 0%,#1a1a1c 55%,#242426 100%)",
+          boxShadow: "0 0 0 1px rgba(255,255,255,0.07), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.5), 0 60px 120px rgba(0,0,0,0.85), 0 0 0 0.5px #111" }}>
+          {/* Screen — clipped inside shell padding */}
+          <div style={{ position: "absolute", top: P_FP, left: P_FP, right: P_FP, bottom: P_FP,
+            borderRadius: P_R - P_FP, overflow: "hidden", background: "#000" }}>
             <iframe src={url} style={{ width: P_W, height: P_H, border: "none", display: "block" }} title="Mobile Preview" />
-            {/* Dynamic Island — sits ON TOP of iframe */}
-            <div style={{ position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", width: 126, height: 37, background: "#000", borderRadius: 20, zIndex: 10, boxShadow: "0 0 0 1px rgba(255,255,255,0.06)" }} />
+            {/* Dynamic Island pill — overlaid on top of iframe */}
+            <div style={{ position: "absolute", top: 13, left: "50%", transform: "translateX(-50%)",
+              width: 124, height: 35, background: "#000", borderRadius: 18, zIndex: 10,
+              boxShadow: "0 0 0 1px rgba(255,255,255,0.05), inset 0 0 0 1px rgba(0,0,0,0.9)" }} />
           </div>
         </div>
+        {/* Buttons — outside shell, not clipped */}
+        {/* Mute switch */}
+        <div style={{ ...btnL, top: 96,  height: 30 }} />
+        {/* Vol + */}
+        <div style={{ ...btnL, top: 142, height: 54 }} />
+        {/* Vol − */}
+        <div style={{ ...btnL, top: 212, height: 54 }} />
+        {/* Power */}
+        <div style={{ ...btnR, top: 178, height: 76 }} />
       </div>
     </div>
   );
 }
 
-// ── MacBook 14" mockup ─────────────────────────────────────────────────────
-function MacbookFrame({ url, scale }: { url: string; scale: number }) {
+// ── Monitor mockup (desktop iframe at native 1280×800) ─────────────────────
+function MonitorFrame({ url, scale }: { url: string; scale: number }) {
   return (
-    <div style={{ width: MAC_OUTER_W * scale, height: MAC_OUTER_H * scale, flexShrink: 0, position: "relative" }}>
-      <div style={{ width: MAC_OUTER_W, height: MAC_OUTER_H, transform: `scale(${scale})`, transformOrigin: "top left", position: "absolute" }}>
-        {/* Keyboard base — slightly wider than lid */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, width: MAC_BASE_W, height: MAC_BASE_H, borderRadius: "0 0 12px 12px", background: "linear-gradient(180deg,#3d3d3f 0%,#2c2c2e 100%)", boxShadow: "0 8px 32px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.07)" }}>
-          {/* Keyboard area */}
-          <div style={{ margin: "18px 24px 0", height: 108, borderRadius: 6, background: "rgba(0,0,0,0.18)" }} />
-          {/* Trackpad */}
-          <div style={{ margin: "10px auto 0", width: 180, height: 44, borderRadius: 6, background: "rgba(0,0,0,0.15)" }} />
-          {/* Front edge highlight */}
-          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 4, borderRadius: "0 0 12px 12px", background: "rgba(0,0,0,0.35)" }} />
-        </div>
-        {/* Hinge shadow strip */}
-        <div style={{ position: "absolute", bottom: MAC_BASE_H - 2, left: 16, right: 16, height: 8, background: "rgba(0,0,0,0.5)", borderRadius: "0 0 4px 4px" }} />
-        {/* Lid — centered above base */}
-        <div style={{ position: "absolute", top: 0, left: (MAC_BASE_W - MAC_LID_W) / 2, width: MAC_LID_W, height: MAC_LID_H, borderRadius: "12px 12px 4px 4px", background: "linear-gradient(160deg,#4a4a4c 0%,#2c2c2e 100%)", boxShadow: "0 0 0 1px rgba(255,255,255,0.08), inset 0 1px 0 rgba(255,255,255,0.12)" }}>
-          {/* Top bezel */}
-          <div style={{ height: 12, background: "transparent" }} />
-          {/* Screen clip area */}
-          <div style={{ margin: "0 14px", height: MAC_SCREEN_H, borderRadius: 4, overflow: "hidden", background: "#000", position: "relative" }}>
-            {/* iframe at native desktop width, scaled to fit screen */}
-            <div style={{ width: MAC_IFRAME_W, height: MAC_IFRAME_H, transform: `scale(${MAC_INNER_SCALE})`, transformOrigin: "top left" }}>
-              <iframe src={url} style={{ width: MAC_IFRAME_W, height: MAC_IFRAME_H, border: "none", display: "block" }} title="Desktop Preview" />
-            </div>
+    <div style={{ width: MON_OUTER_W * scale, height: MON_OUTER_H * scale, flexShrink: 0, position: "relative" }}>
+      <div style={{ width: MON_OUTER_W, height: MON_OUTER_H, transform: `scale(${scale})`, transformOrigin: "top left", position: "absolute" }}>
+        {/* Monitor body */}
+        <div style={{ width: MON_MW, height: MON_MH, borderRadius: 10, position: "relative", overflow: "hidden",
+          background: "linear-gradient(180deg,#2a2a2c 0%,#1a1a1c 100%)",
+          boxShadow: "0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.07), 0 40px 100px rgba(0,0,0,0.8)" }}>
+          {/* Screen — iframe renders at native resolution, no inner scaling */}
+          <div style={{ position: "absolute", top: MON_BT, left: MON_BS, width: MON_SW, height: MON_SH, background: "#000", overflow: "hidden" }}>
+            <iframe src={url} style={{ width: MON_SW, height: MON_SH, border: "none", display: "block" }} title="Desktop Preview" />
           </div>
-          {/* Chin with logo dot */}
-          <div style={{ height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "rgba(255,255,255,0.12)" }} />
+          {/* Bottom chin with logo dot */}
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: MON_BB,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            background: "linear-gradient(180deg,#222224,#1a1a1c)" }}>
+            <div style={{ width: 8, height: 8, borderRadius: "50%", background: "rgba(255,255,255,0.14)", boxShadow: "0 0 0 1px rgba(255,255,255,0.06)" }} />
           </div>
         </div>
+        {/* Stand neck */}
+        <div style={{ position: "absolute", top: MON_MH, left: MON_MW / 2 - 3, width: 6, height: 40,
+          background: "linear-gradient(to bottom,#2a2a2c,#1e1e20)", boxShadow: "0 0 0 1px rgba(255,255,255,0.04)" }} />
+        {/* Stand base */}
+        <div style={{ position: "absolute", top: MON_MH + 40, left: MON_MW / 2 - 100, width: 200, height: 16,
+          borderRadius: 8, background: "linear-gradient(180deg,#2c2c2e,#1a1a1c)",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)" }} />
       </div>
     </div>
   );
@@ -447,7 +455,7 @@ export function Sidebar() {
         {mounted && previewMode === "split" && createPortal(
           <div style={{ position: "fixed", inset: 0, zIndex: 900, background: "#000", display: "flex", alignItems: "center", justifyContent: "center", gap: 56 }}>
             <IPhone15Frame url={mobileUrl} scale={phoneScale} />
-            <MacbookFrame url={desktopUrl} scale={macScale} />
+            <MonitorFrame url={desktopUrl} scale={macScale} />
             <FloatToggleBtn onClick={cyclePreview} label="Desktop →" />
           </div>,
           document.body
