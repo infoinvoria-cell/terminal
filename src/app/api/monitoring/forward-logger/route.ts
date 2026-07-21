@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { NextResponse } from "next/server";
+import { createSupabaseServiceClient } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -12,6 +13,8 @@ const MANIFEST_PATH = path.join(
   process.cwd(),
   "public/generated/monitoring/tradingview_data_cache/cache_manifest_full.json"
 );
+
+// ── CSV helpers ───────────────────────────────────────────────────────────────
 
 function parseCsv(raw: string): Record<string, string>[] {
   const lines = raw.replace(/\r/g, "").split("\n").filter(Boolean);
@@ -25,6 +28,8 @@ function parseCsv(raw: string): Record<string, string>[] {
   });
 }
 
+// ── Price map from local manifest ─────────────────────────────────────────────
+
 type ManifestAsset = { asset: string; isMainAsset?: boolean; lastClose: number | null; lastDate?: string };
 type ManifestJson = { assets?: ManifestAsset[] };
 
@@ -33,7 +38,6 @@ function buildPriceMap(): Map<string, { lastClose: number; lastDate: string }> {
   if (!fs.existsSync(MANIFEST_PATH)) return map;
   try {
     const manifest = JSON.parse(fs.readFileSync(MANIFEST_PATH, "utf-8")) as ManifestJson;
-    // Two passes: main assets first so they win over dependency entries with the same name
     const sorted = [...(manifest.assets ?? [])].sort((a, b) =>
       (b.isMainAsset ? 1 : 0) - (a.isMainAsset ? 1 : 0)
     );
@@ -42,7 +46,6 @@ function buildPriceMap(): Map<string, { lastClose: number; lastDate: string }> {
       const entry = { lastClose: a.lastClose, lastDate: a.lastDate ?? "" };
       const key = a.asset.toUpperCase();
       const keyNoBang = key.replace(/!$/, "");
-      // isMainAsset always overwrites; dependency only fills gaps
       if (a.isMainAsset || !map.has(key)) map.set(key, entry);
       if (a.isMainAsset || !map.has(keyNoBang)) map.set(keyNoBang, entry);
     }
@@ -50,77 +53,115 @@ function buildPriceMap(): Map<string, { lastClose: number; lastDate: string }> {
   return map;
 }
 
-function calcUnrealizedPct(
-  entryPrice: string,
-  direction: string,
-  lastClose: number
-): number | null {
+function calcUnrealizedPct(entryPrice: string, direction: string, lastClose: number): number | null {
   const entry = parseFloat(entryPrice);
   if (!entry || !lastClose) return null;
   const sign = direction.toUpperCase() === "SHORT" ? -1 : 1;
   return ((lastClose - entry) / entry) * 100 * sign;
 }
 
-export async function GET() {
-  if (!BRAIN_PATH) {
-    return NextResponse.json({ available: false, reason: "CAPITALIFE_BRAIN_PATH not set" });
-  }
+// ── Filesystem source (local) ─────────────────────────────────────────────────
 
+async function fromFilesystem() {
   const tradesPath = path.join(BRAIN_PATH, TRADES_FILE);
   const signalsPath = path.join(BRAIN_PATH, SIGNALS_FILE);
 
   if (!fs.existsSync(tradesPath) || !fs.existsSync(signalsPath)) {
-    return NextResponse.json({ available: false, reason: "Forward log files not found" });
+    return null;
   }
 
+  const tradesRaw = fs.readFileSync(tradesPath, "utf-8");
+  const signalsRaw = fs.readFileSync(signalsPath, "utf-8");
+  const allTrades = parseCsv(tradesRaw);
+  const allSignals = parseCsv(signalsRaw);
+  const priceMap = buildPriceMap();
+
+  const openTrades = allTrades
+    .filter((r) => r.event === "ENTRY" && !r.exit_date)
+    .map((r) => {
+      const sym = (r.symbol ?? "").toUpperCase();
+      const price = priceMap.get(sym) ?? priceMap.get(`${sym}!`) ?? null;
+      const unrealizedPct = price
+        ? calcUnrealizedPct(r.entry_price, r.direction, price.lastClose)
+        : null;
+      return {
+        ...r,
+        lastClose: price?.lastClose ?? null,
+        lastCloseDate: price?.lastDate ?? null,
+        unrealizedPct: unrealizedPct != null ? Math.round(unrealizedPct * 100) / 100 : null,
+      };
+    });
+
+  const activeSignals = allSignals.filter((r) => r.in_position === "True");
+
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 30);
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+  const recentClosed = allTrades.filter((r) => r.exit_date && r.exit_date >= cutoffStr);
+
+  return { openTrades, activeSignals, recentClosed, source: "filesystem" as const };
+}
+
+// ── Supabase source (fallback / Vercel) ───────────────────────────────────────
+
+async function fromSupabase() {
+  const db = createSupabaseServiceClient();
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  if (!supabaseUrl.startsWith("https://")) return null;
+
+  const [tradesRes, signalsRes] = await Promise.all([
+    db.from("forward_trades").select("*"),
+    db.from("forward_signals").select("*"),
+  ]);
+
+  if (tradesRes.error || signalsRes.error) return null;
+
+  const allTrades = tradesRes.data ?? [];
+  const allSignals = signalsRes.data ?? [];
+
+  const openTrades = allTrades.filter((r) => r.event === "ENTRY" && !r.exit_date);
+
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 30);
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+  const recentClosed = allTrades.filter(
+    (r) => r.exit_date && r.exit_date >= cutoffStr
+  );
+
+  const activeSignals = allSignals.filter((r) => r.in_position === true);
+
+  return { openTrades, activeSignals, recentClosed, source: "supabase" as const };
+}
+
+// ── Handler ───────────────────────────────────────────────────────────────────
+
+export async function GET() {
   try {
-    const tradesRaw = fs.readFileSync(tradesPath, "utf-8");
-    const signalsRaw = fs.readFileSync(signalsPath, "utf-8");
-    const allTrades = parseCsv(tradesRaw);
-    const allSignals = parseCsv(signalsRaw);
-    const priceMap = buildPriceMap();
+    // Prefer filesystem when Brain path is set; fall back to Supabase on Vercel
+    const result = BRAIN_PATH
+      ? ((await fromFilesystem()) ?? (await fromSupabase()))
+      : (await fromSupabase());
 
-    const openTrades = allTrades
-      .filter((r) => r.event === "ENTRY" && !r.exit_date)
-      .map((r) => {
-        const sym = (r.symbol ?? "").toUpperCase();
-        const price = priceMap.get(sym) ?? priceMap.get(`${sym}!`) ?? null;
-        const unrealizedPct = price
-          ? calcUnrealizedPct(r.entry_price, r.direction, price.lastClose)
-          : null;
-        return {
-          ...r,
-          lastClose: price?.lastClose ?? null,
-          lastCloseDate: price?.lastDate ?? null,
-          unrealizedPct: unrealizedPct != null ? Math.round(unrealizedPct * 100) / 100 : null,
-        };
+    if (!result) {
+      return NextResponse.json({
+        available: false,
+        reason: BRAIN_PATH
+          ? "Forward log files not found in Brain path"
+          : "CAPITALIFE_BRAIN_PATH not set and Supabase not configured",
       });
-
-    const activeSignals = allSignals.filter((r) => r.in_position === "True");
-
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - 30);
-    const cutoffStr = cutoff.toISOString().slice(0, 10);
-    const recentClosed = allTrades.filter(
-      (r) => r.exit_date && r.exit_date >= cutoffStr
-    );
+    }
 
     return NextResponse.json({
       available: true,
       asOf: new Date().toISOString(),
-      openTrades,
-      activeSignals,
-      recentClosed,
+      ...result,
       counts: {
-        open: openTrades.length,
-        activeSignals: activeSignals.length,
-        recentClosed: recentClosed.length,
+        open: result.openTrades.length,
+        activeSignals: result.activeSignals.length,
+        recentClosed: result.recentClosed.length,
       },
     });
   } catch (err) {
-    return NextResponse.json(
-      { available: false, reason: String(err) },
-      { status: 500 }
-    );
+    return NextResponse.json({ available: false, reason: String(err) }, { status: 500 });
   }
 }
