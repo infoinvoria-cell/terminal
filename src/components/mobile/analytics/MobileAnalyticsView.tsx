@@ -1,7 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
+import dynamic from "next/dynamic";
 import type { UniversalKpiStrings } from "@/components/dashboard/universal-kpi-strip";
+import type { TimeFrame, ViewMode } from "@/components/dashboard/performance-report-chart";
+import type { SerializedTrade } from "@/lib/trades-analytics";
+import type { CapalifeData } from "@/lib/capitalife-data";
+
+const PerformanceReportChart = dynamic(
+  () => import("@/components/dashboard/performance-report-chart").then(m => m.PerformanceReportChart),
+  { ssr: false, loading: () => <div style={{ height: 220 }} /> }
+);
 
 type PortfolioKpis = {
   totalReturn24mPct: number;
@@ -14,6 +23,8 @@ type PortfolioKpis = {
 interface Props {
   universal: UniversalKpiStrings;
   kpis: PortfolioKpis;
+  trades: SerializedTrade[];
+  capalifeData: CapalifeData;
 }
 
 const PAGE_BG = "#0c0d10";
@@ -23,7 +34,13 @@ const GOLD = "#e2ca7a";
 const MUTED = "rgba(255,255,255,0.38)";
 const RED = "#f87171";
 
-const TIME_FILTERS = ["YTD", "1J", "3J", "5J", "Max"];
+const TIME_FILTERS: { label: string; tf: TimeFrame; view: ViewMode }[] = [
+  { label: "1D",  tf: "1D", view: "Line" },
+  { label: "1W",  tf: "1W", view: "Line" },
+  { label: "1M",  tf: "1M", view: "Bar"  },
+  { label: "3M",  tf: "3M", view: "Bar"  },
+  { label: "1J",  tf: "1Y", view: "Bar"  },
+];
 
 function isPositive(val: string) {
   return val.startsWith("+") || (!val.startsWith("-") && parseFloat(val) > 0);
@@ -74,35 +91,15 @@ function KpiCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function MobileAnalyticsView({ universal }: Props) {
+export function MobileAnalyticsView({ universal, trades, capalifeData }: Props) {
   const [activeFilter, setActiveFilter] = useState(0);
+  const active = TIME_FILTERS[activeFilter];
 
   const kpiCards = [
     { label: "Total Return", value: universal.totalReturn24m },
     { label: "Max Drawdown", value: universal.maxDrawdown },
     { label: "Compounded Return", value: universal.compoundedReturn ?? "—" },
     { label: "Annualisiert", value: universal.annualizedReturn ?? "—" },
-  ];
-
-  const strategies = [
-    {
-      name: "White Swan",
-      logo: "/branding/white-swan-icon.png",
-      badge: "+97.2%",
-      logoType: "img" as const,
-    },
-    {
-      name: "Core Invest",
-      logo: "/branding/capitalife-favicon.png",
-      badge: "+42.1%",
-      logoType: "img" as const,
-    },
-    {
-      name: "Anomaly",
-      logo: null,
-      badge: "+18.5%",
-      logoType: "letter" as const,
-    },
   ];
 
   return (
@@ -162,14 +159,14 @@ export function MobileAnalyticsView({ universal }: Props) {
           style={{
             display: "flex",
             gap: 8,
-            marginBottom: 16,
+            marginBottom: 12,
             overflowX: "auto",
             paddingBottom: 4,
           }}
         >
           {TIME_FILTERS.map((filter, i) => (
             <button
-              key={filter}
+              key={filter.label}
               onClick={() => setActiveFilter(i)}
               style={{
                 flexShrink: 0,
@@ -185,136 +182,28 @@ export function MobileAnalyticsView({ universal }: Props) {
                 letterSpacing: "0.04em",
               }}
             >
-              {filter}
+              {filter.label}
             </button>
           ))}
         </div>
 
-        {/* Chart Placeholder */}
+        {/* Equity Chart */}
         <div
           style={{
-            height: 180,
             background: "#0A0A0A",
             borderRadius: 14,
             border: BORDER,
             marginBottom: 28,
-            position: "relative",
             overflow: "hidden",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
+            minHeight: 220,
           }}
         >
-          <svg
-            style={{ position: "absolute", bottom: 0, left: 0, width: "100%", opacity: 0.18 }}
-            height="100"
-            viewBox="0 0 375 100"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M0 80 C40 70, 60 40, 100 35 S160 20, 200 25 S280 10, 320 15 S360 30, 375 28"
-              stroke={GOLD}
-              strokeWidth="2"
-              fill="none"
-            />
-            <path
-              d="M0 80 C40 70, 60 40, 100 35 S160 20, 200 25 S280 10, 320 15 S360 30, 375 28 L375 100 L0 100 Z"
-              fill={GOLD}
-              opacity="0.15"
-            />
-          </svg>
-          <span
-            style={{
-              fontSize: 13,
-              color: "rgba(255,255,255,0.3)",
-              fontWeight: 500,
-              zIndex: 1,
-            }}
-          >
-            Equity Curve — demnächst
-          </span>
-        </div>
-
-        {/* Strategie-Übersicht */}
-        <h2
-          style={{
-            margin: "0 0 12px",
-            fontSize: 14,
-            fontWeight: 700,
-            letterSpacing: "0.06em",
-            textTransform: "uppercase",
-            color: MUTED,
-          }}
-        >
-          Strategie-Übersicht
-        </h2>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {strategies.map((s) => (
-            <div
-              key={s.name}
-              style={{
-                background: CARD_BG,
-                border: BORDER,
-                borderRadius: 14,
-                padding: "14px 16px",
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-              }}
-            >
-              {/* Logo */}
-              {s.logoType === "img" && s.logo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={s.logo}
-                  alt={s.name}
-                  style={{ width: 32, height: 32, borderRadius: 8, objectFit: "contain" }}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 8,
-                    background: "rgba(226,202,122,0.15)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 14,
-                    fontWeight: 700,
-                    color: GOLD,
-                  }}
-                >
-                  A
-                </div>
-              )}
-
-              {/* Name */}
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 15, fontWeight: 600, color: "white" }}>{s.name}</div>
-                <div style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>
-                  Daten werden geladen…
-                </div>
-              </div>
-
-              {/* Badge */}
-              <div
-                style={{
-                  padding: "4px 10px",
-                  borderRadius: 20,
-                  background: "rgba(226,202,122,0.12)",
-                  border: `1px solid rgba(226,202,122,0.25)`,
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: GOLD,
-                }}
-              >
-                {s.badge}
-              </div>
-            </div>
-          ))}
+          <PerformanceReportChart
+            trades={trades}
+            timeframe={active.tf}
+            view={active.view}
+            capalifeData={capalifeData}
+          />
         </div>
       </div>
     </div>
