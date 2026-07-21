@@ -1,7 +1,5 @@
+import { MobileLiveView } from "@/components/mobile/MobileLiveView";
+
 export default function MobileSignalePage() {
-  return (
-    <div style={{ padding: "24px 16px", color: "rgba(255,255,255,0.5)", fontSize: 13 }}>
-      Signale
-    </div>
-  );
+  return <MobileLiveView />;
 }
