@@ -89,30 +89,66 @@ function PasswordScreen({ onSuccess }: { onSuccess: () => void }) {
   const remaining = lockedUntil ? Math.max(0, lockedUntil - tick) : 0;
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "#0a0a0a", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
-      <Image src="/logo.png" alt="Capitalife" width={200} height={50} style={{ objectFit: "contain", marginBottom: 40, userSelect: "none" }} priority draggable={false} />
-      <form onSubmit={handleSubmit} style={{ display: "flex", gap: 8, animation: shake ? "gate-shake 0.45s ease" : undefined }}>
-        <input
-          ref={inputRef}
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          disabled={locked || loading}
-          autoFocus
-          autoComplete="current-password"
-          placeholder="••••••••"
-          style={{ background: "#1c1d20", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 12, color: "#fff", fontSize: 15, padding: "11px 18px", outline: "none", width: 220, letterSpacing: "0.12em" }}
-        />
-        <button
-          type="submit"
-          disabled={locked || loading || !password.trim()}
-          style={{ background: locked ? "rgba(226,202,122,0.25)" : "#e2ca7a", border: "none", borderRadius: 12, width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: locked ? "not-allowed" : "pointer", flexShrink: 0 }}
-          aria-label="Enter"
-        >
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <path d="M3 9h12M10 4l5 5-5 5" stroke="#17181d" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
+    <div style={{ position: "fixed", inset: 0, background: "#000000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
+      <Image
+        src="/logo.png"
+        alt="Capitalife"
+        width={260}
+        height={65}
+        style={{ objectFit: "contain", marginBottom: 48, userSelect: "none", mixBlendMode: "lighten" }}
+        priority
+        draggable={false}
+      />
+      <form onSubmit={handleSubmit} style={{ animation: shake ? "gate-shake 0.45s ease" : undefined }}>
+        <div style={{ position: "relative", width: 260 }}>
+          <input
+            ref={inputRef}
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={locked || loading}
+            autoFocus
+            autoComplete="current-password"
+            placeholder="••••••••"
+            style={{
+              width: "100%",
+              background: "transparent",
+              border: "none",
+              borderBottom: "1px solid rgba(255,255,255,0.18)",
+              borderRadius: 0,
+              color: "#fff",
+              fontSize: 16,
+              padding: "10px 40px 10px 2px",
+              outline: "none",
+              letterSpacing: "0.14em",
+              boxSizing: "border-box",
+            }}
+          />
+          <button
+            type="submit"
+            disabled={locked || loading || !password.trim()}
+            style={{
+              position: "absolute",
+              right: 0,
+              top: "50%",
+              transform: "translateY(-50%)",
+              background: "none",
+              border: "none",
+              padding: "4px 2px",
+              cursor: locked || !password.trim() ? "default" : "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              opacity: password.trim() && !locked ? 1 : 0.3,
+              transition: "opacity 0.2s",
+            }}
+            aria-label="Enter"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M4 10h12M11 5l5 5-5 5" stroke="#e2ca7a" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
       </form>
       {locked && (
         <p style={{ marginTop: 16, color: "rgba(255,179,140,0.9)", fontSize: 13 }}>
@@ -128,49 +164,42 @@ function PasswordScreen({ onSuccess }: { onSuccess: () => void }) {
 
 function UserSelectScreen({ onSelect }: { onSelect: (user: AppUser) => void }) {
   return (
-    <div style={{ position: "fixed", inset: 0, background: "#0a0a0a", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
-      <Image src="/logo.png" alt="Capitalife" width={160} height={40} style={{ objectFit: "contain", marginBottom: 48, userSelect: "none" }} priority draggable={false} />
-      <div style={{ display: "flex", gap: 14 }}>
+    <div style={{ position: "fixed", inset: 0, background: "#000000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
+      <div style={{ display: "flex", gap: 24 }}>
         {APP_USERS.map((user) => (
           <button
             key={user.id}
             onClick={() => onSelect(user)}
+            aria-label={user.name}
             style={{
-              background: "#111214",
-              border: "1px solid rgba(255,255,255,0.10)",
-              borderRadius: 20,
-              padding: "24px 20px",
+              background: "none",
+              border: "none",
+              padding: 0,
               cursor: "pointer",
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
-              gap: 14,
-              width: 130,
-              transition: "border-color 0.2s, background 0.2s",
+              justifyContent: "center",
+              borderRadius: "50%",
+              width: 64,
+              height: 64,
+              transition: "opacity 0.2s, transform 0.2s",
             }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(226,202,122,0.5)";
-              (e.currentTarget as HTMLButtonElement).style.background = "#18191d";
+              (e.currentTarget as HTMLButtonElement).style.opacity = "0.75";
+              (e.currentTarget as HTMLButtonElement).style.transform = "scale(1.08)";
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.10)";
-              (e.currentTarget as HTMLButtonElement).style.background = "#111214";
+              (e.currentTarget as HTMLButtonElement).style.opacity = "1";
+              (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
             }}
           >
-            {user.avatar ? (
-              <Image src={user.avatar} alt={user.name} width={52} height={52} style={{ borderRadius: "50%", objectFit: "contain", background: "#1c1d20" }} />
-            ) : (
-              <div style={{
-                width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg,#e2ca7a,#b8962e)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 18, fontWeight: 700, color: "#17181d", letterSpacing: "0.03em",
-              }}>
-                {user.name.split(" ").map(w => w[0]).join("").slice(0, 2)}
-              </div>
-            )}
-            <span style={{ color: "#e8e8e8", fontSize: 13, fontWeight: 600, textAlign: "center", lineHeight: 1.3 }}>
-              {user.name}
-            </span>
+            <Image
+              src="/CAPITALIFE_ICON.png"
+              alt={user.name}
+              width={64}
+              height={64}
+              style={{ objectFit: "contain", mixBlendMode: "lighten" }}
+            />
           </button>
         ))}
       </div>
