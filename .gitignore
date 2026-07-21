@@ -112,7 +112,20 @@ profile_jeroen.png
 **/tradingview-session*
 **/*credentials*
 
-src/data/capitalife/
+# Block raw/personal capitalife data files — never commit
+src/data/capitalife/account1-mt4-trades.json
+src/data/capitalife/account2-myfxbook-visible-trades.json
+src/data/capitalife/white-swan-combined-evidence.json
+src/data/capitalife/white-swan-source-folder-v1.json
+src/data/capitalife/core-invest.config.json
+src/data/capitalife/core-invest-paper.config.json
+src/data/capitalife/fsportfolio/data-manifest.json
+src/data/capitalife/fsportfolio/ohlc/
+src/data/capitalife/fsportfolio/audit/
+src/data/capitalife/fsportfolio/research/
+src/data/capitalife/fsportfolio/white-swan/
+src/data/capitalife/market-data/
+# Computed analytics outputs above are allowed — see committed files list
 src/data/local/
 src/data/raw/
 *.csv

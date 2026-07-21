@@ -1,0 +1,41 @@
+{
+  "version": "source-folder-v1",
+  "schema": "white-swan-global-strategy-v1",
+  "generated_at": "2026-07-10T00:00:00Z",
+  "caveat": "Monitoring and research only. Forward tracking / not live execution. AuM = EUR 0. No order execution. No broker. No live trading.",
+
+  "sleeves": [
+    { "name": "Agrar Final", "status": "Final", "strategy_count": 16, "active": 14, "assets": ["ZC1!", "ZW1!", "ZS1!", "CC1!", "KC1!", "OJ1!", "SB1!", "CT1!"] },
+    { "name": "Metals5", "status": "Final Candidate", "strategy_count": 5, "active": 5, "assets": ["GC1!", "SI1!", "HG1!", "PL1!", "PA1!"] },
+    { "name": "Indices Hybrid", "status": "Final Candidate", "strategy_count": 5, "active": 5, "assets": ["ES1!", "NQ1!", "YM1!", "FDAX1!", "UKX"] },
+    { "name": "Energy Robust3", "status": "Final Candidate", "strategy_count": 3, "active": 3, "assets": ["CL1!", "NG1!", "RB1!"] },
+    { "name": "Forex8", "status": "Final Candidate", "strategy_count": 8, "active": 8, "assets": ["EURGBP", "MXNUSD", "NOKUSD", "CLPUSD", "GBPJPY", "SEKUSD", "BRLUSD", "ZARUSD"] }
+  ],
+
+  "strategy_count": 37,
+  "active_entries": 35,
+  "disabled_entries": 2,
+
+  "key_stats": [
+    { "sleeve": "Agrar Final", "oos_cagr_pct": 1.94, "oos_total_return_pct": 42.66, "oos_max_dd_pct": -0.86, "oos_sharpe": 2.02, "oos_positive_years_pct": 94.7 },
+    { "sleeve": "Metals5", "oos_cagr_pct": 1.18, "oos_total_return_pct": 24.25, "oos_max_dd_pct": -3.02, "oos_sharpe": 0.81, "oos_positive_years_pct": 68.4 },
+    { "sleeve": "Indices Hybrid", "oos_cagr_pct": 1.54, "oos_total_return_pct": 32.6, "oos_max_dd_pct": -5.84, "oos_sharpe": 0.61, "oos_positive_years_pct": 68.4 },
+    { "sleeve": "Energy Robust3", "oos_cagr_pct": 2.4, "oos_total_return_pct": 55.0, "oos_max_dd_pct": -3.61, "oos_sharpe": 1.01, "oos_positive_years_pct": 94.7 },
+    { "sleeve": "Forex8", "oos_cagr_pct": 1.84, "oos_total_return_pct": 40.12, "oos_max_dd_pct": -1.93, "oos_sharpe": 1.28, "oos_positive_years_pct": 89.5 }
+  ],
+
+  "source_files": {
+    "source_folder": "capitalife_brain_final_v1",
+    "strategy_registry": "python/strategy_registry_flat.csv",
+    "production_sleeves": "dashboard/final_production_sleeves.snapshot.json"
+  },
+
+  "missing_data": [
+    { "sleeve": "Metals5", "asset": "GC1!", "missing": "US02Y anchor" },
+    { "sleeve": "Metals5", "asset": "HG1!", "missing": "SPY anchor" },
+    { "sleeve": "Forex8", "asset": "ZARUSD", "missing": "US02Y anchor" }
+  ],
+
+  "group_weights_status": "OPEN",
+  "group_weights_note": "Sleeve combination weights are not defined in source folder v1. Do not hardcode. Requires formal allocation decision with Jeroen."
+}

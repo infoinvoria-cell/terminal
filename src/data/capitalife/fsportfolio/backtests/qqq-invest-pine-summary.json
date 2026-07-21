@@ -1,0 +1,32 @@
+{
+  "firstDate": "1999-03-10",
+  "lastDate": "2026-07-07",
+  "dataPoints": 6873,
+  "tradeCount": 640,
+  "winCount": 459,
+  "lossCount": 181,
+  "winRatePct": 71.7188,
+  "profitFactor": 1.5791,
+  "totalReturnPct": 87.0537,
+  "cagrPct": 2.3181,
+  "maxDrawdownPct": 6.8782,
+  "averageGainPct": 1.0472,
+  "averageLossPct": 1.6484,
+  "payoffRatio": 0.6353,
+  "timeInMarketPct": 19.7585,
+  "currentSignal": "long",
+  "lastTradeDate": "2026-07-07",
+  "options": {
+    "initialCapital": 10000,
+    "contractPercent": 50,
+    "ma1Length": 400,
+    "ma2Length": 5,
+    "stopLossPercent": 25,
+    "takeProfitPercent": 2,
+    "useCompound": false,
+    "startDate": "1995-01-01",
+    "endDate": "2099-01-01",
+    "commissionPerContract": 0.005,
+    "executionMode": "next_open"
+  }
+}

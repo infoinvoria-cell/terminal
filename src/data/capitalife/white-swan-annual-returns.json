@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "source": "Performance Report.pdf (statement-based, not independently audited)",
+    "period": "11.04.2024 – 01.07.2026",
+    "caveat": "Annual totals from Performance Report. Monthly breakdown PDF matrix not available in text form. Not independently audited."
+  },
+  "annual_returns": [
+    { "year": "2024", "return_pct": 27.2, "note": "Apr–Dec 2024 (9 months)" },
+    { "year": "2025", "return_pct": 41.7, "note": "Jan–Dec 2025 (12 months)" },
+    { "year": "2026", "return_pct": 12.3, "note": "Jan–Jun 2026 (partial, 6 months)" }
+  ],
+  "summary_stats": {
+    "best_month_pct": 14.8,
+    "worst_month_pct": -5.8,
+    "positive_months": 18,
+    "negative_months": 8,
+    "total_months": 26
+  },
+  "sleeves": [
+    { "name": "Agrar Final",      "cagr": 1.94, "maxdd": -0.86, "sharpe": 2.02, "positive_yrs_pct": 94.7, "entries": 14, "status": "Final" },
+    { "name": "Metals5",          "cagr": 1.18, "maxdd": -3.02, "sharpe": 0.81, "positive_yrs_pct": 68.4, "entries": 5,  "status": "Final Candidate" },
+    { "name": "Indices Hybrid",   "cagr": 1.54, "maxdd": -5.84, "sharpe": 0.61, "positive_yrs_pct": 68.4, "entries": 5,  "status": "Final Candidate" },
+    { "name": "Energy Robust3",   "cagr": 2.4,  "maxdd": -3.61, "sharpe": 1.01, "positive_yrs_pct": 94.7, "entries": 3,  "status": "Final Candidate" },
+    { "name": "Forex8",           "cagr": 1.84, "maxdd": -1.93, "sharpe": 1.28, "positive_yrs_pct": 89.5, "entries": 8,  "status": "Final Candidate" }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "portfolio_name": "Core Invest",
+  "version": "v2",
+  "status": "research_forward_ready_not_live",
+  "currency": "EUR_or_USD_configurable",
+  "initial_capital": 500000,
+  "rebalance_frequency": "quarterly",
+  "rebalance_months": [3, 6, 9, 12],
+  "rebalance_day": "last_trading_day",
+  "transaction_cost_bps": 10,
+  "tolerance_band_relative": 0.2,
+  "use_tolerance_band_for_live_orders": true,
+  "benchmark": "SPY",
+  "weights": {
+    "SPY": 0.275,
+    "SPMO": 0.275,
+    "QQQ": 0.15,
+    "GLD": 0.2,
+    "WHITE_SWAN_NAS_EMA": 0.1
+  },
+  "removed_from_core": {
+    "DBC": {
+      "previous_weight": 0.05,
+      "new_status": "research_optional",
+      "reason": "removed for final investor-core simplicity; commodity sleeve retained only for research comparison"
+    }
+  },
+  "white_swan": {
+    "name": "QQQ Invest Pine",
+    "research_symbol_reference": "OANDA:NAS100USD",
+    "implementation_instrument": "QQQ",
+    "max_portfolio_weight": 0.1,
+    "mode": "long_or_cash",
+    "cash_return": 0,
+    "use_trade_export_if_available": true,
+    "use_signal_script_if_available": true,
+    "if_no_signal_data": "treat_as_cash_and_warn"
+  },
+  "required_ohlc_symbols": ["SPY", "SPMO", "QQQ", "GLD"],
+  "white_swan_required_data": ["QQQ", "NAS100USD_or_strategy_export_optional"],
+  "research_optional_symbols": ["DBC", "CASH", "T_BILLS", "SSO", "TLT", "IWM", "VNQ"],
+  "analysis_periods": {
+    "full_backtest": true,
+    "in_sample_end": "configurable",
+    "out_of_sample_start": "2015-01-01",
+    "forward_start": "2025-05-01"
+  },
+  "risk_rules": {
+    "no_shorts": true,
+    "no_options": true,
+    "no_portfolio_leverage": true,
+    "white_swan_sleeve_cap": 0.1,
+    "freeze_parameters_during_forward_test": true
+  },
+  "caveats": [
+    "historische Backtests sind kein Renditeversprechen",
+    "FSPortfolio Live Core v2 ist nicht live und nicht freigegeben",
+    "QQQ Invest Pine ist maximal 10 Prozent Satellite Sleeve",
+    "QQQ Invest Pine wird im Core ueber QQQ long/cash umgesetzt",
+    "keine Live Execution",
+    "keine eigene Finanzportfolioverwaltung durch Capitalife GbR",
+    "DBC ist nur optionaler Research-Baustein und nicht Teil des finalen Hauptportfolios"
+  ]
+}

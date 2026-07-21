@@ -1,6 +1,7 @@
 import "server-only";
 
 import fs from "node:fs";
+import path from "node:path";
 import { loadFSPortfolioConfig } from "@/lib/fsportfolio/config";
 import { loadFSPortfolioDataManifest } from "@/lib/fsportfolio/data-manifest";
 import { loadRequiredOhlcSeries } from "@/lib/fsportfolio/data-loader";
@@ -11,7 +12,9 @@ import { loadSleeveReturns } from "@/lib/core-invest/sleeve-returns";
 import { getTradingViewLatest, getTradingViewStatusFile } from "@/lib/market-data/tradingview-cache";
 import type { EquityPoint, FSPortfolioLiveAssetStatus, FSPortfolioLiveResult, FSPortfolioSnapshot, OhlcBar, PositionWeight } from "@/lib/fsportfolio/types";
 
-const QQQ_INVEST_PINE_SERIES_PATH = "C:/Users/joris/Documents/Fund Manager Dashboard/src/data/capitalife/fsportfolio/backtests/qqq-invest-pine-series.json";
+// Check project-local path first (committed), fall back to legacy absolute path
+const QQQ_INVEST_PINE_SERIES_PATH =
+  path.join(process.cwd(), "src/data/capitalife/fsportfolio/backtests/qqq-invest-pine-series.json");
 
 function round4(value: number) {
   return Math.round(value * 10_000) / 10_000;
