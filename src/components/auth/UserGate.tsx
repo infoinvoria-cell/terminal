@@ -162,45 +162,109 @@ function PasswordScreen({ onSuccess }: { onSuccess: () => void }) {
 
 // ── User selection screen ─────────────────────────────────────────────────────
 
+const USER_LABELS = ["User 1", "User 2", "User 3"] as const;
+
+function UserCard({ user, label, index, onSelect }: { user: AppUser; label: string; index: number; onSelect: (user: AppUser) => void }) {
+  const [loading, setLoading] = useState(false);
+
+  function handleClick() {
+    if (loading) return;
+    setLoading(true);
+    setTimeout(() => onSelect(user), 2000);
+  }
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={loading}
+      aria-label={label}
+      style={{
+        background: "linear-gradient(145deg, #2a1f0a 0%, #1a1208 40%, #2c1e08 70%, #3a2810 100%)",
+        border: "1px solid rgba(226,202,122,0.22)",
+        borderRadius: 20,
+        padding: "28px 20px 22px",
+        cursor: loading ? "default" : "pointer",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 0,
+        width: 120,
+        transition: "border-color 0.2s, transform 0.2s, opacity 0.2s",
+        opacity: loading ? 0.7 : 1,
+      }}
+      onMouseEnter={(e) => {
+        if (loading) return;
+        (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(226,202,122,0.55)";
+        (e.currentTarget as HTMLButtonElement).style.transform = "scale(1.04)";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(226,202,122,0.22)";
+        (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
+      }}
+    >
+      {/* Avatar */}
+      <div style={{ marginBottom: 16, position: "relative", width: 60, height: 60 }}>
+        {index === 0 ? (
+          <div style={{
+            width: 60, height: 60, borderRadius: "50%",
+            background: "linear-gradient(135deg,#e2ca7a,#b8962e)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 20, fontWeight: 700, color: "#17181d",
+          }}>
+            JG
+          </div>
+        ) : (
+          <Image
+            src="/CAPITALIFE_ICON.png"
+            alt={user.name}
+            width={60}
+            height={60}
+            style={{ objectFit: "contain", mixBlendMode: "lighten" }}
+          />
+        )}
+        {loading && (
+          <div style={{
+            position: "absolute", inset: 0, borderRadius: "50%",
+            border: "2px solid rgba(226,202,122,0.15)",
+            borderTopColor: "#e2ca7a",
+            animation: "user-spin 0.8s linear infinite",
+          }} />
+        )}
+      </div>
+
+      {/* Main label */}
+      <span style={{
+        color: "#f0e6c8",
+        fontSize: 13,
+        fontWeight: 700,
+        fontFamily: "var(--font-montserrat, sans-serif)",
+        letterSpacing: "0.03em",
+        lineHeight: 1,
+        marginBottom: 5,
+      }}>
+        {label}
+      </span>
+
+      {/* Subtext */}
+      <span style={{
+        color: "rgba(226,202,122,0.45)",
+        fontSize: 11,
+        fontWeight: 500,
+        lineHeight: 1,
+      }}>
+        {user.name}
+      </span>
+    </button>
+  );
+}
+
 function UserSelectScreen({ onSelect }: { onSelect: (user: AppUser) => void }) {
   return (
     <div style={{ position: "fixed", inset: 0, background: "#000000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
-      <div style={{ display: "flex", gap: 24 }}>
-        {APP_USERS.map((user) => (
-          <button
-            key={user.id}
-            onClick={() => onSelect(user)}
-            aria-label={user.name}
-            style={{
-              background: "none",
-              border: "none",
-              padding: 0,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: "50%",
-              width: 64,
-              height: 64,
-              transition: "opacity 0.2s, transform 0.2s",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.opacity = "0.75";
-              (e.currentTarget as HTMLButtonElement).style.transform = "scale(1.08)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-              (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
-            }}
-          >
-            <Image
-              src="/CAPITALIFE_ICON.png"
-              alt={user.name}
-              width={64}
-              height={64}
-              style={{ objectFit: "contain", mixBlendMode: "lighten" }}
-            />
-          </button>
+      <style>{`@keyframes user-spin{to{transform:rotate(360deg)}}`}</style>
+      <div style={{ display: "flex", gap: 48 }}>
+        {APP_USERS.map((user, i) => (
+          <UserCard key={user.id} user={user} label={USER_LABELS[i]} index={i} onSelect={onSelect} />
         ))}
       </div>
     </div>
