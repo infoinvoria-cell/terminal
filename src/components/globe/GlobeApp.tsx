@@ -1,6 +1,6 @@
 "use client";
 
-import { lazy, useCallback, useEffect, useMemo, useRef, startTransition, useState, Suspense } from "react";
+import { lazy, useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
 import Image from "next/image";
 import { Maximize2, Minimize2 } from "lucide-react";
 
@@ -1904,7 +1904,7 @@ export default function GlobeApp() {
     autoRotateEnabled: isPageActive && effectiveAutoRotateEnabled,
     autoRotateSpeed: effectiveAutoRotateSpeed,
     goldThemeEnabled: false,
-    onCameraChange: (cam: import("@/lib/globe/globe-types").GlobeCameraState) => startTransition(() => setCamera(cam)),
+    onCameraChange: (cam: import("@/lib/globe/globe-types").GlobeCameraState) => setCamera(cam),
     onSelectAsset: onGlobeSelectAsset,
     onFocusHandled,
     onFocusLocationHandled,

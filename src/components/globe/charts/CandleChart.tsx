@@ -574,9 +574,9 @@ function CandleChartInner({
   const titleBorderColor = goldThemeEnabled ? "rgba(226,202,122,0.58)" : designTokens.stroke.accent;
   const titleTextColor = goldThemeEnabled ? "#fff3d1" : designTokens.text.secondary;
   const hasServerMarkers = Array.isArray(serverMarkers);
-  const safeServerMarkers = Array.isArray(serverMarkers) ? serverMarkers : [];
+  const safeServerMarkers = useMemo(() => Array.isArray(serverMarkers) ? serverMarkers : [], [serverMarkers]);
   const hasServerZones = Array.isArray(screenerZones);
-  const safeScreenerZones = Array.isArray(screenerZones) ? screenerZones : [];
+  const safeScreenerZones = useMemo(() => Array.isArray(screenerZones) ? screenerZones : [], [screenerZones]);
   const safeTradeMarkers = useMemo(() => (Array.isArray(tradeMarkers) ? tradeMarkers : []), [tradeMarkers]);
   const showZones = zonesEnabled;
   const showSignals = signalsEnabled;
@@ -1056,18 +1056,20 @@ function CandleChartInner({
       .filter((row): row is CandleBar => [row.open, row.high, row.low, row.close].every(Number.isFinite));
 
     if (fullBars.length < MIN_SCREENER_OHLCV_BARS) {
-      console.error("INVALID DATA - TOO SHORT", fullBars.length);
-      series.setData([]);
-      currentBarsRef.current = [];
-      dataLenRef.current = 0;
-      currentSliceOffsetRef.current = 0;
-      setZones([]);
-      setSignalGlyphs([]);
-      setExecutionGlyphs([]);
-      setTradeLineGlyphs([]);
-      pendingSignalsRef.current = [];
-      onRecentSignalChange?.(null);
-      setNoDataMessage("");
+      // Only clear state when we previously had data — prevents a setState([]) re-render loop
+      // when no asset is selected (state is already empty, new [] reference would trigger infinite effect)
+      if (currentBarsRef.current.length > 0 || dataLenRef.current > 0) {
+        series.setData([]);
+        currentBarsRef.current = [];
+        dataLenRef.current = 0;
+        currentSliceOffsetRef.current = 0;
+        setZones([]);
+        setSignalGlyphs([]);
+        setExecutionGlyphs([]);
+        setTradeLineGlyphs([]);
+        pendingSignalsRef.current = [];
+        onRecentSignalChange?.(null);
+      }
       return;
     }
 
