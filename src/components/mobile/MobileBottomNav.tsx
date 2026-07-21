@@ -153,7 +153,7 @@ const SIDEBAR_GROUPS = [
     label: "Tools",
     items: [
       { href: "/m/signale",   label: "Signale",    Icon: IconBellRing },
-      { href: "/monitoring",  label: "Monitoring", Icon: IconActivity },
+      { href: "/m/monitoring",  label: "Monitoring", Icon: IconActivity },
       { href: "/analytics",   label: "Analytics",  Icon: IconChartColumn },
       { href: "/komponenten", label: "Komponenten", Icon: IconPackage },
     ],
@@ -163,7 +163,7 @@ const SIDEBAR_GROUPS = [
     items: [
       { href: "/manager",          label: "Manager",        Icon: IconBriefcase },
       { href: "/investors",        label: "Investors",      Icon: IconPieChart },
-      { href: "/m/investors-crm",  label: "Early Access",   Icon: IconUsers },
+      { href: "/m/onboarding",      label: "Onboarding",     Icon: IconUsers },
       { href: "/vermittler",       label: "Vermittler",     Icon: IconNetwork },
     ],
   },
