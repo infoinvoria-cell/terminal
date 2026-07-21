@@ -48,6 +48,14 @@
 - No direct push to `main`.
 - Never use `git add .`
 
+## Deploy-Regel
+Nach JEDEM abgeschlossenen Task:
+1. `npm run build` — Build prüfen
+2. `git add .`
+3. `git commit -m "beschreibung"`
+4. `git push origin main`
+Kein Task gilt als abgeschlossen ohne Push auf main.
+
 ## Brain Context Layer
 
 - Brain Source of Truth:
