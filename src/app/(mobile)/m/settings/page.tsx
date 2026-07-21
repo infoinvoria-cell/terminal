@@ -1,9 +1,5 @@
-import { MobileScreen, MobilePlaceholder } from "@/components/mobile/MobileScreen";
+import { MobileSettingsView } from "@/components/mobile/settings/MobileSettingsView";
 
 export default function MobileSettingsPage() {
-  return (
-    <MobileScreen title="Settings" subtitle="Provider & Präferenzen">
-      <MobilePlaceholder label="Settings" />
-    </MobileScreen>
-  );
+  return <MobileSettingsView />;
 }
