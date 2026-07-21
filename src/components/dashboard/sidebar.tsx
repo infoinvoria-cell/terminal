@@ -18,6 +18,7 @@ import {
   PieChart,
   Settings,
   Smartphone,
+  Users,
 } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
@@ -165,6 +166,7 @@ function toMobileUrl(path: string | null): string {
   if (path.startsWith("/signal") || path.startsWith("/monitoring")) return "/m/signale";
   if (path.startsWith("/brain")) return "/m/brain";
   if (path.startsWith("/settings")) return "/m/settings";
+  if (path.startsWith("/investors-crm")) return "/m/investors-crm";
   return "/m/home";
 }
 
@@ -383,12 +385,13 @@ export function Sidebar() {
   const mobileUrl = toMobileUrl(pathname);
   const desktopUrl = pathname ?? "/";
 
-  const monitoringActive  = pathname?.startsWith("/monitoring") ?? false;
-  const signalActive      = pathname?.startsWith("/signal") ?? false;
-  const brainActive       = (pathname?.startsWith("/brain") ?? false) || (pathname?.startsWith("/brain-graph") ?? false);
-  const componentsActive  = pathname?.startsWith("/komponenten") ?? false;
-  const settingsActive    = pathname?.startsWith("/settings") ?? false;
-  const shellRouteActive  = pathname === "/" || !pathname;
+  const monitoringActive    = pathname?.startsWith("/monitoring") ?? false;
+  const signalActive        = pathname?.startsWith("/signal") ?? false;
+  const brainActive         = (pathname?.startsWith("/brain") ?? false) || (pathname?.startsWith("/brain-graph") ?? false);
+  const componentsActive    = pathname?.startsWith("/komponenten") ?? false;
+  const settingsActive      = pathname?.startsWith("/settings") ?? false;
+  const investorsCRMActive  = pathname?.startsWith("/investors-crm") ?? false;
+  const shellRouteActive    = pathname === "/" || !pathname;
 
   const sidebarPageState: DashboardPage =
     shellRouteActive && !monitoringActive && !signalActive && !brainActive && !componentsActive
@@ -473,10 +476,11 @@ export function Sidebar() {
         <SidebarSep expanded={expanded} />
       </div>
 
-      {/* Group 3: Manager Overview · Investors · Vermittler */}
+      {/* Group 3: Manager Overview · Investors · CRM · Vermittler */}
       <nav className={cn("mt-2", navClass)} aria-label="Manager">
         <SidebarIconButton page="manager-overview"  activePage={sidebarPageState} label="Manager"   icon={BriefcaseBusiness} onSelect={onSelectPage} expanded={expanded} />
         <SidebarIconButton page="investor-analytics" activePage={sidebarPageState} label="Investors" icon={PieChart}          onSelect={onSelectPage} expanded={expanded} />
+        <SidebarLink href="/investors-crm" active={investorsCRMActive} label="Early Access" icon={Users} expanded={expanded} />
         <SidebarIconButton page="sub-ib-system"     activePage={sidebarPageState} label="Vermittler" icon={Network}          onSelect={onSelectPage} expanded={expanded} />
       </nav>
 

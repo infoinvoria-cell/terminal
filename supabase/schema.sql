@@ -156,6 +156,46 @@ create policy "Service role write on dashboard_snapshot" on public.dashboard_sna
   using (true) with check (true);
 GRANT ALL ON public.dashboard_snapshot TO service_role;
 
+-- ── Investors CRM ─────────────────────────────────────────────────────────────
+create table if not exists public.investors_crm (
+  id                uuid primary key default gen_random_uuid(),
+  name              text not null,
+  unternehmen       text,
+  email             text,
+  telefon           text,
+  kontaktquelle     text,
+  kapitalrahmen     text,
+  verfuegbar_ab     date,
+  status            text not null default 'Neu',
+  letzter_kontakt   date,
+  naechster_schritt text,
+  zustaendig        text,
+  notizen           text,
+  created_at        timestamptz not null default now()
+);
+alter table public.investors_crm enable row level security;
+create policy "Service role full access on investors_crm" on public.investors_crm
+  using (true) with check (true);
+grant all on public.investors_crm to service_role;
+
+-- ── Wave1 Group Data ─────────────────────────────────────────────────────────
+-- Monitoring wave1 group snapshots (manifest + signals + cards + statuses, no charts)
+create table if not exists public.wave1_groups (
+  group_id     text primary key,           -- "agrar" | "intraday" | "indices"
+  manifest     jsonb,
+  signals      jsonb,
+  statuses     jsonb,
+  cards        jsonb,
+  generated_at timestamptz,
+  uploaded_at  timestamptz not null default now()
+);
+alter table public.wave1_groups enable row level security;
+create policy "Public read on wave1_groups" on public.wave1_groups
+  for select using (true);
+create policy "Service role write on wave1_groups" on public.wave1_groups
+  using (true) with check (true);
+GRANT ALL ON public.wave1_groups TO service_role;
+
 -- ── Strategy Registry ─────────────────────────────────────────────────────────
 create table if not exists public.strategy_sleeves (
   sleeve          text primary key,
