@@ -478,12 +478,12 @@ export function SettingsPanel({
                     return (
                       <div
                         key={asset.id}
-                        className={`ivq-settings-asset flex h-6 items-center gap-1 rounded-md border px-1 text-[10px] ${performanceMode ? "" : "transition"} ${
+                        className={`ivq-settings-asset flex h-6 items-center gap-1 rounded-md px-1 text-[10px] ${performanceMode ? "" : "transition"} ${
                           selected
-                            ? `${goldThemeEnabled ? "border-[#e2ca7a]/85 text-[#fff3d1]" : "border-white/60 text-white"} bg-transparent`
+                            ? `${goldThemeEnabled ? "bg-[#e2ca7a]/16 text-[#fff3d1]" : "bg-white/10 text-white"}`
                             : markerSelectable && checked
-                              ? `${goldThemeEnabled ? "border-[#e2ca7a]/55 text-[#fff3d1]" : "border-white/30 text-white"} bg-transparent`
-                              : "border-slate-700/60 bg-transparent text-slate-300"
+                              ? `${goldThemeEnabled ? "bg-[#e2ca7a]/08 text-[#e8d5a7]" : "bg-white/[0.04] text-white/70"}`
+                              : "text-slate-400"
                         }`}
                       >
                         <button

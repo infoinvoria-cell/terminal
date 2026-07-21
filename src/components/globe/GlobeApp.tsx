@@ -280,26 +280,65 @@ void mixHex;
 
 // ── Slim news column ────────────────────────────────────────────
 type GlobeNewsColumnProps = { items: import("@/lib/globe/globe-types").NewsItem[]; title: string; goldThemeEnabled?: boolean };
-function GlobeNewsColumn({ items, title }: GlobeNewsColumnProps) {
+
+function timeAgo(iso: string | undefined): string {
+  if (!iso) return "";
+  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+  if (diff < 1) return "now";
+  if (diff < 60) return `${diff}m`;
+  if (diff < 1440) return `${Math.floor(diff / 60)}h`;
+  return `${Math.floor(diff / 1440)}d`;
+}
+
+function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
   return (
-    <div className="flex h-full flex-col">
-      <div className="mb-1.5 shrink-0 text-[10px] font-semibold uppercase tracking-[0.1em] text-[rgba(255,255,255,0.35)]">{title}</div>
-      <div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
+    <div className="relative flex h-full flex-col overflow-hidden">
+      <div className="min-h-0 flex-1 space-y-[3px] overflow-y-auto overflow-x-hidden px-2 pt-1 pb-8"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
         {items.length === 0 && (
-          <div className="pt-4 text-center text-[11px] text-[rgba(255,255,255,0.25)]">No news</div>
+          <div className="pt-6 text-center text-[11px] text-white/20">No news</div>
         )}
-        {items.map((item, i) => (
-          <a
-            key={String(item.newsId || item.url || i)}
-            href={item.url || "#"}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block rounded px-1.5 py-1 text-[11px] leading-snug text-[rgba(255,255,255,0.7)] hover:text-white hover:bg-[rgba(255,255,255,0.04)]"
-          >
-            {item.title}
-          </a>
-        ))}
+        {items.map((item, i) => {
+          const ago = timeAgo(item.publishedAt ?? item.timestamp);
+          const domain = item.sourceDomain ?? item.source?.split(" ")[0] ?? "";
+          return (
+            <a
+              key={String(item.newsId || item.url || i)}
+              href={item.url || "#"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block rounded-[10px] px-2.5 py-2 transition-colors"
+              style={{ background: "rgba(255,255,255,0.025)" }}
+            >
+              <div className="mb-1 flex items-center gap-1.5">
+                {domain && (
+                  <span className="rounded-[4px] px-1.5 py-[1px] text-[9px] font-semibold uppercase tracking-wide"
+                    style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" }}>
+                    {domain}
+                  </span>
+                )}
+                {item.country && (
+                  <span className="text-[9px] text-white/30">{item.country}</span>
+                )}
+                {ago && (
+                  <span className="ml-auto text-[9px] text-white/25">{ago}</span>
+                )}
+              </div>
+              <p className="text-[11px] font-medium leading-snug text-white/80 group-hover:text-white line-clamp-2">
+                {item.title}
+              </p>
+              {item.description && (
+                <p className="mt-0.5 text-[10px] leading-snug text-white/35 line-clamp-2">
+                  {item.description}
+                </p>
+              )}
+            </a>
+          );
+        })}
       </div>
+      {/* Black fade at bottom instead of scrollbar */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8"
+        style={{ background: "linear-gradient(to bottom, transparent, #06070a)" }} />
     </div>
   );
 }
@@ -343,8 +382,9 @@ type GlobeOverlayControlProps = {
 function GlobeOverlayControl({ overlayState, overlayLoadingState, onToggleOverlay }: GlobeOverlayControlProps) {
   const keys = Object.keys(OVERLAY_LABELS) as Array<keyof import("@/lib/globe/globe-types").OverlayToggleState>;
   return (
-    <div className="h-full overflow-y-auto p-2">
-      <div className="grid gap-1.5" style={{ gridTemplateColumns: "1fr 1fr" }}>
+    <div className="h-full overflow-y-auto p-1.5"
+      style={{ scrollbarWidth: "none" }}>
+      <div className="grid gap-1" style={{ gridTemplateColumns: "1fr 1fr" }}>
         {keys.map((key) => {
           const active = Boolean(overlayState[key]);
           const loading = Boolean(overlayLoadingState?.[key]);
@@ -354,21 +394,20 @@ function GlobeOverlayControl({ overlayState, overlayLoadingState, onToggleOverla
               type="button"
               onClick={() => onToggleOverlay(key)}
               aria-pressed={active}
-              className="flex flex-col items-start gap-0.5 rounded-[10px] px-2 py-2 text-left transition"
+              className="flex flex-col items-start gap-0.5 rounded-[8px] px-1.5 py-1.5 text-left transition"
               style={{
-                background: active ? "rgba(255,255,255,0.09)" : "rgba(255,255,255,0.03)",
-                border: `1px solid ${active ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.06)"}`,
+                backdropFilter: "blur(8px)",
+                WebkitBackdropFilter: "blur(8px)",
+                background: active ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.03)",
+                border: `1px solid ${active ? "rgba(255,255,255,0.20)" : "rgba(255,255,255,0.05)"}`,
               }}
             >
-              <span style={{ fontSize: 14, lineHeight: 1 }}>{OVERLAY_EMOJI[key] ?? "◦"}</span>
-              <span
-                className="mt-1 w-full truncate text-[10px] font-medium leading-tight"
-                style={{ color: active ? "#ffffff" : "rgba(255,255,255,0.42)" }}
-              >
+              <span style={{ fontSize: 11, lineHeight: 1 }}>{OVERLAY_EMOJI[key] ?? "◦"}</span>
+              <span className="mt-0.5 w-full truncate text-[9px] font-medium leading-tight"
+                style={{ color: active ? "#ffffff" : "rgba(255,255,255,0.38)" }}>
                 {OVERLAY_LABELS[key] ?? key}
               </span>
-              {loading && <span className="text-[9px] text-white/30">…</span>}
-              {!loading && active && <span className="text-[8px] font-semibold tracking-wider text-white/50">ON</span>}
+              {loading && <span className="text-[8px] text-white/25">…</span>}
             </button>
           );
         })}
@@ -1874,8 +1913,8 @@ export default function GlobeApp() {
   const dashboardLoadingHeadline = dashboardLoadingLabels[0] || "Loading data...";
 
   // Shared Analytics-style card styles
-  const CARD = "flex min-h-0 flex-col overflow-hidden rounded-[18px] border bg-[#0b0c0f] shadow-[0_18px_45px_rgba(0,0,0,0.40)]";
-  const CARD_BORDER = { borderColor: "rgba(255,255,255,0.075)" } as const;
+  const CARD = "flex min-h-0 flex-col overflow-hidden rounded-[18px] border shadow-[0_18px_45px_rgba(0,0,0,0.50)]";
+  const CARD_BORDER = { borderColor: "rgba(255,255,255,0.06)", background: "rgba(12,13,18,0.72)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)" } as const;
   const CARD_HEADER = "shrink-0 border-b border-white/[0.06] px-4 py-2.5";
   const CARD_LABEL = "text-[11px] font-medium tracking-[0.05em] text-[#8d8f98] uppercase";
 
@@ -1914,7 +1953,7 @@ export default function GlobeApp() {
   };
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-[#0c0d10] text-white">
+    <div className="relative h-full w-full overflow-hidden bg-[#06070a] text-white">
       <div
         className="grid h-full w-full p-3"
         style={{ gridTemplateColumns: "20% 50% 30%", gridTemplateRows: "100%", gap: 12 }}
@@ -2031,7 +2070,7 @@ export default function GlobeApp() {
             <div className={CARD_HEADER}>
               <span className={CARD_LABEL}>{selectedAsset?.name ?? "Asset"} News</span>
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto p-2">
+            <div className="relative min-h-0 flex-1 overflow-hidden">
               <GlobeNewsColumn
                 items={assetNews}
                 title={`${selectedAsset?.name ?? "Asset"} News`}
@@ -2044,7 +2083,7 @@ export default function GlobeApp() {
             <div className={CARD_HEADER}>
               <span className={CARD_LABEL}>Global News</span>
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto p-2">
+            <div className="relative min-h-0 flex-1 overflow-hidden">
               <GlobeNewsColumn
                 items={globalNews}
                 title="Global News"

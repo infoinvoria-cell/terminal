@@ -1720,20 +1720,6 @@ function GlobeCanvasComponent({
         />
       </div>
 
-      <div className="pointer-events-none absolute bottom-2 left-2 z-20">
-        <img
-          src={logoSrc}
-          alt={logoAlt}
-          className="h-10 w-auto opacity-70"
-          onError={(e) => {
-            const img = e.currentTarget;
-            if (!img.src.endsWith(logoFallbackSrc)) {
-              img.src = logoFallbackSrc;
-            }
-          }}
-        />
-      </div>
-
       {activeEvent ? (
         <div className="absolute left-2 top-[78px] z-20 max-w-[260px] rounded-md border border-slate-600/55 bg-[rgba(6,12,22,0.88)] p-2 text-[10px] text-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
           <div className="mb-0.5 flex items-center justify-between gap-2">
