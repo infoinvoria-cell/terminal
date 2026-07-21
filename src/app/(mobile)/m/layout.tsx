@@ -7,7 +7,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
   return (
     <div style={{ position: "relative", minHeight: "100dvh", background: "#0c0d10", overflowX: "hidden" }}>
       <MobileNavReporter />
-      <main style={{ minHeight: "100dvh", overflowY: "auto", paddingBottom: "calc(76px + env(safe-area-inset-bottom, 0px))" }}>
+      <main style={{ minHeight: "100dvh", overflowY: "auto", paddingBottom: "calc(60px + env(safe-area-inset-bottom, 0px))" }}>
         {children}
       </main>
       <MobileBottomNav />
