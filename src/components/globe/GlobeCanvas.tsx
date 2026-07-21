@@ -314,29 +314,29 @@ function GlobeCanvasComponent({
   const [hoveredPointId, setHoveredPointId] = useState("");
   const [activeEvent, setActiveEvent] = useState<GeoEventItem | null>(null);
   const internalCameraRef = useRef<GlobeCameraState | null>(null);
-  const themePrimaryHex = goldThemeEnabled ? "#e2ca7a" : "#2962ff";
-  const themePrimarySoft = goldThemeEnabled ? "#c9a84a" : "#7ac8ff";
-  const themeFillStrong = goldThemeEnabled ? "rgba(226,202,122,0.84)" : "rgba(41,98,255,0.86)";
-  const themeFillSoft = goldThemeEnabled ? "rgba(226,202,122,0.70)" : "rgba(41,98,255,0.70)";
-  const themeFillOverlay = goldThemeEnabled ? "rgba(226,202,122,0.56)" : "rgba(41,98,255,0.56)";
-  const themeStrokeStrong = goldThemeEnabled ? "rgba(226,202,122,0.98)" : "rgba(96,149,255,0.98)";
-  const themeUiBg = goldThemeEnabled ? "rgba(17,14,9,0.90)" : "rgba(6,12,22,0.92)";
-  const themeUiBorder = goldThemeEnabled ? "rgba(226,202,122,0.55)" : "rgba(109,157,220,0.45)";
-  const themeUiText = goldThemeEnabled ? "#fff2d2" : "#dfeaff";
-  const themeUiSubText = goldThemeEnabled ? "#e8d5a7" : "#bcd2f5";
-  const themeUiMuted = goldThemeEnabled ? "#d6be86" : "#a9bad2";
-  const themeHoverBg = goldThemeEnabled ? "rgba(26,20,10,0.92)" : "rgba(12,24,40,0.9)";
-  const themeHoverBorder = goldThemeEnabled ? "rgba(226,202,122,0.76)" : "rgba(127,180,255,0.75)";
-  const themeDefaultBg = goldThemeEnabled ? "rgba(14,11,8,0.80)" : "rgba(6,12,22,0.76)";
-  const themeDefaultBorder = goldThemeEnabled ? "rgba(226,202,122,0.46)" : "rgba(73,108,154,0.5)";
-  const logoSrc = goldThemeEnabled ? "/CAPITALIFE_Logo.png" : "/invoria_logo.png";
-  const logoFallbackSrc = goldThemeEnabled ? "/CAPITALIFE_Logo.png" : "/invoria_logo.png";
-  const logoAlt = goldThemeEnabled ? "Capitalife" : "Invoria Quant";
+  const themePrimaryHex = goldThemeEnabled ? "#e2ca7a" : "#d4d4d8";
+  const themePrimarySoft = goldThemeEnabled ? "#c9a84a" : "#a1a1aa";
+  const themeFillStrong = goldThemeEnabled ? "rgba(226,202,122,0.84)" : "rgba(212,212,216,0.72)";
+  const themeFillSoft = goldThemeEnabled ? "rgba(226,202,122,0.70)" : "rgba(180,180,184,0.52)";
+  const themeFillOverlay = goldThemeEnabled ? "rgba(226,202,122,0.56)" : "rgba(160,160,164,0.38)";
+  const themeStrokeStrong = goldThemeEnabled ? "rgba(226,202,122,0.98)" : "rgba(228,228,231,0.95)";
+  const themeUiBg = goldThemeEnabled ? "rgba(17,14,9,0.90)" : "rgba(18,18,22,0.92)";
+  const themeUiBorder = goldThemeEnabled ? "rgba(226,202,122,0.55)" : "rgba(160,160,168,0.40)";
+  const themeUiText = goldThemeEnabled ? "#fff2d2" : "#e4e4e7";
+  const themeUiSubText = goldThemeEnabled ? "#e8d5a7" : "#a1a1aa";
+  const themeUiMuted = goldThemeEnabled ? "#d6be86" : "#71717a";
+  const themeHoverBg = goldThemeEnabled ? "rgba(26,20,10,0.92)" : "rgba(22,22,26,0.92)";
+  const themeHoverBorder = goldThemeEnabled ? "rgba(226,202,122,0.76)" : "rgba(210,210,216,0.72)";
+  const themeDefaultBg = goldThemeEnabled ? "rgba(14,11,8,0.80)" : "rgba(15,15,18,0.80)";
+  const themeDefaultBorder = goldThemeEnabled ? "rgba(226,202,122,0.46)" : "rgba(140,140,148,0.42)";
+  const logoSrc = "/CAPITALIFE_Logo.png";
+  const logoFallbackSrc = "/CAPITALIFE_Logo.png";
+  const logoAlt = "Capitalife";
   const OCEAN_TEXTURE = useMemo(
     () =>
       "data:image/svg+xml;utf8," +
-      encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='2' height='2'><rect width='2' height='2' fill='${goldThemeEnabled ? "#070608" : "#081a30"}'/></svg>`),
-    [goldThemeEnabled],
+      encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='2' height='2'><rect width='2' height='2' fill='#070608'/></svg>`),
+    [],
   );
   const rendererConfig = useMemo(
     () =>
@@ -1363,7 +1363,7 @@ function GlobeCanvasComponent({
       <div
         ref={stageRef}
         className="absolute inset-0 z-[3]"
-        style={{ filter: `drop-shadow(0 0 10px ${goldThemeEnabled ? "rgba(226,202,122,0.22)" : "rgba(190,214,255,0.2)"})` }}
+        style={{ filter: `drop-shadow(0 0 10px ${goldThemeEnabled ? "rgba(226,202,122,0.22)" : "rgba(255,255,255,0.08)"})` }}
       >
         <Globe
           ref={globeRef}
@@ -1642,6 +1642,9 @@ function GlobeCanvasComponent({
             if (goldThemeEnabled && selectedOverlay === "none") {
               return "rgba(116,97,54,0.32)";
             }
+            if (!goldThemeEnabled && selectedOverlay === "none") {
+              return "rgba(68,68,76,0.52)";
+            }
             return base;
           }}
           polygonSideColor={() => "rgba(0,0,0,0)"}
@@ -1688,6 +1691,9 @@ function GlobeCanvasComponent({
             if (riskStroke) return riskStroke;
             if (goldThemeEnabled && selectedOverlay === "none") {
               return "rgba(226,202,122,0.58)";
+            }
+            if (!goldThemeEnabled && selectedOverlay === "none") {
+              return "rgba(160,160,168,0.55)";
             }
             return polygonStrokeColor(selectedOverlay, f, policyRateByCountry);
           }}
@@ -1737,7 +1743,7 @@ function GlobeCanvasComponent({
             <button
               type="button"
               onClick={() => setActiveEvent(null)}
-              className={`rounded border border-slate-700/60 px-1 py-0 text-[9px] text-slate-300 transition ${goldThemeEnabled ? "hover:border-[#e2ca7a]/55 hover:text-[#fff3d1]" : "hover:border-[#2962ff]/55 hover:text-[#dce8ff]"}`}
+              className={`rounded border border-slate-700/60 px-1 py-0 text-[9px] text-slate-300 transition ${goldThemeEnabled ? "hover:border-[#e2ca7a]/55 hover:text-[#fff3d1]" : "hover:border-white/30 hover:text-white"}`}
             >
               close
             </button>
@@ -1766,7 +1772,7 @@ function GlobeCanvasComponent({
               href={String(activeEvent.url)}
               target="_blank"
               rel="noreferrer"
-              className={`mt-1 inline-block text-[10px] underline underline-offset-2 ${goldThemeEnabled ? "text-[#ffd58a] decoration-[#e2ca7a]/65" : "text-[#9fc2ff] decoration-[#2962ff]/65"}`}
+              className={`mt-1 inline-block text-[10px] underline underline-offset-2 ${goldThemeEnabled ? "text-[#ffd58a] decoration-[#e2ca7a]/65" : "text-zinc-300 decoration-white/40"}`}
             >
               Open source
             </a>

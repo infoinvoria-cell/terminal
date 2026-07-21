@@ -1870,164 +1870,135 @@ export default function GlobeApp() {
   const dashboardLoadingActive = Boolean(shellLoading || panelLoading || apiLoading.active || overlayLoadingLabels.length > 0);
   const dashboardLoadingHeadline = dashboardLoadingLabels[0] || "Loading data...";
 
+  // Shared Analytics-style card styles
+  const CARD = "flex min-h-0 flex-col overflow-hidden rounded-[18px] border bg-[#17181b] shadow-[0_18px_45px_rgba(0,0,0,0.22)]";
+  const CARD_BORDER = { borderColor: "rgba(255,255,255,0.075)" } as const;
+  const CARD_HEADER = "shrink-0 border-b border-white/[0.06] px-4 py-2.5";
+  const CARD_LABEL = "text-[11px] font-medium tracking-[0.05em] text-[#8d8f98] uppercase";
+
+  const globeCanvasProps = {
+    markers: visibleMarkers,
+    selectedAssetId,
+    selectedAssetCategory: selectedAsset?.category ?? "",
+    selectedAssetLocations,
+    crossPairPath,
+    focusAssetId,
+    focusLocation,
+    selectedOverlay,
+    inflationByCountry: emptyInflationByCountry,
+    policyRateByCountry: emptyPolicyRateByCountry,
+    volatilityScore: 50,
+    volatilityRegime: "Neutral",
+    commodityRegionScores: emptyCommodityRegionScores,
+    commodityMode: "Normal",
+    geoEvents,
+    shipTracking: activeShipTracking,
+    overlayRoutes: activeRouteOverlays,
+    commodityRegions: activeCommodityRegions,
+    globalRiskRegions: activeGlobalRiskRegions,
+    globalLiquidityRegions: activeGlobalLiquidityRegions,
+    regionHighlight: activeRegionHighlight,
+    overlayState,
+    camera,
+    active: isPageActive,
+    autoRotateEnabled: isPageActive && effectiveAutoRotateEnabled,
+    autoRotateSpeed: effectiveAutoRotateSpeed,
+    goldThemeEnabled: false,
+    onCameraChange: (cam: import("@/lib/globe/globe-types").GlobeCameraState) => startTransition(() => setCamera(cam)),
+    onSelectAsset: onGlobeSelectAsset,
+    onFocusHandled,
+    onFocusLocationHandled,
+  };
+
   return (
     <div className="relative h-full w-full overflow-hidden bg-[#0c0d10] text-white">
       <div
-        className="grid h-full w-full"
-        style={{ gridTemplateColumns: "20% 50% 30%", gridTemplateRows: "100%" }}
+        className="grid h-full w-full p-3"
+        style={{ gridTemplateColumns: "20% 50% 30%", gridTemplateRows: "100%", gap: 12 }}
       >
 
-        {/* ── LEFT: Asset list (60%) + Overlay Control (40%) ── */}
-        <div className="flex min-h-0 flex-col overflow-hidden border-r border-[rgba(255,255,255,0.06)]">
-          {/* Asset list — 60% height */}
-          <div className="min-h-0 overflow-hidden" style={{ flex: "0 0 60%" }}>
-            <SettingsPanel
-              assets={assets}
-              enabledSet={enabledSet}
-              categoryEnabled={categoryEnabled}
-              selectedAssetId={selectedAssetId}
-              goldThemeEnabled={false}
-              onSelectAsset={onSelectAssetFromWatchlist}
-              onToggleAsset={onToggleAsset}
-              onToggleCategory={onToggleCategory}
-              onAllOn={onAllOn}
-              onAllOff={onAllOff}
-              onRefreshData={onRefreshData}
-              overlayState={overlayState}
-              overlayLoadingState={overlayLoadingState}
-              onToggleOverlay={onToggleOverlay}
-              hideOverlayControls
-            />
+        {/* ── LEFT: Watchlist + Overlay Control ── */}
+        <div className="flex min-h-0 flex-col gap-3 overflow-hidden">
+          {/* Watchlist card — 60% */}
+          <div className={CARD} style={{ ...CARD_BORDER, flex: "0 0 60%" }}>
+            <div className={CARD_HEADER}>
+              <span className={CARD_LABEL}>Watchlist</span>
+            </div>
+            <div className="min-h-0 flex-1 overflow-hidden">
+              <SettingsPanel
+                assets={assets}
+                enabledSet={enabledSet}
+                categoryEnabled={categoryEnabled}
+                selectedAssetId={selectedAssetId}
+                goldThemeEnabled={false}
+                onSelectAsset={onSelectAssetFromWatchlist}
+                onToggleAsset={onToggleAsset}
+                onToggleCategory={onToggleCategory}
+                onAllOn={onAllOn}
+                onAllOff={onAllOff}
+                onRefreshData={onRefreshData}
+                overlayState={overlayState}
+                overlayLoadingState={overlayLoadingState}
+                onToggleOverlay={onToggleOverlay}
+                hideOverlayControls
+              />
+            </div>
           </div>
-          {/* Divider */}
-          <div className="mx-3 shrink-0 border-t border-[rgba(255,255,255,0.06)]" />
-          {/* Overlay Control — 40% height */}
-          <div className="min-h-0 overflow-y-auto" style={{ flex: "0 0 40%" }}>
-            <GlobeOverlayControl
-              overlayState={overlayState}
-              overlayLoadingState={overlayLoadingState}
-              onToggleOverlay={onToggleOverlay}
-            />
+          {/* Overlay Control card — remaining */}
+          <div className={CARD} style={{ ...CARD_BORDER, flex: "1 1 0" }}>
+            <div className={CARD_HEADER}>
+              <span className={CARD_LABEL}>Overlay Control</span>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              <GlobeOverlayControl
+                overlayState={overlayState}
+                overlayLoadingState={overlayLoadingState}
+                onToggleOverlay={onToggleOverlay}
+              />
+            </div>
           </div>
         </div>
 
-        {/* ── CENTER: Globe (70%) + 2D Map (30%) ── */}
-        <div
-          className="flex min-h-0 flex-col border-r border-[rgba(255,255,255,0.06)]"
-          style={{ gridTemplateRows: "70% 30%" }}
-        >
-          {/* Globe — 70% */}
+        {/* ── CENTER: Globe + 2D Map (one big card) ── */}
+        <div className={CARD} style={CARD_BORDER}>
+          {/* Globe — 68% */}
           <div
             ref={globeShellRef}
             className="relative min-h-0 overflow-hidden"
-            style={{ flex: "0 0 70%" }}
+            style={{ flex: "0 0 68%" }}
           >
-            {/* Capitalife logo — bottom-left of globe */}
-            <div className="pointer-events-none absolute bottom-3 left-3 z-20">
-              <Image
-                src="/CAPITALIFE_Logo.png"
-                alt="Capitalife"
-                width={100}
-                height={24}
-                style={{ height: 20, width: "auto", objectFit: "contain", opacity: 0.55 }}
-              />
-            </div>
             {isGlobeFullscreen ? (
               <div className="fixed inset-0 z-[70] overflow-hidden bg-[#0c0d10]">
                 <button
                   type="button"
                   onClick={onToggleGlobeFullscreen}
-                  className="absolute right-4 top-4 z-30 flex h-8 w-8 items-center justify-center rounded-md border border-[rgba(255,255,255,0.15)] text-white hover:border-white"
+                  className="absolute right-4 top-4 z-30 flex h-8 w-8 items-center justify-center rounded-md border border-white/15 text-white hover:border-white"
                   title="Exit fullscreen"
                   aria-label="Exit fullscreen"
                 >
                   <Minimize2 size={15} strokeWidth={1.9} />
                 </button>
-                <GlobeCanvas
-                  markers={visibleMarkers}
-                  selectedAssetId={selectedAssetId}
-                  selectedAssetCategory={selectedAsset?.category ?? ""}
-                  selectedAssetLocations={selectedAssetLocations}
-                  crossPairPath={crossPairPath}
-                  focusAssetId={focusAssetId}
-                  focusLocation={focusLocation}
-                  selectedOverlay={selectedOverlay}
-                  inflationByCountry={emptyInflationByCountry}
-                  policyRateByCountry={emptyPolicyRateByCountry}
-                  volatilityScore={50}
-                  volatilityRegime="Neutral"
-                  commodityRegionScores={emptyCommodityRegionScores}
-                  commodityMode="Normal"
-                  geoEvents={geoEvents}
-                  shipTracking={activeShipTracking}
-                  overlayRoutes={activeRouteOverlays}
-                  commodityRegions={activeCommodityRegions}
-                  globalRiskRegions={activeGlobalRiskRegions}
-                  globalLiquidityRegions={activeGlobalLiquidityRegions}
-                  regionHighlight={activeRegionHighlight}
-                  overlayState={overlayState}
-                  camera={camera}
-                  active={isPageActive}
-                  autoRotateEnabled={isPageActive && effectiveAutoRotateEnabled}
-                  autoRotateSpeed={effectiveAutoRotateSpeed}
-                  goldThemeEnabled={false}
-                  onCameraChange={(cam) => startTransition(() => setCamera(cam))}
-                  onSelectAsset={onGlobeSelectAsset}
-                  onFocusHandled={onFocusHandled}
-                  onFocusLocationHandled={onFocusLocationHandled}
-                />
+                <GlobeCanvas {...globeCanvasProps} />
               </div>
             ) : (
               <>
                 <button
                   type="button"
                   onClick={onToggleGlobeFullscreen}
-                  className="absolute right-3 top-3 z-30 flex h-7 w-7 items-center justify-center rounded-md border border-[rgba(255,255,255,0.15)] text-white hover:border-white"
+                  className="absolute right-3 top-3 z-30 flex h-7 w-7 items-center justify-center rounded-md border border-white/15 text-white hover:border-white"
                   title="Fullscreen"
                   aria-label="Fullscreen"
                 >
                   <Maximize2 size={14} strokeWidth={1.9} />
                 </button>
-                <GlobeCanvas
-                  markers={visibleMarkers}
-                  selectedAssetId={selectedAssetId}
-                  selectedAssetCategory={selectedAsset?.category ?? ""}
-                  selectedAssetLocations={selectedAssetLocations}
-                  crossPairPath={crossPairPath}
-                  focusAssetId={focusAssetId}
-                  focusLocation={focusLocation}
-                  selectedOverlay={selectedOverlay}
-                  inflationByCountry={emptyInflationByCountry}
-                  policyRateByCountry={emptyPolicyRateByCountry}
-                  volatilityScore={50}
-                  volatilityRegime="Neutral"
-                  commodityRegionScores={emptyCommodityRegionScores}
-                  commodityMode="Normal"
-                  geoEvents={geoEvents}
-                  shipTracking={activeShipTracking}
-                  overlayRoutes={activeRouteOverlays}
-                  commodityRegions={activeCommodityRegions}
-                  globalRiskRegions={activeGlobalRiskRegions}
-                  globalLiquidityRegions={activeGlobalLiquidityRegions}
-                  regionHighlight={activeRegionHighlight}
-                  overlayState={overlayState}
-                  camera={camera}
-                  active={isPageActive}
-                  autoRotateEnabled={isPageActive && effectiveAutoRotateEnabled}
-                  autoRotateSpeed={effectiveAutoRotateSpeed}
-                  goldThemeEnabled={false}
-                  onCameraChange={(cam) => startTransition(() => setCamera(cam))}
-                  onSelectAsset={onGlobeSelectAsset}
-                  onFocusHandled={onFocusHandled}
-                  onFocusLocationHandled={onFocusLocationHandled}
-                />
+                <GlobeCanvas {...globeCanvasProps} />
               </>
             )}
           </div>
           {/* Divider */}
-          <div className="shrink-0 border-t border-[rgba(255,255,255,0.06)]" />
-          {/* 2D Map — 30% */}
-          <div className="min-h-0 overflow-hidden" style={{ flex: "0 0 30%" }}>
+          <div className="shrink-0 border-t border-white/[0.06]" />
+          {/* 2D Map — remaining 32% */}
+          <div className="min-h-0 flex-1 overflow-hidden">
             <MiniWorldMap
               markers={visibleMarkers}
               selectedAssetId={selectedAssetId}
@@ -2050,50 +2021,58 @@ export default function GlobeApp() {
           </div>
         </div>
 
-        {/* ── RIGHT: Chart (30%) → Asset News (40%) → Global News (30%) ── */}
-        <div className="flex min-h-0 flex-col">
-          {/* Candle chart — 30% */}
-          <div className="min-h-0 overflow-hidden p-2" style={{ flex: "0 0 30%" }}>
-            <Suspense fallback={<div className="grid h-full place-items-center text-xs text-[rgba(255,255,255,0.4)]">Loading chart...</div>}>
-              <CandleChart
-                payload={timeseries}
-                evaluation={evaluation}
-                seasonality={seasonality}
-                dataSource={dataSource}
-                title={chartHeaderLabel}
-                sourceLabel={chartSourceLabel}
+        {/* ── RIGHT: Asset News (30%) → Global News (flex) → Chart (30%) ── */}
+        <div className="flex min-h-0 flex-col gap-3 overflow-hidden">
+          {/* Asset News card — 30% */}
+          <div className={CARD} style={{ ...CARD_BORDER, flex: "0 0 30%" }}>
+            <div className={CARD_HEADER}>
+              <span className={CARD_LABEL}>{selectedAsset?.name ?? "Asset"} News</span>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto p-2">
+              <GlobeNewsColumn
+                items={assetNews}
+                title={`${selectedAsset?.name ?? "Asset"} News`}
                 goldThemeEnabled={false}
-                themePrimary={GOLD_PRIMARY}
-                isPanelLoading={panelLoading}
-                isFullscreen={false}
-                active={isPageActive}
-                onToggleFullscreen={() => {}}
-                loopReplayTick={0}
-                onTimeRangeChange={onSharedTimeRangeChange}
-                onRecentSignalChange={setRecentSignal}
-                onTimeframeChange={setChartTimeframe}
               />
-            </Suspense>
+            </div>
           </div>
-          {/* Divider */}
-          <div className="mx-2 shrink-0 border-t border-[rgba(255,255,255,0.06)]" />
-          {/* Asset News — 40% */}
-          <div className="min-h-0 overflow-y-auto p-2" style={{ flex: "0 0 40%" }}>
-            <GlobeNewsColumn
-              items={assetNews}
-              title={`${selectedAsset?.name ?? "Asset"} News`}
-              goldThemeEnabled={false}
-            />
+          {/* Global News card — flex */}
+          <div className={CARD} style={{ ...CARD_BORDER, flex: "1 1 0" }}>
+            <div className={CARD_HEADER}>
+              <span className={CARD_LABEL}>Global News</span>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto p-2">
+              <GlobeNewsColumn
+                items={globalNews}
+                title="Global News"
+                goldThemeEnabled={false}
+              />
+            </div>
           </div>
-          {/* Divider */}
-          <div className="mx-2 shrink-0 border-t border-[rgba(255,255,255,0.06)]" />
-          {/* Global News — 30% */}
-          <div className="min-h-0 overflow-y-auto p-2" style={{ flex: "0 0 30%" }}>
-            <GlobeNewsColumn
-              items={globalNews}
-              title="Global News"
-              goldThemeEnabled={false}
-            />
+          {/* Candle chart card — 30% (bottom right) */}
+          <div className={CARD} style={{ ...CARD_BORDER, flex: "0 0 30%" }}>
+            <div className="min-h-0 flex-1 overflow-hidden">
+              <Suspense fallback={<div className="grid h-full place-items-center text-xs text-white/40">Loading chart...</div>}>
+                <CandleChart
+                  payload={timeseries}
+                  evaluation={evaluation}
+                  seasonality={seasonality}
+                  dataSource={dataSource}
+                  title={chartHeaderLabel}
+                  sourceLabel={chartSourceLabel}
+                  goldThemeEnabled={false}
+                  themePrimary={GOLD_PRIMARY}
+                  isPanelLoading={panelLoading}
+                  isFullscreen={false}
+                  active={isPageActive}
+                  onToggleFullscreen={() => {}}
+                  loopReplayTick={0}
+                  onTimeRangeChange={onSharedTimeRangeChange}
+                  onRecentSignalChange={setRecentSignal}
+                  onTimeframeChange={setChartTimeframe}
+                />
+              </Suspense>
+            </div>
           </div>
         </div>
 
@@ -2102,7 +2081,7 @@ export default function GlobeApp() {
       {/* ── Loading overlay ── */}
       {dashboardLoadingActive ? (
         <div className="pointer-events-none absolute inset-0 z-20 grid place-items-center bg-[rgba(12,13,16,0.35)]">
-          <div className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(28,29,32,0.95)] px-5 py-4 shadow-[0_14px_34px_rgba(0,0,0,0.6)]">
+          <div className="rounded-xl border border-white/[0.08] bg-[rgba(28,29,32,0.95)] px-5 py-4 shadow-[0_14px_34px_rgba(0,0,0,0.6)]">
             <div className="flex items-center gap-3">
               <div
                 className="h-8 w-8 animate-spin rounded-full border-2"
@@ -2113,7 +2092,7 @@ export default function GlobeApp() {
               />
               <div className="flex min-w-[200px] flex-col gap-0.5">
                 <span className="text-[11px] font-semibold tracking-[0.05em] text-white">{dashboardLoadingHeadline}</span>
-                <span className="text-[10px] text-[rgba(255,255,255,0.4)]">
+                <span className="text-[10px] text-white/40">
                   {dashboardLoadingLabels.length > 1
                     ? `${dashboardLoadingLabels.length} datasets loading`
                     : "Fetching latest dataset"}
