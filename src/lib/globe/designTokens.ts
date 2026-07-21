@@ -29,8 +29,8 @@ export const designTokens = {
   },
   chart: {
     accent: "#2962ff",
-    candleUp: signalColors.bullPrimary,
-    candleDown: signalColors.bearPrimary,
+    candleUp: "#f4f4f5",
+    candleDown: "#71717a",
     factorCombined: signalColors.bullPrimary,
     factorGold: "rgba(255,0,0,0.78)",
     factorDollar: "rgba(0,255,8,0.72)",

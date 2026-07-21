@@ -567,9 +567,7 @@ function CandleChartInner({
   const candleUpColor = stickPalette?.upColor ?? designTokens.chart.candleUp;
   const candleDownColor = stickPalette?.downColor ?? designTokens.chart.candleDown;
   const zonePalette = screenerCandlePalette ? zoneFillColors(screenerCandlePalette) : null;
-  const activeBtnClass = goldThemeEnabled
-    ? "border border-[#e2ca7a]/75 bg-[#e2ca7a]/24 text-[#fff2cf]"
-    : "border border-[#d4af37]/70 bg-[rgba(212,175,55,0.14)] text-[#f2f2f2] shadow-[0_0_10px_rgba(212,175,55,0.12)]";
+  const activeBtnClass = "border border-white/30 bg-white/10 text-white";
   const inactiveBtnClass = "border border-zinc-600/75 bg-[rgba(8,8,8,0.84)] text-zinc-300";
   const titleBorderColor = goldThemeEnabled ? "rgba(226,202,122,0.58)" : designTokens.stroke.accent;
   const titleTextColor = goldThemeEnabled ? "#fff3d1" : designTokens.text.secondary;
