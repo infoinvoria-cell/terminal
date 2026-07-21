@@ -99,3 +99,113 @@ create table if not exists public.brain_links (
 alter table public.brain_links enable row level security;
 create policy "Public read on brain_links" on public.brain_links
   for select using (true);
+
+-- ── Monitoring OHLC Cache ────────────────────────────────────────────────────
+-- Mirrors public/generated/monitoring/tradingview_data_cache/**/*.json for Vercel
+create table if not exists public.monitoring_ohlc (
+  id          bigint generated always as identity primary key,
+  asset       text not null,       -- matches manifest "asset" field, e.g. "CC1!", "SPY"
+  timeframe   text not null,       -- "D", "1H", "30M", etc.
+  date        text not null,       -- ISO YYYY-MM-DD
+  open        numeric(18, 6),
+  high        numeric(18, 6),
+  low         numeric(18, 6),
+  close       numeric(18, 6),
+  volume      numeric(18, 2),
+  uploaded_at timestamptz not null default now(),
+  unique (asset, timeframe, date)
+);
+alter table public.monitoring_ohlc enable row level security;
+create policy "Public read on monitoring_ohlc" on public.monitoring_ohlc
+  for select using (true);
+create policy "Service role write on monitoring_ohlc" on public.monitoring_ohlc
+  using (true) with check (true);
+GRANT ALL ON public.monitoring_ohlc TO service_role;
+
+-- ── Invest Portfolio OHLC ─────────────────────────────────────────────────────
+create table if not exists public.invest_ohlc (
+  id          bigint generated always as identity primary key,
+  symbol      text not null,
+  date        text not null,                            -- ISO YYYY-MM-DD
+  open        numeric(18, 6),
+  high        numeric(18, 6),
+  low         numeric(18, 6),
+  close       numeric(18, 6),
+  volume      numeric(18, 2),
+  uploaded_at timestamptz not null default now(),
+  unique (symbol, date)
+);
+alter table public.invest_ohlc enable row level security;
+create policy "Public read on invest_ohlc" on public.invest_ohlc
+  for select using (true);
+create policy "Service role write on invest_ohlc" on public.invest_ohlc
+  using (true) with check (true);
+
+-- ── Dashboard Snapshot ───────────────────────────────────────────────────────
+-- Single-row JSONB store for 09_AI/dashboard_snapshot.json
+create table if not exists public.dashboard_snapshot (
+  key          text primary key,             -- always "latest"
+  data         jsonb not null,
+  generated_at timestamptz,
+  uploaded_at  timestamptz not null default now()
+);
+alter table public.dashboard_snapshot enable row level security;
+create policy "Public read on dashboard_snapshot" on public.dashboard_snapshot
+  for select using (true);
+create policy "Service role write on dashboard_snapshot" on public.dashboard_snapshot
+  using (true) with check (true);
+GRANT ALL ON public.dashboard_snapshot TO service_role;
+
+-- ── Strategy Registry ─────────────────────────────────────────────────────────
+create table if not exists public.strategy_sleeves (
+  sleeve          text primary key,
+  active_version  text,
+  assets          text,
+  status          text,
+  weighting       text,
+  oos_period      text,
+  cagr_pct        numeric(8, 4),
+  total_return_pct numeric(10, 4),
+  max_dd_pct      numeric(8, 4),
+  sharpe          numeric(8, 4),
+  calmar          numeric(8, 4),
+  profit_factor   numeric(8, 4),
+  trades          int,
+  positive_years_pct numeric(6, 2),
+  snapshot_at     timestamptz not null default now()
+);
+alter table public.strategy_sleeves enable row level security;
+create policy "Public read on strategy_sleeves" on public.strategy_sleeves
+  for select using (true);
+create policy "Service role write on strategy_sleeves" on public.strategy_sleeves
+  using (true) with check (true);
+
+create table if not exists public.strategy_entries (
+  strategy_id       text primary key,
+  sleeve            text,
+  asset             text,
+  name              text,
+  symbol            text,
+  timeframe         text,
+  strategy_type     text,
+  direction         text,
+  status            text,
+  active            boolean,
+  version           text,
+  oos_period        text,
+  oos_cagr_pct      numeric(8, 4),
+  oos_total_return_pct numeric(10, 4),
+  oos_max_dd_pct    numeric(8, 4),
+  oos_sharpe        numeric(8, 4),
+  oos_calmar        numeric(8, 4),
+  oos_profit_factor numeric(8, 4),
+  oos_trades        int,
+  oos_positive_years_pct numeric(6, 2),
+  params            jsonb not null default '{}',
+  snapshot_at       timestamptz not null default now()
+);
+alter table public.strategy_entries enable row level security;
+create policy "Public read on strategy_entries" on public.strategy_entries
+  for select using (true);
+create policy "Service role write on strategy_entries" on public.strategy_entries
+  using (true) with check (true);

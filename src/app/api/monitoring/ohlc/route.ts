@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { createSupabaseServiceClient } from "@/lib/supabase-server";
 
 const MANIFEST_PATH = path.join(
   process.cwd(),
@@ -66,6 +67,37 @@ function parseBars(rawBars: CacheBar[]): Array<{ time: string; open: number; hig
   return out.sort((a, b) => a.time.localeCompare(b.time));
 }
 
+async function fromSupabaseOhlc(symbol: string, tf: string, maxBars: number): Promise<NextResponse> {
+  try {
+    const db = createSupabaseServiceClient();
+    const { data, error } = await db
+      .from("monitoring_ohlc")
+      .select("date,open,high,low,close,volume")
+      .eq("asset", symbol)
+      .eq("timeframe", tf)
+      .order("date", { ascending: true });
+    if (error || !data?.length) {
+      return NextResponse.json({ error: "Symbol not found in cache or Supabase", symbol, timeframe: tf, status: "not_found" }, { status: 404 });
+    }
+    const bars = (maxBars > 0 ? data.slice(-maxBars) : data).map((r) => ({
+      time: r.date as string,
+      open: Number(r.open),
+      high: Number(r.high),
+      low: Number(r.low),
+      close: Number(r.close),
+      ...(r.volume != null ? { volume: Number(r.volume) } : {}),
+    }));
+    return NextResponse.json({
+      symbol, timeframe: tf, source: null, barCount: bars.length,
+      firstDate: bars[0]?.time ?? null, lastDate: bars[bars.length - 1]?.time ?? null,
+      lastClose: bars[bars.length - 1]?.close ?? null,
+      stale: false, manifestStatus: "supabase", bars,
+    });
+  } catch (e) {
+    return NextResponse.json({ error: String(e), symbol, timeframe: tf }, { status: 500 });
+  }
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const rawSymbol = searchParams.get("symbol") ?? "";
@@ -81,7 +113,7 @@ export async function GET(req: NextRequest) {
   const maxBars = maxBarsParam ? Math.max(1, Math.min(10000, parseInt(maxBarsParam, 10) || 5000)) : 5000;
 
   if (!fs.existsSync(MANIFEST_PATH)) {
-    return NextResponse.json({ error: "Cache manifest not found", symbol: symbolUpper, timeframe: tf }, { status: 503 });
+    return fromSupabaseOhlc(symbolUpper, tf, maxBars);
   }
 
   let manifestAsset: ManifestAsset | null = null;
@@ -116,13 +148,7 @@ export async function GET(req: NextRequest) {
   }
 
   if (!cacheFilePath) {
-    return NextResponse.json({
-      error: "Cache file not on disk",
-      symbol: symbolUpper,
-      timeframe: tf,
-      status: "missing_file",
-      triedPaths: candidates,
-    }, { status: 404 });
+    return fromSupabaseOhlc(symbolUpper, tf, maxBars);
   }
 
   let allBars;

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "node:fs";
 import path from "node:path";
+import { createSupabaseServiceClient } from "@/lib/supabase-server";
 
 const INVEST_FOLDER = process.env.INVEST_PORTFOLIO_PATH ?? "C:\\Users\\joris\\Desktop\\Invest Portfolio";
 
@@ -81,16 +82,48 @@ function parseCsvToOhlc(filePath: string): { bars: OhlcBar[]; error?: string } {
   }
 }
 
-export async function GET(req: NextRequest) {
-  if (!process.env.INVEST_PORTFOLIO_PATH) {
-    return NextResponse.json({ available: false, reason: "INVEST_PORTFOLIO_PATH not configured" });
+async function fromSupabaseInvestOhlc(symbol: string): Promise<NextResponse> {
+  try {
+    const db = createSupabaseServiceClient();
+    const { data, error } = await db
+      .from("invest_ohlc")
+      .select("date,open,high,low,close,volume")
+      .eq("symbol", symbol)
+      .order("date", { ascending: true });
+    if (error || !data?.length) {
+      return NextResponse.json({ symbol, status: "missing", bars: [], error: `No data in Supabase for ${symbol}` });
+    }
+    const bars: OhlcBar[] = data.map((r) => ({
+      date: r.date as string,
+      open: Number(r.open),
+      high: Number(r.high),
+      low: Number(r.low),
+      close: Number(r.close),
+      volume: r.volume != null ? Number(r.volume) : null,
+    }));
+    return NextResponse.json({
+      symbol, status: "ok", filePath: null,
+      rowCount: bars.length,
+      firstDate: bars[0]?.date ?? null,
+      lastDate: bars.at(-1)?.date ?? null,
+      bars,
+    });
+  } catch (e) {
+    return NextResponse.json({ symbol, status: "error", bars: [], error: String(e) });
   }
+}
+
+export async function GET(req: NextRequest) {
   const symbol = req.nextUrl.searchParams.get("symbol")?.toUpperCase() ?? "";
   if (!symbol) return NextResponse.json({ error: "symbol param required" }, { status: 400 });
 
+  if (!process.env.INVEST_PORTFOLIO_PATH) {
+    return fromSupabaseInvestOhlc(symbol);
+  }
+
   const filePath = resolveFile(symbol);
   if (!filePath) {
-    return NextResponse.json({ symbol, status: "missing", bars: [], error: `No OHLC file found for ${symbol} in ${INVEST_FOLDER}` });
+    return fromSupabaseInvestOhlc(symbol);
   }
 
   const { bars, error } = parseCsvToOhlc(filePath);

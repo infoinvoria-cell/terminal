@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { NextResponse } from "next/server";
 import { getCapitalifeBrainPath } from "@/lib/brain/brain-path";
+import { createSupabaseServiceClient } from "@/lib/supabase-server";
 
 export type NetworkNode = {
   id: string;
@@ -276,6 +277,36 @@ function buildGraph(
   return { nodes, links };
 }
 
+// ── Supabase snapshot fallback ────────────────────────────────────────────────
+
+async function buildSupabaseGraph(): Promise<{ nodes: NetworkNode[]; links: NetworkLink[] }> {
+  const db = createSupabaseServiceClient();
+  const [nodesRes, linksRes] = await Promise.all([
+    db.from("brain_nodes").select("id,label,folder,file_type,preview,degree,community,x,y"),
+    db.from("brain_links").select("source,target"),
+  ]);
+  if (nodesRes.error) throw new Error(nodesRes.error.message);
+  const nodes: NetworkNode[] = (nodesRes.data ?? []).map((n) => ({
+    id: n.id as string,
+    label: n.label as string,
+    folder: n.folder as string,
+    fileType: (n.file_type as string | null) ?? "note",
+    sourceFile: null,
+    preview: (n.preview as string) ?? "",
+    degree: Number(n.degree ?? 0),
+    community: n.community != null ? Number(n.community) : null,
+    source: "brain" as const,
+    x: Number(n.x ?? 0),
+    y: Number(n.y ?? 0),
+  }));
+  const links: NetworkLink[] = (linksRes.data ?? []).map((l) => ({
+    source: l.source as string,
+    target: l.target as string,
+  }));
+  if (!nodes.length) throw new Error("No brain_nodes in Supabase");
+  return { nodes, links };
+}
+
 // ── Route handler ─────────────────────────────────────────────────────────────
 
 export const dynamic = "force-dynamic"; // reads env at request time, skip static cache
@@ -294,11 +325,16 @@ export async function GET() {
   } catch {
     // Fallback: filesystem scan
     const brainRoot = getCapitalifeBrainPath();
-    if (!brainRoot) {
-      return NextResponse.json({ nodes: [], links: [], source: "unavailable", message: "Obsidian API unreachable and CAPITALIFE_BRAIN_PATH missing" });
+    if (brainRoot) {
+      const { nodes, links } = await buildFsGraph(brainRoot);
+      return NextResponse.json({ ...cap(nodes, links), source: "filesystem" });
     }
-    // No cache for filesystem fallback — Obsidian is retried on every request
-    const { nodes, links } = await buildFsGraph(brainRoot);
-    return NextResponse.json({ ...cap(nodes, links), source: "filesystem" });
+    // No local brain — try Supabase snapshot
+    try {
+      const { nodes, links } = await getCached("supabase", buildSupabaseGraph);
+      return NextResponse.json({ ...cap(nodes, links), source: "supabase" });
+    } catch (sbErr) {
+      return NextResponse.json({ nodes: [], links: [], source: "unavailable", message: `Obsidian unreachable, no local Brain, Supabase: ${String(sbErr)}` });
+    }
   }
 }

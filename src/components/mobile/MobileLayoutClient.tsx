@@ -29,7 +29,7 @@ export function MobileLayoutClient({ children }: { children: React.ReactNode }) 
         minHeight: "100dvh",
         overflowY: "auto",
         paddingTop: headerHidden ? 0 : 52,
-        paddingBottom: "calc(60px + env(safe-area-inset-bottom, 0px))",
+        paddingBottom: "calc(64px + env(safe-area-inset-bottom, 16px) + 8px)",
         transition: "padding-top 200ms ease",
       }}>
         {children}

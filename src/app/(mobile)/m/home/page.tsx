@@ -7,10 +7,10 @@ export default async function MobileHomePage() {
   const data = await getDashboardPageData();
 
   const kpis = [
-    { label: "Compounded",   value: data.universal.compoundedReturn  ?? "–", positive: true  },
-    { label: "Annualized",   value: data.universal.annualizedReturn   ?? "–", positive: true  },
-    { label: "24M Return",   value: data.universal.totalReturn24m     ?? "–", positive: true  },
-    { label: "Max Drawdown", value: data.universal.maxDrawdown        ?? "–", positive: false },
+    { label: "Risk Adj.",    value: data.universal.riskAdjustedAum    ?? "–", positive: true  },
+    { label: "Annualized",   value: data.universal.annualizedReturn    ?? "–", positive: true  },
+    { label: "24M Return",   value: data.universal.totalReturn24m      ?? "–", positive: true  },
+    { label: "Max Drawdown", value: data.universal.maxDrawdown         ?? "–", positive: false },
   ];
 
   // Cumulative % series from monthly returns
