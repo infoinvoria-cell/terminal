@@ -17,10 +17,11 @@ import {
   PanelTopOpen,
   PieChart,
   Settings,
+  Smartphone,
 } from "lucide-react";
-import { useState } from "react";
+import { createPortal } from "react-dom";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { MobilePreviewToggle } from "@/components/mobile-preview/MobilePreviewToggle";
 import {
   useHomeDashboard,
   type DashboardPage,
@@ -185,6 +186,38 @@ function SidebarSep({ expanded }: { expanded: boolean }) {
   );
 }
 
+// ── Mobile Preview ─────────────────────────────────────────────────────────
+
+type PreviewMode = "desktop" | "mobile" | "split";
+const PREVIEW_LS_KEY = "fmd_preview_mode";
+const MOBILE_URL = "/m/home";
+const PANEL_W = 450;
+const PW = 390, PH = 844, FP = 14, FR = 50;
+const OUTER_W = PW + FP * 2;
+const OUTER_H = PH + FP * 2 + 24;
+
+function IPhoneFrame({ url, scale }: { url: string; scale: number }) {
+  return (
+    <div style={{ width: OUTER_W * scale, height: OUTER_H * scale, flexShrink: 0, position: "relative" }}>
+      <div style={{ width: OUTER_W, height: OUTER_H, transform: `scale(${scale})`, transformOrigin: "top left", position: "absolute" }}>
+        <div style={{ width: OUTER_W, height: OUTER_H, borderRadius: FR, background: "linear-gradient(145deg,#2a2a2a,#1a1a1a)", boxShadow: "0 0 0 1px rgba(255,255,255,0.12),0 32px 80px rgba(0,0,0,0.8)", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", left: -3, top: 100, width: 3, height: 32, background: "#2f2f2f", borderRadius: "3px 0 0 3px" }} />
+          <div style={{ position: "absolute", left: -3, top: 148, width: 3, height: 52, background: "#2f2f2f", borderRadius: "3px 0 0 3px" }} />
+          <div style={{ position: "absolute", left: -3, top: 214, width: 3, height: 52, background: "#2f2f2f", borderRadius: "3px 0 0 3px" }} />
+          <div style={{ position: "absolute", right: -3, top: 160, width: 3, height: 72, background: "#2f2f2f", borderRadius: "0 3px 3px 0" }} />
+          <div style={{ position: "absolute", top: FP, left: FP, width: PW, height: PH + 24, borderRadius: FR - FP, overflow: "hidden", background: "#000" }}>
+            <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 120, height: 34, background: "#1a1a1a", borderRadius: "0 0 22px 22px", zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+              <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#2a2a2a" }} />
+              <div style={{ width: 42, height: 8, borderRadius: 4, background: "#222" }} />
+            </div>
+            <iframe src={url} style={{ width: PW, height: PH, border: "none", marginTop: 34, display: "block" }} title="Mobile Preview" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Sidebar ────────────────────────────────────────────────────────────────
 
 export function Sidebar() {
@@ -194,6 +227,45 @@ export function Sidebar() {
 
   const { headerHidden, toggleHeader } = useHeaderState();
   const expanded = false; // hover-expand disabled; sidebar stays collapsed
+
+  // ── Mobile Preview state ──────────────────────────────────────────────
+  const [previewMode, setPreviewMode] = useState<PreviewMode>("desktop");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    try {
+      const s = localStorage.getItem(PREVIEW_LS_KEY) as PreviewMode | null;
+      if (s === "mobile" || s === "split") setPreviewMode(s);
+    } catch { /* ignore */ }
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--mobile-preview-panel-w",
+      previewMode === "split" ? `${PANEL_W}px` : "0px"
+    );
+  }, [previewMode]);
+
+  const cyclePreview = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setPreviewMode(prev => {
+      const next: PreviewMode = prev === "desktop" ? "mobile" : prev === "mobile" ? "split" : "desktop";
+      try { localStorage.setItem(PREVIEW_LS_KEY, next); } catch { /* ignore */ }
+      return next;
+    });
+  };
+
+  const exitToDesktop = () => {
+    setPreviewMode("desktop");
+    try { localStorage.setItem(PREVIEW_LS_KEY, "desktop"); } catch { /* ignore */ }
+  };
+
+  const splitScale = Math.min((PANEL_W - 40) / OUTER_W, (typeof window !== "undefined" ? window.innerHeight - 48 : 800) / OUTER_H);
+  const mobileScale = typeof window !== "undefined"
+    ? Math.min((window.innerHeight - 64) / OUTER_H, (window.innerWidth - 64) / OUTER_W, 1)
+    : 0.72;
 
   const monitoringActive  = pathname?.startsWith("/monitoring") ?? false;
   const signalActive      = pathname?.startsWith("/signal") ?? false;
@@ -298,8 +370,36 @@ export function Sidebar() {
 
         {/* Mobile Preview toggle */}
         <div className="mt-2 w-full">
-          <MobilePreviewToggle expanded={expanded} />
+          <button
+            type="button"
+            onClick={cyclePreview}
+            title={previewMode === "desktop" ? "Mobile Preview" : previewMode === "mobile" ? "Split View" : "Desktop"}
+            style={{ display: "flex", height: 44, width: "100%", alignItems: "center", gap: 12, borderRadius: 8, border: 0, background: "transparent", cursor: "pointer", paddingLeft: 18, color: previewMode === "desktop" ? "rgba(113,113,122,1)" : "#e2ca7a", flexShrink: 0, transition: "color 150ms ease" }}
+          >
+            <Smartphone style={{ width: 19, height: 19, flexShrink: 0 }} strokeWidth={1.65} />
+          </button>
         </div>
+
+        {/* Mobile Preview overlays — portals so they escape sidebar overflow */}
+        {mounted && previewMode === "mobile" && createPortal(
+          <div style={{ position: "fixed", inset: 0, zIndex: 900, background: "#000", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <button onClick={cyclePreview} title="Split View" style={{ position: "absolute", top: 20, right: 20, zIndex: 10, background: "rgba(8,8,10,0.85)", border: "1px solid rgba(226,202,122,0.3)", borderRadius: 8, padding: "6px 14px", color: "#e2ca7a", cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--font-montserrat,sans-serif)" }}>
+              <Smartphone style={{ width: 13, height: 13 }} strokeWidth={1.65} /> Split View →
+            </button>
+            <button onClick={exitToDesktop} title="Desktop" style={{ position: "absolute", top: 20, left: 20, zIndex: 10, background: "rgba(8,8,10,0.85)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: "6px 14px", color: "rgba(255,255,255,0.45)", cursor: "pointer", fontSize: 12, fontFamily: "var(--font-montserrat,sans-serif)" }}>
+              ← Desktop
+            </button>
+            <IPhoneFrame url={MOBILE_URL} scale={mobileScale} />
+          </div>,
+          document.body
+        )}
+
+        {mounted && previewMode === "split" && createPortal(
+          <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: PANEL_W, background: "#070809", borderLeft: "1px solid rgba(255,255,255,0.07)", zIndex: 900, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <IPhoneFrame url={MOBILE_URL} scale={splitScale} />
+          </div>,
+          document.body
+        )}
 
         {/* Header toggle — same fixed-icon pattern */}
         <div className="mt-1 w-full">
