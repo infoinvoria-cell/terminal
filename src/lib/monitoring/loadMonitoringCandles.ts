@@ -609,6 +609,39 @@ export async function loadMonitoringCandles(
       }
     }
 
+    // Supabase API fallback — called when static cache files are absent (e.g. on Vercel where
+    // public/generated/ is gitignored). The /api/monitoring/ohlc route falls through to the
+    // monitoring_ohlc Supabase table when the manifest file is missing on disk.
+    if (!historyBars.length) {
+      try {
+        const apiUrl = `/api/monitoring/ohlc?symbol=${encodeURIComponent(normalizeSymbol(params.symbol))}&timeframe=${encodeURIComponent(timeframe)}`;
+        const apiRes = await fetchMonitoringWithTimeout(apiUrl, 8000, signal);
+        if (apiRes.ok) {
+          const apiJson = (await apiRes.json()) as { bars?: MonitoringPayloadLite["bars"] };
+          if (Array.isArray(apiJson.bars) && apiJson.bars.length > 0) {
+            const apiBars = sanitizeBars(apiJson.bars, timeframe);
+            if (apiBars.length > 0) {
+              historyBars = apiBars;
+              cacheResolvedPath = "supabase";
+              payload = {
+                metadata: {
+                  code: params.symbol,
+                  tvSymbol: params.source,
+                  badge: universeAsset?.hasStrategy ? "OK" : "NO STRAT",
+                  hasStrategy: Boolean(universeAsset?.hasStrategy),
+                },
+                bars: apiBars.map((b) => ({ time: b.time, open: b.open, high: b.high, low: b.low, close: b.close })),
+                signals: [],
+                boxes: [],
+              };
+            }
+          }
+        }
+      } catch {
+        // fall through to no_data
+      }
+    }
+
     if (!historyBars.length) {
       const intraday = params.tab === "Intraday MT" && isIntradayTimeframe(timeframe);
       const missingCache = cacheResolvedPath ? `Cache not found or empty: ${cacheResolvedPath}` : "No cache file mapping for asset";
