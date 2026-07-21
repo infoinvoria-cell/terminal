@@ -1,20 +1,21 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import type { Session } from "@supabase/supabase-js";
 
 const MAX_ATTEMPTS = 3;
-const LOCKOUT_MS = 60 * 60 * 1000; // 1h
-
+const LOCKOUT_MS = 60 * 60 * 1000;
 const LS_ATTEMPTS = "supa_gate_attempts";
 const LS_LOCKED = "supa_gate_locked_until";
+// Fixed email — only the password is shown to the user
+const GATE_EMAIL = process.env.NEXT_PUBLIC_GATE_EMAIL ?? "gate@capitalife.internal";
 
 function getLockoutState(): { attempts: number; lockedUntil: number | null } {
   try {
     const attempts = parseInt(localStorage.getItem(LS_ATTEMPTS) ?? "0", 10) || 0;
-    const lockedUntil = parseInt(localStorage.getItem(LS_LOCKED) ?? "0", 10) || null;
-    return { attempts, lockedUntil: lockedUntil && lockedUntil > Date.now() ? lockedUntil : null };
+    const raw = parseInt(localStorage.getItem(LS_LOCKED) ?? "0", 10) || null;
+    return { attempts, lockedUntil: raw && raw > Date.now() ? raw : null };
   } catch {
     return { attempts: 0, lockedUntil: null };
   }
@@ -43,26 +44,19 @@ function clearLockout() {
   } catch { /* ignore */ }
 }
 
-function formatLockout(ms: number) {
-  const mins = Math.max(1, Math.ceil(ms / 60_000));
-  if (mins < 60) return `${mins}m`;
-  return `${Math.ceil(mins / 60)}h`;
-}
-
 export function SupabaseAuthGate({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
-  const [email, setEmail] = useState("");
+  const [fading, setFading] = useState(false);
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [shake, setShake] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [attempts, setAttempts] = useState(0);
   const [lockedUntil, setLockedUntil] = useState<number | null>(null);
   const [tick, setTick] = useState(Date.now());
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const { attempts, lockedUntil } = getLockoutState();
-    setAttempts(attempts);
+    const { lockedUntil } = getLockoutState();
     setLockedUntil(lockedUntil);
 
     supabase.auth.getSession().then(({ data }) => {
@@ -70,8 +64,8 @@ export function SupabaseAuthGate({ children }: { children: React.ReactNode }) {
       setReady(true);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
+      setSession(s);
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -83,7 +77,6 @@ export function SupabaseAuthGate({ children }: { children: React.ReactNode }) {
       if (Date.now() >= lockedUntil) {
         clearLockout();
         setLockedUntil(null);
-        setAttempts(0);
       }
     }, 1000);
     return () => clearInterval(id);
@@ -91,125 +84,121 @@ export function SupabaseAuthGate({ children }: { children: React.ReactNode }) {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (loading || (lockedUntil && lockedUntil > tick)) return;
-
+    if (loading || !password.trim() || (lockedUntil && lockedUntil > tick)) return;
     setLoading(true);
-    setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({
+      email: GATE_EMAIL,
+      password,
+    });
 
     if (error) {
       const state = recordFailure();
-      setAttempts(state.attempts);
       setLockedUntil(state.lockedUntil);
-      setError("E-Mail oder Passwort falsch.");
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
       setPassword("");
+      inputRef.current?.focus();
     } else {
       clearLockout();
-      setAttempts(0);
-      setLockedUntil(null);
+      setFading(true);
     }
     setLoading(false);
   }
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-  }
+  if (!ready) return null;
 
-  if (!ready) {
-    return (
-      <div className="flex h-full min-h-screen items-center justify-center bg-[#0c0d10] text-white">
-        <div className="rounded-[28px] border border-white/8 bg-white/5 px-6 py-5 text-sm text-white/60">
-          Loading terminal...
-        </div>
-      </div>
-    );
-  }
+  if (session) return <>{children}</>;
 
-  if (session) {
-    return <>{children}</>;
-  }
-
-  const lockoutActive = Boolean(lockedUntil && lockedUntil > tick);
-  const remaining = lockedUntil ? Math.max(0, lockedUntil - tick) : 0;
-  const remainingAttempts = Math.max(0, MAX_ATTEMPTS - attempts);
+  const locked = Boolean(lockedUntil && lockedUntil > tick);
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0c0d10] px-6 py-10 text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(191,157,74,0.18),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.08),transparent_28%)]" />
-      <div className="relative w-full max-w-[420px] rounded-[30px] border border-[#2b2d33] bg-[#121318]/95 p-8 shadow-[0_28px_120px_rgba(0,0,0,0.42)] backdrop-blur">
-        <div className="mb-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.38em] text-[#bf9d4a]">
-            Internal Preview
-          </p>
-          <h1 className="mt-4 text-[32px] font-semibold tracking-[-0.04em] text-white">
-            Capitalife Terminal
-          </h1>
-          <p className="mt-3 text-sm text-white/60">
-            Research &amp; Monitoring only
-          </p>
-        </div>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "#0a0a0a",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 9999,
+        opacity: fading ? 0 : 1,
+        transition: fading ? "opacity 0.45s ease" : undefined,
+        pointerEvents: fading ? "none" : undefined,
+      }}
+    >
+      {/* Logo */}
+      <img
+        src="/CAPITALIFE_Logo.png"
+        alt="Capitalife"
+        style={{ width: 200, marginBottom: 40, userSelect: "none" }}
+        draggable={false}
+      />
 
-        <form className="space-y-3" onSubmit={handleSubmit}>
-          <label className="block">
-            <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.28em] text-white/45">
-              E-Mail
-            </span>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={lockoutActive || loading}
-              autoFocus
-              autoComplete="email"
-              className="w-full rounded-2xl border border-white/10 bg-[#0b0c10] px-4 py-3 text-sm text-white outline-none transition focus:border-[#bf9d4a]/70"
-              placeholder="email@capitalife.com"
-            />
-          </label>
+      {/* Password row */}
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          display: "flex",
+          gap: 8,
+          animation: shake ? "gate-shake 0.45s ease" : undefined,
+        }}
+      >
+        <input
+          ref={inputRef}
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          disabled={locked || loading}
+          autoFocus
+          autoComplete="current-password"
+          placeholder="••••••••"
+          style={{
+            background: "#1c1d20",
+            border: "1px solid rgba(255,255,255,0.10)",
+            borderRadius: 12,
+            color: "#fff",
+            fontSize: 15,
+            padding: "11px 18px",
+            outline: "none",
+            width: 220,
+            letterSpacing: "0.12em",
+          }}
+        />
+        <button
+          type="submit"
+          disabled={locked || loading || !password.trim()}
+          style={{
+            background: locked ? "rgba(226,202,122,0.25)" : "#e2ca7a",
+            border: "none",
+            borderRadius: 12,
+            width: 44,
+            height: 44,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: locked ? "not-allowed" : "pointer",
+            transition: "background 0.2s",
+            flexShrink: 0,
+          }}
+          aria-label="Enter"
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M3 9h12M10 4l5 5-5 5" stroke="#17181d" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </form>
 
-          <label className="block">
-            <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.28em] text-white/45">
-              Passwort
-            </span>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={lockoutActive || loading}
-              autoComplete="current-password"
-              className="w-full rounded-2xl border border-white/10 bg-[#0b0c10] px-4 py-3 text-sm text-white outline-none transition focus:border-[#bf9d4a]/70"
-              placeholder="••••••••"
-            />
-          </label>
-
-          <button
-            type="submit"
-            disabled={lockoutActive || loading || !email.trim() || !password.trim()}
-            className="w-full rounded-2xl bg-[#bf9d4a] px-4 py-3 text-sm font-semibold text-[#17181d] transition hover:bg-[#d2b56b] disabled:cursor-not-allowed disabled:opacity-45"
-          >
-            {loading ? "Anmelden…" : "Enter Terminal"}
-          </button>
-        </form>
-
-        <div className="mt-4 min-h-10 text-sm">
-          {error && <p className="text-[#ff7f7f]">{error}</p>}
-          {!lockoutActive && attempts > 0 && remainingAttempts > 0 && (
-            <p className="text-white/50">
-              {remainingAttempts} Versuch{remainingAttempts === 1 ? "" : "e"} verbleibend.
-            </p>
-          )}
-          {lockoutActive && (
-            <p className="text-[#ffb38c]">
-              Gesperrt für {formatLockout(remaining)}.
-            </p>
-          )}
-        </div>
-
-        <div className="mt-8 flex items-center justify-between border-t border-white/8 pt-4 text-[11px] uppercase tracking-[0.18em] text-white/38">
-          <span>Supabase Auth</span>
-          <span>1h Sperre nach 3 Fehlversuchen</span>
-        </div>
-      </div>
+      <style>{`
+        @keyframes gate-shake {
+          0%,100% { transform: translateX(0); }
+          20%      { transform: translateX(-8px); }
+          40%      { transform: translateX(8px); }
+          60%      { transform: translateX(-5px); }
+          80%      { transform: translateX(5px); }
+        }
+      `}</style>
     </div>
   );
 }

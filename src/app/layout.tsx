@@ -4,7 +4,6 @@ import { cookies } from "next/headers";
 import { ClientProviders } from "@/components/providers";
 
 import IntroAnimation from "@/components/IntroAnimation";
-import { MobileRedirect } from "@/components/mobile/MobileRedirect";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -51,7 +50,6 @@ export default async function RootLayout({
     >
       <body className="h-full overflow-hidden bg-[#0c0d10] text-white">
         <IntroAnimation />
-        <MobileRedirect />
         <ClientProviders initialHeaderHidden={initialHeaderHidden}>
           {children}
         </ClientProviders>

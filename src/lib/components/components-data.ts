@@ -335,3 +335,7 @@ export const GROUP_LAYOUT: Record<string, GroupLayout> = {
   intraday_mt:        { colStart: 9,  colSpan: 4, row: 3 },
   intraday_portfolio: { colStart: 13, colSpan: 4, row: 3 },
 };
+
+export function buildComponentsCache() {
+  return { groups: COMPONENT_GROUPS, layout: GROUP_LAYOUT };
+}
