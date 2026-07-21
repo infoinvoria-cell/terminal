@@ -165,7 +165,6 @@ export function MobileHeader({ hidden }: { hidden: boolean }) {
                     textAlign: "left",
                   }}
                 >
-                  {/* Avatar with clear ring when active */}
                   <div style={{
                     borderRadius: "50%",
                     outline: active ? "2px solid rgba(255,255,255,0.5)" : "none",
@@ -189,7 +188,7 @@ export function MobileHeader({ hidden }: { hidden: boolean }) {
                       color: active ? "rgba(255,255,255,0.38)" : "rgba(255,255,255,0.22)",
                       fontFamily: "var(--font-montserrat,sans-serif)",
                     }}>
-                      {active ? "Aktiv" : u.id}
+                      {`User ${i + 1}`}{active ? " · Aktiv" : ""}
                     </p>
                   </div>
                 </button>
