@@ -1599,6 +1599,10 @@ function GlobeCanvasComponent({
             name.style.fontSize = "9px";
             name.style.color = themeUiText;
             name.style.fontWeight = d.assetId === selectedAssetId ? "700" : "600";
+            name.style.whiteSpace = "nowrap";
+            name.style.overflow = "hidden";
+            name.style.maxWidth = "80px";
+            name.style.textOverflow = "ellipsis";
             el.appendChild(name);
             return el;
           }}

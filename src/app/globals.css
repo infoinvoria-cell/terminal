@@ -2,6 +2,10 @@
 @import "../styles/dashboard.css";
 @import "../components/preview/mockups.css";
 
+/* Hide scrollbars universally */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
 /* Mobile Preview split-view panel offset (left side) */
 :root { --mobile-preview-left: 0px; }
 body { padding-left: var(--mobile-preview-left); transition: padding-left 220ms ease; }

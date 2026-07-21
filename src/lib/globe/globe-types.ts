@@ -33,6 +33,8 @@ export interface OverlayToggleState {
   shippingDisruptions: boolean;
   commodityStressMap: boolean;
   regionalAssetHighlight: boolean;
+  liveSignals: boolean;
+  locations: boolean;
 }
 
 export interface AssetLocation {

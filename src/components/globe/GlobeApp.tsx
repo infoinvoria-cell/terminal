@@ -77,6 +77,8 @@ const OVERLAY_CACHE_MS: Record<keyof OverlayToggleState, number> = {
   shippingDisruptions: 10 * 60 * 1000,
   commodityStressMap: 2 * 60 * 60 * 1000,
   regionalAssetHighlight: 2 * 60 * 60 * 1000,
+  locations: 24 * 60 * 60 * 1000,
+  liveSignals: 5 * 60 * 1000,
 };
 const MARKET_CACHE_MS = 40 * 60 * 1000;
 const NEWS_CACHE_MS = 10 * 60 * 1000;
@@ -124,6 +126,8 @@ const DEFAULT_OVERLAY_STATE: OverlayToggleState = {
   shippingDisruptions: false,
   commodityStressMap: false,
   regionalAssetHighlight: false,
+  liveSignals: false,
+  locations: false,
 };
 const OVERLAY_LOADING_KEYS: Array<keyof OverlayToggleState> = [
   "assets",
@@ -154,6 +158,8 @@ const OVERLAY_LOADING_LABELS: Record<keyof OverlayToggleState, string> = {
   shippingDisruptions: "Loading shipping disruptions...",
   commodityStressMap: "Loading commodity stress map...",
   regionalAssetHighlight: "Loading regional highlight...",
+  locations: "Loading locations...",
+  liveSignals: "Loading live signals...",
 };
 
 function defaultEnabledIds(assets: AssetItem[]): string[] {
@@ -293,8 +299,7 @@ function timeAgo(iso: string | undefined): string {
 function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
-      <div className="min-h-0 flex-1 space-y-[3px] overflow-y-auto overflow-x-hidden px-2 pt-1 pb-8"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+      <div className="no-scrollbar min-h-0 flex-1 space-y-[3px] overflow-y-auto overflow-x-hidden px-2 pt-1 pb-8">
         {items.length === 0 && (
           <div className="pt-6 text-center text-[11px] text-white/20">No news</div>
         )}
@@ -345,6 +350,8 @@ function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
 
 // ── Overlay control panel ────────────────────────────────────────
 const OVERLAY_EMOJI: Record<string, string> = {
+  liveSignals: "⚡",
+  locations: "📌",
   assets: "📍",
   earthquakes: "🌋",
   conflicts: "⚔️",
@@ -360,6 +367,8 @@ const OVERLAY_EMOJI: Record<string, string> = {
   regionalAssetHighlight: "🗺️",
 };
 const OVERLAY_LABELS: Record<string, string> = {
+  liveSignals: "Live Signale",
+  locations: "Standorte",
   assets: "Assets",
   earthquakes: "Earthquakes",
   conflicts: "Conflicts",
@@ -1616,9 +1625,34 @@ export default function GlobeApp() {
     () => buildDisplayMarkers(assets, enabledAssets, categoryEnabled, markerScores, markerZoomLevel),
     [assets, enabledAssets, categoryEnabled, markerScores, markerZoomLevel],
   );
+  const HQ_MARKER = useMemo(
+    () => ({
+      id: "__capitalife_hq__",
+      name: "Capitalife HQ",
+      lat: 50.11,
+      lng: 8.68,
+      color: "#e2ca7a",
+      category: "Locations",
+      iconKey: "hq",
+      symbol: "",
+      tvSource: "",
+      country: "Germany",
+      defaultEnabled: true,
+      showOnGlobe: true,
+      locations: [],
+      score: 1,
+      size: 8,
+      pulse: false,
+      labelVisible: true,
+    }),
+    [],
+  );
   const visibleMarkers = useMemo(
-    () => (overlayState.assets ? markers : []),
-    [markers, overlayState.assets],
+    () => {
+      const base = overlayState.assets ? markers : [];
+      return overlayState.locations ? [...base, HQ_MARKER as never] : base;
+    },
+    [markers, overlayState.assets, overlayState.locations, HQ_MARKER],
   );
   const activeShipTracking = useMemo(
     () => (overlayState.shipTracking ? shipTracking : []),
