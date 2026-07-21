@@ -13,7 +13,7 @@ function markIntroAsSeen() {
   }
 }
 
-export default function IntroAnimation() {
+export default function IntroAnimation({ forcePlay, onComplete }: { forcePlay?: boolean; onComplete?: () => void } = {}) {
   const [shouldPlay, setShouldPlay] = useState(false);
 
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -22,21 +22,23 @@ export default function IntroAnimation() {
   const progressRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    try {
-      if (sessionStorage.getItem(STORAGE_KEY) === "1") {
-        return;
+    if (!forcePlay) {
+      try {
+        if (sessionStorage.getItem(STORAGE_KEY) === "1") {
+          return;
+        }
+      } catch {
+        // Bei blockiertem Storage einmal abspielen.
       }
-    } catch {
-      // Bei blockiertem Storage einmal abspielen.
     }
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (!forcePlay && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       markIntroAsSeen();
       return;
     }
 
     setShouldPlay(true);
-  }, []);
+  }, [forcePlay]);
 
   useEffect(() => {
     if (!shouldPlay) return;
@@ -209,13 +211,14 @@ export default function IntroAnimation() {
     const timer = window.setTimeout(() => {
       markIntroAsSeen();
       setShouldPlay(false);
+      onComplete?.();
     }, TOTAL_MS);
 
     return () => {
       window.clearTimeout(timer);
       animations.forEach((animation) => animation.cancel());
     };
-  }, [shouldPlay]);
+  }, [shouldPlay, onComplete]);
 
   if (!shouldPlay) return null;
 

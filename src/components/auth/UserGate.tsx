@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { APP_USERS, AppUser, CL_USER_KEY, UserProvider } from "@/context/user-context";
 import Image from "next/image";
+import IntroAnimation from "@/components/IntroAnimation";
 
 const GATE_PASSWORD = process.env.NEXT_PUBLIC_GATE_PASSWORD ?? "inno";
 const CL_GATE_KEY = "cl_gate_ok";
@@ -165,42 +166,52 @@ function PasswordScreen({ onSuccess }: { onSuccess: () => void }) {
 const USER_LABELS = ["User 1", "User 2", "User 3"] as const;
 
 function UserCard({ user, label, index, onSelect }: { user: AppUser; label: string; index: number; onSelect: (user: AppUser) => void }) {
-  const [loading, setLoading] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const pendingUser = useRef<AppUser | null>(null);
 
   function handleClick() {
-    if (loading) return;
-    setLoading(true);
-    setTimeout(() => onSelect(user), 2000);
+    if (playing) return;
+    pendingUser.current = user;
+    setPlaying(true);
   }
 
   return (
-    <button
-      onClick={handleClick}
-      disabled={loading}
-      aria-label={label}
-      style={{
-        background: "none",
-        border: "none",
-        padding: 0,
-        cursor: loading ? "default" : "pointer",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 0,
-        transition: "transform 0.2s, opacity 0.2s",
-        opacity: loading ? 0.65 : 1,
-      }}
-      onMouseEnter={(e) => {
-        if (loading) return;
-        (e.currentTarget as HTMLButtonElement).style.transform = "scale(1.06)";
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
-      }}
-    >
-      {/* Avatar */}
-      <div style={{ marginBottom: 14, position: "relative", width: 72, height: 72 }}>
-        <div style={{ width: 72, height: 72, borderRadius: "50%", overflow: "hidden" }}>
+    <>
+      {playing && (
+        <IntroAnimation
+          forcePlay
+          onComplete={() => {
+            setPlaying(false);
+            if (pendingUser.current) onSelect(pendingUser.current);
+          }}
+        />
+      )}
+      <button
+        onClick={handleClick}
+        disabled={playing}
+        aria-label={label}
+        style={{
+          background: "none",
+          border: "none",
+          padding: 0,
+          cursor: playing ? "default" : "pointer",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 0,
+          transition: "transform 0.2s, opacity 0.2s",
+          opacity: playing ? 0.5 : 1,
+        }}
+        onMouseEnter={(e) => {
+          if (playing) return;
+          (e.currentTarget as HTMLButtonElement).style.transform = "scale(1.06)";
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
+        }}
+      >
+        {/* Avatar */}
+        <div style={{ marginBottom: 14, width: 72, height: 72, borderRadius: "50%", overflow: "hidden" }}>
           <Image
             src={index === 0 ? "/profile.png" : "/profile_jeroen.png"}
             alt={user.name}
@@ -209,46 +220,37 @@ function UserCard({ user, label, index, onSelect }: { user: AppUser; label: stri
             style={{ objectFit: "cover", width: "100%", height: "100%" }}
           />
         </div>
-        {loading && (
-          <div style={{
-            position: "absolute", inset: -3, borderRadius: "50%",
-            border: "2px solid rgba(226,202,122,0.15)",
-            borderTopColor: "#e2ca7a",
-            animation: "user-spin 0.8s linear infinite",
-          }} />
-        )}
-      </div>
 
-      {/* Main label */}
-      <span style={{
-        color: "#f0e6c8",
-        fontSize: 13,
-        fontWeight: 700,
-        fontFamily: "var(--font-montserrat, sans-serif)",
-        letterSpacing: "0.03em",
-        lineHeight: 1,
-        marginBottom: 5,
-      }}>
-        {label}
-      </span>
+        {/* Main label */}
+        <span style={{
+          color: "#f0e6c8",
+          fontSize: 13,
+          fontWeight: 700,
+          fontFamily: "var(--font-montserrat, sans-serif)",
+          letterSpacing: "0.03em",
+          lineHeight: 1,
+          marginBottom: 5,
+        }}>
+          {label}
+        </span>
 
-      {/* Subtext */}
-      <span style={{
-        color: "rgba(255,255,255,0.38)",
-        fontSize: 11,
-        fontWeight: 500,
-        lineHeight: 1,
-      }}>
-        {user.name}
-      </span>
-    </button>
+        {/* Subtext */}
+        <span style={{
+          color: "rgba(255,255,255,0.38)",
+          fontSize: 11,
+          fontWeight: 500,
+          lineHeight: 1,
+        }}>
+          {user.name}
+        </span>
+      </button>
+    </>
   );
 }
 
 function UserSelectScreen({ onSelect }: { onSelect: (user: AppUser) => void }) {
   return (
     <div style={{ position: "fixed", inset: 0, background: "#000000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
-      <style>{`@keyframes user-spin{to{transform:rotate(360deg)}}`}</style>
       <div style={{ display: "flex", gap: 48 }}>
         {APP_USERS.map((user, i) => (
           <UserCard key={user.id} user={user} label={USER_LABELS[i]} index={i} onSelect={onSelect} />
