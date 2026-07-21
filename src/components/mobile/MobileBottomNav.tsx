@@ -160,7 +160,7 @@ const SIDEBAR_GROUPS = [
 
 const NAV_ITEMS = [
   { href: "/m/home",      label: "Home",       Icon: IconHome          },
-  { href: "/monitoring",  label: "Monitoring", Icon: IconActivity      },
+  { href: "/m/monitoring", label: "Monitoring", Icon: IconActivity      },
   null, // center layers button
   { href: "/m/signale",   label: "Signale",    Icon: IconBellRing      },
   { href: "/m/sentinel",  label: "Sentinel",   Icon: IconMessageSquare },
