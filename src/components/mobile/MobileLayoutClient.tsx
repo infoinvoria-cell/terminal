@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { MobileHeader } from "./MobileHeader";
 import { MobileBottomNav } from "./MobileBottomNav";
 
@@ -9,16 +10,23 @@ const STORAGE_KEY = "m_header_hidden";
 const NAV_H = "calc(76px + env(safe-area-inset-bottom, 34px) + 14px)";
 const HEADER_H = 52;
 
+// Pages where header is always hidden (no toggle)
+const NO_HEADER_PREFIXES = ["/m/monitoring"];
+
 export function MobileLayoutClient({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const forceNoHeader = NO_HEADER_PREFIXES.some(p => pathname.startsWith(p));
   const [headerHidden, setHeaderHidden] = useState(false);
 
   useEffect(() => {
+    if (forceNoHeader) return;
     try {
       setHeaderHidden(localStorage.getItem(STORAGE_KEY) === "1");
     } catch {}
-  }, []);
+  }, [forceNoHeader]);
 
   const toggleHeader = () => {
+    if (forceNoHeader) return;
     setHeaderHidden(v => {
       const next = !v;
       try { localStorage.setItem(STORAGE_KEY, next ? "1" : "0"); } catch {}
@@ -26,11 +34,12 @@ export function MobileLayoutClient({ children }: { children: React.ReactNode }) 
     });
   };
 
-  const headerPx = headerHidden ? 0 : HEADER_H;
+  const effectiveHidden = forceNoHeader || headerHidden;
+  const headerPx = effectiveHidden ? 0 : HEADER_H;
 
   return (
     <div style={{ position: "relative", height: "100dvh", overflow: "hidden", background: "#0c0d10" }}>
-      <MobileHeader hidden={headerHidden} />
+      <MobileHeader hidden={effectiveHidden} />
 
       {/* Exact slice between header and nav — children fill 100% of this */}
       <main
@@ -48,7 +57,7 @@ export function MobileLayoutClient({ children }: { children: React.ReactNode }) 
         {children}
       </main>
 
-      <MobileBottomNav headerHidden={headerHidden} onToggleHeader={toggleHeader} />
+      <MobileBottomNav headerHidden={effectiveHidden} onToggleHeader={toggleHeader} />
     </div>
   );
 }
