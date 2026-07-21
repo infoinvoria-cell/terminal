@@ -3,7 +3,7 @@ import { Montserrat, Nunito } from "next/font/google";
 import { cookies } from "next/headers";
 import { ClientProviders } from "@/components/providers";
 
-import IntroAnimation from "@/components/IntroAnimation";
+import IntroAnimation from "@/components/intro/IntroAnimation";
 import { MobileRedirect } from "@/components/mobile/MobileRedirect";
 import "./globals.css";
 

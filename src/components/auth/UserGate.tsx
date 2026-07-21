@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { APP_USERS, AppUser, CL_USER_KEY, UserProvider } from "@/context/user-context";
 import Image from "next/image";
-import IntroAnimation from "@/components/IntroAnimation";
+import IntroAnimation from "@/components/intro/IntroAnimation";
 
 const GATE_PASSWORD = process.env.NEXT_PUBLIC_GATE_PASSWORD ?? "inno";
 const CL_GATE_KEY = "cl_gate_ok";

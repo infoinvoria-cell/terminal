@@ -3,17 +3,25 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "cl_intro";
+const STORAGE_KEY_SHOWN = "cl_intro_shown";
 const TOTAL_MS = 2000;
 
 function markIntroAsSeen() {
   try {
     sessionStorage.setItem(STORAGE_KEY, "1");
+    sessionStorage.setItem(STORAGE_KEY_SHOWN, "1");
   } catch {
     // Das Intro darf auch bei blockiertem Storage sauber enden.
   }
 }
 
-export default function IntroAnimation({ forcePlay, onComplete }: { forcePlay?: boolean; onComplete?: () => void } = {}) {
+export default function IntroAnimation({
+  forcePlay,
+  onComplete,
+}: {
+  forcePlay?: boolean;
+  onComplete?: () => void;
+} = {}) {
   const [shouldPlay, setShouldPlay] = useState(false);
 
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -51,19 +59,12 @@ export default function IntroAnimation({ forcePlay, onComplete }: { forcePlay?: 
     if (!overlay || !stage || !logoLayer || !progress) {
       markIntroAsSeen();
       setShouldPlay(false);
+      onComplete?.();
       return;
     }
 
     const logoWidth = logoLayer.getBoundingClientRect().width;
 
-    /*
-     * Der Icon-Bereich nimmt im vollständigen Logo etwa 9,28 % ein.
-     * Das vollständige Logo wird deshalb anfangs nach rechts verschoben,
-     * sodass genau dieser Ausschnitt mittig steht.
-     *
-     * Wichtig: Es wird während der gesamten Animation nur dieser eine
-     * Logo-Layer benutzt. Es findet kein Bildwechsel statt.
-     */
     const iconFraction = 190 / 2048;
     const centeredIconShift = logoWidth * (0.5 - iconFraction / 2);
 
@@ -117,21 +118,11 @@ export default function IntroAnimation({ forcePlay, onComplete }: { forcePlay?: 
       ),
     );
 
-    /*
-     * Die Kurven werden auf einzelne Segmente verteilt:
-     * - ruhiger Icon-Auftritt
-     * - geschmeidiges Öffnen des Logos
-     * - dezenter Abschluss
-     */
     const segmentAnimations = [
       logoLayer.animate(
         [
-          {
-            transform: `translateX(${centeredIconShift}px) translateY(7px) scale(0.9)`,
-          },
-          {
-            transform: `translateX(${centeredIconShift}px) translateY(0px) scale(1)`,
-          },
+          { transform: `translateX(${centeredIconShift}px) translateY(7px) scale(0.9)` },
+          { transform: `translateX(${centeredIconShift}px) translateY(0px) scale(1)` },
         ],
         {
           duration: 480,
@@ -226,7 +217,8 @@ export default function IntroAnimation({ forcePlay, onComplete }: { forcePlay?: 
     <div
       ref={overlayRef}
       aria-hidden="true"
-      className="fixed inset-0 z-[9999] grid place-items-center overflow-hidden bg-black"
+      className="fixed inset-0 z-[9999] grid place-items-center overflow-hidden"
+      style={{ background: "#000000" }}
     >
       <div
         ref={stageRef}
@@ -241,6 +233,7 @@ export default function IntroAnimation({ forcePlay, onComplete }: { forcePlay?: 
               willChange: "transform, opacity, clip-path",
             }}
           >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/CAPITALIFE_Logo.png"
               alt=""
@@ -255,8 +248,7 @@ export default function IntroAnimation({ forcePlay, onComplete }: { forcePlay?: 
             ref={progressRef}
             className="h-full w-full origin-left opacity-0"
             style={{
-              background:
-                "linear-gradient(90deg, #c9a227 0%, #e2ca7a 100%)",
+              background: "linear-gradient(90deg, #c9a227 0%, #e2ca7a 100%)",
               transform: "scaleX(0)",
               willChange: "transform, opacity",
             }}
