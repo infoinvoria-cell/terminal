@@ -94,14 +94,14 @@ function PasswordScreen({ onSuccess }: { onSuccess: () => void }) {
       <Image
         src="/CAPITALIFE_Logo.png"
         alt="Capitalife"
-        width={260}
-        height={65}
-        style={{ objectFit: "contain", marginBottom: 48, userSelect: "none", mixBlendMode: "lighten" }}
+        width={340}
+        height={85}
+        style={{ objectFit: "contain", marginBottom: 64, userSelect: "none", mixBlendMode: "lighten" }}
         priority
         draggable={false}
       />
       <form onSubmit={handleSubmit} style={{ animation: shake ? "gate-shake 0.45s ease" : undefined }}>
-        <div style={{ position: "relative", width: 260 }}>
+        <div style={{ position: "relative", width: 320 }}>
           <input
             ref={inputRef}
             type="password"
@@ -118,10 +118,10 @@ function PasswordScreen({ onSuccess }: { onSuccess: () => void }) {
               borderBottom: "1px solid rgba(255,255,255,0.18)",
               borderRadius: 0,
               color: "#fff",
-              fontSize: 16,
-              padding: "10px 40px 10px 2px",
+              fontSize: 19,
+              padding: "13px 48px 13px 2px",
               outline: "none",
-              letterSpacing: "0.14em",
+              letterSpacing: "0.16em",
               boxSizing: "border-box",
             }}
           />
@@ -145,7 +145,7 @@ function PasswordScreen({ onSuccess }: { onSuccess: () => void }) {
             }}
             aria-label="Enter"
           >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
               <path d="M4 10h12M11 5l5 5-5 5" stroke="#e2ca7a" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
@@ -211,12 +211,12 @@ function UserCard({ user, label, index, onSelect }: { user: AppUser; label: stri
         }}
       >
         {/* Avatar */}
-        <div style={{ marginBottom: 14, width: 72, height: 72, borderRadius: "50%", overflow: "hidden" }}>
+        <div style={{ marginBottom: 18, width: 100, height: 100, borderRadius: "50%", overflow: "hidden" }}>
           <Image
             src={index === 0 ? "/profile.png" : "/profile_jeroen.png"}
             alt={user.name}
-            width={72}
-            height={72}
+            width={100}
+            height={100}
             style={{ objectFit: "cover", width: "100%", height: "100%" }}
           />
         </div>
@@ -224,12 +224,12 @@ function UserCard({ user, label, index, onSelect }: { user: AppUser; label: stri
         {/* Main label */}
         <span style={{
           color: "#f0e6c8",
-          fontSize: 13,
+          fontSize: 15,
           fontWeight: 700,
           fontFamily: "var(--font-montserrat, sans-serif)",
           letterSpacing: "0.03em",
           lineHeight: 1,
-          marginBottom: 5,
+          marginBottom: 7,
         }}>
           {label}
         </span>
@@ -237,7 +237,7 @@ function UserCard({ user, label, index, onSelect }: { user: AppUser; label: stri
         {/* Subtext */}
         <span style={{
           color: "rgba(255,255,255,0.38)",
-          fontSize: 11,
+          fontSize: 13,
           fontWeight: 500,
           lineHeight: 1,
         }}>
@@ -251,7 +251,7 @@ function UserCard({ user, label, index, onSelect }: { user: AppUser; label: stri
 function UserSelectScreen({ onSelect }: { onSelect: (user: AppUser) => void }) {
   return (
     <div style={{ position: "fixed", inset: 0, background: "#000000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
-      <div style={{ display: "flex", gap: 48 }}>
+      <div style={{ display: "flex", gap: 72 }}>
         {APP_USERS.map((user, i) => (
           <UserCard key={user.id} user={user} label={USER_LABELS[i]} index={i} onSelect={onSelect} />
         ))}
