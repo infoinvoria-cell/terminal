@@ -2,7 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Montserrat, Nunito } from "next/font/google";
 import { cookies } from "next/headers";
 import { ClientProviders } from "@/components/providers";
+
 import IntroAnimation from "@/components/IntroAnimation";
+import { MobileRedirect } from "@/components/mobile/MobileRedirect";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -39,13 +41,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const simpleGatePassword =
-    process.env.SIMPLE_GATE_PASSWORD?.trim() ||
-    process.env.NEXT_PUBLIC_SIMPLE_GATE_PASSWORD?.trim() ||
-    "inno";
-
   const cookieStore = await cookies();
-  // Default: hidden. Only visible if cookie explicitly set to "0".
   const initialHeaderHidden = cookieStore.get("fmd_header_hidden")?.value !== "0";
 
   return (
@@ -55,7 +51,8 @@ export default async function RootLayout({
     >
       <body className="h-full overflow-hidden bg-[#0c0d10] text-white">
         <IntroAnimation />
-        <ClientProviders simpleGatePassword={simpleGatePassword} initialHeaderHidden={initialHeaderHidden}>
+        <MobileRedirect />
+        <ClientProviders initialHeaderHidden={initialHeaderHidden}>
           {children}
         </ClientProviders>
       </body>
