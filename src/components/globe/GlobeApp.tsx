@@ -1,6 +1,6 @@
 "use client";
 
-import { lazy, useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
+import { lazy, useCallback, useEffect, useMemo, useRef, startTransition, useState, Suspense } from "react";
 import Image from "next/image";
 import { Maximize2, Minimize2 } from "lucide-react";
 
@@ -410,6 +410,8 @@ export default function GlobeApp() {
   }, [initialOverlay]);
 
   const [assets, setAssets] = useState<AssetItem[]>([]);
+  const assetsRef = useRef<AssetItem[]>([]);
+  useEffect(() => { assetsRef.current = assets; }, [assets]);
   const [globalNews, setGlobalNews] = useState<NewsItem[]>([]);
   const [assetNews, setAssetNews] = useState<NewsItem[]>([]);
 
@@ -652,7 +654,7 @@ export default function GlobeApp() {
       return Promise.resolve();
     }
 
-    const selectedMeta = assets.find((a) => a.id === safeAssetId);
+    const selectedMeta = assetsRef.current.find((a) => a.id === safeAssetId);
     const shouldLoadSignalDetail = includeSignalDetail && selectedMeta?.category !== "Cross Pairs";
     const token = panelRequestTokenRef.current + 1;
     panelRequestTokenRef.current = token;
@@ -751,7 +753,7 @@ export default function GlobeApp() {
           setPanelLoading(false);
         }
       });
-  }, [assets]);
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -820,6 +822,10 @@ export default function GlobeApp() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    // Height reporting is only needed when embedded in an iframe parent.
+    // Running this as a full SPA page causes layout thrashing: the MutationObserver
+    // fires on every react-globe.gl DOM label update, forcing layout reads on each frame.
+    if (!isEmbedded) return;
     let raf = 0;
 
     const postHeight = () => {
@@ -849,13 +855,13 @@ export default function GlobeApp() {
     if (window.document.body) {
       resizeObserver.observe(window.document.body);
       mutationObserver.observe(window.document.body, {
-        subtree: true,
+        subtree: false,
         childList: true,
-        attributes: true,
+        attributes: false,
       });
     }
 
-    const intervalId = window.setInterval(schedulePostHeight, 1200);
+    const intervalId = window.setInterval(schedulePostHeight, 5000);
     window.addEventListener("resize", schedulePostHeight);
     schedulePostHeight();
 
@@ -866,7 +872,7 @@ export default function GlobeApp() {
       resizeObserver.disconnect();
       mutationObserver.disconnect();
     };
-  }, []);
+  }, [isEmbedded]);
 
   useEffect(() => {
     const onFullscreenChange = () => {
@@ -1965,7 +1971,7 @@ export default function GlobeApp() {
                   autoRotateEnabled={isPageActive && effectiveAutoRotateEnabled}
                   autoRotateSpeed={effectiveAutoRotateSpeed}
                   goldThemeEnabled={false}
-                  onCameraChange={setCamera}
+                  onCameraChange={(cam) => startTransition(() => setCamera(cam))}
                   onSelectAsset={onGlobeSelectAsset}
                   onFocusHandled={onFocusHandled}
                   onFocusLocationHandled={onFocusLocationHandled}
@@ -2010,7 +2016,7 @@ export default function GlobeApp() {
                   autoRotateEnabled={isPageActive && effectiveAutoRotateEnabled}
                   autoRotateSpeed={effectiveAutoRotateSpeed}
                   goldThemeEnabled={false}
-                  onCameraChange={setCamera}
+                  onCameraChange={(cam) => startTransition(() => setCamera(cam))}
                   onSelectAsset={onGlobeSelectAsset}
                   onFocusHandled={onFocusHandled}
                   onFocusLocationHandled={onFocusLocationHandled}

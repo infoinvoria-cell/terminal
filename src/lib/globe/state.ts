@@ -135,13 +135,19 @@ export function persistGlobeState(state: PersistedGlobeState): void {
     // no-op
   }
 
+  // Note: history.replaceState is intentionally skipped here.
+  // Calling replaceState on every camera change races with Next.js router.pushState
+  // during SPA navigation, reverting the URL and breaking sidebar navigation.
+  // State is persisted via localStorage above; URL sync is only needed for embedded iframes.
   try {
-    const encoded = encodeState(safe);
-    const qp = new URLSearchParams(window.location.search);
-    qp.set("gls", encoded);
-    const next = `${window.location.pathname}?${qp.toString()}`;
-    window.history.replaceState(null, "", next);
-    window.parent?.postMessage({ type: "capitalife-globe-state", gls: encoded }, "*");
+    if (window.top !== window) {
+      const encoded = encodeState(safe);
+      const qp = new URLSearchParams(window.location.search);
+      qp.set("gls", encoded);
+      const next = `${window.location.pathname}?${qp.toString()}`;
+      window.history.replaceState(null, "", next);
+      window.parent?.postMessage({ type: "capitalife-globe-state", gls: encoded }, "*");
+    }
   } catch (_err) {
     // no-op
   }
