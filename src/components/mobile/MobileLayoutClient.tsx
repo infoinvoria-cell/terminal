@@ -6,7 +6,7 @@ import { MobileBottomNav } from "./MobileBottomNav";
 const STORAGE_KEY = "m_header_hidden";
 
 // Nav height must match MobileBottomNav exactly
-const NAV_H = "calc(72px + env(safe-area-inset-bottom, 28px) + 10px)";
+const NAV_H = "calc(76px + env(safe-area-inset-bottom, 34px) + 14px)";
 const HEADER_H = 52;
 
 export function MobileLayoutClient({ children }: { children: React.ReactNode }) {

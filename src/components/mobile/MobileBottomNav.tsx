@@ -284,8 +284,8 @@ export function MobileBottomNav({ headerHidden, onToggleHeader }: Props) {
         style={{
           position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 1000,
           display: "flex", alignItems: "center",
-          height: `calc(72px + env(safe-area-inset-bottom, 28px))`,
-          paddingBottom: "calc(env(safe-area-inset-bottom, 28px) + 10px)",
+          height: `calc(76px + env(safe-area-inset-bottom, 34px))`,
+          paddingBottom: "calc(env(safe-area-inset-bottom, 34px) + 14px)",
           background: "#0c0d10",
           borderTop: `1px solid rgba(255,255,255,0.08)`,
           boxSizing: "border-box",
