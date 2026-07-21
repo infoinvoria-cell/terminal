@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { DataQualityStatus, OhlcBar } from "@/lib/fsportfolio/types";
 import { getTradingViewBars, getTradingViewManifest } from "@/lib/market-data/tradingview-cache";
+import { createSupabaseServiceClient } from "@/lib/supabase-server";
 
 const DOWNLOADS_DIR = "C:/Users/joris/Downloads";
 const INVORIA_DIR = "C:/Users/joris/Documents/Invoria Dashboard";
@@ -200,7 +201,30 @@ function scanDirectoryForSymbol(dirPath: string, symbol: string): string | null 
   return null;
 }
 
-export function loadOhlcSeries(symbol: string): LoadedOhlcSeries {
+async function loadFromSupabase(symbol: string): Promise<OhlcBar[]> {
+  try {
+    const db = createSupabaseServiceClient();
+    const { data, error } = await db
+      .from("invest_ohlc")
+      .select("date,open,high,low,close,volume")
+      .eq("symbol", symbol)
+      .order("date", { ascending: true });
+    if (error || !data?.length) return [];
+    const deduped = new Map<string, OhlcBar>();
+    for (const r of data) {
+      const date = String(r.date ?? "").slice(0, 10);
+      if (!date) continue;
+      const open = Number(r.open), high = Number(r.high), low = Number(r.low), close = Number(r.close);
+      if (!Number.isFinite(open) || !Number.isFinite(high) || !Number.isFinite(low) || !Number.isFinite(close)) continue;
+      deduped.set(date, { date, open, high, low, close, volume: r.volume != null ? Number(r.volume) : null });
+    }
+    return [...deduped.values()].sort((a, b) => a.date.localeCompare(b.date));
+  } catch {
+    return [];
+  }
+}
+
+export async function loadOhlcSeries(symbol: string): Promise<LoadedOhlcSeries> {
   const localFile =
     scanDirectoryForSymbol(path.join(LOCAL_FS_DIR, "ohlc"), symbol) ??
     scanDirectoryForSymbol(LOCAL_FS_DIR, symbol) ??
@@ -220,6 +244,15 @@ export function loadOhlcSeries(symbol: string): LoadedOhlcSeries {
         symbol,
         bars: tradingViewCached.bars,
         quality: buildQuality(symbol, tradingViewCached.sourcePath, "json", tradingViewCached.bars, tradingViewCached.warnings),
+      };
+    }
+    // Supabase fallback — invest_ohlc table is seeded from local CSVs
+    const supabaseBars = await loadFromSupabase(symbol);
+    if (supabaseBars.length) {
+      return {
+        symbol,
+        bars: supabaseBars,
+        quality: buildQuality(symbol, "supabase:invest_ohlc", "json", supabaseBars, []),
       };
     }
     return {
@@ -250,8 +283,8 @@ export function loadOhlcSeries(symbol: string): LoadedOhlcSeries {
   };
 }
 
-export function loadRequiredOhlcSeries(symbols: string[]): LoadedOhlcBundle {
-  const loaded = symbols.map((symbol) => loadOhlcSeries(symbol));
+export async function loadRequiredOhlcSeries(symbols: string[]): Promise<LoadedOhlcBundle> {
+  const loaded = await Promise.all(symbols.map((symbol) => loadOhlcSeries(symbol)));
   return {
     series: Object.fromEntries(loaded.map((item) => [item.symbol, item.bars])),
     quality: loaded.map((item) => item.quality),

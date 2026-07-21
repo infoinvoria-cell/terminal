@@ -10,7 +10,7 @@ export async function getDashboardPageData() {
     getTradesData(),
     loadDashboardSnapshotAsync(),
   ]);
-  const fsportfolio = getFSPortfolioSnapshot();
+  const fsportfolio = await getFSPortfolioSnapshot();
   const portfolioKpisBaseline = computeDashboardKpis(rows);
 
   const kpis = portfolioKpisBaseline;

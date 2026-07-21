@@ -317,10 +317,10 @@ function buildLiveResult(loadedSeries: Record<string, OhlcBar[]>, whiteSwanDaily
   };
 }
 
-function buildReadySnapshot(): FSPortfolioSnapshot {
+async function buildReadySnapshot(): Promise<FSPortfolioSnapshot> {
   const config = loadFSPortfolioConfig();
   const manifest = loadFSPortfolioDataManifest();
-  const loaded = loadRequiredOhlcSeries(config.required_ohlc_symbols);
+  const loaded = await loadRequiredOhlcSeries(config.required_ohlc_symbols);
   const missingSymbols = loaded.quality.filter((item) => !item.found).map((item) => item.symbol);
   const nasBars = loaded.series.QQQ ?? [];
   const whiteSwan = buildWhiteSwanSleeveStatus(
@@ -540,14 +540,14 @@ function buildReadySnapshot(): FSPortfolioSnapshot {
   };
 }
 
-// Module-level cache — avoids re-reading OHLC files on every page request
-let _snapshotCache: { data: ReturnType<typeof buildReadySnapshot>; ts: number } | null = null;
+// Module-level cache — avoids re-reading OHLC files / Supabase on every page request
+let _snapshotCache: { data: FSPortfolioSnapshot; ts: number } | null = null;
 const SNAPSHOT_TTL_MS = 60 * 1000; // 60 s
 
-export function getFSPortfolioSnapshot() {
+export async function getFSPortfolioSnapshot(): Promise<FSPortfolioSnapshot> {
   const now = Date.now();
   if (_snapshotCache && now - _snapshotCache.ts < SNAPSHOT_TTL_MS) return _snapshotCache.data;
-  const data = buildReadySnapshot();
+  const data = await buildReadySnapshot();
   _snapshotCache = { data, ts: now };
   return data;
 }

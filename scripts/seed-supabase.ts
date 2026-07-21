@@ -268,8 +268,12 @@ async function seedMonitoringOhlc() {
     try { cacheJson = JSON.parse(fs.readFileSync(filePath, "utf-8")); }
     catch { process.stdout.write(`  ⚠️  ${assetKey} ${tf}: parse error\n`); continue; }
 
+    const isIntraday = tf !== "D";
     const payload = (cacheJson.bars ?? []).map((r) => {
-      const date = String(r.date ?? r.time ?? "").slice(0, 10);
+      const raw = String(r.date ?? r.time ?? "");
+      // For intraday bars preserve the full ISO timestamp so each bar is unique
+      // (slicing to 10 would make all bars in the same day share the same date key)
+      const date = isIntraday && raw.length > 10 ? raw.slice(0, 19).replace(" ", "T") : raw.slice(0, 10);
       const close = toNum(String(r.close ?? ""));
       if (!date || close === null) return null;
       return {
