@@ -130,7 +130,7 @@ export function SupabaseAuthGate({ children }: { children: React.ReactNode }) {
     >
       {/* Logo */}
       <img
-        src="/CAPITALIFE_Logo.png"
+        src="/logo.png"
         alt="Capitalife"
         style={{ width: 200, marginBottom: 40, userSelect: "none" }}
         draggable={false}
