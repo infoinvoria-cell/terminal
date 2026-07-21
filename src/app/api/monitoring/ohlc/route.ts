@@ -110,7 +110,7 @@ export async function GET(req: NextRequest) {
 
   const symbolUpper = rawSymbol.trim().toUpperCase();
   const tf = normalizeTimeframe(rawTimeframe);
-  const maxBars = maxBarsParam ? Math.max(1, Math.min(10000, parseInt(maxBarsParam, 10) || 5000)) : 5000;
+  const maxBars = maxBarsParam ? Math.max(1, Math.min(50000, parseInt(maxBarsParam, 10) || 0)) : 0;
 
   if (!fs.existsSync(MANIFEST_PATH)) {
     return fromSupabaseOhlc(symbolUpper, tf, maxBars);
