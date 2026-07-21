@@ -1,10 +1,10 @@
 /**
- * seed-supabase.ts
+ * seed-supabaseAdmin.ts
  * Einmaliger Upload: liest forward_trades_log.csv + forward_signal_log.csv
  * aus dem lokalen Brain-Pfad und schreibt sie in Supabase.
  *
  * Aufruf:
- *   npx tsx scripts/seed-supabase.ts
+ *   npx tsx scripts/seed-supabaseAdmin.ts
  *
  * Benötigt in .env.local:
  *   CAPITALIFE_BRAIN_PATH
@@ -26,7 +26,7 @@ const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 if (!BRAIN_PATH) { console.error("❌  CAPITALIFE_BRAIN_PATH not set"); process.exit(1); }
 if (!SUPABASE_URL || !SERVICE_ROLE_KEY) { console.error("❌  Supabase env vars missing"); process.exit(1); }
 
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
 
@@ -59,10 +59,6 @@ async function seedTrades() {
   const rows = parseCsv(fs.readFileSync(TRADES_FILE, "utf-8"));
   console.log(`📂  ${rows.length} trade rows found`);
 
-  // Truncate first for a clean seed
-  const { error: delErr } = await supabase.from("forward_trades").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-  if (delErr) { console.error("❌  Delete failed:", delErr.message); return; }
-
   const payload = rows.map((r) => ({
     event:       r.event ?? "ENTRY",
     symbol:      r.symbol ?? "",
@@ -78,9 +74,11 @@ async function seedTrades() {
 
   const CHUNK = 500;
   for (let i = 0; i < payload.length; i += CHUNK) {
-    const { error } = await supabase.from("forward_trades").insert(payload.slice(i, i + CHUNK));
-    if (error) { console.error(`❌  Insert chunk ${i}:`, error.message); return; }
-    console.log(`✅  trades inserted ${i + 1}–${Math.min(i + CHUNK, payload.length)}`);
+    const { error } = await supabaseAdmin
+      .from("forward_trades")
+      .upsert(payload.slice(i, i + CHUNK), { onConflict: "symbol,entry_date,direction,event" });
+    if (error) { console.error(`❌  Upsert chunk ${i}:`, error.message); return; }
+    console.log(`✅  trades upserted ${i + 1}–${Math.min(i + CHUNK, payload.length)}`);
   }
   console.log("✅  forward_trades done");
 }
@@ -93,9 +91,6 @@ async function seedSignals() {
   const rows = parseCsv(fs.readFileSync(SIGNALS_FILE, "utf-8"));
   console.log(`📂  ${rows.length} signal rows found`);
 
-  const { error: delErr } = await supabase.from("forward_signals").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-  if (delErr) { console.error("❌  Delete failed:", delErr.message); return; }
-
   const payload = rows.map((r) => ({
     symbol:      r.symbol ?? "",
     direction:   r.direction ?? "",
@@ -106,9 +101,11 @@ async function seedSignals() {
 
   const CHUNK = 500;
   for (let i = 0; i < payload.length; i += CHUNK) {
-    const { error } = await supabase.from("forward_signals").insert(payload.slice(i, i + CHUNK));
-    if (error) { console.error(`❌  Insert chunk ${i}:`, error.message); return; }
-    console.log(`✅  signals inserted ${i + 1}–${Math.min(i + CHUNK, payload.length)}`);
+    const { error } = await supabaseAdmin
+      .from("forward_signals")
+      .upsert(payload.slice(i, i + CHUNK), { onConflict: "symbol,strategy_id" });
+    if (error) { console.error(`❌  Upsert chunk ${i}:`, error.message); return; }
+    console.log(`✅  signals upserted ${i + 1}–${Math.min(i + CHUNK, payload.length)}`);
   }
   console.log("✅  forward_signals done");
 }

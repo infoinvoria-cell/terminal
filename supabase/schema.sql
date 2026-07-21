@@ -51,7 +51,8 @@ create table if not exists public.forward_trades (
   pnl          numeric(18, 6),
   strategy_id  text,
   notes        text,
-  uploaded_at  timestamptz not null default now()
+  uploaded_at  timestamptz not null default now(),
+  unique (symbol, entry_date, direction, event)
 );
 alter table public.forward_trades enable row level security;
 create policy "Service role full access on forward_trades" on public.forward_trades
@@ -65,9 +66,10 @@ create table if not exists public.forward_signals (
   in_position  boolean not null default false,
   signal_ts    timestamptz,
   strategy_id  text,
-  uploaded_at  timestamptz not null default now()
+  uploaded_at  timestamptz not null default now(),
+  unique (symbol, strategy_id)
 );
-alter table public.forward_trades enable row level security;
+alter table public.forward_signals enable row level security;
 create policy "Service role full access on forward_signals" on public.forward_signals
   using (true) with check (true);
 

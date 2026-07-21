@@ -114,7 +114,9 @@ async function fromSupabase() {
     db.from("forward_signals").select("*"),
   ]);
 
-  if (tradesRes.error || signalsRes.error) return null;
+  if (tradesRes.error || signalsRes.error) {
+    throw new Error(`Supabase query failed — trades: ${tradesRes.error?.message ?? "ok"} | signals: ${signalsRes.error?.message ?? "ok"}`);
+  }
 
   const allTrades = tradesRes.data ?? [];
   const allSignals = signalsRes.data ?? [];
