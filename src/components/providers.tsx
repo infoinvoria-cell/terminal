@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { GlobalPageProvider } from "@/context/global-page-context";
 import { HeaderStateProvider } from "@/context/header-state-context";
+import { MobilePreviewProvider } from "@/context/mobile-preview-context";
+import { MobilePreviewOverlay } from "@/components/mobile-preview/MobilePreviewOverlay";
 import { UserGate } from "@/components/auth/UserGate";
 import { useUser } from "@/context/user-context";
 import { SentinelButler } from "@/components/sentinel/sentinel-butler";
@@ -60,11 +62,14 @@ export function ClientProviders({
   return (
     <GlobalPageProvider>
       <HeaderStateProvider initialHidden={initialHeaderHidden}>
-        <UserGate>
-          <AppShell>
-            {children}
-          </AppShell>
-        </UserGate>
+        <MobilePreviewProvider>
+          <UserGate>
+            <AppShell>
+              {children}
+            </AppShell>
+          </UserGate>
+          <MobilePreviewOverlay />
+        </MobilePreviewProvider>
       </HeaderStateProvider>
     </GlobalPageProvider>
   );

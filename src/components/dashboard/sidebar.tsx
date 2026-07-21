@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { MobilePreviewToggle } from "@/components/mobile-preview/MobilePreviewToggle";
 import {
   useHomeDashboard,
   type DashboardPage,
@@ -298,8 +299,13 @@ export function Sidebar() {
       <div className="mt-auto flex w-full flex-col items-center px-2 pb-5 pt-2">
         <SidebarSep expanded={expanded} />
 
-        {/* Header toggle — same fixed-icon pattern */}
+        {/* Mobile Preview toggle */}
         <div className="mt-2 w-full">
+          <MobilePreviewToggle expanded={expanded} />
+        </div>
+
+        {/* Header toggle — same fixed-icon pattern */}
+        <div className="mt-1 w-full">
           <button
             type="button"
             onClick={toggleHeader}
