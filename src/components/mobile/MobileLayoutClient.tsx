@@ -5,6 +5,10 @@ import { MobileBottomNav } from "./MobileBottomNav";
 
 const STORAGE_KEY = "m_header_hidden";
 
+// Nav height must match MobileBottomNav exactly
+const NAV_H = "calc(72px + env(safe-area-inset-bottom, 28px) + 10px)";
+const HEADER_H = 52;
+
 export function MobileLayoutClient({ children }: { children: React.ReactNode }) {
   const [headerHidden, setHeaderHidden] = useState(false);
 
@@ -22,18 +26,28 @@ export function MobileLayoutClient({ children }: { children: React.ReactNode }) 
     });
   };
 
+  const headerPx = headerHidden ? 0 : HEADER_H;
+
   return (
-    <div style={{ position: "relative", minHeight: "100dvh", background: "#0c0d10", overflowX: "hidden" }}>
+    <div style={{ position: "relative", height: "100dvh", overflow: "hidden", background: "#0c0d10" }}>
       <MobileHeader hidden={headerHidden} />
-      <main style={{
-        minHeight: "100dvh",
-        overflowY: "auto",
-        paddingTop: headerHidden ? 0 : 52,
-        paddingBottom: "calc(72px + env(safe-area-inset-bottom, 28px) + 10px)",
-        transition: "padding-top 200ms ease",
-      }}>
+
+      {/* Exact slice between header and nav — children fill 100% of this */}
+      <main
+        style={{
+          position: "absolute",
+          top: headerPx,
+          left: 0,
+          right: 0,
+          bottom: NAV_H,
+          overflowY: "auto",
+          overflowX: "hidden",
+          transition: "top 200ms ease",
+        }}
+      >
         {children}
       </main>
+
       <MobileBottomNav headerHidden={headerHidden} onToggleHeader={toggleHeader} />
     </div>
   );
