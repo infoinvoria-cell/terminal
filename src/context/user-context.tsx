@@ -9,8 +9,8 @@ export type AppUser = {
 };
 
 export const APP_USERS: AppUser[] = [
-  { id: "joris",   name: "Joris G.",    avatar: null },
-  { id: "jeroen",  name: "Jeroen G.",   avatar: "/CAPITALIFE_ICON.png" },
+  { id: "joris",   name: "Joris G.",    avatar: "/profile.png"         },
+  { id: "jeroen",  name: "Jeroen G.",   avatar: "/profile_jeroen.png"  },
   { id: "janluca", name: "Jan Luca M.", avatar: "/CAPITALIFE_ICON.png" },
 ];
 

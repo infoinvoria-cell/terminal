@@ -1,5 +1,10 @@
-import { MobileLiveView } from "@/components/mobile/MobileLiveView";
+import { getSignalPageData } from "@/lib/signal/signalPageData";
+import { MobileSignaleView } from "@/components/mobile/signale/MobileSignaleView";
 
-export default function MobileSignalePage() {
-  return <MobileLiveView />;
+export const dynamic = "force-dynamic";
+export const metadata = { title: "Signale — Capitalife Terminal" };
+
+export default async function MobileSignalePage() {
+  const data = await getSignalPageData();
+  return <MobileSignaleView data={data} />;
 }
