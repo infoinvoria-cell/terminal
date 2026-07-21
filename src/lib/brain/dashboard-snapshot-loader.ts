@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import type { DashboardSnapshot } from "./dashboard-snapshot-types";
 import { getCapitalifeBrainPath } from "./brain-path";
+import { createSupabaseServiceClient } from "@/lib/supabase-server";
 
 let _cached: DashboardSnapshot | null = null;
 let _cacheTs = 0;
@@ -35,4 +36,29 @@ export function getDashboardSnapshotPath(): string {
 export function invalidateSnapshotCache(): void {
   _cached = null;
   _cacheTs = 0;
+}
+
+let _supabaseCache: { data: DashboardSnapshot; ts: number } | null = null;
+
+export async function loadDashboardSnapshotAsync(): Promise<DashboardSnapshot | null> {
+  const sync = loadDashboardSnapshot();
+  if (sync) return sync;
+
+  const now = Date.now();
+  if (_supabaseCache && now - _supabaseCache.ts < CACHE_TTL_MS) return _supabaseCache.data;
+
+  try {
+    const db = createSupabaseServiceClient();
+    const { data, error } = await db
+      .from("dashboard_snapshot")
+      .select("data")
+      .eq("key", "latest")
+      .single();
+    if (error || !data) return null;
+    const snapshot = data.data as DashboardSnapshot;
+    _supabaseCache = { data: snapshot, ts: now };
+    return snapshot;
+  } catch {
+    return null;
+  }
 }

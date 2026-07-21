@@ -329,6 +329,66 @@ async function seedBrainGraph() {
   console.log(`\r✅  brain_links: ${links.length} rows`);
 }
 
+// ── Track KPIs (from trades_clean_compounded.csv) ────────────────────────────
+
+const MONTHLY_OVERRIDE: Record<string, number> = {
+  "2026-01": 0.17, "2026-02": 3.75, "2026-03": 0.17, "2026-04": 0.93,
+};
+
+function monthKey(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function computeTrackKpis(csvPath: string) {
+  if (!fs.existsSync(csvPath)) return null;
+  const raw = parseCsv(fs.readFileSync(csvPath, "utf-8"));
+  const parsed = raw.map((r) => {
+    const date = new Date(r["Close Date"] ?? "");
+    const gain = parseFloat(r["Gain (%)"] ?? "");
+    if (isNaN(date.getTime()) || !isFinite(gain)) return null;
+    return { date, gainPct: gain };
+  }).filter(Boolean) as { date: Date; gainPct: number }[];
+
+  const overrideKeys = new Set(Object.keys(MONTHLY_OVERRIDE));
+  const preserved = parsed.filter((r) => !overrideKeys.has(monthKey(r.date)));
+  const injected = Object.entries(MONTHLY_OVERRIDE).map(([k, gainPct]) => {
+    const [y, m] = k.split("-").map(Number);
+    return { date: new Date(y, m - 1, 1, 12), gainPct };
+  });
+  const rows = [...preserved, ...injected].sort((a, b) => a.date.getTime() - b.date.getTime());
+  if (!rows.length) return null;
+
+  const totalReturn = rows.reduce((acc, r) => acc * (1 + r.gainPct / 100), 1) - 1;
+
+  let equity = 1; let peak = 1; let maxDd = 0;
+  for (const r of rows) {
+    equity *= (1 + r.gainPct / 100);
+    peak = Math.max(peak, equity);
+    if (peak > 0) maxDd = Math.max(maxDd, ((peak - equity) / peak) * 100);
+  }
+
+  const currentYear = new Date().getFullYear();
+  const ytdRows = rows.filter((r) => r.date.getFullYear() === currentYear);
+  const ytdReturn = ytdRows.reduce((acc, r) => acc * (1 + r.gainPct / 100), 1) - 1;
+
+  const endDate = rows.at(-1)!.date;
+  const start24m = new Date(endDate);
+  start24m.setMonth(start24m.getMonth() - 24);
+  const return24m = rows.filter((r) => r.date >= start24m)
+    .reduce((acc, r) => acc * (1 + r.gainPct / 100), 1) - 1;
+
+  const sign = (n: number) => (n >= 0 ? "+" : "");
+  const fmt = (n: number) => `${sign(n)}${(n * 100).toFixed(1)}%`;
+
+  return {
+    totalReturn: fmt(totalReturn),
+    maxDrawdown: `-${maxDd.toFixed(2)}%`,
+    compoundedReturn: fmt(totalReturn),
+    annualizedReturn: `${(ytdReturn * 100).toFixed(1)}%`,
+    totalReturn24m: fmt(return24m),
+  };
+}
+
 // ── Dashboard Snapshot ────────────────────────────────────────────────────────
 
 async function seedDashboardSnapshot() {
@@ -336,6 +396,15 @@ async function seedDashboardSnapshot() {
   if (!fs.existsSync(file)) { console.warn("⚠️  dashboard_snapshot.json not found"); return; }
   const raw = fs.readFileSync(file, "utf-8");
   const data = JSON.parse(raw);
+
+  const trackKpis = computeTrackKpis(path.join(process.cwd(), "trades_clean_compounded.csv"));
+  if (trackKpis) {
+    data._track_kpis = trackKpis;
+    console.log("  📊  _track_kpis:", JSON.stringify(trackKpis));
+  } else {
+    console.warn("  ⚠️  trades_clean_compounded.csv not found — _track_kpis not injected");
+  }
+
   const generated_at = data.generated_at ? new Date(data.generated_at).toISOString() : null;
   const { error } = await supabaseAdmin.from("dashboard_snapshot").upsert(
     [{ key: "latest", data, generated_at }],

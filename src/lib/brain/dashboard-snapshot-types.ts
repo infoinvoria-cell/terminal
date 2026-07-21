@@ -102,7 +102,16 @@ export type SnapshotCounts = {
   assets: number;
 };
 
+export type TrackKpis = {
+  totalReturn: string;
+  maxDrawdown: string;
+  compoundedReturn: string;
+  annualizedReturn: string;
+  totalReturn24m: string;
+};
+
 export type DashboardSnapshot = {
+  _track_kpis?: TrackKpis;
   generated_at: string;
   manual: {
     id: string;
