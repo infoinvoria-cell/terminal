@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { ClientProviders } from "@/components/providers";
 
 import IntroAnimation from "@/components/IntroAnimation";
+import { MobileRedirect } from "@/components/mobile/MobileRedirect";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -29,9 +30,9 @@ export const metadata: Metadata = {
   title: "Capitalife Terminal",
   description: "Portfolio performance and risk overview",
   icons: {
-    icon: "/branding/capitalife-favicon.png",
-    shortcut: "/branding/capitalife-favicon.png",
-    apple: "/branding/capitalife-favicon.png",
+    icon: "/CAPITALIFE_ICON.png",
+    shortcut: "/CAPITALIFE_ICON.png",
+    apple: "/CAPITALIFE_ICON.png",
   },
 };
 
@@ -49,6 +50,7 @@ export default async function RootLayout({
       className={`${montserrat.variable} ${nunito.variable} h-full antialiased`}
     >
       <body className="h-full overflow-hidden bg-[#0c0d10] text-white">
+        <MobileRedirect />
         <IntroAnimation />
         <ClientProviders initialHeaderHidden={initialHeaderHidden}>
           {children}
