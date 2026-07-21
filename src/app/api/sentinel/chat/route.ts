@@ -25,7 +25,14 @@ function buildSystemPrompt(pageCtx: PageContext | undefined, lastQuestion: strin
   const pageHint = pageCtx?.page
     ? `Seite: ${pageCtx.visibleTitle ?? pageCtx.page}${pageCtx.tab ? ` › ${pageCtx.tab}` : ""}. `
     : "";
-  return `${pageHint}Capitalife Brain = einzige Source of Truth. Kein Finanzwissen ergänzen wenn Brain-Daten fehlen. Deutsch antworten.\n\n${ctx}`;
+  const formatRules = `Antwortstil:
+- Kurz und präzise — maximal 3-5 Sätze pro Absatz, dann Absatz-Umbruch
+- Benutze Markdown: **fett** für wichtige Begriffe, *kursiv* für Hinweise, ## Überschriften bei mehrteiligen Antworten
+- Aufzählungen wenn es mehrere Punkte gibt (- oder 1.)
+- 1-2 passende Emojis pro Antwort (nicht erzwingen)
+- Keine langen Blöcke ohne Absatz
+- Lieber kürzer und klar als lang und vollständig`;
+  return `${pageHint}Capitalife Brain = einzige Source of Truth. Kein Finanzwissen ergänzen wenn Brain-Daten fehlen. Deutsch antworten.\n\n${formatRules}\n\n${ctx}`;
 }
 
 export async function POST(req: NextRequest) {

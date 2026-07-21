@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Check, ChevronDown, Copy, Grid2x2, Mic, MicOff,
-  Pencil, Plus, RotateCcw, Send, Trash2, Volume2, VolumeX, X,
+  Check, ChevronDown, Clock, Copy, Grid2x2, Mic, MicOff,
+  Pencil, Plus, RotateCcw, Send, SquarePen, Trash2, Volume2, VolumeX, X,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useSentinelSession } from "@/components/sentinel/sentinel-session-provider";
@@ -24,10 +24,20 @@ type SentinelFavoritePrompt = {
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const MUTE_KEY      = "fmd_sentinel_muted";
-const FAVORITES_KEY = "fmd_sentinel_favorites";
-const TA_MAX_H      = 100;
-const GREETING      = "Yo was geht ab Bro, Sentinel hier...";
+const MUTE_KEY        = "fmd_sentinel_muted";
+const FAVORITES_KEY   = "fmd_sentinel_favorites";
+const SAVED_CHATS_KEY = "fmd_sentinel_saved_chats";
+const TA_MAX_H        = 100;
+const GREETING        = "Yo was geht ab Bro, Sentinel hier...";
+
+// ── Saved chat type ───────────────────────────────────────────────────────────
+
+type SavedChat = {
+  id: string;
+  preview: string;      // first user message truncated
+  savedAt: string;
+  messages: ChatEntry[];
+};
 
 const DEFAULT_FAVORITES: SentinelFavoritePrompt[] = [
   { id: "d1", title: "Portfolio Status",   category: "portfolio", prompt: "Aktueller Portfolio Status — Version, Sleeves, Entries.",           createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
@@ -314,7 +324,7 @@ function MessageActions({ content, onRegenerate, regenDisabled }: { content: str
     try { await navigator.clipboard.writeText(content); setCopied(true); setTimeout(() => setCopied(false), 1600); } catch { /* ignore */ }
   };
   return (
-    <div style={{ display: "inline-flex", alignItems: "center", gap: 3, marginTop: 6 }}>
+    <div style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
       <svg width="18" height="18" viewBox="0 0 260 260" fill="none" style={{ flexShrink: 0, marginRight: 4 }}>
         <circle cx="130" cy="130" r="100" stroke="rgba(255,255,255,0.10)" strokeWidth="6" />
         <circle cx="130" cy="130" r="88"  stroke="rgba(214,184,108,0.18)" strokeWidth="7" />
@@ -396,6 +406,82 @@ function FavoritesDropdown({ favorites, onSelect, onDelete, onRename, onAdd }: {
   );
 }
 
+// ── Chat History Panel ────────────────────────────────────────────────────────
+
+function ChatHistoryPanel({ open, onClose, onLoad, onDelete }: {
+  open: boolean;
+  onClose: () => void;
+  onLoad: (chat: SavedChat) => void;
+  onDelete: (id: string) => void;
+}) {
+  const [chats, setChats] = useState<SavedChat[]>(() => {
+    try { return lsGet<SavedChat[]>(SAVED_CHATS_KEY, []); } catch { return []; }
+  });
+
+  useEffect(() => {
+    if (!open) return;
+    try { setChats(lsGet<SavedChat[]>(SAVED_CHATS_KEY, [])); } catch { /* ignore */ }
+  }, [open]);
+
+  const handleDelete = (id: string) => {
+    const updated = chats.filter(c => c.id !== id);
+    setChats(updated);
+    lsSet(SAVED_CHATS_KEY, updated);
+    onDelete(id);
+  };
+
+  if (!open) return null;
+
+  return (
+    <>
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.5)" }} />
+      <div style={{
+        position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 201,
+        background: "#111214", borderRadius: "16px 16px 0 0",
+        maxHeight: "70dvh", display: "flex", flexDirection: "column",
+        animation: "ms-slideup 260ms cubic-bezier(0.32,0.72,0,1) both",
+      }}>
+        <style jsx global>{`@keyframes ms-slideup { from { transform:translateY(100%); } to { transform:translateY(0); } }`}</style>
+        {/* Handle */}
+        <div style={{ display: "flex", justifyContent: "center", padding: "10px 0 4px" }}>
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)" }} />
+        </div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 16px 10px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)", letterSpacing: "-0.01em" }}>Gespeicherte Chats</span>
+          <button type="button" onClick={onClose} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.40)", cursor: "pointer", padding: 4, WebkitTapHighlightColor: "transparent" }}>
+            <X size={18} />
+          </button>
+        </div>
+        <div style={{ overflowY: "auto", flex: 1, scrollbarWidth: "none" }}>
+          {chats.length === 0 ? (
+            <div style={{ padding: "32px 16px", textAlign: "center", color: "rgba(255,255,255,0.28)", fontSize: 13 }}>
+              Noch keine gespeicherten Chats
+            </div>
+          ) : (
+            chats.slice().reverse().map(chat => (
+              <div key={chat.id} style={{ display: "flex", alignItems: "center", padding: "10px 16px", borderBottom: "1px solid rgba(255,255,255,0.04)", gap: 10 }}>
+                <button type="button" onClick={() => { onLoad(chat); onClose(); }} style={{ flex: 1, textAlign: "left", background: "none", border: "none", cursor: "pointer", padding: 0, WebkitTapHighlightColor: "transparent" }}>
+                  <div style={{ fontSize: 12.5, fontWeight: 500, color: "rgba(255,255,255,0.80)", lineHeight: 1.4, marginBottom: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {chat.preview}
+                  </div>
+                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.28)" }}>
+                    {new Date(chat.savedAt).toLocaleDateString("de-DE", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                    <span style={{ marginLeft: 6 }}>{chat.messages.length} Nachrichten</span>
+                  </div>
+                </button>
+                <button type="button" onClick={() => handleDelete(chat.id)}
+                  style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, background: "none", border: "none", borderRadius: "50%", color: "rgba(255,107,114,0.55)", cursor: "pointer", flexShrink: 0, WebkitTapHighlightColor: "transparent" }}>
+                  <Trash2 size={15} />
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export function MobileSentinelView() {
@@ -425,6 +511,7 @@ export function MobileSentinelView() {
   const [voiceDropOpen,    setVoiceDropOpen]    = useState(false);
   const [animPhase,        setAnimPhase]        = useState<"avatar" | "typing" | "done">("avatar");
   const [typedText,        setTypedText]        = useState("");
+  const [historyOpen,      setHistoryOpen]      = useState(false);
 
   const scrollRef      = useRef<HTMLDivElement>(null);
   const textareaRef    = useRef<HTMLTextAreaElement>(null);
@@ -615,6 +702,38 @@ export function MobileSentinelView() {
     setFavorites(prev => prev.map(f => f.id === id ? { ...f, title: t.trim(), updatedAt: new Date().toISOString() } : f));
   }, [favorites]);
 
+  const saveCurrentChat = useCallback(() => {
+    if (entries.length === 0) return;
+    const firstUser = entries.find(e => e.role === "user");
+    const preview   = firstUser ? firstUser.content.slice(0, 60) + (firstUser.content.length > 60 ? "…" : "") : "Chat";
+    const newEntry: SavedChat = { id: `sc-${Date.now()}`, preview, savedAt: new Date().toISOString(), messages: entries };
+    try {
+      const existing = lsGet<SavedChat[]>(SAVED_CHATS_KEY, []);
+      lsSet(SAVED_CHATS_KEY, [...existing, newEntry].slice(-30)); // keep last 30
+    } catch { /* ignore */ }
+  }, [entries]);
+
+  const startNewChat = useCallback(() => {
+    saveCurrentChat();
+    clearHistory();
+    setAnimPhase("avatar");
+    setTypedText("");
+    setTimeout(() => {
+      setAnimPhase("typing");
+      let i = 0;
+      const iv = setInterval(() => {
+        i++; setTypedText(GREETING.slice(0, i));
+        if (i >= GREETING.length) { clearInterval(iv); setTimeout(() => setAnimPhase("done"), 200); }
+      }, 12);
+    }, 200);
+  }, [saveCurrentChat, clearHistory]);
+
+  const loadSavedChat = useCallback((chat: SavedChat) => {
+    clearHistory();
+    setEntries(chat.messages);
+    setAnimPhase("done");
+  }, [clearHistory, setEntries]);
+
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void sendWithReset(); }
   };
@@ -700,14 +819,6 @@ export function MobileSentinelView() {
             {visEnt.map((entry, i) => (
               <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: entry.role === "user" ? "flex-end" : "flex-start" }}>
 
-                {/* Assistant label */}
-                {entry.role === "assistant" && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 5 }}>
-                    <MiniAurumRings />
-                    <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(214,184,108,0.70)", letterSpacing: "0.06em" }}>SENTINEL</span>
-                  </div>
-                )}
-
                 {/* Message bubble */}
                 <div style={{
                   fontSize: 13, lineHeight: 1.65, fontWeight: 500,
@@ -733,9 +844,13 @@ export function MobileSentinelView() {
                   <SourcesToggle sources={entry.meta.sources} confidence={entry.meta.confidence} />
                 ) : null}
 
-                {/* Copy + Regen */}
+                {/* Aurum + SENTINEL label + Copy + Regen — all in one row below the answer */}
                 {entry.role === "assistant" && entry.content && (
-                  <MessageActions content={entry.content} onRegenerate={() => regenerate(i)} regenDisabled={visBusy} />
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6 }}>
+                    <MiniAurumRings />
+                    <span style={{ fontSize: 9.5, fontWeight: 700, color: "rgba(214,184,108,0.55)", letterSpacing: "0.06em", marginRight: 2 }}>SENTINEL</span>
+                    <MessageActions content={entry.content} onRegenerate={() => regenerate(i)} regenDisabled={visBusy} />
+                  </div>
                 )}
               </div>
             ))}
@@ -801,6 +916,7 @@ export function MobileSentinelView() {
           <textarea
             ref={textareaRef}
             rows={1}
+            enterKeyHint="send"
             placeholder={listening ? "Spricht…" : visBusy ? "Tippen möglich — wird danach gesendet…" : "Sentinel fragen…"}
             value={visInput}
             onChange={onTextareaChange}
@@ -862,18 +978,31 @@ export function MobileSentinelView() {
             </div>
           )}
 
-          {visEnt.length > 0 && (
-            <button type="button" onClick={clearHistory} title="Verlauf löschen"
-              style={{ ...iconBtn({}) }}>
-              <Trash2 size={15} />
-            </button>
-          )}
+          {/* New chat */}
+          <button type="button" onClick={startNewChat} title="Neuer Chat"
+            style={{ ...iconBtn({}) }}>
+            <SquarePen size={15} />
+          </button>
+
+          {/* Chat history */}
+          <button type="button" onClick={() => setHistoryOpen(true)} title="Chat-Verlauf"
+            style={{ ...iconBtn({}) }}>
+            <Clock size={15} />
+          </button>
 
           <div style={{ display: "flex", alignItems: "center", paddingLeft: 4, paddingRight: 2 }}>
             <TokenRing activeProvider={currentRun.provider ?? status?.activeProvider ?? null} />
           </div>
         </div>
       </div>
+
+      {/* ── Chat History Panel ── */}
+      <ChatHistoryPanel
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        onLoad={loadSavedChat}
+        onDelete={() => { /* list updates internally */ }}
+      />
     </div>
   );
 }
