@@ -30,8 +30,15 @@ const INVEST_PATH  = process.env.INVEST_PORTFOLIO_PATH ?? "C:\\Users\\joris\\Des
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 
-if (!BRAIN_PATH)                { console.error("❌  CAPITALIFE_BRAIN_PATH not set"); process.exit(1); }
+// Parse --only= early so we can conditionally require BRAIN_PATH
+const ONLY = process.argv.find((a) => a.startsWith("--only="))?.slice(7)?.split(",") ?? null;
+const should = (name: string) => !ONLY || ONLY.some((o) => name.includes(o));
+
 if (!SUPABASE_URL || !SERVICE_KEY) { console.error("❌  Supabase env vars missing"); process.exit(1); }
+
+const BRAIN_REQUIRED_TASKS = ["forward_trades", "forward_signals", "strategy", "brain", "dashboard"];
+const needsBrain = !ONLY || BRAIN_REQUIRED_TASKS.some(t => ONLY.some(o => t.includes(o)));
+if (needsBrain && !BRAIN_PATH) { console.error("❌  CAPITALIFE_BRAIN_PATH not set (needed for: " + BRAIN_REQUIRED_TASKS.join(", ") + ")"); process.exit(1); }
 
 const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
@@ -352,13 +359,16 @@ async function seedWave1Groups() {
     const signals  = readJsonFile(path.join(base, "signals.json"));
     const statuses = readJsonFile(path.join(base, "status.json"));
     const cards    = readJsonFile(path.join(base, "cards.json"));
-    // charts.json skipped — 2.3MB OHLC, served via monitoring_ohlc table
+    const charts   = readJsonFile(path.join(base, "charts.json")); // includes per-strategy OHLC bars + markers
 
     if (!manifest && !signals) { console.warn(`⚠️  wave1_groups(${group}): no data`); continue; }
 
+    const chartsSize = charts ? JSON.stringify(charts).length : 0;
+    console.log(`  ${group}: manifest=${!!manifest}, signals=${!!signals}, charts=${chartsSize > 0 ? `${(chartsSize/1024).toFixed(0)}KB` : "none"}`);
+
     const generatedAt = (manifest as Record<string, unknown>)?.generated_at as string | null ?? null;
     const { error } = await supabaseAdmin.from("wave1_groups").upsert(
-      [{ group_id: group, manifest, signals, statuses, cards, generated_at: generatedAt }],
+      [{ group_id: group, manifest, signals, statuses, cards, charts, generated_at: generatedAt }],
       { onConflict: "group_id" }
     );
     if (error) { console.error(`❌  wave1_groups(${group}):`, error.message); }
@@ -452,9 +462,6 @@ async function seedDashboardSnapshot() {
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
-
-const ONLY = process.argv.find((a) => a.startsWith("--only="))?.slice(7)?.split(",") ?? null;
-const should = (name: string) => !ONLY || ONLY.some((o) => name.includes(o));
 
 async function main() {
   console.log("🚀  Seeding Supabase");

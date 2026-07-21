@@ -41,7 +41,7 @@ export async function GET(
     const db = createSupabaseServiceClient();
     const { data, error } = await db
       .from("wave1_groups")
-      .select("group_id, manifest, signals, statuses, cards, generated_at")
+      .select("group_id, manifest, signals, statuses, cards, charts, generated_at")
       .eq("group_id", group)
       .single();
 
@@ -55,7 +55,7 @@ export async function GET(
       signals:   data.signals,
       statuses:  data.statuses,
       cards:     data.cards,
-      charts:    null, // charts excluded from Supabase (2.3MB)
+      charts:    data.charts ?? null,
       source: "supabase",
       generatedAt: data.generated_at,
     });
