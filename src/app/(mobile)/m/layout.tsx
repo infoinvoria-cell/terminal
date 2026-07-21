@@ -1,16 +1,13 @@
-import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 import { MobileNavReporter } from "@/components/mobile/MobileNavReporter";
+import { MobileLayoutClient } from "@/components/mobile/MobileLayoutClient";
 
 export const metadata = { title: "Capitalife Mobile" };
 
 export default function MobileLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ position: "relative", minHeight: "100dvh", background: "#0c0d10", overflowX: "hidden" }}>
+    <>
       <MobileNavReporter />
-      <main style={{ minHeight: "100dvh", overflowY: "auto", paddingBottom: "calc(60px + env(safe-area-inset-bottom, 0px))" }}>
-        {children}
-      </main>
-      <MobileBottomNav />
-    </div>
+      <MobileLayoutClient>{children}</MobileLayoutClient>
+    </>
   );
 }
