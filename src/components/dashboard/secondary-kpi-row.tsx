@@ -1,9 +1,44 @@
 import { cn } from "@/lib/utils";
-import type { DashboardKpis } from "@/lib/trades-analytics";
+import { deserializeTrades, compoundGains } from "@/lib/trades-analytics";
+import type { DashboardKpis, SerializedTrade } from "@/lib/trades-analytics";
 
 type SecondaryKpiRowProps = {
   kpis: DashboardKpis;
+  trades?: SerializedTrade[];
 };
+
+function computeMonthlyStats(trades: SerializedTrade[]) {
+  if (!trades.length) return null;
+  const rows = deserializeTrades(trades);
+  const map = new Map<string, number[]>();
+  for (const r of rows) {
+    const key = `${r.date.getFullYear()}-${String(r.date.getMonth() + 1).padStart(2, "0")}`;
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(r.gainPct);
+  }
+  const monthly = [...map.values()].map((gains) => compoundGains(gains));
+  if (!monthly.length) return null;
+  const best = Math.max(...monthly);
+  const worst = Math.min(...monthly);
+  const pos = monthly.filter((m) => m >= 0).length;
+  const total = monthly.length;
+  const calmar = kpiCalmar(compoundGains(rows.map((r) => r.gainPct)), rows);
+  return { best, worst, pos, total, calmar };
+}
+
+function kpiCalmar(totalReturnPct: number, rows: ReturnType<typeof deserializeTrades>) {
+  if (!rows.length) return null;
+  let equity = 100, peak = 100, maxDd = 0;
+  for (const r of rows) {
+    equity *= 1 + r.gainPct / 100;
+    peak = Math.max(peak, equity);
+    if (peak > 0) maxDd = Math.max(maxDd, ((peak - equity) / peak) * 100);
+  }
+  if (maxDd < 0.01) return null;
+  const months = rows.length;
+  const annualized = (Math.pow(1 + totalReturnPct / 100, 12 / months) - 1) * 100;
+  return annualized / maxDd;
+}
 
 type SecondaryCardProps = {
   label: string;
@@ -55,31 +90,33 @@ function SecondaryCard({ label, value, delta, sub, title }: SecondaryCardProps) 
   );
 }
 
-export function SecondaryKpiRow({ kpis: _kpis }: SecondaryKpiRowProps) {
+export function SecondaryKpiRow({ kpis: _kpis, trades }: SecondaryKpiRowProps) {
+  const m = trades ? computeMonthlyStats(trades) : null;
+  const fmtPct = (n: number) => `${n >= 0 ? "+" : ""}${n.toFixed(1)}%`;
   return (
     <div className="w-full min-w-0">
       <div className="grid w-full grid-cols-6 gap-3">
         <SecondaryCard
           label="Calmar Ratio"
-          value="3.0"
-          title="Calmar Ratio = Annualized Return / Max Drawdown. Statement-based, not independently audited."
+          value={m?.calmar != null ? m.calmar.toFixed(1) : "—"}
+          title="Calmar Ratio = Annualized Return / Max Drawdown. Computed from track record."
         />
         <SecondaryCard
           label="Best Month"
-          value="+14.8%"
-          delta="+14.8%"
-          title="Best monthly return from Performance Report. Statement-based."
+          value={m ? fmtPct(m.best) : "—"}
+          delta={m ? fmtPct(m.best) : undefined}
+          title="Best monthly compounded return from track record."
         />
         <SecondaryCard
           label="Worst Month"
-          value="-5.8%"
-          delta="-5.8%"
-          title="Worst monthly return from Performance Report. Statement-based."
+          value={m ? fmtPct(m.worst) : "—"}
+          delta={m ? fmtPct(m.worst) : undefined}
+          title="Worst monthly compounded return from track record."
         />
         <SecondaryCard
           label="Pos. Months"
-          value="18 / 26"
-          title="18 positive months of 26 total (Apr 2024 – Jun 2026). Statement-based."
+          value={m ? `${m.pos} / ${m.total}` : "—"}
+          title="Positive months of total months in track record."
         />
         <SecondaryCard
           label="Assets"

@@ -95,7 +95,7 @@ export function PortfolioSection({ trades, kpis, capalifeData }: PortfolioSectio
     >
       {/* KPI row */}
       <div style={{ flexShrink: 0 }}>
-        <SecondaryKpiRow kpis={kpis} />
+        <SecondaryKpiRow kpis={kpis} trades={trades} />
       </div>
 
       {/* Section title — OUTSIDE and ABOVE the card */}
