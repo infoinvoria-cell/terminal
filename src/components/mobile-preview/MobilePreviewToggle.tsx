@@ -8,10 +8,10 @@ const LABELS: Record<PreviewMode, string> = {
   split:   "Split View",
 };
 
-const COLORS: Record<PreviewMode, string> = {
-  desktop: "text-zinc-600 hover:text-zinc-400",
-  mobile:  "text-[#e2ca7a]",
-  split:   "text-[#e2ca7a]/70",
+const ICON_COLOR: Record<PreviewMode, string> = {
+  desktop: "rgba(113,113,122,1)",   // zinc-500
+  mobile:  "#e2ca7a",
+  split:   "rgba(226,202,122,0.7)",
 };
 
 export function MobilePreviewToggle({ expanded }: { expanded: boolean }) {
@@ -20,12 +20,26 @@ export function MobilePreviewToggle({ expanded }: { expanded: boolean }) {
   return (
     <button
       type="button"
-      onClick={cycle}
+      onClick={(e) => { e.stopPropagation(); cycle(); }}
       aria-label={`Mobile Preview: ${LABELS[mode]}. Klicken zum Wechseln.`}
       title={`Preview: ${LABELS[mode]}`}
-      className={`flex h-11 w-full shrink-0 items-center gap-3 rounded-lg border-0 bg-transparent transition-colors pl-[18px] ${COLORS[mode]}`}
+      style={{
+        display: "flex",
+        height: 44,
+        width: "100%",
+        flexShrink: 0,
+        alignItems: "center",
+        gap: 12,
+        borderRadius: 8,
+        border: 0,
+        background: "transparent",
+        cursor: "pointer",
+        paddingLeft: 18,
+        color: ICON_COLOR[mode],
+        transition: "color 150ms ease",
+      }}
     >
-      <Smartphone className="h-[19px] w-[19px] shrink-0" strokeWidth={1.65} />
+      <Smartphone style={{ width: 19, height: 19, flexShrink: 0 }} strokeWidth={1.65} />
       <span
         style={{
           fontSize: 13,

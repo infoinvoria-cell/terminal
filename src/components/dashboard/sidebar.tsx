@@ -28,9 +28,6 @@ import {
 import { useHeaderState } from "@/context/header-state-context";
 import { useUser } from "@/context/user-context";
 
-const LAST_PAGE_KEY = "fmd_last_page";
-const RESTORE_FLAG  = "fmd_restore";
-
 const COLLAPSED_W = 72;
 const EXPANDED_W  = 200;
 const EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
@@ -43,13 +40,12 @@ const ICON_PL = "pl-[18px]";
 
 function UserChip({ expanded }: { expanded: boolean }) {
   const { user, clearUser } = useUser();
-  const router = useRouter();
   if (!user) return null;
   const initials = user.name.split(" ").map(w => w[0]).join("").slice(0, 2);
   return (
     <button
       type="button"
-      onClick={() => { clearUser(); router.push("/select"); }}
+      onClick={clearUser}
       title={`${user.name} — Wechseln`}
       aria-label={`Aktiver User: ${user.name}. Klicken zum Wechseln.`}
       className={`mt-2 flex h-11 w-full shrink-0 items-center gap-3 rounded-lg border-0 bg-transparent transition-colors hover:bg-white/[0.06] ${ICON_PL}`}
