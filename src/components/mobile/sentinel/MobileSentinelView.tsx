@@ -812,7 +812,7 @@ export function MobileSentinelView() {
               background: "transparent", color: "#ffffff",
               border: "none", outline: "none",
               padding: "9px 6px",
-              fontSize: 13,
+              fontSize: 16,
               lineHeight: 1.5,
               fontFamily: "inherit", fontWeight: 500,
               alignSelf: "center",
