@@ -190,11 +190,18 @@ function SidebarSep({ expanded }: { expanded: boolean }) {
 
 type PreviewMode = "desktop" | "mobile" | "split";
 const PREVIEW_LS_KEY = "fmd_preview_mode";
-const MOBILE_URL = "/m/home";
 const PANEL_W = 450;
 const PW = 390, PH = 844, FP = 14, FR = 50;
 const OUTER_W = PW + FP * 2;
 const OUTER_H = PH + FP * 2 + 24;
+
+function toMobileUrl(desktopPath: string | null): string {
+  if (!desktopPath) return "/m/home";
+  if (desktopPath.startsWith("/signal") || desktopPath.startsWith("/monitoring")) return "/m/signale";
+  if (desktopPath.startsWith("/brain")) return "/m/brain";
+  if (desktopPath.startsWith("/settings")) return "/m/settings";
+  return "/m/home";
+}
 
 function IPhoneFrame({ url, scale }: { url: string; scale: number }) {
   return (
@@ -236,14 +243,15 @@ export function Sidebar() {
 
   useEffect(() => {
     try {
-      const s = localStorage.getItem(PREVIEW_LS_KEY) as PreviewMode | null;
-      if (s === "mobile" || s === "split") setPreviewMode(s);
+      const stored = localStorage.getItem(PREVIEW_LS_KEY);
+      if (stored === "2") setPreviewMode("mobile");
+      else if (stored === "3") setPreviewMode("split");
     } catch { /* ignore */ }
   }, []);
 
   useEffect(() => {
     document.documentElement.style.setProperty(
-      "--mobile-preview-panel-w",
+      "--mobile-preview-left",
       previewMode === "split" ? `${PANEL_W}px` : "0px"
     );
   }, [previewMode]);
@@ -252,20 +260,20 @@ export function Sidebar() {
     e.stopPropagation();
     setPreviewMode(prev => {
       const next: PreviewMode = prev === "desktop" ? "mobile" : prev === "mobile" ? "split" : "desktop";
-      try { localStorage.setItem(PREVIEW_LS_KEY, next); } catch { /* ignore */ }
+      const val = next === "desktop" ? "1" : next === "mobile" ? "2" : "3";
+      try { localStorage.setItem(PREVIEW_LS_KEY, val); } catch { /* ignore */ }
       return next;
     });
   };
 
-  const exitToDesktop = () => {
-    setPreviewMode("desktop");
-    try { localStorage.setItem(PREVIEW_LS_KEY, "desktop"); } catch { /* ignore */ }
-  };
-
+  const mobileUrl = toMobileUrl(pathname);
   const splitScale = Math.min((PANEL_W - 40) / OUTER_W, (typeof window !== "undefined" ? window.innerHeight - 48 : 800) / OUTER_H);
   const mobileScale = typeof window !== "undefined"
     ? Math.min((window.innerHeight - 64) / OUTER_H, (window.innerWidth - 64) / OUTER_W, 1)
     : 0.72;
+
+  const LABEL: Record<PreviewMode, string> = { desktop: "Desktop", mobile: "Mobile", split: "Split" };
+  const NEXT_LABEL: Record<PreviewMode, string> = { desktop: "Mobile", mobile: "Split", split: "Desktop" };
 
   const monitoringActive  = pathname?.startsWith("/monitoring") ?? false;
   const signalActive      = pathname?.startsWith("/signal") ?? false;
@@ -368,35 +376,40 @@ export function Sidebar() {
       <div className="mt-auto flex w-full flex-col items-center px-2 pb-5 pt-2">
         <SidebarSep expanded={expanded} />
 
-        {/* Mobile Preview toggle */}
+        {/* Mobile Preview toggle — only shown in Modus 1 (Desktop) */}
         <div className="mt-2 w-full">
           <button
             type="button"
             onClick={cyclePreview}
-            title={previewMode === "desktop" ? "Mobile Preview" : previewMode === "mobile" ? "Split View" : "Desktop"}
+            title={`Preview: ${LABEL[previewMode]} → ${NEXT_LABEL[previewMode]}`}
             style={{ display: "flex", height: 44, width: "100%", alignItems: "center", gap: 12, borderRadius: 8, border: 0, background: "transparent", cursor: "pointer", paddingLeft: 18, color: previewMode === "desktop" ? "rgba(113,113,122,1)" : "#e2ca7a", flexShrink: 0, transition: "color 150ms ease" }}
           >
             <Smartphone style={{ width: 19, height: 19, flexShrink: 0 }} strokeWidth={1.65} />
           </button>
         </div>
 
-        {/* Mobile Preview overlays — portals so they escape sidebar overflow */}
+        {/* ── Modus 2: Mobile Only — fullscreen iPhone auf schwarz ── */}
         {mounted && previewMode === "mobile" && createPortal(
           <div style={{ position: "fixed", inset: 0, zIndex: 900, background: "#000", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <button onClick={cyclePreview} title="Split View" style={{ position: "absolute", top: 20, right: 20, zIndex: 10, background: "rgba(8,8,10,0.85)", border: "1px solid rgba(226,202,122,0.3)", borderRadius: 8, padding: "6px 14px", color: "#e2ca7a", cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--font-montserrat,sans-serif)" }}>
-              <Smartphone style={{ width: 13, height: 13 }} strokeWidth={1.65} /> Split View →
+            <IPhoneFrame url={mobileUrl} scale={mobileScale} />
+            {/* Float-Button unten links */}
+            <button onClick={cyclePreview} style={{ position: "fixed", bottom: 20, left: 20, zIndex: 1100, display: "flex", alignItems: "center", gap: 7, background: "rgba(14,14,18,0.92)", border: "1px solid rgba(226,202,122,0.25)", borderRadius: 20, padding: "7px 14px 7px 10px", color: "#e2ca7a", cursor: "pointer", fontSize: 12, fontWeight: 600, fontFamily: "var(--font-montserrat,sans-serif)", backdropFilter: "blur(8px)", boxShadow: "0 4px 16px rgba(0,0,0,0.5)" }}>
+              <Smartphone style={{ width: 13, height: 13 }} strokeWidth={1.65} />
+              Split →
             </button>
-            <button onClick={exitToDesktop} title="Desktop" style={{ position: "absolute", top: 20, left: 20, zIndex: 10, background: "rgba(8,8,10,0.85)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: "6px 14px", color: "rgba(255,255,255,0.45)", cursor: "pointer", fontSize: 12, fontFamily: "var(--font-montserrat,sans-serif)" }}>
-              ← Desktop
-            </button>
-            <IPhoneFrame url={MOBILE_URL} scale={mobileScale} />
           </div>,
           document.body
         )}
 
+        {/* ── Modus 3: Split View — iPhone links, Desktop rechts ── */}
         {mounted && previewMode === "split" && createPortal(
-          <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: PANEL_W, background: "#070809", borderLeft: "1px solid rgba(255,255,255,0.07)", zIndex: 900, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <IPhoneFrame url={MOBILE_URL} scale={splitScale} />
+          <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: PANEL_W, zIndex: 900, background: "#070809", borderRight: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <IPhoneFrame url={mobileUrl} scale={splitScale} />
+            {/* Float-Button unten links */}
+            <button onClick={cyclePreview} style={{ position: "absolute", bottom: 20, left: 20, zIndex: 10, display: "flex", alignItems: "center", gap: 7, background: "rgba(14,14,18,0.92)", border: "1px solid rgba(226,202,122,0.25)", borderRadius: 20, padding: "7px 14px 7px 10px", color: "#e2ca7a", cursor: "pointer", fontSize: 12, fontWeight: 600, fontFamily: "var(--font-montserrat,sans-serif)", backdropFilter: "blur(8px)", boxShadow: "0 4px 16px rgba(0,0,0,0.5)" }}>
+              <Smartphone style={{ width: 13, height: 13 }} strokeWidth={1.65} />
+              Desktop →
+            </button>
           </div>,
           document.body
         )}

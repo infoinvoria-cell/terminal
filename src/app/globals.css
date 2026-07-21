@@ -1,9 +1,9 @@
 @import "tailwindcss";
 @import "../styles/dashboard.css";
 
-/* Mobile Preview split-view panel offset */
-:root { --mobile-preview-panel-w: 0px; }
-body { padding-right: var(--mobile-preview-panel-w); transition: padding-right 220ms ease; }
+/* Mobile Preview split-view panel offset (left side) */
+:root { --mobile-preview-left: 0px; }
+body { padding-left: var(--mobile-preview-left); transition: padding-left 220ms ease; }
 
 /* content-fade: layout stays opaque (no black flash), only content fades in */
 @keyframes contentFadeIn {
