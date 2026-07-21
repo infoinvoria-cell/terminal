@@ -882,14 +882,14 @@ function CandleChartInner({
         attributionLogo: false,
       },
       rightPriceScale: {
-        borderColor: "rgba(226,202,122,0.24)",
-        scaleMargins: { top: 0.04, bottom: 0.02 },
+        borderColor: "rgba(255,255,255,0.08)",
+        scaleMargins: { top: 0.12, bottom: 0.12 },
         minimumWidth: 62,
       },
       timeScale: {
-        borderColor: "rgba(226,202,122,0.24)",
+        borderColor: "rgba(255,255,255,0.08)",
         secondsVisible: false,
-        rightOffset: 10,
+        rightOffset: 20,
         barSpacing: 8.4,
         fixLeftEdge: false,
       },
@@ -1355,11 +1355,15 @@ function CandleChartInner({
         ? seasonalityProjectionBarSpan(Number(seasonality.currentPattern.duration ?? 1), timeframe)
         : 0;
 
+    const GLOBE_VISIBLE_BARS = 20;
     const setVisibleWindow = (bars: CandleBar[]) => {
       const totalBars = bars.length;
       if (!Number.isFinite(totalBars) || totalBars <= 0) return;
       if (autoFitRenderKeyRef.current !== renderKey) {
-        chart.timeScale().fitContent();
+        const rightOff = 20;
+        const from = totalBars - GLOBE_VISIBLE_BARS - rightOff;
+        const to = totalBars - 1 + rightOff;
+        chart.timeScale().setVisibleLogicalRange({ from, to });
         autoFitRenderKeyRef.current = renderKey;
       }
     };

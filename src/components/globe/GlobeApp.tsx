@@ -46,6 +46,21 @@ const ASSET_USAGE_STORAGE_KEY = "clf_globe_asset_usage_v1";
 const DATA_SOURCE_STORAGE_KEY = "clf_globe_data_source_v2";
 const GOLD_THEME_STORAGE_KEY = "clf_globe_gold_theme_v1";
 const GOLD_PRIMARY = "#e2ca7a";
+
+const GLOBE_ICON_MAP: Record<string, string> = {
+  gold: "gold.png", silver: "silver.png", copper: "Kupfer.webp",
+  palladium: "palladium.png", platinum: "platinum.png",
+  oil: "crude_oil.png", gas: "crude_oil.png",
+  corn: "corn.png", wheat: "wheat.webp", cocoa: "cocoa.webp",
+  soy: "soybeans.png", coffee: "coffee.png", sugar: "sugar.png",
+  cotton: "cotton.png", oj: "orange_juice.jpg",
+  us: "es_s&p.png", de: "dax.png", gb: "gbpusd.png",
+  eu: "eurusd.png", jp: "jpy.png", au: "aud.png",
+  ca: "cad.png", ch: "chf.png",
+  btc: "bitcoin.png", eth: "ethereum.png",
+  aapl: "apple.png", msft: "microsoft.png", nvda: "nvidia.png",
+  meta: "meta.png", amzn: "amazon.png", googl: "google.png",
+};
 const ALLOWED_OVERLAYS: OverlayMode[] = [
   "none",
   "geo_events",
@@ -2127,6 +2142,49 @@ export default function GlobeApp() {
           </div>
           {/* Candle chart card — 30% (bottom right) */}
           <div className={CARD} style={{ ...CARD_BORDER, flex: "0 0 30%" }}>
+            {/* Chart header: icon + name + timeframe dropdown */}
+            <div className="shrink-0 flex items-center justify-between border-b border-white/[0.06] px-3 py-2">
+              <div className="flex items-center gap-1.5 min-w-0">
+                {selectedAsset?.iconKey && (
+                  <img
+                    src={`/asset-icons/${GLOBE_ICON_MAP[selectedAsset.iconKey] ?? `${selectedAsset.iconKey}.png`}`}
+                    alt=""
+                    width={16}
+                    height={16}
+                    className="shrink-0 rounded-sm object-contain"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                  />
+                )}
+                <span className="truncate text-[11px] font-medium text-white/70">{chartHeaderLabel}</span>
+              </div>
+              {/* Timeframe: top-3 pills + dropdown */}
+              <div className="flex shrink-0 items-center gap-1">
+                {(["D", "4H", "W"] as const).map((tf) => (
+                  <button
+                    key={tf}
+                    type="button"
+                    onClick={() => setChartTimeframe(tf)}
+                    className={`rounded px-1.5 py-[2px] text-[9px] font-semibold transition ${
+                      chartTimeframe === tf
+                        ? "border border-white/30 bg-white/10 text-white"
+                        : "border border-white/10 bg-transparent text-white/40 hover:text-white/60"
+                    }`}
+                  >
+                    {tf === "D" ? "1d" : tf === "4H" ? "4h" : "1w"}
+                  </button>
+                ))}
+                <select
+                  value={chartTimeframe}
+                  onChange={(e) => setChartTimeframe(e.target.value as typeof chartTimeframe)}
+                  className="rounded border border-white/10 bg-transparent px-1 py-[2px] text-[9px] text-white/40 outline-none hover:text-white/60"
+                  style={{ background: "rgba(20,21,25,0.9)" }}
+                >
+                  {([["D","1d"],["4H","4h"],["W","1w"],["M","1M"],["1H","1h"]] as [typeof chartTimeframe, string][]).map(([key, label]) => (
+                    <option key={key} value={key} style={{ background: "#14151a" }}>{label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
             <div className="min-h-0 flex-1 overflow-hidden">
               <Suspense fallback={<div className="grid h-full place-items-center text-xs text-white/40">Loading chart...</div>}>
                 <CandleChart
@@ -2146,6 +2204,8 @@ export default function GlobeApp() {
                   onTimeRangeChange={onSharedTimeRangeChange}
                   onRecentSignalChange={setRecentSignal}
                   onTimeframeChange={setChartTimeframe}
+                  hideBuiltinChartToolbar
+                  suppressTitleOverlay
                 />
               </Suspense>
             </div>
