@@ -511,6 +511,7 @@ export function MobileSentinelView() {
   const [animPhase,        setAnimPhase]        = useState<"avatar" | "typing" | "done">("avatar");
   const [typedText,        setTypedText]        = useState("");
   const [historyOpen,      setHistoryOpen]      = useState(false);
+  const [kbOffset,         setKbOffset]         = useState(0);
 
   const scrollRef      = useRef<HTMLDivElement>(null);
   const textareaRef    = useRef<HTMLTextAreaElement>(null);
@@ -521,6 +522,19 @@ export function MobileSentinelView() {
   const analyserRef    = useRef<AnalyserNode | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const animFrameRef   = useRef<number>(0);
+
+  // iOS keyboard: lift input bar above keyboard using visualViewport
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.visualViewport) return;
+    const vv = window.visualViewport;
+    const update = () => {
+      const kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      setKbOffset(kb);
+    };
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => { vv.removeEventListener("resize", update); vv.removeEventListener("scroll", update); };
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -881,10 +895,10 @@ export function MobileSentinelView() {
 
       {/* ── Input bar — fixed above bottom nav ── */}
       <div style={{
-        position: "fixed", left: 0, right: 0, bottom: 80, zIndex: 100,
+        position: "fixed", left: 0, right: 0, bottom: kbOffset > 0 ? kbOffset : 80, zIndex: 100,
         padding: "6px 12px 8px",
         opacity: animPhase === "done" ? 1 : 0,
-        transition: animPhase === "done" ? "opacity 200ms ease" : "none",
+        transition: animPhase === "done" ? "opacity 200ms ease, bottom 80ms ease" : "none",
         pointerEvents: animPhase === "done" ? "auto" : "none",
         display: "flex", flexDirection: "column", gap: 6,
       }}>
