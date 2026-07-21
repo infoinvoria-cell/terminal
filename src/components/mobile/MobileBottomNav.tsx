@@ -3,7 +3,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
-const GOLD = "#e2ca7a";
 
 function IconHome() {
   return (
@@ -227,7 +226,7 @@ export function MobileBottomNav({ headerHidden, onToggleHeader }: Props) {
                 style={{
                   display: "flex", alignItems: "center", gap: 12,
                   padding: "10px 20px",
-                  color: active(href) ? GOLD : "rgba(255,255,255,0.7)",
+                  color: active(href) ? "#ffffff" : "rgba(255,255,255,0.7)",
                   textDecoration: "none",
                   fontSize: 14, fontWeight: active(href) ? 700 : 500,
                   fontFamily: "var(--font-montserrat,sans-serif)",
@@ -268,7 +267,7 @@ export function MobileBottomNav({ headerHidden, onToggleHeader }: Props) {
           style={{
             display: "flex", alignItems: "center", gap: 12,
             padding: "10px 20px",
-            color: active("/settings") ? GOLD : "rgba(255,255,255,0.7)",
+            color: active("/settings") ? "#ffffff" : "rgba(255,255,255,0.7)",
             textDecoration: "none",
             fontSize: 14, fontWeight: active("/settings") ? 700 : 500,
             fontFamily: "var(--font-montserrat,sans-serif)",
@@ -285,12 +284,10 @@ export function MobileBottomNav({ headerHidden, onToggleHeader }: Props) {
         style={{
           position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 1000,
           display: "flex", alignItems: "center",
-          height: `calc(64px + env(safe-area-inset-bottom, 16px))`,
-          paddingBottom: "calc(env(safe-area-inset-bottom, 16px) + 8px)",
-          background: "rgba(8,8,10,0.96)",
-          backdropFilter: "blur(24px) saturate(1.8)",
-          WebkitBackdropFilter: "blur(24px) saturate(1.8)",
-          borderTop: `1px solid rgba(226,202,122,0.14)`,
+          height: `calc(72px + env(safe-area-inset-bottom, 28px))`,
+          paddingBottom: "calc(env(safe-area-inset-bottom, 28px) + 10px)",
+          background: "#0c0d10",
+          borderTop: `1px solid rgba(255,255,255,0.08)`,
           boxSizing: "border-box",
         }}
         aria-label="Mobile Navigation"
