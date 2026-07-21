@@ -114,19 +114,20 @@ export async function loadWave1Group(groupId: Wave1GroupId): Promise<Wave1GroupD
   if (cached) return cached;
 
   const request = (async (): Promise<Wave1GroupData> => {
-    const base = `/generated/monitoring/wave1/${groupId}`;
-    const [manifest, cards, charts, signals, statuses] = await Promise.all([
-      fetchJson<Wave1GroupManifest>(`${base}/group_manifest.json`),
-      fetchJson<Wave1Card[]>(`${base}/cards.json`),
-      fetchJson<Wave1Chart[]>(`${base}/charts.json`),
-      fetchJson<Wave1Signal[]>(`${base}/signals.json`),
-      fetchJson<Wave1Status[]>(`${base}/status.json`),
-    ]);
+    // Single API call — tries local files first, falls back to Supabase wave1_groups
+    const raw = await fetchJson<{
+      manifest: Wave1GroupManifest | null;
+      cards: Wave1Card[] | null;
+      charts: Wave1Chart[] | null;
+      signals: Wave1Signal[] | null;
+      statuses: Wave1Status[] | null;
+    }>(`/api/monitoring/wave1-group/${groupId}`);
 
-    const cardRows = Array.isArray(cards) ? cards : [];
-    const chartRows = Array.isArray(charts) ? charts : [];
-    const signalRows = Array.isArray(signals) ? signals : [];
-    const statusRows = Array.isArray(statuses) ? statuses : [];
+    const manifest = raw?.manifest ?? null;
+    const cardRows = Array.isArray(raw?.cards) ? (raw.cards as Wave1Card[]) : [];
+    const chartRows = Array.isArray(raw?.charts) ? (raw.charts as Wave1Chart[]) : [];
+    const signalRows = Array.isArray(raw?.signals) ? (raw.signals as Wave1Signal[]) : [];
+    const statusRows = Array.isArray(raw?.statuses) ? (raw.statuses as Wave1Status[]) : [];
     const manifestRows = Array.isArray(manifest?.strategies) ? manifest.strategies : [];
 
     const recordIds = new Set<string>([

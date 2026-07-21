@@ -329,6 +329,43 @@ async function seedBrainGraph() {
   console.log(`\r✅  brain_links: ${links.length} rows`);
 }
 
+// ── Wave1 Group Data ──────────────────────────────────────────────────────────
+
+function readJsonFile(filePath: string): unknown | null {
+  if (!fs.existsSync(filePath)) return null;
+  try { return JSON.parse(fs.readFileSync(filePath, "utf-8")); }
+  catch { return null; }
+}
+
+async function seedWave1Groups() {
+  const GROUPS = ["agrar", "intraday", "indices"] as const;
+  const wave1Base = path.join(process.cwd(), "public/generated/monitoring/wave1");
+
+  if (!fs.existsSync(wave1Base)) {
+    console.warn("⚠️  public/generated/monitoring/wave1 not found — run monitoring engine first");
+    return;
+  }
+
+  for (const group of GROUPS) {
+    const base = path.join(wave1Base, group);
+    const manifest = readJsonFile(path.join(base, "group_manifest.json"));
+    const signals  = readJsonFile(path.join(base, "signals.json"));
+    const statuses = readJsonFile(path.join(base, "status.json"));
+    const cards    = readJsonFile(path.join(base, "cards.json"));
+    // charts.json skipped — 2.3MB OHLC, served via monitoring_ohlc table
+
+    if (!manifest && !signals) { console.warn(`⚠️  wave1_groups(${group}): no data`); continue; }
+
+    const generatedAt = (manifest as Record<string, unknown>)?.generated_at as string | null ?? null;
+    const { error } = await supabaseAdmin.from("wave1_groups").upsert(
+      [{ group_id: group, manifest, signals, statuses, cards, generated_at: generatedAt }],
+      { onConflict: "group_id" }
+    );
+    if (error) { console.error(`❌  wave1_groups(${group}):`, error.message); }
+    else { console.log(`✅  wave1_groups(${group}): seeded`); }
+  }
+}
+
 // ── Track KPIs (from trades_clean_compounded.csv) ────────────────────────────
 
 const MONTHLY_OVERRIDE: Record<string, number> = {
@@ -430,6 +467,7 @@ async function main() {
   if (should("invest_ohlc"))       await seedInvestOhlc();
   if (should("strategy"))          await seedStrategyRegistry();
   if (should("dashboard"))         await seedDashboardSnapshot();
+  if (should("wave1"))             await seedWave1Groups();
   if (should("monitoring_ohlc"))   await seedMonitoringOhlc();
   if (should("brain"))             await seedBrainGraph();
 

@@ -2913,9 +2913,9 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     const unregisterFetch = registerMonitoringFetch(ctrl);
     const run = async () => {
       try {
-        const json = await fetchMonitoringJson("/generated/monitoring/live_state/open_trades.json", {
+        const json = await fetchMonitoringJson("/api/monitoring/live-state", {
           signal: ctrl.signal,
-          cacheKey: `/generated/monitoring/live_state/open_trades.json?manifest=${cacheManifestStamp}`
+          cacheKey: `/api/monitoring/live-state?manifest=${cacheManifestStamp}`
         }) as MonitoringLiveStatePayload | null;
         if (!json || ctrl.signal.aborted) return;
         setLiveStatePayload(json);
