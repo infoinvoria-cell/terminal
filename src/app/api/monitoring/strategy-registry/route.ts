@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { NextResponse } from "next/server";
 import { getFinalProductionRegistry } from "@/lib/server/monitoring/finalProductionRegistry";
+import { createSupabaseServiceClient } from "@/lib/supabase-server";
 
 const EMPTY_REGISTRY = {
   config: { version: "0", generatedAt: "", globalTestStandard: { dashboardModes: [], liveWindow: { start: "", end: "" }, fullWindow: { start: "", end: "" }, isWindow: { start: "", end: "" }, walkForwardWindows: [] }, sleeves: [] },
@@ -12,43 +13,135 @@ const EMPTY_REGISTRY = {
   missingData: [] as unknown[],
 };
 
+async function fromSupabase() {
+  const db = createSupabaseServiceClient();
+  const [sleevesRes, entriesRes] = await Promise.all([
+    db.from("strategy_sleeves").select("*"),
+    db.from("strategy_entries").select("*"),
+  ]);
+  if (sleevesRes.error || entriesRes.error) return null;
+  const sleeves = sleevesRes.data ?? [];
+  const entries = entriesRes.data ?? [];
+  if (!sleeves.length) return null;
+
+  const productionStrategies = entries.map((e) => ({
+    asset: e.strategy_id,
+    label: e.label ?? e.strategy_id,
+    sourceSymbol: e.source_symbol ?? e.strategy_id,
+    timeframe: e.timeframe ?? "D",
+    active: e.active ?? false,
+    versionName: e.version_name ?? "",
+    status: e.status ?? "READY",
+    strategyType: e.strategy_type ?? "macro",
+    sleeveName: e.sleeve ?? "",
+  }));
+  const activeStrategies = productionStrategies.filter((s) => s.active);
+
+  const config = {
+    version: "supabase",
+    generatedAt: new Date().toISOString(),
+    globalTestStandard: { dashboardModes: ["live"], liveWindow: { start: "", end: "" }, fullWindow: { start: "", end: "" }, isWindow: { start: "", end: "" }, walkForwardWindows: [] },
+    sleeves: sleeves.map((s) => ({
+      id: s.sleeve,
+      name: s.sleeve,
+      status: s.status ?? "READY",
+      assets: entries.filter((e) => e.sleeve === s.sleeve).map((e) => ({
+        asset: e.strategy_id,
+        label: e.label ?? e.strategy_id,
+        sourceSymbol: e.source_symbol ?? e.strategy_id,
+        timeframe: e.timeframe ?? "D",
+        active: e.active ?? false,
+        versionName: e.version_name ?? "",
+        status: e.status ?? "READY",
+        strategyType: e.strategy_type ?? "macro",
+      })),
+    })),
+  };
+
+  return {
+    config,
+    productionStrategies,
+    activeStrategies,
+    summary: {
+      sleeveCount: sleeves.length,
+      strategyCount: entries.length,
+      activeStrategyCount: activeStrategies.length,
+      dashboardModes: ["live"],
+      liveStart: "",
+      fullIsReferenceOnly: true,
+    },
+    missingDataReport: [],
+    missingData: [],
+  };
+}
+
 export async function GET() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let finalProductionRegistry: any = EMPTY_REGISTRY;
   try {
     finalProductionRegistry = getFinalProductionRegistry();
   } catch {
-    // Config file not found (no Invoria workspace) — return empty registry so
-    // the monitoring page can still render charts from the local TVC cache.
+    // Config file not found (no Invoria workspace) — try Supabase below.
   }
-  const registryPath = path.join(
-    process.cwd(),
-    "..",
-    "workspace",
-    "monitoring_strategy_infrastructure",
-    "registry",
-    "strategy_registry.json",
-  );
 
+  // If local registry has data, use it
+  if (finalProductionRegistry.summary.strategyCount > 0) {
+    const registryPath = path.join(
+      process.cwd(),
+      "..",
+      "workspace",
+      "monitoring_strategy_infrastructure",
+      "registry",
+      "strategy_registry.json",
+    );
+    try {
+      if (fs.existsSync(registryPath)) {
+        const raw = fs.readFileSync(registryPath, "utf-8");
+        const data = JSON.parse(raw);
+        return NextResponse.json({
+          source: "file",
+          registry: data,
+          finalProductionRegistry,
+          finalProduction: finalProductionRegistry,
+          summary: finalProductionRegistry.summary,
+          productionStrategies: finalProductionRegistry.productionStrategies,
+          activeStrategies: finalProductionRegistry.activeStrategies,
+          missingDataReport: finalProductionRegistry.missingDataReport,
+          missingData: finalProductionRegistry.missingData,
+        });
+      }
+    } catch { /* fall through */ }
+
+    return NextResponse.json({
+      source: "local",
+      registry: buildFallbackRegistry(),
+      finalProductionRegistry,
+      finalProduction: finalProductionRegistry,
+      summary: finalProductionRegistry.summary,
+      productionStrategies: finalProductionRegistry.productionStrategies,
+      activeStrategies: finalProductionRegistry.activeStrategies,
+      missingDataReport: finalProductionRegistry.missingDataReport,
+      missingData: finalProductionRegistry.missingData,
+    });
+  }
+
+  // No local registry — try Supabase (Vercel / cloud)
   try {
-    if (fs.existsSync(registryPath)) {
-      const raw = fs.readFileSync(registryPath, "utf-8");
-      const data = JSON.parse(raw);
+    const sbRegistry = await fromSupabase();
+    if (sbRegistry) {
       return NextResponse.json({
-        source: "file",
-        registry: data,
-        finalProductionRegistry,
-        finalProduction: finalProductionRegistry,
-        summary: finalProductionRegistry.summary,
-        productionStrategies: finalProductionRegistry.productionStrategies,
-        activeStrategies: finalProductionRegistry.activeStrategies,
-        missingDataReport: finalProductionRegistry.missingDataReport,
-        missingData: finalProductionRegistry.missingData,
+        source: "supabase",
+        registry: buildFallbackRegistry(),
+        finalProductionRegistry: sbRegistry,
+        finalProduction: sbRegistry,
+        summary: sbRegistry.summary,
+        productionStrategies: sbRegistry.productionStrategies,
+        activeStrategies: sbRegistry.activeStrategies,
+        missingDataReport: [],
+        missingData: [],
       });
     }
-  } catch {
-    // fall through to inline
-  }
+  } catch { /* fall through */ }
 
   return NextResponse.json({
     source: "fallback",

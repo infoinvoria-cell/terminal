@@ -89,6 +89,7 @@ create table if not exists public.brain_nodes (
 alter table public.brain_nodes enable row level security;
 create policy "Public read on brain_nodes" on public.brain_nodes
   for select using (true);
+GRANT ALL ON public.brain_nodes TO service_role;
 
 create table if not exists public.brain_links (
   id          bigint generated always as identity primary key,
@@ -99,6 +100,8 @@ create table if not exists public.brain_links (
 alter table public.brain_links enable row level security;
 create policy "Public read on brain_links" on public.brain_links
   for select using (true);
+GRANT ALL ON public.brain_links TO service_role;
+GRANT USAGE ON SEQUENCE public.brain_links_id_seq TO service_role;
 
 -- ── Monitoring OHLC Cache ────────────────────────────────────────────────────
 -- Mirrors public/generated/monitoring/tradingview_data_cache/**/*.json for Vercel

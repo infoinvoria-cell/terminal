@@ -75,7 +75,8 @@ async function fromSupabaseOhlc(symbol: string, tf: string, maxBars: number): Pr
       .select("date,open,high,low,close,volume")
       .eq("asset", symbol)
       .eq("timeframe", tf)
-      .order("date", { ascending: true });
+      .order("date", { ascending: true })
+      .limit(50000);
     if (error || !data?.length) {
       return NextResponse.json({ error: "Symbol not found in cache or Supabase", symbol, timeframe: tf, status: "not_found" }, { status: 404 });
     }
