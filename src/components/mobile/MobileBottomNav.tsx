@@ -206,7 +206,7 @@ export function MobileBottomNav({ headerHidden, onToggleHeader }: Props) {
         style={{
           position: "fixed",
           left: 0, right: 0,
-          bottom: `calc(72px + env(safe-area-inset-bottom, 0px) + 12px)`,
+          bottom: `calc(60px + env(safe-area-inset-bottom, 0px))`,
           zIndex: 999,
           transform: layersOpen ? "translateY(0)" : "translateY(calc(100% + 20px))",
           transition: "transform 260ms cubic-bezier(0.16,1,0.3,1)",
@@ -299,92 +299,71 @@ export function MobileBottomNav({ headerHidden, onToggleHeader }: Props) {
         </Link>
       </div>
 
-      {/* Bottom nav bar — floating Apple-style pill */}
-      <div style={{
-        position: "fixed",
-        bottom: 0, left: 0, right: 0,
-        zIndex: 1000,
-        paddingBottom: "env(safe-area-inset-bottom, 0px)",
-        background: "rgba(12,13,16,0.92)",
-        backdropFilter: "blur(24px)",
-        WebkitBackdropFilter: "blur(24px)",
-        borderTop: "1px solid rgba(255,255,255,0.09)",
-        boxSizing: "border-box",
-      }}>
-        <nav
-          style={{
-            display: "flex", alignItems: "center",
-            height: 72,
-            padding: "0 8px",
-          }}
-          aria-label="Mobile Navigation"
-        >
-          {NAV_ITEMS.map((item, i) => {
-            if (item === null) {
-              return (
-                <div key="layers" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <button
-                    onClick={() => setLayersOpen(v => !v)}
-                    aria-label="Alle Seiten"
-                    style={{
-                      width: 46, height: 46, borderRadius: "50%",
-                      background: layersOpen ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.07)",
-                      border: `1.5px solid ${layersOpen ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.15)"}`,
-                      cursor: "pointer",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      color: layersOpen ? "#ffffff" : "rgba(255,255,255,0.55)",
-                      transition: "background 150ms, border-color 150ms, color 150ms",
-                      WebkitTapHighlightColor: "transparent",
-                      flexShrink: 0,
-                    }}
-                  >
-                    <IconLayers />
-                  </button>
-                </div>
-              );
-            }
-            const { href, label, Icon } = item;
-            const isActive = active(href);
+      {/* Bottom nav bar */}
+      <nav
+        style={{
+          position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 1000,
+          display: "flex", alignItems: "center",
+          height: `calc(76px + env(safe-area-inset-bottom, 34px))`,
+          paddingBottom: "calc(env(safe-area-inset-bottom, 34px) + 14px)",
+          background: "#0c0d10",
+          borderTop: `1px solid rgba(255,255,255,0.08)`,
+          boxSizing: "border-box",
+        }}
+        aria-label="Mobile Navigation"
+      >
+        {NAV_ITEMS.map((item, i) => {
+          if (item === null) {
+            // Center Layers button
             return (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setLayersOpen(false)}
-                aria-label={label}
-                style={{
-                  flex: 1,
-                  display: "flex", flexDirection: "column",
-                  alignItems: "center", justifyContent: "center",
-                  gap: 5, height: "100%",
-                  textDecoration: "none",
-                  WebkitTapHighlightColor: "transparent",
-                }}
-              >
-                {/* Apple-like active pill */}
-                <div style={{
-                  display: "flex", flexDirection: "column",
-                  alignItems: "center", justifyContent: "center",
-                  gap: 4,
-                  padding: "7px 18px 6px",
-                  borderRadius: 16,
-                  background: isActive ? "rgba(255,255,255,0.11)" : "transparent",
-                  border: isActive ? "1px solid rgba(255,255,255,0.14)" : "1px solid transparent",
-                  transition: "background 150ms ease, border-color 150ms ease",
-                  color: isActive ? "#ffffff" : "rgba(255,255,255,0.38)",
-                }}>
-                  <Icon />
-                  <span style={{
-                    fontSize: 9, fontWeight: isActive ? 700 : 400,
-                    letterSpacing: "0.04em", textTransform: "uppercase",
-                    lineHeight: 1, whiteSpace: "nowrap",
-                    color: "inherit",
-                  }}>{label}</span>
-                </div>
-              </Link>
+              <div key="layers" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <button
+                  onClick={() => setLayersOpen(v => !v)}
+                  aria-label="Alle Seiten"
+                  style={{
+                    width: 44, height: 44, borderRadius: "50%",
+                    background: layersOpen ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.06)",
+                    border: `1px solid ${layersOpen ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.18)"}`,
+                    cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    color: layersOpen ? "#ffffff" : "rgba(255,255,255,0.5)",
+                    transition: "background 150ms, border-color 150ms, color 150ms",
+                    WebkitTapHighlightColor: "transparent",
+                    flexShrink: 0,
+                  }}
+                >
+                  <IconLayers />
+                </button>
+              </div>
             );
-          })}
-        </nav>
-      </div>
+          }
+          const { href, label, Icon } = item;
+          const isActive = active(href);
+          return (
+            <Link
+              key={href}
+              href={href}
+              onClick={() => setLayersOpen(false)}
+              aria-label={label}
+              style={{
+                flex: 1,
+                display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center",
+                gap: 4, height: "100%",
+                color: isActive ? "#ffffff" : "rgba(255,255,255,0.38)",
+                textDecoration: "none",
+                fontSize: 9.5, fontWeight: isActive ? 700 : 400,
+                letterSpacing: "0.04em", textTransform: "uppercase",
+                WebkitTapHighlightColor: "transparent",
+                transition: "color 120ms ease",
+              }}
+            >
+              <Icon />
+              <span>{label}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </>
   );
 }
