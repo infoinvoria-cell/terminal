@@ -17,13 +17,18 @@ export async function getDashboardPageData() {
   const sign = (n: number) => (n >= 0 ? "+" : "");
   const fmt1 = (n: number) => `${sign(n)}${n.toFixed(1)}%`;
   const sk = snap?._track_kpis;
+
+  // Official KPI anchors from white-swan-combined-evidence.json
+  // These are statement-based values from the Performance Report PDF.
+  // Computed values from raw CSV trade data are used for maxDrawdown only
+  // (since it requires the full equity curve, not just monthly returns).
   const universal: UniversalKpiStrings = {
     riskAdjustedAum: "EUR 0",
     marketVolume: "EUR 0",
-    totalReturn24m: rows.length ? fmt1(kpis.totalReturn24mPct) : (sk?.totalReturn24m ?? "+97.2%"),
+    totalReturn24m: "+97.2%",
     maxDrawdown: rows.length ? `-${kpis.maxDrawdownPct.toFixed(2)}%` : (sk?.maxDrawdown ?? "-11.76%"),
-    compoundedReturn: rows.length ? fmt1(kpis.totalReturn24mPct) : (sk?.compoundedReturn ?? "+114.6%"),
-    annualizedReturn: rows.length ? fmt1(kpis.ytdReturnDisplayPct) : (sk?.annualizedReturn ?? "35.2%"),
+    compoundedReturn: "+114.6%",
+    annualizedReturn: "35.2%",
   };
 
   const capalifeData = getCapalifeData();

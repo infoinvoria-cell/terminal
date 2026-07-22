@@ -25,11 +25,17 @@ export type TradesPayload = {
 };
 
 const PERFORMANCE_SCALING_FACTOR = 5;
+// Monthly returns from the official Performance Report PDF (statement-based).
+// These replace CSV trade-level data for each listed month to ensure the
+// displayed track record matches the audited statement values.
 const MONTHLY_OVERRIDE_PCT: Record<string, number> = {
-  "2026-01": 0.17,
-  "2026-02": 3.75,
-  "2026-03": 0.17,
-  "2026-04": 0.93,
+  "2026-01": 0.2,
+  "2026-02": 7.7,
+  "2026-03": -1.3,
+  "2026-04": -0.9,
+  "2026-05": 3.8,
+  "2026-06": 2.8,
+  "2026-07": 0.0,
 };
 
 // Module-level cache — prevents re-reading CSV/HTML on every page navigation
