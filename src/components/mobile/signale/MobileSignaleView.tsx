@@ -107,7 +107,7 @@ function DirBadge({ dir }: { dir: string }) {
   );
 }
 
-// ── Single signal card — one line ────────────────────────────────────────────
+// ── Single signal card ────────────────────────────────────────────────────────
 
 function SignalCard({ card, onTap }: { card: SignalCardModel; onTap: () => void }) {
   const days    = nextLabelDaysAhead(card.nextSignalLabel);
@@ -116,17 +116,29 @@ function SignalCard({ card, onTap }: { card: SignalCardModel; onTap: () => void 
   const pct     = card.changePct ?? 0;
   const pctColor = pct >= 0 ? "#22c55e" : "#ef4444";
 
-  let rightNode: React.ReactNode = null;
+  let topRight: React.ReactNode = null;
   if (hasPct) {
-    rightNode = (
-      <span style={{ fontSize: 10, fontWeight: 700, color: pctColor, flexShrink: 0 }}>
+    topRight = (
+      <span style={{ fontSize: 10, fontWeight: 700, color: pctColor, letterSpacing: "0.02em" }}>
         {pct >= 0 ? "+" : ""}{pct.toFixed(2)}%
       </span>
     );
   } else if (days === 0) {
-    rightNode = <span style={{ fontSize: 8, fontWeight: 800, color: "#22c55e", flexShrink: 0 }}>HEUTE</span>;
+    topRight = <span style={{ fontSize: 9, fontWeight: 800, color: "#22c55e", letterSpacing: "0.04em" }}>HEUTE ✓</span>;
   } else if (days === 1) {
-    rightNode = <span style={{ fontSize: 8, fontWeight: 800, color: "#f59e0b", flexShrink: 0 }}>MORGEN</span>;
+    topRight = <span style={{ fontSize: 9, fontWeight: 800, color: "#f59e0b", letterSpacing: "0.04em" }}>MORGEN ✓</span>;
+  }
+
+  let dateNode: React.ReactNode = null;
+  if (isOpen && card.signalDate) {
+    dateNode = <span style={{ fontSize: 8, color: "rgba(255,255,255,0.28)", flexShrink: 0 }}>{card.signalDate} ✓</span>;
+  } else if (card.nextSignalLabel) {
+    const valid = days != null && days >= 0 && days <= 1;
+    dateNode = (
+      <span style={{ fontSize: 8, flexShrink: 0, color: valid ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.2)" }}>
+        {card.nextSignalLabel} {valid ? "✓" : "✗"}
+      </span>
+    );
   }
 
   return (
@@ -135,32 +147,44 @@ function SignalCard({ card, onTap }: { card: SignalCardModel; onTap: () => void 
       style={{
         background: "#0f1014",
         border: "1px solid rgba(255,255,255,0.07)",
-        borderRadius: 7,
-        padding: "7px 8px",
+        borderRadius: 8,
+        padding: "10px 10px 9px",
         display: "flex",
-        alignItems: "center",
+        flexDirection: "column",
         gap: 7,
         minWidth: 0,
         overflow: "hidden",
         cursor: "pointer",
         WebkitTapHighlightColor: "transparent",
+        position: "relative",
       }}
     >
-      <AssetIcon card={card} size={22} />
-      <span style={{
-        fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.92)",
-        letterSpacing: "0.02em", whiteSpace: "nowrap",
-      }}>
-        {card.displaySymbol}
-      </span>
-      <span style={{
-        fontSize: 8.5, color: "rgba(255,255,255,0.3)",
-        flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-      }}>
-        {card.assetName}
-      </span>
-      <DirBadge dir={card.direction} />
-      {rightNode}
+      {/* Row 1: icon + symbol + top-right */}
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
+        <AssetIcon card={card} size={28} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4 }}>
+            <span style={{ fontSize: 12, fontWeight: 800, color: "rgba(255,255,255,0.92)", letterSpacing: "0.03em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {card.displaySymbol}
+            </span>
+            {topRight}
+          </div>
+          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {card.assetName}
+          </div>
+        </div>
+      </div>
+      {/* Row 2: strategy + date */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 4 }}>
+        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.38)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
+          {card.strategyName}
+        </span>
+        {dateNode}
+      </div>
+      {/* Row 3: direction */}
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <DirBadge dir={card.direction} />
+      </div>
     </div>
   );
 }
@@ -251,42 +275,55 @@ function DetailSheet({
           <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.2)", margin: "0 auto" }} />
         </div>
 
-        {/* Card summary row — einzeilig, ganz oben */}
-        <div style={{
-          flexShrink: 0,
-          display: "flex", alignItems: "center", gap: 8,
-          padding: "0 12px 8px",
-        }}>
-          {iconUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={iconUrl} alt={card.displaySymbol} width={24} height={24}
-              style={{ objectFit: "contain", borderRadius: 5, border: "1px solid rgba(255,255,255,0.1)", flexShrink: 0 }} />
-          ) : (
-            <div style={{ width: 24, height: 24, borderRadius: 5, background: "rgba(255,255,255,0.08)", flexShrink: 0 }} />
-          )}
-          <span style={{ fontSize: 14, fontWeight: 800, color: "#fff", letterSpacing: "0.02em", flexShrink: 0 }}>
-            {card.displaySymbol}
-          </span>
-          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {card.assetName} · {card.strategyName}
-          </span>
-          <DirBadge dir={card.direction} />
-          {card.changePct != null && (
-            <span style={{ fontSize: 10, fontWeight: 700, color: card.changePct >= 0 ? "#22c55e" : "#ef4444", flexShrink: 0 }}>
-              {card.changePct >= 0 ? "+" : ""}{card.changePct.toFixed(2)}%
-            </span>
-          )}
-          <button
-            onClick={onClose}
-            style={{
-              marginLeft: 4, background: "rgba(255,255,255,0.07)",
-              border: "none", borderRadius: 7,
-              color: "rgba(255,255,255,0.45)", fontSize: 14, lineHeight: 1,
-              width: 28, height: 28, cursor: "pointer", flexShrink: 0,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              WebkitTapHighlightColor: "transparent",
-            }}
-          >✕</button>
+        {/* Card summary — ganz oben im Sheet */}
+        <div style={{ flexShrink: 0, padding: "0 12px 10px" }}>
+          {/* Zeile 1: icon + symbol + name + X */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            {iconUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={iconUrl} alt={card.displaySymbol} width={24} height={24}
+                style={{ objectFit: "contain", borderRadius: 5, border: "1px solid rgba(255,255,255,0.1)", flexShrink: 0 }} />
+            ) : (
+              <div style={{ width: 24, height: 24, borderRadius: 5, background: "rgba(255,255,255,0.08)", flexShrink: 0 }} />
+            )}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: "#fff", letterSpacing: "0.02em", lineHeight: 1.1 }}>{card.displaySymbol}</div>
+              <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {card.assetName} · {card.strategyName}
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              style={{
+                background: "rgba(255,255,255,0.07)", border: "none", borderRadius: 7,
+                color: "rgba(255,255,255,0.45)", fontSize: 14, lineHeight: 1,
+                width: 28, height: 28, cursor: "pointer", flexShrink: 0,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                WebkitTapHighlightColor: "transparent",
+              }}
+            >✕</button>
+          </div>
+          {/* Zeile 2: Signal-Werte */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <DirBadge dir={card.direction} />
+            {card.changePct != null && (
+              <span style={{ fontSize: 11, fontWeight: 700, color: card.changePct >= 0 ? "#22c55e" : "#ef4444" }}>
+                {card.changePct >= 0 ? "+" : ""}{card.changePct.toFixed(2)}%
+              </span>
+            )}
+            {card.signalDate && (
+              <span style={{ fontSize: 9, color: "rgba(255,255,255,0.35)" }}>Signal: {card.signalDate}</span>
+            )}
+            {card.tp != null && (
+              <span style={{ fontSize: 9, fontWeight: 600, color: "#22c55e" }}>TP: {card.tp}</span>
+            )}
+            {card.sl != null && (
+              <span style={{ fontSize: 9, fontWeight: 600, color: "#ef4444" }}>SL: {card.sl}</span>
+            )}
+            {card.nextSignalLabel && !card.signalDate && (
+              <span style={{ fontSize: 9, color: "rgba(255,255,255,0.3)" }}>Nächste: {card.nextSignalLabel}</span>
+            )}
+          </div>
         </div>
 
         <div style={{ height: 1, background: "rgba(255,255,255,0.06)", flexShrink: 0 }} />
