@@ -10,8 +10,9 @@ Install:  pip install websocket-client requests supabase python-dotenv
 Run:      python tools/live-feed/tv_live_feed.py
 
 Env vars (from .env.local or shell):
-  TV_USERNAME                — TradingView username
-  TV_PASSWORD                — TradingView password
+  TV_SESSION_ID              — TradingView browser cookie 'sessionid'
+                               Get: tradingview.com → DevTools → Application
+                               → Cookies → www.tradingview.com → sessionid
   NEXT_PUBLIC_SUPABASE_URL   — Supabase project URL
   SUPABASE_SERVICE_ROLE_KEY  — Supabase service role key
 """
@@ -46,9 +47,7 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-TV_USERNAME   = os.environ.get("TV_USERNAME", "")
-TV_PASSWORD   = os.environ.get("TV_PASSWORD", "")
-TV_AUTH_TOKEN = os.environ.get("TV_AUTH_TOKEN", "")   # set this to skip reCAPTCHA login
+TV_SESSION_ID = os.environ.get("TV_SESSION_ID", "")   # from browser cookie 'sessionid'
 SUPABASE_URL  = os.environ["NEXT_PUBLIC_SUPABASE_URL"]
 SUPABASE_KEY  = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
 
@@ -68,8 +67,7 @@ FAST_SYMBOLS: set[str] = {
     "GC1!", "GLD", "FDAX1!",
 }
 
-TV_WS_URL  = "wss://data.tradingview.com/socket.io/websocket"
-TV_API_URL = "https://www.tradingview.com/accounts/signin/"
+TV_WS_URL = "wss://data.tradingview.com/socket.io/websocket"
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
@@ -158,38 +156,52 @@ def select_subscriptions(req_to_src: dict[str, str]) -> tuple[list[str], list[st
 # ── Auth ──────────────────────────────────────────────────────────────────────
 
 def get_auth_token(ua: str) -> str:
-    # 1. Explicit env var (recommended — avoids reCAPTCHA)
-    if TV_AUTH_TOKEN:
-        log.info("Using TV_AUTH_TOKEN from env")
-        return TV_AUTH_TOKEN
+    """
+    Exchange the browser sessionid cookie for a TV auth token.
+    TV_SESSION_ID  =  value of the 'sessionid' cookie from tradingview.com.
 
-    # 2. Disk cache from previous successful login
+    How to get it:
+      tradingview.com → DevTools → Application → Cookies → www.tradingview.com
+      → Cookie name: sessionid  → copy Value
+    """
+    if not TV_SESSION_ID:
+        raise RuntimeError(
+            "TV_SESSION_ID not set.\n"
+            "Get it: tradingview.com → DevTools → Application → Cookies → "
+            "www.tradingview.com → sessionid → copy Value\n"
+            "Then add to .env.local:  TV_SESSION_ID=<value>"
+        )
+
     cached = _load_cached_token()
     if cached:
-        log.info("Reusing cached auth token")
+        log.info("Reusing cached auth token (from sessionid exchange)")
         return cached
 
-    # 3. Username/password login (fails if reCAPTCHA required)
-    if not TV_USERNAME or not TV_PASSWORD:
-        raise RuntimeError(
-            "No auth method available. Set TV_AUTH_TOKEN in .env.local.\n"
-            "Get token: tradingview.com → DevTools → Console → "
-            "JSON.parse(localStorage.getItem('tv_user')).auth_token"
-        )
-    log.info("Authenticating with TradingView (username/password) …")
-    resp = requests.post(
-        TV_API_URL,
-        data={"username": TV_USERNAME, "password": TV_PASSWORD, "remember": "on"},
-        headers={"Referer": "https://www.tradingview.com", "User-Agent": ua},
+    log.info("Exchanging sessionid cookie for auth token …")
+    resp = requests.get(
+        "https://www.tradingview.com/api/v1/user/",
+        headers={
+            "Cookie": f"sessionid={TV_SESSION_ID}",
+            "Referer": "https://www.tradingview.com/",
+            "User-Agent": ua,
+        },
         timeout=15,
     )
     resp.raise_for_status()
     body = resp.json()
-    if "user" not in body:
-        raise RuntimeError(f"TV login failed: {body.get('error', body)}")
-    token = body["user"]["auth_token"]
+    token = (
+        body.get("auth_token")
+        or body.get("user", {}).get("auth_token")
+        or body.get("token")
+    )
+    if not token:
+        # Fallback: use sessionid directly as the WS auth value
+        # TV accepts "sessionid=<value>" as an auth token on the WebSocket
+        log.info("No auth_token in response — using sessionid as WS token directly")
+        token = f"sessionid={TV_SESSION_ID}"
+
     _save_cached_token(token)
-    log.info("Auth token obtained and cached")
+    log.info("Auth token ready")
     return token
 
 
@@ -207,7 +219,7 @@ def _load_cached_token() -> str | None:
 def _save_cached_token(token: str) -> None:
     try:
         SESSION_FILE.write_bytes(
-            pickle.dumps({"token": token, "expires_at": time.time() + 3600 * 8})
+            pickle.dumps({"token": token, "expires_at": time.time() + 3600 * 6})
         )
     except Exception:
         pass
@@ -272,11 +284,12 @@ def run_session(
     ws_headers = {
         "Origin": "https://data.tradingview.com",
         "User-Agent": ua,
+        "Cookie": f"sessionid={TV_SESSION_ID}",
     }
     log.info("Opening WebSocket …")
     ws = create_connection(TV_WS_URL, headers=ws_headers, timeout=20)
 
-    # Auth + quote session
+    # Auth: pass token to TV session, or fall back to unauthorized
     _send(ws, "set_auth_token", [token])
     q_session = _rand_session_id("qs_")
     _send(ws, "quote_create_session", [q_session])
