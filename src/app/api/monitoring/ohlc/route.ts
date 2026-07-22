@@ -87,7 +87,23 @@ async function fromSupabaseOhlc(symbol: string, tf: string, maxBars: number): Pr
       if (data.length < PAGE) break;
     }
     if (!allRows.length) {
-      return NextResponse.json({ error: "Symbol not found in cache or Supabase", symbol, timeframe: tf, status: "not_found" }, { status: 404 });
+      // Not in monitoring_ohlc — try invest_ohlc (e.g. GLD, SPY, QQQ)
+      const investRows: typeof allRows = [];
+      for (let from = 0; ; from += PAGE) {
+        const { data: iData, error: iErr } = await db
+          .from("invest_ohlc")
+          .select("date,open,high,low,close,volume")
+          .eq("symbol", symbol)
+          .order("date", { ascending: true })
+          .range(from, from + PAGE - 1);
+        if (iErr || !iData?.length) break;
+        investRows.push(...(iData as typeof allRows));
+        if (iData.length < PAGE) break;
+      }
+      if (!investRows.length) {
+        return NextResponse.json({ error: "Symbol not found in cache or Supabase", symbol, timeframe: tf, status: "not_found" }, { status: 404 });
+      }
+      allRows.push(...investRows);
     }
     const bars = (maxBars > 0 ? allRows.slice(-maxBars) : allRows).map((r) => ({
       time: r.date as string,

@@ -347,8 +347,6 @@ const FALLBACK_FSPORTFOLIO_CONFIG: FSPortfolioConfigJson = {
 // static module graph even when the file is imported by "use client" components.
 function loadJsonFromDisk<T>(fileName: string): T | null {
   if (typeof window !== "undefined") return null;
-  // On Vercel the JSON files are absent — always use skeleton.
-  if (process.env.VERCEL) return null;
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const nodeRequire: NodeRequire | undefined =

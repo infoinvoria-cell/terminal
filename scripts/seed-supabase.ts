@@ -249,13 +249,20 @@ async function seedMonitoringOhlc() {
     return;
   }
   const manifest = JSON.parse(fs.readFileSync(CACHE_MANIFEST, "utf-8"));
-  const assets: Array<{ asset: string; timeframe: string; cachePath?: string; legacyCachePath?: string }> = manifest.assets ?? [];
+  const assets: Array<{ asset: string; source?: string; tab?: string; timeframe: string; cachePath?: string; legacyCachePath?: string }> = manifest.assets ?? [];
 
   const PUBLIC_DIR = path.join(process.cwd(), "public");
   let total = 0;
 
   for (const a of assets) {
-    const assetKey = (a.asset ?? "").toUpperCase();
+    // Dependency entries reuse a parent asset's key but contain data for a different symbol
+    // (e.g. TVC:DXY stored as asset='ZW1!'). Use the real source symbol as the DB key.
+    const rawAsset = (a.asset ?? "").toUpperCase();
+    const srcSym = (() => {
+      const src = String(a.source ?? "");
+      return src.includes(":") ? src.split(":").pop()!.toUpperCase() : src.toUpperCase();
+    })();
+    const assetKey = a.tab === "Dependency" && srcSym && srcSym !== rawAsset ? srcSym : rawAsset;
     const tf = (a.timeframe ?? "D").toUpperCase() === "1D" ? "D" : (a.timeframe ?? "D");
     const candidates = [a.cachePath, a.legacyCachePath].filter(Boolean) as string[];
     const filePath = candidates
