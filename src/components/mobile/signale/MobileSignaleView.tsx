@@ -333,16 +333,16 @@ function DetailSheet({
 
         <div style={{ height: 1, background: "rgba(255,255,255,0.06)", flexShrink: 0 }} />
 
-        {/* Scrollable content */}
-        <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "0 0 16px" }}>
+        {/* Charts zone — flex 1, NO scroll, explicit heights so fillContainer works */}
+        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
 
-          {/* Candle chart + symbol badge */}
-          <div style={{ height: 200, position: "relative", margin: "0 0 2px" }}>
+          {/* Candle chart — 46% of remaining space */}
+          <div style={{ flex: "0 0 46%", position: "relative", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
             {/* Symbol overlay */}
             <div style={{
-              position: "absolute", left: 10, top: 10, zIndex: 10,
+              position: "absolute", left: 10, top: 8, zIndex: 10,
               display: "flex", alignItems: "center", gap: 6,
-              background: "rgba(0,0,0,0.6)",
+              background: "rgba(0,0,0,0.65)",
               border: "1px solid rgba(255,255,255,0.08)",
               borderRadius: 8, padding: "4px 8px",
               backdropFilter: "blur(6px)",
@@ -353,7 +353,7 @@ function DetailSheet({
                   style={{ objectFit: "contain", borderRadius: 3 }} />
               )}
               <span style={{ fontSize: 11, fontWeight: 800, color: "#fff" }}>{card.displaySymbol}</span>
-              <span style={{ fontSize: 9, color: "rgba(255,255,255,0.4)" }}>{card.strategyName}</span>
+              <span style={{ fontSize: 9, color: "rgba(255,255,255,0.38)" }}>{card.strategyName}</span>
             </div>
             {mounted && preview?.chart ? (
               <MonitoringChart data={preview.chart} maxBars={320} initialVisibleBars={56} />
@@ -364,62 +364,65 @@ function DetailSheet({
             )}
           </div>
 
-          {/* Equity + drawdown */}
-          {mounted && perf ? (
-            <>
-              <div style={{ height: 80, padding: "2px 4px 0" }}>
-                <StrategyTesterEquityChart
-                  data={perf.equityCurve}
-                  totalReturnPercent={perf.summary?.totalReturnPercent}
-                  cagr={perf.summary?.cagr}
-                  fillContainer
-                />
+          {/* Equity chart — 29% */}
+          <div style={{ flex: "0 0 29%", borderBottom: "1px solid rgba(255,255,255,0.04)", padding: "2px 4px" }}>
+            {mounted && perf ? (
+              <StrategyTesterEquityChart
+                data={perf.equityCurve}
+                totalReturnPercent={perf.summary?.totalReturnPercent}
+                cagr={perf.summary?.cagr}
+                fillContainer
+              />
+            ) : (
+              <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontSize: 9, color: "rgba(255,255,255,0.1)" }}>Kein Backtest</span>
               </div>
-              <div style={{ height: 52, padding: "0 4px", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-                <StrategyTesterDrawdownChart
-                  data={perf.drawdownCurve}
-                  maxDrawdownPercent={perf.summary?.maxDrawdownPercent}
-                  fillContainer
-                />
-              </div>
-            </>
-          ) : (
-            <div style={{ height: 52, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.12)" }}>Kein Backtest verfügbar</span>
-            </div>
-          )}
+            )}
+          </div>
 
-          {/* KPI row — 5 tiles, negative = gold */}
-          {kpis.length > 0 && (
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: `repeat(${kpis.length}, 1fr)`,
-              gap: 5,
-              padding: "10px 10px 0",
-            }}>
-              {kpis.map(k => {
-                const isNeg = k.tone === "negative" || (typeof k.value === "string" && k.value.startsWith("-"));
-                return (
-                  <div key={k.label} style={{
-                    background: "linear-gradient(180deg,#1c1d20 0%,#141517 100%)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    borderRadius: 8, padding: "7px 5px",
-                    display: "flex", flexDirection: "column", gap: 5,
-                  }}>
-                    <div style={{ fontSize: 7, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.35)", lineHeight: 1 }}>
-                      {k.label}
-                    </div>
-                    <div style={{
-                      fontSize: 13, fontWeight: 700, lineHeight: 1,
-                      color: isNeg ? "#d8bc67" : "#fff",
-                    }}>
-                      {k.value}
-                    </div>
+          {/* Drawdown chart — 17% */}
+          <div style={{ flex: "0 0 17%", borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "2px 4px" }}>
+            {mounted && perf ? (
+              <StrategyTesterDrawdownChart
+                data={perf.drawdownCurve}
+                maxDrawdownPercent={perf.summary?.maxDrawdownPercent}
+                fillContainer
+              />
+            ) : null}
+          </div>
+
+          {/* KPI row — remaining 8%, pinned at bottom */}
+          <div style={{
+            flex: "0 0 8%",
+            display: "grid",
+            gridTemplateColumns: `repeat(${Math.max(kpis.length, 1)}, 1fr)`,
+            gap: 4,
+            padding: "4px 8px",
+            alignItems: "stretch",
+          }}>
+            {kpis.length > 0 ? kpis.map(k => {
+              const isNeg = k.tone === "negative" || (typeof k.value === "string" && k.value.startsWith("-"));
+              return (
+                <div key={k.label} style={{
+                  background: "linear-gradient(180deg,#1c1d20 0%,#141517 100%)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: 7, padding: "5px 4px",
+                  display: "flex", flexDirection: "column", justifyContent: "space-between",
+                }}>
+                  <div style={{ fontSize: 6.5, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.32)", lineHeight: 1 }}>
+                    {k.label}
                   </div>
-                );
-              })}
-            </div>
-          )}
+                  <div style={{ fontSize: 12, fontWeight: 700, lineHeight: 1, color: isNeg ? "#d8bc67" : "#fff" }}>
+                    {k.value}
+                  </div>
+                </div>
+              );
+            }) : (
+              <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontSize: 9, color: "rgba(255,255,255,0.1)" }}>Keine KPIs</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </>
