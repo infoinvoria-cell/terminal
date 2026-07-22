@@ -165,8 +165,7 @@ const P_OUTER_H = P_H + P_FP * 2;   // 880
 
 function toMobileUrl(path: string | null): string {
   if (!path) return "/m/home";
-  if (path.startsWith("/signals")) return "/m/signals";
-  if (path.startsWith("/signal") || path.startsWith("/monitoring")) return "/m/signale";
+  if (path.startsWith("/signal") || path.startsWith("/signals") || path.startsWith("/monitoring")) return "/m/signale";
   if (path.startsWith("/brain")) return "/m/brain";
   if (path.startsWith("/settings")) return "/m/settings";
   if (path.startsWith("/onboarding") || path.startsWith("/investors-crm")) return "/m/investors-crm";
