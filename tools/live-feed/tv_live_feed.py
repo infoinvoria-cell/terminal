@@ -20,7 +20,6 @@ Env vars (from .env.local or shell):
 import json
 import logging
 import os
-import pickle
 import random
 import re
 import string
@@ -30,7 +29,6 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-import requests
 from dotenv import load_dotenv
 from supabase import create_client, Client
 from websocket import create_connection, WebSocketException
@@ -52,7 +50,6 @@ SUPABASE_URL  = os.environ["NEXT_PUBLIC_SUPABASE_URL"]
 SUPABASE_KEY  = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
 
 UNIVERSE_PATH = ROOT / "public/generated/monitoring/config/monitoring_asset_universe.json"
-SESSION_FILE  = Path(__file__).parent / ".tv_session.pkl"
 
 MAX_SUBSCRIPTIONS  = 50
 FAST_FLUSH_SECS    = 5
@@ -155,14 +152,15 @@ def select_subscriptions(req_to_src: dict[str, str]) -> tuple[list[str], list[st
 
 # ── Auth ──────────────────────────────────────────────────────────────────────
 
-def get_auth_token(ua: str) -> str:
+def get_auth_token(_ua: str) -> str:
     """
-    Exchange the browser sessionid cookie for a TV auth token.
-    TV_SESSION_ID  =  value of the 'sessionid' cookie from tradingview.com.
+    Use the browser sessionid cookie directly as the TV WebSocket auth token.
+    TV accepts "sessionid=<value>" in set_auth_token without any API call.
 
-    How to get it:
+    How to get TV_SESSION_ID:
       tradingview.com → DevTools → Application → Cookies → www.tradingview.com
-      → Cookie name: sessionid  → copy Value
+      → Cookie name: sessionid → copy Value
+      → add to .env.local:  TV_SESSION_ID=<value>
     """
     if not TV_SESSION_ID:
         raise RuntimeError(
@@ -171,58 +169,9 @@ def get_auth_token(ua: str) -> str:
             "www.tradingview.com → sessionid → copy Value\n"
             "Then add to .env.local:  TV_SESSION_ID=<value>"
         )
-
-    cached = _load_cached_token()
-    if cached:
-        log.info("Reusing cached auth token (from sessionid exchange)")
-        return cached
-
-    log.info("Exchanging sessionid cookie for auth token …")
-    resp = requests.get(
-        "https://www.tradingview.com/api/v1/user/",
-        headers={
-            "Cookie": f"sessionid={TV_SESSION_ID}",
-            "Referer": "https://www.tradingview.com/",
-            "User-Agent": ua,
-        },
-        timeout=15,
-    )
-    resp.raise_for_status()
-    body = resp.json()
-    token = (
-        body.get("auth_token")
-        or body.get("user", {}).get("auth_token")
-        or body.get("token")
-    )
-    if not token:
-        # Fallback: use sessionid directly as the WS auth value
-        # TV accepts "sessionid=<value>" as an auth token on the WebSocket
-        log.info("No auth_token in response — using sessionid as WS token directly")
-        token = f"sessionid={TV_SESSION_ID}"
-
-    _save_cached_token(token)
-    log.info("Auth token ready")
-    return token
+    return f"sessionid={TV_SESSION_ID}"
 
 
-def _load_cached_token() -> str | None:
-    try:
-        if SESSION_FILE.exists():
-            data = pickle.loads(SESSION_FILE.read_bytes())
-            if isinstance(data, dict) and data.get("expires_at", 0) > time.time() + 60:
-                return data["token"]
-    except Exception:
-        pass
-    return None
-
-
-def _save_cached_token(token: str) -> None:
-    try:
-        SESSION_FILE.write_bytes(
-            pickle.dumps({"token": token, "expires_at": time.time() + 3600 * 6})
-        )
-    except Exception:
-        pass
 
 # ── TV WebSocket protocol helpers ─────────────────────────────────────────────
 
@@ -403,13 +352,6 @@ def main() -> None:
         except Exception as e:
             delay = BACKOFF_STEPS[min(backoff_idx, len(BACKOFF_STEPS) - 1)]
             log.error(f"Session error: {e} — reconnect in {delay}s")
-            # Invalidate cached token on auth errors
-            if "auth" in str(e).lower() or "token" in str(e).lower():
-                try:
-                    SESSION_FILE.unlink(missing_ok=True)
-                    log.info("Cleared cached token")
-                except Exception:
-                    pass
             time.sleep(delay)
             backoff_idx += 1
 
