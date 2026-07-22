@@ -432,7 +432,7 @@ export function Sidebar() {
         flexShrink: 0,
         overflow: "hidden",
       }}
-      className="capitalife-sidebar relative z-[9999] flex h-full min-h-0 flex-col border-r border-[#2a2b30]/60 bg-[#0a0a0c] pt-4"
+      className="capitalife-sidebar relative z-[9999] isolate flex h-full min-h-0 flex-col border-r border-[#2a2b30]/60 bg-[#0a0a0c] pt-4"
     >
       {/* Logo */}
       <div className="flex w-full shrink-0 items-center justify-center" style={{ transition: `padding 250ms ${EASE}` }}>

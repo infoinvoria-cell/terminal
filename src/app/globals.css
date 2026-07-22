@@ -9,7 +9,10 @@
 /* ── PERMANENT SIDEBAR FIX ─────────────────────────────────────────────────
    Sidebar must always win against any canvas, WebGL, or overlay element.
    These rules are the single source of truth — do not remove them.
-   LAYER 1: Sidebar wins unconditionally                                    */
+
+   LAYER 1: Sidebar wins unconditionally via z-index + stacking context.
+   Tailwind classes (relative z-[9999] isolate) on the <aside> reinforce this
+   at the component level so it survives component rewrites.               */
 .capitalife-sidebar {
   position: relative !important;
   z-index: 9999 !important;
@@ -17,33 +20,25 @@
   pointer-events: auto !important;
 }
 
-/* LAYER 2: Nuclear — every canvas in the app is purely visual.
-   Globe interaction works via the wrapper div (Three.js orbit controls
-   attach to renderer.domElement, but the globe-stage div catches events
-   first via capture-phase listeners added by react-globe.gl).             */
-canvas {
-  pointer-events: none !important;
-}
-
-/* LAYER 3: Named canvas/overlay classes (belt-and-suspenders)             */
+/* LAYER 2: Named visual-only canvases — these never need click events.
+   .brain-canvas  = old canvas sphere in BrainGraphShell (canvas 2D sphere)
+   .globe-canvas  = volatility tint overlay div on the Globe page          */
 .brain-canvas,
 .globe-canvas {
   pointer-events: none !important;
 }
 
-/* LAYER 4: CSS2DRenderer divs (Three.js HTML label overlay) must not
-   intercept clicks. react-globe.gl creates a div inside globe-stage;
-   target its direct children's siblings that may lack pointer-events.     */
-.globe-stage > div,
-.brain-stage > div {
+/* LAYER 3: CSS2DRenderer overlay div that Three.js/react-globe.gl injects
+   inside .globe-stage — Three.js sets pointer-events:none itself but we
+   belt-and-suspenders it here.                                            */
+.globe-stage > div {
   pointer-events: none !important;
 }
 
-/* LAYER 5: Any raw canvas inside a globe or brain container               */
-.globe-stage canvas,
-.brain-stage canvas {
-  pointer-events: none !important;
-}
+/* NOTE: No blanket `canvas { pointer-events: none }` rule here.
+   react-globe.gl (Three.js OrbitControls) and react-force-graph-2d both
+   require pointer-events on their canvas element for rotation/pan/zoom.
+   Sidebar isolation via z-index:9999 + isolate is sufficient.            */
 /* ─────────────────────────────────────────────────────────────────────────── */
 
 /* Mobile Preview split-view panel offset (left side) */
