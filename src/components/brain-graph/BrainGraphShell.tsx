@@ -249,7 +249,7 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
         ref={canvasRef}
         width={dims.w}
         height={dims.h}
-        style={{ display: "block", pointerEvents: "none" }}
+        className="block pointer-events-none"
       />
     </div>
   );

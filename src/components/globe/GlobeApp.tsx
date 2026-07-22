@@ -2058,20 +2058,7 @@ export default function GlobeApp() {
             className="relative min-h-0 overflow-hidden"
             style={{ flex: "0 0 68%" }}
           >
-            {isGlobeFullscreen ? (
-              <div className="fixed inset-0 z-[70] overflow-hidden bg-[#0c0d10]">
-                <button
-                  type="button"
-                  onClick={onToggleGlobeFullscreen}
-                  className="absolute right-4 top-4 z-30 flex h-8 w-8 items-center justify-center rounded-md border border-white/15 text-white hover:border-white"
-                  title="Exit fullscreen"
-                  aria-label="Exit fullscreen"
-                >
-                  <Minimize2 size={15} strokeWidth={1.9} />
-                </button>
-                <GlobeCanvas {...globeCanvasProps} />
-              </div>
-            ) : (
+            {!isGlobeFullscreen && (
               <>
                 <button
                   type="button"
@@ -2213,6 +2200,22 @@ export default function GlobeApp() {
         </div>
 
       </div>
+
+      {/* ── Globe fullscreen overlay — absolute so it stays within content area (no sidebar bleed) ── */}
+      {isGlobeFullscreen && (
+        <div className="absolute inset-0 z-[70] overflow-hidden bg-[#0c0d10]">
+          <button
+            type="button"
+            onClick={onToggleGlobeFullscreen}
+            className="absolute right-4 top-4 z-30 flex h-8 w-8 items-center justify-center rounded-md border border-white/15 text-white hover:border-white"
+            title="Exit fullscreen"
+            aria-label="Exit fullscreen"
+          >
+            <Minimize2 size={15} strokeWidth={1.9} />
+          </button>
+          <GlobeCanvas {...globeCanvasProps} />
+        </div>
+      )}
 
       {/* ── Loading overlay ── */}
       {dashboardLoadingActive ? (

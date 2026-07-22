@@ -334,46 +334,41 @@ const FALLBACK_FSPORTFOLIO_CONFIG: FSPortfolioConfigJson = {
   caveats: [],
 };
 
-// Server-side dynamic load.
-//
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const _fs = typeof window === "undefined" ? (require("node:fs") as typeof import("node:fs")) : null;
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const _path = typeof window === "undefined" ? (require("node:path") as typeof import("node:path")) : null;
+// Git-tracked JSONs are bundled at build time via Next.js module resolution.
+// Static require() is resolved by webpack/Turbopack at build time, not runtime,
+// so it always works on Vercel regardless of the fs module availability.
 
-function loadJsonFromDisk<T>(fileName: string): T | null {
-  if (!_fs || !_path) return null;
+function tryRequireJson<T>(relPath: string): T | null {
   try {
-    const filePath = _path.join(process.cwd(), "src", "data", "capitalife", fileName);
-    if (!_fs.existsSync(filePath)) return null;
-    return JSON.parse(_fs.readFileSync(filePath, "utf-8")) as T;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return require(relPath) as T;
   } catch {
     return null;
   }
 }
 
 export const performanceMonthly: PerformanceMonthly =
-  loadJsonFromDisk<PerformanceMonthly>("performance-monthly.json") ??
+  tryRequireJson<PerformanceMonthly>("../data/capitalife/performance-monthly.json") ??
   FALLBACK_PERFORMANCE_MONTHLY;
 
 export const account2Trades: Account2Trades =
-  loadJsonFromDisk<Account2Trades>("account2-myfxbook-visible-trades.json") ??
+  tryRequireJson<Account2Trades>("../data/capitalife/account2-myfxbook-visible-trades.json") ??
   FALLBACK_ACCOUNT2_TRADES;
 
 export const whiteSwanCombinedEvidence: WhiteSwanCombinedEvidence =
-  loadJsonFromDisk<WhiteSwanCombinedEvidence>("white-swan-combined-evidence.json") ??
+  tryRequireJson<WhiteSwanCombinedEvidence>("../data/capitalife/white-swan-combined-evidence.json") ??
   FALLBACK_COMBINED_EVIDENCE;
 
 export const whiteSwanAnnualReturns: WhiteSwanAnnualReturns =
-  loadJsonFromDisk<WhiteSwanAnnualReturns>("white-swan-annual-returns.json") ??
+  tryRequireJson<WhiteSwanAnnualReturns>("../data/capitalife/white-swan-annual-returns.json") ??
   FALLBACK_ANNUAL_RETURNS;
 
 export const analyticsGenerated: AnalyticsGenerated =
-  loadJsonFromDisk<AnalyticsGenerated>("analytics-generated.json") ??
+  tryRequireJson<AnalyticsGenerated>("../data/capitalife/analytics-generated.json") ??
   FALLBACK_ANALYTICS_GENERATED;
 
 export const fsportfolioConfigJson: FSPortfolioConfigJson =
-  loadJsonFromDisk<FSPortfolioConfigJson>("fsportfolio-live-core.config.json") ??
+  tryRequireJson<FSPortfolioConfigJson>("../data/capitalife/fsportfolio-live-core.config.json") ??
   FALLBACK_FSPORTFOLIO_CONFIG;
 
 function loadPublicJson<T>(relativePath: string): T | null {
