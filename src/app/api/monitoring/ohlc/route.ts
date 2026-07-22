@@ -70,17 +70,26 @@ function parseBars(rawBars: CacheBar[]): Array<{ time: string; open: number; hig
 async function fromSupabaseOhlc(symbol: string, tf: string, maxBars: number): Promise<NextResponse> {
   try {
     const db = createSupabaseServiceClient();
-    const { data, error } = await db
-      .from("monitoring_ohlc")
-      .select("date,open,high,low,close,volume")
-      .eq("asset", symbol)
-      .eq("timeframe", tf)
-      .order("date", { ascending: true })
-      .limit(50000);
-    if (error || !data?.length) {
+    // PostgREST caps at 1000 rows per request — paginate to fetch all bars
+    const PAGE = 1000;
+    const allRows: Array<{ date: string; open: unknown; high: unknown; low: unknown; close: unknown; volume: unknown }> = [];
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await db
+        .from("monitoring_ohlc")
+        .select("date,open,high,low,close,volume")
+        .eq("asset", symbol)
+        .eq("timeframe", tf)
+        .order("date", { ascending: true })
+        .range(from, from + PAGE - 1);
+      if (error) return NextResponse.json({ error: error.message, symbol, timeframe: tf }, { status: 500 });
+      if (!data?.length) break;
+      allRows.push(...(data as typeof allRows));
+      if (data.length < PAGE) break;
+    }
+    if (!allRows.length) {
       return NextResponse.json({ error: "Symbol not found in cache or Supabase", symbol, timeframe: tf, status: "not_found" }, { status: 404 });
     }
-    const bars = (maxBars > 0 ? data.slice(-maxBars) : data).map((r) => ({
+    const bars = (maxBars > 0 ? allRows.slice(-maxBars) : allRows).map((r) => ({
       time: r.date as string,
       open: Number(r.open),
       high: Number(r.high),
