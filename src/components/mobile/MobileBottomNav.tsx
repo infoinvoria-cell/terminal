@@ -152,7 +152,7 @@ const SIDEBAR_GROUPS = [
   {
     label: "Tools",
     items: [
-      { href: "/m/signals",    label: "Signale",     Icon: IconBellRing },
+      { href: "/m/signale",    label: "Signale",     Icon: IconBellRing },
       { href: "/m/monitoring", label: "Monitoring",  Icon: IconActivity },
       { href: "/m/analytics",  label: "Analytics",   Icon: IconChartColumn },
     ],
@@ -172,7 +172,7 @@ const NAV_ITEMS = [
   { href: "/m/home",      label: "Home",       Icon: IconHome          },
   { href: "/m/monitoring", label: "Monitoring", Icon: IconActivity      },
   null, // center layers button
-  { href: "/m/signals",   label: "Signale",    Icon: IconBellRing      },
+  { href: "/m/signale",   label: "Signale",    Icon: IconBellRing      },
   { href: "/m/sentinel",  label: "Sentinel",   Icon: IconMessageSquare },
 ];
 
