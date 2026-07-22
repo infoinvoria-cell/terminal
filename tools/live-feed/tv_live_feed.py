@@ -3,16 +3,17 @@
 tools/live-feed/tv_live_feed.py
 TradingView WebSocket → Supabase live_quotes
 
-Uses the raw TV WebSocket protocol (single connection, multi-symbol) instead of
-the single-symbol tradingview-ws wrapper.
+Uses the raw TV WebSocket protocol (single connection, multi-symbol).
+Runs anonymous (unauthorized_user_token) — data is ~15 min delayed on Free.
+For real-time: set TV_AUTH_TOKEN to a JWT from a logged-in TV session.
 
-Install:  pip install websocket-client requests supabase python-dotenv
+Install:  pip install websocket-client supabase python-dotenv
 Run:      python tools/live-feed/tv_live_feed.py
 
 Env vars (from .env.local or shell):
-  TV_SESSION_ID              — TradingView browser cookie 'sessionid'
-                               Get: tradingview.com → DevTools → Application
-                               → Cookies → www.tradingview.com → sessionid
+  TV_AUTH_TOKEN              — (optional) TV JWT for real-time data
+                               Get: tradingview.com → DevTools → Network →
+                               any request → Authorization: Bearer <token>
   NEXT_PUBLIC_SUPABASE_URL   — Supabase project URL
   SUPABASE_SERVICE_ROLE_KEY  — Supabase service role key
 """
@@ -45,7 +46,7 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-TV_SESSION_ID = os.environ.get("TV_SESSION_ID", "")   # from browser cookie 'sessionid'
+TV_AUTH_TOKEN = os.environ.get("TV_AUTH_TOKEN", "")   # JWT for real-time; empty = anonymous (15min delay)
 SUPABASE_URL  = os.environ["NEXT_PUBLIC_SUPABASE_URL"]
 SUPABASE_KEY  = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
 
@@ -152,24 +153,20 @@ def select_subscriptions(req_to_src: dict[str, str]) -> tuple[list[str], list[st
 
 # ── Auth ──────────────────────────────────────────────────────────────────────
 
-def get_auth_token(_ua: str) -> str:
+def get_auth_token() -> str:
     """
-    Use the browser sessionid cookie directly as the TV WebSocket auth token.
-    TV accepts "sessionid=<value>" in set_auth_token without any API call.
+    Returns the token passed to set_auth_token on the TV WebSocket.
+    - With TV_AUTH_TOKEN set: uses that JWT (real-time data).
+    - Without: uses 'unauthorized_user_token' (anonymous, ~15 min delayed).
 
-    How to get TV_SESSION_ID:
-      tradingview.com → DevTools → Application → Cookies → www.tradingview.com
-      → Cookie name: sessionid → copy Value
-      → add to .env.local:  TV_SESSION_ID=<value>
+    To get a real JWT: tradingview.com → DevTools → Network → any XHR →
+    Request Headers → Authorization: Bearer <token>  → set TV_AUTH_TOKEN=<token>
     """
-    if not TV_SESSION_ID:
-        raise RuntimeError(
-            "TV_SESSION_ID not set.\n"
-            "Get it: tradingview.com → DevTools → Application → Cookies → "
-            "www.tradingview.com → sessionid → copy Value\n"
-            "Then add to .env.local:  TV_SESSION_ID=<value>"
-        )
-    return f"sessionid={TV_SESSION_ID}"
+    if TV_AUTH_TOKEN:
+        log.info("Auth: using TV_AUTH_TOKEN (real-time)")
+        return TV_AUTH_TOKEN
+    log.info("Auth: anonymous (unauthorized_user_token) — data ~15 min delayed")
+    return "unauthorized_user_token"
 
 
 
@@ -228,18 +225,16 @@ def run_session(
     src_to_reqs: dict[str, list[str]],
 ) -> None:
     ua = random.choice(USER_AGENTS)
-    token = get_auth_token(ua)
+    token = get_auth_token()
 
     ws_headers = {
         "Origin": "https://data.tradingview.com",
         "User-Agent": ua,
-        "Cookie": f"sessionid={TV_SESSION_ID}",
     }
     log.info("Opening WebSocket …")
     ws = create_connection(TV_WS_URL, headers=ws_headers, timeout=20)
     debug_until = time.time() + 10  # log ALL raw frames for first 10s
 
-    log.info(f"[debug] set_auth_token  → sessionid=***{TV_SESSION_ID[-6:]}")
     _send(ws, "set_auth_token", [token])
     q_session = _rand_session_id("qs_")
     log.info(f"[debug] quote_create_session → {q_session}")
