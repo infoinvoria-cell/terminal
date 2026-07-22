@@ -57,12 +57,13 @@ FAST_FLUSH_SECS    = 5
 SLOW_FLUSH_SECS    = 30
 BACKOFF_STEPS      = [30, 60, 120, 300]
 
-# requestSymbol keys that need 5-second resolution
+# requestSymbol keys that need 5-second resolution.
+# NOTE: intraday assets carry the plain requestSymbol (DE30EUR/EURUSD/GBPUSD),
+# the 1H/2H/30M distinction lives in `timeframe`, not the symbol key.
 FAST_SYMBOLS: set[str] = {
-    "DE30EUR_1H", "DE30EUR_2H",
-    "EURUSD_30M", "GBPUSD_30M",
-    "NQ1!", "ES1!", "YM1!",
-    "GC1!", "GLD", "FDAX1!",
+    "DE30EUR", "EURUSD", "GBPUSD",   # intraday MT (1H/2H/30M)
+    "NQ1!", "ES1!", "YM1!",          # index futures
+    "GC1!", "GLD", "FDAX1!",         # anomaly assets
 }
 
 TV_WS_URL = "wss://data.tradingview.com/socket.io/websocket"
@@ -186,15 +187,53 @@ def _send(ws, func: str, params: list) -> None:
 
 # ── Quote buffer ──────────────────────────────────────────────────────────────
 
+# Persistent per-symbol OHLCV state — TV sends PARTIAL updates (one tick may
+# carry only `lp`, the next only OHLC), so we merge instead of overwrite.
+latest_state: dict[str, dict] = {}
+
+
+def _pick(v: dict, *keys) -> float | None:
+    """First present, non-None numeric value among keys; None if absent."""
+    for k in keys:
+        if k in v and v[k] is not None:
+            try:
+                return float(v[k])
+            except (TypeError, ValueError):
+                continue
+    return None
+
+
 def _store_quote(req_sym: str, v: dict) -> None:
     now = datetime.now(timezone.utc).isoformat()
+    state = latest_state.setdefault(
+        req_sym,
+        {"open": 0.0, "high": 0.0, "low": 0.0, "close": 0.0, "volume": 0.0},
+    )
+
+    # Merge only the fields present in this tick
+    o  = _pick(v, "open_price", "open")
+    hi = _pick(v, "high_price", "high")
+    lo = _pick(v, "low_price", "low")
+    cl = _pick(v, "lp", "last_price", "close")
+    vol = _pick(v, "volume")
+
+    if o  is not None: state["open"]   = o
+    if hi is not None: state["high"]   = hi
+    if lo is not None: state["low"]    = lo
+    if cl is not None: state["close"]  = cl
+    if vol is not None: state["volume"] = vol
+
+    # Don't emit a row until we have a usable close price
+    if state["close"] <= 0:
+        return
+
     row = {
         "symbol":     req_sym,
-        "open":       float(v.get("open_price",  v.get("open",  0)) or 0),
-        "high":       float(v.get("high_price",  v.get("high",  0)) or 0),
-        "low":        float(v.get("low_price",   v.get("low",   0)) or 0),
-        "close":      float(v.get("lp", v.get("last_price", v.get("close", 0))) or 0),
-        "volume":     float(v.get("volume", 0) or 0),
+        "open":       state["open"],
+        "high":       state["high"],
+        "low":        state["low"],
+        "close":      state["close"],
+        "volume":     state["volume"],
         "timestamp":  now,
         "updated_at": now,
     }
