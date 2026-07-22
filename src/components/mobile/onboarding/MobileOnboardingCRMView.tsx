@@ -292,14 +292,9 @@ export function MobileOnboardingCRMView() {
                           textAlign: "left", verticalAlign: "middle",
                           animation: isNew ? "colSlideIn 300ms ease both" : undefined,
                         }}>
-                          <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", lineHeight: 1.15, minWidth: 0 }}>
-                            <span style={{ fontSize: 9, fontWeight: 800, color: GOLD, fontFamily: "var(--font-montserrat,sans-serif)", letterSpacing: "0.04em" }}>
-                              {ci + 1}
-                            </span>
-                            <span style={{ fontSize: 11.5, fontWeight: 700, color: "#fff", fontFamily: "var(--font-montserrat,sans-serif)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block" }}>
-                              {inv.name || "—"}
-                            </span>
-                          </div>
+                          <span style={{ fontSize: 13, fontWeight: 800, color: GOLD, fontFamily: "var(--font-montserrat,sans-serif)", letterSpacing: "0.02em" }}>
+                            {ci + 1}
+                          </span>
                         </th>
                       );
                     })}
