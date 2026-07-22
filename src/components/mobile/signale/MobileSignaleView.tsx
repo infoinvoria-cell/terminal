@@ -328,28 +328,11 @@ function DetailSheet({
 
         <div style={{ height: 1, background: "rgba(255,255,255,0.06)", flexShrink: 0 }} />
 
-        {/* Charts zone — flex 1, NO scroll, explicit heights so fillContainer works */}
-        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+        {/* Charts zone — feste Pixel-Höhen, kein flex-stretch */}
+        <div style={{ flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column" }}>
 
-          {/* Candle chart — takes most space */}
-          <div style={{ flex: "2 1 0", position: "relative", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-            {/* Symbol overlay */}
-            <div style={{
-              position: "absolute", left: 10, top: 8, zIndex: 10,
-              display: "flex", alignItems: "center", gap: 6,
-              background: "rgba(0,0,0,0.65)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: 8, padding: "4px 8px",
-              backdropFilter: "blur(6px)",
-            }}>
-              {iconUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={iconUrl} alt={card.displaySymbol} width={14} height={14}
-                  style={{ objectFit: "contain", borderRadius: 3 }} />
-              )}
-              <span style={{ fontSize: 11, fontWeight: 800, color: "#fff" }}>{card.displaySymbol}</span>
-              <span style={{ fontSize: 9, color: "rgba(255,255,255,0.38)" }}>{card.strategyName}</span>
-            </div>
+          {/* Candle chart — 190px */}
+          <div style={{ height: 190, flexShrink: 0, position: "relative", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
             {mounted && preview?.chart ? (
               <MonitoringChart data={preview.chart} maxBars={320} initialVisibleBars={56} />
             ) : (
@@ -359,8 +342,8 @@ function DetailSheet({
             )}
           </div>
 
-          {/* Equity chart */}
-          <div style={{ flex: "1 1 0", borderBottom: "1px solid rgba(255,255,255,0.04)", padding: "2px 4px" }}>
+          {/* Equity chart — 90px */}
+          <div style={{ height: 90, flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.04)", padding: "2px 4px" }}>
             {mounted && perf ? (
               <StrategyTesterEquityChart
                 data={perf.equityCurve}
@@ -375,8 +358,8 @@ function DetailSheet({
             )}
           </div>
 
-          {/* Drawdown chart */}
-          <div style={{ flex: "0 0 18%", borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "2px 4px" }}>
+          {/* Drawdown chart — 60px */}
+          <div style={{ height: 60, flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "2px 4px" }}>
             {mounted && perf ? (
               <StrategyTesterDrawdownChart
                 data={perf.drawdownCurve}
