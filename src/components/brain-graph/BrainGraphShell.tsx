@@ -87,7 +87,7 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
   useEffect(() => { selectedRef.current = selected; }, [selected]);
   useEffect(() => { dataRef.current = data; }, [data]);
 
-  // Random uniform sphere + hub clustering + percentile-based dot sizes
+  // Keep the original globe aesthetic, but form a few real clusters around the strongest hubs.
   const { spherePos, nodeSizeR, top5Set } = useMemo(() => {
     const n = data.nodes.length;
     const sp = randomSphere(n);
@@ -97,31 +97,79 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
       .map((nd, i) => ({ i, deg: nd.degree }))
       .sort((a, b) => b.deg - a.deg);
 
-    const top5Set = new Set(byDeg.slice(0, 5).map((x) => x.i));
+    const hubIndexes = byDeg.filter((node) => node.deg > 0).slice(0, 5).map((node) => node.i);
+    const top5Set = new Set(hubIndexes);
+    const hubRank = new Map(hubIndexes.map((index, rank) => [index, rank]));
+    const nodeIndex = new Map(data.nodes.map((node, index) => [node.id, index]));
+    const clusterMembers = new Map(hubIndexes.map((index) => [index, new Set<number>()]));
 
-    // Hub clustering: nodes with degree > 5 get nudged 20-40% toward nearest hub (within 15°)
-    const hubArr = byDeg.filter((x) => x.deg > 5).map((x) => x.i);
-    const COS15 = Math.cos(Math.PI / 12);
-    for (const hi of hubArr) {
-      const [hx, hy, hz] = sp[hi];
-      let bestDot = -Infinity;
-      let bestJ = -1;
-      for (const hj of hubArr) {
-        if (hj === hi) continue;
-        const [jx, jy, jz] = sp[hj];
-        const dot = hx * jx + hy * jy + hz * jz;
-        if (dot > bestDot) { bestDot = dot; bestJ = hj; }
-      }
-      if (bestJ >= 0 && bestDot < COS15) {
-        const t = 0.2 + Math.random() * 0.2;
-        const [jx, jy, jz] = sp[bestJ];
-        const nx = hx + (jx - hx) * t;
-        const ny = hy + (jy - hy) * t;
-        const nz = hz + (jz - hz) * t;
-        const len = Math.sqrt(nx * nx + ny * ny + nz * nz);
-        sp[hi] = [nx / len, ny / len, nz / len];
-      }
+    // Direct links decide cluster membership. If two hubs share a node, the stronger hub wins.
+    for (const link of data.links) {
+      const source = nodeIndex.get(link.source);
+      const target = nodeIndex.get(link.target);
+      if (source === undefined || target === undefined) continue;
+      const sourceRank = hubRank.get(source);
+      const targetRank = hubRank.get(target);
+      if (sourceRank !== undefined && targetRank === undefined) clusterMembers.get(source)?.add(target);
+      if (targetRank !== undefined && sourceRank === undefined) clusterMembers.get(target)?.add(source);
     }
+
+    const claimed = new Set<number>();
+    const anchors: [number, number, number][] = [
+      [0.00, 0.10, 0.99],
+      [0.72, 0.42, 0.55],
+      [-0.72, 0.42, 0.55],
+      [0.55, -0.68, 0.48],
+      [-0.55, -0.68, 0.48],
+    ];
+    const hash = (value: string) => {
+      let result = 2166136261;
+      for (let index = 0; index < value.length; index++) {
+        result ^= value.charCodeAt(index);
+        result = Math.imul(result, 16777619);
+      }
+      return result >>> 0;
+    };
+    const normalize = (point: [number, number, number]): [number, number, number] => {
+      const length = Math.hypot(point[0], point[1], point[2]) || 1;
+      return [point[0] / length, point[1] / length, point[2] / length];
+    };
+
+    hubIndexes.forEach((hubIndex, rank) => {
+      const anchor = normalize(anchors[rank]);
+      sp[hubIndex] = anchor;
+      const members = [...(clusterMembers.get(hubIndex) ?? [])]
+        .filter((index) => !claimed.has(index))
+        .sort((a, b) => data.nodes[b].degree - data.nodes[a].degree)
+        .slice(0, 120);
+
+      // Build a local tangent plane so dots stay on the globe surface around their hub.
+      const reference: [number, number, number] = Math.abs(anchor[1]) < 0.86 ? [0, 1, 0] : [1, 0, 0];
+      const tangentA = normalize([
+        anchor[1] * reference[2] - anchor[2] * reference[1],
+        anchor[2] * reference[0] - anchor[0] * reference[2],
+        anchor[0] * reference[1] - anchor[1] * reference[0],
+      ]);
+      const tangentB: [number, number, number] = [
+        anchor[1] * tangentA[2] - anchor[2] * tangentA[1],
+        anchor[2] * tangentA[0] - anchor[0] * tangentA[2],
+        anchor[0] * tangentA[1] - anchor[1] * tangentA[0],
+      ];
+
+      members.forEach((memberIndex, memberRank) => {
+        claimed.add(memberIndex);
+        const seed = hash(`${data.nodes[hubIndex].id}:${data.nodes[memberIndex].id}`);
+        const angle = ((seed % 10000) / 10000) * Math.PI * 2;
+        const ring = 0.045 + Math.sqrt((memberRank + 1) / Math.max(1, members.length)) * 0.17;
+        const radialJitter = ((seed >>> 12) % 1000) / 1000 * 0.025;
+        const distance = ring + radialJitter;
+        sp[memberIndex] = normalize([
+          anchor[0] + tangentA[0] * Math.cos(angle) * distance + tangentB[0] * Math.sin(angle) * distance,
+          anchor[1] + tangentA[1] * Math.cos(angle) * distance + tangentB[1] * Math.sin(angle) * distance,
+          anchor[2] + tangentA[2] * Math.cos(angle) * distance + tangentB[2] * Math.sin(angle) * distance,
+        ]);
+      });
+    });
 
     // Percentile sizes: top 2% → 7px, top 8% → 4px, top 20% → 2px, rest → 1px
     const nodeSizeR = new Float32Array(n);
@@ -224,7 +272,7 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
     }
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   const onClick = useCallback((e: React.MouseEvent<HTMLElement>) => {
     const rect = canvasRef.current!.getBoundingClientRect();
