@@ -57,6 +57,10 @@ const InvestorAnalyticsDashboard = dynamic(
   () => import("@/components/manager/investor-analytics-dashboard").then((m) => m.InvestorAnalyticsDashboard),
   { ssr: false }
 );
+const CoreInvestMonitoringGrid = dynamic(
+  () => import("@/components/core-invest/CoreInvestMonitoringGrid"),
+  { ssr: false }
+);
 const SentinelDashboard = dynamic(
   () => import("@/components/sentinel/sentinel-dashboard").then((m) => m.SentinelDashboard),
   { ssr: false }
@@ -112,7 +116,7 @@ export function FundManagerHome({
 }
 
 const VALID_PAGES: DashboardPage[] = [
-  "home", "chat", "analytics", "grid", "users",
+  "home", "chat", "analytics", "invest", "grid", "users",
   "manager-overview", "sub-ib-system", "investor-analytics",
 ];
 
@@ -212,6 +216,10 @@ function HomeShell({
           ) : page === "chat" ? (
             <div className="h-full min-h-0 overflow-hidden">
               <SentinelDashboard />
+            </div>
+          ) : page === "invest" ? (
+            <div className="h-full min-h-0 overflow-y-auto overflow-x-hidden pr-1">
+              <CoreInvestMonitoringGrid />
             </div>
           ) : page === "analytics" ? (
             <div className="flex flex-1 min-h-0 flex-col overflow-hidden">

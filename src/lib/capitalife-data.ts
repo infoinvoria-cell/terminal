@@ -338,7 +338,8 @@ const FALLBACK_FSPORTFOLIO_CONFIG: FSPortfolioConfigJson = {
 
 // Server-side dynamic load.
 //
-// On Vercel: VERCEL env var is always set → early return → skeleton used.
+// Vercel: files in src/data/capitalife/ are git-tracked and included in the
+// Lambda bundle via outputFileTracingIncludes in next.config.ts.
 // Local dev/build: CJS `require` is available server-side → real JSONs loaded.
 // Client bundle: `typeof window !== "undefined"` guard → null → skeleton.
 //

@@ -19,6 +19,7 @@ import {
   PieChart,
   Settings,
   Smartphone,
+  TrendingUp,
   Users,
 } from "lucide-react";
 import { createPortal } from "react-dom";
@@ -483,7 +484,8 @@ export function Sidebar() {
       <nav className={cn("mt-2", navClass)} aria-label="Tools">
         <SidebarLink href="/signal"      active={signalActive}     label="Signale"     icon={BellRing}    expanded={expanded} />
         <SidebarLink href="/monitoring"  active={monitoringActive} label="Monitoring"  icon={Activity}    expanded={expanded} />
-        <SidebarIconButton page="analytics" activePage={sidebarPageState} label="Analytics"  icon={ChartColumn} onSelect={onSelectPage} expanded={expanded} />
+        <SidebarIconButton page="analytics" activePage={sidebarPageState} label="Analytics"  icon={ChartColumn}  onSelect={onSelectPage} expanded={expanded} />
+        <SidebarIconButton page="invest"    activePage={sidebarPageState} label="Invest"     icon={TrendingUp}   onSelect={onSelectPage} expanded={expanded} />
         <SidebarLink href="/komponenten" active={componentsActive} label="Komponenten" icon={Layers}      expanded={expanded} />
       </nav>
 
