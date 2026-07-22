@@ -237,10 +237,12 @@ def run_session(
     }
     log.info("Opening WebSocket …")
     ws = create_connection(TV_WS_URL, headers=ws_headers, timeout=20)
+    debug_until = time.time() + 10  # log ALL raw frames for first 10s
 
-    # Auth: pass token to TV session, or fall back to unauthorized
+    log.info(f"[debug] set_auth_token  → sessionid=***{TV_SESSION_ID[-6:]}")
     _send(ws, "set_auth_token", [token])
     q_session = _rand_session_id("qs_")
+    log.info(f"[debug] quote_create_session → {q_session}")
     _send(ws, "quote_create_session", [q_session])
     _send(ws, "quote_set_fields", [q_session, "lp", "open_price", "high_price", "low_price", "volume"])
 
@@ -253,7 +255,7 @@ def run_session(
             _send(ws, "quote_add_symbols", [q_session, src])
             subscribed_sources.add(src)
 
-    log.info(f"Connected — {len(subscribed_sources)} TV sources subscribed")
+    log.info(f"Connected — {len(subscribed_sources)} TV sources subscribed — debug window 10s")
 
     # Flush thread
     stop_evt = threading.Event()
@@ -280,6 +282,9 @@ def run_session(
             raw = ws.recv()
             if not raw:
                 continue
+
+            if time.time() < debug_until:
+                log.info(f"[raw] {raw[:300]}")
 
             # Ping/pong
             ping = re.findall(r"~m~\d+~m~(~h~\d+)", raw)
