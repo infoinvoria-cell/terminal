@@ -160,6 +160,8 @@ export function MobileOnboardingCRMView() {
   const [newIds, setNewIds]         = useState<Set<string>>(new Set());
   const [collapsed, setCollapsed]   = useState(false);
   const tableRef                    = useRef<HTMLDivElement>(null);
+  const touchStartX                 = useRef<number | null>(null);
+  const peekTimeout                 = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -171,11 +173,33 @@ export function MobileOnboardingCRMView() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Collapse the category column to icons once the user swipes to the right.
+  // Collapse the category column to icons once the user scrolls to the right.
   const onScroll = useCallback(() => {
     const el = tableRef.current;
     if (!el) return;
     setCollapsed(el.scrollLeft > 8);
+  }, []);
+
+  // Small rightward swipe when already scrolled right → "peek" open the label column.
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+
+  const onTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const el = tableRef.current;
+    if (!el) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    // Only trigger when scrolled to the right AND swipe is rightward (>=30px)
+    if (el.scrollLeft > 30 && dx >= 30) {
+      if (peekTimeout.current) clearTimeout(peekTimeout.current);
+      setCollapsed(false);
+      // Auto-collapse again after 2 s if still scrolled right
+      peekTimeout.current = setTimeout(() => {
+        if (tableRef.current && tableRef.current.scrollLeft > 8) setCollapsed(true);
+      }, 2000);
+    }
   }, []);
 
   const handleSaved = useCallback(async () => {
@@ -234,7 +258,7 @@ export function MobileOnboardingCRMView() {
           {/* Stronger right → black fade, above headers too */}
           <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: 72, zIndex: 40, background: `linear-gradient(to right, rgba(12,13,16,0) 0%, rgba(12,13,16,0.75) 55%, ${PAGE_BG} 100%)`, pointerEvents: "none" }} />
 
-          <div ref={tableRef} onScroll={onScroll} style={{ height: "100%", overflowX: "auto", overflowY: "auto" }}>
+          <div ref={tableRef} onScroll={onScroll} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} style={{ height: "100%", overflowX: "auto", overflowY: "auto" }}>
             {loading ? (
               <div style={{ padding: 32, textAlign: "center", color: MUTED, fontSize: 12, fontFamily: "var(--font-montserrat,sans-serif)" }}>Lädt…</div>
             ) : (
