@@ -36,31 +36,59 @@ const KAPITALRAHMEN   = ["unter 25.000 EUR","25.000–50.000 EUR","50.000–100.
 const NAECHSTER       = ["Erstkontakt","PDF senden","Rückruf","Gespräch vereinbaren","Follow-up senden","Unterlagen anfordern","Auf Launch warten","Kein weiterer Schritt"];
 const ZUSTAENDIG_OPTS = ["Jeroen","Partner 2","Partner 3"];
 
+// ── Inline SVG icons ──────────────────────────────────────────────────────────
+
+function FieldIcon({ d, size = 13 }: { d: string; size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+      style={{ flexShrink: 0 }}>
+      <path d={d} />
+    </svg>
+  );
+}
+
+const ICONS: Record<string, string> = {
+  name:              "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
+  unternehmen:       "M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z M3 9l2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9",
+  email:             "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6",
+  telefon:           "M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z",
+  kontaktquelle:     "M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z M12 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2z",
+  kapitalrahmen:     "M12 1v22 M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6",
+  status:            "M22 11.08V12a10 10 0 1 1-5.93-9.14 M22 4L12 14.01l-3-3",
+  letzter_kontakt:   "M3 12a9 9 0 1 0 18 0A9 9 0 0 0 3 12z M12 7v5l4 2",
+  naechster_schritt: "M5 12h14 M12 5l7 7-7 7",
+  zustaendig:        "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
+  verfuegbar_ab:     "M8 6h13 M8 12h13 M8 18h13 M3 6h.01 M3 12h.01 M3 18h.01",
+  notizen:           "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8",
+};
+
 // ── Field definitions ─────────────────────────────────────────────────────────
 
 type FieldType = "text" | "select" | "date" | "status";
 type FieldDef = {
   key: keyof Investor;
   label: string;
-  abbr: string;
+  short: string;
+  icon: string;
   type: FieldType;
   opts?: string[];
   rowH?: number;
 };
 
 const FIELDS: FieldDef[] = [
-  { key: "name",              label: "Name",           abbr: "Nam", type: "text"   },
-  { key: "unternehmen",       label: "Unternehmen",    abbr: "Co",  type: "text"   },
-  { key: "email",             label: "E-Mail",         abbr: "Mail",type: "text"   },
-  { key: "telefon",           label: "Telefon",        abbr: "Tel", type: "text"   },
-  { key: "kontaktquelle",     label: "Quelle",         abbr: "Src", type: "select", opts: KONTAKTQUELLE   },
-  { key: "kapitalrahmen",     label: "Kapital",        abbr: "€",   type: "select", opts: KAPITALRAHMEN   },
-  { key: "status",            label: "Status",         abbr: "Stat",type: "status", opts: STATUS_OPTS     },
-  { key: "letzter_kontakt",   label: "Letzt. Kont.",   abbr: "Kont",type: "date"   },
-  { key: "naechster_schritt", label: "Nächster Schr.", abbr: "Next",type: "select", opts: NAECHSTER       },
-  { key: "zustaendig",        label: "Zuständig",      abbr: "Who", type: "select", opts: ZUSTAENDIG_OPTS },
-  { key: "verfuegbar_ab",     label: "Verfügbar ab",   abbr: "Ab",  type: "date"   },
-  { key: "notizen",           label: "Notizen",        abbr: "Info",type: "text",   rowH: 56              },
+  { key: "name",              label: "Name",           short: "Name",    icon: ICONS.name,              type: "text"   },
+  { key: "unternehmen",       label: "Unternehmen",    short: "Firma",   icon: ICONS.unternehmen,       type: "text"   },
+  { key: "email",             label: "E-Mail",         short: "E-Mail",  icon: ICONS.email,             type: "text"   },
+  { key: "telefon",           label: "Telefon",        short: "Tel.",    icon: ICONS.telefon,           type: "text"   },
+  { key: "kontaktquelle",     label: "Quelle",         short: "Quelle",  icon: ICONS.kontaktquelle,     type: "select", opts: KONTAKTQUELLE   },
+  { key: "kapitalrahmen",     label: "Kapital",        short: "Kapital", icon: ICONS.kapitalrahmen,     type: "select", opts: KAPITALRAHMEN   },
+  { key: "status",            label: "Status",         short: "Status",  icon: ICONS.status,            type: "status", opts: STATUS_OPTS     },
+  { key: "letzter_kontakt",   label: "Letzt. Kont.",   short: "Kontakt", icon: ICONS.letzter_kontakt,   type: "date"   },
+  { key: "naechster_schritt", label: "Nächster Schr.", short: "Nächst.", icon: ICONS.naechster_schritt, type: "select", opts: NAECHSTER       },
+  { key: "zustaendig",        label: "Zuständig",      short: "Wer",     icon: ICONS.zustaendig,        type: "select", opts: ZUSTAENDIG_OPTS },
+  { key: "verfuegbar_ab",     label: "Verfügbar ab",   short: "Ab",      icon: ICONS.verfuegbar_ab,     type: "date"   },
+  { key: "notizen",           label: "Notizen",        short: "Notizen", icon: ICONS.notizen,           type: "text",   rowH: 56              },
 ];
 
 const BASE_ROW_H = 44;
@@ -420,7 +448,7 @@ export function MobileOnboardingView() {
     <>
       <style>{`.mob-ob-scroll::-webkit-scrollbar { display: none; }`}</style>
 
-      <div style={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden", background: "#0c0d10" }}>
+      <div style={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden", background: "#0e0f16" }}>
 
         {/* ── Header ── */}
         <div style={{ flexShrink: 0, padding: "10px 12px 8px", borderBottom: "1px solid rgba(255,255,255,0.07)", background: "#0c0d10" }}>
@@ -474,12 +502,12 @@ export function MobileOnboardingView() {
             </div>
             <div ref={labelBodyRef} style={{ flex: 1, overflowY: "hidden" }}>
               {FIELDS.map(f => (
-                <div key={f.key} style={{ height: f.rowH ?? BASE_ROW_H, display: "flex", alignItems: "center", padding: "0 6px", borderBottom: "1px solid rgba(255,255,255,0.04)", gap: 5, overflow: "hidden" }}>
-                  <span style={{ flexShrink: 0, fontSize: 8, fontWeight: 800, color: "rgba(255,255,255,0.52)", background: "rgba(255,255,255,0.06)", borderRadius: 3, padding: "2px 4px", letterSpacing: "0.04em", fontFamily: "monospace", whiteSpace: "nowrap" }}>
-                    {f.abbr}
+                <div key={f.key} style={{ height: f.rowH ?? BASE_ROW_H, display: "flex", alignItems: "center", padding: "0 8px", borderBottom: "1px solid rgba(255,255,255,0.06)", gap: 6, overflow: "hidden" }}>
+                  <span style={{ color: "rgba(255,255,255,0.6)", flexShrink: 0, display: "flex", alignItems: "center" }}>
+                    <FieldIcon d={f.icon} size={13} />
                   </span>
-                  <span style={{ fontSize: 9, color: "rgba(255,255,255,0.38)", overflow: "hidden", whiteSpace: "nowrap", opacity: slim ? 0 : 1, maxWidth: slim ? 0 : 80, transition: "opacity 160ms ease, max-width 160ms ease", display: "block" }}>
-                    {f.label}
+                  <span style={{ fontSize: 9.5, fontWeight: 600, color: "rgba(255,255,255,0.65)", overflow: "hidden", whiteSpace: "nowrap", opacity: slim ? 0 : 1, maxWidth: slim ? 0 : 80, transition: "opacity 160ms ease, max-width 180ms ease", display: "block", letterSpacing: "0.01em" }}>
+                    {f.short}
                   </span>
                 </div>
               ))}
