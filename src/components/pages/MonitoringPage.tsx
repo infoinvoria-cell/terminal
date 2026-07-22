@@ -35,6 +35,7 @@ import {
   readMonitoringSignalJump,
 } from "@/lib/monitoring/monitoringSignalJump";
 import type { AgriFinalStatusResponse } from "@/lib/monitoring/agriFinalStatusTypes";
+import { LiveQuotesProvider } from "@/contexts/LiveQuotesContext";
 import {
   DEFAULT_MONITORING_UI_PREFS,
   loadMonitoringUiPrefs,
@@ -6197,6 +6198,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
   }, []);
 
   return (
+    <LiveQuotesProvider>
     <main
       className="monitoringPage monitoring-root"
       style={{ "--monitoring-chart-bg": uiPrefs.backgroundColor ?? "#0A0A0A" } as React.CSSProperties}
@@ -10639,5 +10641,6 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
       `}</style>
 
     </main>
+    </LiveQuotesProvider>
   );
 }
