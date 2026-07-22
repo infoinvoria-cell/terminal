@@ -20,25 +20,34 @@
   pointer-events: auto !important;
 }
 
-/* LAYER 2: Named visual-only canvases — these never need click events.
-   .brain-canvas  = old canvas sphere in BrainGraphShell (canvas 2D sphere)
-   .globe-canvas  = volatility tint overlay div on the Globe page          */
+/* LAYER 2: Blanket canvas rule — no canvas in the app should intercept
+   pointer events unless explicitly exempted below.
+   This prevents any canvas from silently covering sidebar navigation.    */
+canvas {
+  pointer-events: none !important;
+}
+
+/* LAYER 3: Globe exception — react-globe.gl / Three.js OrbitControls
+   attach to the canvas (renderer.domElement) for rotation and zoom.
+   The globe-stage canvas is the ONLY canvas that needs pointer events;
+   it is contained inside overflow-hidden so it cannot reach the sidebar. */
+.globe-stage canvas {
+  pointer-events: auto !important;
+}
+
+/* LAYER 4: Named visual-only canvases (belt-and-suspenders)
+   .brain-canvas = Brain sphere canvas — clicks handled by container div
+   .globe-canvas = volatility tint overlay div on the Globe page          */
 .brain-canvas,
 .globe-canvas {
   pointer-events: none !important;
 }
 
-/* LAYER 3: CSS2DRenderer overlay div that Three.js/react-globe.gl injects
-   inside .globe-stage — Three.js sets pointer-events:none itself but we
-   belt-and-suspenders it here.                                            */
+/* LAYER 5: CSS2DRenderer overlay div (Three.js HTML labels inside globe)
+   Three.js sets pointer-events:none itself; we reinforce it here.        */
 .globe-stage > div {
   pointer-events: none !important;
 }
-
-/* NOTE: No blanket `canvas { pointer-events: none }` rule here.
-   react-globe.gl (Three.js OrbitControls) and react-force-graph-2d both
-   require pointer-events on their canvas element for rotation/pan/zoom.
-   Sidebar isolation via z-index:9999 + isolate is sufficient.            */
 /* ─────────────────────────────────────────────────────────────────────────── */
 
 /* Mobile Preview split-view panel offset (left side) */
