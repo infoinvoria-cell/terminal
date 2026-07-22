@@ -952,6 +952,31 @@ function GlobeCanvasComponent({
     };
   }, [active, autoRotateEnabled, autoRotateSpeed, onCameraChange]);
 
+  // THREE.js OrbitControls: onPointerCancel removes internal pointer state but does NOT
+  // remove the document-level pointermove/pointerup listeners it added on pointerdown.
+  // Those stuck listeners then intercept ALL subsequent pointer events on the page,
+  // including sidebar clicks, breaking navigation. Fix: when pointercancel fires, dispatch
+  // a synthetic pointerup on the canvas to force Three.js to run its full _onPointerUp
+  // cleanup path (which removes the document listeners).
+  useEffect(() => {
+    const handleDocumentCancel = (e: PointerEvent) => {
+      const canvas = stageRef.current?.querySelector("canvas") as HTMLCanvasElement | null;
+      if (!canvas) return;
+      canvas.dispatchEvent(
+        new PointerEvent("pointerup", {
+          pointerId: e.pointerId,
+          bubbles: true,
+          cancelable: true,
+          isPrimary: e.isPrimary,
+          clientX: e.clientX,
+          clientY: e.clientY,
+        }),
+      );
+    };
+    document.addEventListener("pointercancel", handleDocumentCancel, { capture: false });
+    return () => document.removeEventListener("pointercancel", handleDocumentCancel);
+  }, []);
+
   useEffect(() => {
     const globe = globeRef.current;
     if (!globe) return;
