@@ -85,15 +85,25 @@ function parseCsvToOhlc(filePath: string): { bars: OhlcBar[]; error?: string } {
 async function fromSupabaseInvestOhlc(symbol: string): Promise<NextResponse> {
   try {
     const db = createSupabaseServiceClient();
-    const { data, error } = await db
-      .from("invest_ohlc")
-      .select("date,open,high,low,close,volume")
-      .eq("symbol", symbol)
-      .order("date", { ascending: true });
-    if (error || !data?.length) {
+    // PostgREST caps at 1000 rows — paginate to fetch full history
+    const PAGE = 1000;
+    const allRows: Array<{ date: string; open: unknown; high: unknown; low: unknown; close: unknown; volume: unknown }> = [];
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await db
+        .from("invest_ohlc")
+        .select("date,open,high,low,close,volume")
+        .eq("symbol", symbol)
+        .order("date", { ascending: true })
+        .range(from, from + PAGE - 1);
+      if (error) return NextResponse.json({ symbol, status: "error", bars: [], error: error.message });
+      if (!data?.length) break;
+      allRows.push(...(data as typeof allRows));
+      if (data.length < PAGE) break;
+    }
+    if (!allRows.length) {
       return NextResponse.json({ symbol, status: "missing", bars: [], error: `No data in Supabase for ${symbol}` });
     }
-    const bars: OhlcBar[] = data.map((r) => ({
+    const bars: OhlcBar[] = allRows.map((r) => ({
       date: r.date as string,
       open: Number(r.open),
       high: Number(r.high),

@@ -96,10 +96,14 @@ ASSETS = [
     ("BRLUSD",  "BRLUSD", "FX_IDC",   DAILY,               "FX_IDC_BRLUSD_D.json",  15000),
     ("ZARUSD",  "ZARUSD", "FX_IDC",   DAILY,               "FX_IDC_ZARUSD_D.json",  15000),
     # ── Intraday MT ──────────────────────────────────────────────────────────
-    ("DE30EUR_1H", "DE30EUR", "OANDA", Interval.in_1_hour,  "OANDA_DE30EUR_1H.json", 2000),
-    ("DE30EUR_2H", "DE30EUR", "OANDA", Interval.in_2_hour,  "OANDA_DE30EUR_2H.json", 2000),
-    ("EURUSD_30M", "EURUSD",  "OANDA", Interval.in_30_minute, "OANDA_EURUSD_30M.json", 2000),
-    ("GBPUSD_30M", "GBPUSD",  "OANDA", Interval.in_30_minute, "OANDA_GBPUSD_30M.json", 2000),
+    ("DE30EUR_1H", "DE30EUR", "OANDA", Interval.in_1_hour,    "OANDA_DE30EUR_1H.json",  2000),
+    ("DE30EUR_2H", "DE30EUR", "OANDA", Interval.in_2_hour,    "OANDA_DE30EUR_2H.json",  2000),
+    ("EURUSD_1H",  "EURUSD",  "OANDA", Interval.in_1_hour,    "OANDA_EURUSD_1H.json",   2000),
+    ("EURUSD_2H",  "EURUSD",  "OANDA", Interval.in_2_hour,    "OANDA_EURUSD_2H.json",   2000),
+    ("GBPUSD_1H",  "GBPUSD",  "OANDA", Interval.in_1_hour,    "OANDA_GBPUSD_1H.json",   2000),
+    ("GBPUSD_2H",  "GBPUSD",  "OANDA", Interval.in_2_hour,    "OANDA_GBPUSD_2H.json",   2000),
+    ("EURUSD_30M", "EURUSD",  "OANDA", Interval.in_30_minute, "OANDA_EURUSD_30M.json",  2000),
+    ("GBPUSD_30M", "GBPUSD",  "OANDA", Interval.in_30_minute, "OANDA_GBPUSD_30M.json",  2000),
 ]
 
 ASSET_MAP = {key: rest for key, *rest in ASSETS}
