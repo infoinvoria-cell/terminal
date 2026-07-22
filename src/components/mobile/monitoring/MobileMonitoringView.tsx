@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useClientMounted } from "@/hooks/use-client-mounted";
 import type { MonitoringChartData } from "@/components/monitoring/MonitoringChart";
@@ -69,7 +70,7 @@ function ChartCard({ symbol, timeframe, chartData, loading }: {
   const changeColor = change == null ? "rgba(255,255,255,0.3)" : change >= 0 ? "#22c55e" : "#ef4444";
 
   return (
-    <div style={{ background: "#0c0d10", display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0 }}>
+    <div style={{ height: "100%", background: "#0c0d10", display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0 }}>
       {/* Header */}
       <div style={{ height: 26, display: "flex", alignItems: "center", padding: "0 8px", flexShrink: 0, gap: 6 }}>
         <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.8)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
@@ -115,44 +116,59 @@ function ChartCard({ symbol, timeframe, chartData, loading }: {
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function MobileMonitoringView() {
+  const router = useRouter();
   const [activeIdx, setActiveIdx] = useState(DEFAULT_IDX);
+  const [openTrades, setOpenTrades] = useState<number | null>(null);
+  const [singleCol, setSingleCol] = useState(false); // Format toggle: 2-col ↔ 1-col
+  const [refreshSpin, setRefreshSpin] = useState(false);
   const panelRef     = useRef<HTMLDivElement>(null);
   const scrollTabRef = useRef<HTMLDivElement>(null);
   const programmatic = useRef(false);
 
+  // Fetch live state once on mount
+  useEffect(() => {
+    fetch("/api/monitoring/live-state")
+      .then(r => r.ok ? r.json() : null)
+      .then((d: { openTrades?: number } | null) => { if (d?.openTrades != null) setOpenTrades(d.openTrades); })
+      .catch(() => {});
+  }, []);
+
   // chart data cache: tabId → { symbol → chartData | null }
-  const cache = useRef<Record<string, Record<string, MonitoringChartData | null>>>({});
+  const cache   = useRef<Record<string, Record<string, MonitoringChartData | null>>>({});
   const loadingRef = useRef<Record<string, boolean>>({});
-  const [tabDataVersion, setTabDataVersion] = useState(0); // triggers re-render
+  const doneRef    = useRef<Record<string, boolean>>({});
+  const [tick, setTick] = useState(0); // force re-render
 
   const activeTab = ALL_TABS[activeIdx]!;
 
   // Load all assets for a tab
   const loadTab = useCallback(async (tabId: string, assets: string[], timeframe: string) => {
     if (loadingRef.current[tabId]) return;
-    if (cache.current[tabId]) return; // already loaded
+    if (doneRef.current[tabId]) return;
     loadingRef.current[tabId] = true;
     cache.current[tabId] = {};
-    setTabDataVersion(v => v + 1);
+    setTick(v => v + 1); // show loading state
 
     await Promise.all(
       assets.map(async (symbol) => {
         const bars = await fetchBars(symbol, timeframe);
-        const chartData: MonitoringChartData = {
+        const cd: MonitoringChartData = {
           displaySymbol: displayLabel(symbol),
-          displayName: symbol,
-          tvSymbol: symbol,
-          bars: barsToCandleData(bars),
-          signals: [],
-          boxes: [],
+          displayName:   symbol,
+          tvSymbol:      symbol,
+          bars:          barsToCandleData(bars),
+          signals: [], boxes: [],
           variant: "compact",
           timeframe,
         };
-        cache.current[tabId]![symbol] = bars.length > 0 ? chartData : null;
-        setTabDataVersion(v => v + 1);
+        cache.current[tabId]![symbol] = bars.length > 0 ? cd : null;
+        setTick(v => v + 1); // progressive reveal
       })
     );
+
     loadingRef.current[tabId] = false;
+    doneRef.current[tabId]    = true;
+    setTick(v => v + 1); // final render: loading=false
   }, []);
 
   // Trigger load when active tab changes
@@ -228,8 +244,9 @@ export function MobileMonitoringView() {
     );
   };
 
-  // void usage to suppress lint warning
-  void tabDataVersion;
+  void tick; // consumed by render
+
+  const tbBtn: React.CSSProperties = { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, padding: "6px 2px", background: "transparent", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 9, cursor: "pointer", WebkitTapHighlightColor: "transparent" };
 
   return (
     <>
@@ -260,8 +277,10 @@ export function MobileMonitoringView() {
           style={{ flex: 1, minHeight: 0, display: "flex", overflowX: "auto", overflowY: "hidden", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
         >
           {ALL_TABS.map((tab) => {
-            const tabCache = cache.current[tab.id];
+            const tabCache  = cache.current[tab.id];
             const tabLoading = loadingRef.current[tab.id] ?? false;
+            const cols = singleCol ? 1 : 2;
+            const cardH = singleCol ? 260 : 180;
 
             return (
               <div
@@ -275,27 +294,20 @@ export function MobileMonitoringView() {
                     <span style={{ fontSize: 10, color: "rgba(255,255,255,0.15)" }}>In Entwicklung</span>
                   </div>
                 ) : (
-                  <div
-                    className="mm-scroll"
-                    style={{ flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden" }}
-                  >
+                  <div className="mm-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden" }}>
                     <div style={{
                       display: "grid",
-                      gridTemplateColumns: "repeat(2, 1fr)",
+                      gridTemplateColumns: `repeat(${cols}, 1fr)`,
                       gap: "1px",
                       background: "rgba(255,255,255,0.05)",
                     }}>
                       {tab.assets.map(symbol => {
                         const chartData = tabCache?.[symbol] ?? null;
-                        const isLoading = tabLoading && !tabCache?.[symbol];
+                        // isLoading: only while tab is still fetching AND this symbol result not yet received
+                        const isLoading = tabLoading && !(tabCache != null && symbol in tabCache);
                         return (
-                          <div key={symbol} style={{ height: 180, background: "#0c0d10" }}>
-                            <ChartCard
-                              symbol={symbol}
-                              timeframe={tab.timeframe}
-                              chartData={chartData}
-                              loading={isLoading}
-                            />
+                          <div key={symbol} style={{ height: cardH, background: "#0c0d10" }}>
+                            <ChartCard symbol={symbol} timeframe={tab.timeframe} chartData={chartData} loading={isLoading} />
                           </div>
                         );
                       })}
@@ -307,17 +319,67 @@ export function MobileMonitoringView() {
           })}
         </div>
 
-        {/* Toolbar */}
-        <div style={{ flexShrink: 0, display: "flex", padding: "6px 6px 8px", background: "#0c0d10", borderTop: "1px solid rgba(255,255,255,0.06)", gap: 2 }}>
-          {[
-            { label: "Refresh", icon: "↺", onPress: () => { cache.current = {}; loadingRef.current = {}; setTabDataVersion(v => v + 1); } },
-            { label: "Live",    icon: "●", onPress: () => {} },
-          ].map(({ label, icon, onPress }) => (
-            <button key={label} onClick={onPress} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, padding: "6px 2px", background: "transparent", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 9, cursor: "pointer", WebkitTapHighlightColor: "transparent" } as React.CSSProperties}>
-              <span style={{ fontSize: 14 }}>{icon}</span>
-              <span>{label}</span>
-            </button>
-          ))}
+        {/* Toolbar: Refresh | Tester | Format | Live | Settings */}
+        <div style={{ flexShrink: 0, display: "flex", padding: "6px 2px 8px", background: "#0c0d10", borderTop: "1px solid rgba(255,255,255,0.07)", gap: 1 }}>
+
+          {/* Refresh */}
+          <button onClick={() => {
+            setRefreshSpin(true);
+            cache.current = {}; loadingRef.current = {}; doneRef.current = {};
+            setTick(v => v + 1);
+            setTimeout(() => setRefreshSpin(false), 700);
+          }} style={tbBtn}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+              style={{ display: "block", transform: refreshSpin ? "rotate(360deg)" : "none", transition: refreshSpin ? "transform 0.7s linear" : "none" } as React.CSSProperties}>
+              <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            <span>Refresh</span>
+          </button>
+
+          {/* Tester — opens desktop monitoring page */}
+          <button onClick={() => router.push("/monitoring")} style={tbBtn}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            <span>Tester</span>
+          </button>
+
+          {/* Format — toggle 1-col / 2-col */}
+          <button onClick={() => setSingleCol(v => !v)} style={{ ...tbBtn, color: singleCol ? "#d8bc67" : "rgba(255,255,255,0.45)" }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              {singleCol
+                ? <><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></>
+                : <><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></>
+              }
+            </svg>
+            <span>Format</span>
+          </button>
+
+          {/* Live — show open-trades badge */}
+          <button onClick={() => goToTab(0)} style={tbBtn}>
+            <span style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
+                <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+                <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+              </svg>
+              {openTrades != null && openTrades > 0 && (
+                <span style={{ position: "absolute", top: -5, right: -7, background: "#22c55e", color: "#000", fontSize: 7, fontWeight: 700, borderRadius: 99, minWidth: 13, height: 13, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 2px", lineHeight: 1 }}>{openTrades}</span>
+              )}
+            </span>
+            <span>Live</span>
+          </button>
+
+          {/* Settings */}
+          <button onClick={() => {}} style={tbBtn}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            <span>Settings</span>
+          </button>
+
         </div>
       </div>
     </>

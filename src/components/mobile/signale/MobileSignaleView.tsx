@@ -1,12 +1,23 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { useClientMounted } from "@/hooks/use-client-mounted";
 import type { SignalPageModel, SignalCardModel, SignalCardFilter, SignalPageSection } from "@/lib/signals/signal-types";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
-import MonitoringChart from "@/components/monitoring/MonitoringChart";
-import StrategyTesterEquityChart from "@/components/monitoring/StrategyTesterEquityChart";
-import StrategyTesterDrawdownChart from "@/components/monitoring/StrategyTesterDrawdownChart";
+
+const MonitoringChart = dynamic(
+  () => import("@/components/monitoring/MonitoringChart").then(m => m.default ?? m),
+  { ssr: false }
+);
+const StrategyTesterEquityChart = dynamic(
+  () => import("@/components/monitoring/StrategyTesterEquityChart").then(m => m.default ?? m),
+  { ssr: false }
+);
+const StrategyTesterDrawdownChart = dynamic(
+  () => import("@/components/monitoring/StrategyTesterDrawdownChart").then(m => m.default ?? m),
+  { ssr: false }
+);
 
 // ── Anomaly JSON (same 3 files as desktop SignalPage) ────────────────────────
 
@@ -277,8 +288,23 @@ function DetailSheet({
 
   // ── Swipe-to-close ────────────────────────────────────────────────────────
   const sheetRef = React.useRef<HTMLDivElement>(null);
+  const backdropRef = React.useRef<HTMLDivElement>(null);
   const dragStartY = React.useRef<number | null>(null);
   const dragDelta = React.useRef(0);
+
+  function dismissSheet() {
+    const sheet = sheetRef.current;
+    const backdrop = backdropRef.current;
+    if (sheet) {
+      sheet.style.transition = "transform 320ms cubic-bezier(0.32,0.72,0,1)";
+      sheet.style.transform = "translateY(100%)";
+    }
+    if (backdrop) {
+      backdrop.style.transition = "opacity 320ms ease";
+      backdrop.style.opacity = "0";
+    }
+    setTimeout(onClose, 310);
+  }
 
   function onTouchStart(e: React.TouchEvent) {
     dragStartY.current = e.touches[0]!.clientY;
@@ -288,17 +314,25 @@ function DetailSheet({
   function onTouchMove(e: React.TouchEvent) {
     if (dragStartY.current === null) return;
     const dy = e.touches[0]!.clientY - dragStartY.current;
-    if (dy < 0) return; // don't allow dragging up
+    if (dy < 0) return;
     dragDelta.current = dy;
     if (sheetRef.current) sheetRef.current.style.transform = `translateY(${dy}px)`;
+    if (backdropRef.current) {
+      const opacity = Math.max(0, 0.55 - (dy / 300) * 0.55);
+      backdropRef.current.style.opacity = String(opacity);
+    }
   }
   function onTouchEnd() {
     if (dragDelta.current > 100) {
-      onClose();
+      dismissSheet();
     } else {
       if (sheetRef.current) {
-        sheetRef.current.style.transition = "transform 200ms ease";
+        sheetRef.current.style.transition = "transform 220ms cubic-bezier(0.32,0.72,0,1)";
         sheetRef.current.style.transform = "translateY(0)";
+      }
+      if (backdropRef.current) {
+        backdropRef.current.style.transition = "opacity 220ms ease";
+        backdropRef.current.style.opacity = "0.55";
       }
     }
     dragStartY.current = null;
@@ -307,9 +341,12 @@ function DetailSheet({
 
   return (
     <>
+      <style>{`@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
+
       {/* Backdrop */}
       <div
-        onClick={onClose}
+        ref={backdropRef}
+        onClick={dismissSheet}
         style={{
           position: "fixed", inset: 0, zIndex: 9000,
           background: "rgba(0,0,0,0.55)",
@@ -325,25 +362,22 @@ function DetailSheet({
           borderTop: "1px solid rgba(255,255,255,0.1)",
           borderRadius: "16px 16px 0 0",
           display: "flex", flexDirection: "column",
-          height: "75dvh",
-          animation: "slideUp 280ms cubic-bezier(0.32,0.72,0,1) both",
+          height: "78dvh",
+          animation: "slideUp 300ms cubic-bezier(0.32,0.72,0,1) both",
         }}
       >
-        <style>{`@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
-
-        {/* Swipe handle */}
+        {/* Swipe handle zone — full width, easy to grab */}
         <div
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
-          style={{ flexShrink: 0, paddingTop: 10, paddingBottom: 6, touchAction: "none" }}
+          style={{ flexShrink: 0, paddingTop: 10, paddingBottom: 8, touchAction: "none", cursor: "grab" }}
         >
-          <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.2)", margin: "0 auto" }} />
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.22)", margin: "0 auto" }} />
         </div>
 
-        {/* Card summary — ganz oben im Sheet */}
+        {/* Card summary */}
         <div style={{ flexShrink: 0, padding: "0 12px 10px" }}>
-          {/* Zeile 1: icon + symbol + name + X */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
             {iconUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -359,7 +393,7 @@ function DetailSheet({
               </div>
             </div>
             <button
-              onClick={onClose}
+              onClick={dismissSheet}
               style={{
                 background: "rgba(255,255,255,0.07)", border: "none", borderRadius: 7,
                 color: "rgba(255,255,255,0.45)", fontSize: 14, lineHeight: 1,
@@ -369,7 +403,6 @@ function DetailSheet({
               }}
             >✕</button>
           </div>
-          {/* Zeile 2: Signal-Werte */}
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <DirBadge dir={card.direction} />
             {card.changePct != null && (
@@ -394,11 +427,11 @@ function DetailSheet({
 
         <div style={{ height: 1, background: "rgba(255,255,255,0.06)", flexShrink: 0 }} />
 
-        {/* Charts zone — feste Pixel-Höhen, kein flex-stretch */}
-        <div style={{ flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column" }}>
+        {/* Charts scroll zone — takes remaining space above KPIs */}
+        <div style={{ flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden" }}>
 
-          {/* Candle chart — 190px */}
-          <div style={{ height: 190, flexShrink: 0, position: "relative", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+          {/* Candle chart */}
+          <div style={{ height: 200, flexShrink: 0, position: "relative", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
             {mounted && preview?.chart ? (
               <MonitoringChart data={preview.chart} maxBars={320} initialVisibleBars={56} />
             ) : (
@@ -408,8 +441,8 @@ function DetailSheet({
             )}
           </div>
 
-          {/* Equity chart — 90px */}
-          <div style={{ height: 90, flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.04)", padding: "2px 4px" }}>
+          {/* Equity curve */}
+          <div style={{ height: 120, flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
             {mounted && activePerfSource ? (
               <StrategyTesterEquityChart
                 data={activePerfSource.equityCurve}
@@ -424,8 +457,8 @@ function DetailSheet({
             )}
           </div>
 
-          {/* Drawdown chart — 60px */}
-          <div style={{ height: 60, flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "2px 4px" }}>
+          {/* Drawdown curve */}
+          <div style={{ height: 90, flexShrink: 0 }}>
             {mounted && activePerfSource ? (
               <StrategyTesterDrawdownChart
                 data={activePerfSource.drawdownCurve}
@@ -436,41 +469,40 @@ function DetailSheet({
               />
             ) : null}
           </div>
+        </div>
 
-          {/* KPI row — pinned at bottom, safe-area aware */}
-          <div style={{
-            flexShrink: 0,
-            display: "grid",
-            gridTemplateColumns: `repeat(${Math.max(kpis.length, 1)}, 1fr)`,
-            gap: 4,
-            padding: "6px 8px",
-            paddingBottom: "max(10px, env(safe-area-inset-bottom, 10px))",
-            alignItems: "stretch",
-            minHeight: 64,
-          }}>
-            {kpis.length > 0 ? kpis.map(k => {
-              const isNeg = k.tone === "negative" || (typeof k.value === "string" && k.value.startsWith("-"));
-              return (
-                <div key={k.label} style={{
-                  background: "linear-gradient(180deg,#1c1d20 0%,#141517 100%)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  borderRadius: 7, padding: "5px 4px",
-                  display: "flex", flexDirection: "column", justifyContent: "space-between",
-                }}>
-                  <div style={{ fontSize: 6.5, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.32)", lineHeight: 1 }}>
-                    {k.label}
-                  </div>
-                  <div style={{ fontSize: 12, fontWeight: 700, lineHeight: 1, color: isNeg ? "#d8bc67" : "#fff" }}>
-                    {k.value}
-                  </div>
+        {/* KPI row — pinned at bottom, outside scroll, safe-area aware */}
+        <div style={{ height: 1, background: "rgba(255,255,255,0.06)", flexShrink: 0 }} />
+        <div style={{
+          flexShrink: 0,
+          display: "grid",
+          gridTemplateColumns: `repeat(${Math.max(kpis.length, 1)}, 1fr)`,
+          gap: 4,
+          padding: "8px 8px",
+          paddingBottom: "max(18px, calc(env(safe-area-inset-bottom, 0px) + 10px))",
+        }}>
+          {kpis.length > 0 ? kpis.map(k => {
+            const isNeg = k.tone === "negative" || (typeof k.value === "string" && k.value.startsWith("-"));
+            return (
+              <div key={k.label} style={{
+                background: "linear-gradient(180deg,#1c1d20 0%,#141517 100%)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: 7, padding: "6px 5px 7px",
+                display: "flex", flexDirection: "column", gap: 4,
+              }}>
+                <div style={{ fontSize: 6.5, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.32)", lineHeight: 1 }}>
+                  {k.label}
                 </div>
-              );
-            }) : (
-              <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ fontSize: 9, color: "rgba(255,255,255,0.1)" }}>Keine KPIs</span>
+                <div style={{ fontSize: 12, fontWeight: 700, lineHeight: 1, color: isNeg ? "#d8bc67" : "#fff" }}>
+                  {k.value}
+                </div>
               </div>
-            )}
-          </div>
+            );
+          }) : (
+            <div style={{ gridColumn: "1 / -1", padding: "8px 0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontSize: 9, color: "rgba(255,255,255,0.1)" }}>Keine KPIs</span>
+            </div>
+          )}
         </div>
       </div>
     </>
