@@ -2,8 +2,6 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import useSWR from "swr";
-import { HomeDashboardProvider } from "@/context/home-dashboard-context";
-import { Sidebar } from "@/components/dashboard/sidebar";
 import { Topbar } from "@/components/dashboard/topbar";
 import { HeaderDivider } from "@/components/dashboard/header-divider";
 
@@ -422,12 +420,9 @@ export function BrainGraphShell() {
   const linkCount = network?.links.length ?? 0;
 
   return (
-    <HomeDashboardProvider initialReportTrades={[]} initialBalanceRows={[]}>
-      <div className="flex h-[100dvh] min-h-0 overflow-hidden bg-[#07080a]">
-        <Sidebar />
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-          <Topbar sectionLabel="Brain Graph" />
-          <HeaderDivider />
+    <>
+      <Topbar sectionLabel="Brain Graph" />
+      <HeaderDivider />
           <main className="relative min-h-0 flex-1 overflow-hidden">
             {network && network.nodes.length > 0 ? (
               <>
@@ -456,8 +451,6 @@ export function BrainGraphShell() {
               <PlayButton spinning={spinning} onToggle={() => setSpinning((s) => !s)} />
             )}
           </main>
-        </div>
-      </div>
-    </HomeDashboardProvider>
+    </>
   );
 }

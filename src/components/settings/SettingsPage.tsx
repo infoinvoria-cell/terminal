@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { HomeDashboardProvider } from "@/context/home-dashboard-context";
-import { Sidebar } from "@/components/dashboard/sidebar";
 import type { SentinelStatusPayload } from "@/lib/sentinel/sentinel-session-store";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -165,10 +163,8 @@ export function SettingsPage() {
   const providers = status?.providers ?? [];
 
   return (
-    <HomeDashboardProvider initialReportTrades={[]} initialBalanceRows={[]}>
-      <div className="flex h-[100dvh] min-h-0 overflow-hidden bg-[#07080a]">
-        <Sidebar />
-        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+    <>
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto">
           {/* Page header */}
           <div className="st-page-head">
             <h1 className="st-page-title">Settings</h1>
@@ -261,7 +257,6 @@ export function SettingsPage() {
 
           </div>
         </main>
-      </div>
 
       <style jsx>{`
         /* Layout */
@@ -415,6 +410,6 @@ export function SettingsPage() {
         .st-chip-gold { background: rgba(214,184,108,0.12); color: #e2ca7a; border: 1px solid rgba(214,184,108,0.25); }
         .st-chip-dim  { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.1); }
       `}</style>
-    </HomeDashboardProvider>
+    </>
   );
 }

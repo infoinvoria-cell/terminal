@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   Activity,
   BellRing,
@@ -19,16 +19,12 @@ import {
   PieChart,
   Settings,
   Smartphone,
-  TrendingUp,
   Users,
 } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import {
-  useHomeDashboard,
-  type DashboardPage,
-} from "@/context/home-dashboard-context";
+import type { DashboardPage } from "@/context/home-dashboard-context";
 import { useHeaderState } from "@/context/header-state-context";
 
 const COLLAPSED_W = 72;
@@ -337,7 +333,7 @@ function SplitView({ mobileUrl, desktopUrl, onCycle }: {
 // ── Sidebar ────────────────────────────────────────────────────────────────
 
 export function Sidebar() {
-  const { page, setPage } = useHomeDashboard();
+  const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -406,17 +402,14 @@ export function Sidebar() {
   const investorsCRMActive  = (pathname?.startsWith("/onboarding") ?? false) || (pathname?.startsWith("/investors-crm") ?? false);
   const shellRouteActive    = pathname === "/" || !pathname;
 
+  const urlPage = searchParams.get("page") as DashboardPage | null;
   const sidebarPageState: DashboardPage =
     shellRouteActive && !monitoringActive && !signalActive && !brainActive && !componentsActive
-      ? page
+      ? (urlPage ?? "home")
       : ("__none__" as DashboardPage);
 
   const onSelectPage = (p: DashboardPage) => {
-    if (pathname === "/" || !pathname) {
-      setPage(p);
-    } else {
-      router.push(`/?page=${p}`);
-    }
+    router.push(`/?page=${p}`);
   };
 
   // All nav containers: always left-aligned (items use fixed pl, so icons never shift)
@@ -485,7 +478,6 @@ export function Sidebar() {
         <SidebarLink href="/signal"      active={signalActive}     label="Signale"     icon={BellRing}    expanded={expanded} />
         <SidebarLink href="/monitoring"  active={monitoringActive} label="Monitoring"  icon={Activity}    expanded={expanded} />
         <SidebarIconButton page="analytics" activePage={sidebarPageState} label="Analytics"  icon={ChartColumn}  onSelect={onSelectPage} expanded={expanded} />
-        <SidebarIconButton page="invest"    activePage={sidebarPageState} label="Invest"     icon={TrendingUp}   onSelect={onSelectPage} expanded={expanded} />
         <SidebarLink href="/komponenten" active={componentsActive} label="Komponenten" icon={Layers}      expanded={expanded} />
       </nav>
 

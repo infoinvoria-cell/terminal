@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { useGlobalPage, type GlobalPage } from "@/context/global-page-context";
 import { HeaderDivider } from "@/components/dashboard/header-divider";
-import { Sidebar } from "@/components/dashboard/sidebar";
 import { TabsRow } from "@/components/dashboard/tabs-row";
 import { Topbar } from "@/components/dashboard/topbar";
 import {
@@ -129,16 +129,15 @@ function HomeShell({
 }: HomeShellProps) {
   const { page, homeTab, rrReportingMode, setPage } = useHomeDashboard();
   const { setCurrentPage } = useGlobalPage();
+  const searchParams = useSearchParams();
 
-  // Restore page from ?page= query param when navigating from /monitoring or other routes.
-  // Read via window.location.search (client-only) to avoid useSearchParams() causing SSR suspension.
+  // React to ?page= URL changes so sidebar navigation updates the active section.
+  const urlPage = searchParams.get("page") as DashboardPage | null;
   useEffect(() => {
-    const param = new URLSearchParams(window.location.search).get("page") as DashboardPage | null;
-    if (param && VALID_PAGES.includes(param)) {
-      setPage(param);
+    if (urlPage && VALID_PAGES.includes(urlPage)) {
+      setPage(urlPage);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [urlPage, setPage]);
 
   // Sync current dashboard page to global context so butler knows where user is
   useEffect(() => {
@@ -165,12 +164,10 @@ function HomeShell({
   );
 
   return (
-    <div className="flex h-[100dvh] min-h-0 overflow-hidden bg-[#0c0d10]">
+    <>
       <SentinelFloatingWindow />
-      <Sidebar />
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        <Topbar sectionLabel={pageLabel(page)} />
-        <HeaderDivider />
+      <Topbar sectionLabel={pageLabel(page)} />
+      <HeaderDivider />
         <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-hidden px-8 pb-3 pt-6">
           {page === "home" ? (
             <>
@@ -242,8 +239,7 @@ function HomeShell({
             </div>
           )}
         </div>
-      </div>
-    </div>
+    </>
   );
 }
 

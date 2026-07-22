@@ -8,6 +8,7 @@ import { UserGate } from "@/components/auth/UserGate";
 import { useUser } from "@/context/user-context";
 import { SentinelButler } from "@/components/sentinel/sentinel-butler";
 import { SentinelSessionProvider } from "@/components/sentinel/sentinel-session-provider";
+import { RootShell } from "@/components/RootShell";
 
 const LAST_PAGE_KEY = "fmd_last_page";
 
@@ -45,7 +46,9 @@ export function ClientProviders({
       <HeaderStateProvider initialHidden={initialHeaderHidden}>
         <UserGate>
           <AppShell>
-            {children}
+            <RootShell>
+              {children}
+            </RootShell>
           </AppShell>
         </UserGate>
       </HeaderStateProvider>
