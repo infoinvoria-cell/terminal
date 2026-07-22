@@ -1,12 +1,35 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useClientMounted } from "@/hooks/use-client-mounted";
 import type { SignalPageModel, SignalCardModel, SignalCardFilter, SignalPageSection } from "@/lib/signals/signal-types";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
 import MonitoringChart from "@/components/monitoring/MonitoringChart";
 import StrategyTesterEquityChart from "@/components/monitoring/StrategyTesterEquityChart";
 import StrategyTesterDrawdownChart from "@/components/monitoring/StrategyTesterDrawdownChart";
+
+// ── Anomaly JSON (same 3 files as desktop SignalPage) ────────────────────────
+
+const ANOMALY_FILES: Record<string, string> = {
+  "fp10-gc1-friday-long":   "/data/anomaly/gc1_friday_long.json",
+  "fp10-gld-thursday-long": "/data/anomaly/gld_thursday_long.json",
+  "fp10-ym1-tat":           "/data/anomaly/ym1_tat.json",
+};
+
+type AnomalyPoint = { time: string; value: number };
+type AnomalyJson = {
+  oosStartDate?: string;
+  equityCurve: { full: AnomalyPoint[] };
+  drawdownCurve?: { full?: AnomalyPoint[] };
+  trades?: { pnl: number; exit_time: string }[];
+  summary?: { full?: { avgLoss?: number; maxDrawdownPercent?: number; totalReturnPercent?: number; cagr?: number } };
+};
+
+type AnomalyPerf = {
+  equityCurve: { time: string; value: number }[];
+  drawdownCurve: { time: string; value: number }[];
+  maxDrawdownPercent?: number;
+};
 
 // ── Filter helpers ────────────────────────────────────────────────────────────
 
@@ -206,7 +229,50 @@ function DetailSheet({
     name: card.assetName, displaySymbol: card.displaySymbol,
   });
 
-  const perf = preview?.performance;
+  const [anomalyPerf, setAnomalyPerf] = useState<AnomalyPerf | null>(null);
+
+  // Load anomaly JSON (same logic as desktop SignalPage)
+  useEffect(() => {
+    setAnomalyPerf(null);
+    const filePath = ANOMALY_FILES[card.id];
+    if (!filePath) return;
+    let cancelled = false;
+    fetch(filePath)
+      .then(r => r.json() as Promise<AnomalyJson>)
+      .then(json => {
+        if (cancelled) return;
+        const trades = json.trades ?? [];
+        const rUnit = Math.abs(json.summary?.full?.avgLoss ?? 0) || 1;
+        let cumR = 0, peakR = 0;
+        const equityCurve: AnomalyPoint[] = [];
+        const drawdownCurve: AnomalyPoint[] = [];
+        if (trades.length) {
+          equityCurve.push({ time: trades[0]!.exit_time, value: 0 });
+          drawdownCurve.push({ time: trades[0]!.exit_time, value: 0 });
+        }
+        for (const t of trades) {
+          cumR += t.pnl / rUnit;
+          if (cumR > peakR) peakR = cumR;
+          equityCurve.push({ time: t.exit_time, value: cumR });
+          drawdownCurve.push({ time: t.exit_time, value: cumR - peakR });
+        }
+        const maxDd = drawdownCurve.reduce((m, p) => Math.min(m, p.value), 0);
+        setAnomalyPerf({ equityCurve, drawdownCurve, maxDrawdownPercent: maxDd });
+      })
+      .catch(() => { if (!cancelled) setAnomalyPerf(null); });
+    return () => { cancelled = true; };
+  }, [card.id]);
+
+  const activePerfSource = anomalyPerf ?? (preview?.performance ? {
+    equityCurve:        preview.performance.equityCurve,
+    drawdownCurve:      preview.performance.drawdownCurve,
+    maxDrawdownPercent: preview.performance.summary?.maxDrawdownPercent,
+    avgDrawdownPercent: preview.performance.summary?.avgDrawdownPercent,
+    top5DrawdownsPercent: preview.performance.summary?.top5DrawdownsPercent,
+    totalReturnPercent: preview.performance.summary?.totalReturnPercent,
+    cagr:               preview.performance.summary?.cagr,
+  } : null);
+
   const kpis = (preview?.kpis ?? []).slice(0, 5);
 
   // ── Swipe-to-close ────────────────────────────────────────────────────────
@@ -344,11 +410,11 @@ function DetailSheet({
 
           {/* Equity chart — 90px */}
           <div style={{ height: 90, flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.04)", padding: "2px 4px" }}>
-            {mounted && perf ? (
+            {mounted && activePerfSource ? (
               <StrategyTesterEquityChart
-                data={perf.equityCurve}
-                totalReturnPercent={perf.summary?.totalReturnPercent}
-                cagr={perf.summary?.cagr}
+                data={activePerfSource.equityCurve}
+                totalReturnPercent={anomalyPerf ? undefined : (activePerfSource as { totalReturnPercent?: number }).totalReturnPercent}
+                cagr={anomalyPerf ? undefined : (activePerfSource as { cagr?: number }).cagr}
                 fillContainer
               />
             ) : (
@@ -360,10 +426,12 @@ function DetailSheet({
 
           {/* Drawdown chart — 60px */}
           <div style={{ height: 60, flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "2px 4px" }}>
-            {mounted && perf ? (
+            {mounted && activePerfSource ? (
               <StrategyTesterDrawdownChart
-                data={perf.drawdownCurve}
-                maxDrawdownPercent={perf.summary?.maxDrawdownPercent}
+                data={activePerfSource.drawdownCurve}
+                maxDrawdownPercent={activePerfSource.maxDrawdownPercent}
+                avgDrawdownPercent={anomalyPerf ? undefined : (activePerfSource as { avgDrawdownPercent?: number }).avgDrawdownPercent}
+                top5DrawdownsPercent={anomalyPerf ? undefined : (activePerfSource as { top5DrawdownsPercent?: number[] }).top5DrawdownsPercent}
                 fillContainer
               />
             ) : null}
@@ -421,77 +489,62 @@ function SectionPanel({
 }) {
   const [filter, setFilter] = useState<SignalCardFilter>("open");
 
-  const allCards = section.groups.flatMap(g => g.cards);
-  const visible  = allCards.filter(c => matchesFilter(c, filter));
+  const visibleGroups = section.groups
+    .map(g => ({ ...g, visibleCards: g.cards.filter(c => matchesFilter(c, filter)) }))
+    .filter(g => g.visibleCards.length > 0);
 
   return (
     <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
       {/* Header */}
-      <div style={{
-        flexShrink: 0,
-        display: "flex", alignItems: "center", gap: 8,
-        padding: "10px 14px 8px",
-      }}>
+      <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 8, padding: "10px 14px 8px" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={logo} alt={section.title} width={20} height={20}
-          style={{ objectFit: "contain", flexShrink: 0 }} />
-        <span style={{
-          fontSize: 13, fontWeight: 800,
-          color: "rgba(255,255,255,0.82)",
-          textTransform: "uppercase", letterSpacing: "0.06em",
-          fontFamily: "var(--font-montserrat,sans-serif)",
-        }}>
+        <img src={logo} alt={section.title} width={20} height={20} style={{ objectFit: "contain", flexShrink: 0 }} />
+        <span style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.82)", textTransform: "uppercase", letterSpacing: "0.06em", fontFamily: "var(--font-montserrat,sans-serif)" }}>
           {section.title}
         </span>
-
-        {/* Filters right-aligned */}
         <div style={{ marginLeft: "auto", display: "flex", gap: 3 }}>
           {([["open","AKTUELL"],["last7","7 TAGE"],["pending","AUSSTEHEND"]] as [SignalCardFilter,string][]).map(([f, label]) => (
             <button key={f} onClick={() => setFilter(f)} style={{
               padding: "4px 8px",
               background: filter === f ? "rgba(255,255,255,0.09)" : "transparent",
               border: filter === f ? "1px solid rgba(255,255,255,0.12)" : "1px solid transparent",
-              borderRadius: 5,
-              color: filter === f ? "#fff" : "rgba(255,255,255,0.35)",
+              borderRadius: 5, color: filter === f ? "#fff" : "rgba(255,255,255,0.35)",
               fontSize: 10, fontWeight: 700, letterSpacing: "0.05em",
-              cursor: "pointer",
-              fontFamily: "var(--font-montserrat,sans-serif)",
+              cursor: "pointer", fontFamily: "var(--font-montserrat,sans-serif)",
               WebkitTapHighlightColor: "transparent",
-            } as React.CSSProperties}>
-              {label}
-            </button>
+            } as React.CSSProperties}>{label}</button>
           ))}
         </div>
       </div>
 
-      {/* Scrollable card grid with bottom gradient */}
+      {/* Scrollable cards — grouped by sub-group (like desktop) */}
       <div style={{ flex: 1, minHeight: 0, position: "relative" }}>
-        <div style={{
-          position: "absolute", inset: 0,
-          overflowY: "auto", overflowX: "hidden",
-          padding: "0 10px 8px",
-        }}>
-          {visible.length === 0 ? (
+        <div style={{ position: "absolute", inset: 0, overflowY: "auto", overflowX: "hidden", padding: "0 10px 8px" }}>
+          {visibleGroups.length === 0 ? (
             <div style={{ padding: "20px 4px", textAlign: "center", fontSize: 12, color: "rgba(255,255,255,0.2)" }}>
               Keine Signale
             </div>
-          ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 7 }}>
-              {visible.map(card => (
-                <SignalCard key={card.id} card={card} onTap={() => onCardTap(card)} />
-              ))}
+          ) : visibleGroups.map(group => (
+            <div key={group.id} style={{ marginBottom: 10 }}>
+              {/* Sub-group header */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 0 6px" }}>
+                <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.5)", letterSpacing: "0.04em" }}>
+                  {group.title}
+                </span>
+                <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)" }}>· {group.visibleCards.length}</span>
+                <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)", marginLeft: 4 }} />
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 7 }}>
+                {group.visibleCards.map(card => (
+                  <SignalCard key={card.id} card={card} onTap={() => onCardTap(card)} />
+                ))}
+              </div>
             </div>
-          )}
+          ))}
           <div style={{ height: 36 }} />
         </div>
-
-        {/* Bottom fade */}
-        <div style={{
-          position: "absolute", bottom: 0, left: 0, right: 0, height: 48,
-          background: "linear-gradient(to bottom, transparent, #0c0d10)",
-          pointerEvents: "none",
-        }} />
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 48, background: "linear-gradient(to bottom, transparent, #0c0d10)", pointerEvents: "none" }} />
       </div>
     </div>
   );
