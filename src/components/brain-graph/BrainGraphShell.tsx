@@ -292,12 +292,12 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
   }, [onSelect]);
 
   return (
-    <div ref={containerRef} className="absolute inset-0" onClick={onClick} style={{ cursor: "crosshair" }}>
+    <div ref={containerRef} className="brain-stage absolute inset-0 pointer-events-auto" onClick={onClick} style={{ cursor: "crosshair" }}>
       <canvas
         ref={canvasRef}
         width={dims.w}
         height={dims.h}
-        className="block pointer-events-none"
+        className="brain-canvas block pointer-events-none"
       />
     </div>
   );

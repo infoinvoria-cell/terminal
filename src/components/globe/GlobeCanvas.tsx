@@ -1350,9 +1350,9 @@ function GlobeCanvasComponent({
   ]);
 
   return (
-    <div ref={hostRef} className="relative h-full w-full overflow-hidden rounded-lg bg-transparent">
+    <div ref={hostRef} className="relative h-full w-full overflow-hidden rounded-lg bg-transparent pointer-events-auto">
       {selectedOverlay === "volatility" && (
-        <div className="pointer-events-none absolute inset-0 z-[2]" style={{ background: volatilityTint(volatilityScore) }} />
+        <div className="globe-canvas pointer-events-none absolute inset-0 z-[2]" style={{ background: volatilityTint(volatilityScore) }} />
       )}
       {selectedOverlay === "volatility" && (
         <div className="absolute right-2 top-2 z-20 rounded-md border border-slate-500/50 bg-transparent px-2 py-1 text-[11px] text-slate-100">
@@ -1362,7 +1362,7 @@ function GlobeCanvasComponent({
 
       <div
         ref={stageRef}
-        className="absolute inset-0 z-[3]"
+        className="globe-stage absolute inset-0 z-[3] pointer-events-auto"
         style={{ filter: `drop-shadow(0 0 10px ${goldThemeEnabled ? "rgba(226,202,122,0.22)" : "rgba(255,255,255,0.08)"})` }}
       >
         <Globe

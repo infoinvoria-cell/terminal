@@ -6,6 +6,29 @@
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
+/* ── PERMANENT SIDEBAR FIX ─────────────────────────────────────────────────
+   Sidebar must always win against any canvas, WebGL, or overlay element.
+   These rules are the single source of truth — do not remove them.        */
+.capitalife-sidebar {
+  position: relative !important;
+  z-index: 9999 !important;
+  isolation: isolate !important;
+  pointer-events: auto !important;
+}
+
+/* Canvas/WebGL elements that are purely visual must never intercept clicks */
+.brain-canvas,
+.globe-canvas {
+  pointer-events: none !important;
+}
+
+/* Belt-and-suspenders: any raw <canvas> inside a globe or brain container   */
+.globe-stage canvas,
+.brain-stage canvas {
+  pointer-events: none !important;
+}
+/* ─────────────────────────────────────────────────────────────────────────── */
+
 /* Mobile Preview split-view panel offset (left side) */
 :root { --mobile-preview-left: 0px; }
 body { padding-left: var(--mobile-preview-left); transition: padding-left 220ms ease; }

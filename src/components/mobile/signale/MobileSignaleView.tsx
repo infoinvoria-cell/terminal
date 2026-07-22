@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import type { SignalPageModel, SignalCardModel, SignalCardFilter, SignalPageSection } from "@/lib/signals/signal-types";
+import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
 
-// ── Filter helpers (same logic as desktop SignalPage) ────────────────────────
+// ── Filter helpers ────────────────────────────────────────────────────────────
 
 function nextLabelDaysAhead(label?: string): number | null {
   if (!label) return null;
@@ -26,10 +26,24 @@ function nextLabelDaysAhead(label?: string): number | null {
 function matchesFilter(card: SignalCardModel, filter: SignalCardFilter): boolean {
   if (filter === "all") return true;
   if (filter === "open") {
-    const hasDir   = card.direction !== "CASH" && card.direction !== "PENDING";
-    const hasTpSl  = card.tp != null && card.sl != null;
-    const days     = nextLabelDaysAhead(card.nextSignalLabel);
-    return hasDir || hasTpSl || (days != null && days <= 1);
+    const hasDir  = (card.direction === "LONG" || card.direction === "SHORT") && card.signalDate != null;
+    const hasTpSl = card.tp != null && card.sl != null;
+    const days    = nextLabelDaysAhead(card.nextSignalLabel);
+    return hasDir || hasTpSl || (days != null && days >= 0 && days <= 1);
+  }
+  if (filter === "last7") {
+    if (card.ageDays != null && card.ageDays <= 7) return true;
+    if (card.signalDate) {
+      const d = new Date(`${card.signalDate}T00:00:00`);
+      const today = new Date(); today.setHours(0,0,0,0);
+      return (today.getTime() - d.getTime()) / 86_400_000 <= 7;
+    }
+    return false;
+  }
+  if (filter === "pending") {
+    if (card.direction === "PENDING") return true;
+    const days = nextLabelDaysAhead(card.nextSignalLabel);
+    return days != null && days >= 0 && days <= 2;
   }
   return true;
 }
@@ -38,181 +52,242 @@ function cardBadge(card: SignalCardModel): { label: string; color: string } | nu
   const days = nextLabelDaysAhead(card.nextSignalLabel);
   if (days === 0) return { label: "HEUTE",  color: "#22c55e" };
   if (days === 1) return { label: "MORGEN", color: "#f59e0b" };
-  if (card.direction !== "CASH" && card.direction !== "PENDING" && card.tp == null)
-    return { label: "WARTEN", color: "rgba(255,255,255,0.3)" };
   return null;
 }
 
 function dirColor(dir: string) {
   if (dir === "LONG")  return "#22c55e";
   if (dir === "SHORT") return "#ef4444";
-  return "rgba(255,255,255,0.28)";
+  return "rgba(255,255,255,0.3)";
 }
 
-function DirIcon({ dir }: { dir: string }) {
+// ── Asset icon ────────────────────────────────────────────────────────────────
+
+function AssetIcon({ card, size }: { card: SignalCardModel; size: number }) {
+  const url = getMonitoringAssetIconUrl({
+    code:          card.assetSymbol,
+    assetId:       card.iconKey,
+    name:          card.assetName,
+    displaySymbol: card.displaySymbol,
+  });
+  if (!url) {
+    return (
+      <div style={{
+        width: size, height: size, borderRadius: 4,
+        background: "rgba(255,255,255,0.08)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        flexShrink: 0,
+      }}>
+        <span style={{ fontSize: size * 0.45, color: "rgba(255,255,255,0.4)", fontWeight: 700 }}>
+          {card.displaySymbol.charAt(0)}
+        </span>
+      </div>
+    );
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={url} alt={card.displaySymbol} width={size} height={size}
+      style={{ objectFit: "contain", borderRadius: 3, flexShrink: 0 }} />
+  );
+}
+
+// ── Direction badge ───────────────────────────────────────────────────────────
+
+function DirBadge({ dir }: { dir: string }) {
   const color = dirColor(dir);
-  if (dir === "LONG")
-    return <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="5,1 9,9 1,9" fill={color}/></svg>;
-  if (dir === "SHORT")
-    return <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="5,9 9,1 1,1" fill={color}/></svg>;
-  return <svg width="10" height="10" viewBox="0 0 10 10"><rect x="1" y="4" width="8" height="2" rx="1" fill={color}/></svg>;
+  const arrow = dir === "LONG" ? "▲" : dir === "SHORT" ? "▼" : "▬";
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 3,
+      fontSize: 9, fontWeight: 800, letterSpacing: "0.08em",
+      color,
+      background: `${color}18`,
+      padding: "2px 6px", borderRadius: 3,
+    }}>
+      <span style={{ fontSize: 7 }}>{arrow}</span>
+      {dir}
+    </span>
+  );
 }
 
-// ── Signal card ──────────────────────────────────────────────────────────────
+// ── Single signal card ────────────────────────────────────────────────────────
 
-function SignalCard({ card, active, onPress }: { card: SignalCardModel; active: boolean; onPress: () => void }) {
-  const badge   = cardBadge(card);
-  const hasPos  = card.direction !== "CASH" && card.direction !== "PENDING";
+function SignalCard({ card }: { card: SignalCardModel }) {
+  const badge    = cardBadge(card);
+  const hasPct   = card.changePct != null;
+  const pct      = card.changePct ?? 0;
+  const pctColor = pct >= 0 ? "#22c55e" : "#ef4444";
+  const pctStr   = `${pct >= 0 ? "+" : ""}${pct.toFixed(2)}%`;
+  const dateStr  = card.signalDate ?? card.nextSignalLabel ?? "";
 
   return (
-    <div
-      onClick={onPress}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        padding: "9px 12px",
-        background: active ? "rgba(255,255,255,0.055)" : "transparent",
-        borderBottom: "1px solid rgba(255,255,255,0.045)",
-        cursor: "pointer",
-        WebkitTapHighlightColor: "transparent",
-      } as React.CSSProperties}
-    >
-      {/* Direction triangle */}
-      <div style={{ flexShrink: 0, width: 12, display: "flex", justifyContent: "center" }}>
-        <DirIcon dir={card.direction} />
+    <div style={{
+      background: "#0f1014",
+      border: "1px solid rgba(255,255,255,0.07)",
+      borderRadius: 8,
+      padding: "10px 10px 9px",
+      display: "flex",
+      flexDirection: "column",
+      gap: 7,
+      minWidth: 0,
+      overflow: "hidden",
+    }}>
+      {/* Row 1: icon + symbol + pct */}
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
+        <AssetIcon card={card} size={28} />
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4 }}>
+            <span style={{
+              fontSize: 12, fontWeight: 800,
+              color: "rgba(255,255,255,0.92)",
+              letterSpacing: "0.03em",
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            }}>
+              {card.displaySymbol}
+            </span>
+            {hasPct && (
+              <span style={{
+                fontSize: 10, fontWeight: 700,
+                color: pctColor,
+                flexShrink: 0,
+                letterSpacing: "0.02em",
+              }}>
+                {pctStr}
+              </span>
+            )}
+          </div>
+          <div style={{
+            fontSize: 9, color: "rgba(255,255,255,0.35)",
+            marginTop: 1,
+            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+          }}>
+            {card.assetName}
+          </div>
+        </div>
       </div>
 
-      {/* Asset + strategy */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.9)", letterSpacing: "0.03em" }}>
-            {card.displaySymbol}
-          </span>
-          {badge && (
-            <span style={{
-              fontSize: 8, fontWeight: 800, letterSpacing: "0.07em",
-              color: badge.color,
-              background: `${badge.color}1a`,
-              padding: "1px 5px", borderRadius: 3,
-            }}>
-              {badge.label}
-            </span>
-          )}
-        </div>
-        <div style={{
-          fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 1,
-          whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+      {/* Row 2: strategy + date */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 4 }}>
+        <span style={{
+          fontSize: 9, color: "rgba(255,255,255,0.38)",
+          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          flex: 1,
         }}>
           {card.strategyName}
-        </div>
+        </span>
+        {dateStr && (
+          <span style={{ fontSize: 8, color: "rgba(255,255,255,0.22)", flexShrink: 0 }}>
+            {dateStr}
+          </span>
+        )}
       </div>
 
-      {/* Direction + TP/SL */}
-      <div style={{ flexShrink: 0, textAlign: "right" }}>
-        <div style={{ fontSize: 10, fontWeight: 800, color: dirColor(card.direction), letterSpacing: "0.07em" }}>
-          {card.direction}
-        </div>
-        {hasPos && (card.tp != null || card.sl != null) && (
-          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.28)", marginTop: 2, lineHeight: 1.4 }}>
-            {card.tp  != null && <div><span style={{ color: "rgba(34,197,94,0.5)"  }}>TP </span>{card.tp.toFixed(1)}</div>}
-            {card.sl  != null && <div><span style={{ color: "rgba(239,68,68,0.5)"  }}>SL </span>{card.sl.toFixed(1)}</div>}
-          </div>
-        )}
-        {card.nextSignalLabel && !hasPos && (
-          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.22)", marginTop: 2 }}>
-            {card.nextSignalLabel}
-          </div>
+      {/* Row 3: direction + badge */}
+      <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+        <DirBadge dir={card.direction} />
+        {badge && (
+          <span style={{
+            fontSize: 8, fontWeight: 800, letterSpacing: "0.07em",
+            color: badge.color,
+            background: `${badge.color}1a`,
+            padding: "2px 5px", borderRadius: 3,
+          }}>
+            {badge.label}
+          </span>
         )}
       </div>
     </div>
   );
 }
 
-// ── Section (White Swan or Core Invest) ──────────────────────────────────────
+// ── Section ───────────────────────────────────────────────────────────────────
 
-const FILTER_LABELS: Record<SignalCardFilter, string> = {
-  open: "AKTUELL", all: "ALLE",
-  long: "LONG", short: "SHORT", cash: "CASH", validation: "VALIDIERUNG",
-  last7: "7 TAGE", pending: "AUSSTEHEND",
-};
-
-function SectionPanel({
-  section,
-  logo,
-}: {
-  section: SignalPageSection;
-  logo: string;
-}) {
-  const [filter, setFilter]     = useState<SignalCardFilter>("open");
-  const [activeId, setActiveId] = useState<string | null>(null);
+function SectionPanel({ section, logo }: { section: SignalPageSection; logo: string }) {
+  const [filter, setFilter] = useState<SignalCardFilter>("open");
 
   const allCards = section.groups.flatMap(g => g.cards);
   const visible  = allCards.filter(c => matchesFilter(c, filter));
 
   return (
     <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-      {/* Header row */}
+
+      {/* Header */}
       <div style={{
         flexShrink: 0,
-        display: "flex",
-        alignItems: "center",
-        gap: 7,
-        padding: "8px 12px 6px",
+        display: "flex", alignItems: "center", gap: 7,
+        padding: "9px 12px 7px",
       }}>
-        <div style={{ position: "relative", width: 16, height: 16, flexShrink: 0 }}>
-          <Image src={logo} alt={section.title} fill sizes="16px" style={{ objectFit: "contain" }} />
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={logo} alt={section.title} width={16} height={16}
+          style={{ objectFit: "contain", flexShrink: 0 }} />
         <span style={{
-          fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.75)",
+          fontSize: 10, fontWeight: 800,
+          color: "rgba(255,255,255,0.72)",
           textTransform: "uppercase", letterSpacing: "0.07em",
           fontFamily: "var(--font-montserrat,sans-serif)",
         }}>
           {section.title}
         </span>
 
-        {/* Filter buttons — right-aligned */}
-        <div style={{ marginLeft: "auto", display: "flex", gap: 3 }}>
-          {(["open", "all"] as SignalCardFilter[]).map(f => (
+        {/* Filters right-aligned */}
+        <div style={{ marginLeft: "auto", display: "flex", gap: 2 }}>
+          {([["open","AKTUELL"],["last7","7 TAGE"],["pending","AUSSTEHEND"]] as [SignalCardFilter,string][]).map(([f, label]) => (
             <button key={f} onClick={() => setFilter(f)} style={{
-              padding: "3px 8px",
+              padding: "3px 7px",
               background: filter === f ? "rgba(255,255,255,0.09)" : "transparent",
-              border: "none",
-              borderRadius: 4,
-              color: filter === f ? "#fff" : "rgba(255,255,255,0.32)",
-              fontSize: 9, fontWeight: 700, letterSpacing: "0.06em",
+              border: "none", borderRadius: 4,
+              color: filter === f ? "#fff" : "rgba(255,255,255,0.3)",
+              fontSize: 8.5, fontWeight: 700, letterSpacing: "0.05em",
               cursor: "pointer",
               fontFamily: "var(--font-montserrat,sans-serif)",
               WebkitTapHighlightColor: "transparent",
             } as React.CSSProperties}>
-              {FILTER_LABELS[f]}
+              {label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Card list */}
-      <div style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
-        {visible.length === 0 ? (
-          <div style={{ padding: "20px 12px", textAlign: "center", fontSize: 12, color: "rgba(255,255,255,0.22)" }}>
-            Keine Signale
-          </div>
-        ) : (
-          visible.map(card => (
-            <SignalCard
-              key={card.id}
-              card={card}
-              active={activeId === card.id}
-              onPress={() => setActiveId(id => id === card.id ? null : card.id)}
-            />
-          ))
-        )}
+      {/* Scrollable card grid with bottom gradient */}
+      <div style={{ flex: 1, minHeight: 0, position: "relative" }}>
+        <div style={{
+          position: "absolute", inset: 0,
+          overflowY: "auto", overflowX: "hidden",
+          padding: "0 8px 8px",
+        }}>
+          {visible.length === 0 ? (
+            <div style={{ padding: "20px 4px", textAlign: "center", fontSize: 12, color: "rgba(255,255,255,0.2)" }}>
+              Keine Signale
+            </div>
+          ) : (
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              gap: 6,
+            }}>
+              {visible.map(card => (
+                <SignalCard key={card.id} card={card} />
+              ))}
+            </div>
+          )}
+          {/* Bottom spacer so last row isn't hidden behind gradient */}
+          <div style={{ height: 36 }} />
+        </div>
+
+        {/* Bottom fade gradient — signals more content */}
+        <div style={{
+          position: "absolute", bottom: 0, left: 0, right: 0,
+          height: 48,
+          background: "linear-gradient(to bottom, transparent, #0c0d10)",
+          pointerEvents: "none",
+        }} />
       </div>
     </div>
   );
 }
 
-// ── Main export ──────────────────────────────────────────────────────────────
+// ── Main export ───────────────────────────────────────────────────────────────
 
 export function MobileSignaleView({ data }: { data: SignalPageModel }) {
   const whiteSwan  = data.sections.find(s => s.id === "white_swan");
@@ -224,7 +299,7 @@ export function MobileSignaleView({ data }: { data: SignalPageModel }) {
         <SectionPanel section={whiteSwan} logo="/branding/white-swan-icon.png" />
       )}
 
-      <div style={{ height: 1, flexShrink: 0, background: "rgba(255,255,255,0.08)" }} />
+      <div style={{ height: 6, flexShrink: 0, background: "rgba(255,255,255,0.05)", borderTop: "1px solid rgba(255,255,255,0.07)", borderBottom: "1px solid rgba(255,255,255,0.07)" }} />
 
       {coreInvest && (
         <SectionPanel section={coreInvest} logo="/branding/capitalife-favicon.png" />
