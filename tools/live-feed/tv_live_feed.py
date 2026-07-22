@@ -66,6 +66,22 @@ FAST_SYMBOLS: set[str] = {
     "GC1!", "GLD", "FDAX1!",         # anomaly assets
 }
 
+# Core-Invest + comparison symbols NOT present in the monitoring universe.
+# From src/data/capitalife/core-invest.config.json:
+#   required_ohlc_symbols:      QQQ, GLD, SPMO, SPY, HG1!, 6S1!
+#   required_pine2_comparison:  DXY, GC1!, ZB1!
+# HG1! / GC1! already come from the universe; the rest are added here.
+# Key = requestSymbol (what we store in live_quotes.symbol), value = TV source.
+EXTRA_SYMBOLS: dict[str, str] = {
+    "QQQ":  "NASDAQ:QQQ",     # Core ETF (QQQ_PASSIVE sleeve)
+    "GLD":  "AMEX:GLD",       # Core ETF + anomaly asset
+    "SPMO": "AMEX:SPMO",      # Core ETF (momentum)
+    "SPY":  "AMEX:SPY",       # Core ETF + benchmark
+    "6S1!": "CME:6S1!",       # CHF futures (CHF_6S sleeve)
+    "DXY":  "TVC:DXY",        # Pine2 comparison — dollar index
+    "ZB1!": "CBOT:ZB1!",      # Pine2 comparison — 30Y T-Bond
+}
+
 TV_WS_URL = "wss://data.tradingview.com/socket.io/websocket"
 
 USER_AGENTS = [
@@ -107,6 +123,17 @@ def load_symbol_map() -> tuple[dict[str, str], dict[str, list[str]]]:
             req_to_src[req] = src
             if req not in src_to_reqs[src]:
                 src_to_reqs[src].append(req)
+
+    # Merge Core-Invest + comparison symbols not covered by the universe
+    added = 0
+    for req, src in EXTRA_SYMBOLS.items():
+        if req not in req_to_src:
+            req_to_src[req] = src
+            if req not in src_to_reqs[src]:
+                src_to_reqs[src].append(req)
+            added += 1
+    if added:
+        log.info(f"Added {added} Core-Invest/comparison symbols not in universe")
 
     return req_to_src, dict(src_to_reqs)
 
