@@ -1,10 +1,12 @@
 import { cn } from "@/lib/utils";
 import { deserializeTrades, compoundGains } from "@/lib/trades-analytics";
 import type { DashboardKpis, SerializedTrade } from "@/lib/trades-analytics";
+import type { CapalifeData } from "@/lib/capitalife-data";
 
 type SecondaryKpiRowProps = {
   kpis: DashboardKpis;
   trades?: SerializedTrade[];
+  capalifeData?: CapalifeData;
 };
 
 function computeMonthlyStats(trades: SerializedTrade[]) {
@@ -90,8 +92,29 @@ function SecondaryCard({ label, value, delta, sub, title }: SecondaryCardProps) 
   );
 }
 
-export function SecondaryKpiRow({ kpis: _kpis, trades }: SecondaryKpiRowProps) {
-  const m = trades ? computeMonthlyStats(trades) : null;
+function computeMonthlyStatsFromJson(data: CapalifeData) {
+  const rows = data.performanceMonthly.monthly_returns;
+  if (!rows.length) return null;
+  const monthly = rows.map((r) => r.return_pct);
+  const best = Math.max(...monthly);
+  const worst = Math.min(...monthly);
+  const pos = monthly.filter((m) => m >= 0).length;
+  const total = monthly.length;
+  const totalReturn = compoundGains(monthly);
+  let equity = 100, peak = 100, maxDd = 0;
+  for (const r of monthly) {
+    equity *= 1 + r / 100;
+    peak = Math.max(peak, equity);
+    if (peak > 0) maxDd = Math.max(maxDd, ((peak - equity) / peak) * 100);
+  }
+  const calmar = maxDd > 0.01 ? ((Math.pow(1 + totalReturn / 100, 12 / total) - 1) * 100) / maxDd : null;
+  return { best, worst, pos, total, calmar };
+}
+
+export function SecondaryKpiRow({ kpis: _kpis, trades, capalifeData }: SecondaryKpiRowProps) {
+  const m = (trades && trades.length > 0)
+    ? computeMonthlyStats(trades)
+    : (capalifeData ? computeMonthlyStatsFromJson(capalifeData) : null);
   const fmtPct = (n: number) => `${n >= 0 ? "+" : ""}${n.toFixed(1)}%`;
   return (
     <div className="w-full min-w-0">

@@ -51,9 +51,11 @@ function Btn({
 }
 
 export function PortfolioSection({ trades, kpis, capalifeData }: PortfolioSectionProps) {
-  const [view, setView] = useState<ViewMode>("Line");
-  const [timeframe, setTimeframe] = useState<TimeFrame>("1D");
-  const [lastLineTimeframe, setLastLineTimeframe] = useState<TimeFrame>("1D");
+  const defaultTf: TimeFrame = trades.length > 0 ? "1D" : "1M";
+  const defaultView: ViewMode = trades.length > 0 ? "Line" : "Bar";
+  const [view, setView] = useState<ViewMode>(defaultView);
+  const [timeframe, setTimeframe] = useState<TimeFrame>(defaultTf);
+  const [lastLineTimeframe, setLastLineTimeframe] = useState<TimeFrame>(defaultTf);
   const [lastBarTimeframe, setLastBarTimeframe] = useState<TimeFrame>("1M");
   const [lastTableTimeframe, setLastTableTimeframe] = useState<TimeFrame>("1M");
 
@@ -95,7 +97,7 @@ export function PortfolioSection({ trades, kpis, capalifeData }: PortfolioSectio
     >
       {/* KPI row */}
       <div style={{ flexShrink: 0 }}>
-        <SecondaryKpiRow kpis={kpis} trades={trades} />
+        <SecondaryKpiRow kpis={kpis} trades={trades} capalifeData={capalifeData} />
       </div>
 
       {/* Section title — OUTSIDE and ABOVE the card */}
