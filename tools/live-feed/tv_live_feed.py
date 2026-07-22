@@ -36,7 +36,9 @@ from websocket import create_connection, WebSocketException
 
 # ── Config ────────────────────────────────────────────────────────────────────
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parent
+# On Railway env vars come from the dashboard; locally .env works as fallback
+load_dotenv(dotenv_path=ROOT / ".env")
 load_dotenv(dotenv_path=ROOT / ".env.local")
 
 logging.basicConfig(
@@ -50,7 +52,8 @@ TV_AUTH_TOKEN = os.environ.get("TV_AUTH_TOKEN", "")   # JWT for real-time; empty
 SUPABASE_URL  = os.environ["NEXT_PUBLIC_SUPABASE_URL"]
 SUPABASE_KEY  = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
 
-UNIVERSE_PATH = ROOT / "public/generated/monitoring/config/monitoring_asset_universe.json"
+# Optional: full monitoring universe JSON (not available on Railway — falls back to EXTRA_SYMBOLS)
+UNIVERSE_PATH = ROOT / "monitoring_asset_universe.json"
 
 MAX_SUBSCRIPTIONS  = 50
 FAST_FLUSH_SECS    = 5
@@ -106,25 +109,27 @@ def load_symbol_map() -> tuple[dict[str, str], dict[str, list[str]]]:
       req_to_src:  {requestSymbol → tv_source}   e.g. "EURUSD_30M" → "OANDA:EURUSD"
       src_to_reqs: {tv_source → [requestSymbol]} e.g. "OANDA:EURUSD" → ["EURUSD_30M"]
     """
-    try:
-        data = json.loads(UNIVERSE_PATH.read_text(encoding="utf-8"))
-        assets = data.get("assets", [])
-    except Exception as e:
-        log.error(f"Universe load failed: {e}")
-        return {}, {}
-
     req_to_src: dict[str, str] = {}
     src_to_reqs: dict[str, list[str]] = defaultdict(list)
 
-    for a in assets:
-        req = a.get("requestSymbol", "").strip()
-        src = a.get("source", "").strip()
-        if req and src:
-            req_to_src[req] = src
-            if req not in src_to_reqs[src]:
-                src_to_reqs[src].append(req)
+    if UNIVERSE_PATH.exists():
+        try:
+            data = json.loads(UNIVERSE_PATH.read_text(encoding="utf-8"))
+            assets = data.get("assets", [])
+            for a in assets:
+                req = a.get("requestSymbol", "").strip()
+                src = a.get("source", "").strip()
+                if req and src:
+                    req_to_src[req] = src
+                    if req not in src_to_reqs[src]:
+                        src_to_reqs[src].append(req)
+            log.info(f"Universe loaded: {len(req_to_src)} symbols from {UNIVERSE_PATH.name}")
+        except Exception as e:
+            log.warning(f"Universe load failed ({e}) — using EXTRA_SYMBOLS only")
+    else:
+        log.info("No universe file found — using EXTRA_SYMBOLS only (Railway mode)")
 
-    # Merge Core-Invest + comparison symbols not covered by the universe
+    # Always merge Core-Invest + comparison symbols
     added = 0
     for req, src in EXTRA_SYMBOLS.items():
         if req not in req_to_src:
@@ -133,7 +138,7 @@ def load_symbol_map() -> tuple[dict[str, str], dict[str, list[str]]]:
                 src_to_reqs[src].append(req)
             added += 1
     if added:
-        log.info(f"Added {added} Core-Invest/comparison symbols not in universe")
+        log.info(f"Added {added} Core-Invest/comparison symbols")
 
     return req_to_src, dict(src_to_reqs)
 
