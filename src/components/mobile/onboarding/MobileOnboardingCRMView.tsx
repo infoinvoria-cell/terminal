@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Investor } from "@/components/investors-crm/InvestorsCRMView";
 
-// ── Design tokens (same as MobileHomeView) ────────────────────────────────────
+// ── Design tokens ─────────────────────────────────────────────────────────────
 const CARD_BG     = "linear-gradient(180deg,#1c1d20 0%,#141517 100%)";
 const CARD_BORDER = "rgba(255,255,255,0.06)";
 const CARD_SHADOW = "0 8px 20px -8px rgba(0,0,0,0.55)";
 const MUTED       = "rgba(255,255,255,0.38)";
+const PAGE_BG     = "#0c0d10";
 
 // ── Options ────────────────────────────────────────────────────────────────────
 const KONTAKTQUELLE   = ["Persönlicher Kontakt","Empfehlung","Vermittler","Netzwerk / Event","LinkedIn","Sonstiges"];
@@ -36,6 +37,27 @@ function fmtDate(iso: string | null) {
   return d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
+// ── Row definitions (categories as rows) ─────────────────────────────────────
+type RowDef = { key: keyof Investor; label: string };
+const ROWS: RowDef[] = [
+  { key: "name",              label: "Name"             },
+  { key: "unternehmen",       label: "Unternehmen"      },
+  { key: "status",            label: "Status"           },
+  { key: "email",             label: "E-Mail"           },
+  { key: "telefon",           label: "Telefon"          },
+  { key: "kontaktquelle",     label: "Quelle"           },
+  { key: "kapitalrahmen",     label: "Kapital"          },
+  { key: "verfuegbar_ab",     label: "Verfügbar ab"     },
+  { key: "letzter_kontakt",   label: "Letzter Kontakt"  },
+  { key: "naechster_schritt", label: "Nächster Schritt" },
+  { key: "zustaendig",        label: "Zuständig"        },
+  { key: "notizen",           label: "Notizen"          },
+];
+
+const INV_COL_W = 140; // px per investor column
+const CAT_COL_W = 110; // px sticky category column
+const CELL_H    = 46;  // px row height
+
 // ── KPI Card ──────────────────────────────────────────────────────────────────
 function KpiCard({ label, value }: { label: string; value: string | number }) {
   return (
@@ -46,65 +68,35 @@ function KpiCard({ label, value }: { label: string; value: string | number }) {
       display: "flex", flexDirection: "column", justifyContent: "space-between",
       gap: 6, flex: 1, minWidth: 0,
     }}>
-      <p style={{
-        margin: 0, fontSize: 8, fontWeight: 600, color: MUTED,
-        fontFamily: "var(--font-montserrat,sans-serif)",
-        textTransform: "uppercase", letterSpacing: "0.01em", lineHeight: 1.2,
-        overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis",
-      }}>
+      <p style={{ margin: 0, fontSize: 8, fontWeight: 600, color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", textTransform: "uppercase", letterSpacing: "0.01em", lineHeight: 1.2, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
         {label}
       </p>
-      <p style={{
-        margin: 0, fontSize: 13, fontWeight: 700, lineHeight: 1,
-        letterSpacing: "-0.02em",
-        fontFamily: "var(--font-nunito,sans-serif)",
-        color: "#ffffff",
-      }}>
+      <p style={{ margin: 0, fontSize: 13, fontWeight: 700, lineHeight: 1, letterSpacing: "-0.02em", fontFamily: "var(--font-nunito,sans-serif)", color: "#ffffff" }}>
         {value}
       </p>
     </div>
   );
 }
 
-// ── Column definitions ────────────────────────────────────────────────────────
-type ColKey = keyof Investor;
-const COLS: { key: ColKey; label: string; w: number }[] = [
-  { key: "name",              label: "Name",             w: 140 },
-  { key: "unternehmen",       label: "Unternehmen",      w: 120 },
-  { key: "status",            label: "Status",           w: 160 },
-  { key: "email",             label: "E-Mail",           w: 160 },
-  { key: "telefon",           label: "Telefon",          w: 110 },
-  { key: "kontaktquelle",     label: "Quelle",           w: 130 },
-  { key: "kapitalrahmen",     label: "Kapital",          w: 150 },
-  { key: "verfuegbar_ab",     label: "Verfügbar ab",     w: 100 },
-  { key: "letzter_kontakt",   label: "Letzter Kontakt",  w: 100 },
-  { key: "naechster_schritt", label: "Nächster Schritt", w: 160 },
-  { key: "zustaendig",        label: "Zuständig",        w: 90  },
-  { key: "notizen",           label: "Notizen",          w: 180 },
-];
-
-// ── Inline cell editor (font-size 16px → no iOS zoom) ─────────────────────────
-function CellEditor({ colKey, value, onSave, onClose }: {
-  colKey: ColKey; value: string | null;
+// ── Inline cell editor — 16px font so iOS never zooms ─────────────────────────
+function CellEditor({ rowKey, value, onSave, onClose }: {
+  rowKey: keyof Investor; value: string | null;
   onSave: (v: string | null) => void; onClose: () => void;
 }) {
   const [draft, setDraft] = useState(value ?? "");
   const ref = useRef<HTMLInputElement & HTMLSelectElement & HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    const t = setTimeout(() => ref.current?.focus(), 60);
-    return () => clearTimeout(t);
-  }, []);
+  useEffect(() => { const t = setTimeout(() => ref.current?.focus(), 60); return () => clearTimeout(t); }, []);
 
   const commit = () => { onSave(draft.trim() || null); onClose(); };
 
-  const isDropdown = ["kontaktquelle","kapitalrahmen","status","naechster_schritt","zustaendig"].includes(colKey);
-  const isDate     = colKey === "verfuegbar_ab" || colKey === "letzter_kontakt";
-  const opts = colKey === "kontaktquelle" ? KONTAKTQUELLE
-    : colKey === "kapitalrahmen" ? KAPITALRAHMEN
-    : colKey === "status" ? STATUS_OPTS
-    : colKey === "naechster_schritt" ? NAECHSTER_OPTS
-    : colKey === "zustaendig" ? ZUSTAENDIG_OPTS : [];
+  const isDropdown = ["kontaktquelle","kapitalrahmen","status","naechster_schritt","zustaendig"].includes(rowKey);
+  const isDate     = rowKey === "verfuegbar_ab" || rowKey === "letzter_kontakt";
+  const opts = rowKey === "kontaktquelle" ? KONTAKTQUELLE
+    : rowKey === "kapitalrahmen" ? KAPITALRAHMEN
+    : rowKey === "status" ? STATUS_OPTS
+    : rowKey === "naechster_schritt" ? NAECHSTER_OPTS
+    : rowKey === "zustaendig" ? ZUSTAENDIG_OPTS : [];
 
   const s: React.CSSProperties = {
     width: "100%", boxSizing: "border-box", border: "none", outline: "none",
@@ -126,28 +118,21 @@ function CellEditor({ colKey, value, onSave, onClose }: {
   );
   return (
     <input ref={ref as React.RefObject<HTMLInputElement>}
-      type={colKey === "email" ? "email" : colKey === "telefon" ? "tel" : "text"}
+      type={rowKey === "email" ? "email" : rowKey === "telefon" ? "tel" : "text"}
       value={draft} onChange={e => setDraft(e.target.value)}
       onBlur={commit} onKeyDown={e => e.key === "Enter" && commit()} style={s} />
   );
 }
 
-// ── Guided Sentinel Chat ──────────────────────────────────────────────────────
-type QStep = {
-  key: keyof Investor | "done";
-  bot: string;
-  type: "text" | "email" | "tel" | "date" | "select" | "textarea";
-  options?: string[];
-  optional?: boolean;
-};
-
+// ── Sentinel guided chat ──────────────────────────────────────────────────────
+type QStep = { key: keyof Investor | "done"; bot: string; type: "text"|"email"|"tel"|"date"|"select"|"textarea"; options?: string[]; optional?: boolean };
 const STEPS: QStep[] = [
   { key: "name",              bot: "Wie heißt die Person?",               type: "text" },
   { key: "unternehmen",       bot: "Welches Unternehmen? (optional)",      type: "text",     optional: true },
   { key: "email",             bot: "E-Mail-Adresse? (optional)",           type: "email",    optional: true },
   { key: "telefon",           bot: "Telefonnummer? (optional)",            type: "tel",      optional: true },
   { key: "kontaktquelle",     bot: "Wie kam der Kontakt zustande?",        type: "select",   options: KONTAKTQUELLE, optional: true },
-  { key: "kapitalrahmen",     bot: "Welcher Kapitalrahmen kommt infrage?", type: "select",   options: KAPITALRAHMEN, optional: true },
+  { key: "kapitalrahmen",     bot: "Welcher Kapitalrahmen?",               type: "select",   options: KAPITALRAHMEN, optional: true },
   { key: "verfuegbar_ab",     bot: "Ab wann verfügbar? (optional)",        type: "date",     optional: true },
   { key: "status",            bot: "Aktueller Status?",                    type: "select",   options: STATUS_OPTS },
   { key: "zustaendig",        bot: "Wer ist zuständig?",                   type: "select",   options: ZUSTAENDIG_OPTS, optional: true },
@@ -156,7 +141,7 @@ const STEPS: QStep[] = [
   { key: "done",              bot: "",                                      type: "text" },
 ];
 
-type ChatMsg = { from: "bot" | "user"; text: string };
+type ChatMsg = { from: "bot"|"user"; text: string };
 
 function SentinelChat({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
   const [step, setStep]     = useState(0);
@@ -168,13 +153,8 @@ function SentinelChat({ onClose, onSaved }: { onClose: () => void; onSaved: () =
   const listRef             = useRef<HTMLDivElement>(null);
   const inputRef            = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
-  }, [msgs]);
-
-  useEffect(() => {
-    if (!done) setTimeout(() => inputRef.current?.focus(), 80);
-  }, [step, done]);
+  useEffect(() => { listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }); }, [msgs]);
+  useEffect(() => { if (!done) setTimeout(() => inputRef.current?.focus(), 80); }, [step, done]);
 
   const current = STEPS[step];
 
@@ -183,58 +163,28 @@ function SentinelChat({ onClose, onSaved }: { onClose: () => void; onSaved: () =
     const newForm = { ...form, ...(current.key !== "done" && { [current.key]: value }) };
     setForm(newForm);
     const nextStep = step + 1;
-
     if (STEPS[nextStep]?.key === "done") {
       setSaving(true);
       setMsgs(m => [...m, { from: "bot", text: "Speichere…" }]);
       try {
-        const r = await fetch("/api/investors-crm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...newForm, status: newForm.status ?? "Neu" }),
-        });
-        if (r.ok) {
-          setMsgs(m => [...m.slice(0, -1), { from: "bot", text: `✓ ${newForm.name} wurde gespeichert.` }]);
-          setDone(true);
-          onSaved();
-        } else {
-          const e = await r.json();
-          setMsgs(m => [...m.slice(0, -1), { from: "bot", text: `Fehler: ${e.error}` }]);
-        }
-      } catch {
-        setMsgs(m => [...m.slice(0, -1), { from: "bot", text: "Verbindungsfehler." }]);
-      } finally { setSaving(false); }
+        const r = await fetch("/api/investors-crm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...newForm, status: newForm.status ?? "Neu" }) });
+        if (r.ok) { setMsgs(m => [...m.slice(0,-1), { from: "bot", text: `✓ ${newForm.name} wurde gespeichert.` }]); setDone(true); onSaved(); }
+        else { const e = await r.json(); setMsgs(m => [...m.slice(0,-1), { from: "bot", text: `Fehler: ${e.error}` }]); }
+      } catch { setMsgs(m => [...m.slice(0,-1), { from: "bot", text: "Verbindungsfehler." }]); }
+      finally { setSaving(false); }
       return;
     }
-
-    setStep(nextStep);
-    setDraft("");
+    setStep(nextStep); setDraft("");
     setMsgs(m => [...m, { from: "bot", text: STEPS[nextStep].bot }]);
   }, [step, form, current, onSaved]);
 
-  const submit = () => {
-    const val = draft.trim() || null;
-    if (!val && !current.optional) return;
-    advance(val);
-  };
-
+  const submit = () => { const val = draft.trim() || null; if (!val && !current.optional) return; advance(val); };
   const isSelect = current.type === "select";
-
-  const inpStyle: React.CSSProperties = {
-    flex: 1, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)",
-    borderRadius: 20, padding: "10px 16px",
-    color: "#fff", fontSize: 16, fontFamily: "var(--font-montserrat,sans-serif)",
-    outline: "none", touchAction: "manipulation", WebkitAppearance: "none",
-  };
+  const inpS: React.CSSProperties = { flex: 1, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 20, padding: "10px 16px", color: "#fff", fontSize: 16, fontFamily: "var(--font-montserrat,sans-serif)", outline: "none", touchAction: "manipulation", WebkitAppearance: "none" };
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(6px)", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}
-      onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} style={{
-        background: "#111214", border: "1px solid rgba(255,255,255,0.1)",
-        borderRadius: "20px 20px 0 0", display: "flex", flexDirection: "column",
-        maxHeight: "85dvh", paddingBottom: "env(safe-area-inset-bottom, 0px)",
-      }}>
+    <div style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(6px)", display: "flex", flexDirection: "column", justifyContent: "flex-end" }} onClick={onClose}>
+      <div onClick={e => e.stopPropagation()} style={{ background: "#111214", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "20px 20px 0 0", display: "flex", flexDirection: "column", maxHeight: "85dvh", paddingBottom: "env(safe-area-inset-bottom,0px)" }}>
         <div style={{ padding: "12px 16px 10px", borderBottom: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
           <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)", margin: "0 auto 12px" }} />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -242,74 +192,39 @@ function SentinelChat({ onClose, onSaved }: { onClose: () => void; onSaved: () =
             <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", fontSize: 18, cursor: "pointer", padding: "0 4px" }}>✕</button>
           </div>
         </div>
-
         <div ref={listRef} style={{ flex: 1, overflowY: "auto", padding: "12px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
           {msgs.map((m, i) => (
-            <div key={i} style={{
-              alignSelf: m.from === "bot" ? "flex-start" : "flex-end",
-              maxWidth: "80%",
-              background: m.from === "bot" ? "rgba(255,255,255,0.08)" : "rgba(226,202,122,0.15)",
-              border: `1px solid ${m.from === "bot" ? "rgba(255,255,255,0.1)" : "rgba(226,202,122,0.25)"}`,
-              borderRadius: m.from === "bot" ? "4px 14px 14px 14px" : "14px 4px 14px 14px",
-              padding: "8px 12px", fontSize: 13,
-              fontFamily: "var(--font-montserrat,sans-serif)",
-              color: m.from === "bot" ? "rgba(255,255,255,0.85)" : "#e2ca7a",
-              lineHeight: 1.45,
-            }}>{m.text}</div>
+            <div key={i} style={{ alignSelf: m.from === "bot" ? "flex-start" : "flex-end", maxWidth: "80%", background: m.from === "bot" ? "rgba(255,255,255,0.08)" : "rgba(226,202,122,0.15)", border: `1px solid ${m.from === "bot" ? "rgba(255,255,255,0.1)" : "rgba(226,202,122,0.25)"}`, borderRadius: m.from === "bot" ? "4px 14px 14px 14px" : "14px 4px 14px 14px", padding: "8px 12px", fontSize: 13, fontFamily: "var(--font-montserrat,sans-serif)", color: m.from === "bot" ? "rgba(255,255,255,0.85)" : "#e2ca7a", lineHeight: 1.45 }}>
+              {m.text}
+            </div>
           ))}
         </div>
-
         {!done && !saving && (
           <div style={{ padding: "10px 12px", borderTop: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
             {isSelect ? (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                 {(current.options ?? []).map(o => (
-                  <button key={o} onClick={() => advance(o)} style={{
-                    background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.14)",
-                    borderRadius: 16, padding: "7px 12px", color: "rgba(255,255,255,0.8)",
-                    fontSize: 12, fontFamily: "var(--font-montserrat,sans-serif)", fontWeight: 600,
-                    cursor: "pointer", touchAction: "manipulation", WebkitTapHighlightColor: "transparent",
-                  }}>{o}</button>
+                  <button key={o} onClick={() => advance(o)} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 16, padding: "7px 12px", color: "rgba(255,255,255,0.8)", fontSize: 12, fontFamily: "var(--font-montserrat,sans-serif)", fontWeight: 600, cursor: "pointer", touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}>{o}</button>
                 ))}
-                {current.optional && (
-                  <button onClick={() => advance(null)} style={{ background: "none", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "7px 12px", color: "rgba(255,255,255,0.35)", fontSize: 12, fontFamily: "var(--font-montserrat,sans-serif)", cursor: "pointer", touchAction: "manipulation" }}>
-                    Überspringen
-                  </button>
-                )}
+                {current.optional && <button onClick={() => advance(null)} style={{ background: "none", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "7px 12px", color: "rgba(255,255,255,0.35)", fontSize: 12, fontFamily: "var(--font-montserrat,sans-serif)", cursor: "pointer", touchAction: "manipulation" }}>Überspringen</button>}
               </div>
             ) : (
               <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
-                {current.type === "textarea" ? (
-                  <textarea ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-                    value={draft} onChange={e => setDraft(e.target.value)}
-                    placeholder="Tippen…" rows={2}
-                    style={{ ...inpStyle, borderRadius: 12, resize: "none" }} />
-                ) : (
-                  <input ref={inputRef as React.RefObject<HTMLInputElement>}
-                    type={current.type === "email" ? "email" : current.type === "tel" ? "tel" : current.type === "date" ? "date" : "text"}
-                    value={draft} onChange={e => setDraft(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && submit()}
-                    placeholder="Tippen…" style={inpStyle} />
-                )}
+                {current.type === "textarea"
+                  ? <textarea ref={inputRef as React.RefObject<HTMLTextAreaElement>} value={draft} onChange={e => setDraft(e.target.value)} placeholder="Tippen…" rows={2} style={{ ...inpS, borderRadius: 12, resize: "none" }} />
+                  : <input ref={inputRef as React.RefObject<HTMLInputElement>} type={current.type === "email" ? "email" : current.type === "tel" ? "tel" : current.type === "date" ? "date" : "text"} value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => e.key === "Enter" && submit()} placeholder="Tippen…" style={inpS} />
+                }
                 <button onClick={submit} style={{ flexShrink: 0, width: 40, height: 40, borderRadius: "50%", background: "#e2ca7a", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", touchAction: "manipulation" }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                  </svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 </button>
-                {current.optional && (
-                  <button onClick={() => advance(null)} style={{ flexShrink: 0, height: 40, padding: "0 12px", borderRadius: 20, background: "none", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.35)", fontSize: 11, cursor: "pointer", touchAction: "manipulation" }}>
-                    Skip
-                  </button>
-                )}
+                {current.optional && <button onClick={() => advance(null)} style={{ flexShrink: 0, height: 40, padding: "0 12px", borderRadius: 20, background: "none", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.35)", fontSize: 11, cursor: "pointer", touchAction: "manipulation" }}>Skip</button>}
               </div>
             )}
           </div>
         )}
         {done && (
           <div style={{ padding: "12px 16px", borderTop: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
-            <button onClick={onClose} style={{ width: "100%", background: "rgba(226,202,122,0.15)", border: "1px solid rgba(226,202,122,0.3)", borderRadius: 12, padding: "12px", color: "#e2ca7a", fontSize: 14, fontWeight: 700, fontFamily: "var(--font-montserrat,sans-serif)", cursor: "pointer" }}>
-              Fertig
-            </button>
+            <button onClick={onClose} style={{ width: "100%", background: "rgba(226,202,122,0.15)", border: "1px solid rgba(226,202,122,0.3)", borderRadius: 12, padding: "12px", color: "#e2ca7a", fontSize: 14, fontWeight: 700, fontFamily: "var(--font-montserrat,sans-serif)", cursor: "pointer" }}>Fertig</button>
           </div>
         )}
       </div>
@@ -319,11 +234,12 @@ function SentinelChat({ onClose, onSaved }: { onClose: () => void; onSaved: () =
 
 // ── Main View ─────────────────────────────────────────────────────────────────
 export function MobileOnboardingCRMView() {
-  const [rows, setRows]             = useState<Investor[]>([]);
-  const [loading, setLoading]       = useState(true);
-  const [sentinelOpen, setSentinel] = useState(false);
-  const [editCell, setEditCell]     = useState<{ id: string; key: ColKey } | null>(null);
-  const [colsVisible, setColsVisible] = useState(false);
+  const [rows, setRows]               = useState<Investor[]>([]);
+  const [loading, setLoading]         = useState(true);
+  const [sentinelOpen, setSentinel]   = useState(false);
+  const [editCell, setEditCell]       = useState<{ id: string; key: keyof Investor } | null>(null);
+  const [newIds, setNewIds]           = useState<Set<string>>(new Set());
+  const tableRef                      = useRef<HTMLDivElement>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -335,21 +251,25 @@ export function MobileOnboardingCRMView() {
 
   useEffect(() => { load(); }, [load]);
 
-  useEffect(() => {
-    if (!loading) {
-      const t = setTimeout(() => setColsVisible(true), 30);
-      return () => clearTimeout(t);
-    }
-    setColsVisible(false);
-  }, [loading]);
+  const handleSaved = useCallback(async () => {
+    const r = await fetch("/api/investors-crm");
+    if (!r.ok) return;
+    const fresh: Investor[] = await r.json();
+    const prev = new Set(rows.map(x => x.id));
+    const addedIds = fresh.filter(x => !prev.has(x.id)).map(x => x.id);
+    setNewIds(new Set(addedIds));
+    setRows(fresh);
+    // Scroll to the rightmost new column
+    setTimeout(() => {
+      tableRef.current?.scrollTo({ left: tableRef.current.scrollWidth, behavior: "smooth" });
+    }, 80);
+    // Clear animation flag after it plays
+    setTimeout(() => setNewIds(new Set()), 1200);
+  }, [rows]);
 
-  async function patch(id: string, key: ColKey, value: string | null) {
+  async function patch(id: string, key: keyof Investor, value: string | null) {
     setRows(prev => prev.map(r => r.id === id ? { ...r, [key]: value } : r));
-    await fetch(`/api/investors-crm/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ [key]: value }),
-    });
+    await fetch(`/api/investors-crm/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ [key]: value }) });
   }
 
   const total      = rows.length;
@@ -358,43 +278,27 @@ export function MobileOnboardingCRMView() {
   const abgesagt   = rows.filter(r => r.status === "Abgesagt").length;
   const offen      = rows.filter(r => r.status === "Neu" || r.status === "Kontaktiert").length;
 
-  const nrMap = Object.fromEntries(rows.map((r, i) => [r.id, i + 1]));
-
-  const ROW_H = 44;
-  const TH_H  = 34;
-
   return (
     <>
       <style>{`
-        @keyframes colDropIn {
-          from { opacity: 0; transform: translateY(-8px); }
-          to   { opacity: 1; transform: translateY(0); }
+        @keyframes colSlideIn {
+          from { opacity: 0; transform: translateX(18px); }
+          to   { opacity: 1; transform: translateX(0); }
         }
       `}</style>
 
-      <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", background: "#0c0d10", color: "#e4e4e7" }}>
+      <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", background: PAGE_BG, color: "#e4e4e7" }}>
 
-        {/* Page header */}
+        {/* ── Page header ── */}
         <div style={{ padding: "12px 14px 10px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <h1 style={{ margin: 0, fontSize: 15, fontWeight: 800, fontFamily: "var(--font-montserrat,sans-serif)", color: "#fff" }}>
-            Investor Onboarding
-          </h1>
-          <button onClick={() => setSentinel(true)} style={{
-            display: "flex", alignItems: "center", gap: 5,
-            background: "rgba(226,202,122,0.1)", border: "1px solid rgba(226,202,122,0.25)",
-            borderRadius: 20, padding: "6px 12px",
-            color: "#e2ca7a", fontSize: 11, fontWeight: 700,
-            fontFamily: "var(--font-montserrat,sans-serif)",
-            cursor: "pointer", touchAction: "manipulation", WebkitTapHighlightColor: "transparent",
-          }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
+          <h1 style={{ margin: 0, fontSize: 15, fontWeight: 800, fontFamily: "var(--font-montserrat,sans-serif)", color: "#fff" }}>Investor Onboarding</h1>
+          <button onClick={() => setSentinel(true)} style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(226,202,122,0.1)", border: "1px solid rgba(226,202,122,0.25)", borderRadius: 20, padding: "6px 12px", color: "#e2ca7a", fontSize: 11, fontWeight: 700, fontFamily: "var(--font-montserrat,sans-serif)", cursor: "pointer", touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             Sentinel
           </button>
         </div>
 
-        {/* KPI row */}
+        {/* ── KPI row ── */}
         <div style={{ display: "flex", gap: 6, padding: "0 14px 10px", flexShrink: 0 }}>
           <KpiCard label="Gesamt"      value={total} />
           <KpiCard label="Warm Commit" value={warmCommit} />
@@ -403,70 +307,106 @@ export function MobileOnboardingCRMView() {
           <KpiCard label="Abgesagt"    value={abgesagt} />
         </div>
 
-        {/* Table */}
+        {/* ── Transposed table: categories = rows, investors = columns ── */}
         <div style={{ flex: 1, position: "relative", minHeight: 0 }}>
           {/* Right fade */}
-          <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: 40, zIndex: 10, background: "linear-gradient(to right, transparent, #0c0d10)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: 48, zIndex: 10, background: `linear-gradient(to right, transparent, ${PAGE_BG})`, pointerEvents: "none" }} />
 
-          <div style={{ height: "100%", overflowX: "auto", overflowY: "auto" }}>
+          <div ref={tableRef} style={{ height: "100%", overflowX: "auto", overflowY: "auto" }}>
             {loading ? (
               <div style={{ padding: 32, textAlign: "center", color: MUTED, fontSize: 12, fontFamily: "var(--font-montserrat,sans-serif)" }}>Lädt…</div>
-            ) : rows.length === 0 ? (
-              <div style={{ padding: 40, textAlign: "center", color: MUTED, fontSize: 12, fontFamily: "var(--font-montserrat,sans-serif)" }}>
-                Noch keine Interessenten eingetragen.
-              </div>
             ) : (
               <table style={{ borderCollapse: "collapse", tableLayout: "fixed" }}>
+                <colgroup>
+                  {/* Sticky category column */}
+                  <col style={{ width: CAT_COL_W }} />
+                  {/* One column per investor */}
+                  {rows.map(r => <col key={r.id} style={{ width: INV_COL_W }} />)}
+                </colgroup>
+
                 <thead>
-                  <tr style={{ background: "#0c0d10", position: "sticky", top: 0, zIndex: 5 }}>
-                    <th style={{ width: 36, minWidth: 36, height: TH_H, fontSize: 9, fontWeight: 700, color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", textTransform: "uppercase", letterSpacing: "0.06em", textAlign: "left", paddingLeft: 8, borderBottom: "1px solid rgba(255,255,255,0.07)", verticalAlign: "middle" }}>#</th>
-                    {COLS.map((c, ci) => (
-                      <th key={c.key} style={{
-                        width: c.w, minWidth: c.w, height: TH_H,
-                        fontSize: 9, fontWeight: 700, color: MUTED,
-                        fontFamily: "var(--font-montserrat,sans-serif)",
-                        textTransform: "uppercase", letterSpacing: "0.06em",
-                        textAlign: "left", paddingLeft: 10,
-                        borderBottom: "1px solid rgba(255,255,255,0.07)",
-                        whiteSpace: "nowrap", verticalAlign: "middle",
-                        opacity: colsVisible ? 1 : 0,
-                        animation: colsVisible ? `colDropIn 220ms ease ${ci * 22}ms both` : "none",
-                      }}>
-                        {c.label}
-                      </th>
-                    ))}
+                  <tr style={{ position: "sticky", top: 0, zIndex: 20 }}>
+                    {/* Top-left corner cell */}
+                    <th style={{
+                      position: "sticky", left: 0, zIndex: 21,
+                      background: PAGE_BG,
+                      width: CAT_COL_W, minWidth: CAT_COL_W,
+                      height: CELL_H,
+                      borderBottom: "1px solid rgba(255,255,255,0.08)",
+                      borderRight: "1px solid rgba(255,255,255,0.06)",
+                    }} />
+                    {/* Investor name headers */}
+                    {rows.map((inv, ci) => {
+                      const isNew = newIds.has(inv.id);
+                      return (
+                        <th key={inv.id} style={{
+                          height: CELL_H, width: INV_COL_W, minWidth: INV_COL_W,
+                          background: PAGE_BG,
+                          borderBottom: "1px solid rgba(255,255,255,0.08)",
+                          borderRight: "1px solid rgba(255,255,255,0.04)",
+                          paddingLeft: 10, paddingRight: 6,
+                          textAlign: "left", verticalAlign: "middle",
+                          animation: isNew ? `colSlideIn 280ms ease both` : undefined,
+                        }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", fontFamily: "var(--font-montserrat,sans-serif)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block" }}>
+                            {ci + 1}. {inv.name}
+                          </span>
+                        </th>
+                      );
+                    })}
                   </tr>
                 </thead>
+
                 <tbody>
-                  {rows.map((row, ri) => (
-                    <tr key={row.id} style={{ background: ri % 2 === 0 ? "transparent" : "rgba(255,255,255,0.018)" }}>
-                      <td style={{ height: ROW_H, paddingLeft: 8, fontSize: 9, color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-montserrat,sans-serif)", borderBottom: "1px solid rgba(255,255,255,0.04)", verticalAlign: "middle", whiteSpace: "nowrap" }}>
-                        {nrMap[row.id]}
+                  {ROWS.map((rowDef, ri) => (
+                    <tr key={rowDef.key} style={{ background: ri % 2 === 0 ? "transparent" : "rgba(255,255,255,0.018)" }}>
+                      {/* Sticky category label */}
+                      <td style={{
+                        position: "sticky", left: 0, zIndex: 5,
+                        background: ri % 2 === 0 ? PAGE_BG : "#0f1012",
+                        width: CAT_COL_W, minWidth: CAT_COL_W,
+                        height: CELL_H,
+                        paddingLeft: 10, paddingRight: 8,
+                        borderBottom: "1px solid rgba(255,255,255,0.04)",
+                        borderRight: "1px solid rgba(255,255,255,0.06)",
+                        verticalAlign: "middle",
+                      }}>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>
+                          {rowDef.label}
+                        </span>
                       </td>
-                      {COLS.map((c, ci) => {
-                        const isEditing = editCell?.id === row.id && editCell?.key === c.key;
-                        const raw = row[c.key] as string | null;
-                        const sc  = c.key === "status" ? (STATUS_COLOR[raw ?? ""] ?? STATUS_COLOR["Neu"]) : null;
+
+                      {/* One cell per investor */}
+                      {rows.length === 0 ? (
+                        <td colSpan={1}>
+                          <span style={{ fontSize: 11, color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", paddingLeft: 12 }}>Noch keine Einträge</span>
+                        </td>
+                      ) : rows.map(inv => {
+                        const isNew      = newIds.has(inv.id);
+                        const isEditing  = editCell?.id === inv.id && editCell?.key === rowDef.key;
+                        const raw        = inv[rowDef.key] as string | null;
+                        const sc         = rowDef.key === "status" ? (STATUS_COLOR[raw ?? ""] ?? STATUS_COLOR["Neu"]) : null;
+
                         return (
-                          <td key={c.key}
-                            onClick={() => setEditCell({ id: row.id, key: c.key })}
+                          <td key={inv.id}
+                            onClick={() => setEditCell({ id: inv.id, key: rowDef.key })}
                             style={{
-                              height: ROW_H, paddingLeft: 10, paddingRight: 6,
+                              height: CELL_H, paddingLeft: 10, paddingRight: 6,
                               borderBottom: "1px solid rgba(255,255,255,0.04)",
+                              borderRight: "1px solid rgba(255,255,255,0.04)",
                               verticalAlign: "middle",
-                              whiteSpace: isEditing ? "normal" : "nowrap",
                               cursor: "text",
-                              opacity: colsVisible ? 1 : 0,
-                              animation: colsVisible ? `colDropIn 220ms ease ${ci * 22}ms both` : "none",
-                              maxWidth: c.w, overflow: isEditing ? "visible" : "hidden",
+                              whiteSpace: isEditing ? "normal" : "nowrap",
+                              overflow: isEditing ? "visible" : "hidden",
+                              animation: isNew ? `colSlideIn 280ms ease both` : undefined,
                             }}>
                             {isEditing ? (
-                              <CellEditor colKey={c.key} value={raw} onSave={v => patch(row.id, c.key, v)} onClose={() => setEditCell(null)} />
-                            ) : c.key === "status" && sc ? (
+                              <CellEditor rowKey={rowDef.key} value={raw} onSave={v => patch(inv.id, rowDef.key, v)} onClose={() => setEditCell(null)} />
+                            ) : rowDef.key === "status" && sc ? (
                               <span style={{ display: "inline-block", padding: "2px 7px", borderRadius: 4, fontSize: 10, fontWeight: 700, fontFamily: "var(--font-montserrat,sans-serif)", background: sc.bg, color: sc.text, whiteSpace: "nowrap" }}>
-                                {raw}
+                                {raw ?? "Neu"}
                               </span>
-                            ) : (c.key === "verfuegbar_ab" || c.key === "letzter_kontakt") ? (
+                            ) : (rowDef.key === "verfuegbar_ab" || rowDef.key === "letzter_kontakt") ? (
                               <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-montserrat,sans-serif)" }}>{fmtDate(raw)}</span>
                             ) : (
                               <span style={{ fontSize: 11, color: raw ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.18)", fontFamily: "var(--font-montserrat,sans-serif)", display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>
@@ -485,7 +425,12 @@ export function MobileOnboardingCRMView() {
         </div>
       </div>
 
-      {sentinelOpen && <SentinelChat onClose={() => setSentinel(false)} onSaved={load} />}
+      {sentinelOpen && (
+        <SentinelChat
+          onClose={() => setSentinel(false)}
+          onSaved={handleSaved}
+        />
+      )}
     </>
   );
 }
