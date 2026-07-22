@@ -107,7 +107,7 @@ function DirBadge({ dir }: { dir: string }) {
   );
 }
 
-// ── Single signal card ────────────────────────────────────────────────────────
+// ── Single signal card — one line ────────────────────────────────────────────
 
 function SignalCard({ card, onTap }: { card: SignalCardModel; onTap: () => void }) {
   const days    = nextLabelDaysAhead(card.nextSignalLabel);
@@ -116,46 +116,17 @@ function SignalCard({ card, onTap }: { card: SignalCardModel; onTap: () => void 
   const pct     = card.changePct ?? 0;
   const pctColor = pct >= 0 ? "#22c55e" : "#ef4444";
 
-  // Top-right: pct when open, or HEUTE/MORGEN ✓ when pending
-  let topRight: React.ReactNode = null;
+  let rightNode: React.ReactNode = null;
   if (hasPct) {
-    topRight = (
-      <span style={{ fontSize: 10, fontWeight: 700, color: pctColor, letterSpacing: "0.02em" }}>
+    rightNode = (
+      <span style={{ fontSize: 10, fontWeight: 700, color: pctColor, flexShrink: 0 }}>
         {pct >= 0 ? "+" : ""}{pct.toFixed(2)}%
       </span>
     );
   } else if (days === 0) {
-    topRight = (
-      <span style={{ fontSize: 9, fontWeight: 800, color: "#22c55e", letterSpacing: "0.04em" }}>
-        HEUTE ✓
-      </span>
-    );
+    rightNode = <span style={{ fontSize: 8, fontWeight: 800, color: "#22c55e", flexShrink: 0 }}>HEUTE</span>;
   } else if (days === 1) {
-    topRight = (
-      <span style={{ fontSize: 9, fontWeight: 800, color: "#f59e0b", letterSpacing: "0.04em" }}>
-        MORGEN ✓
-      </span>
-    );
-  }
-
-  // Row 2 right: date + validity mark
-  let dateNode: React.ReactNode = null;
-  if (isOpen && card.signalDate) {
-    dateNode = (
-      <span style={{ fontSize: 8, color: "rgba(255,255,255,0.28)", flexShrink: 0 }}>
-        {card.signalDate} ✓
-      </span>
-    );
-  } else if (card.nextSignalLabel) {
-    const valid = days != null && days >= 0 && days <= 1;
-    dateNode = (
-      <span style={{
-        fontSize: 8, flexShrink: 0,
-        color: valid ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.2)",
-      }}>
-        {card.nextSignalLabel} {valid ? "✓" : "✗"}
-      </span>
-    );
+    rightNode = <span style={{ fontSize: 8, fontWeight: 800, color: "#f59e0b", flexShrink: 0 }}>MORGEN</span>;
   }
 
   return (
@@ -164,59 +135,32 @@ function SignalCard({ card, onTap }: { card: SignalCardModel; onTap: () => void 
       style={{
         background: "#0f1014",
         border: "1px solid rgba(255,255,255,0.07)",
-        borderRadius: 8,
-        padding: "10px 10px 9px",
+        borderRadius: 7,
+        padding: "7px 8px",
         display: "flex",
-        flexDirection: "column",
+        alignItems: "center",
         gap: 7,
         minWidth: 0,
         overflow: "hidden",
         cursor: "pointer",
         WebkitTapHighlightColor: "transparent",
-        position: "relative",
       }}
     >
-      {/* Row 1: icon + symbol + assetName + top-right */}
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
-        <AssetIcon card={card} size={28} />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4 }}>
-            <span style={{
-              fontSize: 12, fontWeight: 800,
-              color: "rgba(255,255,255,0.92)",
-              letterSpacing: "0.03em",
-              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-            }}>
-              {card.displaySymbol}
-            </span>
-            {topRight}
-          </div>
-          <div style={{
-            fontSize: 9, color: "rgba(255,255,255,0.35)",
-            marginTop: 1,
-            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-          }}>
-            {card.assetName}
-          </div>
-        </div>
-      </div>
-
-      {/* Row 2: strategy + date/validity */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 4 }}>
-        <span style={{
-          fontSize: 9, color: "rgba(255,255,255,0.38)",
-          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-          flex: 1,
-        }}>
-          {card.strategyName}
-        </span>
-        {dateNode}
-      </div>
-
-      {/* Row 3: direction only */}
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <DirBadge dir={card.direction} />
-      </div>
+      <AssetIcon card={card} size={22} />
+      <span style={{
+        fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.92)",
+        letterSpacing: "0.02em", whiteSpace: "nowrap",
+      }}>
+        {card.displaySymbol}
+      </span>
+      <span style={{
+        fontSize: 8.5, color: "rgba(255,255,255,0.3)",
+        flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+      }}>
+        {card.assetName}
+      </span>
+      <DirBadge dir={card.direction} />
+      {rightNode}
     </div>
   );
 }
@@ -297,38 +241,52 @@ function DetailSheet({
       >
         <style>{`@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
 
-        {/* Handle + header — drag target */}
+        {/* Swipe handle */}
         <div
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
-          style={{ flexShrink: 0, padding: "10px 16px 8px", touchAction: "none" }}
+          style={{ flexShrink: 0, paddingTop: 10, paddingBottom: 6, touchAction: "none" }}
         >
-          <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.2)", margin: "0 auto 10px" }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            {iconUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={iconUrl} alt={card.displaySymbol} width={26} height={26}
-                style={{ objectFit: "contain", borderRadius: 5, border: "1px solid rgba(255,255,255,0.1)" }} />
-            ) : (
-              <div style={{ width: 26, height: 26, borderRadius: 5, background: "rgba(255,255,255,0.08)" }} />
-            )}
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 800, color: "#fff", lineHeight: 1.1 }}>{card.displaySymbol}</div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 1 }}>{card.strategyName}</div>
-            </div>
-            <button
-              onClick={onClose}
-              style={{
-                marginLeft: "auto", background: "rgba(255,255,255,0.07)",
-                border: "none", borderRadius: 8,
-                color: "rgba(255,255,255,0.5)", fontSize: 16, lineHeight: 1,
-                width: 32, height: 32, cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                WebkitTapHighlightColor: "transparent",
-              }}
-            >✕</button>
-          </div>
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.2)", margin: "0 auto" }} />
+        </div>
+
+        {/* Card summary row — einzeilig, ganz oben */}
+        <div style={{
+          flexShrink: 0,
+          display: "flex", alignItems: "center", gap: 8,
+          padding: "0 12px 8px",
+        }}>
+          {iconUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={iconUrl} alt={card.displaySymbol} width={24} height={24}
+              style={{ objectFit: "contain", borderRadius: 5, border: "1px solid rgba(255,255,255,0.1)", flexShrink: 0 }} />
+          ) : (
+            <div style={{ width: 24, height: 24, borderRadius: 5, background: "rgba(255,255,255,0.08)", flexShrink: 0 }} />
+          )}
+          <span style={{ fontSize: 14, fontWeight: 800, color: "#fff", letterSpacing: "0.02em", flexShrink: 0 }}>
+            {card.displaySymbol}
+          </span>
+          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {card.assetName} · {card.strategyName}
+          </span>
+          <DirBadge dir={card.direction} />
+          {card.changePct != null && (
+            <span style={{ fontSize: 10, fontWeight: 700, color: card.changePct >= 0 ? "#22c55e" : "#ef4444", flexShrink: 0 }}>
+              {card.changePct >= 0 ? "+" : ""}{card.changePct.toFixed(2)}%
+            </span>
+          )}
+          <button
+            onClick={onClose}
+            style={{
+              marginLeft: 4, background: "rgba(255,255,255,0.07)",
+              border: "none", borderRadius: 7,
+              color: "rgba(255,255,255,0.45)", fontSize: 14, lineHeight: 1,
+              width: 28, height: 28, cursor: "pointer", flexShrink: 0,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              WebkitTapHighlightColor: "transparent",
+            }}
+          >✕</button>
         </div>
 
         <div style={{ height: 1, background: "rgba(255,255,255,0.06)", flexShrink: 0 }} />
@@ -336,8 +294,8 @@ function DetailSheet({
         {/* Charts zone — flex 1, NO scroll, explicit heights so fillContainer works */}
         <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
 
-          {/* Candle chart — 46% of remaining space */}
-          <div style={{ flex: "0 0 46%", position: "relative", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+          {/* Candle chart — takes most space */}
+          <div style={{ flex: "2 1 0", position: "relative", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
             {/* Symbol overlay */}
             <div style={{
               position: "absolute", left: 10, top: 8, zIndex: 10,
@@ -364,8 +322,8 @@ function DetailSheet({
             )}
           </div>
 
-          {/* Equity chart — 29% */}
-          <div style={{ flex: "0 0 29%", borderBottom: "1px solid rgba(255,255,255,0.04)", padding: "2px 4px" }}>
+          {/* Equity chart */}
+          <div style={{ flex: "1 1 0", borderBottom: "1px solid rgba(255,255,255,0.04)", padding: "2px 4px" }}>
             {mounted && perf ? (
               <StrategyTesterEquityChart
                 data={perf.equityCurve}
@@ -380,8 +338,8 @@ function DetailSheet({
             )}
           </div>
 
-          {/* Drawdown chart — 17% */}
-          <div style={{ flex: "0 0 17%", borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "2px 4px" }}>
+          {/* Drawdown chart */}
+          <div style={{ flex: "0 0 18%", borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "2px 4px" }}>
             {mounted && perf ? (
               <StrategyTesterDrawdownChart
                 data={perf.drawdownCurve}
@@ -391,14 +349,16 @@ function DetailSheet({
             ) : null}
           </div>
 
-          {/* KPI row — remaining 8%, pinned at bottom */}
+          {/* KPI row — pinned at bottom, safe-area aware */}
           <div style={{
-            flex: "0 0 8%",
+            flexShrink: 0,
             display: "grid",
             gridTemplateColumns: `repeat(${Math.max(kpis.length, 1)}, 1fr)`,
             gap: 4,
-            padding: "4px 8px",
+            padding: "6px 8px",
+            paddingBottom: "max(10px, env(safe-area-inset-bottom, 10px))",
             alignItems: "stretch",
+            minHeight: 64,
           }}>
             {kpis.length > 0 ? kpis.map(k => {
               const isNeg = k.tone === "negative" || (typeof k.value === "string" && k.value.startsWith("-"));
