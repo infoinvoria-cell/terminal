@@ -8,7 +8,8 @@
 
 /* ── PERMANENT SIDEBAR FIX ─────────────────────────────────────────────────
    Sidebar must always win against any canvas, WebGL, or overlay element.
-   These rules are the single source of truth — do not remove them.        */
+   These rules are the single source of truth — do not remove them.
+   LAYER 1: Sidebar wins unconditionally                                    */
 .capitalife-sidebar {
   position: relative !important;
   z-index: 9999 !important;
@@ -16,13 +17,29 @@
   pointer-events: auto !important;
 }
 
-/* Canvas/WebGL elements that are purely visual must never intercept clicks */
+/* LAYER 2: Nuclear — every canvas in the app is purely visual.
+   Globe interaction works via the wrapper div (Three.js orbit controls
+   attach to renderer.domElement, but the globe-stage div catches events
+   first via capture-phase listeners added by react-globe.gl).             */
+canvas {
+  pointer-events: none !important;
+}
+
+/* LAYER 3: Named canvas/overlay classes (belt-and-suspenders)             */
 .brain-canvas,
 .globe-canvas {
   pointer-events: none !important;
 }
 
-/* Belt-and-suspenders: any raw <canvas> inside a globe or brain container   */
+/* LAYER 4: CSS2DRenderer divs (Three.js HTML label overlay) must not
+   intercept clicks. react-globe.gl creates a div inside globe-stage;
+   target its direct children's siblings that may lack pointer-events.     */
+.globe-stage > div,
+.brain-stage > div {
+  pointer-events: none !important;
+}
+
+/* LAYER 5: Any raw canvas inside a globe or brain container               */
 .globe-stage canvas,
 .brain-stage canvas {
   pointer-events: none !important;
