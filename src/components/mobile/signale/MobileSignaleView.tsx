@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useClientMounted } from "@/hooks/use-client-mounted";
 import type { SignalPageModel, SignalCardModel, SignalCardFilter, SignalPageSection } from "@/lib/signals/signal-types";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
@@ -241,6 +241,36 @@ function DetailSheet({
   const perf = preview?.performance;
   const kpis = (preview?.kpis ?? []).slice(0, 5);
 
+  // ── Swipe-to-close ────────────────────────────────────────────────────────
+  const sheetRef = React.useRef<HTMLDivElement>(null);
+  const dragStartY = React.useRef<number | null>(null);
+  const dragDelta = React.useRef(0);
+
+  function onTouchStart(e: React.TouchEvent) {
+    dragStartY.current = e.touches[0]!.clientY;
+    dragDelta.current = 0;
+    if (sheetRef.current) sheetRef.current.style.transition = "none";
+  }
+  function onTouchMove(e: React.TouchEvent) {
+    if (dragStartY.current === null) return;
+    const dy = e.touches[0]!.clientY - dragStartY.current;
+    if (dy < 0) return; // don't allow dragging up
+    dragDelta.current = dy;
+    if (sheetRef.current) sheetRef.current.style.transform = `translateY(${dy}px)`;
+  }
+  function onTouchEnd() {
+    if (dragDelta.current > 100) {
+      onClose();
+    } else {
+      if (sheetRef.current) {
+        sheetRef.current.style.transition = "transform 200ms ease";
+        sheetRef.current.style.transform = "translateY(0)";
+      }
+    }
+    dragStartY.current = null;
+    dragDelta.current = 0;
+  }
+
   return (
     <>
       {/* Backdrop */}
@@ -253,19 +283,27 @@ function DetailSheet({
       />
 
       {/* Sheet */}
-      <div style={{
-        position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 9001,
-        background: "#111214",
-        borderTop: "1px solid rgba(255,255,255,0.1)",
-        borderRadius: "16px 16px 0 0",
-        display: "flex", flexDirection: "column",
-        height: "88dvh",
-        animation: "slideUp 280ms cubic-bezier(0.32,0.72,0,1) both",
-      }}>
+      <div
+        ref={sheetRef}
+        style={{
+          position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 9001,
+          background: "#111214",
+          borderTop: "1px solid rgba(255,255,255,0.1)",
+          borderRadius: "16px 16px 0 0",
+          display: "flex", flexDirection: "column",
+          height: "75dvh",
+          animation: "slideUp 280ms cubic-bezier(0.32,0.72,0,1) both",
+        }}
+      >
         <style>{`@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
 
-        {/* Handle + header */}
-        <div style={{ flexShrink: 0, padding: "10px 16px 8px" }}>
+        {/* Handle + header — drag target */}
+        <div
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+          style={{ flexShrink: 0, padding: "10px 16px 8px", touchAction: "none" }}
+        >
           <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.2)", margin: "0 auto 10px" }} />
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             {iconUrl ? (
@@ -298,8 +336,25 @@ function DetailSheet({
         {/* Scrollable content */}
         <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "0 0 16px" }}>
 
-          {/* Candle chart */}
-          <div style={{ height: 220, position: "relative", margin: "0 0 2px" }}>
+          {/* Candle chart + symbol badge */}
+          <div style={{ height: 200, position: "relative", margin: "0 0 2px" }}>
+            {/* Symbol overlay */}
+            <div style={{
+              position: "absolute", left: 10, top: 10, zIndex: 10,
+              display: "flex", alignItems: "center", gap: 6,
+              background: "rgba(0,0,0,0.6)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 8, padding: "4px 8px",
+              backdropFilter: "blur(6px)",
+            }}>
+              {iconUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={iconUrl} alt={card.displaySymbol} width={14} height={14}
+                  style={{ objectFit: "contain", borderRadius: 3 }} />
+              )}
+              <span style={{ fontSize: 11, fontWeight: 800, color: "#fff" }}>{card.displaySymbol}</span>
+              <span style={{ fontSize: 9, color: "rgba(255,255,255,0.4)" }}>{card.strategyName}</span>
+            </div>
             {mounted && preview?.chart ? (
               <MonitoringChart data={preview.chart} maxBars={320} initialVisibleBars={56} />
             ) : (
@@ -312,7 +367,7 @@ function DetailSheet({
           {/* Equity + drawdown */}
           {mounted && perf ? (
             <>
-              <div style={{ height: 90, padding: "0 4px" }}>
+              <div style={{ height: 80, padding: "2px 4px 0" }}>
                 <StrategyTesterEquityChart
                   data={perf.equityCurve}
                   totalReturnPercent={perf.summary?.totalReturnPercent}
@@ -320,7 +375,7 @@ function DetailSheet({
                   fillContainer
                 />
               </div>
-              <div style={{ height: 60, padding: "0 4px", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+              <div style={{ height: 52, padding: "0 4px", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
                 <StrategyTesterDrawdownChart
                   data={perf.drawdownCurve}
                   maxDrawdownPercent={perf.summary?.maxDrawdownPercent}
@@ -329,37 +384,40 @@ function DetailSheet({
               </div>
             </>
           ) : (
-            <div style={{ height: 60, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ height: 52, display: "flex", alignItems: "center", justifyContent: "center" }}>
               <span style={{ fontSize: 10, color: "rgba(255,255,255,0.12)" }}>Kein Backtest verfügbar</span>
             </div>
           )}
 
-          {/* KPI row */}
+          {/* KPI row — 5 tiles, negative = gold */}
           {kpis.length > 0 && (
             <div style={{
               display: "grid",
               gridTemplateColumns: `repeat(${kpis.length}, 1fr)`,
-              gap: 6,
-              padding: "10px 12px 0",
+              gap: 5,
+              padding: "10px 10px 0",
             }}>
-              {kpis.map(k => (
-                <div key={k.label} style={{
-                  background: "linear-gradient(180deg,#1c1d20 0%,#141517 100%)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  borderRadius: 8, padding: "8px 6px",
-                  display: "flex", flexDirection: "column", gap: 4,
-                }}>
-                  <div style={{ fontSize: 7.5, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.35)", lineHeight: 1 }}>
-                    {k.label}
-                  </div>
-                  <div style={{
-                    fontSize: 14, fontWeight: 700, lineHeight: 1,
-                    color: k.tone === "positive" ? "#22c55e" : k.tone === "negative" ? "#ef4444" : "#fff",
+              {kpis.map(k => {
+                const isNeg = k.tone === "negative" || (typeof k.value === "string" && k.value.startsWith("-"));
+                return (
+                  <div key={k.label} style={{
+                    background: "linear-gradient(180deg,#1c1d20 0%,#141517 100%)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: 8, padding: "7px 5px",
+                    display: "flex", flexDirection: "column", gap: 5,
                   }}>
-                    {k.value}
+                    <div style={{ fontSize: 7, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.35)", lineHeight: 1 }}>
+                      {k.label}
+                    </div>
+                    <div style={{
+                      fontSize: 13, fontWeight: 700, lineHeight: 1,
+                      color: isNeg ? "#d8bc67" : "#fff",
+                    }}>
+                      {k.value}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
