@@ -392,10 +392,15 @@ export function BrainGraphShell() {
                 {selected && <NodePanel node={selected} onClose={() => setSelected(null)} />}
               </>
             ) : (
-              <div className="flex h-full items-center justify-center">
+              <div className="flex h-full flex-col items-center justify-center gap-2">
                 <div className="text-sm text-[#555]">
                   {network ? "Graph nicht verfügbar" : "Lade Graph…"}
                 </div>
+                {network && (network as { message?: string }).message && (
+                  <div className="max-w-sm text-center text-xs text-[#444]">
+                    {(network as { message?: string }).message}
+                  </div>
+                )}
               </div>
             )}
             <StatusStrip status={status ?? null} nodeCount={nodeCount} linkCount={linkCount} dataSource={network?.source} />

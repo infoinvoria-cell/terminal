@@ -4786,7 +4786,63 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
       monitoringTabIdForGroup,
     );
     // manual_verified_live_state has highest priority — overrides all engine/csv/snapshot sources
-    return applyManualVerifiedOverrides(rawFeed, manualVerifiedPayload);
+    const feed = applyManualVerifiedOverrides(rawFeed, manualVerifiedPayload);
+
+    // Fallback: if the monitoring lifecycle produced no open signals (e.g. on Vercel without
+    // local Brain data), inject forward-logger open trades so the Live Signals panel is not empty.
+    if (feed.openTrades.length === 0 && Array.isArray(forwardLogger?.openTrades) && forwardLogger.openTrades.length > 0) {
+      const now = Date.now();
+      const injected: LiveSignalRow[] = (forwardLogger.openTrades as Array<Record<string, string> & { lastClose?: number | null; unrealizedPct?: number | null }>)
+        .flatMap((r, i) => {
+          const sym = (r.symbol ?? "").toUpperCase();
+          const dir = (r.direction ?? "").toLowerCase() as "long" | "short";
+          if (!sym || (dir !== "long" && dir !== "short")) return [];
+          const entryMs = r.entry_date ? new Date(r.entry_date).getTime() : now;
+          const entry = parseFloat(r.entry_price ?? "") || null;
+          const sl = parseFloat(r.stop_loss ?? "") || null;
+          const tp = parseFloat(r.take_profit ?? "") || null;
+          const current = r.lastClose ?? null;
+          const diffMs = now - entryMs;
+          const mins = Math.floor(diffMs / 60_000);
+          const durationLabel = mins < 60 ? `seit ${mins}m` : mins < 1440 ? `seit ${Math.floor(mins / 60)}h` : `seit ${Math.floor(mins / 1440)}d`;
+          const row: LiveSignalRow = {
+            id: `fwd-${sym}-${i}`,
+            tradeId: r.trade_id ?? r.tradeId ?? `fwd-${sym}-${i}`,
+            itemKey: sym,
+            tabId: "all" as const,
+            symbol: sym,
+            name: sym,
+            strategy: r.strategy ?? "-",
+            group: "Forward",
+            direction: dir,
+            status: "OPEN" as const,
+            entryTime: r.entry_date ?? new Date(now).toISOString(),
+            exitTime: null,
+            entryPrice: entry,
+            currentPrice: typeof current === "number" ? current : null,
+            exitPrice: null,
+            stopLossPrice: sl,
+            takeProfitPrice: tp,
+            hasStopLoss: sl != null && sl > 0,
+            hasTakeProfit: tp != null && tp > 0,
+            sourceLabel: "csv_reference",
+            isOpen: true,
+            entryToday: false,
+            exitToday: false,
+            staleStatus: "fresh" as const,
+            lastCandleTime: null,
+            dataAgeLabel: "",
+            durationLabel,
+            signalTimeLabel: r.entry_date ?? "",
+            plApprox: null,
+            plPct: typeof r.unrealizedPct === "number" ? r.unrealizedPct : null,
+          };
+          return [row];
+        });
+      return { ...feed, openTrades: injected, openCount: injected.length };
+    }
+
+    return feed;
   }, [
     agrarParityAuditMap,
     candleScaleAuditMap,
@@ -4798,6 +4854,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     strategyRuntimeRoutes,
     lifecycleTradesByItemKey,
     strategyEventsByFile,
+    forwardLogger,
   ]);
 
   // Live-signal card colours come from the user's chart/UI overlay settings

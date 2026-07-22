@@ -1,13 +1,11 @@
 // Runtime-safe loader for capitalife performance JSONs.
 //
-// The raw JSONs live under `src/data/capitalife/` which is gitignored on
-// purpose (Brain / raw-data policy). On Vercel Public Preview those files
-// are absent, so a plain `import ... from "@/data/capitalife/*.json"` breaks
-// the build with module-not-found.
+// git-tracked JSONs live under src/data/capitalife/ and are bundled into the
+// Vercel Lambda via outputFileTracingIncludes in next.config.ts. The loader
+// uses Node.js fs/path (server-only); client bundles only import types from
+// this module, so fs is never evaluated in the browser.
 //
-// This module returns real data server-side when the JSON exists, and
-// falls back to a structurally-valid empty skeleton otherwise. Client
-// bundles never see the real data — they always resolve to the skeleton.
+// Falls back to a structurally-valid empty skeleton when files are absent.
 
 export type MonthlyReturnRow = {
   month: string;
@@ -338,32 +336,17 @@ const FALLBACK_FSPORTFOLIO_CONFIG: FSPortfolioConfigJson = {
 
 // Server-side dynamic load.
 //
-// Vercel: files in src/data/capitalife/ are git-tracked and included in the
-// Lambda bundle via outputFileTracingIncludes in next.config.ts.
-// Local dev/build: CJS `require` is available server-side → real JSONs loaded.
-// Client bundle: `typeof window !== "undefined"` guard → null → skeleton.
-//
-// `require` is referenced via `typeof` check so the bundler sees a variable
-// access, not a static `require(...)` call, keeping JSON files out of the
-// static module graph even when the file is imported by "use client" components.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const _fs = typeof window === "undefined" ? (require("node:fs") as typeof import("node:fs")) : null;
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const _path = typeof window === "undefined" ? (require("node:path") as typeof import("node:path")) : null;
+
 function loadJsonFromDisk<T>(fileName: string): T | null {
-  if (typeof window !== "undefined") return null;
+  if (!_fs || !_path) return null;
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const nodeRequire: NodeRequire | undefined =
-      typeof require !== "undefined" ? require : undefined;
-    if (!nodeRequire) return null;
-    const fs = nodeRequire("node:fs") as typeof import("node:fs");
-    const path = nodeRequire("node:path") as typeof import("node:path");
-    const filePath = path.join(
-      process.cwd(),
-      "src",
-      "data",
-      "capitalife",
-      fileName,
-    );
-    if (!fs.existsSync(filePath)) return null;
-    return JSON.parse(fs.readFileSync(filePath, "utf-8")) as T;
+    const filePath = _path.join(process.cwd(), "src", "data", "capitalife", fileName);
+    if (!_fs.existsSync(filePath)) return null;
+    return JSON.parse(_fs.readFileSync(filePath, "utf-8")) as T;
   } catch {
     return null;
   }
