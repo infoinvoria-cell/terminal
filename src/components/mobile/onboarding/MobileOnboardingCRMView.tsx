@@ -160,7 +160,6 @@ export function MobileOnboardingCRMView() {
   const [newIds, setNewIds]         = useState<Set<string>>(new Set());
   const [collapsed, setCollapsed]   = useState(false);
   const tableRef                    = useRef<HTMLDivElement>(null);
-  const touchStartX                 = useRef<number | null>(null);
   const peekTimeout                 = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const load = useCallback(async () => {
@@ -173,34 +172,27 @@ export function MobileOnboardingCRMView() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Collapse the category column to icons once the user scrolls to the right.
+  // Collapse when scrolled right, expand when back at start.
   const onScroll = useCallback(() => {
     const el = tableRef.current;
     if (!el) return;
-    setCollapsed(el.scrollLeft > 8);
-  }, []);
-
-  // Small rightward swipe when already scrolled right → "peek" open the label column.
-  const onTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  }, []);
-
-  const onTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (touchStartX.current === null) return;
-    const el = tableRef.current;
-    if (!el) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    touchStartX.current = null;
-    // Only trigger when scrolled to the right AND swipe is rightward (>=30px)
-    if (el.scrollLeft > 30 && dx >= 30) {
-      if (peekTimeout.current) clearTimeout(peekTimeout.current);
+    if (el.scrollLeft <= 8) {
+      if (peekTimeout.current) { clearTimeout(peekTimeout.current); peekTimeout.current = null; }
       setCollapsed(false);
-      // Auto-collapse again after 2 s if still scrolled right
-      peekTimeout.current = setTimeout(() => {
-        if (tableRef.current && tableRef.current.scrollLeft > 8) setCollapsed(true);
-      }, 2000);
+    } else {
+      setCollapsed(true);
     }
   }, []);
+
+  // Tap the collapsed icon rail → peek labels for 2 s.
+  const onCatTap = useCallback(() => {
+    if (!collapsed) return;
+    if (peekTimeout.current) clearTimeout(peekTimeout.current);
+    setCollapsed(false);
+    peekTimeout.current = setTimeout(() => {
+      if (tableRef.current && tableRef.current.scrollLeft > 8) setCollapsed(true);
+    }, 2000);
+  }, [collapsed]);
 
   const handleSaved = useCallback(async () => {
     const r = await fetch("/api/investors-crm");
@@ -258,7 +250,7 @@ export function MobileOnboardingCRMView() {
           {/* Stronger right → black fade, above headers too */}
           <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: 72, zIndex: 40, background: `linear-gradient(to right, rgba(12,13,16,0) 0%, rgba(12,13,16,0.75) 55%, ${PAGE_BG} 100%)`, pointerEvents: "none" }} />
 
-          <div ref={tableRef} onScroll={onScroll} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} style={{ height: "100%", overflowX: "auto", overflowY: "auto" }}>
+          <div ref={tableRef} onScroll={onScroll} style={{ height: "100%", overflowX: "auto", overflowY: "auto" }}>
             {loading ? (
               <div style={{ padding: 32, textAlign: "center", color: MUTED, fontSize: 12, fontFamily: "var(--font-montserrat,sans-serif)" }}>Lädt…</div>
             ) : (
@@ -270,8 +262,8 @@ export function MobileOnboardingCRMView() {
 
                 <thead>
                   <tr style={{ position: "sticky", top: 0, zIndex: 20 }}>
-                    {/* Sticky top-left corner — collapses with the category column */}
-                    <th style={{
+                    {/* Sticky top-left corner — tap when collapsed to peek labels */}
+                    <th onClick={onCatTap} style={{
                       position: "sticky", left: 0, zIndex: 21,
                       background: PAGE_BG,
                       width: catW, minWidth: catW, transition: CAT_TRANS,
@@ -279,6 +271,8 @@ export function MobileOnboardingCRMView() {
                       borderBottom: "1px solid rgba(255,255,255,0.08)",
                       borderRight: "1px solid rgba(255,255,255,0.06)",
                       textAlign: "left", verticalAlign: "middle", paddingLeft: 12,
+                      cursor: collapsed ? "pointer" : "default",
+                      WebkitTapHighlightColor: "transparent",
                     }}>
                       <span style={{ fontSize: 8.5, fontWeight: 800, color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", textTransform: "uppercase", letterSpacing: "0.08em", opacity: collapsed ? 0 : 1, transition: "opacity 160ms" }}>
                         Feld
@@ -317,8 +311,8 @@ export function MobileOnboardingCRMView() {
                     const stripeBg = ri % 2 === 0 ? PAGE_BG : "#0f1012";
                     return (
                       <tr key={rowDef.key} style={{ background: ri % 2 === 0 ? "transparent" : "rgba(255,255,255,0.018)" }}>
-                        {/* Sticky category label — icon always, name folds away on scroll */}
-                        <td style={{
+                        {/* Sticky category label — tap when collapsed to peek labels */}
+                        <td onClick={onCatTap} style={{
                           position: "sticky", left: 0, zIndex: 5,
                           background: stripeBg,
                           width: catW, minWidth: catW, transition: CAT_TRANS,
@@ -327,6 +321,8 @@ export function MobileOnboardingCRMView() {
                           borderBottom: "1px solid rgba(255,255,255,0.04)",
                           borderRight: "1px solid rgba(255,255,255,0.06)",
                           verticalAlign: "middle",
+                          cursor: collapsed ? "pointer" : "default",
+                          WebkitTapHighlightColor: "transparent",
                         }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 9, color: MUTED, minWidth: 0 }}>
                             <span style={{ flexShrink: 0, display: "flex", color: "rgba(255,255,255,0.55)" }}>
