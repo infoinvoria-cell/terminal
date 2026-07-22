@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { MessageSquare, X, Send, ChevronRight } from "lucide-react";
+import { MessageSquare } from "lucide-react";
+import { SentinelChat } from "@/components/investors-crm/SentinelChat";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -234,107 +235,6 @@ function Cell({
 
 const GHOST_ROWS = 8;
 
-// ── Sentinel panel (scripted — zero LLM API calls) ────────────────────────────
-
-const SENTINEL_STEPS = [
-  { key: "name",              question: "Wie heißt der Interessent?" },
-  { key: "unternehmen",       question: "Welches Unternehmen?" },
-  { key: "email",             question: "E-Mail-Adresse?" },
-  { key: "telefon",           question: "Telefonnummer?" },
-  { key: "kontaktquelle",     question: "Wie wurde der Kontakt hergestellt?" },
-  { key: "kapitalrahmen",     question: "Welcher Kapitalrahmen?" },
-  { key: "status",            question: "Aktueller Status?" },
-  { key: "naechster_schritt", question: "Nächster Schritt?" },
-  { key: "zustaendig",        question: "Wer ist zuständig?" },
-  { key: "notizen",           question: "Notizen? (Enter = überspringen)" },
-] as const;
-
-type SentinelKey = typeof SENTINEL_STEPS[number]["key"];
-type ChatMsg = { from: "sentinel" | "user"; text: string };
-
-const EMPTY_FORM = () => ({
-  name: null as string | null, unternehmen: null as string | null, email: null as string | null,
-  telefon: null as string | null, kontaktquelle: null as string | null, kapitalrahmen: null as string | null,
-  status: "Neu" as string | null, naechster_schritt: null as string | null, zustaendig: null as string | null,
-  notizen: null as string | null, verfuegbar_ab: null as string | null, letzter_kontakt: null as string | null,
-});
-
-function SentinelPanel({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
-  const [messages, setMessages] = useState<ChatMsg[]>([{ from: "sentinel", text: SENTINEL_STEPS[0].question }]);
-  const [stepIdx, setStepIdx] = useState(0);
-  const [draft, setDraft] = useState("");
-  const [form, setForm] = useState<ReturnType<typeof EMPTY_FORM>>(EMPTY_FORM());
-  const [done, setDone] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); inputRef.current?.focus(); }, [messages]);
-
-  function submit(value: string) {
-    const val = value.trim();
-    const key = SENTINEL_STEPS[stepIdx].key as SentinelKey;
-    const newForm = { ...form, [key]: val || null };
-    setForm(newForm);
-    setDraft("");
-    const next = stepIdx + 1;
-    if (next >= SENTINEL_STEPS.length) {
-      setMessages(m => [...m, { from: "user", text: val || "(übersprungen)" }, { from: "sentinel", text: `Erstelle Eintrag für „${newForm.name}"…` }]);
-      setDone(true); setSaving(true);
-      fetch("/api/investors-crm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newForm) })
-        .then(async r => { if (!r.ok) throw new Error((await r.json()).error ?? "Fehler"); setMessages(m => [...m, { from: "sentinel", text: "✓ Gespeichert." }]); onCreated(); })
-        .catch(e => setErr(e.message))
-        .finally(() => setSaving(false));
-    } else {
-      setMessages(m => [...m, { from: "user", text: val || "(übersprungen)" }, { from: "sentinel", text: SENTINEL_STEPS[next].question }]);
-      setStepIdx(next);
-    }
-  }
-
-  function reset() {
-    setMessages([{ from: "sentinel", text: SENTINEL_STEPS[0].question }]);
-    setStepIdx(0); setDraft(""); setForm(EMPTY_FORM()); setDone(false); setErr(null);
-  }
-
-  return (
-    <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: 360, zIndex: 500, background: "#0c0c0e", borderLeft: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", boxShadow: "-12px 0 40px rgba(0,0,0,0.6)" }}>
-      <div style={{ padding: "13px 16px", borderBottom: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
-        <MessageSquare size={14} color="rgba(255,255,255,0.5)" strokeWidth={1.65} />
-        <span style={{ fontSize: 13, fontWeight: 700, color: "#e4e4e7", fontFamily: T, flex: 1 }}>Sentinel · Neuer Kontakt</span>
-        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", fontFamily: T }}>{done ? "Fertig" : `${stepIdx + 1} / ${SENTINEL_STEPS.length}`}</span>
-        <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", padding: 2, display: "flex" }}><X size={14} /></button>
-      </div>
-      <div style={{ height: 1, background: "rgba(255,255,255,0.06)", flexShrink: 0 }}>
-        <div style={{ height: "100%", background: "rgba(255,255,255,0.35)", width: `${((done ? SENTINEL_STEPS.length : stepIdx) / SENTINEL_STEPS.length) * 100}%`, transition: "width 300ms ease" }} />
-      </div>
-      <div style={{ flex: 1, overflowY: "auto", padding: "14px", display: "flex", flexDirection: "column", gap: 8 }}>
-        {messages.map((m, i) => (
-          <div key={i} style={{ display: "flex", justifyContent: m.from === "user" ? "flex-end" : "flex-start" }}>
-            <div style={{ maxWidth: "82%", padding: "7px 11px", borderRadius: m.from === "user" ? "12px 12px 3px 12px" : "12px 12px 12px 3px", background: m.from === "user" ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.04)", border: `1px solid rgba(255,255,255,${m.from === "user" ? "0.12" : "0.06"})`, fontSize: 12, color: m.from === "user" ? "#e4e4e7" : "rgba(255,255,255,0.6)", fontFamily: T, lineHeight: 1.55 }}>
-              {m.text}
-            </div>
-          </div>
-        ))}
-        {err && <div style={{ color: "#f87171", fontSize: 11, textAlign: "center", fontFamily: T }}>{err}</div>}
-        <div ref={bottomRef} />
-      </div>
-      {!done && (
-        <div style={{ padding: "10px 12px 14px", borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", gap: 8, flexShrink: 0 }}>
-          <input ref={inputRef} value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); submit(draft); } }} placeholder="Antwort eingeben…" style={{ flex: 1, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 7, color: "#e4e4e7", fontSize: 12, padding: "7px 10px", fontFamily: T, outline: "none" }} />
-          <button onClick={() => submit(draft)} disabled={saving} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 7, padding: "0 12px", color: "rgba(255,255,255,0.6)", cursor: "pointer", display: "flex", alignItems: "center" }}><Send size={13} /></button>
-        </div>
-      )}
-      {done && !saving && (
-        <div style={{ padding: "12px 12px 14px", borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", gap: 8, flexShrink: 0 }}>
-          <button onClick={reset} style={{ flex: 1, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 7, padding: "7px", color: "#e4e4e7", cursor: "pointer", fontSize: 12, fontFamily: T, fontWeight: 600 }}><ChevronRight size={12} style={{ display: "inline", marginRight: 4 }} />Weiteren hinzufügen</button>
-          <button onClick={onClose} style={{ flex: 1, background: "transparent", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 7, padding: "7px", color: "rgba(255,255,255,0.35)", cursor: "pointer", fontSize: 12, fontFamily: T }}>Schließen</button>
-        </div>
-      )}
-    </div>
-  );
-}
-
 // ── Main view ──────────────────────────────────────────────────────────────────
 
 export function OnboardingView() {
@@ -521,7 +421,7 @@ export function OnboardingView() {
         )}
       </div>
 
-      {sentinelOpen && <SentinelPanel onClose={() => setSentinelOpen(false)} onCreated={load} />}
+      {sentinelOpen && <SentinelChat onClose={() => setSentinelOpen(false)} onSaved={load} />}
     </div>
   );
 }

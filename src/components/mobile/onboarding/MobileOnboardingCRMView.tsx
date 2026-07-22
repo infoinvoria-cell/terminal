@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Investor } from "@/components/investors-crm/InvestorsCRMView";
+import { SentinelChat } from "@/components/investors-crm/SentinelChat";
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const CARD_BG     = "linear-gradient(180deg,#1c1d20 0%,#141517 100%)";
@@ -9,6 +10,7 @@ const CARD_BORDER = "rgba(255,255,255,0.06)";
 const CARD_SHADOW = "0 8px 20px -8px rgba(0,0,0,0.55)";
 const MUTED       = "rgba(255,255,255,0.38)";
 const PAGE_BG     = "#0c0d10";
+const GOLD        = "#e2ca7a";
 
 // ── Options ────────────────────────────────────────────────────────────────────
 const KONTAKTQUELLE   = ["Persönlicher Kontakt","Empfehlung","Vermittler","Netzwerk / Event","LinkedIn","Sonstiges"];
@@ -37,26 +39,51 @@ function fmtDate(iso: string | null) {
   return d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
+// ── Category icons (lucide-style paths) ───────────────────────────────────────
+function CatIcon({ name }: { name: string }) {
+  const p: Record<string, React.ReactNode> = {
+    user:      <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>,
+    building:  <><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M9 6h.01M15 6h.01M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/></>,
+    activity:  <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>,
+    mail:      <><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></>,
+    phone:     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>,
+    share:     <><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98M15.41 6.51l-6.82 3.98"/></>,
+    euro:      <path d="M14 20a6 6 0 1 1 0-12M4 11h8M4 15h6"/>,
+    calendar:  <><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></>,
+    clock:     <><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></>,
+    arrow:     <path d="M5 12h14M12 5l7 7-7 7"/>,
+    check:     <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/></>,
+    note:      <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></>,
+  };
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+      {p[name] ?? p.note}
+    </svg>
+  );
+}
+
 // ── Row definitions (categories as rows) ─────────────────────────────────────
-type RowDef = { key: keyof Investor; label: string };
+type RowDef = { key: keyof Investor; label: string; abbr: string; icon: string };
 const ROWS: RowDef[] = [
-  { key: "name",              label: "Name"             },
-  { key: "unternehmen",       label: "Unternehmen"      },
-  { key: "status",            label: "Status"           },
-  { key: "email",             label: "E-Mail"           },
-  { key: "telefon",           label: "Telefon"          },
-  { key: "kontaktquelle",     label: "Quelle"           },
-  { key: "kapitalrahmen",     label: "Kapital"          },
-  { key: "verfuegbar_ab",     label: "Verfügbar ab"     },
-  { key: "letzter_kontakt",   label: "Letzter Kontakt"  },
-  { key: "naechster_schritt", label: "Nächster Schritt" },
-  { key: "zustaendig",        label: "Zuständig"        },
-  { key: "notizen",           label: "Notizen"          },
+  { key: "name",              label: "Name",             abbr: "Name",    icon: "user"     },
+  { key: "unternehmen",       label: "Unternehmen",      abbr: "Firma",   icon: "building" },
+  { key: "status",            label: "Status",           abbr: "Status",  icon: "activity" },
+  { key: "email",             label: "E-Mail",           abbr: "Mail",    icon: "mail"     },
+  { key: "telefon",           label: "Telefon",          abbr: "Tel",     icon: "phone"    },
+  { key: "kontaktquelle",     label: "Quelle",           abbr: "Quelle",  icon: "share"    },
+  { key: "kapitalrahmen",     label: "Kapital",          abbr: "Kapital", icon: "euro"     },
+  { key: "verfuegbar_ab",     label: "Verfügbar ab",     abbr: "Verf.",   icon: "calendar" },
+  { key: "letzter_kontakt",   label: "Letzter Kontakt",  abbr: "L.Kont.", icon: "clock"    },
+  { key: "naechster_schritt", label: "Nächster Schritt", abbr: "Schritt", icon: "arrow"    },
+  { key: "zustaendig",        label: "Zuständig",        abbr: "Zust.",   icon: "check"    },
+  { key: "notizen",           label: "Notizen",          abbr: "Notiz",   icon: "note"     },
 ];
 
-const INV_COL_W = 140; // px per investor column
-const CAT_COL_W = 110; // px sticky category column
-const CELL_H    = 46;  // px row height
+const CAT_W_OPEN   = 116; // px — category column expanded (icon + name)
+const CAT_W_CLOSED = 46;  // px — category column collapsed (icon only)
+const INV_COL_W    = 138; // px per investor column
+const CELL_H       = 46;  // px row height
+const CAT_TRANS    = "width 280ms cubic-bezier(0.22,1,0.36,1)";
 
 // ── KPI Card ──────────────────────────────────────────────────────────────────
 function KpiCard({ label, value }: { label: string; value: string | number }) {
@@ -124,122 +151,15 @@ function CellEditor({ rowKey, value, onSave, onClose }: {
   );
 }
 
-// ── Sentinel guided chat ──────────────────────────────────────────────────────
-type QStep = { key: keyof Investor | "done"; bot: string; type: "text"|"email"|"tel"|"date"|"select"|"textarea"; options?: string[]; optional?: boolean };
-const STEPS: QStep[] = [
-  { key: "name",              bot: "Wie heißt die Person?",               type: "text" },
-  { key: "unternehmen",       bot: "Welches Unternehmen? (optional)",      type: "text",     optional: true },
-  { key: "email",             bot: "E-Mail-Adresse? (optional)",           type: "email",    optional: true },
-  { key: "telefon",           bot: "Telefonnummer? (optional)",            type: "tel",      optional: true },
-  { key: "kontaktquelle",     bot: "Wie kam der Kontakt zustande?",        type: "select",   options: KONTAKTQUELLE, optional: true },
-  { key: "kapitalrahmen",     bot: "Welcher Kapitalrahmen?",               type: "select",   options: KAPITALRAHMEN, optional: true },
-  { key: "verfuegbar_ab",     bot: "Ab wann verfügbar? (optional)",        type: "date",     optional: true },
-  { key: "status",            bot: "Aktueller Status?",                    type: "select",   options: STATUS_OPTS },
-  { key: "zustaendig",        bot: "Wer ist zuständig?",                   type: "select",   options: ZUSTAENDIG_OPTS, optional: true },
-  { key: "naechster_schritt", bot: "Nächster Schritt?",                    type: "select",   options: NAECHSTER_OPTS, optional: true },
-  { key: "notizen",           bot: "Notizen? (optional)",                  type: "textarea", optional: true },
-  { key: "done",              bot: "",                                      type: "text" },
-];
-
-type ChatMsg = { from: "bot"|"user"; text: string };
-
-function SentinelChat({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
-  const [step, setStep]     = useState(0);
-  const [msgs, setMsgs]     = useState<ChatMsg[]>([{ from: "bot", text: STEPS[0].bot }]);
-  const [draft, setDraft]   = useState("");
-  const [form, setForm]     = useState<Record<string, string | null>>({ status: "Neu" });
-  const [saving, setSaving] = useState(false);
-  const [done, setDone]     = useState(false);
-  const listRef             = useRef<HTMLDivElement>(null);
-  const inputRef            = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
-
-  useEffect(() => { listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }); }, [msgs]);
-  useEffect(() => { if (!done) setTimeout(() => inputRef.current?.focus(), 80); }, [step, done]);
-
-  const current = STEPS[step];
-
-  const advance = useCallback(async (value: string | null) => {
-    setMsgs(m => [...m, { from: "user", text: value || "—" }]);
-    const newForm = { ...form, ...(current.key !== "done" && { [current.key]: value }) };
-    setForm(newForm);
-    const nextStep = step + 1;
-    if (STEPS[nextStep]?.key === "done") {
-      setSaving(true);
-      setMsgs(m => [...m, { from: "bot", text: "Speichere…" }]);
-      try {
-        const r = await fetch("/api/investors-crm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...newForm, status: newForm.status ?? "Neu" }) });
-        if (r.ok) { setMsgs(m => [...m.slice(0,-1), { from: "bot", text: `✓ ${newForm.name} wurde gespeichert.` }]); setDone(true); onSaved(); }
-        else { const e = await r.json(); setMsgs(m => [...m.slice(0,-1), { from: "bot", text: `Fehler: ${e.error}` }]); }
-      } catch { setMsgs(m => [...m.slice(0,-1), { from: "bot", text: "Verbindungsfehler." }]); }
-      finally { setSaving(false); }
-      return;
-    }
-    setStep(nextStep); setDraft("");
-    setMsgs(m => [...m, { from: "bot", text: STEPS[nextStep].bot }]);
-  }, [step, form, current, onSaved]);
-
-  const submit = () => { const val = draft.trim() || null; if (!val && !current.optional) return; advance(val); };
-  const isSelect = current.type === "select";
-  const inpS: React.CSSProperties = { flex: 1, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 20, padding: "10px 16px", color: "#fff", fontSize: 16, fontFamily: "var(--font-montserrat,sans-serif)", outline: "none", touchAction: "manipulation", WebkitAppearance: "none" };
-
-  return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(6px)", display: "flex", flexDirection: "column", justifyContent: "flex-end" }} onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} style={{ background: "#111214", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "20px 20px 0 0", display: "flex", flexDirection: "column", maxHeight: "85dvh", paddingBottom: "env(safe-area-inset-bottom,0px)" }}>
-        <div style={{ padding: "12px 16px 10px", borderBottom: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
-          <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)", margin: "0 auto 12px" }} />
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "var(--font-montserrat,sans-serif)" }}>Investor aufnehmen</span>
-            <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", fontSize: 18, cursor: "pointer", padding: "0 4px" }}>✕</button>
-          </div>
-        </div>
-        <div ref={listRef} style={{ flex: 1, overflowY: "auto", padding: "12px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
-          {msgs.map((m, i) => (
-            <div key={i} style={{ alignSelf: m.from === "bot" ? "flex-start" : "flex-end", maxWidth: "80%", background: m.from === "bot" ? "rgba(255,255,255,0.08)" : "rgba(226,202,122,0.15)", border: `1px solid ${m.from === "bot" ? "rgba(255,255,255,0.1)" : "rgba(226,202,122,0.25)"}`, borderRadius: m.from === "bot" ? "4px 14px 14px 14px" : "14px 4px 14px 14px", padding: "8px 12px", fontSize: 13, fontFamily: "var(--font-montserrat,sans-serif)", color: m.from === "bot" ? "rgba(255,255,255,0.85)" : "#e2ca7a", lineHeight: 1.45 }}>
-              {m.text}
-            </div>
-          ))}
-        </div>
-        {!done && !saving && (
-          <div style={{ padding: "10px 12px", borderTop: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
-            {isSelect ? (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {(current.options ?? []).map(o => (
-                  <button key={o} onClick={() => advance(o)} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 16, padding: "7px 12px", color: "rgba(255,255,255,0.8)", fontSize: 12, fontFamily: "var(--font-montserrat,sans-serif)", fontWeight: 600, cursor: "pointer", touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}>{o}</button>
-                ))}
-                {current.optional && <button onClick={() => advance(null)} style={{ background: "none", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "7px 12px", color: "rgba(255,255,255,0.35)", fontSize: 12, fontFamily: "var(--font-montserrat,sans-serif)", cursor: "pointer", touchAction: "manipulation" }}>Überspringen</button>}
-              </div>
-            ) : (
-              <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
-                {current.type === "textarea"
-                  ? <textarea ref={inputRef as React.RefObject<HTMLTextAreaElement>} value={draft} onChange={e => setDraft(e.target.value)} placeholder="Tippen…" rows={2} style={{ ...inpS, borderRadius: 12, resize: "none" }} />
-                  : <input ref={inputRef as React.RefObject<HTMLInputElement>} type={current.type === "email" ? "email" : current.type === "tel" ? "tel" : current.type === "date" ? "date" : "text"} value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => e.key === "Enter" && submit()} placeholder="Tippen…" style={inpS} />
-                }
-                <button onClick={submit} style={{ flexShrink: 0, width: 40, height: 40, borderRadius: "50%", background: "#e2ca7a", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", touchAction: "manipulation" }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                </button>
-                {current.optional && <button onClick={() => advance(null)} style={{ flexShrink: 0, height: 40, padding: "0 12px", borderRadius: 20, background: "none", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.35)", fontSize: 11, cursor: "pointer", touchAction: "manipulation" }}>Skip</button>}
-              </div>
-            )}
-          </div>
-        )}
-        {done && (
-          <div style={{ padding: "12px 16px", borderTop: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
-            <button onClick={onClose} style={{ width: "100%", background: "rgba(226,202,122,0.15)", border: "1px solid rgba(226,202,122,0.3)", borderRadius: 12, padding: "12px", color: "#e2ca7a", fontSize: 14, fontWeight: 700, fontFamily: "var(--font-montserrat,sans-serif)", cursor: "pointer" }}>Fertig</button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
 // ── Main View ─────────────────────────────────────────────────────────────────
 export function MobileOnboardingCRMView() {
-  const [rows, setRows]               = useState<Investor[]>([]);
-  const [loading, setLoading]         = useState(true);
-  const [sentinelOpen, setSentinel]   = useState(false);
-  const [editCell, setEditCell]       = useState<{ id: string; key: keyof Investor } | null>(null);
-  const [newIds, setNewIds]           = useState<Set<string>>(new Set());
-  const tableRef                      = useRef<HTMLDivElement>(null);
+  const [rows, setRows]             = useState<Investor[]>([]);
+  const [loading, setLoading]       = useState(true);
+  const [sentinelOpen, setSentinel] = useState(false);
+  const [editCell, setEditCell]     = useState<{ id: string; key: keyof Investor } | null>(null);
+  const [newIds, setNewIds]         = useState<Set<string>>(new Set());
+  const [collapsed, setCollapsed]   = useState(false);
+  const tableRef                    = useRef<HTMLDivElement>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -251,6 +171,13 @@ export function MobileOnboardingCRMView() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Collapse the category column to icons once the user swipes to the right.
+  const onScroll = useCallback(() => {
+    const el = tableRef.current;
+    if (!el) return;
+    setCollapsed(el.scrollLeft > 8);
+  }, []);
+
   const handleSaved = useCallback(async () => {
     const r = await fetch("/api/investors-crm");
     if (!r.ok) return;
@@ -259,12 +186,8 @@ export function MobileOnboardingCRMView() {
     const addedIds = fresh.filter(x => !prev.has(x.id)).map(x => x.id);
     setNewIds(new Set(addedIds));
     setRows(fresh);
-    // Scroll to the rightmost new column
-    setTimeout(() => {
-      tableRef.current?.scrollTo({ left: tableRef.current.scrollWidth, behavior: "smooth" });
-    }, 80);
-    // Clear animation flag after it plays
-    setTimeout(() => setNewIds(new Set()), 1200);
+    setTimeout(() => { tableRef.current?.scrollTo({ left: tableRef.current.scrollWidth, behavior: "smooth" }); }, 90);
+    setTimeout(() => setNewIds(new Set()), 1300);
   }, [rows]);
 
   async function patch(id: string, key: keyof Investor, value: string | null) {
@@ -278,13 +201,12 @@ export function MobileOnboardingCRMView() {
   const abgesagt   = rows.filter(r => r.status === "Abgesagt").length;
   const offen      = rows.filter(r => r.status === "Neu" || r.status === "Kontaktiert").length;
 
+  const catW = collapsed ? CAT_W_CLOSED : CAT_W_OPEN;
+
   return (
     <>
       <style>{`
-        @keyframes colSlideIn {
-          from { opacity: 0; transform: translateX(18px); }
-          to   { opacity: 1; transform: translateX(0); }
-        }
+        @keyframes colSlideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
       `}</style>
 
       <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", background: PAGE_BG, color: "#e4e4e7" }}>
@@ -292,7 +214,7 @@ export function MobileOnboardingCRMView() {
         {/* ── Page header ── */}
         <div style={{ padding: "12px 14px 10px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <h1 style={{ margin: 0, fontSize: 15, fontWeight: 800, fontFamily: "var(--font-montserrat,sans-serif)", color: "#fff" }}>Investor Onboarding</h1>
-          <button onClick={() => setSentinel(true)} style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(226,202,122,0.1)", border: "1px solid rgba(226,202,122,0.25)", borderRadius: 20, padding: "6px 12px", color: "#e2ca7a", fontSize: 11, fontWeight: 700, fontFamily: "var(--font-montserrat,sans-serif)", cursor: "pointer", touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}>
+          <button onClick={() => setSentinel(true)} style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(226,202,122,0.1)", border: "1px solid rgba(226,202,122,0.25)", borderRadius: 20, padding: "6px 12px", color: GOLD, fontSize: 11, fontWeight: 700, fontFamily: "var(--font-montserrat,sans-serif)", cursor: "pointer", touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             Sentinel
           </button>
@@ -309,33 +231,37 @@ export function MobileOnboardingCRMView() {
 
         {/* ── Transposed table: categories = rows, investors = columns ── */}
         <div style={{ flex: 1, position: "relative", minHeight: 0 }}>
-          {/* Right fade */}
-          <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: 48, zIndex: 10, background: `linear-gradient(to right, transparent, ${PAGE_BG})`, pointerEvents: "none" }} />
+          {/* Stronger right → black fade, above headers too */}
+          <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: 72, zIndex: 40, background: `linear-gradient(to right, rgba(12,13,16,0) 0%, rgba(12,13,16,0.75) 55%, ${PAGE_BG} 100%)`, pointerEvents: "none" }} />
 
-          <div ref={tableRef} style={{ height: "100%", overflowX: "auto", overflowY: "auto" }}>
+          <div ref={tableRef} onScroll={onScroll} style={{ height: "100%", overflowX: "auto", overflowY: "auto" }}>
             {loading ? (
               <div style={{ padding: 32, textAlign: "center", color: MUTED, fontSize: 12, fontFamily: "var(--font-montserrat,sans-serif)" }}>Lädt…</div>
             ) : (
               <table style={{ borderCollapse: "collapse", tableLayout: "fixed" }}>
                 <colgroup>
-                  {/* Sticky category column */}
-                  <col style={{ width: CAT_COL_W }} />
-                  {/* One column per investor */}
+                  <col style={{ width: catW, transition: CAT_TRANS }} />
                   {rows.map(r => <col key={r.id} style={{ width: INV_COL_W }} />)}
                 </colgroup>
 
                 <thead>
                   <tr style={{ position: "sticky", top: 0, zIndex: 20 }}>
-                    {/* Top-left corner cell */}
+                    {/* Sticky top-left corner — collapses with the category column */}
                     <th style={{
                       position: "sticky", left: 0, zIndex: 21,
                       background: PAGE_BG,
-                      width: CAT_COL_W, minWidth: CAT_COL_W,
+                      width: catW, minWidth: catW, transition: CAT_TRANS,
                       height: CELL_H,
                       borderBottom: "1px solid rgba(255,255,255,0.08)",
                       borderRight: "1px solid rgba(255,255,255,0.06)",
-                    }} />
-                    {/* Investor name headers */}
+                      textAlign: "left", verticalAlign: "middle", paddingLeft: 12,
+                    }}>
+                      <span style={{ fontSize: 8.5, fontWeight: 800, color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", textTransform: "uppercase", letterSpacing: "0.08em", opacity: collapsed ? 0 : 1, transition: "opacity 160ms" }}>
+                        Feld
+                      </span>
+                    </th>
+
+                    {/* Investor headers — number on top, name below */}
                     {rows.map((inv, ci) => {
                       const isNew = newIds.has(inv.id);
                       return (
@@ -344,13 +270,18 @@ export function MobileOnboardingCRMView() {
                           background: PAGE_BG,
                           borderBottom: "1px solid rgba(255,255,255,0.08)",
                           borderRight: "1px solid rgba(255,255,255,0.04)",
-                          paddingLeft: 10, paddingRight: 6,
+                          paddingLeft: 12, paddingRight: 6,
                           textAlign: "left", verticalAlign: "middle",
-                          animation: isNew ? `colSlideIn 280ms ease both` : undefined,
+                          animation: isNew ? "colSlideIn 300ms ease both" : undefined,
                         }}>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", fontFamily: "var(--font-montserrat,sans-serif)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block" }}>
-                            {ci + 1}. {inv.name}
-                          </span>
+                          <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", lineHeight: 1.15, minWidth: 0 }}>
+                            <span style={{ fontSize: 9, fontWeight: 800, color: GOLD, fontFamily: "var(--font-montserrat,sans-serif)", letterSpacing: "0.04em" }}>
+                              {ci + 1}
+                            </span>
+                            <span style={{ fontSize: 11.5, fontWeight: 700, color: "#fff", fontFamily: "var(--font-montserrat,sans-serif)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block" }}>
+                              {inv.name || "—"}
+                            </span>
+                          </div>
                         </th>
                       );
                     })}
@@ -358,66 +289,78 @@ export function MobileOnboardingCRMView() {
                 </thead>
 
                 <tbody>
-                  {ROWS.map((rowDef, ri) => (
-                    <tr key={rowDef.key} style={{ background: ri % 2 === 0 ? "transparent" : "rgba(255,255,255,0.018)" }}>
-                      {/* Sticky category label */}
-                      <td style={{
-                        position: "sticky", left: 0, zIndex: 5,
-                        background: ri % 2 === 0 ? PAGE_BG : "#0f1012",
-                        width: CAT_COL_W, minWidth: CAT_COL_W,
-                        height: CELL_H,
-                        paddingLeft: 10, paddingRight: 8,
-                        borderBottom: "1px solid rgba(255,255,255,0.04)",
-                        borderRight: "1px solid rgba(255,255,255,0.06)",
-                        verticalAlign: "middle",
-                      }}>
-                        <span style={{ fontSize: 9, fontWeight: 700, color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>
-                          {rowDef.label}
-                        </span>
-                      </td>
-
-                      {/* One cell per investor */}
-                      {rows.length === 0 ? (
-                        <td colSpan={1}>
-                          <span style={{ fontSize: 11, color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", paddingLeft: 12 }}>Noch keine Einträge</span>
-                        </td>
-                      ) : rows.map(inv => {
-                        const isNew      = newIds.has(inv.id);
-                        const isEditing  = editCell?.id === inv.id && editCell?.key === rowDef.key;
-                        const raw        = inv[rowDef.key] as string | null;
-                        const sc         = rowDef.key === "status" ? (STATUS_COLOR[raw ?? ""] ?? STATUS_COLOR["Neu"]) : null;
-
-                        return (
-                          <td key={inv.id}
-                            onClick={() => setEditCell({ id: inv.id, key: rowDef.key })}
-                            style={{
-                              height: CELL_H, paddingLeft: 10, paddingRight: 6,
-                              borderBottom: "1px solid rgba(255,255,255,0.04)",
-                              borderRight: "1px solid rgba(255,255,255,0.04)",
-                              verticalAlign: "middle",
-                              cursor: "text",
-                              whiteSpace: isEditing ? "normal" : "nowrap",
-                              overflow: isEditing ? "visible" : "hidden",
-                              animation: isNew ? `colSlideIn 280ms ease both` : undefined,
+                  {ROWS.map((rowDef, ri) => {
+                    const stripeBg = ri % 2 === 0 ? PAGE_BG : "#0f1012";
+                    return (
+                      <tr key={rowDef.key} style={{ background: ri % 2 === 0 ? "transparent" : "rgba(255,255,255,0.018)" }}>
+                        {/* Sticky category label — icon always, name folds away on scroll */}
+                        <td style={{
+                          position: "sticky", left: 0, zIndex: 5,
+                          background: stripeBg,
+                          width: catW, minWidth: catW, transition: CAT_TRANS,
+                          height: CELL_H,
+                          paddingLeft: 12, paddingRight: 8,
+                          borderBottom: "1px solid rgba(255,255,255,0.04)",
+                          borderRight: "1px solid rgba(255,255,255,0.06)",
+                          verticalAlign: "middle",
+                        }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 9, color: MUTED, minWidth: 0 }}>
+                            <span style={{ flexShrink: 0, display: "flex", color: "rgba(255,255,255,0.55)" }}>
+                              <CatIcon name={rowDef.icon} />
+                            </span>
+                            <span style={{
+                              fontSize: 9.5, fontWeight: 700, color: MUTED,
+                              fontFamily: "var(--font-montserrat,sans-serif)", textTransform: "uppercase",
+                              letterSpacing: "0.05em", whiteSpace: "nowrap", overflow: "hidden",
+                              opacity: collapsed ? 0 : 1,
+                              maxWidth: collapsed ? 0 : 70,
+                              transition: "opacity 160ms ease, max-width 280ms cubic-bezier(0.22,1,0.36,1)",
                             }}>
-                            {isEditing ? (
-                              <CellEditor rowKey={rowDef.key} value={raw} onSave={v => patch(inv.id, rowDef.key, v)} onClose={() => setEditCell(null)} />
-                            ) : rowDef.key === "status" && sc ? (
-                              <span style={{ display: "inline-block", padding: "2px 7px", borderRadius: 4, fontSize: 10, fontWeight: 700, fontFamily: "var(--font-montserrat,sans-serif)", background: sc.bg, color: sc.text, whiteSpace: "nowrap" }}>
-                                {raw ?? "Neu"}
-                              </span>
-                            ) : (rowDef.key === "verfuegbar_ab" || rowDef.key === "letzter_kontakt") ? (
-                              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-montserrat,sans-serif)" }}>{fmtDate(raw)}</span>
-                            ) : (
-                              <span style={{ fontSize: 11, color: raw ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.18)", fontFamily: "var(--font-montserrat,sans-serif)", display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>
-                                {raw ?? "—"}
-                              </span>
-                            )}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))}
+                              {rowDef.abbr}
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* One cell per investor */}
+                        {rows.length === 0 ? (
+                          <td><span style={{ fontSize: 11, color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", paddingLeft: 12 }}>Noch keine Einträge</span></td>
+                        ) : rows.map(inv => {
+                          const isNew     = newIds.has(inv.id);
+                          const isEditing = editCell?.id === inv.id && editCell?.key === rowDef.key;
+                          const raw       = inv[rowDef.key] as string | null;
+                          const sc        = rowDef.key === "status" ? (STATUS_COLOR[raw ?? ""] ?? STATUS_COLOR["Neu"]) : null;
+
+                          return (
+                            <td key={inv.id}
+                              onClick={() => setEditCell({ id: inv.id, key: rowDef.key })}
+                              style={{
+                                height: CELL_H, paddingLeft: 12, paddingRight: 6,
+                                borderBottom: "1px solid rgba(255,255,255,0.04)",
+                                borderRight: "1px solid rgba(255,255,255,0.04)",
+                                verticalAlign: "middle", cursor: "text",
+                                whiteSpace: isEditing ? "normal" : "nowrap",
+                                overflow: isEditing ? "visible" : "hidden",
+                                animation: isNew ? "colSlideIn 300ms ease both" : undefined,
+                              }}>
+                              {isEditing ? (
+                                <CellEditor rowKey={rowDef.key} value={raw} onSave={v => patch(inv.id, rowDef.key, v)} onClose={() => setEditCell(null)} />
+                              ) : rowDef.key === "status" && sc ? (
+                                <span style={{ display: "inline-block", padding: "2px 7px", borderRadius: 4, fontSize: 10, fontWeight: 700, fontFamily: "var(--font-montserrat,sans-serif)", background: sc.bg, color: sc.text, whiteSpace: "nowrap" }}>
+                                  {raw ?? "Neu"}
+                                </span>
+                              ) : (rowDef.key === "verfuegbar_ab" || rowDef.key === "letzter_kontakt") ? (
+                                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-montserrat,sans-serif)" }}>{fmtDate(raw)}</span>
+                              ) : (
+                                <span style={{ fontSize: 11, color: raw ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.18)", fontFamily: "var(--font-montserrat,sans-serif)", display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                  {raw ?? "—"}
+                                </span>
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             )}
@@ -426,10 +369,7 @@ export function MobileOnboardingCRMView() {
       </div>
 
       {sentinelOpen && (
-        <SentinelChat
-          onClose={() => setSentinel(false)}
-          onSaved={handleSaved}
-        />
+        <SentinelChat onClose={() => setSentinel(false)} onSaved={handleSaved} />
       )}
     </>
   );
