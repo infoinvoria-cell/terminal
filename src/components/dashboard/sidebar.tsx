@@ -399,7 +399,7 @@ export function Sidebar() {
   const desktopUrl = pathname ?? "/";
 
   const monitoringActive    = pathname?.startsWith("/monitoring") ?? false;
-  const signalActive        = pathname?.startsWith("/signals") ?? false;
+  const signalActive        = pathname?.startsWith("/signal") ?? false;
   const brainActive         = (pathname?.startsWith("/brain") ?? false) || (pathname?.startsWith("/brain-graph") ?? false);
   const globeActive         = pathname?.startsWith("/globe") ?? false;
   const componentsActive    = pathname?.startsWith("/komponenten") ?? false;
@@ -483,7 +483,7 @@ export function Sidebar() {
 
       {/* Group 2: Signale · Monitoring · Analytics · Komponenten */}
       <nav className={cn("mt-2", navClass)} aria-label="Tools">
-        <SidebarLink href="/signals"     active={signalActive}     label="Signale"     icon={BellRing}    expanded={expanded} />
+        <SidebarLink href="/signal"      active={signalActive}     label="Signale"     icon={BellRing}    expanded={expanded} />
         <SidebarLink href="/monitoring"  active={monitoringActive} label="Monitoring"  icon={Activity}    expanded={expanded} />
         <SidebarIconButton page="analytics" activePage={sidebarPageState} label="Analytics"  icon={ChartColumn}  onSelect={onSelectPage} expanded={expanded} />
         <SidebarIconButton page="invest"    activePage={sidebarPageState} label="Invest"     icon={TrendingUp}   onSelect={onSelectPage} expanded={expanded} />
