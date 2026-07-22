@@ -165,6 +165,7 @@ const P_OUTER_H = P_H + P_FP * 2;   // 880
 
 function toMobileUrl(path: string | null): string {
   if (!path) return "/m/home";
+  if (path.startsWith("/signals")) return "/m/signals";
   if (path.startsWith("/signal") || path.startsWith("/monitoring")) return "/m/signale";
   if (path.startsWith("/brain")) return "/m/brain";
   if (path.startsWith("/settings")) return "/m/settings";
@@ -398,7 +399,7 @@ export function Sidebar() {
   const desktopUrl = pathname ?? "/";
 
   const monitoringActive    = pathname?.startsWith("/monitoring") ?? false;
-  const signalActive        = pathname?.startsWith("/signal") ?? false;
+  const signalActive        = pathname?.startsWith("/signals") ?? false;
   const brainActive         = (pathname?.startsWith("/brain") ?? false) || (pathname?.startsWith("/brain-graph") ?? false);
   const globeActive         = pathname?.startsWith("/globe") ?? false;
   const componentsActive    = pathname?.startsWith("/komponenten") ?? false;
@@ -482,7 +483,7 @@ export function Sidebar() {
 
       {/* Group 2: Signale · Monitoring · Analytics · Komponenten */}
       <nav className={cn("mt-2", navClass)} aria-label="Tools">
-        <SidebarLink href="/signal"      active={signalActive}     label="Signale"     icon={BellRing}    expanded={expanded} />
+        <SidebarLink href="/signals"     active={signalActive}     label="Signale"     icon={BellRing}    expanded={expanded} />
         <SidebarLink href="/monitoring"  active={monitoringActive} label="Monitoring"  icon={Activity}    expanded={expanded} />
         <SidebarIconButton page="analytics" activePage={sidebarPageState} label="Analytics"  icon={ChartColumn}  onSelect={onSelectPage} expanded={expanded} />
         <SidebarIconButton page="invest"    activePage={sidebarPageState} label="Invest"     icon={TrendingUp}   onSelect={onSelectPage} expanded={expanded} />

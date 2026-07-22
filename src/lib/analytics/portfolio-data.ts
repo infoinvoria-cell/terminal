@@ -75,15 +75,16 @@ const WHITE_SWAN_GROUPS = [
 ] as const;
 
 const COMBINED_GROUPS = [...WHITE_SWAN_GROUPS, { id: "Invest", label: "Invest", assets: 1, strategies: 1, weight: null }] as const;
+// Weights from core-invest.config.json v2.0 (frozen 2026-07-20)
 const INVEST_GROUPS = [
-  { id: "SPY", label: "SPY", assets: 1, strategies: 1, weight: 0.15 },
-  { id: "SPMO", label: "SPMO", assets: 1, strategies: 1, weight: 0.35 },
-  { id: "QQQ_PASSIVE", label: "QQQ passive", assets: 1, strategies: 1, weight: 0.15 },
-  { id: "GLD", label: "GLD", assets: 1, strategies: 1, weight: 0.10 },
-  { id: "QQQ_PINE_1", label: "QQQ Pine 1", assets: 1, strategies: 1, weight: 0.075 },
-  { id: "QQQ_PINE_2_EMA", label: "QQQ Pine 2 EMA", assets: 1, strategies: 1, weight: 0.075 },
-  { id: "COPPER_HG", label: "Copper/HG", assets: 1, strategies: 1, weight: 0.05 },
-  { id: "CHF_6S", label: "CHF/6S", assets: 1, strategies: 1, weight: 0.05 },
+  { id: "QQQ_PASSIVE",    label: "QQQ passive",   assets: 1, strategies: 1, weight: 0.45 },
+  { id: "GLD",            label: "GLD",            assets: 1, strategies: 1, weight: 0.25 },
+  { id: "SPMO",           label: "SPMO",           assets: 1, strategies: 1, weight: 0.05 },
+  { id: "SPY",            label: "SPY",            assets: 1, strategies: 1, weight: 0.05 },
+  { id: "QQQ_PINE_1",     label: "QQQ Pine 1",    assets: 1, strategies: 1, weight: 0.05 },
+  { id: "QQQ_PINE_2_EMA", label: "QQQ Pine 2 EMA", assets: 1, strategies: 1, weight: 0.05 },
+  { id: "COPPER_HG",      label: "Copper/HG",     assets: 1, strategies: 1, weight: 0.05 },
+  { id: "CHF_6S",         label: "CHF/6S",        assets: 1, strategies: 1, weight: 0.05 },
 ] as const;
 
 function cleanSeries<T extends { date: string; value: number | null; group?: string; strategy?: string }>(series: T[]) {
