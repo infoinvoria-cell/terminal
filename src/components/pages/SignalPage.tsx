@@ -8,7 +8,7 @@ import StrategyTesterEquityChart from "@/components/monitoring/StrategyTesterEqu
 import { useClientMounted } from "@/hooks/use-client-mounted";
 import { useInterval } from "@/hooks/use-interval";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
-import SignalCard from "@/components/signals/SignalCard";
+import SignalCard from "@/components/signal/SignalCard";
 import LiveWatchlistPanel from "@/components/signals/LiveWatchlistPanel";
 import type {
   SignalCardFilter,
@@ -260,11 +260,12 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
   }, [perf]);
 
   const cols = showWatchlist
-    ? "minmax(0, 1.1fr) minmax(0, 1fr) 280px"
+    ? "minmax(0, 1.1fr) minmax(0, 1fr) 300px"
     : "minmax(0, 1.1fr) minmax(0, 1fr)";
 
   return (
     <div style={{
+      position: "relative",
       display: "grid",
       gridTemplateColumns: cols,
       height: "100%",
@@ -274,6 +275,47 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
       gap: 0,
       transition: "grid-template-columns 200ms ease",
     }}>
+      {/* ── Pull tab: right edge, vertically centered ─────────────────────── */}
+      <button
+        onClick={() => setShowWatchlist((v) => !v)}
+        title={showWatchlist ? "Live Feed schließen" : "Live Feed öffnen"}
+        style={{
+          position: "fixed",
+          right: showWatchlist ? 300 : 0,
+          top: "50%",
+          transform: "translateY(-50%)",
+          zIndex: 50,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 6,
+          width: 20,
+          padding: "14px 0",
+          background: "#161820",
+          border: "1px solid rgba(255,255,255,0.10)",
+          borderRight: showWatchlist ? "none" : "1px solid rgba(255,255,255,0.10)",
+          borderRadius: showWatchlist ? "6px 0 0 6px" : "6px 0 0 6px",
+          cursor: "pointer",
+          transition: "right 200ms ease",
+        }}
+      >
+        <span style={{
+          writingMode: "vertical-rl",
+          textOrientation: "mixed",
+          transform: "rotate(180deg)",
+          fontSize: 8,
+          fontWeight: 700,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          color: "rgba(255,255,255,0.40)",
+        }}>
+          Feed
+        </span>
+        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.30)", lineHeight: 1 }}>
+          {showWatchlist ? "▶" : "◀"}
+        </span>
+      </button>
 
       {/* ── LEFT: signal list ────────────────────────────────────────────────── */}
       <div style={{
@@ -306,7 +348,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
       {/* ── MIDDLE: detail panel ─────────────────────────────────────────────── */}
       <div style={{ display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
 
-        {/* OHLC chart + Live Feed toggle button */}
+        {/* OHLC chart */}
         <div style={{
           position: "relative",
           flex: "0 0 50%",
@@ -340,41 +382,6 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
               </div>
             </div>
           </div>
-
-          {/* Live Feed toggle — top right, left of Y-axis */}
-          <button
-            onClick={() => setShowWatchlist((v) => !v)}
-            title={showWatchlist ? "Live Feed schließen" : "Live Feed öffnen"}
-            style={{
-              position: "absolute", top: 10, right: 58, zIndex: 20,
-              display: "inline-flex", alignItems: "center", gap: 5,
-              padding: "5px 9px",
-              background: showWatchlist
-                ? "rgba(34,197,94,0.12)"
-                : "rgba(0,0,0,0.55)",
-              border: showWatchlist
-                ? "1px solid rgba(34,197,94,0.35)"
-                : "1px solid rgba(255,255,255,0.10)",
-              borderRadius: 7,
-              backdropFilter: "blur(6px)",
-              cursor: "pointer",
-              transition: "background 150ms, border-color 150ms",
-            }}
-          >
-            {/* Pulsing dot */}
-            <span style={{
-              display: "inline-block", width: 6, height: 6, borderRadius: "50%",
-              background: showWatchlist ? "#22c55e" : "rgba(255,255,255,0.35)",
-              boxShadow: showWatchlist ? "0 0 5px #22c55e99" : "none",
-            }} />
-            <span style={{
-              fontSize: 9, fontWeight: 700, letterSpacing: "0.06em",
-              textTransform: "uppercase",
-              color: showWatchlist ? "#22c55e" : "rgba(255,255,255,0.55)",
-            }}>
-              Live Feed
-            </span>
-          </button>
 
           {mounted && selectedPreview?.chart ? (
             <MonitoringChart data={selectedPreview.chart} maxBars={320} initialVisibleBars={56} />
