@@ -5,7 +5,7 @@ import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons
 import type { LiveFeedItem } from "@/lib/monitoring/live-feed-types";
 import type { SignalCardModel } from "@/lib/signals/signal-types";
 
-type SignalStatus = "long" | "short" | "closed_win" | "closed_loss" | "none";
+type SignalStatus = "long" | "short" | "closed_win" | "closed_loss" | "pending_valid" | "none";
 type SignalData = { status: SignalStatus; changePct: number | null };
 type PriceFlash = "up" | "down";
 type Row = LiveFeedItem & { signal: SignalData };
@@ -41,6 +41,22 @@ function isTodayStr(dateStr: string | undefined): boolean {
   return dateStr.slice(0, 10) === today;
 }
 
+function hasFutureTarget(label?: string): boolean {
+  if (!label) return false;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(label)) {
+    const d = new Date(`${label}T00:00:00`);
+    return isFinite(d.getTime()) && d >= today;
+  }
+  const m = label.match(/(\d{1,2})\.(\d{1,2})\./);
+  if (m) {
+    const d = new Date(today.getFullYear(), parseInt(m[2]!, 10) - 1, parseInt(m[1]!, 10));
+    if (d < today) d.setFullYear(today.getFullYear() + 1);
+    return true;
+  }
+  return false;
+}
+
 function buildSignalMap(cards: SignalCardModel[]): Map<string, SignalData> {
   const map = new Map<string, SignalData>();
   for (const c of cards) {
@@ -53,6 +69,8 @@ function buildSignalMap(cards: SignalCardModel[]): Map<string, SignalData> {
         const win = (c.changePct ?? 0) >= 0;
         map.set(key, { status: win ? "closed_win" : "closed_loss", changePct: c.changePct ?? null });
       }
+    } else if (!map.has(key) && hasFutureTarget(c.nextSignalLabel)) {
+      map.set(key, { status: "pending_valid", changePct: null });
     }
   }
   return map;
@@ -156,6 +174,15 @@ function SignalCell({ signal }: { signal: SignalData }) {
     const pct = signal.changePct;
     const text = pct != null ? `-${Math.abs(pct).toFixed(1)}%` : "SL";
     return <span style={{ fontSize: 9, fontWeight: 700, color: "#ef4444", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{text}</span>;
+  }
+  if (signal.status === "pending_valid") {
+    return (
+      <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "flex-end", width: "100%" }}>
+        <svg width="10" height="9" viewBox="0 0 10 9" fill="none">
+          <path d="M1 4.5L3.8 7.5L9 1" stroke="#d8bc67" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </span>
+    );
   }
   return <span style={{ fontSize: 9, color: "rgba(255,255,255,0.22)", fontVariantNumeric: "tabular-nums" }}>—</span>;
 }
@@ -296,10 +323,10 @@ export default function LiveWatchlistPanel({
 
   const totalRows = grouped.reduce((s, g) => s + g.rows.length, 0);
 
-  // icon | symbol | price | signal(fills remaining — no dead space at right)
+  // icon | symbol | price(fills) | signal — price right-aligned against signal
   const COL = fullData
-    ? "15px 52px 72px minmax(44px,1fr) 28px 58px"
-    : "15px 52px 72px minmax(44px,1fr)";
+    ? "15px 52px 1fr 38px 28px 56px"
+    : "15px 52px 1fr 38px";
 
   return (
     <div style={{
