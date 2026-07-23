@@ -2,38 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
+import type { LiveFeedItem } from "@/lib/monitoring/live-feed-types";
 import type { SignalCardModel } from "@/lib/signals/signal-types";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
-type ManifestAsset = {
-  asset: string;
-  tab: string;
-  source: string;
-  status: string;
-  lastClose: number | null;
-  lastDate: string | null;
-  refreshedAt: string | null;
-  firstDate: string | null;
-  barCount: number | null;
-  hasData: boolean;
-};
-
-type LiveBar = {
-  symbol: string;
-  close: number | null;
-  change_pct: number | null;
-  fetched_at: string | null;
-  status: string;
-};
-
-type Row = ManifestAsset & {
-  liveClose: number | null;
-  liveChangePct: number | null;
-  liveFetchedAt: string | null;
-  isLive: boolean;
-  signalStatus: SignalStatus;
-};
+type Row = LiveFeedItem & { signalStatus: SignalStatus };
 
 type SignalStatus = "long" | "short" | "pending" | "none";
 
@@ -124,8 +96,6 @@ function StatusDot({ s }: { s: SignalStatus }) {
 
 // ── Main panel ────────────────────────────────────────────────────────────────
 
-const MANIFEST_URL = "/generated/monitoring/tradingview_data_cache/cache_manifest_full.json";
-const LIVE_URL = "/api/market-data/latest";
 const REFRESH_MS = 5_000;
 
 export default function LiveWatchlistPanel({
@@ -137,44 +107,29 @@ export default function LiveWatchlistPanel({
   selectedCardId: string | null;
   onSelectCard: (id: string) => void;
 }) {
-  const [manifest, setManifest] = useState<ManifestAsset[]>([]);
-  const [liveMap, setLiveMap] = useState<Map<string, LiveBar>>(new Map());
+  const [items, setItems] = useState<LiveFeedItem[]>([]);
   const [fullData, setFullData] = useState(false);
   const [tick, setTick] = useState(0);
   const abortRef = useRef<AbortController | null>(null);
 
-  // Load manifest once
-  useEffect(() => {
-    fetch(MANIFEST_URL)
-      .then((r) => r.json())
-      .then((d: { assets?: ManifestAsset[] }) => setManifest(d.assets ?? []))
-      .catch(() => {});
-  }, []);
-
-  // Poll live prices every 5s
-  const fetchLive = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     abortRef.current?.abort();
     const ctrl = new AbortController();
     abortRef.current = ctrl;
     try {
-      const r = await fetch(LIVE_URL, { signal: ctrl.signal });
+      const r = await fetch("/api/monitoring/live-feed", { signal: ctrl.signal });
       if (!r.ok) return;
-      const d = await r.json() as { items?: LiveBar[] };
-      const m = new Map<string, LiveBar>();
-      for (const b of d.items ?? []) {
-        if (b.symbol) m.set(b.symbol.toUpperCase(), b);
-      }
-      setLiveMap(m);
+      const d = await r.json() as { items?: LiveFeedItem[] };
+      setItems(d.items ?? []);
     } catch { /* aborted */ }
   }, []);
 
   useEffect(() => {
-    fetchLive();
-    const id = setInterval(fetchLive, REFRESH_MS);
+    fetchData();
+    const id = setInterval(fetchData, REFRESH_MS);
     return () => { clearInterval(id); abortRef.current?.abort(); };
-  }, [fetchLive]);
+  }, [fetchData]);
 
-  // Re-render elapsed time
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 15_000);
     return () => clearInterval(id);
@@ -185,23 +140,13 @@ export default function LiveWatchlistPanel({
   const selectedCard = cards.find((c) => c.id === selectedCardId);
   const selectedSym = selectedCard?.displaySymbol.toUpperCase() ?? null;
 
-  // Merge + sort
-  const rows: Row[] = manifest.map((a) => {
-    const key = (a.asset ?? "").toUpperCase();
-    const live = liveMap.get(key);
-    const sig = signalMap.get(key) ?? "none";
-    return {
-      ...a,
-      liveClose: live?.close ?? null,
-      liveChangePct: live?.change_pct ?? null,
-      liveFetchedAt: live?.fetched_at ?? null,
-      isLive: live != null,
-      signalStatus: sig,
-    };
-  }).sort((a, b) => {
+  const rows: Row[] = items.map((item) => ({
+    ...item,
+    signalStatus: signalMap.get((item.symbol ?? "").toUpperCase()) ?? "none",
+  })).sort((a, b) => {
     const o = (s: SignalStatus) => s === "long" ? 0 : s === "short" ? 1 : s === "pending" ? 2 : 3;
     const cmp = o(a.signalStatus) - o(b.signalStatus);
-    return cmp !== 0 ? cmp : (a.tab ?? "").localeCompare(b.tab ?? "") || (a.asset ?? "").localeCompare(b.asset ?? "");
+    return cmp !== 0 ? cmp : (a.tab ?? "").localeCompare(b.tab ?? "") || (a.symbol ?? "").localeCompare(b.symbol ?? "");
   });
 
   const COL = fullData
@@ -226,7 +171,7 @@ export default function LiveWatchlistPanel({
         </span>
         <span style={{ fontSize: 8, color: "rgba(255,255,255,0.20)" }}>{rows.length}</span>
         <div style={{ marginLeft: "auto", display: "flex", gap: 4, alignItems: "center" }}>
-          <span style={{ width: 5, height: 5, borderRadius: "50%", display: "inline-block", background: liveMap.size > 0 ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.07)" }} />
+          <span style={{ width: 5, height: 5, borderRadius: "50%", display: "inline-block", background: items.length > 0 ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.07)" }} />
           <button onClick={() => setFullData((v) => !v)} style={{
             background: fullData ? "rgba(255,255,255,0.08)" : "transparent",
             border: "1px solid rgba(255,255,255,0.10)", borderRadius: 3,
@@ -252,19 +197,19 @@ export default function LiveWatchlistPanel({
           </div>
         )}
         {rows.map((row) => {
-          if (!row.asset) return null;
-          const price = row.liveClose ?? row.lastClose;
-          const chg = fmtChange(row.liveChangePct);
-          const updatedAt = row.liveFetchedAt ?? row.refreshedAt;
-          const isSelected = row.asset.toUpperCase() === selectedSym;
+          if (!row.symbol) return null;
+          const price = row.lastClose;
+          const chg = fmtChange(row.changePct);
+          const updatedAt = row.refreshedAt;
+          const isSelected = row.symbol.toUpperCase() === selectedSym;
           const matchCard = cards.find((c) =>
-            c.displaySymbol.toUpperCase() === row.asset.toUpperCase() ||
-            c.assetSymbol.toUpperCase() === row.asset.toUpperCase()
+            c.displaySymbol.toUpperCase() === row.symbol.toUpperCase() ||
+            c.assetSymbol.toUpperCase() === row.symbol.toUpperCase()
           );
 
           return (
             <div
-              key={row.asset}
+              key={row.symbol}
               onClick={() => matchCard && onSelectCard(matchCard.id)}
               style={{
                 display: "grid", gridTemplateColumns: COL,
@@ -275,14 +220,14 @@ export default function LiveWatchlistPanel({
                 borderBottom: "1px solid rgba(255,255,255,0.025)",
               }}
             >
-              <AssetIcon symbol={row.asset} />
+              <AssetIcon symbol={row.symbol} />
 
               <span style={{ fontSize: 9, fontWeight: 700, color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {row.asset}
+                {row.symbol}
               </span>
 
               <span style={{ fontSize: 9, color: price != null ? "rgba(255,255,255,0.75)" : "rgba(255,255,255,0.18)", textAlign: "right", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
-                {fmtPrice(price, row.asset)}
+                {fmtPrice(price, row.symbol)}
               </span>
 
               <span style={{ fontSize: 8, color: chg.color, textAlign: "right", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>

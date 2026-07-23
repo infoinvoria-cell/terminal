@@ -1,32 +1,20 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { createSupabaseServiceClient } from "@/lib/supabase-server";
+import type { LiveFeedItem } from "@/lib/monitoring/live-feed-types";
 
 export const dynamic = "force-dynamic";
-
-type ManifestAsset = {
-  asset: string;
-  tab: string;
-  source: string;
-  status: string;
-  lastClose: number | null;
-  lastDate: string | null;
-  refreshedAt: string | null;
-  firstDate: string | null;
-  barCount: number | null;
-  hasData: boolean;
-};
-
-type LatestBar = {
-  symbol: string;
-  close: number | null;
-  change_pct: number | null;
-  fetched_at: string | null;
-  status: string;
-};
-
-import type { LiveFeedItem } from "@/lib/monitoring/live-feed-types";
 export type { LiveFeedItem };
+
+type UniverseAsset = {
+  id: string;
+  tab: string;
+  name: string;
+  symbol: string;
+  short: string;
+  source: string;
+};
 
 function readJson<T>(p: string): T | null {
   try {
@@ -37,16 +25,24 @@ function readJson<T>(p: string): T | null {
   }
 }
 
-function resolveTVCacheDir(): string {
-  const envDir = process.env.TRADINGVIEW_CACHE_DIR
-    ? path.resolve(process.env.TRADINGVIEW_CACHE_DIR)
-    : "C:\\Users\\joris\\Documents\\.capitalife-cache\\market-data\\tradingview";
-  const fallback = path.join(process.cwd(), "src", "data", "capitalife", "market-data", "tradingview");
-  return fs.existsSync(envDir) ? envDir : fallback;
-}
-
 export async function GET() {
-  // 1. Load monitoring manifest (primary price source for all assets)
+  // 1. Load asset universe (committed to git — works on Vercel)
+  const universePath = path.join(
+    process.cwd(),
+    "public",
+    "generated",
+    "monitoring",
+    "config",
+    "monitoring_asset_universe.json",
+  );
+  const universe = readJson<{ assets?: UniverseAsset[] }>(universePath);
+  const assets = universe?.assets ?? [];
+
+  if (assets.length === 0) {
+    return NextResponse.json({ items: [] });
+  }
+
+  // 2. Try local manifest for lastClose + dates (dev only)
   const manifestPath = path.join(
     process.cwd(),
     "public",
@@ -55,44 +51,95 @@ export async function GET() {
     "tradingview_data_cache",
     "cache_manifest_full.json",
   );
-  const manifest = readJson<{ assets?: ManifestAsset[] }>(manifestPath);
-  const assets = manifest?.assets ?? [];
+  type ManifestEntry = {
+    asset: string; lastClose: number | null; lastDate: string | null;
+    firstDate: string | null; barCount: number | null; refreshedAt: string | null;
+  };
+  const manifest = readJson<{ assets?: ManifestEntry[] }>(manifestPath);
+  const manifestMap = new Map<string, ManifestEntry>();
+  for (const e of manifest?.assets ?? []) {
+    if (e.asset) manifestMap.set(e.asset.toUpperCase(), e);
+  }
 
-  // 2. Load TradingView live latest bars (fast assets only, ~5 files)
-  const tvCacheDir = resolveTVCacheDir();
+  // 3. Query Supabase for latest close per asset (works on Vercel)
+  const db = createSupabaseServiceClient();
+  const symbols = assets.map((a) => a.symbol);
+
+  // monitoring_ohlc: get latest date per asset, then latest bar
+  const { data: ohlcRows } = await db
+    .from("monitoring_ohlc")
+    .select("asset, date, close, open, high, low")
+    .in("asset", symbols)
+    .gt("close", 0)
+    .order("date", { ascending: false })
+    .limit(symbols.length * 5); // get a few rows per asset to find latest
+
+  // invest_ohlc for assets not in monitoring_ohlc
+  const foundInMonitoring = new Set((ohlcRows ?? []).map((r) => String(r.asset).toUpperCase()));
+  const missingSymbols = symbols.filter((s) => !foundInMonitoring.has(s.toUpperCase()));
+
+  let investRows: Array<{ symbol: string; date: string; close: number }> = [];
+  if (missingSymbols.length > 0) {
+    const { data } = await db
+      .from("invest_ohlc")
+      .select("symbol, date, close")
+      .in("symbol", missingSymbols)
+      .gt("close", 0)
+      .order("date", { ascending: false })
+      .limit(missingSymbols.length * 5);
+    investRows = (data ?? []) as typeof investRows;
+  }
+
+  // Build price map: symbol → latest close + date
+  const priceMap = new Map<string, { close: number; date: string }>();
+  for (const r of ohlcRows ?? []) {
+    const key = String(r.asset).toUpperCase();
+    if (!priceMap.has(key)) priceMap.set(key, { close: Number(r.close), date: String(r.date) });
+  }
+  for (const r of investRows) {
+    const key = String(r.symbol).toUpperCase();
+    if (!priceMap.has(key)) priceMap.set(key, { close: Number(r.close), date: String(r.date) });
+  }
+
+  // 4. Try local TradingView latest for live close + change_pct
+  const tvCacheDir = process.env.TRADINGVIEW_CACHE_DIR
+    ? path.resolve(process.env.TRADINGVIEW_CACHE_DIR)
+    : "C:\\Users\\joris\\Documents\\.capitalife-cache\\market-data\\tradingview";
   const latestDir = path.join(tvCacheDir, "latest");
-  const liveMap = new Map<string, LatestBar>();
+  const liveMap = new Map<string, { close: number | null; change_pct: number | null; fetched_at: string | null }>();
   if (fs.existsSync(latestDir)) {
     for (const file of fs.readdirSync(latestDir).filter((f) => f.endsWith(".json"))) {
-      const symbol = path.basename(file, ".json").toUpperCase();
-      const bar = readJson<LatestBar>(path.join(latestDir, file));
-      if (bar) liveMap.set(symbol, bar);
+      const sym = path.basename(file, ".json").toUpperCase();
+      const bar = readJson<{ close?: number | null; change_pct?: number | null; fetched_at?: string | null }>(
+        path.join(latestDir, file),
+      );
+      if (bar) liveMap.set(sym, { close: bar.close ?? null, change_pct: bar.change_pct ?? null, fetched_at: bar.fetched_at ?? null });
     }
   }
 
-  // 3. Also check TV manifest for per-symbol poll_seconds
-  const tvManifest = readJson<{ poll_seconds?: number; symbols?: Record<string, { poll_seconds?: number }> }>(
-    path.join(tvCacheDir, "manifest.json"),
-  );
-  const defaultPoll = tvManifest?.poll_seconds ?? null;
-
+  // 5. Build response
   const items: LiveFeedItem[] = assets.map((a) => {
-    const key = a.asset?.toUpperCase() ?? "";
+    const key = a.symbol.toUpperCase();
     const live = liveMap.get(key);
-    const pollSeconds = tvManifest?.symbols?.[key]?.poll_seconds ?? (live ? 5 : null) ?? defaultPoll;
+    const supabase = priceMap.get(key);
+    const mf = manifestMap.get(key);
+
+    const lastClose = live?.close ?? supabase?.close ?? mf?.lastClose ?? null;
+    const lastDate = supabase?.date ?? mf?.lastDate ?? null;
+    const refreshedAt = live?.fetched_at ?? (supabase?.date ? `${supabase.date}T00:00:00Z` : null) ?? mf?.refreshedAt ?? null;
 
     return {
-      symbol: a.asset,
+      symbol: a.symbol,
       tab: a.tab ?? "",
       source: a.source ?? "",
-      lastClose: live?.close ?? a.lastClose ?? null,
+      lastClose,
       changePct: live?.change_pct ?? null,
-      lastDate: a.lastDate ?? null,
-      refreshedAt: live?.fetched_at ?? a.refreshedAt ?? null,
-      firstDate: a.firstDate ?? null,
-      barCount: a.barCount ?? null,
-      dataStatus: live?.close != null ? "live" : a.lastClose != null ? "daily" : "missing",
-      liveRefreshSeconds: pollSeconds ?? null,
+      lastDate,
+      refreshedAt,
+      firstDate: mf?.firstDate ?? null,
+      barCount: mf?.barCount ?? null,
+      dataStatus: live?.close != null ? "live" : lastClose != null ? "daily" : "missing",
+      liveRefreshSeconds: live ? 5 : null,
     };
   });
 
