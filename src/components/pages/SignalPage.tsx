@@ -208,29 +208,39 @@ function SignalCard({
   const pct = card.changePct ?? 0;
   const isLong = card.direction === "LONG";
   const isShort = card.direction === "SHORT";
-  const dirColor = isLong ? "#22c55e" : isShort ? "#ef4444" : "rgba(255,255,255,0.35)";
+  const tpStr = formatTpSl(card.tp);
+  const slStr = formatTpSl(card.sl);
+  const dateDisplay = card.signalDate ? formatSignalDate(card.signalDate) : "";
 
-  // ── Top-right state chip ──
-  let topRight: React.ReactNode = null;
+  // ── State chip (top-right) ────────────────────────────────────────────────
+  let stateChip: React.ReactNode;
   if (state === "open") {
-    const color = pct >= 0 ? "#22c55e" : "#ef4444";
-    topRight = (
-      <span style={{ fontSize: 13, fontWeight: 700, color, fontVariantNumeric: "tabular-nums", letterSpacing: "-0.01em" }}>
+    const chipColor = pct >= 0 ? "#22c55e" : "#ef4444";
+    stateChip = (
+      <span style={{
+        fontSize: 13, fontWeight: 800, color: chipColor,
+        fontVariantNumeric: "tabular-nums", letterSpacing: "-0.01em",
+      }}>
         {pct >= 0 ? "+" : ""}{pct.toFixed(2)}%
       </span>
     );
   } else if (state === "closed") {
     const isProfit = pct >= 0;
     const label = isProfit ? `TP +${Math.abs(pct).toFixed(1)}%` : `SL ${pct.toFixed(2)}%`;
-    topRight = (
-      <span style={{ fontSize: 12, fontWeight: 700, color: isProfit ? "#22c55e" : "#ef4444" }}>{label}</span>
+    stateChip = (
+      <span style={{ fontSize: 12, fontWeight: 700, color: isProfit ? "#22c55e" : "#ef4444" }}>
+        {label}
+      </span>
     );
   } else {
     const isValid = state === "pending_valid";
     const timerColor = isValid ? "#d8bc67" : "rgba(255,255,255,0.38)";
-    topRight = (
+    stateChip = (
       <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-        <span style={{ fontSize: 12, fontWeight: 700, color: timerColor, fontVariantNumeric: "tabular-nums" }}>
+        <span style={{
+          fontSize: 12, fontWeight: 700, color: timerColor,
+          fontVariantNumeric: "tabular-nums",
+        }}>
           {countdown || pendingChipLabel(card.nextSignalLabel)}
         </span>
         {isValid && (
@@ -244,22 +254,17 @@ function SignalCard({
     );
   }
 
-  // ── Date line ──
-  // For pending states: top-right chip already shows the schedule label — don't duplicate in row 2
-  let dateDisplay = "";
-  if (card.signalDate) {
-    dateDisplay = formatSignalDate(card.signalDate);
-  }
-
-  // ── TP/SL ──
-  const tpStr = formatTpSl(card.tp);
-  const slStr = formatTpSl(card.sl);
-
-  // ── Active background ──
+  // ── Active card styling ───────────────────────────────────────────────────
   const bg = active
-    ? "radial-gradient(ellipse 80% 80% at 110% 120%, rgba(216,188,103,0.13) 0%, transparent 60%), linear-gradient(160deg,#181b22 0%,#13151b 100%)"
-    : "#0f1014";
-  const border = active ? "1px solid rgba(216,188,103,0.28)" : "1px solid rgba(255,255,255,0.07)";
+    ? "radial-gradient(ellipse 90% 90% at 110% 120%, rgba(216,188,103,0.14) 0%, transparent 55%), linear-gradient(160deg,#181b22 0%,#13151b 100%)"
+    : "linear-gradient(160deg,#13151a 0%,#0f1014 100%)";
+  const border = active
+    ? "1px solid rgba(216,188,103,0.30)"
+    : "1px solid rgba(255,255,255,0.07)";
+
+  const dirColor = isLong ? "#22c55e" : isShort ? "#ef4444" : "rgba(255,255,255,0.28)";
+  const dirLabel = isLong ? "LONG" : isShort ? "SHORT" : (card.direction ?? "");
+  const dirArrow = isLong ? "▲" : isShort ? "▼" : "";
 
   return (
     <div
@@ -267,69 +272,102 @@ function SignalCard({
       style={{
         background: bg,
         border,
-        borderRadius: 12,
-        padding: "11px 12px 10px",
-        display: "flex", flexDirection: "column", gap: 6,
+        borderRadius: 14,
+        padding: "14px 14px 12px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 0,
         cursor: "pointer",
         position: "relative",
         transition: "border-color 150ms, background 200ms",
+        minHeight: 130,
       }}
     >
-      {/* Row 1: icon · symbol · assetName · top-right */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-        <AssetIcon card={card} size={28} />
-        <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 5, overflow: "hidden" }}>
-            <span style={{ fontSize: 13, fontWeight: 800, color: "#fff", letterSpacing: "0.01em", whiteSpace: "nowrap" }}>
-              {card.displaySymbol}
-            </span>
-            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {card.assetName}
-            </span>
-          </div>
+      {/* ── Row 1: Icon + Symbol/Name + State chip ── */}
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 8 }}>
+        {/* Large icon */}
+        <div style={{ flexShrink: 0, marginTop: 1 }}>
+          <AssetIcon card={card} size={40} />
         </div>
-        <div style={{ flexShrink: 0 }}>{topRight}</div>
+        {/* Symbol + asset name stacked */}
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2 }}>
+          <span style={{
+            fontSize: 15, fontWeight: 800, color: "#fff",
+            letterSpacing: "0.01em", lineHeight: 1, whiteSpace: "nowrap",
+          }}>
+            {card.displaySymbol}
+          </span>
+          <span style={{
+            fontSize: 10, color: "rgba(255,255,255,0.32)",
+            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            lineHeight: 1,
+          }}>
+            {card.assetName}
+          </span>
+        </div>
+        {/* State chip pinned to top-right */}
+        <div style={{ flexShrink: 0 }}>{stateChip}</div>
       </div>
 
-      {/* Row 2: strategy · date */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6, minWidth: 0 }}>
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.32)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
+      {/* ── Row 2: Strategy name + Date ── */}
+      <div style={{
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        gap: 6, marginBottom: 9,
+      }}>
+        <span style={{
+          fontSize: 9, color: "rgba(255,255,255,0.28)",
+          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1,
+          letterSpacing: "0.03em",
+        }}>
           {card.strategyName}
         </span>
         {dateDisplay && (
-          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.28)", whiteSpace: "nowrap", flexShrink: 0 }}>
+          <span style={{
+            fontSize: 9, color: "rgba(255,255,255,0.24)",
+            whiteSpace: "nowrap", flexShrink: 0,
+          }}>
             {dateDisplay}
           </span>
         )}
       </div>
 
-      {/* Row 3: TP / SL */}
-      {(tpStr ?? slStr) && (
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      {/* ── Row 3: TP · SL ── */}
+      {(tpStr || slStr) && (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 9 }}>
           {tpStr && (
-            <span style={{ fontSize: 10, fontWeight: 700, color: "#22c55e" }}>TP: {tpStr}</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#22c55e", letterSpacing: "0.01em" }}>
+              TP: {tpStr}
+            </span>
           )}
           {slStr && (
-            <span style={{ fontSize: 10, fontWeight: 700, color: "#ef4444" }}>SL: {slStr}</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#ef4444", letterSpacing: "0.01em" }}>
+              SL: {slStr}
+            </span>
           )}
         </div>
       )}
 
-      {/* Row 4: direction · chart icon */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        {(isLong || isShort) ? (
+      {/* ── Row 4: Direction arrow + chart icon ── */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto" }}>
+        {dirLabel ? (
           <span style={{
-            display: "inline-flex", alignItems: "center", gap: 4,
-            fontSize: 11, fontWeight: 800, letterSpacing: "0.06em",
+            display: "inline-flex", alignItems: "center", gap: 5,
+            fontSize: 13, fontWeight: 800, letterSpacing: "0.07em",
             color: dirColor,
           }}>
-            <span style={{ fontSize: 8 }}>{isLong ? "▲" : "▼"}</span>
-            {card.direction}
+            {dirArrow && (
+              <span style={{ fontSize: 9, lineHeight: 1 }}>{dirArrow}</span>
+            )}
+            {dirLabel}
           </span>
         ) : (
-          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)" }}>{card.direction}</span>
+          <span />
         )}
-        <span style={{ fontSize: 14, color: "rgba(255,255,255,0.2)", lineHeight: 1 }}>↗</span>
+        {/* Chart icon */}
+        <span style={{
+          fontSize: 16, color: "rgba(255,255,255,0.18)", lineHeight: 1,
+          fontWeight: 400,
+        }}>↗</span>
       </div>
     </div>
   );
@@ -408,7 +446,7 @@ function SectionPanel({
             Keine Signale
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 6 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 8 }}>
             {visible.map((card) => (
               <SignalCard
                 key={card.id}
