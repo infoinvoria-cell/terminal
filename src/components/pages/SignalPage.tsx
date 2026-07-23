@@ -1,385 +1,331 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
-import { BarChart2, ChartNoAxesCombined } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Area, AreaChart, ResponsiveContainer, Tooltip, YAxis } from "recharts";
 import MonitoringChart from "@/components/monitoring/MonitoringChart";
 import StrategyTesterDrawdownChart from "@/components/monitoring/StrategyTesterDrawdownChart";
 import StrategyTesterEquityChart from "@/components/monitoring/StrategyTesterEquityChart";
 import { useClientMounted } from "@/hooks/use-client-mounted";
+import { useInterval } from "@/hooks/use-interval";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
-import { writeMonitoringSignalJump } from "@/lib/monitoring/monitoringSignalJump";
-import type { SignalCardData, SignalCardFilter, SignalPageData, SignalPageSection } from "@/lib/signal/signalPageData";
+import type {
+  SignalCardFilter,
+  SignalCardModel,
+  SignalPageModel,
+  SignalPageSection,
+} from "@/lib/signals/signal-types";
 
-// ── Anomaly equity data ────────────────────────────────────────────────────────
-const ANOMALY_FILES: Record<string, string> = {
-  "fp10-gc1-friday-long": "/data/anomaly/gc1_friday_long.json",
-  "fp10-gld-thursday-long": "/data/anomaly/gld_thursday_long.json",
-  "fp10-ym1-tat": "/data/anomaly/ym1_tat.json",
-};
+// ── Filter helpers ─────────────────────────────────────────────────────────────
 
-type AnomalyPoint = { time: string; value: number };
-type AnomalyJson = {
-  oosStartDate?: string;
-  equityCurve: { full: AnomalyPoint[]; is_?: AnomalyPoint[]; oos?: AnomalyPoint[] };
-  drawdownCurve?: { full?: AnomalyPoint[] };
-  trades?: { pnl: number; exit_time: string }[];
-  summary?: { full?: { cagr?: number; maxDrawdownPercent?: number; avgDrawdownPercent?: number; top5DrawdownsPercent?: number[]; totalReturnPercent?: number; sharpe?: number; avgLoss?: number } };
-};
-type EquitySeries = { date: string; equity: number | null; equityOos: number | null; dd: number | null }[];
-
-const STORAGE_KEYS = {
-  signalId: "capitalife.signal.selectedSignalId",
-  whiteSwanFilter: "capitalife.signal.whiteSwanFilter",
-  coreInvestFilter: "capitalife.signal.coreInvestFilter",
-  monitoringContext: "capitalife.monitoring.context",
-};
-
-const FILTERS: SignalCardFilter[] = ["open", "last7", "pending"];
-const FILTER_LABELS: Record<SignalCardFilter, string> = {
-  open: "AKTUELL", last7: "LETZTE 7 TAGE", pending: "AUSSTEHEND",
-  all: "ALLE", long: "LONG", short: "SHORT", cash: "CASH", validation: "VAL",
-};
-
-// Parse "Fr 25.07." / "Do 23.07." or ISO "2026-07-21" labels → days from today
-function nextLabelDaysAhead(label: string | undefined): number | null {
+function nextLabelDaysAhead(label?: string): number | null {
   if (!label) return null;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  // ISO format: YYYY-MM-DD
   if (/^\d{4}-\d{2}-\d{2}$/.test(label)) {
-    const date = new Date(`${label}T00:00:00`);
-    if (!isFinite(date.getTime())) return null;
-    return Math.floor((date.getTime() - today.getTime()) / 86_400_000);
+    const d = new Date(`${label}T00:00:00`);
+    if (!isFinite(d.getTime())) return null;
+    return Math.round((d.getTime() - today.getTime()) / 86_400_000);
   }
-  // German format: "Fr 25.07." / "Do 23.07."
-  const match = label.match(/(\d{2})\.(\d{2})\./);
-  if (!match) return null;
-  const [, dd, mm] = match;
-  const date = new Date(`${today.getFullYear()}-${mm}-${dd}T00:00:00`);
-  if (!isFinite(date.getTime())) return null;
-  return Math.floor((date.getTime() - today.getTime()) / 86_400_000);
-}
-
-// Format ISO "2026-07-21" or German "Fr 25.07." label into short display form
-function formatNextSignalDisplay(label: string | undefined): string | null {
-  if (!label || label.includes("täglich")) return null;
-  if (/^\d{4}-\d{2}-\d{2}$/.test(label)) {
-    const date = new Date(`${label}T00:00:00`);
-    if (!isFinite(date.getTime())) return null;
-    const wd = date.toLocaleDateString("de-DE", { weekday: "short" });
-    const dd = String(date.getDate()).padStart(2, "0");
-    const mm = String(date.getMonth() + 1).padStart(2, "0");
-    return `${wd} ${dd}.${mm}.`;
+  const m = label.match(/(\d{1,2})\.(\d{1,2})\./);
+  if (m) {
+    const d = new Date(today.getFullYear(), parseInt(m[2]!, 10) - 1, parseInt(m[1]!, 10));
+    if (d < today) d.setFullYear(today.getFullYear() + 1);
+    return Math.round((d.getTime() - today.getTime()) / 86_400_000);
   }
-  return label;
-}
-
-// Status badge: MORGEN / WARTEN based on signal timing (AKTIV intentionally omitted)
-function cardBadge(card: SignalCardData): { text: string; cls: string } | null {
-  const days = nextLabelDaysAhead(card.nextSignalLabel);
-  if (days === 0) return { text: "HEUTE", cls: "text-emerald-400 border-emerald-400/25 bg-emerald-400/10" };
-  if (days === 1) {
-    const dateLabel = formatNextSignalDisplay(card.nextSignalLabel);
-    const text = dateLabel ? `MORGEN · ${dateLabel} 09:30` : "MORGEN";
-    return { text, cls: "text-amber-400 border-amber-400/25 bg-amber-400/10" };
-  }
-  if (days != null && days >= 2 && days <= 7) return { text: "WARTEN", cls: "text-zinc-400 border-zinc-600/40 bg-zinc-700/20" };
   return null;
 }
 
-function matchesFilter(card: SignalCardData, filter: SignalCardFilter): boolean {
+function matchesFilter(card: SignalCardModel, filter: SignalCardFilter): boolean {
   if (filter === "all") return true;
   if (filter === "open") {
-    // C1: active direction (signalDate optional — on Vercel strategy files may be absent)
-    if (card.direction === "LONG" || card.direction === "SHORT") return true;
-    // C2: concrete tp + sl present (open position with levels)
-    if (card.tp != null && card.sl != null) return true;
-    // C3: next signal is today or tomorrow
-    const daysAhead = nextLabelDaysAhead(card.nextSignalLabel);
-    if (daysAhead != null && daysAhead >= 0 && daysAhead <= 1) return true;
-    return false;
+    const hasDir = (card.direction === "LONG" || card.direction === "SHORT") && card.signalDate != null;
+    const hasTpSl = card.tp != null && card.sl != null;
+    const days = nextLabelDaysAhead(card.nextSignalLabel);
+    return hasDir || hasTpSl || (days != null && days >= 0 && days <= 1);
   }
   if (filter === "last7") {
     if (card.ageDays != null && card.ageDays <= 7) return true;
     if (card.signalDate) {
       const d = new Date(`${card.signalDate}T00:00:00`);
-      const today = new Date(); today.setHours(0,0,0,0);
+      const today = new Date(); today.setHours(0, 0, 0, 0);
       return (today.getTime() - d.getTime()) / 86_400_000 <= 7;
     }
     return false;
   }
   if (filter === "pending") {
     if (card.direction === "PENDING") return true;
-    const daysAhead = nextLabelDaysAhead(card.nextSignalLabel);
-    return daysAhead != null && daysAhead >= 0 && daysAhead <= 2;
+    const days = nextLabelDaysAhead(card.nextSignalLabel);
+    return days != null && days >= 0 && days <= 2;
   }
-  if (filter === "long") return card.direction === "LONG";
-  if (filter === "short") return card.direction === "SHORT";
-  if (filter === "cash") return card.direction === "CASH" || card.direction === "PENDING";
-  return card.status === "VALIDATION" || card.status === "PARITY_PENDING" || card.category === "research_validation";
-}
-
-function formatPct(value: number | null | undefined, digits = 2): string {
-  if (value == null || !Number.isFinite(value)) return "—";
-  return `${value > 0 ? "+" : ""}${value.toFixed(digits)}%`;
-}
-
-function formatPrice(value: number | undefined): string {
-  if (value == null || !Number.isFinite(value)) return "—";
-  return value >= 100 ? value.toFixed(2) : value.toFixed(4);
-}
-
-function directionClass(direction: SignalCardData["direction"]): string {
-  if (direction === "LONG") return "text-emerald-400";
-  if (direction === "SHORT") return "text-rose-400";
-  if (direction === "PENDING") return "text-amber-400/80";
-  return "text-zinc-500";
-}
-
-function changePctClass(pct: number | null | undefined): string {
-  if (pct == null) return "text-zinc-600";
-  return pct >= 0 ? "text-emerald-400/70" : "text-rose-400/70";
-}
-
-
-// ── Section lead ───────────────────────────────────────────────────────────────
-
-function SectionLead({ section }: { section: SignalPageSection["id"] }) {
-  if (section === "white_swan") {
-    return (
-      <div className="flex items-center gap-2">
-        <Image
-          src="/branding/white-swan-logo.png"
-          alt="White Swan"
-          width={18}
-          height={18}
-          style={{ objectFit: "contain" }}
-          priority
-        />
-        <span className="text-[14px] font-semibold text-white/90">White Swan</span>
-        <span className="text-[9px] text-zinc-600">Live Signals</span>
-      </div>
-    );
-  }
-  return (
-    <div className="flex items-center gap-2">
-      <Image
-        src="/branding/capitalife-favicon.png"
-        alt="Capitalife"
-        width={18}
-        height={18}
-        style={{ objectFit: "contain" }}
-        priority
-      />
-      <span className="text-[14px] font-semibold text-white/90">Core Invest</span>
-      <span className="text-[9px] text-zinc-600">Live Signals</span>
-    </div>
-  );
-}
-
-// ── Filter bar ─────────────────────────────────────────────────────────────────
-
-function FilterBar({ active, onChange }: { active: SignalCardFilter; onChange: (f: SignalCardFilter) => void }) {
-  return (
-    <div className="flex flex-wrap items-center gap-1">
-      {FILTERS.map((f) => (
-        <button
-          key={f}
-          type="button"
-          onClick={() => onChange(f)}
-          className={`rounded-full border px-2 py-[2px] text-[7.5px] font-semibold tracking-[0.10em] transition ${
-            active === f
-              ? "border-[#d8bc67]/30 bg-[#1a180e] text-[#d8bc67]/90"
-              : "border-white/[0.06] bg-transparent text-zinc-600 hover:text-zinc-400"
-          }`}
-        >
-          {FILTER_LABELS[f]}
-        </button>
-      ))}
-    </div>
-  );
+  return true;
 }
 
 // ── Asset icon ─────────────────────────────────────────────────────────────────
 
-function AssetIcon({ iconKey, assetSymbol, assetName, displaySymbol, size, className }: {
-  iconKey?: string; assetSymbol?: string; assetName?: string; displaySymbol?: string;
-  size: number; className?: string;
-}) {
-  const url = getMonitoringAssetIconUrl({ code: assetSymbol ?? "", assetId: iconKey, name: assetName ?? "", displaySymbol: displaySymbol ?? "" });
-  if (!url) return <div style={{ width: size, height: size }} className={`rounded bg-zinc-800 ${className ?? ""}`} />;
+function AssetIcon({ card, size }: { card: SignalCardModel; size: number }) {
+  const url = getMonitoringAssetIconUrl({
+    code: card.assetSymbol,
+    assetId: card.iconKey,
+    name: card.assetName,
+    displaySymbol: card.displaySymbol,
+  });
+  if (!url) {
+    return (
+      <div style={{
+        width: size, height: size, borderRadius: 5,
+        background: "rgba(255,255,255,0.08)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        flexShrink: 0,
+      }}>
+        <span style={{ fontSize: size * 0.45, color: "rgba(255,255,255,0.4)", fontWeight: 700 }}>
+          {card.displaySymbol.charAt(0)}
+        </span>
+      </div>
+    );
+  }
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={url} alt={assetName ?? ""} width={size} height={size} className={className} />;
+  return <img src={url} alt={card.displaySymbol} width={size} height={size}
+    style={{ objectFit: "contain", borderRadius: 4, flexShrink: 0, border: "1px solid rgba(255,255,255,0.08)" }} />;
+}
+
+// ── Direction badge ────────────────────────────────────────────────────────────
+
+function DirBadge({ dir }: { dir: string }) {
+  if (dir !== "LONG" && dir !== "SHORT") return null;
+  const color = dir === "LONG" ? "#22c55e" : "#ef4444";
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 3,
+      fontSize: 9, fontWeight: 800, letterSpacing: "0.08em",
+      color, background: `${color}18`,
+      padding: "2px 6px", borderRadius: 3,
+    }}>
+      <span style={{ fontSize: 7 }}>{dir === "LONG" ? "▲" : "▼"}</span>
+      {dir}
+    </span>
+  );
 }
 
 // ── Signal card ────────────────────────────────────────────────────────────────
 
-const SignalCard = ({ card, active, onSelect }: { card: SignalCardData; active: boolean; onSelect: (c: SignalCardData) => void }) => {
-  const pct = card.changePct
-  const pctText = pct == null ? "" : `${pct >= 0 ? "+" : ""}${pct.toFixed(2)}%`
+function SignalCard({
+  card,
+  active,
+  onSelect,
+}: {
+  card: SignalCardModel;
+  active: boolean;
+  onSelect: (c: SignalCardModel) => void;
+}) {
+  const days = nextLabelDaysAhead(card.nextSignalLabel);
+  const isOpen = (card.direction === "LONG" || card.direction === "SHORT") && card.signalDate != null;
+  const pct = card.changePct ?? 0;
+  const pctColor = pct >= 0 ? "#22c55e" : "#ef4444";
 
-  const badge = cardBadge(card);
+  let topRight: React.ReactNode = null;
+  if (isOpen && card.changePct != null) {
+    topRight = (
+      <span style={{ fontSize: 10, fontWeight: 700, color: pctColor }}>
+        {pct >= 0 ? "+" : ""}{pct.toFixed(2)}%
+      </span>
+    );
+  } else if (days === 0) {
+    topRight = <span style={{ fontSize: 9, fontWeight: 800, color: "#22c55e", letterSpacing: "0.04em" }}>HEUTE ✓</span>;
+  } else if (days === 1) {
+    topRight = <span style={{ fontSize: 9, fontWeight: 800, color: "#f59e0b", letterSpacing: "0.04em" }}>MORGEN ✓</span>;
+  }
+
+  let dateNode: React.ReactNode = null;
+  if (isOpen && card.signalDate) {
+    dateNode = <span style={{ fontSize: 8, color: "rgba(255,255,255,0.28)", flexShrink: 0 }}>{card.signalDate} ✓</span>;
+  } else if (card.nextSignalLabel) {
+    const valid = days != null && days >= 0 && days <= 1;
+    dateNode = (
+      <span style={{ fontSize: 8, flexShrink: 0, color: valid ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.2)" }}>
+        {card.nextSignalLabel} {valid ? "✓" : "·"}
+      </span>
+    );
+  }
 
   return (
     <div
       onClick={() => onSelect(card)}
-      className={`relative cursor-pointer rounded-xl p-3 flex flex-col gap-[5px] border transition-colors ${active ? "border-zinc-600 bg-gradient-to-b from-[#1c1d20] to-[#141517] shadow-[2px_2px_0_0_rgba(255,255,255,0.08)]" : "border-zinc-800 bg-gradient-to-b from-[#1c1d20] to-[#141517] hover:border-zinc-700"}`}
+      style={{
+        background: active ? "#16181d" : "#0f1014",
+        border: `1px solid ${active ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.07)"}`,
+        borderRadius: 10,
+        padding: "10px 10px 9px",
+        display: "flex", flexDirection: "column", gap: 7,
+        cursor: "pointer",
+        position: "relative",
+        transition: "border-color 150ms, background 150ms",
+        boxShadow: active ? "0 0 0 1px rgba(255,255,255,0.06)" : "none",
+      }}
     >
-      {badge && (
-        <span className={`absolute top-2 right-2 text-[7px] font-bold tracking-wide px-1 py-[1px] rounded border ${badge.cls}`}>
-          {badge.text}
-        </span>
-      )}
-      {pct != null && (
-        <span className={`absolute top-2.5 right-3 text-[11px] font-semibold ${pct >= 0 ? "text-emerald-400" : "text-rose-400"}`}>{pctText}</span>
-      )}
-      {/* Zeile 1: Icon · Symbol · AssetName */}
-      <div className="flex items-center gap-2 pr-14">
-        <AssetIcon
-          assetSymbol={card.assetSymbol}
-          iconKey={card.iconKey}
-          assetName={card.assetName}
-          displaySymbol={card.displaySymbol}
-          size={20}
-          className="rounded-[5px] border border-white/[0.08] object-cover flex-shrink-0"
-        />
-        <div className="min-w-0">
-          <span className="text-[13px] font-bold text-white">{card.displaySymbol}</span>
-          <span className="text-[9px] text-zinc-400 ml-1.5">{card.assetName}</span>
+      {/* Row 1: icon + symbol + top-right */}
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
+        <AssetIcon card={card} size={26} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4 }}>
+            <span style={{ fontSize: 12, fontWeight: 800, color: "rgba(255,255,255,0.92)", letterSpacing: "0.02em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {card.displaySymbol}
+            </span>
+            {topRight}
+          </div>
+          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.32)", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {card.assetName}
+          </div>
         </div>
       </div>
 
-      {/* Zeile 2: Strategie-Name · Datum kompakt */}
-      <div className="flex items-baseline gap-1 leading-tight min-w-0">
-        <span className="text-[10px] font-semibold text-zinc-300 shrink-0 truncate max-w-[60%]">{card.strategyName}</span>
-        {card.signalDate ? (
-          <span className="text-[8.5px] text-zinc-500 truncate">· Signal: {card.signalDate}{card.ageDays != null ? ` vor ${card.ageDays}T` : ""}</span>
-        ) : formatNextSignalDisplay(card.nextSignalLabel) ? (
-          <span className="text-[8.5px] text-zinc-500 truncate">· nächste: {formatNextSignalDisplay(card.nextSignalLabel)}</span>
-        ) : null}
+      {/* Row 2: strategy + date */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 4 }}>
+        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
+          {card.strategyName}
+        </span>
+        {dateNode}
       </div>
 
-      {/* Zeile 3: TP/SL */}
-      <div className="flex items-center gap-2">
-        {card.tp != null && <span className="text-[8px] font-medium text-emerald-400">TP: {card.tp}</span>}
-        {card.sl != null && <span className="text-[8px] font-medium text-rose-500">SL: {card.sl}</span>}
-      </div>
-
-
-      {/* Zeile 4: Badge · Chart-Icon */}
-      <div className="flex items-center justify-between mt-0.5">
-        {(card.direction === "LONG" || card.direction === "SHORT") ? (
-          <span className={`text-[10px] font-bold flex items-center gap-1 ${card.direction === "LONG" ? "text-emerald-400" : "text-rose-400"}`}>
-            {card.direction === "LONG" ? "▲" : "▼"} {card.direction}
+      {/* Row 3: direction + entry */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <DirBadge dir={card.direction} />
+        {card.price != null && (
+          <span style={{ fontSize: 8, color: "rgba(255,255,255,0.3)", fontVariantNumeric: "tabular-nums" }}>
+            @ {card.price >= 100 ? card.price.toFixed(2) : card.price.toFixed(4)}
           </span>
-        ) : <span />}
-        <BarChart2 size={12} className="text-zinc-600" />
+        )}
+        {card.tp != null && <span style={{ fontSize: 8, color: "#22c55e90" }}>TP {card.tp.toFixed(2)}</span>}
+        {card.sl != null && <span style={{ fontSize: 8, color: "#ef444490" }}>SL {card.sl.toFixed(2)}</span>}
       </div>
     </div>
-  )
+  );
 }
 
-// ── Section block ──────────────────────────────────────────────────────────────
+// ── Section panel ──────────────────────────────────────────────────────────────
 
-function SectionBlock({
+const FILTER_LABELS: Record<string, string> = {
+  open: "AKTUELL",
+  last7: "LETZTE 7 TAGE",
+  pending: "AUSSTEHEND",
+};
+
+function SectionPanel({
   section,
+  logo,
   selectedCardId,
-  activeFilter,
-  onFilterChange,
   onSelect,
-  scrollCards = false,
 }: {
   section: SignalPageSection;
+  logo: string;
   selectedCardId: string | null;
-  activeFilter: SignalCardFilter;
-  onFilterChange: (f: SignalCardFilter) => void;
-  onSelect: (card: SignalCardData) => void;
-  scrollCards?: boolean;
+  onSelect: (card: SignalCardModel) => void;
 }) {
-  const groups = useMemo(
-    () =>
-      section.groups.map((group) => ({
-        ...group,
-        visibleCards: group.cards.filter((card) => matchesFilter(card, activeFilter)),
-      })),
-    [activeFilter, section.groups],
-  );
+  const [filter, setFilter] = useState<SignalCardFilter>("open");
 
-  const visibleGroups = groups.filter((g) => g.visibleCards.length > 0);
+  const allCards = useMemo(() => section.groups.flatMap((g) => g.cards), [section.groups]);
+  const visible = useMemo(() => allCards.filter((c) => matchesFilter(c, filter)), [allCards, filter]);
 
   return (
-    <div className="flex min-h-0 flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-3">
-        <SectionLead section={section.id} />
-        <FilterBar active={activeFilter} onChange={onFilterChange} />
+    <div style={{ display: "flex", flexDirection: "column", minHeight: 0, flex: 1, overflow: "hidden" }}>
+      {/* Section header */}
+      <div style={{
+        flexShrink: 0,
+        display: "flex", alignItems: "center", gap: 8,
+        padding: "8px 0 6px",
+        borderBottom: "1px solid rgba(255,255,255,0.05)",
+        marginBottom: 8,
+      }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={logo} alt={section.title} width={18} height={18} style={{ objectFit: "contain", flexShrink: 0 }} />
+        <span style={{
+          fontSize: 11, fontWeight: 800,
+          color: "rgba(255,255,255,0.75)",
+          textTransform: "uppercase", letterSpacing: "0.08em",
+        }}>
+          {section.title}
+        </span>
+        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)" }}>Live Signals</span>
+        {/* Filter tabs */}
+        <div style={{ marginLeft: "auto", display: "flex", gap: 2 }}>
+          {(["open", "last7", "pending"] as SignalCardFilter[]).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              style={{
+                padding: "3px 8px",
+                background: filter === f ? "rgba(255,255,255,0.08)" : "transparent",
+                border: filter === f ? "1px solid rgba(255,255,255,0.12)" : "1px solid transparent",
+                borderRadius: 4,
+                color: filter === f ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.3)",
+                fontSize: 9, fontWeight: 700, letterSpacing: "0.05em",
+                cursor: "pointer",
+              }}
+            >
+              {FILTER_LABELS[f]}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="grid min-h-0 gap-4" style={{ gridTemplateColumns: `repeat(auto-fill, minmax(280px, 1fr))` }}>
-        {visibleGroups.map((group) => (
-          <div key={group.id} className="flex min-h-0 flex-col gap-2">
-            <div className="flex items-center gap-1.5">
-              <h3 className="text-[11px] font-semibold text-zinc-300">{group.title}</h3>
-              <span className="text-[9px] text-zinc-600">Open · {group.visibleCards.length}</span>
-            </div>
-
-            <div className={scrollCards ? "min-h-0 grid gap-2 overflow-y-auto pr-0.5" : "grid gap-2"} style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}>
-              {group.visibleCards.length ? (
-                group.visibleCards.map((card) => (
-                  <SignalCard
-                    key={card.id}
-                    card={card}
-                    active={selectedCardId === card.id}
-                    onSelect={onSelect}
-                  />
-                ))
-              ) : (
-                <div className="rounded-[12px] border border-dashed border-white/[0.06] px-3 py-4 text-[9px] text-zinc-700">
-                  Keine Signale
-                </div>
-              )}
-            </div>
+      {/* Card grid — scrollable */}
+      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden" }}>
+        {visible.length === 0 ? (
+          <div style={{ padding: "16px 4px", textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.18)" }}>
+            Keine Signale
           </div>
-        ))}
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 6 }}>
+            {visible.map((card) => (
+              <SignalCard
+                key={card.id}
+                card={card}
+                active={selectedCardId === card.id}
+                onSelect={onSelect}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-// ── KPI card ───────────────────────────────────────────────────────────────────
+// ── KPI metric ─────────────────────────────────────────────────────────────────
 
-function PreviewMetric({ label, value }: { label: string; value: string; tone?: "positive" | "negative" | "neutral" }) {
+function Metric({ label, value, tone }: { label: string; value: string; tone?: "positive" | "negative" | "neutral" }) {
+  const color = tone === "positive" ? "#22c55e" : tone === "negative" ? "#ef4444" : "#fff";
   return (
-    <div className="flex flex-col justify-between rounded-lg border border-zinc-800 bg-gradient-to-b from-[#1c1d20] to-[#141517] p-2 h-full">
-      <div className="text-[9px] uppercase tracking-wider text-zinc-500 leading-none">{label}</div>
-      <div className="text-[16px] font-bold leading-none text-white">{value}</div>
+    <div style={{
+      display: "flex", flexDirection: "column", gap: 4,
+      background: "linear-gradient(180deg,#1c1d20 0%,#141517 100%)",
+      border: "1px solid rgba(255,255,255,0.07)",
+      borderRadius: 8, padding: "6px 8px",
+    }}>
+      <div style={{ fontSize: 7.5, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.32)", lineHeight: 1 }}>
+        {label}
+      </div>
+      <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1, color }}>{value}</div>
     </div>
   );
 }
 
 // ── Main page ──────────────────────────────────────────────────────────────────
 
-function buildInitialCard(data: SignalPageData): string | null {
-  return data.cards[0]?.id ?? null;
-}
+export type SignalPageData = SignalPageModel;
 
 export default function SignalPage({ data }: { data: SignalPageData }) {
   const mounted = useClientMounted();
-  const [selectedCardId, setSelectedCardId] = useState<string | null>(() => buildInitialCard(data));
-  const [whiteSwanFilter, setWhiteSwanFilter] = useState<SignalCardFilter>("open");
-  const [coreInvestFilter, setCoreInvestFilter] = useState<SignalCardFilter>("open");
-  const [equitySeries, setEquitySeries] = useState<EquitySeries | null>(null);
-  const [anomalyPerf, setAnomalyPerf] = useState<{
-    equityCurve: { time: string; value: number }[];
-    drawdownCurve: { time: string; value: number }[];
-    maxDrawdownPercent?: number;
-  } | null>(null);
+  const router = useRouter();
+
+  const whiteSwan = data.sections.find((s) => s.id === "white_swan");
+  const coreInvest = data.sections.find((s) => s.id === "core_invest");
+
+  const firstCard = data.cards[0] ?? null;
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(firstCard?.id ?? null);
 
   const selectedCard = useMemo(
-    () => data.cards.find((c) => c.id === selectedCardId) ?? data.cards[0] ?? null,
-    [data.cards, selectedCardId],
+    () => data.cards.find((c) => c.id === selectedCardId) ?? firstCard,
+    [data.cards, selectedCardId, firstCard],
   );
   const selectedPreview = selectedCard ? (data.previews[selectedCard.id] ?? null) : null;
   const selectedIconUrl = selectedCard
@@ -391,195 +337,155 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
       })
     : null;
 
+  // Auto-refresh: router.refresh() every 5s, pause when tab not visible
+  const refresh = useCallback(() => {
+    router.refresh();
+  }, [router]);
+  useInterval(refresh, 5000);
+
+  // Select card with chart data on mount
   useEffect(() => {
     if (!mounted) return;
     const first = data.cards.find((c) => {
       const p = data.previews[c.id];
-      return Boolean(p?.chart || p?.performance);
+      return Boolean(p?.chart ?? p?.performance);
     });
-    setSelectedCardId(first?.id ?? buildInitialCard(data));
-    setWhiteSwanFilter("open");
-    setCoreInvestFilter("open");
-  }, [data.cards, mounted]);
+    if (first) setSelectedCardId(first.id);
+  }, [mounted, data.cards, data.previews]);
 
-  useEffect(() => {
-    if (!mounted || !selectedCard) return;
-    window.localStorage.setItem(STORAGE_KEYS.signalId, selectedCard.id);
-  }, [mounted, selectedCard]);
-
-  // Load anomaly equity data for selected card
-  useEffect(() => {
-    const filePath = selectedCardId ? ANOMALY_FILES[selectedCardId] : undefined;
-    if (!filePath) { setEquitySeries(null); setAnomalyPerf(null); return; }
-    let cancelled = false;
-    fetch(filePath)
-      .then((r) => r.json() as Promise<AnomalyJson>)
-      .then((json) => {
-        if (cancelled) return;
-        // R-based equity + drawdown from trades (no compounding)
-        const trades = json.trades ?? [];
-        const rUnit = Math.abs(json.summary?.full?.avgLoss ?? 0) || 1;
-        let cumR = 0;
-        let peakR = 0;
-        const equityCurve: { time: string; value: number }[] = [];
-        const drawdownCurve: { time: string; value: number }[] = [];
-        if (trades.length) {
-          equityCurve.push({ time: trades[0]!.exit_time, value: 0 });
-          drawdownCurve.push({ time: trades[0]!.exit_time, value: 0 });
-        }
-        for (const t of trades) {
-          cumR += t.pnl / rUnit;
-          if (cumR > peakR) peakR = cumR;
-          equityCurve.push({ time: t.exit_time, value: cumR });
-          drawdownCurve.push({ time: t.exit_time, value: cumR - peakR });
-        }
-        const maxDd = drawdownCurve.reduce((m, p) => Math.min(m, p.value), 0);
-        // Equityseries for main chart (unchanged %-compounded)
-        const oosStart = json.oosStartDate ?? "";
-        const full = json.equityCurve.full ?? [];
-        if (full.length) {
-          const base = full[0]!.value;
-          const ddFull = json.drawdownCurve?.full ?? [];
-          const series: EquitySeries = full.map((p, i) => {
-            const isOos = p.time >= oosStart;
-            const eq = ((p.value / base) - 1) * 100;
-            const dd = ddFull[i]?.value ?? 0;
-            return { date: p.time, equity: isOos ? null : eq, equityOos: isOos ? eq : null, dd };
-          });
-          setEquitySeries(series);
-        } else {
-          setEquitySeries(null);
-        }
-        setAnomalyPerf({
-          equityCurve,
-          drawdownCurve,
-          maxDrawdownPercent: maxDd,
-        });
-      })
-      .catch(() => { if (!cancelled) { setEquitySeries(null); setAnomalyPerf(null); } });
-    return () => { cancelled = true; };
-  }, [selectedCardId]);
-
-  const whiteSwan = data.sections.find((s) => s.id === "white_swan");
-  const coreInvest = data.sections.find((s) => s.id === "core_invest");
+  const perf = selectedPreview?.performance ?? null;
 
   return (
-    <div className="flex h-full min-h-0 flex-1 overflow-hidden bg-[#09090b] px-6 py-4">
-      <div className="grid min-h-0 w-full flex-1 overflow-hidden gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+    <div style={{
+      display: "grid",
+      gridTemplateColumns: "minmax(0, 1.1fr) minmax(0, 1fr)",
+      height: "100%",
+      minHeight: 0,
+      overflow: "hidden",
+      background: "#09090b",
+      gap: 0,
+    }}>
 
-        {/* ── LEFT: signal groups ───────────────────────────────────────────── */}
-        <div className="flex min-h-0 flex-col overflow-hidden border-r border-white/[0.06] pr-5">
+      {/* ── LEFT: signal list ────────────────────────────────────────────────── */}
+      <div style={{
+        display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden",
+        borderRight: "1px solid rgba(255,255,255,0.06)",
+        padding: "14px 16px 10px 18px",
+        gap: 12,
+      }}>
+        {whiteSwan && (
+          <SectionPanel
+            section={whiteSwan}
+            logo="/branding/white-swan-icon.png"
+            selectedCardId={selectedCardId}
+            onSelect={(c) => setSelectedCardId(c.id)}
+          />
+        )}
 
-          {/* White Swan — top 60% */}
-          <div className="flex min-h-0 flex-[3] flex-col overflow-hidden">
-            {whiteSwan ? (
-              <SectionBlock
-                section={whiteSwan}
-                selectedCardId={selectedCardId}
-                activeFilter={whiteSwanFilter}
-                onFilterChange={setWhiteSwanFilter}
-                onSelect={(card) => setSelectedCardId(card.id)}
-                scrollCards
-              />
-            ) : null}
-          </div>
+        <div style={{ height: 1, flexShrink: 0, background: "rgba(255,255,255,0.07)" }} />
 
-          <div className="my-4 h-px flex-shrink-0 bg-white/[0.06]" />
+        {coreInvest && (
+          <SectionPanel
+            section={coreInvest}
+            logo="/branding/capitalife-favicon.png"
+            selectedCardId={selectedCardId}
+            onSelect={(c) => setSelectedCardId(c.id)}
+          />
+        )}
+      </div>
 
-          {/* Core Invest — bottom 40% */}
-          <div className="flex min-h-0 flex-[2] flex-col overflow-hidden">
-            {coreInvest ? (
-              <SectionBlock
-                section={coreInvest}
-                selectedCardId={selectedCardId}
-                activeFilter={coreInvestFilter}
-                onFilterChange={setCoreInvestFilter}
-                onSelect={(card) => setSelectedCardId(card.id)}
-                scrollCards
-              />
-            ) : null}
-          </div>
-        </div>
+      {/* ── RIGHT: detail panel ──────────────────────────────────────────────── */}
+      <div style={{ display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
 
-        {/* ── RIGHT: detail panel — 50/40/10 layout ───────────────────────── */}
-        <div className="flex min-h-0 flex-col overflow-hidden">
-
-          {/* Row 1 — Chart 50vh */}
-          <div className="relative overflow-hidden border-b border-white/[0.04] bg-[#09090a]" style={{ height: "50vh" }}>
-            <div className="pointer-events-none absolute left-3 top-3 z-10 flex items-center gap-2 rounded-[10px] border border-white/[0.08] bg-black/60 px-2.5 py-1.5 backdrop-blur-sm">
-              {selectedIconUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={selectedIconUrl} alt="" className="h-5 w-5 flex-shrink-0 rounded-[5px] border border-white/[0.08] object-cover" />
-              ) : (
-                <div className="h-5 w-5 flex-shrink-0 rounded-[5px] border border-white/[0.07] bg-white/[0.04]" />
-              )}
-              <div className="min-w-0">
-                <span className="text-[11px] font-bold text-white leading-none">{selectedCard?.displaySymbol ?? "—"}</span>
-                <span className="text-[9px] text-zinc-400 ml-1.5 leading-none">{selectedCard?.strategyName ?? ""}</span>
+        {/* Header overlay chip */}
+        <div style={{
+          position: "relative",
+          flex: "0 0 50%",
+          minHeight: 0,
+          overflow: "hidden",
+          borderBottom: "1px solid rgba(255,255,255,0.04)",
+          background: "#09090a",
+        }}>
+          <div style={{
+            pointerEvents: "none",
+            position: "absolute", left: 10, top: 10, zIndex: 10,
+            display: "flex", alignItems: "center", gap: 8,
+            borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)",
+            background: "rgba(0,0,0,0.6)",
+            padding: "6px 10px", backdropFilter: "blur(6px)",
+          }}>
+            {selectedIconUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={selectedIconUrl} alt="" width={20} height={20}
+                style={{ objectFit: "contain", borderRadius: 5, border: "1px solid rgba(255,255,255,0.08)" }} />
+            ) : (
+              <div style={{ width: 20, height: 20, borderRadius: 5, background: "rgba(255,255,255,0.05)" }} />
+            )}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: "#fff", lineHeight: 1 }}>
+                {selectedCard?.displaySymbol ?? "—"}
+              </div>
+              <div style={{ fontSize: 9, color: "rgba(255,255,255,0.4)", marginTop: 1, lineHeight: 1 }}>
+                {selectedCard?.strategyName ?? ""}
               </div>
             </div>
-            {mounted && selectedPreview?.chart ? (
-              <MonitoringChart data={selectedPreview.chart} maxBars={320} initialVisibleBars={56} />
-            ) : (
-              <div className="grid h-full place-items-center">
-                <div className="text-center">
-                  <div className="text-[10px] text-zinc-600">Keine OHLC-Daten für {selectedCard?.displaySymbol ?? "dieses Asset"}</div>
-                  <div className="text-[8px] text-zinc-700 mt-0.5">{selectedCard?.strategyName ?? ""}</div>
+          </div>
+          {mounted && selectedPreview?.chart ? (
+            <MonitoringChart data={selectedPreview.chart} maxBars={320} initialVisibleBars={56} />
+          ) : (
+            <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.2)" }}>
+                  Keine OHLC-Daten für {selectedCard?.displaySymbol ?? "dieses Asset"}
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
 
-          {/* Row 2 — Equity + DD 40vh */}
-          {(() => {
-            const perf = anomalyPerf ?? (selectedPreview?.performance ? {
-              equityCurve: selectedPreview.performance.equityCurve,
-              drawdownCurve: selectedPreview.performance.drawdownCurve,
-              cagr: selectedPreview.performance.summary.cagr,
-              maxDrawdownPercent: selectedPreview.performance.summary.maxDrawdownPercent,
-              totalReturnPercent: selectedPreview.performance.summary.totalReturnPercent,
-              avgDrawdownPercent: selectedPreview.performance.summary.avgDrawdownPercent,
-              top5DrawdownsPercent: selectedPreview.performance.summary.top5DrawdownsPercent,
-            } : null);
-            // For anomaly cards cagr/totalReturnPercent are not R-based; pass undefined
-            const isAnomaly = Boolean(anomalyPerf);
-            return (
-              <div className="flex flex-col overflow-hidden border-b border-white/[0.04]" style={{ height: "40vh" }}>
-                {mounted && perf ? (
-                  <>
-                    <div className="min-h-0 overflow-hidden p-1.5" style={{ height: "65%" }}>
-                      <StrategyTesterEquityChart
-                        data={perf.equityCurve}
-                        totalReturnPercent={isAnomaly ? undefined : (perf as { totalReturnPercent?: number }).totalReturnPercent}
-                        cagr={isAnomaly ? undefined : (perf as { cagr?: number }).cagr}
-                        fillContainer
-                      />
-                    </div>
-                    <div className="min-h-0 overflow-hidden border-t border-white/[0.04] p-1.5" style={{ height: "35%" }}>
-                      <StrategyTesterDrawdownChart
-                        data={perf.drawdownCurve}
-                        maxDrawdownPercent={perf.maxDrawdownPercent}
-                        avgDrawdownPercent={isAnomaly ? undefined : (perf as { avgDrawdownPercent?: number }).avgDrawdownPercent}
-                        top5DrawdownsPercent={isAnomaly ? undefined : (perf as { top5DrawdownsPercent?: number[] }).top5DrawdownsPercent}
-                        fillContainer
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <div className="grid h-full place-items-center">
-                    <span className="text-[10px] text-zinc-700">Kein Backtest verfügbar</span>
-                  </div>
-                )}
+        {/* Equity + Drawdown */}
+        <div style={{
+          flex: "0 0 35%", minHeight: 0, overflow: "hidden",
+          borderBottom: "1px solid rgba(255,255,255,0.04)",
+          display: "flex", flexDirection: "column",
+        }}>
+          {mounted && perf ? (
+            <>
+              <div style={{ flex: "0 0 65%", minHeight: 0, overflow: "hidden", padding: "4px 6px 2px" }}>
+                <StrategyTesterEquityChart
+                  data={perf.equityCurve}
+                  totalReturnPercent={perf.summary?.totalReturnPercent}
+                  cagr={perf.summary?.cagr}
+                  fillContainer
+                />
               </div>
-            );
-          })()}
+              <div style={{ flex: "0 0 35%", minHeight: 0, overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.04)", padding: "2px 6px 4px" }}>
+                <StrategyTesterDrawdownChart
+                  data={perf.drawdownCurve}
+                  maxDrawdownPercent={perf.summary?.maxDrawdownPercent}
+                  fillContainer
+                />
+              </div>
+            </>
+          ) : (
+            <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.15)" }}>Kein Backtest verfügbar</span>
+            </div>
+          )}
+        </div>
 
-          {/* Row 3 — KPI 5er reihe 7vh */}
-          <div className="grid grid-cols-5 gap-2 p-2" style={{ height: "7vh" }}>
-            {(selectedPreview?.kpis ?? []).slice(0, 5).map((metric) => (
-              <PreviewMetric key={metric.label} label={metric.label} value={metric.value} tone={metric.tone} />
-            ))}
-          </div>
+        {/* KPI row */}
+        <div style={{
+          flex: 1, minHeight: 0,
+          display: "grid",
+          gridTemplateColumns: "repeat(5, 1fr)",
+          gap: 6,
+          padding: "6px 8px",
+          alignContent: "center",
+        }}>
+          {(selectedPreview?.kpis ?? []).slice(0, 5).map((kpi) => (
+            <Metric key={kpi.label} label={kpi.label} value={kpi.value} tone={kpi.tone} />
+          ))}
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { createSupabaseServiceClient } from "@/lib/supabase-server";
 import type { MonitoringChartData } from "@/components/monitoring/MonitoringChart";
 import type { MonitoringPrimaryTabId } from "@/config/monitoringTabConfig";
 import { calculateStrategyPerformance } from "@/lib/monitoring/backtest/calculateStrategyPerformance";
@@ -767,12 +768,49 @@ function buildPreview(
   };
 }
 
-export function loadSignalSources(): Array<{ card: SignalCardModel; preview: SignalCardPreview }> {
-  return [...WHITE_SWAN_SOURCES, ...CORE_INVEST_SOURCES].flatMap((source) => {
-    const file = readStrategyFile(source);
-    const trade = latestTrade(file);
-    const candles = source.candleSource === "invest_csv" ? readInvestCandles(source.investSymbol) : readCacheCandles(source.candleFile);
-    const { price, changePct } = latestPriceChange(candles);
+async function loadCandlesForSource(source: SignalSource): Promise<MonitoringCandle[]> {
+  const local =
+    source.candleSource === "invest_csv"
+      ? readInvestCandles(source.investSymbol)
+      : readCacheCandles(source.candleFile);
+  if (local.length > 0) return local;
+
+  // Supabase fallback — monitoring_ohlc when local cache is absent (Vercel)
+  try {
+    const db = createSupabaseServiceClient();
+    const { data } = await db
+      .from("monitoring_ohlc")
+      .select("date,open,high,low,close")
+      .eq("asset", source.symbol)
+      .eq("timeframe", "D")
+      .order("date", { ascending: true })
+      .limit(3000);
+    if (!data?.length) return [];
+    return data
+      .map((row) => ({
+        time: String(row.date).slice(0, 10),
+        open: Number(row.open),
+        high: Number(row.high),
+        low: Number(row.low),
+        close: Number(row.close),
+      }))
+      .filter(
+        (bar) =>
+          bar.time &&
+          [bar.open, bar.high, bar.low, bar.close].every(Number.isFinite),
+      );
+  } catch {
+    return [];
+  }
+}
+
+export async function loadSignalSources(): Promise<Array<{ card: SignalCardModel; preview: SignalCardPreview }>> {
+  const results = await Promise.all(
+    [...WHITE_SWAN_SOURCES, ...CORE_INVEST_SOURCES].map(async (source) => {
+      const file = readStrategyFile(source);
+      const trade = latestTrade(file);
+      const candles = await loadCandlesForSource(source);
+      const { price, changePct } = latestPriceChange(candles);
     const signalDate = normalizeDate(trade?.exitTime ?? trade?.entryTime);
     const dataStatus = file && candles.length ? "ok" : file || candles.length ? "partial" : "missing";
     const computedDirection = source.forcedStatus === "PARITY_PENDING"
@@ -815,5 +853,7 @@ export function loadSignalSources(): Array<{ card: SignalCardModel; preview: Sig
     const hasActiveDirection = direction === "LONG" || direction === "SHORT";
     if (status === "PAPER_ONLY" && !hasRecentSignal && !hasActiveDirection) return [];
     return [{ card, preview: buildPreview(card, candles, file) }];
-  });
+    }),
+  );
+  return results.flat();
 }

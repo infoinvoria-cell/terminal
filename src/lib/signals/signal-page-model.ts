@@ -28,7 +28,7 @@ function latestUpdate(dates: Array<string | undefined>): string | null {
 }
 
 export async function getSignalPageModel(): Promise<SignalPageModel> {
-  const rows = loadSignalSources();
+  const rows = await loadSignalSources();
   const cards = rows.map((row) => row.card);
   const previews = Object.fromEntries(rows.map((row) => [row.card.id, row.preview]));
   const whiteSwanCards = cards.filter((card) => card.group === "white_swan");
