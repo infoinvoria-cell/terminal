@@ -116,14 +116,34 @@ function getCardState(card: SignalCardModel): CardState {
 
 function parseTargetDate(label: string | undefined): Date | null {
   if (!label) return null;
-  const m = label.match(/(\d{1,2})\.(\d{1,2})\./);
-  if (!m) return null;
-  const day = parseInt(m[1]!, 10);
-  const month = parseInt(m[2]!, 10) - 1;
-  const now = new Date();
-  const t = new Date(now.getFullYear(), month, day, 18, 0, 0);
-  if (t.getTime() < now.getTime() - 86_400_000) t.setFullYear(now.getFullYear() + 1);
-  return t;
+  // "Fr 25.07." or "25.07." format
+  const m1 = label.match(/(\d{1,2})\.(\d{1,2})\./);
+  if (m1) {
+    const day = parseInt(m1[1]!, 10);
+    const month = parseInt(m1[2]!, 10) - 1;
+    const now = new Date();
+    const t = new Date(now.getFullYear(), month, day, 18, 0, 0);
+    if (t.getTime() < now.getTime() - 86_400_000) t.setFullYear(now.getFullYear() + 1);
+    return t;
+  }
+  // ISO "YYYY-MM-DD" format
+  const m2 = label.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m2) {
+    return new Date(parseInt(m2[1]!, 10), parseInt(m2[2]!, 10) - 1, parseInt(m2[3]!, 10), 18, 0, 0);
+  }
+  return null;
+}
+
+/** Human-readable fallback label when no live countdown is available */
+function pendingChipLabel(label: string | undefined): string {
+  if (!label) return "AUSSTEHEND";
+  const l = label.toLowerCase();
+  if (l.includes("täglich")) return "TÄGLICH";
+  if (l.includes("tbd") || l.includes("datum")) return "AUSSTEHEND";
+  // Extract "DD.MM." part from labels like "Fr 25.07."
+  const dm = label.match(/(\d{1,2}\.\d{1,2}\.)/);
+  if (dm) return dm[1]!;
+  return label.slice(0, 10); // safe truncate for "Okt 2026" etc.
 }
 
 function formatSignalDate(iso: string | undefined): string {
@@ -151,9 +171,12 @@ function useCountdown(target: Date | null): string {
   const [display, setDisplay] = useState("");
   const rafRef = useRef<ReturnType<typeof setInterval> | null>(null);
   useEffect(() => {
+    // Only show a live countdown when target is within 24 h
     if (!target) { setDisplay(""); return; }
     const tick = () => {
       const diff = target.getTime() - Date.now();
+      // Only run the live timer when event is within 24 h
+      if (diff > 24 * 3_600_000) { setDisplay(""); return; }
       if (diff <= 0) { setDisplay("0:00 min"); return; }
       const h = Math.floor(diff / 3_600_000);
       const min = Math.floor((diff % 3_600_000) / 60_000);
@@ -208,7 +231,7 @@ function SignalCard({
     topRight = (
       <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
         <span style={{ fontSize: 12, fontWeight: 700, color: timerColor, fontVariantNumeric: "tabular-nums" }}>
-          {countdown || card.nextSignalLabel || "—"}
+          {countdown || pendingChipLabel(card.nextSignalLabel)}
         </span>
         {isValid && (
           <span style={{
@@ -222,11 +245,10 @@ function SignalCard({
   }
 
   // ── Date line ──
+  // For pending states: top-right chip already shows the schedule label — don't duplicate in row 2
   let dateDisplay = "";
   if (card.signalDate) {
     dateDisplay = formatSignalDate(card.signalDate);
-  } else if (card.nextSignalLabel) {
-    dateDisplay = card.nextSignalLabel;
   }
 
   // ── TP/SL ──
