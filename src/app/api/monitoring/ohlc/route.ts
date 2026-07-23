@@ -60,6 +60,7 @@ function parseBars(rawBars: CacheBar[]): Array<{ time: string; open: number; hig
     const low = Number(row?.low);
     const close = Number(row?.close);
     if (!time || !Number.isFinite(open) || !Number.isFinite(high) || !Number.isFinite(low) || !Number.isFinite(close)) continue;
+    if (close <= 0 || open <= 0) continue;
     const entry: { time: string; open: number; high: number; low: number; close: number; volume?: number } = { time, open, high, low, close };
     if (row?.volume != null && Number.isFinite(Number(row.volume))) entry.volume = Number(row.volume);
     out.push(entry);
@@ -79,6 +80,7 @@ async function fromSupabaseOhlc(symbol: string, tf: string, maxBars: number): Pr
         .select("date,open,high,low,close,volume")
         .eq("asset", symbol)
         .eq("timeframe", tf)
+        .gt("close", 0)
         .order("date", { ascending: true })
         .range(from, from + PAGE - 1);
       if (error) return NextResponse.json({ error: error.message, symbol, timeframe: tf }, { status: 500 });
@@ -94,6 +96,7 @@ async function fromSupabaseOhlc(symbol: string, tf: string, maxBars: number): Pr
           .from("invest_ohlc")
           .select("date,open,high,low,close,volume")
           .eq("symbol", symbol)
+          .gt("close", 0)
           .order("date", { ascending: true })
           .range(from, from + PAGE - 1);
         if (iErr || !iData?.length) break;
