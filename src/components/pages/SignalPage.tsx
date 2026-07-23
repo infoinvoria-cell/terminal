@@ -15,6 +15,20 @@ import type {
   SignalPageSection,
 } from "@/lib/signals/signal-types";
 
+// ── Drawdown fallback ──────────────────────────────────────────────────────────
+
+function computeDrawdownFromEquity(
+  equity: Array<{ time: string; value: number }>,
+): Array<{ time: string; value: number }> {
+  let peak = -Infinity;
+  return equity.map((p) => {
+    const v = p.value;
+    if (v > peak) peak = v;
+    const dd = peak > -Infinity && peak !== 0 ? ((v - peak) / Math.abs(peak)) * 100 : 0;
+    return { time: p.time, value: Math.min(0, dd) };
+  });
+}
+
 // ── Filter helpers ─────────────────────────────────────────────────────────────
 
 function nextLabelDaysAhead(label?: string): number | null {
@@ -354,6 +368,12 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
   }, [mounted, data.cards, data.previews]);
 
   const perf = selectedPreview?.performance ?? null;
+  const drawdownData = useMemo(() => {
+    if (!perf) return [];
+    const dd = perf.drawdownCurve ?? [];
+    const hasRealDd = dd.some((p) => p.value < 0);
+    return hasRealDd ? dd : computeDrawdownFromEquity(perf.equityCurve ?? []);
+  }, [perf]);
 
   return (
     <div style={{
@@ -445,21 +465,21 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
 
         {/* Equity + Drawdown */}
         <div style={{
-          flex: "0 0 35%", minHeight: 0, overflow: "hidden",
+          flex: "0 0 45%", minHeight: 0, overflow: "hidden",
           borderBottom: "1px solid rgba(255,255,255,0.04)",
           display: "flex", flexDirection: "column",
         }}>
           {mounted && perf ? (
             <>
-              <div style={{ flex: "0 0 65%", minHeight: 0, overflow: "hidden", padding: "4px 6px 2px" }}>
+              <div style={{ flex: "0 0 55%", minHeight: 0, overflow: "hidden", padding: "4px 6px 2px" }}>
                 <StrategyTesterEquityChart
                   data={perf.equityCurve}
                   fillContainer
                 />
               </div>
-              <div style={{ flex: "0 0 35%", minHeight: 0, overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.04)", padding: "2px 6px 4px" }}>
+              <div style={{ flex: "0 0 45%", minHeight: 0, overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.04)", padding: "2px 6px 4px" }}>
                 <StrategyTesterDrawdownChart
-                  data={perf.drawdownCurve}
+                  data={drawdownData}
                   maxDrawdownPercent={perf.summary?.maxDrawdownPercent}
                   fillContainer
                 />
