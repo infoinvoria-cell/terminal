@@ -307,7 +307,9 @@ function SectionPanel({
 // ── KPI metric ─────────────────────────────────────────────────────────────────
 
 function Metric({ label, value, tone }: { label: string; value: string; tone?: "positive" | "negative" | "neutral" }) {
-  const color = tone === "negative" ? "#ef4444" : "#fff";
+  // positive → white, negative → gold, neutral → white
+  const valueColor = tone === "negative" ? "#d8bc67" : "#fff";
+  const isNegativeTone = tone === "negative";
   return (
     <div style={{
       display: "flex", flexDirection: "column", justifyContent: "center", gap: "clamp(2px,0.4vh,6px)",
@@ -316,10 +318,18 @@ function Metric({ label, value, tone }: { label: string; value: string; tone?: "
       borderRadius: 8, padding: "clamp(4px,0.8vh,10px) clamp(6px,0.8vw,12px)",
       height: "100%", minHeight: 0, overflow: "hidden",
     }}>
-      <div style={{ fontSize: "clamp(7px,0.6vw,9px)", textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.32)", lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-        {label}
+      <div style={{
+        display: "inline-flex", alignItems: "center",
+        fontSize: "clamp(7px,0.6vw,9px)", textTransform: "uppercase", letterSpacing: "0.08em",
+        lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden",
+      }}>
+        {isNegativeTone ? (
+          <span style={{ background: "#ef444422", border: "1px solid #ef444455", borderRadius: 3, padding: "1px 4px", color: "#ef4444" }}>{label}</span>
+        ) : (
+          <span style={{ color: "rgba(255,255,255,0.32)" }}>{label}</span>
+        )}
       </div>
-      <div style={{ fontSize: "clamp(11px,1.2vw,18px)", fontWeight: 700, lineHeight: 1, color, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{value}</div>
+      <div style={{ fontSize: "clamp(11px,1.2vw,18px)", fontWeight: 700, lineHeight: 1, color: valueColor, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{value}</div>
     </div>
   );
 }
