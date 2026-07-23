@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
-import type { LiveFeedItem } from "@/app/api/monitoring/live-feed/route";
+import type { LiveFeedItem } from "@/lib/monitoring/live-feed-types";
 import type { SignalCardModel } from "@/lib/signals/signal-types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
