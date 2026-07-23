@@ -296,10 +296,10 @@ export default function LiveWatchlistPanel({
 
   const totalRows = grouped.reduce((s, g) => s + g.rows.length, 0);
 
-  // icon | symbol | price | signal — all fixed so symbol+price sit adjacent
+  // icon | symbol | price | signal(fills remaining — no dead space at right)
   const COL = fullData
-    ? "15px 52px 72px 44px 28px 58px"
-    : "15px 52px 72px 44px";
+    ? "15px 52px 72px minmax(44px,1fr) 28px 58px"
+    : "15px 52px 72px minmax(44px,1fr)";
 
   return (
     <div style={{
@@ -347,7 +347,7 @@ export default function LiveWatchlistPanel({
           <span key={i} style={{
             fontSize: 8, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase",
             color: "rgba(255,255,255,0.48)",
-            textAlign: i === 0 || i === 1 || i === 2 ? "left" : "right",
+            textAlign: i <= 1 ? "left" : "right",
           }}>{h}</span>
         ))}
       </div>

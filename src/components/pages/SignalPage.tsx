@@ -365,7 +365,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
         {/* OHLC chart */}
         <div style={{
           position: "relative",
-          flex: "0 0 50%",
+          flex: "0 0 44%",
           minHeight: 0,
           overflow: "hidden",
           borderBottom: "1px solid rgba(255,255,255,0.04)",
@@ -410,7 +410,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
 
         {/* Equity + Drawdown */}
         <div style={{
-          flex: "0 0 45%", minHeight: 0, overflow: "hidden",
+          flex: 1, minHeight: 0, overflow: "hidden",
           borderBottom: "1px solid rgba(255,255,255,0.04)",
           display: "flex", flexDirection: "column",
         }}>
@@ -436,7 +436,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
 
         {/* KPI row */}
         <div style={{
-          flex: "0 0 88px", minHeight: 0,
+          flex: "0 0 88px", flexShrink: 0, minHeight: 0,
           display: "flex", flexDirection: "row",
           gap: 6, padding: "6px 8px 10px",
           alignItems: "stretch",
