@@ -1,6 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { createSupabaseServiceClient } from "@/lib/supabase-server";
+import gc1FridayLongJson from "../../../public/data/anomaly/gc1_friday_long.json";
+import gldThursdayLongJson from "../../../public/data/anomaly/gld_thursday_long.json";
+import ym1TatJson from "../../../public/data/anomaly/ym1_tat.json";
 import type { MonitoringChartData } from "@/components/monitoring/MonitoringChart";
 import type { MonitoringPrimaryTabId } from "@/config/monitoringTabConfig";
 import { calculateStrategyPerformance } from "@/lib/monitoring/backtest/calculateStrategyPerformance";
@@ -113,11 +116,11 @@ const SIGNALS_ROOT = path.join(GENERATED_ROOT, "signals");
 const D_CACHE_ROOT = path.join(GENERATED_ROOT, "tradingview_data_cache", "D");
 const INVEST_FOLDER = "C:\\Users\\joris\\Desktop\\Invest Portfolio";
 
-// Anomaly backtest files bundled in public/ — available on Vercel
-const ANOMALY_PERF_FILES: Record<string, string> = {
-  "fp10-gc1-friday-long":  path.join(PROJECT_ROOT, "public", "data", "anomaly", "gc1_friday_long.json"),
-  "fp10-gld-thursday-long": path.join(PROJECT_ROOT, "public", "data", "anomaly", "gld_thursday_long.json"),
-  "fp10-ym1-tat":          path.join(PROJECT_ROOT, "public", "data", "anomaly", "ym1_tat.json"),
+// Anomaly backtest data — statically imported so they're bundled on Vercel SSR
+const ANOMALY_PERF_DATA: Record<string, unknown> = {
+  "fp10-gc1-friday-long":   gc1FridayLongJson,
+  "fp10-gld-thursday-long": gldThursdayLongJson,
+  "fp10-ym1-tat":           ym1TatJson,
 };
 
 // Local-only production sleeves (Invoria Dashboard workspace)
@@ -510,10 +513,9 @@ type AnomalyJsonFile = {
 };
 
 function buildAnomalyPerformance(id: string): StrategyPerformanceResult | null {
-  const filePath = ANOMALY_PERF_FILES[id];
-  if (!filePath) return null;
-  const json = readJson<AnomalyJsonFile>(filePath);
-  if (!json) return null;
+  const raw = ANOMALY_PERF_DATA[id];
+  if (!raw) return null;
+  const json = raw as AnomalyJsonFile;
 
   // Prefer OOS metrics (out-of-sample = real-world validated period)
   const s: AnomalySummaryBlock = json.summary?.oos ?? json.summary?.full ?? {};

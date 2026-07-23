@@ -293,7 +293,7 @@ function SectionPanel({
 // ── KPI metric ─────────────────────────────────────────────────────────────────
 
 function Metric({ label, value, tone }: { label: string; value: string; tone?: "positive" | "negative" | "neutral" }) {
-  const color = tone === "positive" ? "#d8bc67" : tone === "negative" ? "#ef4444" : "#fff";
+  const color = tone === "negative" ? "#ef4444" : "#fff";
   return (
     <div style={{
       display: "flex", flexDirection: "column", gap: 4,
