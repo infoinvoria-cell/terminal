@@ -926,7 +926,11 @@ async function loadCandlesForSource(source: SignalSource): Promise<MonitoringCan
       .filter(
         (bar) =>
           bar.time &&
+          bar.open > 0 &&
+          bar.high > 0 &&
+          bar.low > 0 &&
           bar.close > 0 &&
+          bar.low <= bar.high &&
           [bar.open, bar.high, bar.low, bar.close].every(Number.isFinite),
       );
   } catch {

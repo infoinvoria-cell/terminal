@@ -143,24 +143,31 @@ function SectionPanel({
         </div>
       </div>
 
-      {/* Card grid — scrollable */}
-      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden" }}>
-        {visible.length === 0 ? (
-          <div style={{ padding: "16px 4px", textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.18)" }}>
-            Keine Signale
-          </div>
-        ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 8 }}>
-            {visible.map((card) => (
-              <SignalCard
-                key={card.id}
-                card={card}
-                active={selectedCardId === card.id}
-                onSelect={onSelect}
-              />
-            ))}
-          </div>
-        )}
+      {/* Card grid — scrollable, invisible scrollbar + bottom fade */}
+      <div style={{ flex: 1, minHeight: 0, position: "relative", overflow: "hidden" }}>
+        <div className="no-scrollbar" style={{ height: "100%", overflowY: "auto", overflowX: "hidden" }}>
+          {visible.length === 0 ? (
+            <div style={{ padding: "16px 4px", textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.18)" }}>
+              Keine Signale
+            </div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 8, paddingBottom: 24 }}>
+              {visible.map((card) => (
+                <SignalCard
+                  key={card.id}
+                  card={card}
+                  active={selectedCardId === card.id}
+                  onSelect={onSelect}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+        {/* Bottom fade hint */}
+        <div style={{
+          pointerEvents: "none", position: "absolute", bottom: 0, left: 0, right: 0, height: 32,
+          background: "linear-gradient(to bottom, transparent, #09090b)",
+        }} />
       </div>
     </div>
   );
@@ -169,34 +176,26 @@ function SectionPanel({
 // ── KPI metric ─────────────────────────────────────────────────────────────────
 
 function Metric({ label, value, tone }: { label: string; value: string; tone?: "positive" | "negative" | "neutral" }) {
-  const valueColor = tone === "negative" ? "#d8bc67" : "#fff";
-  const isNegative = tone === "negative";
+  const valueColor = tone === "negative" ? "#d8bc67" : "#ffffff";
   return (
     <div style={{
       flex: 1, minWidth: 0,
-      display: "flex", flexDirection: "column", justifyContent: "center", gap: 5,
-      background: "#141517",
+      display: "flex", flexDirection: "column", justifyContent: "center", gap: 6,
+      background: "#111214",
       border: "1px solid rgba(255,255,255,0.07)",
-      borderRadius: 8,
-      padding: "8px 10px",
+      borderRadius: 10,
+      padding: "10px 12px",
       overflow: "hidden",
     }}>
       <div style={{
         fontSize: 9, fontWeight: 700, textTransform: "uppercase",
-        letterSpacing: "0.09em", lineHeight: 1, whiteSpace: "nowrap",
+        letterSpacing: "0.10em", lineHeight: 1, whiteSpace: "nowrap",
+        color: "rgba(255,255,255,0.32)",
       }}>
-        {isNegative ? (
-          <span style={{
-            background: "rgba(239,68,68,0.12)",
-            border: "1px solid rgba(239,68,68,0.3)",
-            borderRadius: 3, padding: "1px 5px", color: "#ef4444",
-          }}>{label}</span>
-        ) : (
-          <span style={{ color: "rgba(255,255,255,0.30)" }}>{label}</span>
-        )}
+        {label}
       </div>
       <div style={{
-        fontSize: 15, fontWeight: 700, lineHeight: 1,
+        fontSize: 17, fontWeight: 700, lineHeight: 1,
         color: valueColor,
         whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
       }}>
@@ -274,7 +273,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
       minHeight: 0,
       overflow: "hidden",
       background: "#09090b",
-      gap: 0,
+      gap: "0 12px",
       transition: "grid-template-columns 200ms ease",
     }}>
       {/* ── Pull tab: right edge, vertically centered ─────────────────────── */}
@@ -322,9 +321,9 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
       {/* ── LEFT: signal list ────────────────────────────────────────────────── */}
       <div style={{
         display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden",
-        borderRight: "1px solid rgba(255,255,255,0.06)",
-        padding: "14px 16px 10px 18px",
-        gap: 12,
+        borderRight: "1px solid rgba(255,255,255,0.05)",
+        padding: "14px 20px 10px 20px",
+        gap: 0,
       }}>
         {whiteSwan && (
           <SectionPanel
@@ -335,7 +334,13 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
           />
         )}
 
-        <div style={{ height: 1, flexShrink: 0, background: "rgba(255,255,255,0.07)" }} />
+        {/* Gradient fade — replaces hard divider */}
+        <div style={{ flexShrink: 0, height: 24, position: "relative", pointerEvents: "none" }}>
+          <div style={{
+            position: "absolute", top: 0, left: -20, right: -20, height: "100%",
+            background: "linear-gradient(to bottom, rgba(9,9,11,0) 0%, rgba(9,9,11,0.85) 50%, rgba(9,9,11,0) 100%)",
+          }} />
+        </div>
 
         {coreInvest && (
           <SectionPanel
@@ -424,7 +429,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
 
         {/* KPI row */}
         <div style={{
-          flex: 1, minHeight: 0,
+          flex: "0 0 72px", minHeight: 0,
           display: "flex", flexDirection: "row",
           gap: 6, padding: "6px 8px 8px",
           alignItems: "stretch",

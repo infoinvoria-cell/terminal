@@ -58,9 +58,16 @@ function getRemainingSeconds(targetTime?: Date): number {
 }
 
 function formatCountdown(totalSeconds: number): string {
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${minutes}:${String(seconds).padStart(2, "0")} min`;
+  if (totalSeconds <= 0) return "";
+  const d = Math.floor(totalSeconds / 86_400);
+  const h = Math.floor((totalSeconds % 86_400) / 3_600);
+  const m = Math.floor((totalSeconds % 3_600) / 60);
+  const s = totalSeconds % 60;
+  if (d > 0) return `${d}D ${h}H`;
+  if (h > 0) return `${h}H ${m}M`;
+  if (m >= 10) return `${m}M`;
+  if (m > 0) return `${m}M ${String(s).padStart(2, "0")}S`;
+  return `${String(s).padStart(2, "0")}S`;
 }
 
 function isImageSource(icon: string): boolean {
@@ -246,27 +253,20 @@ export function SignalCard({
             SL {formatPercentage(sl)}
           </span>
         );
-      case "pending_valid":
+      case "pending_valid": {
+        const label = formatCountdown(remainingSeconds);
         return (
-          <span
-            style={{
-              ...base,
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              color: "#d8bc67",
-            }}
-          >
-            {formatCountdown(remainingSeconds)}
+          <span style={{ ...base, display: "flex", alignItems: "center", gap: 6, color: "#d8bc67" }}>
+            {label || "—"}
             <CheckCircleIcon />
           </span>
         );
-      case "pending_invalid":
-        return (
-          <span style={{ ...base, color: "rgba(255,255,255,0.55)" }}>
-            {formatCountdown(remainingSeconds)}
-          </span>
-        );
+      }
+      case "pending_invalid": {
+        const label = formatCountdown(remainingSeconds);
+        if (!label) return <span style={{ ...base, color: "rgba(255,255,255,0.30)" }}>—</span>;
+        return <span style={{ ...base, color: "rgba(255,255,255,0.55)" }}>{label}</span>;
+      }
     }
   };
 
