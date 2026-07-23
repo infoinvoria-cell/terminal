@@ -5,7 +5,7 @@ import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons
 import type { LiveFeedItem } from "@/lib/monitoring/live-feed-types";
 import type { SignalCardModel } from "@/lib/signals/signal-types";
 
-type SignalStatus = "long" | "short" | "pending_valid" | "pending_invalid" | "none";
+type SignalStatus = "long" | "short" | "closed_win" | "closed_loss" | "none";
 type SignalData = { status: SignalStatus; changePct: number | null };
 type PriceFlash = "up" | "down";
 type Row = LiveFeedItem & { signal: SignalData };
@@ -35,6 +35,12 @@ const FLASH_MS = 30_000; // price flash stays 30s
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+function isTodayStr(dateStr: string | undefined): boolean {
+  if (!dateStr) return false;
+  const today = new Date().toISOString().slice(0, 10);
+  return dateStr.slice(0, 10) === today;
+}
+
 function buildSignalMap(cards: SignalCardModel[]): Map<string, SignalData> {
   const map = new Map<string, SignalData>();
   for (const c of cards) {
@@ -42,13 +48,10 @@ function buildSignalMap(cards: SignalCardModel[]): Map<string, SignalData> {
     if (c.status === "OPEN") {
       if (c.direction === "LONG") map.set(key, { status: "long", changePct: c.changePct ?? null });
       else if (c.direction === "SHORT") map.set(key, { status: "short", changePct: c.changePct ?? null });
-    } else if (
-      (c.status === "VALIDATION" || c.status === "PAPER_ONLY" || c.status === "PARITY_PENDING") &&
-      (c.direction === "LONG" || c.direction === "SHORT")
-    ) {
+    } else if (c.status === "CLOSED" && isTodayStr(c.signalDate)) {
       if (!map.has(key)) {
-        const probable = c.status === "VALIDATION" || c.status === "PARITY_PENDING";
-        map.set(key, { status: probable ? "pending_valid" : "pending_invalid", changePct: null });
+        const win = (c.changePct ?? 0) >= 0;
+        map.set(key, { status: win ? "closed_win" : "closed_loss", changePct: c.changePct ?? null });
       }
     }
   }
@@ -135,50 +138,26 @@ function AssetIcon({ symbol }: { symbol: string }) {
   return <img src={url} alt={symbol} width={15} height={15} style={{ borderRadius: 3, flexShrink: 0, objectFit: "contain", display: "block" }} />;
 }
 
-// Combined Signal + % column
-function SignalCell({ signal, marketPct }: { signal: SignalData; marketPct: number | null }) {
+// Combined Signal + % column — only open/closed-today, else gray —
+function SignalCell({ signal }: { signal: SignalData }) {
   if (signal.status === "long" || signal.status === "short") {
     const pct = signal.changePct;
     const isLong = signal.status === "long";
     const color = isLong ? "#22c55e" : "#ef4444";
-    const text = pct != null
-      ? `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`
-      : isLong ? "L" : "S";
+    const text = pct != null ? `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%` : isLong ? "L" : "S";
     return <span style={{ fontSize: 9, fontWeight: 700, color, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{text}</span>;
   }
-  if (signal.status === "pending_valid") {
-    return (
-      <span title="Signal sehr wahrscheinlich" style={{
-        display: "inline-flex", alignItems: "center", justifyContent: "center",
-        width: 14, height: 14, borderRadius: "50%",
-        background: "rgba(216,188,103,0.15)", border: "1px solid rgba(216,188,103,0.45)",
-      }}>
-        <svg width="8" height="7" viewBox="0 0 8 7" fill="none">
-          <path d="M1 3.5L3 5.5L7 1" stroke="#d8bc67" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </span>
-    );
+  if (signal.status === "closed_win") {
+    const pct = signal.changePct;
+    const text = pct != null ? `+${Math.abs(pct).toFixed(1)}%` : "TP";
+    return <span style={{ fontSize: 9, fontWeight: 700, color: "#22c55e", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{text}</span>;
   }
-  if (signal.status === "pending_invalid") {
-    return (
-      <span title="Signal möglich" style={{
-        display: "inline-flex", alignItems: "center", justifyContent: "center",
-        width: 14, height: 14, borderRadius: "50%",
-        background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.15)",
-      }}>
-        <svg width="8" height="7" viewBox="0 0 8 7" fill="none">
-          <path d="M1 3.5L3 5.5L7 1" stroke="rgba(255,255,255,0.35)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </span>
-    );
+  if (signal.status === "closed_loss") {
+    const pct = signal.changePct;
+    const text = pct != null ? `-${Math.abs(pct).toFixed(1)}%` : "SL";
+    return <span style={{ fontSize: 9, fontWeight: 700, color: "#ef4444", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{text}</span>;
   }
-  // none — show market daily %
-  const chg = fmtPct(marketPct);
-  return (
-    <span style={{ fontSize: 9, color: chg.color, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
-      {chg.text}
-    </span>
-  );
+  return <span style={{ fontSize: 9, color: "rgba(255,255,255,0.22)", fontVariantNumeric: "tabular-nums" }}>—</span>;
 }
 
 function SectionHeader({ label, count }: { label: string; count: number }) {
@@ -317,10 +296,10 @@ export default function LiveWatchlistPanel({
 
   const totalRows = grouped.reduce((s, g) => s + g.rows.length, 0);
 
-  // icon | symbol(fixed) | price(fills) | signal(fixed)
+  // icon | symbol | price | signal — all fixed so symbol+price sit adjacent
   const COL = fullData
-    ? "15px 58px minmax(0,1fr) 52px 30px 60px"
-    : "15px 58px minmax(0,1fr) 52px";
+    ? "15px 52px 72px 44px 28px 58px"
+    : "15px 52px 72px 44px";
 
   return (
     <div style={{
@@ -438,7 +417,7 @@ export default function LiveWatchlistPanel({
                   </span>
 
                   <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
-                    <SignalCell signal={row.signal} marketPct={row.changePct} />
+                    <SignalCell signal={row.signal} />
                   </div>
 
                   {fullData && (

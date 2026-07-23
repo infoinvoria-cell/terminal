@@ -281,7 +281,7 @@ export function SignalCard({
         ...cardBackground,
         position: "relative",
         display: "flex",
-        height: 134,
+        height: 112,
         width: "100%",
         minWidth: 0,
         flexDirection: "column",
@@ -426,8 +426,8 @@ export function SignalCard({
       >
         <span
           style={{
-            fontSize: 13,
-            fontWeight: 700,
+            fontSize: 16,
+            fontWeight: 800,
             lineHeight: 1,
             letterSpacing: "0.01em",
             color: isLong ? "#22c55e" : "#ef4444",

@@ -914,7 +914,7 @@ async function loadCandlesForSource(source: SignalSource): Promise<MonitoringCan
       .order("date", { ascending: false })
       .limit(5000);
     if (!data?.length) return [];
-    return data
+    const bars = data
       .reverse()
       .map((row) => ({
         time: String(row.date).slice(0, 10),
@@ -933,6 +933,22 @@ async function loadCandlesForSource(source: SignalSource): Promise<MonitoringCan
           bar.low <= bar.high &&
           [bar.open, bar.high, bar.low, bar.close].every(Number.isFinite),
       );
+    // Median-based outlier filter: remove bars where any OHLC value is
+    // outside [median * 0.05, median * 20] — catches near-zero garbage bars
+    if (bars.length > 10) {
+      const closes = [...bars.map((b) => b.close)].sort((a, b) => a - b);
+      const median = closes[Math.floor(closes.length / 2)]!;
+      const lo = median * 0.05;
+      const hi = median * 20;
+      return bars.filter(
+        (bar) =>
+          bar.open >= lo && bar.open <= hi &&
+          bar.high >= lo && bar.high <= hi &&
+          bar.low >= lo && bar.low <= hi &&
+          bar.close >= lo && bar.close <= hi,
+      );
+    }
+    return bars;
   } catch {
     return [];
   }

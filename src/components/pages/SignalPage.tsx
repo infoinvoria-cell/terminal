@@ -51,6 +51,13 @@ function nextLabelDaysAhead(label?: string): number | null {
   return null;
 }
 
+// Cards without a visible top-right status (would show "—") are not signals
+function hasVisibleStatus(card: SignalCardModel): boolean {
+  if (card.status === "OPEN" || card.status === "CLOSED") return true;
+  const days = nextLabelDaysAhead(card.nextSignalLabel);
+  return days != null && days >= 0; // has a future target date
+}
+
 function matchesFilter(card: SignalCardModel, filter: SignalCardFilter): boolean {
   if (filter === "all") return true;
   if (filter === "open") {
@@ -98,7 +105,7 @@ function SectionPanel({
 }) {
   const [filter, setFilter] = useState<SignalCardFilter>("open");
 
-  const allCards = useMemo(() => section.groups.flatMap((g) => g.cards), [section.groups]);
+  const allCards = useMemo(() => section.groups.flatMap((g) => g.cards).filter(hasVisibleStatus), [section.groups]);
   const visible = useMemo(() => allCards.filter((c) => matchesFilter(c, filter)), [allCards, filter]);
 
   return (
@@ -429,9 +436,9 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
 
         {/* KPI row */}
         <div style={{
-          flex: "0 0 72px", minHeight: 0,
+          flex: "0 0 88px", minHeight: 0,
           display: "flex", flexDirection: "row",
-          gap: 6, padding: "6px 8px 8px",
+          gap: 6, padding: "6px 8px 10px",
           alignItems: "stretch",
         }}>
           {(selectedPreview?.kpis ?? []).slice(0, 5).map((kpi) => (
