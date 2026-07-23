@@ -302,21 +302,21 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
           transition: "right 200ms ease",
         }}
       >
-        <span style={{
-          writingMode: "vertical-rl",
-          textOrientation: "mixed",
-          transform: "rotate(180deg)",
-          fontSize: 8,
-          fontWeight: 700,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
-          color: "rgba(255,255,255,0.40)",
-        }}>
-          Feed
-        </span>
-        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.30)", lineHeight: 1 }}>
-          {showWatchlist ? "▶" : "◀"}
-        </span>
+        {/* Panel icon */}
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" style={{ flexShrink: 0 }}>
+          <rect x="0.5" y="0.5" width="10" height="10" rx="2" stroke="rgba(255,255,255,0.35)" strokeWidth="1"/>
+          <line x1="7.5" y1="0.5" x2="7.5" y2="10.5" stroke="rgba(255,255,255,0.35)" strokeWidth="1"/>
+        </svg>
+        {/* Chevron */}
+        <svg width="6" height="10" viewBox="0 0 6 10" fill="none" style={{ flexShrink: 0 }}>
+          <path
+            d={showWatchlist ? "M1 1.5L4.5 5L1 8.5" : "M5 1.5L1.5 5L5 8.5"}
+            stroke="rgba(255,255,255,0.35)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
       </button>
 
       {/* ── LEFT: signal list ────────────────────────────────────────────────── */}

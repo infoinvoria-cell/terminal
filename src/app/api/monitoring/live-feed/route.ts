@@ -14,6 +14,7 @@ type UniverseAsset = {
   symbol: string;
   short: string;
   source: string;
+  timeframe?: string;
 };
 
 function readJson<T>(p: string): T | null {
@@ -40,12 +41,21 @@ export async function GET() {
   const SKIP_TABS = new Set(["Invest", "Intraday MT"]);
   let assets = (universe?.assets ?? []).filter((a) => !SKIP_TABS.has(a.tab));
 
-  // Add 6E1! (Euro FX Futures) if not already present — replaces CFD EURUSD
-  if (!assets.some((a) => a.symbol === "6E1!")) {
-    assets = [
-      ...assets,
-      { id: "FX_6E1_6E1!", tab: "FX", name: "6E1!", symbol: "6E1!", short: "6E1", source: "CME:6E1!", timeframe: "D" } as UniverseAsset,
-    ];
+  // Supplemental assets not in universe JSON (Futures FX + comparison symbols)
+  const SUPPLEMENTAL: UniverseAsset[] = [
+    { id: "FX_6E1_6E1!", tab: "FX", name: "6E1!", symbol: "6E1!", short: "6E1", source: "CME:6E1!", timeframe: "D" },
+    { id: "FX_6B1_6B1!", tab: "FX", name: "6B1!", symbol: "6B1!", short: "6B1", source: "CME:6B1!", timeframe: "D" },
+    { id: "FX_6J1_6J1!", tab: "FX", name: "6J1!", symbol: "6J1!", short: "6J1", source: "CME:6J1!", timeframe: "D" },
+    { id: "FX_6A1_6A1!", tab: "FX", name: "6A1!", symbol: "6A1!", short: "6A1", source: "CME:6A1!", timeframe: "D" },
+    { id: "VGL_GLD_GLD", tab: "Vergleich", name: "GLD", symbol: "GLD", short: "GLD", source: "AMEX:GLD", timeframe: "D" },
+    { id: "VGL_SPY_SPY", tab: "Vergleich", name: "SPY", symbol: "SPY", short: "SPY", source: "AMEX:SPY", timeframe: "D" },
+    { id: "VGL_QQQ_QQQ", tab: "Vergleich", name: "QQQ", symbol: "QQQ", short: "QQQ", source: "NASDAQ:QQQ", timeframe: "D" },
+    { id: "VGL_TLT_TLT", tab: "Vergleich", name: "TLT", symbol: "TLT", short: "TLT", source: "NASDAQ:TLT", timeframe: "D" },
+    { id: "VGL_DXY_DXY", tab: "Vergleich", name: "DXY", symbol: "DXY", short: "DXY", source: "TVC:DXY", timeframe: "D" },
+  ];
+  const existingSymbols = new Set(assets.map((a) => a.symbol));
+  for (const s of SUPPLEMENTAL) {
+    if (!existingSymbols.has(s.symbol)) assets = [...assets, s];
   }
 
   if (assets.length === 0) {
