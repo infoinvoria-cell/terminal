@@ -154,7 +154,7 @@ export default function StrategyTesterDrawdownChart({
   const wrapClass = fillContainer ? "st-chart-fill" : "st-chart-wrap st-chart-wrap-drawdown";
 
   return (
-    <div className="st-section-fill">
+    <div className={`st-section-fill ${fillContainer ? "fill" : ""}`}>
       <div
         className="st-section-header"
         style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}
