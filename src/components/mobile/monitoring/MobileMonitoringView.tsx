@@ -11,54 +11,111 @@ const MonitoringChart = dynamic(
   { ssr: false }
 );
 
-// ── Tab definitions ──────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 
-const FIXED_TABS = [
-  { id: "live",  label: "Live",    assets: [] as string[], timeframe: "D" },
-  { id: "all",   label: "All",     assets: [] as string[], timeframe: "D" },
-];
+interface UniverseAsset {
+  id: string;
+  tab: string;
+  name: string;
+  symbol: string;
+  short: string;
+  source: string;
+  timeframe: string;
+}
 
-const SCROLL_TABS = [
-  { id: "agrar",           label: "Agrar",    timeframe: "D",   assets: ["ZW1!", "ZC1!", "ZS1!", "CC1!", "KC1!", "SB1!", "CT1!", "OJ1!"] },
-  { id: "metalle_energie", label: "Metalle",  timeframe: "D",   assets: ["GC1!", "SI1!", "HG1!", "PL1!", "PA1!", "CL1!", "NG1!", "RB1!"] },
-  { id: "indizes",         label: "Indizes",  timeframe: "D",   assets: ["FDAX1!", "ES1!", "YM1!", "NQ1!", "UKX!"] },
-  { id: "aktien",          label: "Aktien",   timeframe: "D",   assets: ["AAPL", "MSFT", "NVDA", "GOOGL", "META", "AMZN"] },
-  { id: "invest",          label: "Invest",   timeframe: "D",   assets: ["SPY", "QQQ", "SPMO", "GLD", "HG1!", "6S1!"] },
-  { id: "fx",              label: "FX",       timeframe: "D",   assets: ["EURGBP", "GBPJPY", "MXNUSD", "NOKUSD", "CLPUSD", "SEKUSD", "BRLUSD", "ZARUSD"] },
-  { id: "anomaly",         label: "Anomaly",  timeframe: "D",   assets: ["GC1!", "GLD", "YM1!", "FDAX1!"] },
-  { id: "intraday",        label: "Intraday", timeframe: "30m", assets: ["DE30EUR_2H", "DE30EUR_1H", "EURUSD_30M", "GBPUSD_30M"] },
-];
+interface OpenTrade {
+  symbol: string;
+  direction: string;
+  entryPrice: number;
+  entryTime?: string;
+  strategyId?: string;
+  pnl?: number;
+  status?: string;
+}
 
-const ALL_TABS = [...FIXED_TABS, ...SCROLL_TABS];
-const DEFAULT_IDX = FIXED_TABS.length; // Agrar
-
-// ── Fetch one asset's OHLC bars ───────────────────────────────────────────────
+interface LiveState {
+  openTrades: OpenTrade[];
+  status?: string;
+  updatedAt?: string;
+}
 
 type Bar = { time: string; open: number; high: number; low: number; close: number };
 
-async function fetchBars(symbol: string, timeframe: string): Promise<Bar[]> {
+// ── Tab config ────────────────────────────────────────────────────────────────
+
+const TAB_ORDER = [
+  "live",
+  "all",
+  "Agrar",
+  "Metalle",
+  "Energie",
+  "Indizes",
+  "Aktien",
+  "Invest",
+  "FX",
+  "Anomaly",
+  "Intraday MT",
+];
+
+const TAB_LABELS: Record<string, string> = {
+  live: "Live",
+  all: "All",
+  "Agrar": "Agrar",
+  "Metalle": "Metalle",
+  "Energie": "Energie",
+  "Indizes": "Indizes",
+  "Aktien": "Aktien",
+  "Invest": "Invest",
+  "FX": "FX",
+  "Anomaly": "Anomaly",
+  "Intraday MT": "Intraday",
+};
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+async function fetchBars(source: string, timeframe: string): Promise<Bar[]> {
   try {
-    const res = await fetch(`/api/monitoring/ohlc?symbol=${encodeURIComponent(symbol)}&timeframe=${timeframe}&maxBars=320`);
+    const apiTf = timeframe === "D" ? "D" : "30m";
+    const res = await fetch(
+      `/api/monitoring/ohlc?symbol=${encodeURIComponent(source)}&timeframe=${apiTf}&maxBars=320`
+    );
     if (!res.ok) return [];
-    const json = await res.json() as { bars?: Bar[] };
+    const json = (await res.json()) as { bars?: Bar[] };
     return Array.isArray(json.bars) ? json.bars : [];
   } catch {
     return [];
   }
 }
 
-function barsToCandleData(bars: Bar[]): MonitoringChartData["bars"] {
-  return bars.map(b => ({ time: b.time, open: b.open, high: b.high, low: b.low, close: b.close }));
+function makeChartData(asset: UniverseAsset, bars: Bar[]): MonitoringChartData {
+  return {
+    displaySymbol: asset.short || asset.symbol,
+    displayName: asset.name,
+    tvSymbol: asset.source,
+    bars: bars.map((b) => ({ time: b.time, open: b.open, high: b.high, low: b.low, close: b.close })),
+    signals: [],
+    boxes: [],
+    variant: "compact",
+    timeframe: asset.timeframe,
+  };
 }
 
-function displayLabel(code: string): string {
-  return code.replace("1!", "").replace(/_\d+[MH]$/, "").replace(/_2H$|_1H$|_30M$/i, "");
+function formatPrice(v: number): string {
+  if (v >= 10000) return v.toFixed(0);
+  if (v >= 1000) return v.toFixed(1);
+  if (v >= 10) return v.toFixed(2);
+  return v.toFixed(4);
 }
 
-// ── Single chart card ─────────────────────────────────────────────────────────
+// ── ChartCard ─────────────────────────────────────────────────────────────────
 
-function ChartCard({ symbol, timeframe, chartData, loading }: {
-  symbol: string;
+function ChartCard({
+  label,
+  timeframe,
+  chartData,
+  loading,
+}: {
+  label: string;
   timeframe: string;
   chartData: MonitoringChartData | null;
   loading: boolean;
@@ -66,25 +123,67 @@ function ChartCard({ symbol, timeframe, chartData, loading }: {
   const mounted = useClientMounted();
   const lastClose = chartData?.bars.at(-1)?.close;
   const prevClose = chartData?.bars.at(-2)?.close;
-  const change = lastClose != null && prevClose != null ? ((lastClose - prevClose) / prevClose) * 100 : null;
-  const changeColor = change == null ? "rgba(255,255,255,0.3)" : change >= 0 ? "#22c55e" : "#ef4444";
+  const change =
+    lastClose != null && prevClose != null ? ((lastClose - prevClose) / prevClose) * 100 : null;
+  const changeColor =
+    change == null ? "rgba(255,255,255,0.3)" : change >= 0 ? "#22c55e" : "#ef4444";
 
   return (
-    <div style={{ height: "100%", background: "#0c0d10", display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0 }}>
+    <div
+      style={{
+        height: "100%",
+        background: "#0c0d10",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        minHeight: 0,
+      }}
+    >
       {/* Header */}
-      <div style={{ height: 26, display: "flex", alignItems: "center", padding: "0 8px", flexShrink: 0, gap: 6 }}>
-        <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.8)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-          {displayLabel(symbol)}
+      <div
+        style={{
+          height: 26,
+          display: "flex",
+          alignItems: "center",
+          padding: "0 8px",
+          flexShrink: 0,
+          gap: 4,
+        }}
+      >
+        <span
+          style={{
+            fontSize: 10,
+            fontWeight: 700,
+            color: "rgba(255,255,255,0.8)",
+            letterSpacing: "0.05em",
+            textTransform: "uppercase",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            maxWidth: "50%",
+          }}
+        >
+          {label}
         </span>
-        <span style={{ fontSize: 8, color: "rgba(255,255,255,0.2)", marginLeft: 2 }}>{timeframe}</span>
+        <span style={{ fontSize: 8, color: "rgba(255,255,255,0.2)", marginLeft: 2, flexShrink: 0 }}>
+          {timeframe}
+        </span>
         {lastClose != null && (
-          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)", marginLeft: "auto" }}>
-            {lastClose >= 1000 ? lastClose.toFixed(0) : lastClose >= 10 ? lastClose.toFixed(2) : lastClose.toFixed(4)}
+          <span
+            style={{
+              fontSize: 9,
+              color: "rgba(255,255,255,0.5)",
+              marginLeft: "auto",
+              flexShrink: 0,
+            }}
+          >
+            {formatPrice(lastClose)}
           </span>
         )}
         {change != null && (
-          <span style={{ fontSize: 8.5, fontWeight: 600, color: changeColor }}>
-            {change >= 0 ? "+" : ""}{change.toFixed(2)}%
+          <span style={{ fontSize: 8.5, fontWeight: 600, color: changeColor, flexShrink: 0 }}>
+            {change >= 0 ? "+" : ""}
+            {change.toFixed(2)}%
           </span>
         )}
       </div>
@@ -92,23 +191,154 @@ function ChartCard({ symbol, timeframe, chartData, loading }: {
       {/* Chart body */}
       <div style={{ flex: 1, minHeight: 0, position: "relative", background: "#080910" }}>
         {loading && (
-          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}>
-            <div className="mm-pulse" style={{ width: 60, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)" }} />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 2,
+            }}
+          >
+            <div
+              className="mm-pulse"
+              style={{
+                width: 60,
+                height: 1,
+                background:
+                  "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
+              }}
+            />
           </div>
         )}
         {!loading && !chartData && (
-          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             <span style={{ fontSize: 9, color: "rgba(255,255,255,0.15)" }}>Keine Daten</span>
           </div>
         )}
         {mounted && chartData && (
-          <MonitoringChart
-            data={chartData}
-            maxBars={280}
-            initialVisibleBars={56}
-          />
+          <MonitoringChart data={chartData} maxBars={280} initialVisibleBars={56} />
         )}
       </div>
+    </div>
+  );
+}
+
+// ── TradeCard ─────────────────────────────────────────────────────────────────
+
+function TradeCard({ trade }: { trade: OpenTrade }) {
+  const isLong = trade.direction?.toUpperCase() === "LONG";
+  const badgeColor = isLong ? "#22c55e" : "#ef4444";
+  const pnlColor =
+    trade.pnl == null ? "rgba(255,255,255,0.4)" : trade.pnl >= 0 ? "#22c55e" : "#ef4444";
+
+  return (
+    <div
+      style={{
+        background: "rgba(255,255,255,0.04)",
+        border: "1px solid rgba(255,255,255,0.07)",
+        borderRadius: 8,
+        padding: "10px 12px",
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+      }}
+    >
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 700,
+            color: "rgba(255,255,255,0.9)",
+            letterSpacing: "0.04em",
+          }}
+        >
+          {trade.symbol}
+        </div>
+        {trade.strategyId && (
+          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", marginTop: 2 }}>
+            {trade.strategyId}
+          </div>
+        )}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+        <span
+          style={{
+            fontSize: 9,
+            fontWeight: 700,
+            color: badgeColor,
+            background: `${badgeColor}22`,
+            border: `1px solid ${badgeColor}44`,
+            borderRadius: 4,
+            padding: "2px 6px",
+            letterSpacing: "0.06em",
+          }}
+        >
+          {trade.direction?.toUpperCase() ?? "—"}
+        </span>
+        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)" }}>
+          {trade.entryPrice != null ? formatPrice(trade.entryPrice) : "—"}
+        </div>
+        {trade.pnl != null && (
+          <div style={{ fontSize: 10, fontWeight: 600, color: pnlColor }}>
+            {trade.pnl >= 0 ? "+" : ""}
+            {trade.pnl.toFixed(2)}%
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Chart grid ────────────────────────────────────────────────────────────────
+
+function ChartGrid({
+  assets,
+  tabId,
+  cols,
+  cardH,
+  tabCache,
+  tabLoading,
+}: {
+  assets: UniverseAsset[];
+  tabId: string;
+  cols: number;
+  cardH: number;
+  tabCache: Record<string, MonitoringChartData | null> | undefined;
+  tabLoading: boolean;
+}) {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: `repeat(${cols}, 1fr)`,
+        gap: "1px",
+        background: "rgba(255,255,255,0.05)",
+      }}
+    >
+      {assets.map((asset) => {
+        const chartData = tabCache != null && asset.id in tabCache ? tabCache[asset.id]! : null;
+        const isLoading = tabLoading && !(tabCache != null && asset.id in tabCache);
+        return (
+          <div key={`${tabId}-${asset.id}`} style={{ height: cardH, background: "#0c0d10" }}>
+            <ChartCard
+              label={asset.short || asset.symbol}
+              timeframe={asset.timeframe}
+              chartData={chartData}
+              loading={isLoading}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -117,94 +347,186 @@ function ChartCard({ symbol, timeframe, chartData, loading }: {
 
 export function MobileMonitoringView() {
   const router = useRouter();
-  const [activeIdx, setActiveIdx] = useState(DEFAULT_IDX);
-  const [openTrades, setOpenTrades] = useState<number | null>(null);
-  const [singleCol, setSingleCol] = useState(false); // Format toggle: 2-col ↔ 1-col
+  const mounted = useClientMounted();
+
+  // Universe state
+  const [universe, setUniverse] = useState<UniverseAsset[]>([]);
+  const [universeLoaded, setUniverseLoaded] = useState(false);
+
+  // Live state
+  const [liveState, setLiveState] = useState<LiveState | null>(null);
+  const [liveLoaded, setLiveLoaded] = useState(false);
+
+  // UI state
+  const [activeTabId, setActiveTabId] = useState<string>("Agrar");
+  const [singleCol, setSingleCol] = useState(false);
   const [refreshSpin, setRefreshSpin] = useState(false);
-  const panelRef     = useRef<HTMLDivElement>(null);
+  const [tick, setTick] = useState(0);
+
+  // Refs
+  const panelRef = useRef<HTMLDivElement>(null);
   const scrollTabRef = useRef<HTMLDivElement>(null);
   const programmatic = useRef(false);
+  const cache = useRef<Record<string, Record<string, MonitoringChartData | null>>>({});
+  const loadingRef = useRef<Record<string, boolean>>({});
+  const doneRef = useRef<Record<string, boolean>>({});
 
-  // Fetch live state once on mount
+  // Load universe on mount
+  useEffect(() => {
+    fetch("/generated/monitoring/config/monitoring_asset_universe.json")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((raw: unknown) => {
+        if (!Array.isArray(raw)) return;
+        // Structure: [metaObject, assetsArray]
+        const assetsArr = raw[1];
+        if (Array.isArray(assetsArr)) {
+          setUniverse(assetsArr as UniverseAsset[]);
+        }
+        setUniverseLoaded(true);
+      })
+      .catch(() => setUniverseLoaded(true));
+  }, []);
+
+  // Load live state on mount
   useEffect(() => {
     fetch("/api/monitoring/live-state")
-      .then(r => r.ok ? r.json() : null)
-      .then((d: { openTrades?: number } | null) => { if (d?.openTrades != null) setOpenTrades(d.openTrades); })
-      .catch(() => {});
-  }, []);
-
-  // chart data cache: tabId → { symbol → chartData | null }
-  const cache   = useRef<Record<string, Record<string, MonitoringChartData | null>>>({});
-  const loadingRef = useRef<Record<string, boolean>>({});
-  const doneRef    = useRef<Record<string, boolean>>({});
-  const [tick, setTick] = useState(0); // force re-render
-
-  const activeTab = ALL_TABS[activeIdx]!;
-
-  // Load all assets for a tab
-  const loadTab = useCallback(async (tabId: string, assets: string[], timeframe: string) => {
-    if (loadingRef.current[tabId]) return;
-    if (doneRef.current[tabId]) return;
-    loadingRef.current[tabId] = true;
-    cache.current[tabId] = {};
-    setTick(v => v + 1); // show loading state
-
-    await Promise.all(
-      assets.map(async (symbol) => {
-        const bars = await fetchBars(symbol, timeframe);
-        const cd: MonitoringChartData = {
-          displaySymbol: displayLabel(symbol),
-          displayName:   symbol,
-          tvSymbol:      symbol,
-          bars:          barsToCandleData(bars),
-          signals: [], boxes: [],
-          variant: "compact",
-          timeframe,
-        };
-        cache.current[tabId]![symbol] = bars.length > 0 ? cd : null;
-        setTick(v => v + 1); // progressive reveal
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: unknown) => {
+        if (d && typeof d === "object") {
+          const ls = d as Record<string, unknown>;
+          setLiveState({
+            openTrades: Array.isArray(ls.openTrades) ? (ls.openTrades as OpenTrade[]) : [],
+            status: typeof ls.status === "string" ? ls.status : undefined,
+            updatedAt: typeof ls.updatedAt === "string" ? ls.updatedAt : undefined,
+          });
+        }
+        setLiveLoaded(true);
       })
-    );
-
-    loadingRef.current[tabId] = false;
-    doneRef.current[tabId]    = true;
-    setTick(v => v + 1); // final render: loading=false
+      .catch(() => setLiveLoaded(true));
   }, []);
 
-  // Trigger load when active tab changes
+  // Derive tabs from universe + fixed
+  const tabs = TAB_ORDER; // fixed order
+
+  // Assets per tab
+  const getTabAssets = useCallback(
+    (tabId: string): UniverseAsset[] => {
+      if (tabId === "live" || tabId === "all") return [];
+      return universe.filter((a) => a.tab === tabId);
+    },
+    [universe]
+  );
+
+  const getAllAssets = useCallback((): UniverseAsset[] => universe, [universe]);
+
+  // Live tab chart assets (open trade symbols matched to universe)
+  const liveChartAssets = useCallback((): UniverseAsset[] => {
+    if (!liveState?.openTrades?.length) return [];
+    const openSymbols = new Set(liveState.openTrades.map((t) => t.symbol.toUpperCase()));
+    const seen = new Set<string>();
+    return universe.filter((a) => {
+      const key = a.symbol.toUpperCase();
+      if (openSymbols.has(key) && !seen.has(a.id)) {
+        seen.add(a.id);
+        return true;
+      }
+      return false;
+    });
+  }, [liveState, universe]);
+
+  // Load assets for a tab
+  const loadTab = useCallback(
+    async (tabId: string, assets: UniverseAsset[]) => {
+      if (loadingRef.current[tabId]) return;
+      if (doneRef.current[tabId]) return;
+      if (assets.length === 0) return;
+
+      loadingRef.current[tabId] = true;
+      cache.current[tabId] = {};
+      setTick((v) => v + 1);
+
+      await Promise.all(
+        assets.map(async (asset) => {
+          const bars = await fetchBars(asset.source, asset.timeframe);
+          cache.current[tabId]![asset.id] =
+            bars.length > 0 ? makeChartData(asset, bars) : null;
+          setTick((v) => v + 1);
+        })
+      );
+
+      loadingRef.current[tabId] = false;
+      doneRef.current[tabId] = true;
+      setTick((v) => v + 1);
+    },
+    []
+  );
+
+  // Trigger load when active tab changes (and universe is ready)
   useEffect(() => {
-    if (activeTab.assets.length > 0) {
-      void loadTab(activeTab.id, activeTab.assets, activeTab.timeframe);
+    if (!universeLoaded) return;
+    if (activeTabId === "live") {
+      const assets = liveChartAssets();
+      if (assets.length > 0) void loadTab("live", assets);
+    } else if (activeTabId === "all") {
+      const assets = getAllAssets();
+      if (assets.length > 0) void loadTab("all", assets);
+    } else {
+      const assets = getTabAssets(activeTabId);
+      if (assets.length > 0) void loadTab(activeTabId, assets);
     }
-  }, [activeTab.id, activeTab.assets, activeTab.timeframe, loadTab]);
+  }, [activeTabId, universeLoaded, loadTab, getTabAssets, getAllAssets, liveChartAssets]);
 
-  const goToTab = useCallback((idx: number) => {
-    setActiveIdx(idx);
-    programmatic.current = true;
-    if (panelRef.current) {
-      panelRef.current.scrollTo({ left: idx * panelRef.current.offsetWidth, behavior: "smooth" });
+  // Re-trigger live chart load when live state arrives
+  useEffect(() => {
+    if (!universeLoaded || !liveLoaded) return;
+    if (activeTabId === "live") {
+      const assets = liveChartAssets();
+      if (assets.length > 0 && !doneRef.current["live"] && !loadingRef.current["live"]) {
+        void loadTab("live", assets);
+      }
     }
-    const scrollableIdx = idx - FIXED_TABS.length;
-    if (scrollableIdx >= 0 && scrollTabRef.current) {
-      const btn = scrollTabRef.current.children[scrollableIdx] as HTMLElement | undefined;
-      btn?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-    }
-  }, []);
+  }, [liveLoaded, universeLoaded, activeTabId, liveChartAssets, loadTab]);
+
+  // Tab index helpers
+  const activeIdx = tabs.indexOf(activeTabId);
+
+  const goToTab = useCallback(
+    (tabId: string) => {
+      setActiveTabId(tabId);
+      programmatic.current = true;
+      const idx = TAB_ORDER.indexOf(tabId);
+      if (panelRef.current) {
+        panelRef.current.scrollTo({ left: idx * panelRef.current.offsetWidth, behavior: "smooth" });
+      }
+      // Scroll tab button into view
+      const fixedCount = 2; // Live + All
+      const scrollableIdx = idx - fixedCount;
+      if (scrollableIdx >= 0 && scrollTabRef.current) {
+        const btn = scrollTabRef.current.children[scrollableIdx] as HTMLElement | undefined;
+        btn?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+      }
+    },
+    []
+  );
 
   const onPanelScroll = useCallback(() => {
     if (programmatic.current) return;
     const el = panelRef.current;
     if (!el) return;
     const idx = Math.round(el.scrollLeft / el.offsetWidth);
-    if (idx >= 0 && idx < ALL_TABS.length && idx !== activeIdx) {
-      setActiveIdx(idx);
-      const scrollableIdx = idx - FIXED_TABS.length;
-      if (scrollableIdx >= 0 && scrollTabRef.current) {
-        const btn = scrollTabRef.current.children[scrollableIdx] as HTMLElement | undefined;
-        btn?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    if (idx >= 0 && idx < TAB_ORDER.length) {
+      const tabId = TAB_ORDER[idx]!;
+      if (tabId !== activeTabId) {
+        setActiveTabId(tabId);
+        const fixedCount = 2;
+        const scrollableIdx = idx - fixedCount;
+        if (scrollableIdx >= 0 && scrollTabRef.current) {
+          const btn = scrollTabRef.current.children[scrollableIdx] as HTMLElement | undefined;
+          btn?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        }
       }
     }
-  }, [activeIdx]);
+  }, [activeTabId]);
 
   useEffect(() => {
     const el = panelRef.current;
@@ -214,39 +536,254 @@ export function MobileMonitoringView() {
     let t: ReturnType<typeof setTimeout>;
     const onScroll = () => { clearTimeout(t); t = setTimeout(clear, 350); };
     el.addEventListener("scroll", onScroll, { passive: true });
-    return () => { el.removeEventListener("scrollend", clear); el.removeEventListener("scroll", onScroll); clearTimeout(t); };
+    return () => {
+      el.removeEventListener("scrollend", clear);
+      el.removeEventListener("scroll", onScroll);
+      clearTimeout(t);
+    };
   }, []);
 
+  // Init scroll position to default tab (Agrar = index 2)
   useEffect(() => {
     const el = panelRef.current;
     if (!el) return;
-    el.scrollLeft = DEFAULT_IDX * el.offsetWidth;
+    const defaultIdx = TAB_ORDER.indexOf("Agrar");
+    el.scrollLeft = defaultIdx * el.offsetWidth;
   }, []);
-
-  const tabBtn = (tab: { id: string; label: string }, idx: number, small?: boolean) => {
-    const isActive = activeIdx === idx;
-    return (
-      <button
-        key={tab.id}
-        onClick={() => goToTab(idx)}
-        style={{
-          flexShrink: 0, padding: small ? "5px 10px" : "5px 14px",
-          background: isActive ? "rgba(255,255,255,0.10)" : "transparent",
-          border: "none", borderRadius: 6,
-          color: isActive ? "#ffffff" : "rgba(255,255,255,0.38)",
-          fontSize: small ? 11 : 12, fontWeight: isActive ? 600 : 400,
-          cursor: "pointer", whiteSpace: "nowrap", letterSpacing: "0.01em",
-          WebkitTapHighlightColor: "transparent",
-        } as React.CSSProperties}
-      >
-        {tab.label}
-      </button>
-    );
-  };
 
   void tick; // consumed by render
 
-  const tbBtn: React.CSSProperties = { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, padding: "6px 2px", background: "transparent", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 9, cursor: "pointer", WebkitTapHighlightColor: "transparent" };
+  const cols = singleCol ? 1 : 2;
+  const cardH = singleCol ? 260 : 160;
+  const openTradeCount = liveState?.openTrades?.length ?? 0;
+
+  // ── Toolbar button style ──
+  const tbBtn: React.CSSProperties = {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 3,
+    padding: "6px 2px",
+    background: "transparent",
+    border: "none",
+    color: "rgba(255,255,255,0.45)",
+    fontSize: 9,
+    cursor: "pointer",
+    WebkitTapHighlightColor: "transparent",
+  };
+
+  // ── Tab button renderer ──
+  const fixedTabIds = ["live", "all"];
+  const scrollTabIds = TAB_ORDER.slice(2);
+
+  function TabBtn({ tabId, small }: { tabId: string; small?: boolean }) {
+    const isActive = activeTabId === tabId;
+    return (
+      <button
+        key={tabId}
+        onClick={() => goToTab(tabId)}
+        style={{
+          flexShrink: 0,
+          padding: small ? "5px 10px" : "5px 14px",
+          background: isActive ? "rgba(255,255,255,0.10)" : "transparent",
+          border: "none",
+          borderRadius: 6,
+          color: isActive ? "#ffffff" : "rgba(255,255,255,0.38)",
+          fontSize: small ? 11 : 12,
+          fontWeight: isActive ? 600 : 400,
+          cursor: "pointer",
+          whiteSpace: "nowrap",
+          letterSpacing: "0.01em",
+          WebkitTapHighlightColor: "transparent",
+          position: "relative",
+        } as React.CSSProperties}
+      >
+        {TAB_LABELS[tabId] ?? tabId}
+        {tabId === "live" && openTradeCount > 0 && (
+          <span
+            style={{
+              position: "absolute",
+              top: 2,
+              right: 2,
+              background: "#22c55e",
+              color: "#000",
+              fontSize: 7,
+              fontWeight: 700,
+              borderRadius: 99,
+              minWidth: 12,
+              height: 12,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "0 2px",
+              lineHeight: 1,
+            }}
+          >
+            {openTradeCount}
+          </span>
+        )}
+      </button>
+    );
+  }
+
+  // ── Live tab content ──
+  function LiveTabContent() {
+    const trades = liveState?.openTrades ?? [];
+    const updatedAt = liveState?.updatedAt
+      ? new Date(liveState.updatedAt).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })
+      : null;
+    const liveAssets = liveChartAssets();
+    const liveTabCache = cache.current["live"];
+    const liveTabLoading = loadingRef.current["live"] ?? false;
+
+    return (
+      <div className="mm-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden" }}>
+        {/* Status bar */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "8px 12px",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+          }}
+        >
+          <span style={{ color: "#22c55e", fontSize: 10 }}>●</span>
+          <span style={{ fontSize: 10, color: "rgba(255,255,255,0.5)" }}>
+            {trades.length} Offen
+            {updatedAt ? ` · Aktualisiert ${updatedAt}` : ""}
+          </span>
+        </div>
+
+        {/* Trade cards */}
+        {!liveLoaded ? (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              height: 80,
+            }}
+          >
+            <div
+              className="mm-pulse"
+              style={{
+                width: 80,
+                height: 1,
+                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
+              }}
+            />
+          </div>
+        ) : trades.length === 0 ? (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              height: 80,
+              color: "rgba(255,255,255,0.22)",
+              fontSize: 12,
+            }}
+          >
+            Keine offenen Positionen
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "10px 10px 6px" }}>
+            {trades.map((trade, i) => (
+              <TradeCard key={`${trade.symbol}-${i}`} trade={trade} />
+            ))}
+          </div>
+        )}
+
+        {/* Chart grid for open trade symbols */}
+        {liveAssets.length > 0 && (
+          <>
+            <div
+              style={{
+                padding: "8px 12px 4px",
+                fontSize: 9,
+                color: "rgba(255,255,255,0.25)",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+              }}
+            >
+              Charts
+            </div>
+            <ChartGrid
+              assets={liveAssets}
+              tabId="live"
+              cols={cols}
+              cardH={cardH}
+              tabCache={liveTabCache}
+              tabLoading={liveTabLoading}
+            />
+          </>
+        )}
+      </div>
+    );
+  }
+
+  // ── Render a standard tab content ──
+  function TabContent({ tabId }: { tabId: string }) {
+    let assets: UniverseAsset[];
+    if (tabId === "all") {
+      assets = getAllAssets();
+    } else {
+      assets = getTabAssets(tabId);
+    }
+
+    const tabCache = cache.current[tabId];
+    const tabLoading = loadingRef.current[tabId] ?? false;
+
+    if (!universeLoaded) {
+      return (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
+          <div
+            className="mm-pulse"
+            style={{
+              width: 80,
+              height: 1,
+              background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
+            }}
+          />
+        </div>
+      );
+    }
+
+    if (assets.length === 0) {
+      return (
+        <div
+          style={{
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "rgba(255,255,255,0.22)",
+            fontSize: 12,
+            flexDirection: "column",
+            gap: 10,
+          }}
+        >
+          <span style={{ fontSize: 22, opacity: 0.3 }}>⊞</span>
+          <span>Keine Assets</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="mm-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden" }}>
+        <ChartGrid
+          assets={assets}
+          tabId={tabId}
+          cols={cols}
+          cardH={cardH}
+          tabCache={tabCache}
+          tabLoading={tabLoading}
+        />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -256,16 +793,69 @@ export function MobileMonitoringView() {
         .mm-scroll::-webkit-scrollbar { display: none; }
       `}</style>
 
-      <div style={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden", background: "#0c0d10" }}>
-
+      <div
+        style={{
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          background: "#0c0d10",
+        }}
+      >
         {/* Tab bar */}
-        <div style={{ flexShrink: 0, display: "flex", alignItems: "center", padding: "8px 0 6px", position: "relative" }}>
-          <div style={{ display: "flex", gap: 2, padding: "0 4px 0 10px", flexShrink: 0, position: "relative", zIndex: 2, background: "#0c0d10" }}>
-            {FIXED_TABS.map((tab, i) => tabBtn(tab, i))}
-            <div style={{ position: "absolute", right: -20, top: 0, bottom: 0, width: 20, background: "linear-gradient(90deg, #0c0d10 30%, transparent)", pointerEvents: "none", zIndex: 1 }} />
+        <div
+          style={{
+            flexShrink: 0,
+            display: "flex",
+            alignItems: "center",
+            padding: "8px 0 6px",
+            position: "relative",
+          }}
+        >
+          {/* Fixed tabs: Live + All */}
+          <div
+            style={{
+              display: "flex",
+              gap: 2,
+              padding: "0 4px 0 10px",
+              flexShrink: 0,
+              position: "relative",
+              zIndex: 2,
+              background: "#0c0d10",
+            }}
+          >
+            {fixedTabIds.map((tabId) => (
+              <TabBtn key={tabId} tabId={tabId} />
+            ))}
+            <div
+              style={{
+                position: "absolute",
+                right: -20,
+                top: 0,
+                bottom: 0,
+                width: 20,
+                background: "linear-gradient(90deg, #0c0d10 30%, transparent)",
+                pointerEvents: "none",
+                zIndex: 1,
+              }}
+            />
           </div>
-          <div ref={scrollTabRef} className="mm-scroll" style={{ flex: 1, display: "flex", overflowX: "auto", gap: 2, padding: "0 10px 0 8px", scrollbarWidth: "none" } as React.CSSProperties}>
-            {SCROLL_TABS.map((tab, i) => tabBtn(tab, i + FIXED_TABS.length, true))}
+          {/* Scrollable tabs */}
+          <div
+            ref={scrollTabRef}
+            className="mm-scroll"
+            style={{
+              flex: 1,
+              display: "flex",
+              overflowX: "auto",
+              gap: 2,
+              padding: "0 10px 0 8px",
+              scrollbarWidth: "none",
+            } as React.CSSProperties}
+          >
+            {scrollTabIds.map((tabId) => (
+              <TabBtn key={tabId} tabId={tabId} small />
+            ))}
           </div>
         </div>
 
@@ -274,98 +864,184 @@ export function MobileMonitoringView() {
           ref={panelRef}
           className="mm-scroll"
           onScroll={onPanelScroll}
-          style={{ flex: 1, minHeight: 0, display: "flex", overflowX: "auto", overflowY: "hidden", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
+          style={{
+            flex: 1,
+            minHeight: 0,
+            display: "flex",
+            overflowX: "auto",
+            overflowY: "hidden",
+            scrollSnapType: "x mandatory",
+            WebkitOverflowScrolling: "touch",
+          } as React.CSSProperties}
         >
-          {ALL_TABS.map((tab) => {
-            const tabCache  = cache.current[tab.id];
-            const tabLoading = loadingRef.current[tab.id] ?? false;
-            const cols = singleCol ? 1 : 2;
-            const cardH = singleCol ? 260 : 180;
-
-            return (
-              <div
-                key={tab.id}
-                style={{ width: "100%", height: "100%", flexShrink: 0, scrollSnapAlign: "start", overflow: "hidden", display: "flex", flexDirection: "column" }}
-              >
-                {tab.assets.length === 0 ? (
-                  <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.22)", fontSize: 13, flexDirection: "column", gap: 10 }}>
-                    <span style={{ fontSize: 28, opacity: 0.3 }}>{tab.id === "live" ? "●" : "⊞"}</span>
-                    <span>{tab.id === "live" ? "Live-Signale" : "Alle Strategien"}</span>
-                    <span style={{ fontSize: 10, color: "rgba(255,255,255,0.15)" }}>In Entwicklung</span>
-                  </div>
-                ) : (
-                  <div className="mm-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden" }}>
-                    <div style={{
-                      display: "grid",
-                      gridTemplateColumns: `repeat(${cols}, 1fr)`,
-                      gap: "1px",
-                      background: "rgba(255,255,255,0.05)",
-                    }}>
-                      {tab.assets.map(symbol => {
-                        const chartData = tabCache?.[symbol] ?? null;
-                        // isLoading: only while tab is still fetching AND this symbol result not yet received
-                        const isLoading = tabLoading && !(tabCache != null && symbol in tabCache);
-                        return (
-                          <div key={symbol} style={{ height: cardH, background: "#0c0d10" }}>
-                            <ChartCard symbol={symbol} timeframe={tab.timeframe} chartData={chartData} loading={isLoading} />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          {TAB_ORDER.map((tabId) => (
+            <div
+              key={tabId}
+              style={{
+                width: "100%",
+                height: "100%",
+                flexShrink: 0,
+                scrollSnapAlign: "start",
+                overflow: "hidden",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              {tabId === "live" ? (
+                mounted ? <LiveTabContent /> : null
+              ) : (
+                <TabContent tabId={tabId} />
+              )}
+            </div>
+          ))}
         </div>
 
         {/* Toolbar: Refresh | Tester | Format | Live | Settings */}
-        <div style={{ flexShrink: 0, display: "flex", padding: "6px 2px 8px", background: "#0c0d10", borderTop: "1px solid rgba(255,255,255,0.07)", gap: 1 }}>
-
+        <div
+          style={{
+            flexShrink: 0,
+            height: 48,
+            display: "flex",
+            padding: "0 2px",
+            background: "#0c0d10",
+            borderTop: "1px solid rgba(255,255,255,0.07)",
+            gap: 1,
+            alignItems: "stretch",
+          }}
+        >
           {/* Refresh */}
-          <button onClick={() => {
-            setRefreshSpin(true);
-            cache.current = {}; loadingRef.current = {}; doneRef.current = {};
-            setTick(v => v + 1);
-            setTimeout(() => setRefreshSpin(false), 700);
-          }} style={tbBtn}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
-              style={{ display: "block", transform: refreshSpin ? "rotate(360deg)" : "none", transition: refreshSpin ? "transform 0.7s linear" : "none" } as React.CSSProperties}>
-              <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          <button
+            onClick={() => {
+              setRefreshSpin(true);
+              cache.current = {};
+              loadingRef.current = {};
+              doneRef.current = {};
+              setTick((v) => v + 1);
+              setTimeout(() => setRefreshSpin(false), 700);
+            }}
+            style={tbBtn}
+          >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{
+                display: "block",
+                transform: refreshSpin ? "rotate(360deg)" : "none",
+                transition: refreshSpin ? "transform 0.7s linear" : "none",
+              } as React.CSSProperties}
+            >
+              <polyline points="23 4 23 10 17 10" />
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
             </svg>
             <span>Refresh</span>
           </button>
 
-          {/* Tester — opens desktop monitoring page */}
+          {/* Tester */}
           <button onClick={() => router.push("/monitoring")} style={tbBtn}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
             </svg>
             <span>Tester</span>
           </button>
 
-          {/* Format — toggle 1-col / 2-col */}
-          <button onClick={() => setSingleCol(v => !v)} style={{ ...tbBtn, color: singleCol ? "#d8bc67" : "rgba(255,255,255,0.45)" }}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              {singleCol
-                ? <><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></>
-                : <><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></>
-              }
+          {/* Format */}
+          <button
+            onClick={() => setSingleCol((v) => !v)}
+            style={{ ...tbBtn, color: singleCol ? "#d8bc67" : "rgba(255,255,255,0.45)" }}
+          >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              {singleCol ? (
+                <>
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <line x1="3" y1="9" x2="21" y2="9" />
+                  <line x1="3" y1="15" x2="21" y2="15" />
+                </>
+              ) : (
+                <>
+                  <rect x="3" y="3" width="7" height="18" rx="1" />
+                  <rect x="14" y="3" width="7" height="18" rx="1" />
+                </>
+              )}
             </svg>
             <span>Format</span>
           </button>
 
-          {/* Live — show open-trades badge */}
-          <button onClick={() => goToTab(0)} style={tbBtn}>
-            <span style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
-                <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
-                <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
-                <line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+          {/* Live */}
+          <button onClick={() => goToTab("live")} style={tbBtn}>
+            <span
+              style={{
+                position: "relative",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="3" />
+                <line x1="12" y1="2" x2="12" y2="5" />
+                <line x1="12" y1="19" x2="12" y2="22" />
+                <line x1="4.22" y1="4.22" x2="6.34" y2="6.34" />
+                <line x1="17.66" y1="17.66" x2="19.78" y2="19.78" />
+                <line x1="2" y1="12" x2="5" y2="12" />
+                <line x1="19" y1="12" x2="22" y2="12" />
+                <line x1="4.22" y1="19.78" x2="6.34" y2="17.66" />
+                <line x1="17.66" y1="6.34" x2="19.78" y2="4.22" />
               </svg>
-              {openTrades != null && openTrades > 0 && (
-                <span style={{ position: "absolute", top: -5, right: -7, background: "#22c55e", color: "#000", fontSize: 7, fontWeight: 700, borderRadius: 99, minWidth: 13, height: 13, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 2px", lineHeight: 1 }}>{openTrades}</span>
+              {openTradeCount > 0 && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: -5,
+                    right: -7,
+                    background: "#22c55e",
+                    color: "#000",
+                    fontSize: 7,
+                    fontWeight: 700,
+                    borderRadius: 99,
+                    minWidth: 13,
+                    height: 13,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "0 2px",
+                    lineHeight: 1,
+                  }}
+                >
+                  {openTradeCount}
+                </span>
               )}
             </span>
             <span>Live</span>
@@ -373,13 +1049,21 @@ export function MobileMonitoringView() {
 
           {/* Settings */}
           <button onClick={() => {}} style={tbBtn}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
             </svg>
             <span>Settings</span>
           </button>
-
         </div>
       </div>
     </>

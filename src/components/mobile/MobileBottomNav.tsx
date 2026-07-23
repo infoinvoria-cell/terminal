@@ -206,7 +206,7 @@ export function MobileBottomNav({ headerHidden, onToggleHeader }: Props) {
         style={{
           position: "fixed",
           left: 0, right: 0,
-          bottom: `calc(60px + env(safe-area-inset-bottom, 0px))`,
+          bottom: `calc(68px + env(safe-area-inset-bottom, 0px) + 20px)`,
           zIndex: 999,
           transform: layersOpen ? "translateY(0)" : "translateY(calc(100% + 20px))",
           transition: "transform 260ms cubic-bezier(0.16,1,0.3,1)",
@@ -299,71 +299,82 @@ export function MobileBottomNav({ headerHidden, onToggleHeader }: Props) {
         </Link>
       </div>
 
-      {/* Bottom nav bar */}
-      <nav
-        style={{
-          position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 1000,
-          display: "flex", alignItems: "center",
-          height: `calc(76px + env(safe-area-inset-bottom, 34px))`,
-          paddingBottom: "calc(env(safe-area-inset-bottom, 34px) + 14px)",
-          background: "#0c0d10",
-          borderTop: `1px solid rgba(255,255,255,0.08)`,
-          boxSizing: "border-box",
-        }}
-        aria-label="Mobile Navigation"
-      >
-        {NAV_ITEMS.map((item, i) => {
-          if (item === null) {
-            // Center Layers button
+      {/* Bottom nav bar — floating Dynamic Island pill */}
+      <div style={{
+        position: "fixed",
+        bottom: 0, left: 0, right: 0,
+        zIndex: 1000,
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+        pointerEvents: "none",
+      }}>
+        <nav
+          aria-label="Mobile Navigation"
+          style={{
+            pointerEvents: "auto",
+            margin: "0 12px 10px",
+            height: 68,
+            display: "flex", alignItems: "center",
+            background: "rgba(14,15,18,0.93)",
+            backdropFilter: "blur(28px)",
+            WebkitBackdropFilter: "blur(28px)",
+            border: "1px solid rgba(255,255,255,0.13)",
+            borderRadius: 30,
+            boxShadow: "0 8px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04) inset",
+            overflow: "hidden",
+          } as React.CSSProperties}
+        >
+          {NAV_ITEMS.map((item) => {
+            if (item === null) {
+              return (
+                <div key="layers" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <button
+                    onClick={() => setLayersOpen(v => !v)}
+                    aria-label="Alle Seiten"
+                    style={{
+                      width: 44, height: 44, borderRadius: "50%",
+                      background: layersOpen ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.06)",
+                      border: `1px solid ${layersOpen ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.18)"}`,
+                      cursor: "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      color: layersOpen ? "#ffffff" : "rgba(255,255,255,0.5)",
+                      transition: "background 150ms, border-color 150ms, color 150ms",
+                      WebkitTapHighlightColor: "transparent",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <IconLayers />
+                  </button>
+                </div>
+              );
+            }
+            const { href, label, Icon } = item;
+            const isActive = active(href);
             return (
-              <div key="layers" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <button
-                  onClick={() => setLayersOpen(v => !v)}
-                  aria-label="Alle Seiten"
-                  style={{
-                    width: 44, height: 44, borderRadius: "50%",
-                    background: layersOpen ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.06)",
-                    border: `1px solid ${layersOpen ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.18)"}`,
-                    cursor: "pointer",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    color: layersOpen ? "#ffffff" : "rgba(255,255,255,0.5)",
-                    transition: "background 150ms, border-color 150ms, color 150ms",
-                    WebkitTapHighlightColor: "transparent",
-                    flexShrink: 0,
-                  }}
-                >
-                  <IconLayers />
-                </button>
-              </div>
+              <Link
+                key={href}
+                href={href}
+                onClick={() => setLayersOpen(false)}
+                aria-label={label}
+                style={{
+                  flex: 1,
+                  display: "flex", flexDirection: "column",
+                  alignItems: "center", justifyContent: "center",
+                  gap: 4, height: "100%",
+                  color: isActive ? "#ffffff" : "rgba(255,255,255,0.38)",
+                  textDecoration: "none",
+                  fontSize: 9.5, fontWeight: isActive ? 700 : 400,
+                  letterSpacing: "0.04em", textTransform: "uppercase",
+                  WebkitTapHighlightColor: "transparent",
+                  transition: "color 120ms ease",
+                }}
+              >
+                <Icon />
+                <span>{label}</span>
+              </Link>
             );
-          }
-          const { href, label, Icon } = item;
-          const isActive = active(href);
-          return (
-            <Link
-              key={href}
-              href={href}
-              onClick={() => setLayersOpen(false)}
-              aria-label={label}
-              style={{
-                flex: 1,
-                display: "flex", flexDirection: "column",
-                alignItems: "center", justifyContent: "center",
-                gap: 4, height: "100%",
-                color: isActive ? "#ffffff" : "rgba(255,255,255,0.38)",
-                textDecoration: "none",
-                fontSize: 9.5, fontWeight: isActive ? 700 : 400,
-                letterSpacing: "0.04em", textTransform: "uppercase",
-                WebkitTapHighlightColor: "transparent",
-                transition: "color 120ms ease",
-              }}
-            >
-              <Icon />
-              <span>{label}</span>
-            </Link>
-          );
-        })}
-      </nav>
+          })}
+        </nav>
+      </div>
     </>
   );
 }
