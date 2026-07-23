@@ -112,6 +112,7 @@ export type TrackKpis = {
 
 export type DashboardSnapshot = {
   _track_kpis?: TrackKpis;
+  serialized_trades?: Array<{ dateMs: number; gainPct: number }>;
   generated_at: string;
   manual: {
     id: string;
