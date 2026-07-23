@@ -317,10 +317,10 @@ export default function LiveWatchlistPanel({
 
   const totalRows = grouped.reduce((s, g) => s + g.rows.length, 0);
 
-  // Tighter columns: icon | symbol | price | signal(combined)
+  // icon | symbol(fixed) | price(fills) | signal(fixed)
   const COL = fullData
-    ? "15px minmax(0,1fr) 56px 58px 33px 64px"
-    : "15px minmax(0,1fr) 56px 58px";
+    ? "15px 58px minmax(0,1fr) 52px 30px 60px"
+    : "15px 58px minmax(0,1fr) 52px";
 
   return (
     <div style={{
@@ -368,7 +368,7 @@ export default function LiveWatchlistPanel({
           <span key={i} style={{
             fontSize: 8, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase",
             color: "rgba(255,255,255,0.48)",
-            textAlign: i <= 1 ? "left" : "right",
+            textAlign: i === 0 || i === 1 || i === 2 ? "left" : "right",
           }}>{h}</span>
         ))}
       </div>
@@ -388,13 +388,20 @@ export default function LiveWatchlistPanel({
               const price = row.lastClose;
               const isSelected = row.symbol.toUpperCase() === selectedSym;
               const flash = priceFlash.get(row.symbol);
+              // Daily direction color based on changePct (always visible, not just on update)
+              const mktPct = row.changePct;
+              const dailyColor = mktPct != null && mktPct > 0.01
+                ? "rgba(255,255,255,0.92)"   // positive day → bright white
+                : mktPct != null && mktPct < -0.01
+                  ? "#d8bc67"                // negative day → gold
+                  : price != null && price > 0
+                    ? "rgba(255,255,255,0.78)"
+                    : "rgba(255,255,255,0.18)";
               const priceColor = flash === "up"
                 ? "#ffffff"
                 : flash === "down"
                   ? "#d8bc67"
-                  : price != null && price > 0
-                    ? "rgba(255,255,255,0.78)"
-                    : "rgba(255,255,255,0.18)";
+                  : dailyColor;
               const matchCard = cards.find((c) =>
                 c.displaySymbol.toUpperCase() === row.symbol.toUpperCase() ||
                 c.assetSymbol.toUpperCase() === row.symbol.toUpperCase()

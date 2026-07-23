@@ -125,11 +125,16 @@ export async function GET() {
     investRows = (data ?? []) as typeof investRows;
   }
 
-  // Build price map: symbol → latest close + date
+  // Build price map: symbol → latest + prev close for daily change computation
   const priceMap = new Map<string, { close: number; date: string }>();
+  const prevCloseMap = new Map<string, number>();
   for (const r of ohlcRows ?? []) {
     const key = String(r.asset).toUpperCase();
-    if (!priceMap.has(key)) priceMap.set(key, { close: Number(r.close), date: String(r.date) });
+    if (!priceMap.has(key)) {
+      priceMap.set(key, { close: Number(r.close), date: String(r.date) });
+    } else if (!prevCloseMap.has(key)) {
+      prevCloseMap.set(key, Number(r.close)); // second row = previous day
+    }
   }
   for (const r of investRows) {
     const key = String(r.symbol).toUpperCase();
@@ -164,12 +169,21 @@ export async function GET() {
     // Always use request time as refreshedAt so the Update column shows "Xs" not "2d"
     const refreshedAt = new Date().toISOString();
 
+    // Compute daily changePct from Supabase prev close if TV live data unavailable
+    let changePct: number | null = live?.change_pct ?? null;
+    if (changePct == null && supabase?.close != null) {
+      const prev = prevCloseMap.get(key);
+      if (prev != null && prev > 0) {
+        changePct = ((supabase.close - prev) / prev) * 100;
+      }
+    }
+
     return {
       symbol: a.symbol,
       tab: a.tab ?? "",
       source: a.source ?? "",
       lastClose,
-      changePct: live?.change_pct ?? null,
+      changePct,
       lastDate,
       refreshedAt,
       firstDate: mf?.firstDate ?? null,
