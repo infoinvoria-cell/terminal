@@ -445,12 +445,21 @@ function MonitoringChartCardInner({
   const chartData = useMemo(() => {
     const chartTrades = strategyActive ? strategyTrades : [];
     const rawBars = payload?.bars ?? [];
-    const bars = resolvedLiveClose != null && rawBars.length > 0
+    const lastBar = rawBars[rawBars.length - 1];
+    const lastBarAgeMs = lastBar?.time
+      ? Date.now() - new Date(lastBar.time as string).getTime()
+      : Infinity;
+    const canPatchLive =
+      resolvedLiveClose != null &&
+      resolvedLiveClose > 0 &&
+      rawBars.length > 0 &&
+      lastBarAgeMs < 2 * 24 * 60 * 60 * 1000; // only patch bars < 2 days old
+    const bars = canPatchLive
       ? [...rawBars.slice(0, -1), {
-          ...rawBars[rawBars.length - 1],
-          close: resolvedLiveClose,
-          high: Math.max(rawBars[rawBars.length - 1].high as number, resolvedLiveClose),
-          low: Math.min(rawBars[rawBars.length - 1].low as number, resolvedLiveClose),
+          ...lastBar,
+          close: resolvedLiveClose!,
+          high: Math.max(lastBar.high as number, resolvedLiveClose!),
+          low: Math.min(lastBar.low as number, resolvedLiveClose!),
         }]
       : rawBars;
     return {

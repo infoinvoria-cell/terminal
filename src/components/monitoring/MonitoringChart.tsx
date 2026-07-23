@@ -1249,14 +1249,14 @@ function MonitoringChartInner({
           width: 1,
           labelVisible: true,
           labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
-          visible: hovered,
+          visible: true,
         },
         horzLine: {
           color: "rgba(163, 180, 199, 0.42)",
           width: 1,
           labelVisible: true,
           labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
-          visible: hovered,
+          visible: true,
         },
       },
     });
@@ -1319,14 +1319,14 @@ function MonitoringChartInner({
           width: 1,
           labelVisible: true,
           labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
-          visible: false,
+          visible: true,
         },
         horzLine: {
           color: "rgba(163, 180, 199, 0.42)",
           width: 1,
           labelVisible: true,
           labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
-          visible: false,
+          visible: true,
         },
       },
       localization: {
