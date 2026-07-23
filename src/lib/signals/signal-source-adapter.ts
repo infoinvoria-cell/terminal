@@ -113,6 +113,17 @@ const SIGNALS_ROOT = path.join(GENERATED_ROOT, "signals");
 const D_CACHE_ROOT = path.join(GENERATED_ROOT, "tradingview_data_cache", "D");
 const INVEST_FOLDER = "C:\\Users\\joris\\Desktop\\Invest Portfolio";
 
+// Anomaly backtest files bundled in public/ — available on Vercel
+const ANOMALY_PERF_FILES: Record<string, string> = {
+  "fp10-gc1-friday-long":  path.join(PROJECT_ROOT, "public", "data", "anomaly", "gc1_friday_long.json"),
+  "fp10-gld-thursday-long": path.join(PROJECT_ROOT, "public", "data", "anomaly", "gld_thursday_long.json"),
+  "fp10-ym1-tat":          path.join(PROJECT_ROOT, "public", "data", "anomaly", "ym1_tat.json"),
+};
+
+// Local-only production sleeves (Invoria Dashboard workspace)
+const INVORIA_WORKSPACE = process.env.INVORIA_WORKSPACE_PATH ?? path.join(PROJECT_ROOT, "..", "Invoria Dashboard");
+const PRODUCTION_SLEEVES_PATH = path.join(INVORIA_WORKSPACE, "workspace", "input", "strategy_registry", "final_production_sleeves.json");
+
 const INVEST_OHLC_FILES: Record<string, string[]> = {
   QQQ: ["QQQ.csv", "QQQ(1).csv", "QQQ(2).csv", "BATS_QQQ, 1D_9233b.csv"],
 };
@@ -479,6 +490,119 @@ function readJson<T>(filePath: string): T | null {
   }
 }
 
+// ── Anomaly performance builder ────────────────────────────────────────────────
+
+type AnomalySummaryBlock = {
+  totalReturnPercent?: number;
+  cagr?: number;
+  maxDrawdownPercent?: number;
+  avgDrawdownPercent?: number;
+  top5DrawdownsPercent?: number[];
+  sharpe?: number;
+  profitFactor?: number;
+  winRate?: number;
+  tradeCount?: number;
+};
+type AnomalyJsonFile = {
+  summary?: { full?: AnomalySummaryBlock; is_?: AnomalySummaryBlock; oos?: AnomalySummaryBlock };
+  equityCurve?: { full?: Array<{ time: string; value: number }> };
+  drawdownCurve?: { full?: Array<{ time: string; value: number }> };
+};
+
+function buildAnomalyPerformance(id: string): StrategyPerformanceResult | null {
+  const filePath = ANOMALY_PERF_FILES[id];
+  if (!filePath) return null;
+  const json = readJson<AnomalyJsonFile>(filePath);
+  if (!json) return null;
+
+  // Prefer OOS metrics (out-of-sample = real-world validated period)
+  const s: AnomalySummaryBlock = json.summary?.oos ?? json.summary?.full ?? {};
+  const equityFull = json.equityCurve?.full ?? [];
+  const drawdownFull = json.drawdownCurve?.full ?? [];
+  if (!equityFull.length) return null;
+
+  const base = equityFull[0]!.value || 100_000;
+  const equityCurve = equityFull.map((p) => ({
+    time: p.time,
+    value: ((p.value / base) - 1) * 100,
+  }));
+  const drawdownCurve = drawdownFull.map((p) => ({ time: p.time, value: p.value }));
+
+  const zero = { totalClosedTrades: 0, winningTrades: 0, losingTrades: 0, percentProfitable: 0, avgTrade: 0, avgWinningTrade: 0, avgLosingTrade: 0, avgWinLossRatio: 0, largestWinningTrade: 0, largestLosingTrade: 0 };
+  const summary = {
+    netProfit: s.totalReturnPercent ?? 0,
+    totalReturnPercent: s.totalReturnPercent ?? 0,
+    maxDrawdownPercent: Math.abs(s.maxDrawdownPercent ?? 0),
+    avgDrawdownPercent: Math.abs(s.avgDrawdownPercent ?? 0),
+    top5DrawdownsPercent: (s.top5DrawdownsPercent ?? []).map(Math.abs),
+    winRatePercent: s.winRate ?? 0,
+    profitFactor: s.profitFactor ?? 0,
+    totalTrades: s.tradeCount ?? 0,
+    avgTrade: 0, bestTrade: 0, worstTrade: 0,
+    longTrades: s.tradeCount ?? 0, shortTrades: 0,
+    openPL: 0, grossProfit: 0, grossLoss: 0, commissionPaid: 0,
+    cagr: s.cagr ?? 0,
+    calmarRatio: s.cagr && s.maxDrawdownPercent ? (s.cagr / Math.abs(s.maxDrawdownPercent)) : 0,
+    sharpeRatio: s.sharpe ?? 0,
+    expectancyPercent: 0,
+  };
+
+  return {
+    summary,
+    equityCurve,
+    drawdownCurve,
+    tradeStats: zero,
+    longShortStats: { longNetProfit: 0, shortNetProfit: 0, longWinRate: 0, shortWinRate: 0, longTrades: s.tradeCount ?? 0, shortTrades: 0 },
+    riskStats: { maxDrawdownPercent: summary.maxDrawdownPercent, maxConsecutiveWins: 0, maxConsecutiveLosses: 0, avgBarsInTrade: 0, exposurePercent: 0, realizedRiskReward: 0 },
+    tradeList: [],
+    debug: { positionSizingFallback: false, usedPointValue: 1, useCompounding: false, fixedBalance: true, initialCapital: 100_000 },
+  };
+}
+
+// ── Production sleeves loader ──────────────────────────────────────────────────
+
+type ProductionSleeveAsset = { asset: string; label: string; status?: string; strategyType?: string; sleeveName?: string };
+type ProductionSleevesFile = { version?: string; sleeves?: Array<{ id: string; name: string; status: string; assets: ProductionSleeveAsset[] }> };
+
+function loadProductionSleeveCards(): SignalCardModel[] {
+  const json = readJson<ProductionSleevesFile>(PRODUCTION_SLEEVES_PATH);
+  if (!json?.sleeves) return [];
+
+  const existingIds = new Set([
+    ...WHITE_SWAN_SOURCES.map((s) => s.symbol),
+    ...CORE_INVEST_SOURCES.map((s) => s.symbol),
+  ]);
+
+  const cards: SignalCardModel[] = [];
+  for (const sleeve of json.sleeves) {
+    if (!["Final", "Final Candidate"].includes(sleeve.status)) continue;
+    for (const asset of sleeve.assets) {
+      if (!["Final", "Final Candidate"].includes(asset.status ?? "")) continue;
+      if (existingIds.has(asset.asset)) continue;
+
+      const category: SignalCardModel["category"] =
+        asset.strategyType === "seasonal" ? "seasonal"
+        : asset.strategyType === "macro" ? "macro"
+        : "valuation";
+
+      cards.push({
+        id: `sleeve-${sleeve.id}-${asset.asset.replace(/[^a-z0-9]/gi, "_")}`,
+        group: "white_swan",
+        category,
+        assetSymbol: asset.asset,
+        displaySymbol: asset.asset,
+        assetName: asset.label,
+        strategyName: sleeve.name,
+        direction: "CASH",
+        status: "VALIDATION",
+        dataStatus: "missing",
+        nextSignalLabel: undefined,
+      });
+    }
+  }
+  return cards;
+}
+
 function toNumber(value: unknown): number | null {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
@@ -736,13 +860,14 @@ function buildPreview(
       }
     : null;
 
-  const performance: StrategyPerformanceResult | null = monitoringTrades.length && candles.length
+  const calculatedPerformance: StrategyPerformanceResult | null = monitoringTrades.length && candles.length
     ? calculateStrategyPerformance({
         candles,
         trades: monitoringTrades,
         events: [],
       })
     : null;
+  const performance: StrategyPerformanceResult | null = calculatedPerformance ?? buildAnomalyPerformance(card.id);
 
   const monthly = monthBreakdown(monitoringTrades);
   const positiveMonths = monthly.length ? monthly.filter((entry) => entry.value > 0).length : 0;
@@ -783,10 +908,11 @@ async function loadCandlesForSource(source: SignalSource): Promise<MonitoringCan
       .select("date,open,high,low,close")
       .eq("asset", source.symbol)
       .eq("timeframe", "D")
-      .order("date", { ascending: true })
-      .limit(3000);
+      .order("date", { ascending: false })
+      .limit(5000);
     if (!data?.length) return [];
     return data
+      .reverse()
       .map((row) => ({
         time: String(row.date).slice(0, 10),
         open: Number(row.open),
@@ -805,6 +931,19 @@ async function loadCandlesForSource(source: SignalSource): Promise<MonitoringCan
 }
 
 export async function loadSignalSources(): Promise<Array<{ card: SignalCardModel; preview: SignalCardPreview }>> {
+  // Extra sleeve cards (local-only, no preview data on Vercel)
+  const sleeveCards = loadProductionSleeveCards();
+  const sleeveRows = sleeveCards.map((card) => ({
+    card,
+    preview: {
+      chart: null,
+      performance: null,
+      testerStatus: "missing" as const,
+      testerMessage: "Keine lokalen Daten verfügbar",
+      kpis: [],
+    } satisfies SignalCardPreview,
+  }));
+
   const results = await Promise.all(
     [...WHITE_SWAN_SOURCES, ...CORE_INVEST_SOURCES].map(async (source) => {
       const file = readStrategyFile(source);
@@ -855,5 +994,5 @@ export async function loadSignalSources(): Promise<Array<{ card: SignalCardModel
     return [{ card, preview: buildPreview(card, candles, file) }];
     }),
   );
-  return results.flat();
+  return [...results.flat(), ...sleeveRows];
 }

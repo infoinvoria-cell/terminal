@@ -38,7 +38,7 @@ function nextLabelDaysAhead(label?: string): number | null {
 function matchesFilter(card: SignalCardModel, filter: SignalCardFilter): boolean {
   if (filter === "all") return true;
   if (filter === "open") {
-    const hasDir = (card.direction === "LONG" || card.direction === "SHORT") && card.signalDate != null;
+    const hasDir = card.direction === "LONG" || card.direction === "SHORT";
     const hasTpSl = card.tp != null && card.sl != null;
     const days = nextLabelDaysAhead(card.nextSignalLabel);
     return hasDir || hasTpSl || (days != null && days >= 0 && days <= 1);
@@ -293,7 +293,7 @@ function SectionPanel({
 // ── KPI metric ─────────────────────────────────────────────────────────────────
 
 function Metric({ label, value, tone }: { label: string; value: string; tone?: "positive" | "negative" | "neutral" }) {
-  const color = tone === "positive" ? "#22c55e" : tone === "negative" ? "#ef4444" : "#fff";
+  const color = tone === "positive" ? "#d8bc67" : tone === "negative" ? "#ef4444" : "#fff";
   return (
     <div style={{
       display: "flex", flexDirection: "column", gap: 4,
