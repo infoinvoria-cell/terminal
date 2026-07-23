@@ -73,6 +73,11 @@ body { padding-left: var(--mobile-preview-left); transition: padding-left 220ms 
   animation: contentFadeIn 120ms ease both;
 }
 
+@keyframes monitoring-skeleton-shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 @keyframes globeRotateY {
   from { transform: perspective(900px) rotateY(0deg); }
   to   { transform: perspective(900px) rotateY(360deg); }

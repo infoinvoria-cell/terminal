@@ -255,7 +255,20 @@ function sourceFromEventsFile(file: string): TradeVisualLevelSource {
   return "generated_monitoring_event_direct";
 }
 
-function NoDataCell({ text }: { text: string }) {
+function SkeletonCell() {
+  return (
+    <div style={{ height: "100%", position: "relative", overflow: "hidden", background: "rgba(255,255,255,0.02)" }}>
+      <div style={{
+        position: "absolute", inset: 0,
+        background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%)",
+        animation: "monitoring-skeleton-shimmer 1.4s ease-in-out infinite",
+      }} />
+    </div>
+  );
+}
+
+function NoDataCell({ text, isLoading }: { text: string; isLoading?: boolean }) {
+  if (isLoading) return <SkeletonCell />;
   return <div style={{ height: "100%", display: "grid", placeItems: "center", color: "#7B8088", fontSize: 11, fontWeight: 600 }}>{text}</div>;
 }
 
@@ -552,7 +565,7 @@ function MonitoringChartCardInner({
           trendEmas={item?.universeGroup === "Indizes" ? INDICES_TREND_EMAS : undefined}
         />
       ) : (
-        <NoDataCell text={fallbackText} />
+        <NoDataCell text={fallbackText} isLoading={loadStatus === "loading"} />
       )}
 
       <div className="assetOverlay monitoring-card-label" data-radar-size={radarTileSize ?? undefined}>

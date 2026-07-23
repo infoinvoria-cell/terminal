@@ -2373,6 +2373,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
   // loading + item building, then renders only the signal charts (open/fresh/recent-closed).
   const isAllOrLive = activeTab === "all" || activeTab === "live";
   const [universeAssets, setUniverseAssets] = useState<UniverseAssetItem[]>([]);
+  const [liveFilter, setLiveFilter] = useState<"all" | "open" | "week" | "pending">("all");
   const [productionUniverseAssets, setProductionUniverseAssets] = useState<UniverseAssetItem[]>([]);
   const [productionUniverseLoading, setProductionUniverseLoading] = useState(false);
   const [productionUniverseError, setProductionUniverseError] = useState<string | null>(null);
@@ -4965,6 +4966,17 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     return { open, fresh, closed };
   }, [liveTabItems, radarSignalState]);
 
+  const liveTabItemsFiltered = useMemo(() => {
+    if (liveFilter === "all") return liveTabItems;
+    return liveTabItems.filter((it) => {
+      const sig = radarSignalState[it.key];
+      if (!sig) return false;
+      if (liveFilter === "open") return sig.hasOpenTrade || sig.activeSignal;
+      if (liveFilter === "pending") return !sig.hasOpenTrade && !sig.activeSignal;
+      return true; // "week" = all
+    });
+  }, [liveFilter, liveTabItems, radarSignalState]);
+
   // Honest per-signal provenance for the Live tab (dezent chip). Derived from the real
   // strategy-events source mode — no "live approved" claim anywhere.
   const liveSourceByKey = useMemo(() => {
@@ -6388,6 +6400,23 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
               <span className="monitoring-live-title-main">Live Signale</span>
               <span className="monitoring-live-sub">Letzte 7 Tage</span>
             </div>
+            <div className="monitoring-live-filter-chips">
+              {(["all", "open", "week", "pending"] as const).map((f) => {
+                const labels: Record<string, string> = { all: "Alle", open: "Aktuell", week: "Letzte 7 Tage", pending: "Ausstehend" };
+                const counts: Record<string, number> = { all: liveTabItems.length, open: liveTabCounts.open + liveTabCounts.fresh, week: liveTabItems.length, pending: liveTabCounts.closed };
+                return (
+                  <button
+                    key={f}
+                    type="button"
+                    onClick={() => setLiveFilter(f)}
+                    className={`monitoring-live-filter-btn${liveFilter === f ? " active" : ""}`}
+                  >
+                    {labels[f]}
+                    {counts[f] > 0 && <span className="monitoring-live-filter-count">{counts[f]}</span>}
+                  </button>
+                );
+              })}
+            </div>
             <div className="monitoring-live-chips">
               <span className="monitoring-live-chip is-open">Open: {liveTabCounts.open}</span>
               <span className="monitoring-live-chip is-fresh">Fresh: {liveTabCounts.fresh}</span>
@@ -6450,11 +6479,11 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
             <div className="monitoring-live-empty">
               <div className="monitoring-live-empty-title">Live-Ansicht pausiert</div>
             </div>
-          ) : liveTabItems.length ? (
+          ) : liveTabItemsFiltered.length ? (
             <div className="monitoring-live-grid">
               <MonitoringFlexibleGrid
                 tabId="live"
-                assets={liveTabItems}
+                assets={liveTabItemsFiltered}
                 radarSignalState={radarSignalState}
                 radarSourceByKey={liveSourceByKey}
                 activeChartId={selectedAssetId}
@@ -7674,6 +7703,42 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
         }
         .monitoring-live-chip.is-closed {
           color: #8b95a3;
+        }
+        .monitoring-live-filter-chips {
+          display: flex;
+          gap: 4px;
+          align-items: center;
+        }
+        .monitoring-live-filter-btn {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          padding: 2px 9px;
+          border-radius: 999px;
+          border: 1px solid rgba(255,255,255,0.1);
+          background: transparent;
+          color: #7b8190;
+          font-size: 10px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: color 120ms, border-color 120ms, background 120ms;
+          font-family: inherit;
+          letter-spacing: 0.02em;
+        }
+        .monitoring-live-filter-btn:hover {
+          color: #c7ccd4;
+          border-color: rgba(255,255,255,0.22);
+          background: rgba(255,255,255,0.05);
+        }
+        .monitoring-live-filter-btn.active {
+          color: #f5f7fa;
+          border-color: rgba(212,180,75,0.5);
+          background: rgba(212,180,75,0.1);
+        }
+        .monitoring-live-filter-count {
+          font-size: 9px;
+          font-weight: 700;
+          opacity: 0.75;
         }
         .monitoring-live-research {
           margin-left: auto;
