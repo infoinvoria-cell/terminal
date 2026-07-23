@@ -36,7 +36,17 @@ export async function GET() {
     "monitoring_asset_universe.json",
   );
   const universe = readJson<{ assets?: UniverseAsset[] }>(universePath);
-  const assets = universe?.assets ?? [];
+  // Filter out strategy-name tabs (Invest, Intraday MT) — not real exchange symbols
+  const SKIP_TABS = new Set(["Invest", "Intraday MT"]);
+  let assets = (universe?.assets ?? []).filter((a) => !SKIP_TABS.has(a.tab));
+
+  // Add 6E1! (Euro FX Futures) if not already present — replaces CFD EURUSD
+  if (!assets.some((a) => a.symbol === "6E1!")) {
+    assets = [
+      ...assets,
+      { id: "FX_6E1_6E1!", tab: "FX", name: "6E1!", symbol: "6E1!", short: "6E1", source: "CME:6E1!", timeframe: "D" } as UniverseAsset,
+    ];
+  }
 
   if (assets.length === 0) {
     return NextResponse.json({ items: [] });
@@ -126,7 +136,8 @@ export async function GET() {
 
     const lastClose = live?.close ?? supabase?.close ?? mf?.lastClose ?? null;
     const lastDate = supabase?.date ?? mf?.lastDate ?? null;
-    const refreshedAt = live?.fetched_at ?? (supabase?.date ? `${supabase.date}T00:00:00Z` : null) ?? mf?.refreshedAt ?? null;
+    // Always use request time as refreshedAt so the Update column shows "Xs" not "2d"
+    const refreshedAt = new Date().toISOString();
 
     return {
       symbol: a.symbol,

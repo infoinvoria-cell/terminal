@@ -6,7 +6,6 @@ import type { LiveFeedItem } from "@/lib/monitoring/live-feed-types";
 import type { SignalCardModel } from "@/lib/signals/signal-types";
 
 type Row = LiveFeedItem & { signalStatus: SignalStatus };
-
 type SignalStatus = "long" | "short" | "pending" | "none";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -40,8 +39,7 @@ function fmtPrice(v: number | null, sym: string): string {
 }
 
 function fmtChange(pct: number | null): { text: string; color: string } {
-  if (pct == null || !isFinite(pct)) return { text: "—", color: "rgba(255,255,255,0.18)" };
-  // TradingView stores as fraction (0.034 = +3.4%) vs percentage — detect by magnitude
+  if (pct == null || !isFinite(pct)) return { text: "—", color: "rgba(255,255,255,0.25)" };
   const asPercent = Math.abs(pct) < 1 ? pct * 100 : pct;
   const sign = asPercent >= 0 ? "+" : "";
   const color = asPercent > 0.01 ? "#22c55e" : asPercent < -0.01 ? "#ef4444" : "rgba(255,255,255,0.35)";
@@ -61,6 +59,17 @@ function elapsed(iso: string | null): string {
   return `${Math.floor(h / 24)}d`;
 }
 
+function fmtMonthYear(iso: string | null): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (!isFinite(d.getTime())) return "—";
+  return d.toLocaleDateString("de-DE", { month: "2-digit", year: "numeric" });
+}
+
+function todayFormatted(): string {
+  return new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 function AssetIcon({ symbol }: { symbol: string }) {
@@ -68,47 +77,50 @@ function AssetIcon({ symbol }: { symbol: string }) {
   if (!url) {
     return (
       <span style={{
-        display: "inline-flex", width: 14, height: 14, borderRadius: 3, flexShrink: 0,
-        background: "rgba(255,255,255,0.07)", alignItems: "center", justifyContent: "center",
-        fontSize: 7, fontWeight: 700, color: "rgba(255,255,255,0.35)",
+        display: "inline-flex", width: 16, height: 16, borderRadius: 3, flexShrink: 0,
+        background: "rgba(255,255,255,0.09)", alignItems: "center", justifyContent: "center",
+        fontSize: 8, fontWeight: 700, color: "rgba(255,255,255,0.45)",
       }}>
         {symbol.charAt(0)}
       </span>
     );
   }
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={url} alt={symbol} width={14} height={14} style={{ borderRadius: 3, flexShrink: 0, objectFit: "contain", display: "block" }} />;
+  return <img src={url} alt={symbol} width={16} height={16} style={{ borderRadius: 3, flexShrink: 0, objectFit: "contain", display: "block" }} />;
 }
 
 function StatusDot({ s }: { s: SignalStatus }) {
-  if (s === "none") return <span style={{ display: "inline-block", width: 5, height: 5, borderRadius: "50%", background: "rgba(255,255,255,0.08)" }} />;
+  if (s === "none") return <span style={{ display: "inline-block", width: 7, height: 7, borderRadius: "50%", background: "rgba(255,255,255,0.10)" }} />;
   const color = s === "long" ? "#22c55e" : s === "short" ? "#ef4444" : "#d8bc67";
   const label = s === "long" ? "L" : s === "short" ? "S" : "P";
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", justifyContent: "center",
-      width: 13, height: 13, borderRadius: "50%",
+      width: 15, height: 15, borderRadius: "50%",
       background: `${color}18`, border: `1px solid ${color}55`,
-      fontSize: 6, fontWeight: 900, color, flexShrink: 0,
+      fontSize: 7, fontWeight: 900, color, flexShrink: 0,
     }}>{label}</span>
   );
 }
 
 // ── Main panel ────────────────────────────────────────────────────────────────
 
-const REFRESH_MS = 5_000;
+const REFRESH_MS = 25_000; // refresh every 25s so Update column never exceeds 30s
 
 export default function LiveWatchlistPanel({
   cards,
   selectedCardId,
   onSelectCard,
+  fullData,
+  onFullDataChange,
 }: {
   cards: SignalCardModel[];
   selectedCardId: string | null;
   onSelectCard: (id: string) => void;
+  fullData: boolean;
+  onFullDataChange: (v: boolean) => void;
 }) {
   const [items, setItems] = useState<LiveFeedItem[]>([]);
-  const [fullData, setFullData] = useState(false);
   const [tick, setTick] = useState(0);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -130,8 +142,9 @@ export default function LiveWatchlistPanel({
     return () => { clearInterval(id); abortRef.current?.abort(); };
   }, [fetchData]);
 
+  // Tick every second to keep elapsed display live
   useEffect(() => {
-    const id = setInterval(() => setTick((t) => t + 1), 15_000);
+    const id = setInterval(() => setTick((t) => t + 1), 1_000);
     return () => clearInterval(id);
   }, []);
   void tick;
@@ -150,57 +163,68 @@ export default function LiveWatchlistPanel({
   });
 
   const COL = fullData
-    ? "14px minmax(0,1fr) 54px 40px 14px 30px 48px 48px 36px"
-    : "14px minmax(0,1fr) 54px 40px 14px 30px";
+    ? "16px minmax(0,1fr) 58px 46px 16px 34px 52px 52px"
+    : "16px minmax(0,1fr) 58px 46px 16px 34px";
+
+  const HEADERS = fullData
+    ? ["", "Symbol", "Preis", "%", "·", "Update", "Von", "Bis"]
+    : ["", "Symbol", "Preis", "%", "·", "Update"];
 
   return (
     <div style={{
       display: "flex", flexDirection: "column", height: "100%",
       background: "#0c0d10",
-      borderLeft: "1px solid rgba(255,255,255,0.05)",
+      borderLeft: "1px solid rgba(255,255,255,0.06)",
       overflow: "hidden",
     }}>
       {/* Header */}
       <div style={{
-        flexShrink: 0, padding: "7px 10px 5px",
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
-        display: "flex", alignItems: "center", gap: 6,
+        flexShrink: 0, padding: "8px 12px 6px",
+        borderBottom: "1px solid rgba(255,255,255,0.07)",
+        display: "flex", alignItems: "center", gap: 8,
       }}>
-        <span style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.65)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+        <span style={{ fontSize: 12, fontWeight: 800, color: "rgba(255,255,255,0.85)", letterSpacing: "0.07em", textTransform: "uppercase" }}>
           Live Feed
         </span>
-        <span style={{ fontSize: 8, color: "rgba(255,255,255,0.20)" }}>{rows.length}</span>
-        <div style={{ marginLeft: "auto", display: "flex", gap: 4, alignItems: "center" }}>
-          <span style={{ width: 5, height: 5, borderRadius: "50%", display: "inline-block", background: items.length > 0 ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.07)" }} />
-          <button onClick={() => setFullData((v) => !v)} style={{
-            background: fullData ? "rgba(255,255,255,0.08)" : "transparent",
-            border: "1px solid rgba(255,255,255,0.10)", borderRadius: 3,
-            padding: "2px 6px", fontSize: 8, fontWeight: 700,
-            color: fullData ? "rgba(255,255,255,0.70)" : "rgba(255,255,255,0.28)",
+        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.30)", fontVariantNumeric: "tabular-nums" }}>{rows.length}</span>
+        <div style={{ marginLeft: "auto", display: "flex", gap: 5, alignItems: "center" }}>
+          <span style={{ width: 6, height: 6, borderRadius: "50%", display: "inline-block", background: items.length > 0 ? "#22c55e66" : "rgba(255,255,255,0.10)", border: items.length > 0 ? "1px solid #22c55e99" : "1px solid rgba(255,255,255,0.12)" }} />
+          <button onClick={() => onFullDataChange(!fullData)} style={{
+            background: fullData ? "rgba(255,255,255,0.10)" : "transparent",
+            border: "1px solid rgba(255,255,255,0.14)", borderRadius: 4,
+            padding: "3px 8px", fontSize: 9, fontWeight: 700,
+            color: fullData ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.38)",
             cursor: "pointer", letterSpacing: "0.05em", textTransform: "uppercase",
           }}>Full Data</button>
         </div>
       </div>
 
-      {/* Column header */}
-      <div style={{ flexShrink: 0, display: "grid", gridTemplateColumns: COL, gap: 3, padding: "3px 10px 2px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-        {(["", "Symbol", "Preis", "%", "·", "Update", ...(fullData ? ["Von", "Bis", "Bars"] : [])]).map((h, i) => (
-          <span key={i} style={{ fontSize: 7, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,0.20)", textAlign: i >= 2 ? "right" : "left" }}>{h}</span>
+      {/* Column headers */}
+      <div style={{
+        flexShrink: 0, display: "grid", gridTemplateColumns: COL,
+        gap: 4, padding: "4px 12px 3px",
+        borderBottom: "1px solid rgba(255,255,255,0.06)",
+      }}>
+        {HEADERS.map((h, i) => (
+          <span key={i} style={{
+            fontSize: 9, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase",
+            color: "rgba(255,255,255,0.55)",
+            textAlign: i >= 2 && i !== 4 ? "right" : i === 4 ? "center" : "left",
+          }}>{h}</span>
         ))}
       </div>
 
-      {/* Rows */}
-      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden" }}>
+      {/* Rows — flex-fill, no scroll */}
+      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
         {rows.length === 0 && (
-          <div style={{ padding: 12, fontSize: 9, color: "rgba(255,255,255,0.18)", textAlign: "center" }}>
-            Lade…
+          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.22)" }}>Lade…</span>
           </div>
         )}
         {rows.map((row) => {
           if (!row.symbol) return null;
           const price = row.lastClose;
           const chg = fmtChange(row.changePct);
-          const updatedAt = row.refreshedAt;
           const isSelected = row.symbol.toUpperCase() === selectedSym;
           const matchCard = cards.find((c) =>
             c.displaySymbol.toUpperCase() === row.symbol.toUpperCase() ||
@@ -212,25 +236,30 @@ export default function LiveWatchlistPanel({
               key={row.symbol}
               onClick={() => matchCard && onSelectCard(matchCard.id)}
               style={{
+                flex: 1, minHeight: 0,
                 display: "grid", gridTemplateColumns: COL,
-                alignItems: "center", gap: 3,
-                padding: "2px 10px",
-                background: isSelected ? "rgba(216,188,103,0.06)" : "transparent",
+                alignItems: "center", gap: 4,
+                padding: "0 12px",
+                background: isSelected ? "rgba(216,188,103,0.07)" : "transparent",
                 cursor: matchCard ? "pointer" : "default",
-                borderBottom: "1px solid rgba(255,255,255,0.025)",
+                borderBottom: "1px solid rgba(255,255,255,0.03)",
               }}
             >
               <AssetIcon symbol={row.symbol} />
 
-              <span style={{ fontSize: 9, fontWeight: 700, color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {row.symbol}
               </span>
 
-              <span style={{ fontSize: 9, color: price != null ? "rgba(255,255,255,0.75)" : "rgba(255,255,255,0.18)", textAlign: "right", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
+              <span style={{
+                fontSize: 11, fontWeight: 600,
+                color: price != null && price > 0 ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.22)",
+                textAlign: "right", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap",
+              }}>
                 {fmtPrice(price, row.symbol)}
               </span>
 
-              <span style={{ fontSize: 8, color: chg.color, textAlign: "right", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
+              <span style={{ fontSize: 10, fontWeight: 600, color: chg.color, textAlign: "right", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
                 {chg.text}
               </span>
 
@@ -238,20 +267,17 @@ export default function LiveWatchlistPanel({
                 <StatusDot s={row.signalStatus} />
               </div>
 
-              <span style={{ fontSize: 8, color: "rgba(255,255,255,0.22)", textAlign: "right", whiteSpace: "nowrap" }}>
-                {elapsed(updatedAt)}
+              <span style={{ fontSize: 10, fontWeight: 500, color: "rgba(255,255,255,0.45)", textAlign: "right", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>
+                {elapsed(row.refreshedAt)}
               </span>
 
               {fullData && (
                 <>
-                  <span style={{ fontSize: 8, color: "rgba(255,255,255,0.20)", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>
-                    {row.firstDate ? row.firstDate.slice(0, 7) : "—"}
+                  <span style={{ fontSize: 10, fontWeight: 500, color: "rgba(255,255,255,0.55)", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>
+                    {fmtMonthYear(row.firstDate ?? row.lastDate)}
                   </span>
-                  <span style={{ fontSize: 8, color: "rgba(255,255,255,0.20)", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>
-                    {row.lastDate ? row.lastDate.slice(0, 7) : "—"}
-                  </span>
-                  <span style={{ fontSize: 8, color: "rgba(255,255,255,0.18)", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>
-                    {row.barCount != null ? row.barCount.toLocaleString("de-DE") : "—"}
+                  <span style={{ fontSize: 10, fontWeight: 500, color: "rgba(255,255,255,0.55)", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>
+                    {todayFormatted()}
                   </span>
                 </>
               )}

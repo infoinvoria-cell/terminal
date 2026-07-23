@@ -220,6 +220,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
   const firstCard = data.cards[0] ?? null;
   const [selectedCardId, setSelectedCardId] = useState<string | null>(firstCard?.id ?? null);
   const [showWatchlist, setShowWatchlist] = useState(false);
+  const [fullData, setFullData] = useState(false);
 
   const selectedCard = useMemo(
     () => data.cards.find((c) => c.id === selectedCardId) ?? firstCard,
@@ -259,9 +260,10 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
     return hasRealDd ? dd : computeDrawdownFromEquity(perf.equityCurve ?? []);
   }, [perf]);
 
+  const watchlistWidth = showWatchlist ? (fullData ? 460 : 310) : 0;
   const cols = showWatchlist
-    ? "minmax(0, 1.1fr) minmax(0, 1fr) 300px"
-    : "minmax(0, 1.1fr) minmax(0, 1fr)";
+    ? `50% minmax(0,1fr) ${watchlistWidth}px`
+    : "50% minmax(0,1fr)";
 
   return (
     <div style={{
@@ -439,6 +441,8 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
           cards={data.cards}
           selectedCardId={selectedCardId}
           onSelectCard={(id) => setSelectedCardId(id)}
+          fullData={fullData}
+          onFullDataChange={setFullData}
         />
       )}
     </div>
