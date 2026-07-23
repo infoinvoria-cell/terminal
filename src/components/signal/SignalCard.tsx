@@ -74,7 +74,7 @@ function ChartIcon() {
     <svg
       aria-hidden="true"
       viewBox="0 0 32 32"
-      style={{ height: 24, width: 24, color: "rgba(255,255,255,0.40)" }}
+      style={{ height: 20, width: 20, color: "rgba(255,255,255,0.40)" }}
       fill="none"
     >
       <path
@@ -100,8 +100,8 @@ function CheckCircleIcon() {
       aria-label="Valides Signal"
       style={{
         display: "inline-flex",
-        height: 18,
-        width: 18,
+        height: 14,
+        width: 14,
         flexShrink: 0,
         alignItems: "center",
         justifyContent: "center",
@@ -113,7 +113,7 @@ function CheckCircleIcon() {
       <svg
         aria-hidden="true"
         viewBox="0 0 20 20"
-        style={{ height: 12, width: 12 }}
+        style={{ height: 9, width: 9 }}
         fill="none"
       >
         <path
@@ -133,15 +133,15 @@ function AssetIcon({ icon, assetName }: { icon: string; assetName: string }) {
     <span
       style={{
         display: "flex",
-        height: 30,
-        width: 30,
+        height: 24,
+        width: 24,
         flexShrink: 0,
         alignItems: "center",
         justifyContent: "center",
         overflow: "hidden",
         borderRadius: "50%",
         background: "rgba(255,255,255,0.035)",
-        fontSize: 22,
+        fontSize: 17,
         lineHeight: 1,
       }}
     >
@@ -223,7 +223,7 @@ export function SignalCard({
   const renderState = () => {
     const base: CSSProperties = {
       whiteSpace: "nowrap",
-      fontSize: 15,
+      fontSize: 13,
       fontWeight: 600,
       lineHeight: 1,
     };
@@ -281,16 +281,16 @@ export function SignalCard({
         ...cardBackground,
         position: "relative",
         display: "flex",
-        height: 168,
+        height: 134,
         width: "100%",
         minWidth: 0,
         flexDirection: "column",
         overflow: "hidden",
-        borderRadius: 20,
+        borderRadius: 16,
         border: isActive
           ? "1px solid transparent"
           : "1px solid rgba(255,255,255,0.075)",
-        padding: 18,
+        padding: 14,
         textAlign: "left",
         boxShadow: isActive
           ? "0 16px 42px rgba(0,0,0,0.30)"
@@ -335,7 +335,7 @@ export function SignalCard({
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
-                fontSize: 18,
+                fontSize: 15,
                 fontWeight: 700,
                 lineHeight: 1,
                 letterSpacing: "-0.025em",
@@ -351,7 +351,7 @@ export function SignalCard({
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
-                fontSize: 13,
+                fontSize: 11,
                 fontWeight: 500,
                 lineHeight: 1,
                 color: "rgba(255,255,255,0.35)",
@@ -367,13 +367,13 @@ export function SignalCard({
       {/* Row 2: Strategy + Date */}
       <div
         style={{
-          marginTop: 18,
+          marginTop: 12,
           display: "grid",
           minWidth: 0,
           gridTemplateColumns: "minmax(0,1fr) auto",
           alignItems: "center",
           gap: 12,
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: 500,
           lineHeight: 1,
           letterSpacing: "-0.01em",
@@ -399,13 +399,13 @@ export function SignalCard({
       {/* Row 3: TP / SL */}
       <div
         style={{
-          marginTop: 20,
+          marginTop: 12,
           display: "flex",
           flexWrap: "wrap",
           alignItems: "center",
           columnGap: 12,
           rowGap: 4,
-          fontSize: 12,
+          fontSize: 10,
           fontWeight: 600,
           lineHeight: 1,
         }}
@@ -426,7 +426,7 @@ export function SignalCard({
       >
         <span
           style={{
-            fontSize: 15,
+            fontSize: 13,
             fontWeight: 700,
             lineHeight: 1,
             letterSpacing: "0.01em",
