@@ -3,7 +3,7 @@ import { MobileSentinelView } from "@/components/mobile/sentinel/MobileSentinelV
 
 export default function MobileSentinelPage() {
   return (
-    <SentinelSessionProvider>
+    <SentinelSessionProvider pageContext={{ page: "chat", visibleTitle: "Sentinel" }}>
       <MobileSentinelView />
     </SentinelSessionProvider>
   );

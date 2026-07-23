@@ -57,7 +57,9 @@ function nowIso() {
   return new Date().toISOString();
 }
 
-export function SentinelSessionProvider({ children, userId }: { children: React.ReactNode; userId?: string }) {
+type PageContext = { page?: string; tab?: string; mode?: string; visibleTitle?: string };
+
+export function SentinelSessionProvider({ children, userId, pageContext }: { children: React.ReactNode; userId?: string; pageContext?: PageContext }) {
   const historyKey = userId ? sentinelHistoryKey(userId) : SENTINEL_HISTORY_KEY;
   const initialSession = loadInitialSession();
   const [entries, setEntries] = useState<ChatEntry[]>(() => {
@@ -178,7 +180,7 @@ export function SentinelSessionProvider({ children, userId }: { children: React.
       const res = await fetch("/api/sentinel/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: historyMessages, stream: true }),
+        body: JSON.stringify({ messages: historyMessages, stream: true, ...(pageContext ? { pageContext } : {}) }),
       });
 
       const contentType = res.headers.get("content-type") ?? "";

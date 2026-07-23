@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useClientMounted } from "@/hooks/use-client-mounted";
 import type { MonitoringChartData } from "@/components/monitoring/MonitoringChart";
+import type { AgriFinalStatusResponse, AgriLiveReadinessStatus } from "@/lib/monitoring/agriFinalStatusTypes";
+import { loadMonitoringTradeEvents } from "@/lib/monitoring/loadMonitoringTradeEvents";
 
 const MonitoringChart = dynamic(
   () => import("@/components/monitoring/MonitoringChart").then((m) => m.default ?? m),
@@ -37,6 +39,30 @@ interface LiveState {
   openTrades: OpenTrade[];
   status?: string;
   updatedAt?: string;
+}
+
+interface ForwardLoggerSignal {
+  id?: string;
+  time?: string;
+  symbol?: string;
+  strategyId?: string;
+  direction?: string;
+  signal?: string;
+  price?: number;
+  entryPrice?: number;
+  sl?: number;
+  tp?: number;
+  status?: string;
+  tab?: string;
+}
+
+interface StrategyRegistryEntry {
+  id?: string;
+  name?: string;
+  displayName?: string;
+  tab?: string;
+  status?: string;
+  enabled?: boolean;
 }
 
 type Bar = { time: string; open: number; high: number; low: number; close: number };
@@ -345,7 +371,11 @@ function ChartGrid({
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function MobileMonitoringView() {
+export function MobileMonitoringView({
+  initialAgriFinalStatus = null,
+}: {
+  initialAgriFinalStatus?: AgriFinalStatusResponse | null;
+}) {
   const router = useRouter();
   const mounted = useClientMounted();
 
@@ -356,6 +386,18 @@ export function MobileMonitoringView() {
   // Live state
   const [liveState, setLiveState] = useState<LiveState | null>(null);
   const [liveLoaded, setLiveLoaded] = useState(false);
+
+  // Agri final status
+  const [agriFinalStatus, setAgriFinalStatus] = useState<AgriFinalStatusResponse | null>(initialAgriFinalStatus);
+
+  // Strategy registry
+  const [strategyRegistry, setStrategyRegistry] = useState<Record<string, StrategyRegistryEntry>>({});
+
+  // Forward logger signals (for live tab)
+  const [forwardSignals, setForwardSignals] = useState<ForwardLoggerSignal[]>([]);
+
+  // Signal events cache per asset (lazy loaded for visible tab)
+  const signalCache = useRef<Record<string, NonNullable<MonitoringChartData["signals"]>>>({});
 
   // UI state
   const [activeTabId, setActiveTabId] = useState<string>("Agrar");
@@ -405,6 +447,62 @@ export function MobileMonitoringView() {
       .catch(() => setLiveLoaded(true));
   }, []);
 
+  // Refresh agri final status from API (keeps it fresh after SSR seed)
+  useEffect(() => {
+    const ctrl = new AbortController();
+    fetch("/api/monitoring/agri-final-status", { cache: "no-store", signal: ctrl.signal })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: unknown) => {
+        if (d && typeof d === "object") setAgriFinalStatus(d as AgriFinalStatusResponse);
+      })
+      .catch(() => {});
+    return () => ctrl.abort();
+  }, []);
+
+  // Fetch strategy registry once on mount
+  useEffect(() => {
+    fetch("/api/monitoring/strategy-registry", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: unknown) => {
+        if (d && typeof d === "object" && !Array.isArray(d)) {
+          setStrategyRegistry(d as Record<string, StrategyRegistryEntry>);
+        } else if (Array.isArray(d)) {
+          // Registry might be an array
+          const map: Record<string, StrategyRegistryEntry> = {};
+          (d as StrategyRegistryEntry[]).forEach((entry) => {
+            if (entry.id) map[entry.id] = entry;
+          });
+          setStrategyRegistry(map);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Poll forward-logger every 5 seconds
+  useEffect(() => {
+    const fetchSignals = () => {
+      fetch("/api/monitoring/forward-logger", { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d: unknown) => {
+          if (d && typeof d === "object") {
+            const payload = d as Record<string, unknown>;
+            const signals = Array.isArray(payload.signals)
+              ? (payload.signals as ForwardLoggerSignal[])
+              : Array.isArray(payload.events)
+                ? (payload.events as ForwardLoggerSignal[])
+                : Array.isArray(d)
+                  ? (d as ForwardLoggerSignal[])
+                  : [];
+            setForwardSignals(signals);
+          }
+        })
+        .catch(() => {});
+    };
+    fetchSignals();
+    const interval = setInterval(fetchSignals, 5_000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Derive tabs from universe + fixed
   const tabs = TAB_ORDER; // fixed order
 
@@ -434,7 +532,7 @@ export function MobileMonitoringView() {
     });
   }, [liveState, universe]);
 
-  // Load assets for a tab
+  // Load assets for a tab (with signal markers for the active tab)
   const loadTab = useCallback(
     async (tabId: string, assets: UniverseAsset[]) => {
       if (loadingRef.current[tabId]) return;
@@ -448,8 +546,43 @@ export function MobileMonitoringView() {
       await Promise.all(
         assets.map(async (asset) => {
           const bars = await fetchBars(asset.source, asset.timeframe);
-          cache.current[tabId]![asset.id] =
-            bars.length > 0 ? makeChartData(asset, bars) : null;
+          if (bars.length === 0) {
+            cache.current[tabId]![asset.id] = null;
+            setTick((v) => v + 1);
+            return;
+          }
+
+          // Load signal events (lazy — only for current tab assets)
+          let signals: MonitoringChartData["signals"] = [];
+          if (!(asset.id in signalCache.current)) {
+            try {
+              const evResult = await loadMonitoringTradeEvents({ symbol: asset.symbol, source: asset.source });
+              if (evResult.ok && evResult.signalEvents.length) {
+                signals = evResult.signalEvents.map((ev) => ({
+                  time: ev.time,
+                  type: ev.type as string,
+                  price: ev.price ?? null,
+                  direction: ev.direction ?? null,
+                }));
+              } else if (evResult.ok && evResult.events.length) {
+                signals = evResult.events.map((ev) => ({
+                  time: ev.time,
+                  type: ev.type as string,
+                  price: ev.price ?? null,
+                  direction: null,
+                }));
+              }
+            } catch {
+              // signals unavailable — silently skip
+            }
+            signalCache.current[asset.id] = signals;
+          } else {
+            signals = signalCache.current[asset.id]!;
+          }
+
+          const chartData = makeChartData(asset, bars);
+          chartData.signals = signals;
+          cache.current[tabId]![asset.id] = chartData;
           setTick((v) => v + 1);
         })
       );
@@ -637,6 +770,11 @@ export function MobileMonitoringView() {
     const liveTabCache = cache.current["live"];
     const liveTabLoading = loadingRef.current["live"] ?? false;
 
+    // Forward logger signals that are open/recent
+    const activeForwardSignals = forwardSignals.filter(
+      (s) => s.signal && s.signal !== "NONE" && s.signal !== "EXIT"
+    );
+
     return (
       <div className="mm-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden" }}>
         {/* Status bar */}
@@ -654,7 +792,68 @@ export function MobileMonitoringView() {
             {trades.length} Offen
             {updatedAt ? ` · Aktualisiert ${updatedAt}` : ""}
           </span>
+          {activeForwardSignals.length > 0 && (
+            <span style={{ marginLeft: "auto", fontSize: 9, color: "#e2ca7a", fontWeight: 600 }}>
+              {activeForwardSignals.length} Signal{activeForwardSignals.length !== 1 ? "e" : ""}
+            </span>
+          )}
         </div>
+
+        {/* Forward logger signals */}
+        {activeForwardSignals.length > 0 && (
+          <div style={{ padding: "8px 10px 4px" }}>
+            <div style={{ fontSize: 9, color: "rgba(255,255,255,0.25)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 6 }}>
+              Live-Signale
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {activeForwardSignals.slice(0, 8).map((sig, i) => {
+                const isLong = String(sig.signal ?? sig.direction ?? "").toUpperCase() === "LONG";
+                const badgeColor = isLong ? "#22c55e" : "#ef4444";
+                return (
+                  <div
+                    key={`sig-${i}`}
+                    style={{
+                      background: "rgba(255,255,255,0.03)",
+                      border: "1px solid rgba(255,255,255,0.06)",
+                      borderRadius: 6,
+                      padding: "6px 10px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 8,
+                        fontWeight: 700,
+                        color: badgeColor,
+                        background: `${badgeColor}22`,
+                        border: `1px solid ${badgeColor}44`,
+                        borderRadius: 3,
+                        padding: "1px 5px",
+                      }}
+                    >
+                      {(sig.signal ?? sig.direction ?? "—").toUpperCase()}
+                    </span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>
+                      {sig.symbol ?? "—"}
+                    </span>
+                    {sig.price != null && (
+                      <span style={{ fontSize: 9, color: "rgba(255,255,255,0.4)", marginLeft: "auto" }}>
+                        {formatPrice(sig.price)}
+                      </span>
+                    )}
+                    {sig.strategyId && (
+                      <span style={{ fontSize: 8, color: "rgba(255,255,255,0.25)" }}>
+                        {sig.strategyId}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Trade cards */}
         {!liveLoaded ? (
@@ -724,6 +923,98 @@ export function MobileMonitoringView() {
     );
   }
 
+  // ── Agri status mini-panel ──
+  function AgriStatusSection() {
+    if (!agriFinalStatus) return null;
+    const assetEntries = Object.entries(agriFinalStatus.assets ?? {});
+    if (!assetEntries.length) return null;
+
+    const readinessColor = (status: AgriLiveReadinessStatus): string => {
+      if (status === "READY") return "#22c55e";
+      if (status === "PROVISIONAL_ONLY") return "#e2ca7a";
+      return "#ef4444";
+    };
+
+    const dataStatusColor = (s: string): string => {
+      if (s === "fresh") return "#22c55e";
+      if (s === "provisional") return "#e2ca7a";
+      return "#ef4444";
+    };
+
+    const readyCount = assetEntries.filter(([, a]) => a.liveReadiness.status === "READY").length;
+    const provisionalCount = assetEntries.filter(([, a]) => a.liveReadiness.status === "PROVISIONAL_ONLY").length;
+    const blockedCount = assetEntries.length - readyCount - provisionalCount;
+
+    return (
+      <div
+        style={{
+          margin: "8px 10px 4px",
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.07)",
+          borderRadius: 8,
+          overflow: "hidden",
+        }}
+      >
+        {/* Header row */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "7px 10px",
+            borderBottom: "1px solid rgba(255,255,255,0.05)",
+          }}
+        >
+          <span style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            Agri Final Status
+          </span>
+          <span style={{ fontSize: 8, color: "#22c55e", marginLeft: 2 }}>{readyCount} Ready</span>
+          {provisionalCount > 0 && <span style={{ fontSize: 8, color: "#e2ca7a" }}>{provisionalCount} Prov.</span>}
+          {blockedCount > 0 && <span style={{ fontSize: 8, color: "#ef4444" }}>{blockedCount} Blocked</span>}
+          {agriFinalStatus.autoUpdate?.refreshLoopActive && (
+            <span style={{ marginLeft: "auto", fontSize: 8, color: "#22c55e" }}>● Auto-Refresh</span>
+          )}
+        </div>
+        {/* Asset rows */}
+        <div style={{ maxHeight: 180, overflowY: "auto" }}>
+          {assetEntries.map(([symbol, asset]) => {
+            const rc = readinessColor(asset.liveReadiness.status);
+            const dc = dataStatusColor(asset.dataHealth.overallStatus);
+            const strategyName = strategyRegistry[symbol]?.displayName ?? strategyRegistry[symbol]?.name;
+            return (
+              <div
+                key={symbol}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "5px 10px",
+                  borderBottom: "1px solid rgba(255,255,255,0.04)",
+                  gap: 8,
+                }}
+              >
+                <span style={{ fontSize: 9, color: rc, flexShrink: 0 }}>●</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.75)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {asset.displayName}
+                  </div>
+                  {strategyName && (
+                    <div style={{ fontSize: 8, color: "rgba(255,255,255,0.25)", marginTop: 1 }}>{strategyName}</div>
+                  )}
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2, flexShrink: 0 }}>
+                  <span style={{ fontSize: 8, color: dc }}>{asset.dataHealth.overallStatus}</span>
+                  {asset.dataHealth.lastBarDate && (
+                    <span style={{ fontSize: 7, color: "rgba(255,255,255,0.2)" }}>{asset.dataHealth.lastBarDate.slice(0, 10)}</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
   // ── Render a standard tab content ──
   function TabContent({ tabId }: { tabId: string }) {
     let assets: UniverseAsset[];
@@ -751,7 +1042,7 @@ export function MobileMonitoringView() {
       );
     }
 
-    if (assets.length === 0) {
+    if (assets.length === 0 && tabId !== "Agrar") {
       return (
         <div
           style={{
@@ -773,14 +1064,17 @@ export function MobileMonitoringView() {
 
     return (
       <div className="mm-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden" }}>
-        <ChartGrid
-          assets={assets}
-          tabId={tabId}
-          cols={cols}
-          cardH={cardH}
-          tabCache={tabCache}
-          tabLoading={tabLoading}
-        />
+        {tabId === "Agrar" && <AgriStatusSection />}
+        {assets.length > 0 && (
+          <ChartGrid
+            assets={assets}
+            tabId={tabId}
+            cols={cols}
+            cardH={cardH}
+            tabCache={tabCache}
+            tabLoading={tabLoading}
+          />
+        )}
       </div>
     );
   }

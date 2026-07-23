@@ -6,9 +6,26 @@ import { deserializeTrades, compoundGains } from "@/lib/trades-analytics";
 import type { DashboardKpis, SerializedTrade } from "@/lib/trades-analytics";
 import type { CapalifeData } from "@/lib/capitalife-data";
 import type { TimeFrame, ViewMode } from "@/components/dashboard/performance-report-chart";
+import type { FSPortfolioSnapshot } from "@/lib/fsportfolio/types";
+import type { ParsedReportTrade, ParsedBalanceRow } from "@/lib/mt-report-parser";
 
 const PerformanceReportChart = dynamic(
   () => import("@/components/dashboard/performance-report-chart").then(m => m.PerformanceReportChart),
+  { ssr: false, loading: () => <div style={{ flex: 1 }} /> }
+);
+
+const RiskDashboard = dynamic(
+  () => import("@/components/risk/risk-dashboard").then(m => m.RiskDashboard),
+  { ssr: false, loading: () => <div style={{ flex: 1 }} /> }
+);
+
+const TradesDashboard = dynamic(
+  () => import("@/components/trades/trades-dashboard").then(m => m.TradesDashboard),
+  { ssr: false, loading: () => <div style={{ flex: 1 }} /> }
+);
+
+const QuantDashboard = dynamic(
+  () => import("@/components/quant/quant-dashboard").then(m => m.QuantDashboard),
   { ssr: false, loading: () => <div style={{ flex: 1 }} /> }
 );
 
@@ -216,11 +233,17 @@ export function MobileHomeView({
   kpis: _kpis,
   trades,
   capalifeData,
+  fsportfolio: _fsportfolio,
+  reportTrades: _reportTrades,
+  balanceRows: _balanceRows,
 }: {
   topKpis: TopKpiItem[];
   kpis: DashboardKpis;
   trades: SerializedTrade[];
   capalifeData: CapalifeData;
+  fsportfolio: FSPortfolioSnapshot;
+  reportTrades: ParsedReportTrade[];
+  balanceRows: ParsedBalanceRow[];
 }) {
   const [tab,      setTab]      = useState<HomeTab>("portfolio");
   const [view,     setView]     = useState<ViewMode>("Line");
@@ -315,13 +338,19 @@ export function MobileHomeView({
             </div>
           </div>
         </>
-      ) : (
-        <div style={{ flex: 1, minHeight: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <p style={{ color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", fontSize: 12 }}>
-            {tab.charAt(0).toUpperCase() + tab.slice(1)} — demnächst verfügbar
-          </p>
+      ) : tab === "risk" ? (
+        <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 14px 10px" }}>
+          <RiskDashboard trades={trades} />
         </div>
-      )}
+      ) : tab === "trades" ? (
+        <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 14px 10px" }}>
+          <TradesDashboard trades={trades} />
+        </div>
+      ) : tab === "quant" ? (
+        <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 14px 10px" }}>
+          <QuantDashboard trades={trades} />
+        </div>
+      ) : null}
     </div>
   );
 }

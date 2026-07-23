@@ -6,10 +6,17 @@ import type { UniversalKpiStrings } from "@/components/dashboard/universal-kpi-s
 import type { TimeFrame, ViewMode } from "@/components/dashboard/performance-report-chart";
 import type { SerializedTrade } from "@/lib/trades-analytics";
 import type { CapalifeData } from "@/lib/capitalife-data";
+import type { FSPortfolioSnapshot } from "@/lib/fsportfolio/types";
+import type { ParsedReportTrade, ParsedBalanceRow } from "@/lib/mt-report-parser";
 
 const PerformanceReportChart = dynamic(
   () => import("@/components/dashboard/performance-report-chart").then(m => m.PerformanceReportChart),
   { ssr: false, loading: () => <div style={{ height: 220 }} /> }
+);
+
+const AnalyticsDashboard = dynamic(
+  () => import("@/components/analytics/analytics-dashboard").then(m => m.AnalyticsDashboard),
+  { ssr: false, loading: () => <div style={{ minHeight: 300 }} /> }
 );
 
 type PortfolioKpis = {
@@ -25,6 +32,9 @@ interface Props {
   kpis: PortfolioKpis;
   trades: SerializedTrade[];
   capalifeData: CapalifeData;
+  fsportfolio: FSPortfolioSnapshot;
+  reportTrades: ParsedReportTrade[];
+  balanceRows: ParsedBalanceRow[];
 }
 
 const PAGE_BG = "#0c0d10";
@@ -91,7 +101,7 @@ function KpiCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function MobileAnalyticsView({ universal, trades, capalifeData }: Props) {
+export function MobileAnalyticsView({ universal, trades, capalifeData, fsportfolio, reportTrades: _reportTrades, balanceRows: _balanceRows }: Props) {
   const [activeFilter, setActiveFilter] = useState(0);
   const active = TIME_FILTERS[activeFilter];
 
@@ -204,6 +214,24 @@ export function MobileAnalyticsView({ universal, trades, capalifeData }: Props) 
             view={active.view}
             capalifeData={capalifeData}
           />
+        </div>
+
+        {/* FSPortfolio Analytics — full desktop analytics panel */}
+        <div style={{ marginBottom: 28 }}>
+          <p
+            style={{
+              margin: "0 0 12px",
+              fontSize: 11,
+              fontWeight: 600,
+              color: MUTED,
+              fontFamily: "var(--font-montserrat, sans-serif)",
+              textTransform: "uppercase",
+              letterSpacing: "0.07em",
+            }}
+          >
+            FSPortfolio Analytics
+          </p>
+          <AnalyticsDashboard fsportfolio={fsportfolio} capalifeData={capalifeData} />
         </div>
       </div>
     </div>
