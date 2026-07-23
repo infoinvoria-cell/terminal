@@ -310,15 +310,16 @@ function Metric({ label, value, tone }: { label: string; value: string; tone?: "
   const color = tone === "negative" ? "#ef4444" : "#fff";
   return (
     <div style={{
-      display: "flex", flexDirection: "column", gap: 4,
+      display: "flex", flexDirection: "column", justifyContent: "center", gap: "clamp(2px,0.4vh,6px)",
       background: "linear-gradient(180deg,#1c1d20 0%,#141517 100%)",
       border: "1px solid rgba(255,255,255,0.07)",
-      borderRadius: 8, padding: "6px 8px",
+      borderRadius: 8, padding: "clamp(4px,0.8vh,10px) clamp(6px,0.8vw,12px)",
+      height: "100%", minHeight: 0, overflow: "hidden",
     }}>
-      <div style={{ fontSize: 7.5, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.32)", lineHeight: 1 }}>
+      <div style={{ fontSize: "clamp(7px,0.6vw,9px)", textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.32)", lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
         {label}
       </div>
-      <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1, color }}>{value}</div>
+      <div style={{ fontSize: "clamp(11px,1.2vw,18px)", fontWeight: 700, lineHeight: 1, color, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{value}</div>
     </div>
   );
 }
@@ -497,9 +498,10 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
           flex: 1, minHeight: 0,
           display: "grid",
           gridTemplateColumns: "repeat(5, 1fr)",
+          gridTemplateRows: "1fr",
           gap: 6,
           padding: "6px 8px",
-          alignContent: "center",
+          alignItems: "stretch",
         }}>
           {(selectedPreview?.kpis ?? []).slice(0, 5).map((kpi) => (
             <Metric key={kpi.label} label={kpi.label} value={kpi.value} tone={kpi.tone} />
