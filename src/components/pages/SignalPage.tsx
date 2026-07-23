@@ -283,7 +283,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
         title={showWatchlist ? "Live Feed schließen" : "Live Feed öffnen"}
         style={{
           position: "fixed",
-          right: showWatchlist ? 300 : 0,
+          right: watchlistWidth,
           top: "50%",
           transform: "translateY(-50%)",
           zIndex: 50,
