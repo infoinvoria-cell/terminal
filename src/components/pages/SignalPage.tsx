@@ -454,8 +454,6 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
               <div style={{ flex: "0 0 65%", minHeight: 0, overflow: "hidden", padding: "4px 6px 2px" }}>
                 <StrategyTesterEquityChart
                   data={perf.equityCurve}
-                  totalReturnPercent={perf.summary?.totalReturnPercent}
-                  cagr={perf.summary?.cagr}
                   fillContainer
                 />
               </div>
