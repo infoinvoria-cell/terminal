@@ -3711,24 +3711,40 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
 
   const effectiveUniverseAssets = useMemo(() => {
     if (productionUniverseAssets.length === 0) return universeAssets;
+    // Groups covered by the production registry
+    const prodGroups = new Set(productionUniverseAssets.map((a) => normalizeGroup(a.tab)));
     const keep = universeAssets.filter((asset) => {
       const group = normalizeGroup(asset.tab);
-      return group === "Aktien" || group === "Invest" || group === "Intraday MT";
+      // Always prefer universe for these managed tabs
+      if (group === "Aktien" || group === "Invest" || group === "Intraday MT") return true;
+      // Fill in any group the production registry doesn't cover (e.g. FX, Metalle, Energie)
+      return !prodGroups.has(group);
     });
     return [...productionUniverseAssets, ...keep];
   }, [productionUniverseAssets, universeAssets]);
 
-  const fallbackUniverseByTab = useMemo(() => ({
-    aktien: FALLBACK_AKTIEN_UNIVERSE_ITEMS,
-    invest: FALLBACK_INVEST_UNIVERSE_ITEMS,
-    fx: productionUniverseAssets.filter((asset) => normalizeGroup(asset.tab) === "FX"),
-    metalle_energie: productionUniverseAssets.filter((asset) => {
-      const group = normalizeGroup(asset.tab);
-      return group === "Metalle" || group === "Energie";
-    }),
-    live: productionUniverseAssets,
-    all: productionUniverseAssets,
-  }), [productionUniverseAssets]);
+  const fallbackUniverseByTab = useMemo(() => {
+    const fxProd = productionUniverseAssets.filter((a) => normalizeGroup(a.tab) === "FX");
+    const metallProd = productionUniverseAssets.filter((a) => {
+      const g = normalizeGroup(a.tab);
+      return g === "Metalle" || g === "Energie";
+    });
+    return {
+      aktien: FALLBACK_AKTIEN_UNIVERSE_ITEMS,
+      invest: FALLBACK_INVEST_UNIVERSE_ITEMS,
+      fx: fxProd.length > 0
+        ? fxProd
+        : universeAssets.filter((a) => normalizeGroup(a.tab) === "FX"),
+      metalle_energie: metallProd.length > 0
+        ? metallProd
+        : universeAssets.filter((a) => {
+            const g = normalizeGroup(a.tab);
+            return g === "Metalle" || g === "Energie";
+          }),
+      live: productionUniverseAssets.length > 0 ? productionUniverseAssets : universeAssets,
+      all: productionUniverseAssets.length > 0 ? productionUniverseAssets : universeAssets,
+    };
+  }, [productionUniverseAssets, universeAssets]);
 
   const filteredUniverseItems = useMemo(() => {
     if (activeTab === "intraday_mt") {
