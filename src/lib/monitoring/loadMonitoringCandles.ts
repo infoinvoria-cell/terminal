@@ -207,7 +207,7 @@ function sanitizeBars(rawBars: MonitoringPayloadLite["bars"], timeframe: string)
     const close = Number(row?.close);
     if (!time) continue;
     if (!isFiniteNumber(open) || !isFiniteNumber(high) || !isFiniteNumber(low) || !isFiniteNumber(close)) continue;
-    if (close <= 0 || open <= 0) continue;
+    if (close <= 0 || open <= 0 || high <= 0 || low <= 0) continue;
     if (high < low) continue;
     byTime.set(time, { time, open, high, low, close });
   }
@@ -228,7 +228,7 @@ function sanitizeTvCacheBars(rawBars: TradingViewDataCachePayload["bars"], timef
     const close = Number(row?.close);
     if (!time) continue;
     if (!isFiniteNumber(open) || !isFiniteNumber(high) || !isFiniteNumber(low) || !isFiniteNumber(close)) continue;
-    if (close <= 0 || open <= 0) continue;
+    if (close <= 0 || open <= 0 || high <= 0 || low <= 0) continue;
     if (high < low) continue;
     byTime.set(time, { time, open, high, low, close });
   }

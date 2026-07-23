@@ -60,7 +60,7 @@ function parseBars(rawBars: CacheBar[]): Array<{ time: string; open: number; hig
     const low = Number(row?.low);
     const close = Number(row?.close);
     if (!time || !Number.isFinite(open) || !Number.isFinite(high) || !Number.isFinite(low) || !Number.isFinite(close)) continue;
-    if (close <= 0 || open <= 0) continue;
+    if (close <= 0 || open <= 0 || high <= 0 || low <= 0) continue;
     const entry: { time: string; open: number; high: number; low: number; close: number; volume?: number } = { time, open, high, low, close };
     if (row?.volume != null && Number.isFinite(Number(row.volume))) entry.volume = Number(row.volume);
     out.push(entry);

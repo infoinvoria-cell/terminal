@@ -168,29 +168,39 @@ function SectionPanel({
 // ── KPI metric ─────────────────────────────────────────────────────────────────
 
 function Metric({ label, value, tone }: { label: string; value: string; tone?: "positive" | "negative" | "neutral" }) {
-  // positive → white, negative → gold, neutral → white
   const valueColor = tone === "negative" ? "#d8bc67" : "#fff";
-  const isNegativeTone = tone === "negative";
+  const isNegative = tone === "negative";
   return (
     <div style={{
-      display: "flex", flexDirection: "column", justifyContent: "center", gap: "clamp(2px,0.4vh,6px)",
-      background: "linear-gradient(180deg,#1c1d20 0%,#141517 100%)",
+      flex: 1, minWidth: 0,
+      display: "flex", flexDirection: "column", justifyContent: "center", gap: 5,
+      background: "#141517",
       border: "1px solid rgba(255,255,255,0.07)",
-      borderRadius: 8, padding: "clamp(4px,0.8vh,10px) clamp(6px,0.8vw,12px)",
-      height: "100%", minHeight: 0, overflow: "hidden",
+      borderRadius: 8,
+      padding: "8px 10px",
+      overflow: "hidden",
     }}>
       <div style={{
-        display: "inline-flex", alignItems: "center",
-        fontSize: "clamp(7px,0.6vw,9px)", textTransform: "uppercase", letterSpacing: "0.08em",
-        lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden",
+        fontSize: 9, fontWeight: 700, textTransform: "uppercase",
+        letterSpacing: "0.09em", lineHeight: 1, whiteSpace: "nowrap",
       }}>
-        {isNegativeTone ? (
-          <span style={{ background: "#ef444422", border: "1px solid #ef444455", borderRadius: 3, padding: "1px 4px", color: "#ef4444" }}>{label}</span>
+        {isNegative ? (
+          <span style={{
+            background: "rgba(239,68,68,0.12)",
+            border: "1px solid rgba(239,68,68,0.3)",
+            borderRadius: 3, padding: "1px 5px", color: "#ef4444",
+          }}>{label}</span>
         ) : (
-          <span style={{ color: "rgba(255,255,255,0.32)" }}>{label}</span>
+          <span style={{ color: "rgba(255,255,255,0.30)" }}>{label}</span>
         )}
       </div>
-      <div style={{ fontSize: "clamp(11px,1.2vw,18px)", fontWeight: 700, lineHeight: 1, color: valueColor, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{value}</div>
+      <div style={{
+        fontSize: 15, fontWeight: 700, lineHeight: 1,
+        color: valueColor,
+        whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+      }}>
+        {value}
+      </div>
     </div>
   );
 }
@@ -367,11 +377,9 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
         {/* KPI row */}
         <div style={{
           flex: 1, minHeight: 0,
-          display: "grid",
-          gridTemplateColumns: "repeat(5, 1fr)",
-          gridTemplateRows: "1fr",
+          display: "flex", flexDirection: "row",
           gap: 6,
-          padding: "6px 8px",
+          padding: "6px 8px 8px",
           alignItems: "stretch",
         }}>
           {(selectedPreview?.kpis ?? []).slice(0, 5).map((kpi) => (
