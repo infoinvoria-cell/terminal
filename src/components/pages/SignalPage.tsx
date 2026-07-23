@@ -9,6 +9,7 @@ import { useClientMounted } from "@/hooks/use-client-mounted";
 import { useInterval } from "@/hooks/use-interval";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
 import SignalCard from "@/components/signals/SignalCard";
+import LiveWatchlistPanel from "@/components/signals/LiveWatchlistPanel";
 import type {
   SignalCardFilter,
   SignalCardModel,
@@ -218,6 +219,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
 
   const firstCard = data.cards[0] ?? null;
   const [selectedCardId, setSelectedCardId] = useState<string | null>(firstCard?.id ?? null);
+  const [showWatchlist, setShowWatchlist] = useState(false);
 
   const selectedCard = useMemo(
     () => data.cards.find((c) => c.id === selectedCardId) ?? firstCard,
@@ -257,15 +259,20 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
     return hasRealDd ? dd : computeDrawdownFromEquity(perf.equityCurve ?? []);
   }, [perf]);
 
+  const cols = showWatchlist
+    ? "minmax(0, 1.1fr) minmax(0, 1fr) 280px"
+    : "minmax(0, 1.1fr) minmax(0, 1fr)";
+
   return (
     <div style={{
       display: "grid",
-      gridTemplateColumns: "minmax(0, 1.1fr) minmax(0, 1fr)",
+      gridTemplateColumns: cols,
       height: "100%",
       minHeight: 0,
       overflow: "hidden",
       background: "#09090b",
       gap: 0,
+      transition: "grid-template-columns 200ms ease",
     }}>
 
       {/* ── LEFT: signal list ────────────────────────────────────────────────── */}
@@ -296,10 +303,10 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
         )}
       </div>
 
-      {/* ── RIGHT: detail panel ──────────────────────────────────────────────── */}
+      {/* ── MIDDLE: detail panel ─────────────────────────────────────────────── */}
       <div style={{ display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
 
-        {/* Header overlay chip */}
+        {/* OHLC chart + Live Feed toggle button */}
         <div style={{
           position: "relative",
           flex: "0 0 50%",
@@ -308,6 +315,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
           borderBottom: "1px solid rgba(255,255,255,0.04)",
           background: "#09090a",
         }}>
+          {/* Asset chip — top left */}
           <div style={{
             pointerEvents: "none",
             position: "absolute", left: 10, top: 10, zIndex: 10,
@@ -332,14 +340,48 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
               </div>
             </div>
           </div>
+
+          {/* Live Feed toggle — top right, left of Y-axis */}
+          <button
+            onClick={() => setShowWatchlist((v) => !v)}
+            title={showWatchlist ? "Live Feed schließen" : "Live Feed öffnen"}
+            style={{
+              position: "absolute", top: 10, right: 58, zIndex: 20,
+              display: "inline-flex", alignItems: "center", gap: 5,
+              padding: "5px 9px",
+              background: showWatchlist
+                ? "rgba(34,197,94,0.12)"
+                : "rgba(0,0,0,0.55)",
+              border: showWatchlist
+                ? "1px solid rgba(34,197,94,0.35)"
+                : "1px solid rgba(255,255,255,0.10)",
+              borderRadius: 7,
+              backdropFilter: "blur(6px)",
+              cursor: "pointer",
+              transition: "background 150ms, border-color 150ms",
+            }}
+          >
+            {/* Pulsing dot */}
+            <span style={{
+              display: "inline-block", width: 6, height: 6, borderRadius: "50%",
+              background: showWatchlist ? "#22c55e" : "rgba(255,255,255,0.35)",
+              boxShadow: showWatchlist ? "0 0 5px #22c55e99" : "none",
+            }} />
+            <span style={{
+              fontSize: 9, fontWeight: 700, letterSpacing: "0.06em",
+              textTransform: "uppercase",
+              color: showWatchlist ? "#22c55e" : "rgba(255,255,255,0.55)",
+            }}>
+              Live Feed
+            </span>
+          </button>
+
           {mounted && selectedPreview?.chart ? (
             <MonitoringChart data={selectedPreview.chart} maxBars={320} initialVisibleBars={56} />
           ) : (
             <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.2)" }}>
-                  Keine OHLC-Daten für {selectedCard?.displaySymbol ?? "dieses Asset"}
-                </div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.2)" }}>
+                Keine OHLC-Daten für {selectedCard?.displaySymbol ?? "dieses Asset"}
               </div>
             </div>
           )}
@@ -354,10 +396,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
           {mounted && perf ? (
             <>
               <div style={{ flex: "0 0 55%", minHeight: 0, overflow: "hidden", padding: "4px 6px 2px" }}>
-                <StrategyTesterEquityChart
-                  data={perf.equityCurve}
-                  fillContainer
-                />
+                <StrategyTesterEquityChart data={perf.equityCurve} fillContainer />
               </div>
               <div style={{ flex: "0 0 45%", minHeight: 0, overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.04)", padding: "2px 6px 4px" }}>
                 <StrategyTesterDrawdownChart
@@ -378,8 +417,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
         <div style={{
           flex: 1, minHeight: 0,
           display: "flex", flexDirection: "row",
-          gap: 6,
-          padding: "6px 8px 8px",
+          gap: 6, padding: "6px 8px 8px",
           alignItems: "stretch",
         }}>
           {(selectedPreview?.kpis ?? []).slice(0, 5).map((kpi) => (
@@ -387,6 +425,15 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
           ))}
         </div>
       </div>
+
+      {/* ── RIGHT: Live Watchlist (conditional) ─────────────────────────────── */}
+      {showWatchlist && (
+        <LiveWatchlistPanel
+          cards={data.cards}
+          selectedCardId={selectedCardId}
+          onSelectCard={(id) => setSelectedCardId(id)}
+        />
+      )}
     </div>
   );
 }
