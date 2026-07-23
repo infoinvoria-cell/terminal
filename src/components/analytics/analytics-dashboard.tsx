@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useEffectEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useEffectEvent } from "react";
 import Image from "next/image";
 import { Layers, TrendingUp } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -27,7 +27,7 @@ import {
   type AnalyticsTab,
   getAnalyticsDataset,
 } from "@/lib/analytics/portfolio-data";
-import type { CapalifeData } from "@/lib/capitalife-data";
+import type { CapalifeData, WsPortfolioEquityFile } from "@/lib/capitalife-data";
 import type { EquityPoint, FSPortfolioSnapshot } from "@/lib/fsportfolio/types";
 import { aggregateReturns, computePortfolioMetrics } from "@/lib/fsportfolio/metrics";
 import { useGlobalRefresh } from "@/hooks/use-global-refresh";
@@ -1085,23 +1085,23 @@ function PerformanceCard({
 
 function KpiGrid({ cards }: { cards: KpiCard[] }) {
   return (
-    <Card className="p-3">
-      <div className="grid h-full min-h-0 grid-cols-2 gap-2 xl:grid-cols-3">
+    <Card className="p-2">
+      <div className="grid h-full min-h-0 grid-cols-2 gap-1 xl:grid-cols-3">
         {cards.slice(0, 12).map((card) => (
           <div
             key={card.label}
-            className="flex min-h-[88px] flex-col justify-between rounded-[16px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] px-3 py-2.5 shadow-[0_8px_20px_-8px_rgba(0,0,0,0.45)]"
+            className="flex min-h-0 flex-col justify-between rounded-[10px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] px-2.5 py-1.5"
           >
-            <p className="text-[9px] font-medium uppercase tracking-[0.08em] text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">
+            <p className="text-[8px] font-medium uppercase tracking-[0.08em] text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">
               {card.label}
             </p>
             <div className="flex items-end justify-between gap-1">
-              <p className="line-clamp-2 text-[18px] font-bold leading-tight tracking-tight text-white [font-family:var(--font-nunito),sans-serif]">
+              <p className="line-clamp-1 text-[13px] font-bold leading-tight tracking-tight text-white [font-family:var(--font-nunito),sans-serif]">
                 {card.value}
               </p>
               {card.delta ? (
                 <p
-                  className="mb-0.5 text-[10px] font-semibold [font-family:var(--font-montserrat),sans-serif]"
+                  className="mb-0.5 shrink-0 text-[9px] font-semibold [font-family:var(--font-montserrat),sans-serif]"
                   style={{ color: card.deltaNeutral ? "#71717a" : card.deltaGold ? "#d8c071" : "#b66a6a" }}
                 >
                   {card.delta}
@@ -1387,7 +1387,7 @@ function buildScopedInvestDataset(
 
 // ── WS dataset from portfolio_f10_equity.json (monthly equity curve) ─────
 function buildWsDatasetFromEquityFile(
-  file: import("@/lib/capitalife-data").WsPortfolioEquityFile | null,
+  file: WsPortfolioEquityFile | null,
   benchmarkSeries: AnalyticsSeriesPoint[],
 ): AnalyticsDataset {
   const empty: AnalyticsDataset = {
@@ -1880,6 +1880,86 @@ function WsLiveControlPanel({
   );
 }
 
+type UploadSlot = { key: string; label: string; hint: string };
+
+function DataUploadBar({ slots, onUpload }: { slots: UploadSlot[]; onUpload: (key: string, data: unknown) => void }) {
+  const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const [status, setStatus] = useState<Record<string, boolean>>(() => {
+    const init: Record<string, boolean> = {};
+    for (const slot of slots) {
+      try { init[slot.key] = !!localStorage.getItem(slot.key); } catch { init[slot.key] = false; }
+    }
+    return init;
+  });
+
+  const handleFile = useCallback((key: string, file: File) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const data = JSON.parse(e.target?.result as string);
+        localStorage.setItem(key, JSON.stringify(data));
+        setStatus(prev => ({ ...prev, [key]: true }));
+        onUpload(key, data);
+      } catch { /* ignore bad JSON */ }
+    };
+    reader.readAsText(file);
+  }, [onUpload]);
+
+  const handleClear = useCallback((key: string) => {
+    localStorage.removeItem(key);
+    setStatus(prev => ({ ...prev, [key]: false }));
+    onUpload(key, null);
+  }, [onUpload]);
+
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <span className="text-[8px] uppercase tracking-[0.1em] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">Cache</span>
+      {slots.map(slot => (
+        <div key={slot.key} className="flex items-center gap-0.5">
+          <button
+            type="button"
+            title={slot.hint}
+            onClick={() => fileRefs.current[slot.key]?.click()}
+            className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] transition-colors [font-family:var(--font-montserrat),sans-serif] ${
+              status[slot.key]
+                ? "border-emerald-500/30 bg-emerald-950/20 text-emerald-400"
+                : "border-white/[0.06] text-zinc-600 hover:border-white/[0.12] hover:text-zinc-400"
+            }`}
+          >
+            <span className={`inline-block h-1.5 w-1.5 rounded-full ${status[slot.key] ? "bg-emerald-500" : "bg-zinc-700"}`} />
+            {slot.label}
+          </button>
+          {status[slot.key] && (
+            <button
+              type="button"
+              title="Cache leeren"
+              onClick={() => handleClear(slot.key)}
+              className="text-[9px] text-zinc-700 hover:text-zinc-500 [font-family:var(--font-montserrat),sans-serif]"
+            >✕</button>
+          )}
+          <input
+            ref={el => { fileRefs.current[slot.key] = el; }}
+            type="file"
+            accept=".json"
+            className="hidden"
+            onChange={e => {
+              const file = e.target.files?.[0];
+              if (file) handleFile(slot.key, file);
+              e.target.value = "";
+            }}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const UPLOAD_SLOTS: UploadSlot[] = [
+  { key: "cap:an:ci", label: "CI Data", hint: "JSON: { backtest: Record<symbol,Record<date,return>>, live: Record<symbol,Record<date,return>>, livePhaseBStart?: string }" },
+  { key: "cap:an:ws-equity", label: "WS BT Equity", hint: "portfolio_f10_equity.json — volle Datei inkl. meta, isOosSplit, equityCurve" },
+  { key: "cap:an:ws-live", label: "WS Live Curve", hint: "JSON: [{date: string, value: number}] — live account equity series" },
+];
+
 export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio: FSPortfolioSnapshot; capalifeData: CapalifeData }) {
   const router = useRouter();
   const [tab, setTab] = useState<AnalyticsTab>("whiteSwan");
@@ -1903,6 +1983,12 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
   });
   const [combinedWsWeight, setCombinedWsWeight] = useState(50);
 
+  // localStorage cache state for uploaded data files
+  type CiCache = { backtest: Record<string, Record<string, number>> | null; live: Record<string, Record<string, number>> | null; livePhaseBStart: string | null };
+  const [ciCache, setCiCache] = useState<CiCache | null>(null);
+  const [wsEquityCache, setWsEquityCache] = useState<WsPortfolioEquityFile | null>(null);
+  const [wsLiveSeriesCache, setWsLiveSeriesCache] = useState<AnalyticsSeriesPoint[] | null>(null);
+
   useEffect(() => {
     try { localStorage.setItem("ws-weights", JSON.stringify(wsWeights)); } catch { /* ignore */ }
   }, [wsWeights]);
@@ -1910,22 +1996,65 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
     try { localStorage.setItem("ws-risk-multiplier", String(wsRiskMultiplier)); } catch { /* ignore */ }
   }, [wsRiskMultiplier]);
 
-  const baseDataset = useMemo(() => getAnalyticsDataset(tab, mode, fsportfolio, capalifeData), [tab, mode, fsportfolio, capalifeData]);
-  const ciBaseForCombined = useMemo(() => tab === "combined" ? getAnalyticsDataset("invest", "backtest", fsportfolio, capalifeData) : null, [tab, fsportfolio, capalifeData]);
+  // Load cached uploads from localStorage on mount
+  useEffect(() => {
+    try {
+      const ci = localStorage.getItem("cap:an:ci");
+      if (ci) setCiCache(JSON.parse(ci) as CiCache);
+      const wsEq = localStorage.getItem("cap:an:ws-equity");
+      if (wsEq) setWsEquityCache(JSON.parse(wsEq) as WsPortfolioEquityFile);
+      const wsLive = localStorage.getItem("cap:an:ws-live");
+      if (wsLive) setWsLiveSeriesCache(JSON.parse(wsLive) as AnalyticsSeriesPoint[]);
+    } catch { /* ignore */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleCacheUpload = useCallback((key: string, data: unknown) => {
+    if (key === "cap:an:ci") setCiCache((data as CiCache) ?? null);
+    else if (key === "cap:an:ws-equity") setWsEquityCache((data as WsPortfolioEquityFile) ?? null);
+    else if (key === "cap:an:ws-live") setWsLiveSeriesCache((data as AnalyticsSeriesPoint[]) ?? null);
+  }, []);
+
+  const mergedFsportfolio = useMemo<FSPortfolioSnapshot>(() => {
+    if (!ciCache) return fsportfolio;
+    return {
+      ...fsportfolio,
+      backtest: ciCache.backtest
+        ? { ...fsportfolio.backtest, backtestAssetDailyReturns: ciCache.backtest }
+        : fsportfolio.backtest,
+      live: ciCache.live
+        ? { ...fsportfolio.live, forwardAssetDailyReturns: ciCache.live, ...(ciCache.livePhaseBStart ? { forwardPhaseBStart: ciCache.livePhaseBStart } : {}) }
+        : fsportfolio.live,
+    };
+  }, [fsportfolio, ciCache]);
+
+  const mergedCapalifeData = useMemo<CapalifeData>(() => {
+    if (!wsEquityCache) return capalifeData;
+    return { ...capalifeData, wsPortfolioEquity: wsEquityCache };
+  }, [capalifeData, wsEquityCache]);
+
+  const baseDataset = useMemo(() => getAnalyticsDataset(tab, mode, mergedFsportfolio, mergedCapalifeData), [tab, mode, mergedFsportfolio, mergedCapalifeData]);
+  const ciBaseForCombined = useMemo(() => tab === "combined" ? getAnalyticsDataset("invest", "backtest", mergedFsportfolio, mergedCapalifeData) : null, [tab, mergedFsportfolio, mergedCapalifeData]);
   const dataset = useMemo(() => {
+    let computed: ReturnType<typeof getAnalyticsDataset>;
     if (tab === "invest") {
-      return buildScopedInvestDataset(fsportfolio, mode, investWeights, investEnabled, startFilter, baseDataset);
+      computed = buildScopedInvestDataset(mergedFsportfolio, mode, investWeights, investEnabled, startFilter, baseDataset);
+    } else if (tab === "whiteSwan" && mode === "backtest") {
+      computed = buildScopedWsDataset(baseDataset, wsWeights, wsEnabled, wsRiskMultiplier);
+    } else if (tab === "combined" && ciBaseForCombined) {
+      const ciScoped = buildScopedInvestDataset(mergedFsportfolio, "backtest", investWeights, investEnabled, startFilter, ciBaseForCombined);
+      const wsDatasetForCombined = buildWsDatasetFromEquityFile(mergedCapalifeData.wsPortfolioEquity, ciScoped.benchmarkSeries);
+      computed = buildCombinedDataset(wsDatasetForCombined, ciScoped, combinedWsWeight / 100);
+    } else {
+      computed = baseDataset;
     }
-    if (tab === "whiteSwan" && mode === "backtest") {
-      return buildScopedWsDataset(baseDataset, wsWeights, wsEnabled, wsRiskMultiplier);
+    // Override WS live equity with user-uploaded live curve if available
+    if (tab === "whiteSwan" && mode === "live" && wsLiveSeriesCache?.length) {
+      const liveDrawdown = computeDrawdown(wsLiveSeriesCache);
+      return { ...computed, performanceSeries: wsLiveSeriesCache, drawdownSeries: liveDrawdown };
     }
-    if (tab === "combined" && ciBaseForCombined) {
-      const ciScoped = buildScopedInvestDataset(fsportfolio, "backtest", investWeights, investEnabled, startFilter, ciBaseForCombined);
-      const wsDatasetForCombined = buildWsDatasetFromEquityFile(capalifeData.wsPortfolioEquity, ciScoped.benchmarkSeries);
-      return buildCombinedDataset(wsDatasetForCombined, ciScoped, combinedWsWeight / 100);
-    }
-    return baseDataset;
-  }, [baseDataset, ciBaseForCombined, tab, mode, fsportfolio, investWeights, investEnabled, startFilter, wsWeights, wsEnabled, wsRiskMultiplier, combinedWsWeight, capalifeData.wsPortfolioEquity]);
+    return computed;
+  }, [baseDataset, ciBaseForCombined, tab, mode, mergedFsportfolio, mergedCapalifeData, investWeights, investEnabled, startFilter, wsWeights, wsEnabled, wsRiskMultiplier, combinedWsWeight, wsLiveSeriesCache]);
   const [activeGroups, setActiveGroups] = useState<string[]>(dataset.groups.map((group) => group.id));
   const refreshAnalytics = useEffectEvent(() => {
     if (tab === "invest") router.refresh();
@@ -1963,11 +2092,14 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
       });
 
   return (
-    <div className="flex flex-1 min-h-0 flex-col gap-4 overflow-hidden">
-      <TopTabs tab={tab} mode={mode} onTabChange={setTab} onModeChange={setMode} />
+    <div className="flex flex-1 min-h-0 flex-col gap-2 overflow-hidden">
+      <div className="flex items-center justify-between gap-4">
+        <TopTabs tab={tab} mode={mode} onTabChange={setTab} onModeChange={setMode} />
+        <DataUploadBar slots={UPLOAD_SLOTS} onUpload={handleCacheUpload} />
+      </div>
 
       <div className="flex-1 min-h-0 overflow-y-auto xl:overflow-hidden pr-1">
-        <div className="grid min-h-full grid-cols-12 gap-4 xl:h-full xl:grid-rows-[minmax(0,5fr)_minmax(0,3fr)_minmax(0,3fr)]">
+        <div className="grid min-h-full grid-cols-12 gap-3 xl:h-full xl:grid-rows-[minmax(0,5fr)_minmax(0,3fr)_minmax(0,3fr)]">
           <div className="col-span-12 xl:col-span-8">
             <PerformanceCard
               dataset={dataset}
@@ -1983,7 +2115,7 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
           </div>
 
           <div className="col-span-12 xl:col-span-4">
-            <KpiGrid cards={buildKpiCards(dataset, lineMode, dataset.benchmarkSeries, capalifeData)} />
+            <KpiGrid cards={buildKpiCards(dataset, lineMode, dataset.benchmarkSeries, mergedCapalifeData)} />
           </div>
 
           <div className="col-span-12 xl:col-span-8">
