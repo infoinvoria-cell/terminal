@@ -1,11 +1,18 @@
 // Runtime-safe loader for capitalife performance JSONs.
 //
-// git-tracked JSONs live under src/data/capitalife/ and are bundled into the
-// Vercel Lambda via outputFileTracingIncludes in next.config.ts. The loader
-// uses Node.js fs/path (server-only); client bundles only import types from
-// this module, so fs is never evaluated in the browser.
+// Git-tracked JSONs use static ES imports so Turbopack/webpack bundles them at
+// build time — require(variable) is NOT statically analyzable and fails on Vercel.
+// Gitignored files (account2, white-swan-combined-evidence) use tryRequireJson
+// with a try/catch fallback since they may be absent on Vercel.
 //
-// Falls back to a structurally-valid empty skeleton when files are absent.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+import _performanceMonthly from "../data/capitalife/performance-monthly.json";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+import _whiteSwanAnnualReturns from "../data/capitalife/white-swan-annual-returns.json";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+import _analyticsGenerated from "../data/capitalife/analytics-generated.json";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+import _fsportfolioConfigJson from "../data/capitalife/fsportfolio-live-core.config.json";
 
 export type MonthlyReturnRow = {
   month: string;
@@ -347,9 +354,7 @@ function tryRequireJson<T>(relPath: string): T | null {
   }
 }
 
-export const performanceMonthly: PerformanceMonthly =
-  tryRequireJson<PerformanceMonthly>("../data/capitalife/performance-monthly.json") ??
-  FALLBACK_PERFORMANCE_MONTHLY;
+export const performanceMonthly: PerformanceMonthly = _performanceMonthly as PerformanceMonthly;
 
 export const account2Trades: Account2Trades =
   tryRequireJson<Account2Trades>("../data/capitalife/account2-myfxbook-visible-trades.json") ??
@@ -359,17 +364,11 @@ export const whiteSwanCombinedEvidence: WhiteSwanCombinedEvidence =
   tryRequireJson<WhiteSwanCombinedEvidence>("../data/capitalife/white-swan-combined-evidence.json") ??
   FALLBACK_COMBINED_EVIDENCE;
 
-export const whiteSwanAnnualReturns: WhiteSwanAnnualReturns =
-  tryRequireJson<WhiteSwanAnnualReturns>("../data/capitalife/white-swan-annual-returns.json") ??
-  FALLBACK_ANNUAL_RETURNS;
+export const whiteSwanAnnualReturns: WhiteSwanAnnualReturns = _whiteSwanAnnualReturns as WhiteSwanAnnualReturns;
 
-export const analyticsGenerated: AnalyticsGenerated =
-  tryRequireJson<AnalyticsGenerated>("../data/capitalife/analytics-generated.json") ??
-  FALLBACK_ANALYTICS_GENERATED;
+export const analyticsGenerated: AnalyticsGenerated = _analyticsGenerated as AnalyticsGenerated;
 
-export const fsportfolioConfigJson: FSPortfolioConfigJson =
-  tryRequireJson<FSPortfolioConfigJson>("../data/capitalife/fsportfolio-live-core.config.json") ??
-  FALLBACK_FSPORTFOLIO_CONFIG;
+export const fsportfolioConfigJson: FSPortfolioConfigJson = _fsportfolioConfigJson as FSPortfolioConfigJson;
 
 function loadPublicJson<T>(relativePath: string): T | null {
   if (typeof window !== "undefined") return null;
