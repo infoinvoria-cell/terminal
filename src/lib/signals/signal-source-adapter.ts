@@ -910,6 +910,7 @@ async function loadCandlesForSource(source: SignalSource): Promise<MonitoringCan
       .select("date,open,high,low,close")
       .eq("asset", source.symbol)
       .eq("timeframe", "D")
+      .gt("close", 0)
       .order("date", { ascending: false })
       .limit(5000);
     if (!data?.length) return [];
@@ -925,6 +926,7 @@ async function loadCandlesForSource(source: SignalSource): Promise<MonitoringCan
       .filter(
         (bar) =>
           bar.time &&
+          bar.close > 0 &&
           [bar.open, bar.high, bar.low, bar.close].every(Number.isFinite),
       );
   } catch {
