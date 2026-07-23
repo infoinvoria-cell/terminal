@@ -43,15 +43,30 @@ export async function GET() {
 
   // Supplemental assets not in universe JSON (Futures FX + comparison symbols)
   const SUPPLEMENTAL: UniverseAsset[] = [
+    // FX Futures (CME)
     { id: "FX_6E1_6E1!", tab: "FX", name: "6E1!", symbol: "6E1!", short: "6E1", source: "CME:6E1!", timeframe: "D" },
     { id: "FX_6B1_6B1!", tab: "FX", name: "6B1!", symbol: "6B1!", short: "6B1", source: "CME:6B1!", timeframe: "D" },
     { id: "FX_6J1_6J1!", tab: "FX", name: "6J1!", symbol: "6J1!", short: "6J1", source: "CME:6J1!", timeframe: "D" },
     { id: "FX_6A1_6A1!", tab: "FX", name: "6A1!", symbol: "6A1!", short: "6A1", source: "CME:6A1!", timeframe: "D" },
+    { id: "FX_6S1_6S1!", tab: "FX", name: "6S1!", symbol: "6S1!", short: "6S1", source: "CME:6S1!", timeframe: "D" },
+    { id: "FX_6C1_6C1!", tab: "FX", name: "6C1!", symbol: "6C1!", short: "6C1", source: "CME:6C1!", timeframe: "D" },
+    { id: "FX_6N1_6N1!", tab: "FX", name: "6N1!", symbol: "6N1!", short: "6N1", source: "CME:6N1!", timeframe: "D" },
+    // US Treasury Futures (Staatsanleihen)
+    { id: "ANL_ZT1_ZT1!", tab: "Anleihen", name: "ZT1!", symbol: "ZT1!", short: "ZT1", source: "CBOT:ZT1!", timeframe: "D" },
+    { id: "ANL_ZF1_ZF1!", tab: "Anleihen", name: "ZF1!", symbol: "ZF1!", short: "ZF1", source: "CBOT:ZF1!", timeframe: "D" },
+    { id: "ANL_ZN1_ZN1!", tab: "Anleihen", name: "ZN1!", symbol: "ZN1!", short: "ZN1", source: "CBOT:ZN1!", timeframe: "D" },
+    { id: "ANL_ZB1_ZB1!", tab: "Anleihen", name: "ZB1!", symbol: "ZB1!", short: "ZB1", source: "CBOT:ZB1!", timeframe: "D" },
+    // Agrar additional (Soft Commodities & Livestock)
+    { id: "AGR_LH1_LH1!", tab: "Agrar", name: "LH1!", symbol: "LH1!", short: "LH1", source: "CME:LH1!", timeframe: "D" },
+    { id: "AGR_LE1_LE1!", tab: "Agrar", name: "LE1!", symbol: "LE1!", short: "LE1", source: "CME:LE1!", timeframe: "D" },
+    // Vergleich / Benchmark ETFs
     { id: "VGL_GLD_GLD", tab: "Vergleich", name: "GLD", symbol: "GLD", short: "GLD", source: "AMEX:GLD", timeframe: "D" },
     { id: "VGL_SPY_SPY", tab: "Vergleich", name: "SPY", symbol: "SPY", short: "SPY", source: "AMEX:SPY", timeframe: "D" },
     { id: "VGL_QQQ_QQQ", tab: "Vergleich", name: "QQQ", symbol: "QQQ", short: "QQQ", source: "NASDAQ:QQQ", timeframe: "D" },
     { id: "VGL_TLT_TLT", tab: "Vergleich", name: "TLT", symbol: "TLT", short: "TLT", source: "NASDAQ:TLT", timeframe: "D" },
+    { id: "VGL_IEF_IEF", tab: "Vergleich", name: "IEF", symbol: "IEF", short: "IEF", source: "NASDAQ:IEF", timeframe: "D" },
     { id: "VGL_DXY_DXY", tab: "Vergleich", name: "DXY", symbol: "DXY", short: "DXY", source: "TVC:DXY", timeframe: "D" },
+    { id: "VGL_VIX_VIX", tab: "Vergleich", name: "VIX", symbol: "VIX", short: "VIX", source: "TVC:VIX", timeframe: "D" },
   ];
   const existingSymbols = new Set(assets.map((a) => a.symbol));
   for (const s of SUPPLEMENTAL) {
