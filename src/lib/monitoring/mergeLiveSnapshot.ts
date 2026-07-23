@@ -104,7 +104,8 @@ export function mergeLiveSnapshot(input: {
   const high = toFinite(snap.high);
   const low = toFinite(snap.low);
   const close = toFinite(snap.close);
-  if (!snapDay || open == null || high == null || low == null || close == null || high < low) {
+  if (!snapDay || open == null || high == null || low == null || close == null || high < low
+    || close <= 0 || open <= 0 || high <= 0 || low <= 0) {
     return {
       bars: base,
       mergeMode,
