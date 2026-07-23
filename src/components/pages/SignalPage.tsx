@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import MonitoringChart from "@/components/monitoring/MonitoringChart";
 import StrategyTesterDrawdownChart from "@/components/monitoring/StrategyTesterDrawdownChart";
@@ -102,25 +102,72 @@ function AssetIcon({ card, size }: { card: SignalCardModel; size: number }) {
     style={{ objectFit: "contain", borderRadius: 4, flexShrink: 0, border: "1px solid rgba(255,255,255,0.08)" }} />;
 }
 
-// ── Direction badge ────────────────────────────────────────────────────────────
+// ── Card state helpers ────────────────────────────────────────────────────────
 
-function DirBadge({ dir }: { dir: string }) {
-  if (dir !== "LONG" && dir !== "SHORT") return null;
-  const color = dir === "LONG" ? "#22c55e" : "#ef4444";
-  return (
-    <span style={{
-      display: "inline-flex", alignItems: "center", gap: 3,
-      fontSize: 9, fontWeight: 800, letterSpacing: "0.08em",
-      color, background: `${color}18`,
-      padding: "2px 6px", borderRadius: 3,
-    }}>
-      <span style={{ fontSize: 7 }}>{dir === "LONG" ? "▲" : "▼"}</span>
-      {dir}
-    </span>
-  );
+type CardState = "open" | "closed" | "pending_valid" | "pending_invalid";
+
+function getCardState(card: SignalCardModel): CardState {
+  if (card.status === "OPEN") return "open";
+  if (card.status === "CLOSED") return "closed";
+  const days = nextLabelDaysAhead(card.nextSignalLabel);
+  if (days !== null && days >= 0 && days <= 1) return "pending_valid";
+  return "pending_invalid";
 }
 
-// ── Signal card ────────────────────────────────────────────────────────────────
+function parseTargetDate(label: string | undefined): Date | null {
+  if (!label) return null;
+  const m = label.match(/(\d{1,2})\.(\d{1,2})\./);
+  if (!m) return null;
+  const day = parseInt(m[1]!, 10);
+  const month = parseInt(m[2]!, 10) - 1;
+  const now = new Date();
+  const t = new Date(now.getFullYear(), month, day, 18, 0, 0);
+  if (t.getTime() < now.getTime() - 86_400_000) t.setFullYear(now.getFullYear() + 1);
+  return t;
+}
+
+function formatSignalDate(iso: string | undefined): string {
+  if (!iso) return "";
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return iso;
+  const today = new Date();
+  const dateStr = `${parseInt(m[3]!, 10)}.${parseInt(m[2]!, 10)}.`;
+  const isToday = today.toISOString().startsWith(iso);
+  return isToday ? `Heute ${dateStr}` : dateStr;
+}
+
+function formatTpSl(v: number | undefined): string | null {
+  if (v == null) return null;
+  const abs = Math.abs(v);
+  // Small numbers treated as % (e.g. 0.5 → +0.5%)
+  const pct = abs < 50 ? v : null;
+  if (pct !== null) return `${pct >= 0 ? "+" : ""}${pct.toFixed(2)}%`;
+  return null; // absolute prices not shown as TP/SL %
+}
+
+// ── Live countdown ────────────────────────────────────────────────────────────
+
+function useCountdown(target: Date | null): string {
+  const [display, setDisplay] = useState("");
+  const rafRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  useEffect(() => {
+    if (!target) { setDisplay(""); return; }
+    const tick = () => {
+      const diff = target.getTime() - Date.now();
+      if (diff <= 0) { setDisplay("0:00 min"); return; }
+      const h = Math.floor(diff / 3_600_000);
+      const min = Math.floor((diff % 3_600_000) / 60_000);
+      const sec = Math.floor((diff % 60_000) / 1_000);
+      setDisplay(h > 0 ? `${h}h ${min}min` : `${min}:${String(sec).padStart(2, "0")} min`);
+    };
+    tick();
+    rafRef.current = setInterval(tick, 1_000);
+    return () => { if (rafRef.current) clearInterval(rafRef.current); };
+  }, [target]);
+  return display;
+}
+
+// ── Signal card ───────────────────────────────────────────────────────────────
 
 function SignalCard({
   card,
@@ -131,85 +178,136 @@ function SignalCard({
   active: boolean;
   onSelect: (c: SignalCardModel) => void;
 }) {
-  const days = nextLabelDaysAhead(card.nextSignalLabel);
-  const isOpen = (card.direction === "LONG" || card.direction === "SHORT") && card.signalDate != null;
-  const pct = card.changePct ?? 0;
-  const pctColor = pct >= 0 ? "#22c55e" : "#ef4444";
+  const state = getCardState(card);
+  const target = useMemo(() => parseTargetDate(card.nextSignalLabel), [card.nextSignalLabel]);
+  const countdown = useCountdown(state === "pending_valid" || state === "pending_invalid" ? target : null);
 
+  const pct = card.changePct ?? 0;
+  const isLong = card.direction === "LONG";
+  const isShort = card.direction === "SHORT";
+  const dirColor = isLong ? "#22c55e" : isShort ? "#ef4444" : "rgba(255,255,255,0.35)";
+
+  // ── Top-right state chip ──
   let topRight: React.ReactNode = null;
-  if (isOpen && card.changePct != null) {
+  if (state === "open") {
+    const color = pct >= 0 ? "#22c55e" : "#ef4444";
     topRight = (
-      <span style={{ fontSize: 10, fontWeight: 700, color: pctColor }}>
+      <span style={{ fontSize: 13, fontWeight: 700, color, fontVariantNumeric: "tabular-nums", letterSpacing: "-0.01em" }}>
         {pct >= 0 ? "+" : ""}{pct.toFixed(2)}%
       </span>
     );
-  } else if (days === 0) {
-    topRight = <span style={{ fontSize: 9, fontWeight: 800, color: "#22c55e", letterSpacing: "0.04em" }}>HEUTE ✓</span>;
-  } else if (days === 1) {
-    topRight = <span style={{ fontSize: 9, fontWeight: 800, color: "#f59e0b", letterSpacing: "0.04em" }}>MORGEN ✓</span>;
-  }
-
-  let dateNode: React.ReactNode = null;
-  if (isOpen && card.signalDate) {
-    dateNode = <span style={{ fontSize: 8, color: "rgba(255,255,255,0.28)", flexShrink: 0 }}>{card.signalDate} ✓</span>;
-  } else if (card.nextSignalLabel) {
-    const valid = days != null && days >= 0 && days <= 1;
-    dateNode = (
-      <span style={{ fontSize: 8, flexShrink: 0, color: valid ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.2)" }}>
-        {card.nextSignalLabel} {valid ? "✓" : "·"}
+  } else if (state === "closed") {
+    const isProfit = pct >= 0;
+    const label = isProfit ? `TP +${Math.abs(pct).toFixed(1)}%` : `SL ${pct.toFixed(2)}%`;
+    topRight = (
+      <span style={{ fontSize: 12, fontWeight: 700, color: isProfit ? "#22c55e" : "#ef4444" }}>{label}</span>
+    );
+  } else {
+    const isValid = state === "pending_valid";
+    const timerColor = isValid ? "#d8bc67" : "rgba(255,255,255,0.38)";
+    topRight = (
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: timerColor, fontVariantNumeric: "tabular-nums" }}>
+          {countdown || card.nextSignalLabel || "—"}
+        </span>
+        {isValid && (
+          <span style={{
+            display: "inline-flex", alignItems: "center", justifyContent: "center",
+            width: 16, height: 16, borderRadius: "50%",
+            border: "1.5px solid #d8bc67", color: "#d8bc67", fontSize: 9, fontWeight: 800,
+          }}>✓</span>
+        )}
       </span>
     );
   }
+
+  // ── Date line ──
+  let dateDisplay = "";
+  if (card.signalDate) {
+    dateDisplay = formatSignalDate(card.signalDate);
+  } else if (card.nextSignalLabel) {
+    dateDisplay = card.nextSignalLabel;
+  }
+
+  // ── TP/SL ──
+  const tpStr = formatTpSl(card.tp);
+  const slStr = formatTpSl(card.sl);
+
+  // ── Active background ──
+  const bg = active
+    ? "radial-gradient(ellipse 80% 80% at 110% 120%, rgba(216,188,103,0.13) 0%, transparent 60%), linear-gradient(160deg,#181b22 0%,#13151b 100%)"
+    : "#0f1014";
+  const border = active ? "1px solid rgba(216,188,103,0.28)" : "1px solid rgba(255,255,255,0.07)";
 
   return (
     <div
       onClick={() => onSelect(card)}
       style={{
-        background: active ? "#16181d" : "#0f1014",
-        border: `1px solid ${active ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.07)"}`,
-        borderRadius: 10,
-        padding: "10px 10px 9px",
-        display: "flex", flexDirection: "column", gap: 7,
+        background: bg,
+        border,
+        borderRadius: 12,
+        padding: "11px 12px 10px",
+        display: "flex", flexDirection: "column", gap: 6,
         cursor: "pointer",
         position: "relative",
-        transition: "border-color 150ms, background 150ms",
-        boxShadow: active ? "0 0 0 1px rgba(255,255,255,0.06)" : "none",
+        transition: "border-color 150ms, background 200ms",
       }}
     >
-      {/* Row 1: icon + symbol + top-right */}
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
-        <AssetIcon card={card} size={26} />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4 }}>
-            <span style={{ fontSize: 12, fontWeight: 800, color: "rgba(255,255,255,0.92)", letterSpacing: "0.02em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+      {/* Row 1: icon · symbol · assetName · top-right */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+        <AssetIcon card={card} size={28} />
+        <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 5, overflow: "hidden" }}>
+            <span style={{ fontSize: 13, fontWeight: 800, color: "#fff", letterSpacing: "0.01em", whiteSpace: "nowrap" }}>
               {card.displaySymbol}
             </span>
-            {topRight}
-          </div>
-          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.32)", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {card.assetName}
+            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {card.assetName}
+            </span>
           </div>
         </div>
+        <div style={{ flexShrink: 0 }}>{topRight}</div>
       </div>
 
-      {/* Row 2: strategy + date */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 4 }}>
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
+      {/* Row 2: strategy · date */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6, minWidth: 0 }}>
+        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.32)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
           {card.strategyName}
         </span>
-        {dateNode}
-      </div>
-
-      {/* Row 3: direction + entry */}
-      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        <DirBadge dir={card.direction} />
-        {card.price != null && (
-          <span style={{ fontSize: 8, color: "rgba(255,255,255,0.3)", fontVariantNumeric: "tabular-nums" }}>
-            @ {card.price >= 100 ? card.price.toFixed(2) : card.price.toFixed(4)}
+        {dateDisplay && (
+          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.28)", whiteSpace: "nowrap", flexShrink: 0 }}>
+            {dateDisplay}
           </span>
         )}
-        {card.tp != null && <span style={{ fontSize: 8, color: "#22c55e90" }}>TP {card.tp.toFixed(2)}</span>}
-        {card.sl != null && <span style={{ fontSize: 8, color: "#ef444490" }}>SL {card.sl.toFixed(2)}</span>}
+      </div>
+
+      {/* Row 3: TP / SL */}
+      {(tpStr ?? slStr) && (
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {tpStr && (
+            <span style={{ fontSize: 10, fontWeight: 700, color: "#22c55e" }}>TP: {tpStr}</span>
+          )}
+          {slStr && (
+            <span style={{ fontSize: 10, fontWeight: 700, color: "#ef4444" }}>SL: {slStr}</span>
+          )}
+        </div>
+      )}
+
+      {/* Row 4: direction · chart icon */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        {(isLong || isShort) ? (
+          <span style={{
+            display: "inline-flex", alignItems: "center", gap: 4,
+            fontSize: 11, fontWeight: 800, letterSpacing: "0.06em",
+            color: dirColor,
+          }}>
+            <span style={{ fontSize: 8 }}>{isLong ? "▲" : "▼"}</span>
+            {card.direction}
+          </span>
+        ) : (
+          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)" }}>{card.direction}</span>
+        )}
+        <span style={{ fontSize: 14, color: "rgba(255,255,255,0.2)", lineHeight: 1 }}>↗</span>
       </div>
     </div>
   );
