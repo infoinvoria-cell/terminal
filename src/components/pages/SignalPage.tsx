@@ -183,26 +183,27 @@ function SectionPanel({
 // ── KPI metric ─────────────────────────────────────────────────────────────────
 
 function Metric({ label, value, tone }: { label: string; value: string; tone?: "positive" | "negative" | "neutral" }) {
-  const valueColor = tone === "negative" ? "#d8bc67" : "#ffffff";
+  const valueColor = tone === "negative" ? "#a8a8a8" : "#ffffff";
   return (
     <div style={{
       flex: 1, minWidth: 0,
-      display: "flex", flexDirection: "column", justifyContent: "center", gap: 6,
-      background: "#111214",
-      border: "1px solid rgba(255,255,255,0.07)",
-      borderRadius: 10,
-      padding: "10px 12px",
+      display: "flex", flexDirection: "column", justifyContent: "space-between",
+      background: "linear-gradient(to bottom, #1c1d20, #141517)",
+      border: "1px solid rgba(255,255,255,0.06)",
+      borderRadius: 14,
+      padding: "10px 12px 12px",
       overflow: "hidden",
     }}>
       <div style={{
-        fontSize: 9, fontWeight: 700, textTransform: "uppercase",
-        letterSpacing: "0.10em", lineHeight: 1, whiteSpace: "nowrap",
-        color: "rgba(255,255,255,0.32)",
+        fontSize: 11, fontWeight: 500, lineHeight: 1.3,
+        color: "rgba(255,255,255,0.42)",
+        whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
       }}>
         {label}
       </div>
       <div style={{
-        fontSize: 17, fontWeight: 700, lineHeight: 1,
+        fontSize: 22, fontWeight: 700, lineHeight: 1,
+        letterSpacing: "-0.03em",
         color: valueColor,
         whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
       }}>
@@ -266,7 +267,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
     return hasRealDd ? dd : computeDrawdownFromEquity(perf.equityCurve ?? []);
   }, [perf]);
 
-  const watchlistWidth = showWatchlist ? (fullData ? 460 : 310) : 0;
+  const watchlistWidth = showWatchlist ? (fullData ? 400 : 240) : 0;
   const cols = showWatchlist
     ? `50% minmax(0,1fr) ${watchlistWidth}px`
     : "50% minmax(0,1fr)";

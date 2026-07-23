@@ -323,10 +323,10 @@ export default function LiveWatchlistPanel({
 
   const totalRows = grouped.reduce((s, g) => s + g.rows.length, 0);
 
-  // icon | symbol | price(fills) | signal — price right-aligned against signal
+  // auto symbol (content-width) keeps symbol+price tight; fixed price/signal
   const COL = fullData
-    ? "15px 52px 1fr 38px 28px 56px"
-    : "15px 52px 1fr 38px";
+    ? "15px auto 64px 30px 28px 56px"
+    : "15px auto 64px 30px";
 
   return (
     <div style={{

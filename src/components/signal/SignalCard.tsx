@@ -426,8 +426,8 @@ export function SignalCard({
       >
         <span
           style={{
-            fontSize: 16,
-            fontWeight: 800,
+            fontSize: 13,
+            fontWeight: 700,
             lineHeight: 1,
             letterSpacing: "0.01em",
             color: isLong ? "#22c55e" : "#ef4444",
