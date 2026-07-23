@@ -686,7 +686,7 @@ function buildKpiCards(
   }));
 }
 
-function buildOverviewRows(dataset: AnalyticsDataset): Array<[string, string]> {
+function buildOverviewRows(dataset: AnalyticsDataset, capalifeData: CapalifeData): Array<[string, string]> {
   if (dataset.tab === "invest" && dataset.mode === "live") {
     return [
       ["Strategy", "Core Invest v2.0"],
@@ -722,13 +722,17 @@ function buildOverviewRows(dataset: AnalyticsDataset): Array<[string, string]> {
   }
 
   if (dataset.mode === "live" && dataset.tab === "whiteSwan") {
+    const official = capalifeData.whiteSwanCombinedEvidence.official_kpis;
+    const period = dataset.period.start && dataset.period.end
+      ? `${dataset.period.start.slice(0, 7)} – ${dataset.period.end.slice(0, 7)}`
+      : "11.04.2024 – 01.07.2026";
     return [
       ["Portfolio", "White Swan"],
       ["Datenbasis", "Performance Report"],
-      ["Zeitraum", "11.04.2024 - 01.07.2026"],
-      ["Account 1", "+73.19%"],
-      ["Account 2", "+23.96%"],
-      ["Combined", "+97.2%"],
+      ["Zeitraum", period],
+      ["Account 1", formatPercent(official.account1_return_pct, 2)],
+      ["Account 2", formatPercent(official.account2_return_pct, 2)],
+      ["Combined", formatPercent(official.combined_return_pct, 1)],
       ["Audit", "statement-based, not independently audited"],
       ["AuM", "EUR0 / no live portfolio"],
     ];
@@ -743,9 +747,11 @@ function buildOverviewRows(dataset: AnalyticsDataset): Array<[string, string]> {
     const pMaxDD = parseMetricNumber(dataset.metrics.maxDrawdownPct);
     const pSharpe = parseMetricNumber(dataset.metrics.sharpe);
     const pCalmar = parseMetricNumber(dataset.metrics.calmar);
+    const isLive = dataset.mode === "live";
     return [
       ["Portfolio", "Combined · WS + Core Invest"],
-      ["White Swan", `${wsW}% (F+10%)`],
+      ["Modus", isLive ? "Live Tracking" : "Backtest"],
+      ["White Swan", `${wsW}% (${isLive ? "Monthly live" : "F+10%"})`],
       ["Core Invest", `${ciW}% (v2.0)`],
       ["__sep__", ""],
       ["CAGR", formatPercent(pCagr)],
@@ -754,8 +760,8 @@ function buildOverviewRows(dataset: AnalyticsDataset): Array<[string, string]> {
       ["Calmar", formatNumber(pCalmar, 1)],
       ["__sep__", ""],
       ["Zeitraum", dataset.period.start && dataset.period.end ? `${dataset.period.start.slice(0, 7)} – ${dataset.period.end.slice(0, 7)}` : "n/a"],
-      ["Benchmark", "SPY (gestrichelt)"],
-      ["Status", "Research Preview · not live"],
+      ["Benchmark", dataset.benchmarkSeries.length ? "SPY" : "n/a"],
+      ["Status", isLive ? "Live Research Preview" : "Backtest Research Preview"],
     ];
   }
 
@@ -1219,7 +1225,7 @@ function OverviewCard({ rows }: { rows: Array<[string, string]> }) {
   return (
     <Card>
       <CardHeader title="Overview" />
-      <div className="flex flex-1 flex-col justify-between gap-0.5 px-4 py-2">
+      <div className="flex flex-col gap-0.5 overflow-y-auto px-4 py-2">
         {items.map((item, idx) =>
           item.type === "sep" ? (
             <div key={`sep-${idx}`} className="border-t border-white/[0.06] my-0.5" />
@@ -2041,14 +2047,33 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
       computed = buildScopedInvestDataset(mergedFsportfolio, mode, investWeights, investEnabled, startFilter, baseDataset);
     } else if (tab === "whiteSwan" && mode === "backtest") {
       computed = buildScopedWsDataset(baseDataset, wsWeights, wsEnabled, wsRiskMultiplier);
-    } else if (tab === "combined" && ciBaseForCombined) {
+    } else if (tab === "combined" && mode === "backtest" && ciBaseForCombined) {
       const ciScoped = buildScopedInvestDataset(mergedFsportfolio, "backtest", investWeights, investEnabled, startFilter, ciBaseForCombined);
       const wsDatasetForCombined = buildWsDatasetFromEquityFile(mergedCapalifeData.wsPortfolioEquity, ciScoped.benchmarkSeries);
       computed = buildCombinedDataset(wsDatasetForCombined, ciScoped, combinedWsWeight / 100);
+    } else if (tab === "combined" && mode === "live") {
+      // Build combined live: blend WS live monthly series with CI live daily series
+      const wsLiveDs = getAnalyticsDataset("whiteSwan", "live", mergedFsportfolio, mergedCapalifeData);
+      const ciLiveBase = getAnalyticsDataset("invest", "live", mergedFsportfolio, mergedCapalifeData);
+      const ciLiveScoped = buildScopedInvestDataset(mergedFsportfolio, "live", investWeights, investEnabled, "Max", ciLiveBase);
+      const rawWsSeries = wsLiveSeriesCache?.length ? wsLiveSeriesCache : wsLiveDs.performanceSeries;
+      // Trim WS to CI live start so blend is fair (both start from 0 on the same date)
+      const ciStart = ciLiveScoped.performanceSeries[0]?.date;
+      const wsTrimmed = ciStart ? rawWsSeries.filter(p => p.date >= ciStart) : rawWsSeries;
+      const wsV0 = wsTrimmed[0]?.value ?? 0;
+      const wsBase = wsV0 > -100 ? 1 + wsV0 / 100 : 1;
+      const wsNormed: AnalyticsSeriesPoint[] = wsTrimmed.map(p => ({
+        ...p,
+        value: Number((((1 + p.value / 100) / wsBase - 1) * 100).toFixed(2)),
+      }));
+      const wsForBlend: AnalyticsDataset = { ...wsLiveDs, performanceSeries: wsNormed, drawdownSeries: computeDrawdown(wsNormed) };
+      const rawCombined = buildCombinedDataset(wsForBlend, ciLiveScoped, combinedWsWeight / 100);
+      // Use CI live benchmark (SPY) since WS live has none
+      computed = { ...rawCombined, mode: "live" as const, benchmarkSeries: ciLiveScoped.benchmarkSeries };
     } else {
       computed = baseDataset;
     }
-    // Override WS live equity with user-uploaded live curve if available
+    // Override WS live performance series with user-uploaded live curve
     if (tab === "whiteSwan" && mode === "live" && wsLiveSeriesCache?.length) {
       const liveDrawdown = computeDrawdown(wsLiveSeriesCache);
       return { ...computed, performanceSeries: wsLiveSeriesCache, drawdownSeries: liveDrawdown };
@@ -2123,7 +2148,7 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
           </div>
 
           <div className="col-span-12 xl:col-span-4">
-            <OverviewCard rows={buildOverviewRows(dataset)} />
+            <OverviewCard rows={buildOverviewRows(dataset, mergedCapalifeData)} />
           </div>
 
           <div className="col-span-12 md:col-span-4">
