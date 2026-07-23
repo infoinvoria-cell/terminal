@@ -14,6 +14,7 @@ import {
   type ParsedBalanceRow,
   type ParsedReportTrade,
 } from "@/lib/mt-report-parser";
+import { performanceMonthly } from "@/lib/capitalife-data";
 
 export type TradesPayload = {
   rows: TradeRow[];
@@ -53,7 +54,13 @@ const _fetchTradesData = cache(async (): Promise<TradesPayload> => {
     reportTrades.length > 0
       ? reportTradesToGainRows(reportTrades, balanceRows)
       : [];
-  const rows = selectPrimaryTrackRecordRows(legacyRows, reportRows);
+  let rows = selectPrimaryTrackRecordRows(legacyRows, reportRows);
+
+  // On Vercel there are no local CSV/HTML files — fall back to monthly returns
+  // from the statically bundled performance-monthly.json so the chart has data.
+  if (rows.length === 0) {
+    rows = buildRowsFromMonthlyJson();
+  }
 
   return {
     rows,
@@ -253,4 +260,20 @@ function monthKey(date: Date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   return `${y}-${m}`;
+}
+
+function buildRowsFromMonthlyJson(): TradeRow[] {
+  return performanceMonthly.monthly_returns
+    .map((entry) => {
+      const [yearStr, monthStr] = entry.month.split("-");
+      const year = Number(yearStr);
+      const month = Number(monthStr);
+      if (!year || !month) return null;
+      return {
+        date: new Date(year, month - 1, 28, 12, 0, 0),
+        gainPct: entry.return_pct,
+      } satisfies TradeRow;
+    })
+    .filter((r): r is TradeRow => r !== null)
+    .sort((a, b) => a.date.getTime() - b.date.getTime());
 }
