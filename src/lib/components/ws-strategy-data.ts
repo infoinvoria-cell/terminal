@@ -1,0 +1,353 @@
+/**
+ * White Swan v1.1 + Anomaly v1.2 — complete strategy registry
+ * Source: White_Swan_v1.1_Portfolio.md (Brain 2026-07-17) + ws_paper_trading_config_v1_2.json
+ */
+
+export type Pillar = "valuation" | "macro" | "trend" | "seasonal" | "anomaly" | "intraday";
+export type RowStatus = "active" | "archived" | "watch";
+
+export interface StrategyRow {
+  id: string;
+  ticker: string;
+  label: string;
+  group: string;
+  engine: string;
+  pillar: Pillar;
+  weight: number | null;       // portfolio weight %
+  sharpeOos: number | null;
+  cagr: string | null;         // formatted "+2.9%"
+  maxDd: string | null;        // formatted "−23.6%"
+  calmar: number | null;
+  pf: number | null;
+  trades: number | null;
+  wfOos: string | null;        // "7/8" or "82%"
+  status: RowStatus;
+  dataFile?: string;           // relative path under /data/ for equity JSON
+  isNotes?: string;            // IS-period note
+  exchange?: string;
+}
+
+// ── Valuation Pillar (40%, 10 × 4%) ────────────────────────────────────────
+const VALUATION: StrategyRow[] = [
+  {
+    id: "es1_val", ticker: "ES1!", label: "S&P 500", group: "Indizes",
+    engine: "Valuation", pillar: "valuation", weight: 4,
+    sharpeOos: 0.876, cagr: "+6.8%", maxDd: "−18.0%", calmar: 0.38, pf: 1.74, trades: 125, wfOos: "82%",
+    status: "active", exchange: "CME",
+  },
+  {
+    id: "nvda_val", ticker: "NVDA", label: "Nvidia", group: "Aktien",
+    engine: "Valuation", pillar: "valuation", weight: 4,
+    sharpeOos: 0.611, cagr: "+21.3%", maxDd: "−32.3%", calmar: 0.66, pf: 1.25, trades: 270, wfOos: "83%",
+    status: "active", exchange: "NASDAQ",
+  },
+  {
+    id: "zarusd_val", ticker: "ZARUSD", label: "ZAR/USD", group: "Forex",
+    engine: "Valuation", pillar: "valuation", weight: 4,
+    sharpeOos: 0.605, cagr: "+2.0%", maxDd: "−26.9%", calmar: 0.07, pf: 1.27, trades: 249, wfOos: "91%",
+    status: "active", exchange: "FX",
+  },
+  {
+    id: "gc1_val", ticker: "GC1!", label: "Gold", group: "Metalle",
+    engine: "Valuation", pillar: "valuation", weight: 4,
+    sharpeOos: 0.609, cagr: "+8.1%", maxDd: "−23.6%", calmar: 0.34, pf: 1.33, trades: 180, wfOos: "71%",
+    status: "active", exchange: "COMEX",
+  },
+  {
+    id: "ym1_val", ticker: "YM1!", label: "Dow Jones", group: "Indizes",
+    engine: "Valuation", pillar: "valuation", weight: 4,
+    sharpeOos: 0.545, cagr: "+7.4%", maxDd: "−35.8%", calmar: 0.21, pf: 1.39, trades: 140, wfOos: "93%",
+    status: "active", exchange: "CBOT",
+  },
+  {
+    id: "nq1_val", ticker: "NQ1!", label: "Nasdaq 100", group: "Indizes",
+    engine: "Valuation", pillar: "valuation", weight: 4,
+    sharpeOos: 0.411, cagr: "+5.0%", maxDd: "−13.5%", calmar: 0.37, pf: 1.16, trades: 328, wfOos: "100%",
+    status: "active", exchange: "CME",
+  },
+  {
+    id: "msft_val", ticker: "MSFT", label: "Microsoft", group: "Aktien",
+    engine: "Valuation", pillar: "valuation", weight: 4,
+    sharpeOos: 0.409, cagr: "+2.9%", maxDd: "−30.7%", calmar: 0.09, pf: 1.23, trades: 143, wfOos: "88%",
+    status: "active", exchange: "NASDAQ",
+  },
+  {
+    id: "brlusd_val", ticker: "BRLUSD", label: "BRL/USD", group: "Forex",
+    engine: "Valuation", pillar: "valuation", weight: 4,
+    sharpeOos: 0.295, cagr: "+2.4%", maxDd: "−28.6%", calmar: 0.08, pf: 1.20, trades: 124, wfOos: "57%",
+    status: "active", exchange: "FX",
+  },
+  {
+    id: "sekusd_val", ticker: "SEKUSD", label: "SEK/USD", group: "Forex",
+    engine: "Valuation", pillar: "valuation", weight: 4,
+    sharpeOos: 0.283, cagr: "+1.9%", maxDd: "−20.6%", calmar: 0.09, pf: 1.16, trades: 170, wfOos: "75%",
+    status: "active", exchange: "FX",
+  },
+  {
+    id: "ukx_val", ticker: "UKX!", label: "FTSE 100", group: "Indizes",
+    engine: "Valuation", pillar: "valuation", weight: 4,
+    // OOS 2019-26: −0.101 Net / −0.064 Gross (param-freeze miss, 41 trades)
+    // IS: Gross Sharpe +0.95, WF 28/29 folds positive (96.6%) — strongest WF consistency in portfolio
+    sharpeOos: -0.101, cagr: "−0.7%", maxDd: "−17.7%", calmar: null, pf: null, trades: 41, wfOos: "28/29 IS",
+    status: "watch",
+    isNotes: "IS Sharpe +0.95 · WF 96.6% positiv (28/29) · OOS-Underperformance durch Param-Freeze 2019–2026",
+    exchange: "LSE",
+  },
+];
+
+// ── Valuation archived (no WS-v1.1 pass) ────────────────────────────────────
+const VALUATION_ARCHIVED: StrategyRow[] = [
+  { id: "si1_arch",  ticker: "SI1!",  label: "Silver",     group: "Metalle", engine: "—", pillar: "valuation", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "COMEX" },
+  { id: "hg1_arch",  ticker: "HG1!",  label: "Copper",     group: "Metalle", engine: "—", pillar: "valuation", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "COMEX" },
+  { id: "pl1_arch",  ticker: "PL1!",  label: "Platinum",   group: "Metalle", engine: "—", pillar: "valuation", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "NYMEX" },
+  { id: "pa1_arch",  ticker: "PA1!",  label: "Palladium",  group: "Metalle", engine: "—", pillar: "valuation", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "NYMEX" },
+  { id: "cl1_arch",  ticker: "CL1!",  label: "Crude Oil",  group: "Energie", engine: "—", pillar: "valuation", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "NYMEX" },
+  { id: "ng1_arch",  ticker: "NG1!",  label: "Nat. Gas",   group: "Energie", engine: "—", pillar: "valuation", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "NYMEX" },
+  { id: "rb1_arch",  ticker: "RB1!",  label: "Gasoline",   group: "Energie", engine: "—", pillar: "valuation", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "NYMEX" },
+  { id: "eurgbp_arch", ticker: "EURGBP", label: "EUR/GBP", group: "Forex",   engine: "—", pillar: "valuation", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "FX" },
+  { id: "gbpjpy_arch", ticker: "GBPJPY", label: "GBP/JPY", group: "Forex",   engine: "—", pillar: "valuation", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "FX" },
+  { id: "mxn_arch",  ticker: "MXNUSD", label: "MXN/USD",  group: "Forex",   engine: "—", pillar: "valuation", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "FX" },
+  { id: "nok_arch",  ticker: "NOKUSD", label: "NOK/USD",  group: "Forex",   engine: "—", pillar: "valuation", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "FX" },
+  { id: "clp_arch",  ticker: "CLPUSD", label: "CLP/USD",  group: "Forex",   engine: "—", pillar: "valuation", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "FX" },
+  { id: "aapl_arch", ticker: "AAPL",   label: "Apple",    group: "Aktien",  engine: "—", pillar: "valuation", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "NASDAQ" },
+  { id: "meta_arch", ticker: "META",   label: "Meta",     group: "Aktien",  engine: "—", pillar: "valuation", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "NASDAQ" },
+  { id: "amzn_arch", ticker: "AMZN",   label: "Amazon",   group: "Aktien",  engine: "—", pillar: "valuation", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "NASDAQ" },
+];
+
+// ── Macro Pillar (30%, 2 × 15%) ──────────────────────────────────────────────
+const MACRO: StrategyRow[] = [
+  {
+    id: "ct1_macro", ticker: "CT1!", label: "Cotton / Baumwolle", group: "Agrar",
+    engine: "MacroA Filter", pillar: "macro", weight: 15,
+    sharpeOos: 0.758, cagr: "+9.5%", maxDd: "−28.7%", calmar: 0.33, pf: 1.47, trades: 142, wfOos: "75%",
+    status: "active", exchange: "ICEUS",
+  },
+  {
+    id: "gc1_macro", ticker: "GC1!", label: "Gold", group: "Metalle",
+    engine: "MacroC", pillar: "macro", weight: 15,
+    sharpeOos: 0.466, cagr: "+5.6%", maxDd: "−25.5%", calmar: 0.22, pf: 1.29, trades: 136, wfOos: "100%",
+    status: "active", exchange: "COMEX",
+  },
+];
+
+// ── Trend Pillar (15%, 3 × 5%) ───────────────────────────────────────────────
+const TREND: StrategyRow[] = [
+  {
+    id: "googl_trend", ticker: "GOOGL", label: "Alphabet", group: "Aktien",
+    engine: "EMA 10/200", pillar: "trend", weight: 5,
+    sharpeOos: 0.657, cagr: "+16.9%", maxDd: "−36.1%", calmar: 0.47, pf: 1.45, trades: 121, wfOos: "77%",
+    status: "active", exchange: "NASDAQ",
+  },
+  {
+    id: "nq1_trend", ticker: "NQ1!", label: "Nasdaq 100", group: "Indizes",
+    engine: "combF<20 Long-Only", pillar: "trend", weight: 5,
+    sharpeOos: 0.436, cagr: "+8.3%", maxDd: "−35.9%", calmar: 0.23, pf: 1.35, trades: 96, wfOos: "94%",
+    status: "active", exchange: "CME",
+  },
+  {
+    id: "es1_trend", ticker: "ES1!", label: "S&P 500", group: "Indizes",
+    engine: "EMA 10/100", pillar: "trend", weight: 5,
+    sharpeOos: 0.312, cagr: "+4.8%", maxDd: "−34.1%", calmar: 0.14, pf: 1.22, trades: 128, wfOos: "65%",
+    status: "active", exchange: "CME",
+  },
+];
+
+// ── Seasonal Pillar (15%, 7 × 2.14%) ─────────────────────────────────────────
+const SEASONAL: StrategyRow[] = [
+  {
+    id: "fdax1_sea", ticker: "FDAX1!", label: "DAX Futures", group: "Indizes",
+    engine: "M11D15 Long", pillar: "seasonal", weight: 2.14,
+    sharpeOos: 0.173, cagr: "+2.7%", maxDd: "−2.4%", calmar: 1.13, pf: 5.69, trades: 7, wfOos: "70%",
+    status: "active", exchange: "EUREX",
+  },
+  {
+    id: "ct1_sea", ticker: "CT1!", label: "Cotton", group: "Agrar",
+    engine: "M01D03 Long", pillar: "seasonal", weight: 2.14,
+    sharpeOos: 0.139, cagr: "+2.4%", maxDd: "−1.9%", calmar: 1.26, pf: 13.96, trades: 8, wfOos: "75%",
+    status: "active", exchange: "ICEUS",
+  },
+  {
+    id: "oj1_sea", ticker: "OJ1!", label: "Orange Juice", group: "Agrar",
+    engine: "M06D28 Long", pillar: "seasonal", weight: 2.14,
+    sharpeOos: 0.123, cagr: "+1.2%", maxDd: "−2.1%", calmar: null, pf: null, trades: 8, wfOos: null,
+    status: "active", exchange: "ICEUS",
+  },
+  {
+    id: "sb1_sea_s", ticker: "SB1!", label: "Sugar (Short)", group: "Agrar",
+    engine: "M02D25 Short", pillar: "seasonal", weight: 2.14,
+    sharpeOos: 0.123, cagr: "+6.2%", maxDd: "−6.7%", calmar: 0.93, pf: 3.85, trades: 8, wfOos: "100%",
+    status: "active", exchange: "ICEUS",
+  },
+  {
+    id: "es1_sea", ticker: "ES1!", label: "S&P 500", group: "Indizes",
+    engine: "M11D15 Long", pillar: "seasonal", weight: 2.14,
+    sharpeOos: 0.065, cagr: "+1.2%", maxDd: "−6.6%", calmar: 0.18, pf: 2.38, trades: 7, wfOos: "75%",
+    status: "active", exchange: "CME",
+  },
+  {
+    id: "sb1_sea_l", ticker: "SB1!", label: "Sugar (Long)", group: "Agrar",
+    engine: "M09D24 Long", pillar: "seasonal", weight: 2.14,
+    sharpeOos: 0.093, cagr: "+3.8%", maxDd: "−4.2%", calmar: null, pf: null, trades: 7, wfOos: null,
+    status: "active", exchange: "ICEUS",
+  },
+  {
+    id: "zc1_sea", ticker: "ZC1!", label: "Corn", group: "Agrar",
+    engine: "M03D29 Long", pillar: "seasonal", weight: 2.14,
+    sharpeOos: 0.040, cagr: "+0.3%", maxDd: "−5.3%", calmar: 0.06, pf: 3.20, trades: 8, wfOos: "62%",
+    status: "active", exchange: "CBOT",
+  },
+];
+
+const SEASONAL_ARCHIVED: StrategyRow[] = [
+  { id: "zw1_arch", ticker: "ZW1!", label: "Wheat",    group: "Agrar", engine: "—", pillar: "seasonal", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "CBOT" },
+  { id: "zs1_arch", ticker: "ZS1!", label: "Soybeans", group: "Agrar", engine: "—", pillar: "seasonal", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "CBOT" },
+  { id: "cc1_arch", ticker: "CC1!", label: "Cocoa",    group: "Agrar", engine: "—", pillar: "seasonal", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "ICEUS" },
+  { id: "kc1_arch", ticker: "KC1!", label: "Coffee",   group: "Agrar", engine: "—", pillar: "seasonal", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "ICEUS" },
+];
+
+// ── Anomaly Pillar (WS v1.2 addition) ───────────────────────────────────────
+const ANOMALY: StrategyRow[] = [
+  {
+    id: "gc1_friday", ticker: "GC1!", label: "Gold", group: "Anomaly",
+    engine: "Friday Long", pillar: "anomaly", weight: null,
+    sharpeOos: 1.54, cagr: "+4.18%", maxDd: "−6.87%", calmar: null, pf: 2.28, trades: 377, wfOos: null,
+    status: "active", dataFile: "anomaly/gc1_friday_long.json", exchange: "COMEX",
+  },
+  {
+    id: "gld_thursday", ticker: "GLD", label: "Gold ETF", group: "Anomaly",
+    engine: "Thursday Long", pillar: "anomaly", weight: null,
+    sharpeOos: 0.506, cagr: "+3.38%", maxDd: "−7.29%", calmar: null, pf: 1.21, trades: 379, wfOos: null,
+    status: "active", dataFile: "anomaly/gld_thursday_long.json", exchange: "NYSE",
+  },
+  {
+    id: "ym1_tat", ticker: "YM1!", label: "Dow Jones — TAT", group: "Anomaly",
+    engine: "Turnaround Tuesday", pillar: "anomaly", weight: null,
+    sharpeOos: 0.348, cagr: "+1.24%", maxDd: "−6.64%", calmar: null, pf: 1.21, trades: 164, wfOos: null,
+    status: "active", dataFile: "anomaly/ym1_tat.json", exchange: "CBOT",
+  },
+];
+
+// ── Intraday MT (v3-F, frozen 2026-07-18) ───────────────────────────────────
+const INTRADAY: StrategyRow[] = [
+  {
+    id: "eurusd_30m", ticker: "EURUSD 30M", label: "EUR/USD · 6E", group: "Intraday",
+    engine: "SL 13pip · TP 3.0R · BE 1R · 08–12:30 UTC", pillar: "intraday", weight: 40,
+    sharpeOos: null, cagr: "+21.4%", maxDd: "−18.7%", calmar: 1.145, pf: 1.325, trades: 1358, wfOos: "7/8",
+    status: "active", exchange: "OANDA",
+  },
+  {
+    id: "dax_1h", ticker: "DAX 1H / MT", label: "DAX 1H", group: "Intraday",
+    engine: "SL 40pt · TP 2.5R · BE 1.5R · 07–12 UTC", pillar: "intraday", weight: 40,
+    sharpeOos: null, cagr: "+10.7%", maxDd: "−12.4%", calmar: 0.865, pf: 1.484, trades: 335, wfOos: "5/8",
+    status: "active", exchange: "OANDA",
+  },
+  {
+    id: "dax_2h", ticker: "DAX 2H", label: "DAX 2H", group: "Intraday",
+    engine: "SL ATR×0.8 · TP 3R · V4 Long-Only · 09–11 UTC", pillar: "intraday", weight: 15,
+    sharpeOos: null, cagr: "+5.4%", maxDd: "−19.9%", calmar: 0.270, pf: 1.478, trades: 81, wfOos: "5/8",
+    status: "active", exchange: "OANDA",
+  },
+  {
+    id: "gbpusd_30m", ticker: "GBPUSD 30M", label: "GBP/USD", group: "Intraday",
+    engine: "OOS Gate-Fail · IS 8/8 · 5% Restgew.", pillar: "intraday", weight: 5,
+    sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null,
+    status: "archived", exchange: "OANDA",
+  },
+];
+
+// ── Full registry (ordered for display) ─────────────────────────────────────
+export const WS_STRATEGIES: StrategyRow[] = [
+  ...VALUATION,
+  ...VALUATION_ARCHIVED,
+  ...MACRO,
+  ...TREND,
+  ...SEASONAL,
+  ...SEASONAL_ARCHIVED,
+  ...ANOMALY,
+  ...INTRADAY,
+];
+
+export const PILLAR_META: Record<Pillar, { label: string; weight: string; color: string; count: number }> = {
+  valuation: { label: "Valuation", weight: "40%", color: "#3d8bcd", count: 10 },
+  macro:     { label: "Macro",     weight: "30%", color: "#e8a020", count: 2 },
+  trend:     { label: "Trend",     weight: "15%", color: "#00c8a0", count: 3 },
+  seasonal:  { label: "Seasonal",  weight: "15%", color: "#a78bfa", count: 7 },
+  anomaly:   { label: "Anomaly",   weight: "v1.2", color: "#f472b6", count: 3 },
+  intraday:  { label: "Intraday",  weight: "v3-F", color: "#94a3b8", count: 3 },
+};
+
+// ── Core Invest (Research / Pre-Fund) ────────────────────────────────────────
+export type CIPillar = "etf_core" | "ci_sleeve";
+export type CIStatus = "research" | "validation" | "parity_pending";
+
+export interface CoreInvestRow {
+  id: string;
+  ticker: string;
+  label: string;
+  group: string;
+  engine: string;
+  pillar: CIPillar;
+  weight: number;
+  pf: number | null;
+  maxDd: string | null;
+  trades: number | null;
+  winRate: string | null;
+  totalReturn: string | null;
+  status: CIStatus;
+  notes?: string;
+}
+
+// v2.0 weights: ETF-Core 80% (QQQ 45%, GLD 25%, SPMO 5%, SPY 5%) + Sleeves 20% (4×5%)
+// Frozen 2026-07-20 · APPROVED · OOS 2019–2026: Sharpe 1.152, CAGR +17.11%, MaxDD −21.7%
+export const CI_STRATEGIES: CoreInvestRow[] = [
+  // ETF-Core (80%)
+  {
+    id: "qqq_etf_ci", ticker: "QQQ", label: "Nasdaq 100 ETF (passiv)", group: "ETF-Core",
+    engine: "Buy & Hold", pillar: "etf_core", weight: 45,
+    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "research",
+  },
+  {
+    id: "gld_ci", ticker: "GLD", label: "Gold ETF", group: "ETF-Core",
+    engine: "Crisis Protection / Portfolio Hedge", pillar: "etf_core", weight: 25,
+    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "research",
+  },
+  {
+    id: "spmo_ci", ticker: "SPMO", label: "Invesco S&P 500 Momentum", group: "ETF-Core",
+    engine: "Momentum / Alpha", pillar: "etf_core", weight: 5,
+    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "research",
+  },
+  {
+    id: "spy_ci", ticker: "SPY", label: "S&P 500 ETF", group: "ETF-Core",
+    engine: "Buy & Hold / Benchmark", pillar: "etf_core", weight: 5,
+    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "research",
+  },
+  // Strategy Sleeves (20% · 4×5%)
+  {
+    id: "qqq_pine1", ticker: "QQQ", label: "QQQ Pine 1", group: "Strategy Sleeve",
+    engine: "SMA(400) + SMA(5) · Long/Cash · TP 2% · SL 25%", pillar: "ci_sleeve", weight: 5,
+    pf: 1.628, maxDd: "−16.65%", trades: 638, winRate: "73.35%", totalReturn: "+580.95%", status: "validation",
+    notes: "Partial validation · TradingView TV-Export auf QQQ ausstehend",
+  },
+  {
+    id: "qqq_pine2", ticker: "QQQ", label: "QQQ Pine 2 EMA", group: "Strategy Sleeve",
+    engine: "EMA(20)/EMA(50) + Valuation · Long/Cash · TP 4% · SL 2%", pillar: "ci_sleeve", weight: 5,
+    pf: 2.158, maxDd: "−28.59%", trades: 68, winRate: "42.65%", totalReturn: "+358.27%", status: "validation",
+    notes: "Regime-Filter (VIX/SPX/DXY/US10Y) ausstehend",
+  },
+  {
+    id: "hg1_ci", ticker: "HG1!", label: "Copper / HG", group: "Strategy Sleeve",
+    engine: "Pine 2 EMA · Long/Cash · TP 4% · SL 2%", pillar: "ci_sleeve", weight: 5,
+    pf: 2.082, maxDd: "−40.43%", trades: 88, winRate: "30.68%", totalReturn: "+483.82%", status: "validation",
+  },
+  {
+    id: "6s1_ci", ticker: "6S1!", label: "CHF / Swiss Franc", group: "Strategy Sleeve",
+    engine: "Pine 2 EMA · Long/Cash · TP 4% · SL 2%", pillar: "ci_sleeve", weight: 5,
+    pf: 1.266, maxDd: "−23.66%", trades: 65, winRate: "32.31%", totalReturn: "+17.92%", status: "parity_pending",
+    notes: "Parity ausstehend · nur 6 historische Events · CME 6S1!",
+  },
+];
+
+export const CI_META: Record<CIPillar, { label: string; weight: string; color: string }> = {
+  etf_core:  { label: "ETF-Core",        weight: "80%", color: "#3d8bcd" },
+  ci_sleeve: { label: "Strategy Sleeve", weight: "20%", color: "#a78bfa" },
+};

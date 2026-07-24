@@ -2,7 +2,7 @@
 
 import { HomeDashboardProvider } from "@/context/home-dashboard-context";
 import { Sidebar } from "@/components/dashboard/sidebar";
-import ComponentBentoGrid from "@/components/components/ComponentBentoGrid";
+import StrategyMasterTable from "@/components/components/StrategyMasterTable";
 import styles from "./ComponentsPage.module.css";
 
 export function ComponentsShell() {
@@ -12,7 +12,7 @@ export function ComponentsShell() {
         <Sidebar />
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <main className={styles.page}>
-            <ComponentBentoGrid />
+            <StrategyMasterTable />
           </main>
         </div>
       </div>
