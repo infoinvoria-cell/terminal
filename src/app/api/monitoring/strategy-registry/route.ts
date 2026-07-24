@@ -35,11 +35,13 @@ const TICKER_TO_EXCHANGE: Record<string, { ticker: string; source: string }> = {
   SB: { ticker: "SB1!", source: "ICEUS:SB1!" },
   CT: { ticker: "CT1!", source: "ICEUS:CT1!" },
   OJ: { ticker: "OJ1!", source: "ICEUS:OJ1!" },
-  // Indices (CME / CBOT)
-  ES: { ticker: "ES1!", source: "CME:ES1!" },
+  // Indices (CME / CBOT / EUREX / TVC)
+  ES: { ticker: "ES1!", source: "CME_MINI:ES1!" },
   NQ: { ticker: "NQ1!", source: "CME_MINI:NQ1!" },
-  YM: { ticker: "YM1!", source: "CBOT:YM1!" },
+  YM: { ticker: "YM1!", source: "CBOT_MINI:YM1!" },
   RTY: { ticker: "RTY1!", source: "CME:RTY1!" },
+  FDAX: { ticker: "FDAX1!", source: "EUREX:FDAX1!" },
+  UKX: { ticker: "UKX!", source: "TVC:UKX!" },
   // Bonds (CBOT)
   ZB: { ticker: "ZB1!", source: "CBOT:ZB1!" },
   // FX Futures (CME)
