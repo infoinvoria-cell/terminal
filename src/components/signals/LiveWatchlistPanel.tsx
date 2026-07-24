@@ -323,10 +323,10 @@ export default function LiveWatchlistPanel({
 
   const totalRows = grouped.reduce((s, g) => s + g.rows.length, 0);
 
-  // auto symbol (content-width) keeps symbol+price tight; fixed price/signal
+  // proportional columns: icon fixed, then 45/30/25 split
   const COL = fullData
-    ? "15px auto 64px 30px 28px 56px"
-    : "15px auto 64px 30px";
+    ? "15px 9fr 6fr 5fr 28px 56px"
+    : "15px 9fr 6fr 5fr";
 
   return (
     <div style={{
@@ -364,7 +364,7 @@ export default function LiveWatchlistPanel({
       {/* Column headers */}
       <div style={{
         flexShrink: 0, display: "grid", gridTemplateColumns: COL,
-        gap: 3, padding: "3px 10px 2px",
+        gap: 3, padding: "4px 6px 2px",
         borderBottom: "1px solid rgba(255,255,255,0.07)",
       }}>
         {(fullData
@@ -420,7 +420,7 @@ export default function LiveWatchlistPanel({
                   style={{
                     display: "grid", gridTemplateColumns: COL,
                     alignItems: "center", gap: 3,
-                    padding: "2px 10px",
+                    padding: "4px 6px",
                     minHeight: 21,
                     background: isSelected ? "rgba(216,188,103,0.07)" : "transparent",
                     cursor: matchCard ? "pointer" : "default",

@@ -269,8 +269,8 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
 
   const watchlistWidth = showWatchlist ? (fullData ? 400 : 240) : 0;
   const cols = showWatchlist
-    ? `50% minmax(0,1fr) ${watchlistWidth}px`
-    : "50% minmax(0,1fr)";
+    ? `280px minmax(0,1fr) ${watchlistWidth}px`
+    : "280px minmax(0,1fr)";
 
   return (
     <div style={{
