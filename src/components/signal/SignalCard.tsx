@@ -466,12 +466,25 @@ function deriveState(card: SignalCardModel): SignalCardProps["state"] {
   if (card.status === "CLOSED") {
     return (card.changePct ?? 0) >= 0 ? "closed_tp" : "closed_sl";
   }
-  const targetTime = parseTargetDate(card.nextSignalLabel);
-  if (
-    targetTime &&
-    (card.status === "VALIDATION" || card.status === "PAPER_ONLY")
-  ) {
-    return "pending_valid";
+  // VALIDATION / PAPER_ONLY / PENDING direction:
+  // Gold checkmark if signalDate is today or tomorrow (≤ 1 day ahead), else gray.
+  const isPendingLike =
+    card.status === "VALIDATION" ||
+    card.status === "PAPER_ONLY" ||
+    card.direction === "PENDING";
+  if (isPendingLike) {
+    if (card.signalDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const d = new Date(`${card.signalDate}T00:00:00`);
+      if (isFinite(d.getTime())) {
+        const daysAhead = Math.round((d.getTime() - today.getTime()) / 86_400_000);
+        return daysAhead <= 1 ? "pending_valid" : "pending_invalid";
+      }
+    }
+    // Fall back to nextSignalLabel countdown
+    const targetTime = parseTargetDate(card.nextSignalLabel);
+    if (targetTime) return "pending_valid";
   }
   return "pending_invalid";
 }

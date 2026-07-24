@@ -320,22 +320,14 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
     return hasRealDd ? dd : computeDrawdownFromEquity(perf.equityCurve ?? []);
   }, [perf]);
 
-  const watchlistWidth = showWatchlist ? (fullData ? 400 : 240) : 0;
-  const cols = showWatchlist
-    ? `280px minmax(0,1fr) ${watchlistWidth}px`
-    : "280px minmax(0,1fr)";
-
   return (
     <div style={{
       position: "relative",
-      display: "grid",
-      gridTemplateColumns: cols,
+      display: "flex",
+      width: "100%",
       height: "100%",
-      minHeight: 0,
       overflow: "hidden",
       background: "#09090b",
-      gap: "0 12px",
-      transition: "grid-template-columns 200ms ease",
     }}>
       {/* ── Pull tab: right edge, vertically centered ─────────────────────── */}
       <button
@@ -343,7 +335,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
         title={showWatchlist ? "Live Feed schließen" : "Live Feed öffnen"}
         style={{
           position: "fixed",
-          right: watchlistWidth,
+          right: showWatchlist ? "10%" : 0,
           top: "50%",
           transform: "translateY(-50%)",
           zIndex: 50,
@@ -359,7 +351,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
           borderRight: showWatchlist ? "none" : "1px solid rgba(255,255,255,0.10)",
           borderRadius: showWatchlist ? "6px 0 0 6px" : "6px 0 0 6px",
           cursor: "pointer",
-          transition: "right 200ms ease",
+          transition: "right 150ms ease",
         }}
       >
         {/* Panel icon */}
@@ -381,7 +373,9 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
 
       {/* ── LEFT: signal list ────────────────────────────────────────────────── */}
       <div style={{
-        display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden",
+        width: showWatchlist ? "45%" : "50%",
+        flexShrink: 0,
+        display: "flex", flexDirection: "column", height: "100%", overflow: "hidden",
         borderRight: "1px solid rgba(255,255,255,0.05)",
         padding: "14px 20px 10px 20px",
         gap: 0,
@@ -414,7 +408,11 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
       </div>
 
       {/* ── MIDDLE: detail panel ─────────────────────────────────────────────── */}
-      <div style={{ display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
+      <div style={{
+        width: showWatchlist ? "45%" : "50%",
+        flexShrink: 0,
+        display: "flex", flexDirection: "column", height: "100%", overflow: "hidden",
+      }}>
 
         {/* OHLC chart */}
         <div style={{
@@ -503,13 +501,15 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
 
       {/* ── RIGHT: Live Watchlist (conditional) ─────────────────────────────── */}
       {showWatchlist && (
-        <LiveWatchlistPanel
-          cards={data.cards}
-          selectedCardId={selectedCardId}
-          onSelectCard={(id) => setSelectedCardId(id)}
-          fullData={fullData}
-          onFullDataChange={setFullData}
-        />
+        <div style={{ width: "10%", flexShrink: 0, height: "100%", overflow: "hidden" }}>
+          <LiveWatchlistPanel
+            cards={data.cards}
+            selectedCardId={selectedCardId}
+            onSelectCard={(id) => setSelectedCardId(id)}
+            fullData={fullData}
+            onFullDataChange={setFullData}
+          />
+        </div>
       )}
     </div>
   );
