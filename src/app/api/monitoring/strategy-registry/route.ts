@@ -52,12 +52,31 @@ const TICKER_TO_EXCHANGE: Record<string, { ticker: string; source: string }> = {
   "6S": { ticker: "6S1!", source: "CME:6S1!" },
   "6C": { ticker: "6C1!", source: "CME:6C1!" },
   "6N": { ticker: "6N1!", source: "CME:6N1!" },
+  // FX Spot / Pairs
+  EURGBP: { ticker: "EURGBP", source: "VANTAGE:EURGBP" },
+  GBPJPY: { ticker: "GBPJPY", source: "VANTAGE:GBPJPY" },
+  MXN: { ticker: "MXNUSD", source: "FX_IDC:MXNUSD" },
+  NOK: { ticker: "NOK1!", source: "CME:NOK1!" },
+  CLP: { ticker: "CLPUSD", source: "FX_IDC:CLPUSD" },
+  SEK: { ticker: "SEKUSD", source: "FX_IDC:SEKUSD" },
+  BRL: { ticker: "BRLUSD", source: "FX_IDC:BRLUSD" },
+  ZAR: { ticker: "ZARUSD", source: "FX_IDC:ZARUSD" },
 };
 
-function resolveStrategyExchange(strategyId: string, sourceSymbol?: string | null): { ticker: string; source: string } {
-  if (sourceSymbol) return { ticker: sourceSymbol.split(":").pop() ?? sourceSymbol, source: sourceSymbol };
-  const last = strategyId.split(".").pop()?.toUpperCase() ?? "";
-  return TICKER_TO_EXCHANGE[last] ?? { ticker: strategyId, source: strategyId };
+// Resolve ticker+source for a strategy_entries row.
+// The table has: asset (short code e.g. "GC"), symbol (ticker e.g. "GC1!"), no source_symbol column.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function resolveEntryExchange(entry: any): { ticker: string; source: string } {
+  const assetKey = String(entry.asset ?? "").trim().toUpperCase();
+  const symbolFallback = String(entry.symbol ?? "").trim();
+  const mapped = TICKER_TO_EXCHANGE[assetKey];
+  if (mapped) return mapped;
+  // Fallback: use symbol directly (e.g. for EURGBP, GBPJPY which are their own asset key)
+  const directMatch = TICKER_TO_EXCHANGE[symbolFallback.toUpperCase()];
+  if (directMatch) return directMatch;
+  // Last resort: strategy_id last segment
+  const last = String(entry.strategy_id ?? "").split(".").pop()?.toUpperCase() ?? "";
+  return TICKER_TO_EXCHANGE[last] ?? { ticker: symbolFallback || String(entry.strategy_id ?? ""), source: symbolFallback || String(entry.strategy_id ?? "") };
 }
 
 async function fromSupabase() {
@@ -72,14 +91,14 @@ async function fromSupabase() {
   if (!sleeves.length) return null;
 
   const productionStrategies = entries.map((e) => {
-    const resolved = resolveStrategyExchange(e.strategy_id, e.source_symbol);
+    const resolved = resolveEntryExchange(e);
     return {
       asset: resolved.ticker,
-      label: e.label ?? e.strategy_id,
+      label: e.name ?? e.strategy_id,
       sourceSymbol: resolved.source,
       timeframe: e.timeframe ?? "D",
       active: e.active ?? false,
-      versionName: e.version_name ?? "",
+      versionName: e.version ?? "",
       status: e.status ?? "READY",
       strategyType: e.strategy_type ?? "macro",
       sleeveName: e.sleeve ?? "",
@@ -96,14 +115,14 @@ async function fromSupabase() {
       name: s.sleeve,
       status: s.status ?? "READY",
       assets: entries.filter((e) => e.sleeve === s.sleeve).map((e) => {
-        const resolved = resolveStrategyExchange(e.strategy_id, e.source_symbol);
+        const resolved = resolveEntryExchange(e);
         return {
           asset: resolved.ticker,
-          label: e.label ?? e.strategy_id,
+          label: e.name ?? e.strategy_id,
           sourceSymbol: resolved.source,
           timeframe: e.timeframe ?? "D",
           active: e.active ?? false,
-          versionName: e.version_name ?? "",
+          versionName: e.version ?? "",
           status: e.status ?? "READY",
           strategyType: e.strategy_type ?? "macro",
         };
