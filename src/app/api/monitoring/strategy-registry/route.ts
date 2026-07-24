@@ -13,6 +13,51 @@ const EMPTY_REGISTRY = {
   missingData: [] as unknown[],
 };
 
+// Maps the last segment of an internal strategy ID (e.g. "GC" from "Metals5.macro_valuation.GC")
+// to its real exchange ticker and TradingView source string.
+const TICKER_TO_EXCHANGE: Record<string, { ticker: string; source: string }> = {
+  // Metals (COMEX/NYMEX)
+  GC: { ticker: "GC1!", source: "COMEX:GC1!" },
+  SI: { ticker: "SI1!", source: "COMEX:SI1!" },
+  HG: { ticker: "HG1!", source: "COMEX:HG1!" },
+  PA: { ticker: "PA1!", source: "NYMEX:PA1!" },
+  PL: { ticker: "PL1!", source: "NYMEX:PL1!" },
+  // Energy (NYMEX)
+  CL: { ticker: "CL1!", source: "NYMEX:CL1!" },
+  NG: { ticker: "NG1!", source: "NYMEX:NG1!" },
+  RB: { ticker: "RB1!", source: "NYMEX:RB1!" },
+  // Agrar (CBOT / ICE)
+  ZC: { ticker: "ZC1!", source: "CBOT:ZC1!" },
+  ZW: { ticker: "ZW1!", source: "CBOT:ZW1!" },
+  ZS: { ticker: "ZS1!", source: "CBOT:ZS1!" },
+  CC: { ticker: "CC1!", source: "ICEUS:CC1!" },
+  KC: { ticker: "KC1!", source: "ICEUS:KC1!" },
+  SB: { ticker: "SB1!", source: "ICEUS:SB1!" },
+  CT: { ticker: "CT1!", source: "ICEUS:CT1!" },
+  OJ: { ticker: "OJ1!", source: "ICEUS:OJ1!" },
+  // Indices (CME / CBOT)
+  ES: { ticker: "ES1!", source: "CME:ES1!" },
+  NQ: { ticker: "NQ1!", source: "CME_MINI:NQ1!" },
+  YM: { ticker: "YM1!", source: "CBOT:YM1!" },
+  RTY: { ticker: "RTY1!", source: "CME:RTY1!" },
+  // Bonds (CBOT)
+  ZB: { ticker: "ZB1!", source: "CBOT:ZB1!" },
+  // FX Futures (CME)
+  "6E": { ticker: "6E1!", source: "CME:6E1!" },
+  "6B": { ticker: "6B1!", source: "CME:6B1!" },
+  "6J": { ticker: "6J1!", source: "CME:6J1!" },
+  "6A": { ticker: "6A1!", source: "CME:6A1!" },
+  "6S": { ticker: "6S1!", source: "CME:6S1!" },
+  "6C": { ticker: "6C1!", source: "CME:6C1!" },
+  "6N": { ticker: "6N1!", source: "CME:6N1!" },
+};
+
+function resolveStrategyExchange(strategyId: string, sourceSymbol?: string | null): { ticker: string; source: string } {
+  if (sourceSymbol) return { ticker: sourceSymbol.split(":").pop() ?? sourceSymbol, source: sourceSymbol };
+  const last = strategyId.split(".").pop()?.toUpperCase() ?? "";
+  return TICKER_TO_EXCHANGE[last] ?? { ticker: strategyId, source: strategyId };
+}
+
 async function fromSupabase() {
   const db = createSupabaseServiceClient();
   const [sleevesRes, entriesRes] = await Promise.all([
@@ -24,17 +69,20 @@ async function fromSupabase() {
   const entries = entriesRes.data ?? [];
   if (!sleeves.length) return null;
 
-  const productionStrategies = entries.map((e) => ({
-    asset: e.strategy_id,
-    label: e.label ?? e.strategy_id,
-    sourceSymbol: e.source_symbol ?? e.strategy_id,
-    timeframe: e.timeframe ?? "D",
-    active: e.active ?? false,
-    versionName: e.version_name ?? "",
-    status: e.status ?? "READY",
-    strategyType: e.strategy_type ?? "macro",
-    sleeveName: e.sleeve ?? "",
-  }));
+  const productionStrategies = entries.map((e) => {
+    const resolved = resolveStrategyExchange(e.strategy_id, e.source_symbol);
+    return {
+      asset: resolved.ticker,
+      label: e.label ?? e.strategy_id,
+      sourceSymbol: resolved.source,
+      timeframe: e.timeframe ?? "D",
+      active: e.active ?? false,
+      versionName: e.version_name ?? "",
+      status: e.status ?? "READY",
+      strategyType: e.strategy_type ?? "macro",
+      sleeveName: e.sleeve ?? "",
+    };
+  });
   const activeStrategies = productionStrategies.filter((s) => s.active);
 
   const config = {
@@ -45,16 +93,19 @@ async function fromSupabase() {
       id: s.sleeve,
       name: s.sleeve,
       status: s.status ?? "READY",
-      assets: entries.filter((e) => e.sleeve === s.sleeve).map((e) => ({
-        asset: e.strategy_id,
-        label: e.label ?? e.strategy_id,
-        sourceSymbol: e.source_symbol ?? e.strategy_id,
-        timeframe: e.timeframe ?? "D",
-        active: e.active ?? false,
-        versionName: e.version_name ?? "",
-        status: e.status ?? "READY",
-        strategyType: e.strategy_type ?? "macro",
-      })),
+      assets: entries.filter((e) => e.sleeve === s.sleeve).map((e) => {
+        const resolved = resolveStrategyExchange(e.strategy_id, e.source_symbol);
+        return {
+          asset: resolved.ticker,
+          label: e.label ?? e.strategy_id,
+          sourceSymbol: resolved.source,
+          timeframe: e.timeframe ?? "D",
+          active: e.active ?? false,
+          versionName: e.version_name ?? "",
+          status: e.status ?? "READY",
+          strategyType: e.strategy_type ?? "macro",
+        };
+      }),
     })),
   };
 

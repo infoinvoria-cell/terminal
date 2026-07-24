@@ -129,7 +129,9 @@ const VERIFIED_AGRAR_TV_CACHE_SOURCES = new Set<string>([
 // lack TradingView cache or Supabase data. Maps TV source key → public path.
 const STRATEGY_ALL_S_MAP: Record<string, string> = {
   "OANDA:EURUSD": "/generated/monitoring/all_s-0-eurusd-mt-eurusd.json",
+  "CME:6E1!": "/generated/monitoring/all_s-0-eurusd-mt-eurusd.json",
   "OANDA:GBPUSD": "/generated/monitoring/all_s-1-gbpusd-mt-gbpusd.json",
+  "CME:6B1!": "/generated/monitoring/all_s-1-gbpusd-mt-gbpusd.json",
   "EUREX:FDAX1!": "/generated/monitoring/all_s-4-dax-macro-fdax1.json",
   "CAPITALCOM:DE40": "/generated/monitoring/all_s-4-dax-macro-fdax1.json",
   "CBOT_MINI:YM1!": "/generated/monitoring/all_s-5-dow-macro-ym1.json",

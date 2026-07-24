@@ -37,7 +37,8 @@ const YF_TICKER: Record<string, string> = {
   EURGBP: "EURGBP=X", GBPJPY: "GBPJPY=X",
   ZARUSD: "ZAR=X", MXNUSD: "MXN=X", SEKUSD: "SEK=X",
   BRLUSD: "BRL=X", CLPUSD: "CLP=X",
-  "6E1!": "6E=F",
+  "6E1!": "6E=F", "6B1!": "6B=F", "6J1!": "6J=F",
+  "6A1!": "6A=F", "6S1!": "6S=F", "6C1!": "6C=F", "6N1!": "6N=F",
   // Indices / Reference
   VIX: "^VIX", DXY: "DX-Y.NYB", US10Y: "^TNX",
   UKX: "^FTSE", "UKX!": "^FTSE", SPX: "^GSPC",
