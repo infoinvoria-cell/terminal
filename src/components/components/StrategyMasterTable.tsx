@@ -13,7 +13,6 @@ import {
 const GOLD     = "#e2ca7a";
 const MUTED    = "#737373";
 const BG       = "#0c0d10";
-const CHART_BG = "#0A0A0A";
 const CARD     = "linear-gradient(180deg,#1c1d20 0%,#141517 100%)";
 const CBORD    = "rgba(255,255,255,0.06)";
 const RBORD    = "rgba(255,255,255,0.04)";
@@ -107,6 +106,12 @@ interface LiveFeedItem {
   lastClose: number | null; changePct: number | null;
   lastDate: string | null; firstDate: string | null; refreshedAt: string | null;
   barCount: number | null; dataStatus: "live"|"daily"|"missing"; liveRefreshSeconds: number | null;
+}
+
+// ── live state (open trades) ──────────────────────────────────────────────────
+interface LiveTrade {
+  symbol: string; direction: string; entry_price: number;
+  entry_date: string; strategy_id: string; pnl: number | null; notes: string | null;
 }
 
 const LIVE_SYMBOL_MAP: Record<string, string[]> = {
@@ -233,22 +238,22 @@ function Chip({ status }: { status: string }) {
   );
 }
 
-// ── signal cell (matches signals page style) ──────────────────────────────────
-function SignalCell({ changePct }: { changePct: number | null }) {
-  if (changePct == null) return <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)" }}>—</span>;
-  const abs = Math.abs(changePct) < 1 ? changePct * 100 : changePct;
-  const isPos = abs > 0.01;
-  const isNeg = abs < -0.01;
-  const color = isPos ? "#22c55e" : isNeg ? "#ef4444" : "rgba(255,255,255,0.3)";
+// ── signal cell — gray checkmark for pending, dash for no signal ──────────────
+function SignalCell({ hasTrade }: { hasTrade: boolean }) {
+  if (!hasTrade) {
+    return <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)" }}>—</span>;
+  }
+  // gray checkmark (pending_valid style matching signals page)
   return (
-    <span style={{ fontSize: 9, fontWeight: 700, color, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
-      {abs >= 0 ? "+" : ""}{abs.toFixed(2)}%
-    </span>
+    <svg width={13} height={13} viewBox="0 0 13 13" fill="none" style={{ display: "inline-block", verticalAlign: "middle" }}>
+      <circle cx={6.5} cy={6.5} r={5.5} stroke="rgba(255,255,255,0.22)" strokeWidth={1} />
+      <path d="M4 6.5l2 2 3-3" stroke="rgba(255,255,255,0.38)" strokeWidth={1.2} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
 // ── sortable th ───────────────────────────────────────────────────────────────
-function Th({ label, k, sortKey, sortDir, onSort, align = "right" }: {
+function Th({ label, k, sortKey, sortDir, onSort, align = "left" }: {
   label: string; k: SortKey; sortKey: SortKey | null; sortDir: SortDir;
   onSort: (k: SortKey) => void; align?: "left"|"right";
 }) {
@@ -282,10 +287,11 @@ function LiveTimer({ secs, max }: { secs: number; max: number }) {
   );
 }
 
-// ── candle chart — identical look to MonitoringChart ─────────────────────────
+// ── candle chart — matches MonitoringChart, ~20 visible bars, optional signal overlay ──
 function CandleChart({ ticker }: { ticker: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [bars, setBars] = useState<OhlcBar[] | null>(null);
+  const [trade, setTrade] = useState<LiveTrade | null>(null);
 
   useEffect(() => {
     const sym = encodeURIComponent(ticker.split(" ")[0]);
@@ -293,6 +299,19 @@ function CandleChart({ ticker }: { ticker: string }) {
       .then(r => r.json())
       .then(d => setBars(Array.isArray(d.bars) && d.bars.length ? d.bars : []))
       .catch(() => setBars([]));
+
+    fetch("/api/monitoring/live-state")
+      .then(r => r.json())
+      .then((d: unknown) => {
+        const trades: LiveTrade[] = Array.isArray(d) ? (d as LiveTrade[]) : ((d as { trades?: LiveTrade[] }).trades ?? []);
+        const base = ticker.split(" ")[0].replace("1!", "").toUpperCase();
+        const match = trades.find(t => {
+          const ts = (t.symbol ?? "").replace("1!", "").toUpperCase();
+          return ts === base || ts.startsWith(base) || base.startsWith(ts);
+        });
+        setTrade(match ?? null);
+      })
+      .catch(() => {});
   }, [ticker]);
 
   useEffect(() => {
@@ -310,7 +329,7 @@ function CandleChart({ ticker }: { ticker: string }) {
         width: el.clientWidth,
         height: 240,
         layout: {
-          background: { type: ColorType.Solid, color: CHART_BG },
+          background: { type: ColorType.Solid, color: BG },
           textColor: "rgba(228,236,248,0.68)",
           fontSize: 10,
           fontFamily: "-apple-system,BlinkMacSystemFont,'Trebuchet MS',Roboto,Ubuntu,sans-serif",
@@ -323,18 +342,41 @@ function CandleChart({ ticker }: { ticker: string }) {
           horzLine: { color: "rgba(163,180,199,0.42)", width: 1, labelVisible: true, labelBackgroundColor: "rgba(22,26,32,0.9)" },
         },
         rightPriceScale: { borderVisible: false, textColor: "rgba(228,236,248,0.68)" },
-        timeScale: { borderVisible: false, timeVisible: false, rightOffset: 6 },
+        timeScale: { borderVisible: false, timeVisible: false, rightOffset: 4 },
         handleScroll: { mouseWheel: false, pressedMouseMove: true },
         handleScale: { mouseWheel: true, pinch: true },
       });
+
       const series = chart.addSeries(CandlestickSeries, {
         upColor: "#FFFFFF", downColor: "#D6B44B",
         borderVisible: false,
         wickUpColor: "#FFFFFF", wickDownColor: "#D6B44B",
         priceLineVisible: false, lastValueVisible: false,
       });
-      series.setData(bars.filter((b: OhlcBar) => b.time >= "2019-01-01"));
-      chart.timeScale().fitContent();
+
+      const filtered = bars.filter((b: OhlcBar) => b.time >= "2019-01-01");
+      series.setData(filtered);
+
+      // show ~20 visible candles
+      const total = filtered.length;
+      if (total > 20) {
+        chart.timeScale().setVisibleLogicalRange({ from: total - 20, to: total + 2 });
+      } else {
+        chart.timeScale().fitContent();
+      }
+
+      // live signal overlay — entry line only (no SL/TP available from API)
+      if (trade?.entry_price) {
+        const isLong = (trade.direction ?? "").toLowerCase() === "long";
+        series.createPriceLine({
+          price: trade.entry_price,
+          color: isLong ? "rgba(255,255,255,0.7)" : GOLD,
+          lineWidth: 1,
+          lineStyle: 2,
+          axisLabelVisible: true,
+          title: `Einstieg ${isLong ? "▲" : "▼"}`,
+        });
+      }
 
       ro = new ResizeObserver(() => {
         if (!el || !chart) return;
@@ -348,10 +390,10 @@ function CandleChart({ ticker }: { ticker: string }) {
       ro?.disconnect();
       if (chart) { try { chart.remove(); } catch { /* ignore */ } }
     };
-  }, [bars]);
+  }, [bars, trade]);
 
   if (bars === null) return (
-    <div style={{ height: 240, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-montserrat),sans-serif", background: CHART_BG, borderRadius: 6 }}>
+    <div style={{ height: 240, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-montserrat),sans-serif", background: BG, borderRadius: 6 }}>
       Lade OHLC…
     </div>
   );
@@ -360,7 +402,7 @@ function CandleChart({ ticker }: { ticker: string }) {
       Keine OHLC-Daten
     </div>
   );
-  return <div ref={ref} style={{ width: "100%", height: 240, borderRadius: 6, overflow: "hidden", background: CHART_BG }} />;
+  return <div ref={ref} style={{ width: "100%", height: 240, borderRadius: 6, overflow: "hidden", background: BG }} />;
 }
 
 // ── equity / drawdown charts ──────────────────────────────────────────────────
@@ -404,7 +446,7 @@ function DdChart({ pts }: { pts: EP[] }) {
   );
 }
 
-// ── expanded row ──────────────────────────────────────────────────────────────
+// ── expanded row — candle chart left, equity/drawdown/KPIs right ──────────────
 function ExpandedRow({ row }: { row: DisplayRow }) {
   const [data, setData] = useState<StrategyData | null>(null);
   useEffect(() => {
@@ -429,20 +471,11 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
 
   return (
     <div style={{ padding: "14px 16px 18px", background: "rgba(255,255,255,0.012)", borderTop: `1px solid ${RBORD}` }}>
-      <div style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 11, color: MUTED, marginBottom: row.isNotes ? 8 : 12 }}>
-        {[row.engine, row.exchange, row.group].filter(Boolean).join(" · ")}
-      </div>
-      {row.isNotes && (
-        <div style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 11, color: GOLD, background: "rgba(226,202,122,0.05)", border: "1px solid rgba(226,202,122,0.12)", borderRadius: 8, padding: "6px 10px", marginBottom: 12 }}>
-          {row.isNotes}
-        </div>
-      )}
-
       {/* two-column: left = candle, right = equity + drawdown + KPIs */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <div>
           <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 6 }}>
-            OHLC · {row.ticker} · 2019–2026
+            OHLC · {row.ticker} · Daily
           </div>
           <CandleChart ticker={row.ticker} />
         </div>
@@ -476,11 +509,12 @@ export default function StrategyMasterTable() {
   const [sortDir, setSortDir]     = useState<SortDir>("desc");
   const [liveCols, setLiveCols]   = useState(false);
   const [liveData, setLiveData]   = useState<Map<string, LiveFeedItem>>(new Map());
+  const [liveTrades, setLiveTrades] = useState<LiveTrade[]>([]);
   const [liveTimer, setLiveTimer] = useState(30);
-  const [tick, setTick]           = useState(0); // drives fmtBisNow re-render
+  const [tick, setTick]           = useState(0);
   const LIVE_INTERVAL = 30;
 
-  // live feed — same polling pattern as signals page
+  // live feed + live state — same polling pattern as signals page
   useEffect(() => {
     if (!liveCols) return;
     let secs = LIVE_INTERVAL;
@@ -491,13 +525,20 @@ export default function StrategyMasterTable() {
       fetch("/api/monitoring/live-feed")
         .then(r => r.json())
         .then((d: unknown) => {
-          // API returns either { items: [...] } or an array directly
           const items: LiveFeedItem[] = Array.isArray(d)
             ? (d as LiveFeedItem[])
             : (((d as { items?: LiveFeedItem[] }).items) ?? []);
           const m = new Map<string, LiveFeedItem>();
           items.forEach(i => { if (i?.symbol) m.set(i.symbol, i); });
           setLiveData(m);
+        })
+        .catch(() => {});
+
+      fetch("/api/monitoring/live-state")
+        .then(r => r.json())
+        .then((d: unknown) => {
+          const trades: LiveTrade[] = Array.isArray(d) ? (d as LiveTrade[]) : ((d as { trades?: LiveTrade[] }).trades ?? []);
+          setLiveTrades(trades);
         })
         .catch(() => {});
     };
@@ -513,7 +554,7 @@ export default function StrategyMasterTable() {
     return () => { clearInterval(poll); clearInterval(countdown); };
   }, [liveCols]);
 
-  void tick; // used for fmtBisNow reactivity
+  void tick;
 
   const switchPortfolio = useCallback((p: Portfolio) => {
     setPortfolio(p); setSection("all"); setExpId(null); setSortKey("weight"); setSortDir("desc");
@@ -534,14 +575,13 @@ export default function StrategyMasterTable() {
   if (section === "active") rows = rows.filter(r => r.status !== "archived");
   else if (section !== "all") rows = rows.filter(r => r.pillarKey === section);
 
-  // sort — archived always pinned at bottom regardless of column
+  // sort — archived always pinned at bottom
   const archOrder = (s: string) => s === "archived" ? 1 : 0;
 
   if (sortKey) {
     rows = [...rows].sort((a, b) => {
       const ao = archOrder(a.status) - archOrder(b.status);
       if (ao !== 0) return ao;
-      // null-weight active rows (anomaly): sort after weighted rows but before archived
       if (sortKey === "weight") {
         const wa = a.weight ?? -0.001;
         const wb = b.weight ?? -0.001;
@@ -583,13 +623,13 @@ export default function StrategyMasterTable() {
   let rowNum = 0;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", padding: "14px 20px 0", background: BG, fontFamily: "var(--font-montserrat),sans-serif" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", padding: "18px 20px 0", background: BG, fontFamily: "var(--font-montserrat),sans-serif" }}>
       <style>{`.kmp::-webkit-scrollbar{display:none}.kmp{scrollbar-width:none;-ms-overflow-style:none}`}</style>
 
       {/* top bar */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 11, flexShrink: 0, gap: 16 }}>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16, flexShrink: 0, gap: 16 }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: "#fff", letterSpacing: "-.02em", margin: "0 0 7px" }}>Komponenten</h1>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: "#fff", letterSpacing: "-.02em", margin: "0 0 10px" }}>Komponenten</h1>
           <div style={{ display: "flex", gap: 5 }}>
             {([
               { id: "ws" as Portfolio, label: "White Swan",  icon: <SwanIcon /> },
@@ -613,7 +653,7 @@ export default function StrategyMasterTable() {
       </div>
 
       {/* filter bar + live toggle */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 9, flexShrink: 0 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexShrink: 0 }}>
         <div style={{ display: "flex", gap: 5, flexWrap: "wrap" as const }}>
           {sections.map(s => (
             <Pill key={s.key} label={s.label} active={section === s.key}
@@ -644,23 +684,23 @@ export default function StrategyMasterTable() {
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
             <thead style={{ position: "sticky", top: 0, zIndex: 2 }}>
               <tr>
-                <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 6px 9px", textAlign: "right", borderBottom: `1px solid ${RBORD}`, background: BG, width: 26 }}>#</th>
+                <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 6px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, width: 26 }}>#</th>
                 <th style={{ width: 18, padding: 0, borderBottom: `1px solid ${RBORD}`, background: BG }} />
                 <Th label="Ticker"  k="ticker"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
                 <Th label="Asset"   k="label"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
                 <Th label="Pillar"  k="pillar"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
-                <Th label="Gew."    k="weight"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                <Th label="Sharpe"  k="sharpeOos" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                <Th label="CAGR"    k="cagr"      sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                <Th label="Max DD"  k="maxDd"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                <Th label="PF"      k="pf"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                <Th label="Trades"  k="trades"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                <Th label="WF/Win%" k="wfWin"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                <Th label="Gew."    k="weight"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
+                <Th label="Sharpe"  k="sharpeOos" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
+                <Th label="CAGR"    k="cagr"      sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
+                <Th label="Max DD"  k="maxDd"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
+                <Th label="PF"      k="pf"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
+                <Th label="Trades"  k="trades"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
+                <Th label="WF/Win%" k="wfWin"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
                 <Th label="Status"  k="status"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
                 {liveCols && <>
-                  <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "right", borderBottom: `1px solid ${RBORD}`, background: BG, borderLeft: "1px solid rgba(255,255,255,0.05)" }}>Preis</th>
-                  <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "right", borderBottom: `1px solid ${RBORD}`, background: BG }}>Signal</th>
-                  <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "right", borderBottom: `1px solid ${RBORD}`, background: BG, whiteSpace: "nowrap" as const }}>Von – Bis</th>
+                  <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, borderLeft: "1px solid rgba(255,255,255,0.05)" }}>Preis</th>
+                  <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG }}>Signal</th>
+                  <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, whiteSpace: "nowrap" as const }}>Von – Bis</th>
                 </>}
               </tr>
             </thead>
@@ -671,12 +711,19 @@ export default function StrategyMasterTable() {
                 if (!isArch) rowNum++;
                 const live = liveCols ? matchLive(row.ticker, liveData) : null;
 
-                // price color: matches signals page (positive day = bright white, negative = gold)
+                // price color: positive day = bright white, negative = gold
                 const priceChg = live?.changePct ?? null;
                 const priceColor = live == null ? "rgba(255,255,255,0.18)"
                   : priceChg != null && priceChg > 0.01 ? "rgba(255,255,255,0.92)"
                   : priceChg != null && priceChg < -0.01 ? "#d8bc67"
                   : "rgba(255,255,255,0.78)";
+
+                // signal: check if there's an open trade matching this ticker
+                const hasTrade = liveCols && liveTrades.some(t => {
+                  const base = row.ticker.split(" ")[0].replace("1!", "").toUpperCase();
+                  const ts = (t.symbol ?? "").replace("1!", "").toUpperCase();
+                  return ts === base || ts.startsWith(base) || base.startsWith(ts);
+                });
 
                 const dataRow = (
                   <tr key={row.id}
@@ -685,7 +732,7 @@ export default function StrategyMasterTable() {
                     onMouseEnter={e => { if (!isArch && !isExp) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.012)"; }}
                     onMouseLeave={e => { if (!isExp) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                   >
-                    <td style={{ padding: "5px 6px", textAlign: "right", fontSize: 9, color: "rgba(255,255,255,0.15)", width: 26 }}>{isArch ? "" : rowNum}</td>
+                    <td style={{ padding: "5px 6px", textAlign: "left", fontSize: 9, color: "rgba(255,255,255,0.65)", fontWeight: 600, width: 26, fontVariantNumeric: "tabular-nums" }}>{isArch ? "" : rowNum}</td>
                     <td style={{ padding: "5px 3px", width: 18, textAlign: "center" }}>
                       {!isArch && <span style={{ fontSize: 10, color: isExp ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.15)", display: "inline-block", transform: isExp ? "rotate(90deg)" : "none", transition: "transform .2s" }}>›</span>}
                     </td>
@@ -695,36 +742,35 @@ export default function StrategyMasterTable() {
                         <span style={{ fontWeight: 700, fontSize: 11, color: "rgba(255,255,255,0.88)", letterSpacing: ".02em", fontVariantNumeric: "tabular-nums" }}>{row.ticker}</span>
                       </span>
                     </td>
-                    <td style={{ padding: "5px 8px", color: "rgba(255,255,255,0.35)", fontSize: 10 }}>{row.label}</td>
-                    <td style={{ padding: "5px 8px", fontSize: 9, color: "rgba(255,255,255,0.22)", letterSpacing: ".04em" }}>{row.pillarLabel}</td>
-                    <td style={{ padding: "5px 8px", textAlign: "right", color: row.weight ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.15)", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>
+                    <td style={{ padding: "5px 8px", color: "rgba(255,255,255,0.35)", fontSize: 10, textAlign: "left" }}>{row.label}</td>
+                    <td style={{ padding: "5px 8px", fontSize: 9, color: "rgba(255,255,255,0.22)", letterSpacing: ".04em", textAlign: "left" }}>{row.pillarLabel}</td>
+                    <td style={{ padding: "5px 8px", textAlign: "left", color: row.weight ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.15)", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>
                       {row.weight != null ? `${row.weight}%` : "—"}
                     </td>
-                    <td style={{ padding: "5px 8px", textAlign: "right", fontWeight: 700, fontVariantNumeric: "tabular-nums", color: numColor(row.sharpeOos) }}>
+                    <td style={{ padding: "5px 8px", textAlign: "left", fontWeight: 700, fontVariantNumeric: "tabular-nums", color: numColor(row.sharpeOos) }}>
                       {row.sharpeOos != null ? fmtN(row.sharpeOos) : "—"}
                     </td>
-                    <td style={{ padding: "5px 8px", textAlign: "right", color: strNumColor(row.cagr), fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{row.cagr ?? "—"}</td>
-                    <td style={{ padding: "5px 8px", textAlign: "right", color: strNumColor(row.maxDd), fontVariantNumeric: "tabular-nums" }}>{row.maxDd ?? "—"}</td>
-                    <td style={{ padding: "5px 8px", textAlign: "right", color: (row.pf ?? 0) >= 1.3 ? "rgba(255,255,255,0.75)" : row.pf ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.15)", fontVariantNumeric: "tabular-nums" }}>
+                    <td style={{ padding: "5px 8px", textAlign: "left", color: strNumColor(row.cagr), fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{row.cagr ?? "—"}</td>
+                    <td style={{ padding: "5px 8px", textAlign: "left", color: strNumColor(row.maxDd), fontVariantNumeric: "tabular-nums" }}>{row.maxDd ?? "—"}</td>
+                    <td style={{ padding: "5px 8px", textAlign: "left", color: (row.pf ?? 0) >= 1.3 ? "rgba(255,255,255,0.75)" : row.pf ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.15)", fontVariantNumeric: "tabular-nums" }}>
                       {row.pf != null ? fmtN(row.pf) : "—"}
                     </td>
-                    <td style={{ padding: "5px 8px", textAlign: "right", color: "rgba(255,255,255,0.28)", fontSize: 10, fontVariantNumeric: "tabular-nums" }}>{row.trades != null ? row.trades.toLocaleString("de") : "—"}</td>
-                    <td style={{ padding: "5px 8px", textAlign: "right", color: "rgba(255,255,255,0.28)", fontSize: 10 }}>{row.wfWin ?? "—"}</td>
+                    <td style={{ padding: "5px 8px", textAlign: "left", color: "rgba(255,255,255,0.28)", fontSize: 10, fontVariantNumeric: "tabular-nums" }}>{row.trades != null ? row.trades.toLocaleString("de") : "—"}</td>
+                    <td style={{ padding: "5px 8px", textAlign: "left", color: "rgba(255,255,255,0.28)", fontSize: 10 }}>{row.wfWin ?? "—"}</td>
                     <td style={{ padding: "5px 8px" }}><Chip status={row.status} /></td>
 
                     {liveCols && (() => {
                       const price = live?.lastClose ?? null;
-                      const chg   = live?.changePct ?? null;
                       const from  = live?.firstDate ?? null;
                       return (
                         <>
-                          <td style={{ padding: "5px 8px", textAlign: "right", fontVariantNumeric: "tabular-nums", color: priceColor, borderLeft: "1px solid rgba(255,255,255,0.05)", fontWeight: price != null ? 600 : 400 }}>
+                          <td style={{ padding: "5px 8px", textAlign: "left", fontVariantNumeric: "tabular-nums", color: priceColor, borderLeft: "1px solid rgba(255,255,255,0.05)", fontWeight: price != null ? 600 : 400 }}>
                             {price != null ? fmtPrice(price, row.ticker) : "—"}
                           </td>
-                          <td style={{ padding: "5px 8px", textAlign: "right" }}>
-                            <SignalCell changePct={chg} />
+                          <td style={{ padding: "5px 8px", textAlign: "left" }}>
+                            <SignalCell hasTrade={hasTrade} />
                           </td>
-                          <td suppressHydrationWarning style={{ padding: "5px 8px", textAlign: "right", color: "rgba(255,255,255,0.28)", fontSize: 9, whiteSpace: "nowrap" as const }}>
+                          <td suppressHydrationWarning style={{ padding: "5px 8px", textAlign: "left", color: "rgba(255,255,255,0.28)", fontSize: 9, whiteSpace: "nowrap" as const }}>
                             {from ? `${fmtVon(from)} – ${fmtBisNow()}` : "—"}
                           </td>
                         </>
