@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import MonitoringChart from "@/components/monitoring/MonitoringChart";
+import MonitoringChart, { type MonitoringChartData } from "@/components/monitoring/MonitoringChart";
 import StrategyTesterDrawdownChart from "@/components/monitoring/StrategyTesterDrawdownChart";
 import StrategyTesterEquityChart from "@/components/monitoring/StrategyTesterEquityChart";
 import { useClientMounted } from "@/hooks/use-client-mounted";
@@ -58,9 +58,20 @@ function hasVisibleStatus(card: SignalCardModel): boolean {
   return days != null && days >= 0; // has a future target date
 }
 
+function signalDateDaysAhead(signalDate?: string | null): number | null {
+  if (!signalDate) return null;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const d = new Date(`${signalDate}T00:00:00`);
+  if (!isFinite(d.getTime())) return null;
+  return Math.round((d.getTime() - today.getTime()) / 86_400_000);
+}
+
 function matchesFilter(card: SignalCardModel, filter: SignalCardFilter): boolean {
   if (filter === "all") return true;
   if (filter === "open") {
+    // Cards with signalDate more than 1 day in the future belong to AUSSTEHEND
+    const sdDays = signalDateDaysAhead(card.signalDate);
+    if (sdDays != null && sdDays > 1) return false;
     const hasDir = card.direction === "LONG" || card.direction === "SHORT";
     const hasTpSl = card.tp != null && card.sl != null;
     const days = nextLabelDaysAhead(card.nextSignalLabel);
@@ -78,7 +89,10 @@ function matchesFilter(card: SignalCardModel, filter: SignalCardFilter): boolean
   if (filter === "pending") {
     if (card.direction === "PENDING") return true;
     const days = nextLabelDaysAhead(card.nextSignalLabel);
-    return days != null && days >= 0 && days <= 2;
+    if (days != null && days >= 0 && days <= 2) return true;
+    // Also show cards with signalDate more than 1 day ahead
+    const sdDays = signalDateDaysAhead(card.signalDate);
+    return sdDays != null && sdDays > 1;
   }
   return true;
 }
@@ -228,6 +242,8 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
   const [selectedCardId, setSelectedCardId] = useState<string | null>(firstCard?.id ?? null);
   const [showWatchlist, setShowWatchlist] = useState(false);
   const [fullData, setFullData] = useState(false);
+  const [ohlcBars, setOhlcBars] = useState<MonitoringChartData["bars"] | null>(null);
+  const ohlcFetchRef = useRef<AbortController | null>(null);
 
   const selectedCard = useMemo(
     () => data.cards.find((c) => c.id === selectedCardId) ?? firstCard,
@@ -259,7 +275,44 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
     if (first) setSelectedCardId(first.id);
   }, [mounted, data.cards, data.previews]);
 
+  // Dynamic OHLC: fetch fresh bars from Supabase whenever selected card changes, refresh every 30s
+  useEffect(() => {
+    const sym = selectedCard?.assetSymbol;
+    if (!sym) { setOhlcBars(null); return; }
+    ohlcFetchRef.current?.abort();
+    const ctrl = new AbortController();
+    ohlcFetchRef.current = ctrl;
+    const load = async () => {
+      try {
+        const r = await fetch(`/api/monitoring/ohlc?symbol=${encodeURIComponent(sym)}&timeframe=1D`, { signal: ctrl.signal });
+        if (!r.ok) return;
+        const d = await r.json() as { bars?: MonitoringChartData["bars"] };
+        if (Array.isArray(d.bars) && d.bars.length > 0) setOhlcBars(d.bars);
+      } catch { /* aborted or network */ }
+    };
+    load();
+    const id = setInterval(load, 30_000);
+    return () => { clearInterval(id); ctrl.abort(); };
+  }, [selectedCard?.assetSymbol]);
+
   const perf = selectedPreview?.performance ?? null;
+
+  // Merge live OHLC bars with preview signals/boxes for the chart
+  const chartData = useMemo<MonitoringChartData | null>(() => {
+    const sym = selectedCard?.displaySymbol ?? "—";
+    const name = selectedCard?.assetName ?? sym;
+    const bars = ohlcBars ?? selectedPreview?.chart?.bars ?? null;
+    if (!bars) return selectedPreview?.chart ?? null;
+    return {
+      ...(selectedPreview?.chart ?? {}),
+      displaySymbol: sym,
+      displayName: name,
+      bars,
+      signals: selectedPreview?.chart?.signals ?? [],
+      boxes: selectedPreview?.chart?.boxes ?? [],
+    };
+  }, [ohlcBars, selectedPreview, selectedCard]);
+
   const drawdownData = useMemo(() => {
     if (!perf) return [];
     const dd = perf.drawdownCurve ?? [];
@@ -398,8 +451,8 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
             </div>
           </div>
 
-          {mounted && selectedPreview?.chart ? (
-            <MonitoringChart data={selectedPreview.chart} maxBars={320} initialVisibleBars={56} />
+          {mounted && chartData ? (
+            <MonitoringChart data={chartData} maxBars={320} initialVisibleBars={56} />
           ) : (
             <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <div style={{ fontSize: 10, color: "rgba(255,255,255,0.2)" }}>
