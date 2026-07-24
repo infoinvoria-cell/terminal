@@ -406,27 +406,9 @@ export async function loadMonitoringCandles(
     // (e.g. OANDA:DE30EUR at 2H or 1H is only listed at 30m in the universe).
     // In that case we do NOT bail — the cache_manifest_full.json is authoritative
     // for Intraday MT and we continue with manifest-based resolution below.
-    if (!universeAsset && !isIntradayMtTab) {
-      return {
-        ok: false,
-        status: "load_error",
-        bars: [],
-        error: "Asset not found in monitoring_asset_universe.json",
-        resolvedPath: undefined,
-        staleData: false,
-        manifestGeneratedAt: null,
-        barCount: 0,
-        firstDate: null,
-        lastDate: null,
-        payload: null,
-        mergeStatus: "no_snapshot",
-        mergeWarning: null,
-        snapshotDate: null,
-        historyLastDateBeforeMerge: null,
-        historyCloseBeforeMerge: null,
-        snapshotClose: null,
-      };
-    }
+    // For all other tabs: if not in universe JSON, still attempt Supabase fallback
+    // (covers new assets from strategy-registry not yet added to universe JSON).
+    // We only bail here if there's a definitive "no data" signal from the universe.
 
     if (universeAsset && universeAsset.hasData === false) {
       return {
