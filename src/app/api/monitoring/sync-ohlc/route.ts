@@ -27,7 +27,8 @@ const YF_TICKER: Record<string, string> = {
   // Futures
   "GC1!": "GC=F", "SI1!": "SI=F", "PL1!": "PL=F", "PA1!": "PA=F",
   "CL1!": "CL=F", "NG1!": "NG=F", "HG1!": "HG=F", "RB1!": "RB=F",
-  "ES1!": "ES=F", "NQ1!": "NQ=F", "YM1!": "YM=F", "FDAX1!": "FDAX1=F",
+  "ES1!": "ES=F", "NQ1!": "NQ=F", "YM1!": "YM=F", "FDAX1!": "^GDAXI",
+  "RTY1!": "RTY=F", "ZB1!": "ZB=F",
   "ZC1!": "ZC=F", "ZW1!": "ZW=F", "ZS1!": "ZS=F",
   "CC1!": "CC=F", "KC1!": "KC=F", "SB1!": "SB=F", "CT1!": "CT=F",
   "OJ1!": "OJ=F",
@@ -36,6 +37,12 @@ const YF_TICKER: Record<string, string> = {
   EURGBP: "EURGBP=X", GBPJPY: "GBPJPY=X",
   ZARUSD: "ZAR=X", MXNUSD: "MXN=X", SEKUSD: "SEK=X",
   BRLUSD: "BRL=X", CLPUSD: "CLP=X",
+  "6E1!": "6E=F",
+  // Indices / Reference
+  VIX: "^VIX", DXY: "DX-Y.NYB", US10Y: "^TNX",
+  UKX: "^FTSE", "UKX!": "^FTSE", SPX: "^GSPC",
+  // Strategy-specific alias
+  NAS100USD_E_STEP_INVEST: "NQ=F",
 };
 
 // ── Types ─────────────────────────────────────────────────────────────────────
