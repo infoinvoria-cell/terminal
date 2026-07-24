@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { TrendingUp } from "lucide-react";
+import { TrendingUp, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import {
@@ -12,31 +12,84 @@ import {
 // ── design tokens ─────────────────────────────────────────────────────────────
 const GOLD  = "#e2ca7a";
 const MUTED = "#737373";
-const DIM   = "#3a3a3a";
+const DIM   = "#2e2e2e";
 const RED   = "#c0392b";
 const BG    = "#0c0d10";
 const CARD  = "linear-gradient(180deg,#1c1d20 0%,#141517 100%)";
 const CBORD = "rgba(255,255,255,0.06)";
 const RBORD = "rgba(255,255,255,0.04)";
 
-// ── portfolio config ──────────────────────────────────────────────────────────
+// ── icon map (strategy ticker → /asset-icons/ filename) ──────────────────────
+const AI = "/asset-icons/";
+const TICKER_ICON: Record<string, string | null> = {
+  "ES1!":         AI + "es_s&p.png",
+  "NQ1!":         AI + "nasdaq.png",
+  "YM1!":         AI + "dow_jones.png",
+  "GC1!":         AI + "gold.png",
+  "GLD":          AI + "gold.png",
+  "SI1!":         AI + "silver.png",
+  "HG1!":         AI + "Kupfer.webp",
+  "PL1!":         AI + "platinum.png",
+  "PA1!":         AI + "palladium.png",
+  "CL1!":         AI + "crude_oil.png",
+  "NG1!":         AI + "crude_oil.png",
+  "RB1!":         AI + "crude_oil.png",
+  "CT1!":         AI + "cotton.png",
+  "SB1!":         AI + "sugar.png",
+  "OJ1!":         AI + "orange_juice.jpg",
+  "ZC1!":         AI + "corn.png",
+  "ZW1!":         AI + "wheat.png",
+  "ZS1!":         AI + "soybeans.png",
+  "CC1!":         AI + "cocoa.webp",
+  "KC1!":         AI + "coffee.png",
+  "FDAX1!":       AI + "dax.png",
+  "UKX!":         AI + "gbp.png",
+  "GOOGL":        AI + "google.png",
+  "NVDA":         AI + "nvidia.png",
+  "MSFT":         AI + "microsoft.png",
+  "AAPL":         AI + "apple.png",
+  "META":         AI + "meta.png",
+  "AMZN":         AI + "amazon.png",
+  "EURUSD 30M":   AI + "eurusd.png",
+  "GBPUSD 30M":   AI + "gbpusd.png",
+  "DAX 1H / MT":  AI + "dax.png",
+  "DAX 2H":       AI + "dax.png",
+  "QQQ":          AI + "nasdaq.png",
+  "SPY":          AI + "es_s&p.png",
+  "SPMO":         AI + "es_s&p.png",
+  "6S1!":         AI + "chf.png",
+};
+
+function TickerIcon({ ticker }: { ticker: string }) {
+  const src = TICKER_ICON[ticker] ?? null;
+  if (!src) return null;
+  return (
+    <img
+      src={src} alt="" width={14} height={14}
+      style={{ width: 14, height: 14, objectFit: "contain", borderRadius: 3, flexShrink: 0 }}
+      onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
+    />
+  );
+}
+
+// ── portfolio types ───────────────────────────────────────────────────────────
 type Portfolio = "ws" | "ci";
-type WSSection = "all" | "active" | Pillar;
-type CISection = "all" | CIPillar;
+type SortKey = "ticker"|"label"|"pillar"|"weight"|"sharpeOos"|"cagr"|"maxDd"|"pf"|"trades"|"wfWin"|"status";
+type SortDir = "desc"|"asc";
 
 const WS_KPIS = [
-  { label: "Sharpe OOS",   value: "1.526" },
-  { label: "CAGR OOS",     value: "+8.36%" },
-  { label: "Max DD",       value: "−8.71%" },
-  { label: "Calmar",       value: "0.78" },
-  { label: "Komponenten",  value: "25" },
+  { label: "Sharpe OOS", value: "1.526" },
+  { label: "CAGR OOS",   value: "+8.36%" },
+  { label: "Max DD",     value: "−8.71%" },
+  { label: "Calmar",     value: "0.78" },
+  { label: "Strategien", value: "28" },
 ];
 const CI_KPIS = [
-  { label: "Sharpe OOS",  value: "1.152" },
-  { label: "CAGR OOS",    value: "+17.11%" },
-  { label: "Max DD",      value: "−21.7%" },
-  { label: "Calmar",      value: "0.787" },
-  { label: "Positionen",  value: "8" },
+  { label: "Sharpe OOS", value: "1.152" },
+  { label: "CAGR OOS",   value: "+17.11%" },
+  { label: "Max DD",     value: "−21.7%" },
+  { label: "Calmar",     value: "0.787" },
+  { label: "Positionen", value: "8" },
 ];
 
 // ── unified display row ───────────────────────────────────────────────────────
@@ -48,8 +101,7 @@ interface DisplayRow {
   cagr: string | null; maxDd: string | null;
   pf: number | null; trades: number | null;
   wfWin: string | null; calmar: number | null;
-  status: string;
-  dataFile?: string; isNotes?: string; exchange?: string;
+  status: string; dataFile?: string; isNotes?: string; exchange?: string;
 }
 
 function wsRow(r: StrategyRow): DisplayRow {
@@ -70,15 +122,41 @@ function ciRow(r: CoreInvestRow): DisplayRow {
     pillarKey: r.pillar, pillarLabel: CI_META[r.pillar as CIPillar].label,
     weight: r.weight, sharpeOos: null,
     cagr: r.totalReturn ?? null, maxDd: r.maxDd, pf: r.pf, trades: r.trades,
-    wfWin: r.winRate, calmar: null, status: r.status,
-    isNotes: r.notes,
+    wfWin: r.winRate, calmar: null, status: r.status, isNotes: r.notes,
   };
 }
 
 const WS_ROWS = WS_STRATEGIES.map(wsRow);
 const CI_ROWS = CI_STRATEGIES.map(ciRow);
 
-// ── data types for JSON ───────────────────────────────────────────────────────
+// ── live feed types ───────────────────────────────────────────────────────────
+interface LiveItem { symbol: string; lastClose: number | null; changePct: number | null; lastDate: string | null; firstDate: string | null; dataStatus?: string; }
+
+function matchLive(ticker: string, live: Map<string, LiveItem>): LiveItem | null {
+  const keys = [
+    ticker,
+    ticker.replace(" 30M", "").replace(" / MT", "").replace("1H", "").trim(),
+    ticker.replace(/[\s/].*/, ""),
+    ticker.replace("1!", "").replace("1", ""),
+    ticker.split(" ")[0],
+  ];
+  for (const k of keys) {
+    const v = live.get(k);
+    if (v) return v;
+  }
+  return null;
+}
+
+function fmtPrice(v: number | null, ticker: string): string {
+  if (v === null) return "—";
+  const isFx = /USD|EUR|GBP|JPY|AUD|CHF|CAD|NZD/.test(ticker) && !/1!/.test(ticker);
+  if (isFx) return v.toFixed(4);
+  if (v > 10000) return v.toLocaleString("de", { maximumFractionDigits: 0 });
+  if (v > 100) return v.toFixed(2);
+  return v.toFixed(4);
+}
+
+// ── data types for charts ─────────────────────────────────────────────────────
 interface EP { time: string; value: number; }
 interface Trade { entry_time: string; exit_time: string; entry_price: number; exit_price: number; pnl: number; }
 interface OhlcBar { time: string; open: number; high: number; low: number; close: number; }
@@ -89,42 +167,73 @@ interface StrategyData {
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 function fmtN(v: number | null, d = 2) { return v === null ? "—" : v.toFixed(d); }
-
 function valColor(s: string | null): string {
-  if (!s) return "rgba(255,255,255,0.55)";
-  if (s.startsWith("+")) return "#fff";
+  if (!s) return "rgba(255,255,255,0.45)";
+  if (s.startsWith("+")) return "rgba(255,255,255,0.85)";
   if (s.startsWith("−") || s.startsWith("-")) return RED;
-  return "rgba(255,255,255,0.8)";
+  return "rgba(255,255,255,0.6)";
 }
 
-// ── SwanIcon ──────────────────────────────────────────────────────────────────
 function SwanIcon({ size = 14 }: { size?: number }) {
   return <img src="/branding/white-swan-logo.png" alt="WS" width={size} height={size} style={{ width: size, height: size, objectFit: "contain" }} />;
 }
 
-// ── header KPI card (compact, no subtitle) ────────────────────────────────────
+// ── compact KPI card (header right side) ─────────────────────────────────────
 function HKpi({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ background: CARD, border: `1px solid ${CBORD}`, borderRadius: 14, padding: "10px 16px", textAlign: "center" as const, boxShadow: "0 8px 24px -10px rgba(0,0,0,0.6)", minWidth: 90 }}>
-      <div style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 500, color: MUTED, letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 5 }}>{label}</div>
-      <div style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 20, fontWeight: 700, letterSpacing: "-.02em", color: "#fff" }}>{value}</div>
+    <div style={{ background: CARD, border: `1px solid ${CBORD}`, borderRadius: 12, padding: "8px 14px", textAlign: "left" as const, boxShadow: "0 6px 18px -8px rgba(0,0,0,0.6)", minWidth: 80 }}>
+      <div style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 9, fontWeight: 600, color: MUTED, letterSpacing: ".08em", textTransform: "uppercase" as const, marginBottom: 4 }}>{label}</div>
+      <div style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 18, fontWeight: 700, letterSpacing: "-.02em", color: "#fff", lineHeight: 1 }}>{value}</div>
     </div>
   );
 }
 
-// ── expand KPI card (white positive, gold negative) ───────────────────────────
+// ── expanded KPI mini-card (white positive, gold negative) ───────────────────
 function EKpi({ label, value }: { label: string; value: string }) {
   const isNeg = value.startsWith("−") || value.startsWith("-");
-  const color = isNeg ? GOLD : "#fff";
   return (
-    <div style={{ background: CARD, border: `1px solid ${CBORD}`, borderRadius: 12, padding: "10px 14px", minWidth: 88, flex: 1 }}>
-      <div style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 500, color: MUTED, letterSpacing: ".06em", textTransform: "uppercase" as const, marginBottom: 6 }}>{label}</div>
-      <div style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 17, fontWeight: 700, letterSpacing: "-.02em", color }}>{value}</div>
+    <div style={{ background: CARD, border: `1px solid ${CBORD}`, borderRadius: 10, padding: "8px 12px", minWidth: 80, flex: 1 }}>
+      <div style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 9, fontWeight: 600, color: MUTED, letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 5 }}>{label}</div>
+      <div style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 16, fontWeight: 700, letterSpacing: "-.02em", color: isNeg ? GOLD : "#fff" }}>{value}</div>
     </div>
   );
 }
 
-// ── candlestick ───────────────────────────────────────────────────────────────
+// ── section filter pill ───────────────────────────────────────────────────────
+function Pill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button onClick={onClick} style={{
+      fontFamily: "var(--font-montserrat),sans-serif",
+      fontSize: 10, fontWeight: 600, letterSpacing: ".07em", textTransform: "uppercase" as const,
+      padding: "4px 11px", borderRadius: 20, cursor: "pointer",
+      background: active ? "rgba(255,255,255,0.07)" : "transparent",
+      border: active ? "1px solid rgba(255,255,255,0.18)" : `1px solid ${RBORD}`,
+      color: active ? "#fff" : MUTED,
+      transition: "all .1s",
+    }}>{label}</button>
+  );
+}
+
+// ── status chip ───────────────────────────────────────────────────────────────
+function Chip({ status }: { status: string }) {
+  const cfg: Record<string, { label: string; c: string }> = {
+    active:         { label: "Aktiv",      c: "rgba(255,255,255,0.55)" },
+    watch:          { label: "Watch",      c: GOLD },
+    archived:       { label: "Archiviert", c: "rgba(255,255,255,0.18)" },
+    research:       { label: "Research",   c: "rgba(255,255,255,0.3)" },
+    validation:     { label: "Validation", c: "rgba(255,255,255,0.45)" },
+    parity_pending: { label: "Pending",    c: GOLD },
+  };
+  const s = cfg[status] ?? { label: status, c: MUTED };
+  return (
+    <span style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, color: s.c, display: "inline-flex", alignItems: "center", gap: 4 }}>
+      <span style={{ width: 4, height: 4, borderRadius: "50%", background: s.c, flexShrink: 0 }} />
+      {s.label}
+    </span>
+  );
+}
+
+// ── candlestick chart ─────────────────────────────────────────────────────────
 function CandleChart({ ticker, trades }: { ticker: string; trades: Trade[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const [bars, setBars] = useState<OhlcBar[] | null>(null);
@@ -141,7 +250,7 @@ function CandleChart({ ticker, trades }: { ticker: string; trades: Trade[] }) {
       if (!ref.current) return;
       const el = ref.current;
       const chart = createChart(el, {
-        width: el.clientWidth, height: 220,
+        width: el.clientWidth, height: 200,
         layout: { background: { color: "transparent" }, textColor: MUTED },
         grid: { vertLines: { color: "rgba(255,255,255,0.03)" }, horzLines: { color: "rgba(255,255,255,0.03)" } },
         rightPriceScale: { borderColor: "rgba(255,255,255,0.07)" },
@@ -169,21 +278,20 @@ function CandleChart({ ticker, trades }: { ticker: string; trades: Trade[] }) {
   if (bars === null) return <div style={{ height: 40, display: "flex", alignItems: "center", fontSize: 11, color: DIM, fontFamily: "var(--font-montserrat),sans-serif" }}>Lade Chart…</div>;
   if (!bars.length) return null;
   return (
-    <div style={{ marginBottom: 20 }}>
-      <div style={{ fontSize: 10, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 6 }}>OHLC 2019 – 2026 · Entry / Exit</div>
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontSize: 10, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 5 }}>OHLC 2019 – 2026 · Entry / Exit</div>
       <div ref={ref} style={{ borderRadius: 8, overflow: "hidden" }} />
     </div>
   );
 }
 
-// ── equity / DD charts ────────────────────────────────────────────────────────
 function EqChart({ pts, label }: { pts: EP[]; label: string }) {
   const step = Math.max(1, Math.floor(pts.length / 120));
   const d = pts.filter((_,i) => i % step === 0 || i === pts.length-1).map(p => ({ t: p.time.slice(0,7), v: Math.round(p.value) }));
   return (
     <div>
-      <div style={{ fontSize: 10, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 6 }}>{label}</div>
-      <ResponsiveContainer width="100%" height={110}>
+      <div style={{ fontSize: 10, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 5 }}>{label}</div>
+      <ResponsiveContainer width="100%" height={100}>
         <AreaChart data={d} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
           <defs><linearGradient id="eqg" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#fff" stopOpacity={0.12}/><stop offset="95%" stopColor="#fff" stopOpacity={0.01}/></linearGradient></defs>
           <XAxis dataKey="t" hide /><YAxis hide domain={["auto","auto"]} />
@@ -202,8 +310,8 @@ function DdChart({ pts }: { pts: EP[] }) {
   const d = pts.filter((_,i) => i % step === 0 || i === pts.length-1).map(p => ({ t: p.time.slice(0,7), v: Math.round(p.value*100)/100 }));
   return (
     <div>
-      <div style={{ fontSize: 10, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 6 }}>Drawdown OOS</div>
-      <ResponsiveContainer width="100%" height={80}>
+      <div style={{ fontSize: 10, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 5 }}>Drawdown OOS</div>
+      <ResponsiveContainer width="100%" height={70}>
         <AreaChart data={d} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
           <defs><linearGradient id="ddg" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={RED} stopOpacity={0.3}/><stop offset="95%" stopColor={RED} stopOpacity={0.02}/></linearGradient></defs>
           <XAxis dataKey="t" hide /><YAxis hide />
@@ -242,70 +350,71 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
   if (row.calmar != null) kpis.push({ label: "Calmar", value: fmtN(row.calmar) });
 
   return (
-    <div style={{ padding: "18px 20px 22px", background: "rgba(255,255,255,0.015)", borderTop: `1px solid ${RBORD}` }}>
-      {/* meta */}
-      <div style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 11, color: MUTED, marginBottom: 14 }}>
+    <div style={{ padding: "16px 18px 20px", background: "rgba(255,255,255,0.012)", borderTop: `1px solid ${RBORD}` }}>
+      <div style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 11, color: MUTED, marginBottom: 12 }}>
         {[row.engine, row.exchange, row.group].filter(Boolean).join(" · ")}
       </div>
       {row.isNotes && (
-        <div style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 11, color: GOLD, background: "rgba(226,202,122,0.05)", border: `1px solid rgba(226,202,122,0.12)`, borderRadius: 8, padding: "7px 11px", marginBottom: 14 }}>
+        <div style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 11, color: GOLD, background: "rgba(226,202,122,0.05)", border: `1px solid rgba(226,202,122,0.12)`, borderRadius: 8, padding: "6px 10px", marginBottom: 12 }}>
           {row.isNotes}
         </div>
       )}
-      {/* KPI cards */}
       {kpis.length > 0 && (
-        <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" as const }}>
+        <div style={{ display: "flex", gap: 7, marginBottom: 16, flexWrap: "wrap" as const }}>
           {kpis.map(k => <EKpi key={k.label} label={k.label} value={k.value} />)}
         </div>
       )}
-      {/* charts */}
       {trades.length > 0 && <CandleChart ticker={row.ticker} trades={trades} />}
       {eqOos && eqOos.length > 0 && (
-        <div style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: 16 }}>
           <EqChart pts={eqOos} label={`Equity OOS${oos?.cagr != null ? ` · +${oos.cagr.toFixed(2)}% CAGR` : ""}`} />
           {ddOos && ddOos.length > 0 && <DdChart pts={ddOos} />}
-        </div>
-      )}
-      {!row.dataFile && row.section === "ws" && (
-        <div style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 11, color: DIM, paddingTop: 4 }}>
-          Keine Equity-Datei — Strategie im Portfolio-Kontext berechnet.
         </div>
       )}
     </div>
   );
 }
 
-// ── status chip ───────────────────────────────────────────────────────────────
-function Chip({ status }: { status: string }) {
-  const cfg: Record<string, { label: string; c: string }> = {
-    active:         { label: "Aktiv",       c: "rgba(255,255,255,0.6)" },
-    watch:          { label: "Watch",       c: GOLD },
-    archived:       { label: "Archived",    c: DIM },
-    research:       { label: "Research",    c: "rgba(255,255,255,0.35)" },
-    validation:     { label: "Validation",  c: "rgba(255,255,255,0.5)" },
-    parity_pending: { label: "Pending",     c: GOLD },
-  };
-  const s = cfg[status] ?? { label: status, c: DIM };
+// ── sortable column header ────────────────────────────────────────────────────
+function Th({ label, k, sortKey, sortDir, onSort, style }: {
+  label: string; k: SortKey; sortKey: SortKey | null; sortDir: SortDir;
+  onSort: (k: SortKey) => void; style?: React.CSSProperties;
+}) {
+  const active = sortKey === k;
   return (
-    <span style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, color: s.c, letterSpacing: ".04em", display: "inline-flex", alignItems: "center", gap: 4 }}>
-      <span style={{ width: 4, height: 4, borderRadius: "50%", background: s.c, flexShrink: 0 }} />
-      {s.label}
-    </span>
+    <th
+      onClick={() => onSort(k)}
+      style={{
+        fontFamily: "var(--font-montserrat),sans-serif",
+        fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase" as const,
+        color: active ? "rgba(255,255,255,0.7)" : MUTED,
+        padding: "0 8px 9px", whiteSpace: "nowrap" as const,
+        borderBottom: `1px solid ${RBORD}`, background: BG, userSelect: "none" as const,
+        cursor: "pointer", transition: "color .1s",
+        ...style,
+      }}
+    >
+      {label}
+      {active && <span style={{ marginLeft: 3, fontSize: 9, opacity: 0.7 }}>{sortDir === "desc" ? "↓" : "↑"}</span>}
+    </th>
   );
 }
 
-// ── section filter button ─────────────────────────────────────────────────────
-function SectionBtn({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+// ── live countdown ring ───────────────────────────────────────────────────────
+function LiveTimer({ secs, max }: { secs: number; max: number }) {
+  const r = 7, circ = 2 * Math.PI * r;
+  const pct = secs / max;
   return (
-    <button onClick={onClick} style={{
-      fontFamily: "var(--font-montserrat),sans-serif",
-      fontSize: 10, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase" as const,
-      padding: "4px 12px", borderRadius: 20, cursor: "pointer",
-      background: active ? "rgba(255,255,255,0.07)" : "transparent",
-      border: active ? `1px solid rgba(255,255,255,0.18)` : `1px solid ${RBORD}`,
-      color: active ? "#fff" : MUTED,
-      transition: "all .12s",
-    }}>{label}</button>
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+      <svg width={16} height={16} style={{ transform: "rotate(-90deg)" }}>
+        <circle cx={8} cy={8} r={r} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={1.5} />
+        <circle cx={8} cy={8} r={r} fill="none" stroke={GOLD} strokeWidth={1.5}
+          strokeDasharray={`${circ * pct} ${circ}`} strokeLinecap="round" />
+      </svg>
+      <span style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, color: MUTED, fontVariantNumeric: "tabular-nums" }}>
+        {secs}s
+      </span>
+    </span>
   );
 }
 
@@ -314,57 +423,84 @@ export default function StrategyMasterTable() {
   const [portfolio, setPortfolio] = useState<Portfolio>("ws");
   const [section, setSection]     = useState<string>("all");
   const [expandedId, setExpId]    = useState<string | null>(null);
-  const [sortKey, setSortKey]     = useState<"sharpeOos"|"weight"|"cagr"|null>(null);
-  const [sortDir, setSortDir]     = useState<"desc"|"asc">("desc");
+  const [sortKey, setSortKey]     = useState<SortKey | null>("weight");
+  const [sortDir, setSortDir]     = useState<SortDir>("desc");
+  const [liveCols, setLiveCols]   = useState(false);
+  const [liveData, setLiveData]   = useState<Map<string, LiveItem>>(new Map());
+  const [liveTimer, setLiveTimer] = useState(30);
+  const LIVE_INTERVAL = 30;
 
-  // reset section when switching portfolio
+  // live feed polling
+  useEffect(() => {
+    if (!liveCols) return;
+    let timer = LIVE_INTERVAL;
+    const fetchLive = () => {
+      fetch("/api/monitoring/live-feed")
+        .then(r => r.json())
+        .then((items: LiveItem[]) => {
+          const m = new Map<string, LiveItem>();
+          items.forEach(i => { if (i.symbol) m.set(i.symbol, i); });
+          setLiveData(m);
+          timer = LIVE_INTERVAL;
+        })
+        .catch(() => {});
+    };
+    fetchLive();
+    const poll = setInterval(fetchLive, LIVE_INTERVAL * 1000);
+    const tick = setInterval(() => {
+      timer = Math.max(0, timer - 1);
+      setLiveTimer(timer);
+    }, 1000);
+    return () => { clearInterval(poll); clearInterval(tick); };
+  }, [liveCols]);
+
   const switchPortfolio = useCallback((p: Portfolio) => {
-    setPortfolio(p);
-    setSection("all");
-    setExpId(null);
-    setSortKey(null);
+    setPortfolio(p); setSection("all"); setExpId(null); setSortKey("weight"); setSortDir("desc");
   }, []);
 
-  const toggleSort = useCallback((key: "sharpeOos"|"weight"|"cagr") => {
+  const handleSort = useCallback((k: SortKey) => {
     setSortKey(prev => {
-      if (prev === key) { setSortDir(d => d === "desc" ? "asc" : "desc"); return key; }
-      setSortDir("desc"); return key;
+      if (prev === k) { setSortDir(d => d === "desc" ? "asc" : "desc"); return k; }
+      setSortDir("desc"); return k;
     });
   }, []);
 
   const toggle = useCallback((id: string) => setExpId(prev => prev === id ? null : id), []);
 
-  // --- build rows ---
+  // filter rows
   const baseRows: DisplayRow[] = portfolio === "ws" ? WS_ROWS : CI_ROWS;
-
   let rows = baseRows;
-  if (section === "active") {
-    rows = rows.filter(r => r.status !== "archived");
-  } else if (section !== "all") {
-    rows = rows.filter(r => r.pillarKey === section);
+  if (section === "active") rows = rows.filter(r => r.status !== "archived");
+  else if (section !== "all") rows = rows.filter(r => r.pillarKey === section);
+
+  // sort
+  if (sortKey) {
+    rows = [...rows].sort((a, b) => {
+      let va: string | number, vb: string | number;
+      switch (sortKey) {
+        case "ticker":    va = a.ticker;    vb = b.ticker;    break;
+        case "label":     va = a.label;     vb = b.label;     break;
+        case "pillar":    va = a.pillarLabel; vb = b.pillarLabel; break;
+        case "status":    va = a.status;    vb = b.status;    break;
+        case "weight":    va = a.weight ?? -Infinity; vb = b.weight ?? -Infinity; break;
+        case "sharpeOos": va = a.sharpeOos ?? -Infinity; vb = b.sharpeOos ?? -Infinity; break;
+        case "pf":        va = a.pf ?? -Infinity; vb = b.pf ?? -Infinity; break;
+        case "trades":    va = a.trades ?? -Infinity; vb = b.trades ?? -Infinity; break;
+        case "cagr":      va = parseFloat((a.cagr??"").replace(/[^0-9.-]/g,"")) || -Infinity; vb = parseFloat((b.cagr??"").replace(/[^0-9.-]/g,"")) || -Infinity; break;
+        case "maxDd":     va = parseFloat((a.maxDd??"").replace(/[^0-9.-]/g,"")) || -Infinity; vb = parseFloat((b.maxDd??"").replace(/[^0-9.-]/g,"")) || -Infinity; break;
+        case "wfWin":     va = parseFloat((a.wfWin??"").replace(/[^0-9.]/g,"")) || 0; vb = parseFloat((b.wfWin??"").replace(/[^0-9.]/g,"")) || 0; break;
+        default:          return 0;
+      }
+      if (typeof va === "string" && typeof vb === "string") {
+        const cmp = va.localeCompare(vb);
+        return sortDir === "asc" ? cmp : -cmp;
+      }
+      const nva = va as number, nvb = vb as number;
+      return sortDir === "desc" ? nvb - nva : nva - nvb;
+    });
   }
 
-  // auto-sort in "all" mode: data-rich first, then by sharpe
-  const autoSort = section === "all" && !sortKey;
-  if (autoSort) {
-    rows = [...rows].sort((a, b) => {
-      const aHas = (a.sharpeOos !== null || a.dataFile) ? 1 : 0;
-      const bHas = (b.sharpeOos !== null || b.dataFile) ? 1 : 0;
-      if (aHas !== bHas) return bHas - aHas;
-      return (b.sharpeOos ?? -99) - (a.sharpeOos ?? -99);
-    });
-  } else if (sortKey) {
-    rows = [...rows].sort((a, b) => {
-      let va: number, vb: number;
-      if (sortKey === "sharpeOos")  { va = a.sharpeOos ?? -Infinity; vb = b.sharpeOos ?? -Infinity; }
-      else if (sortKey === "weight"){ va = a.weight ?? -Infinity;     vb = b.weight ?? -Infinity; }
-      else { va = parseFloat((a.cagr??"").replace(/[^0-9.-]/g,"")) || -Infinity; vb = parseFloat((b.cagr??"").replace(/[^0-9.-]/g,"")) || -Infinity; }
-      return sortDir === "desc" ? vb - va : va - vb;
-    });
-  }
-
-  // section filter buttons
-  const wsSections: Array<{ key: string; label: string }> = [
+  const wsSections = [
     { key: "all",       label: "Alle" },
     { key: "active",    label: "Nur Aktive" },
     { key: "valuation", label: "Valuation" },
@@ -374,96 +510,112 @@ export default function StrategyMasterTable() {
     { key: "anomaly",   label: "Anomaly" },
     { key: "intraday",  label: "Intraday" },
   ];
-  const ciSections: Array<{ key: string; label: string }> = [
+  const ciSections = [
     { key: "all",       label: "Alle" },
     { key: "etf_core",  label: "ETF-Core" },
-    { key: "ci_sleeve", label: "Strategy Sleeve" },
+    { key: "ci_sleeve", label: "Sleeve" },
   ];
   const sections = portfolio === "ws" ? wsSections : ciSections;
   const kpis = portfolio === "ws" ? WS_KPIS : CI_KPIS;
 
-  const th: React.CSSProperties = {
-    fontFamily: "var(--font-montserrat),sans-serif",
-    fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase",
-    color: MUTED, padding: "0 10px 10px", textAlign: "left", whiteSpace: "nowrap",
-    borderBottom: `1px solid ${RBORD}`, background: BG, userSelect: "none",
-  };
-  const thR: React.CSSProperties = { ...th, textAlign: "right" };
-  const si = (k: typeof sortKey) => sortKey === k ? (sortDir === "desc" ? " ↓" : " ↑") : "";
-
+  const thBase: React.CSSProperties = { textAlign: "right" as const };
+  const thL: React.CSSProperties = { textAlign: "left" as const };
   let rowNum = 0;
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", padding: "18px 24px 0", background: BG, fontFamily: "var(--font-montserrat),sans-serif" }}>
+  const LIVE_COLS = 3;
 
-      {/* ── top bar: title left, portfolio switcher right ─── */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, flexShrink: 0 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: "#fff", letterSpacing: "-.02em", margin: 0 }}>Komponenten</h1>
-        <div style={{ display: "flex", gap: 6 }}>
-          {([
-            { id: "ws" as Portfolio, label: "White Swan",  icon: <SwanIcon size={14} /> },
-            { id: "ci" as Portfolio, label: "Core Invest", icon: <TrendingUp size={14} strokeWidth={1.8} /> },
-          ]).map(item => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => switchPortfolio(item.id)}
-              className={cn(
-                "flex items-center gap-2 rounded-full border px-4 py-2 text-[13px] font-semibold transition-colors [font-family:var(--font-montserrat),sans-serif]",
-                portfolio === item.id
-                  ? "border-white/40 bg-white/[0.06] text-white"
-                  : "border-transparent text-zinc-500 hover:border-white/[0.08] hover:text-zinc-300",
-              )}
-            >
-              {item.icon}
-              {item.label}
-            </button>
-          ))}
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", padding: "14px 20px 0", background: BG, fontFamily: "var(--font-montserrat),sans-serif" }}>
+      <style>{`.kmp-scroll::-webkit-scrollbar{display:none}.kmp-scroll{scrollbar-width:none;-ms-overflow-style:none}`}</style>
+
+      {/* ── top bar: left (title + switcher) · right (KPI cards) ── */}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 12, flexShrink: 0, gap: 16 }}>
+
+        {/* left: title + portfolio switcher */}
+        <div>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: "#fff", letterSpacing: "-.02em", margin: "0 0 8px" }}>Komponenten</h1>
+          <div style={{ display: "flex", gap: 6 }}>
+            {([
+              { id: "ws" as Portfolio, label: "White Swan",  icon: <SwanIcon size={13} /> },
+              { id: "ci" as Portfolio, label: "Core Invest", icon: <TrendingUp size={13} strokeWidth={1.8} /> },
+            ]).map(item => (
+              <button
+                key={item.id} type="button"
+                onClick={() => switchPortfolio(item.id)}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors [font-family:var(--font-montserrat),sans-serif]",
+                  portfolio === item.id
+                    ? "border-white/40 bg-white/[0.06] text-white"
+                    : "border-transparent text-zinc-500 hover:border-white/[0.08] hover:text-zinc-300",
+                )}
+              >
+                {item.icon}{item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* right: compact KPI cards */}
+        <div style={{ display: "flex", gap: 7, flexWrap: "wrap" as const, justifyContent: "flex-end" }}>
+          {kpis.map(k => <HKpi key={k.label} label={k.label} value={k.value} />)}
         </div>
       </div>
 
-      {/* ── KPI cards (centered, compact) ────────────────── */}
-      <div style={{ display: "flex", gap: 10, justifyContent: "center", marginBottom: 16, flexShrink: 0 }}>
-        {kpis.map(k => <HKpi key={k.label} label={k.label} value={k.value} />)}
+      {/* ── filter bar + live toggle ── */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 9, flexShrink: 0 }}>
+        <div style={{ display: "flex", gap: 5, flexWrap: "wrap" as const }}>
+          {sections.map(s => (
+            <Pill key={s.key} label={s.label} active={section === s.key}
+              onClick={() => { setSection(s.key); setExpId(null); }} />
+          ))}
+        </div>
+
+        {/* live columns toggle */}
+        <button
+          onClick={() => setLiveCols(v => !v)}
+          title={liveCols ? "Live-Spalten ausblenden" : "Live-Spalten einblenden"}
+          style={{
+            display: "flex", alignItems: "center", gap: 5,
+            fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600,
+            letterSpacing: ".06em", textTransform: "uppercase" as const,
+            padding: "4px 10px", borderRadius: 8, cursor: "pointer",
+            background: liveCols ? "rgba(226,202,122,0.08)" : "transparent",
+            border: liveCols ? `1px solid rgba(226,202,122,0.25)` : `1px solid ${RBORD}`,
+            color: liveCols ? GOLD : MUTED,
+            transition: "all .15s", flexShrink: 0,
+          }}
+        >
+          <LayoutGrid size={12} />
+          Live
+          {liveCols && <LiveTimer secs={liveTimer} max={LIVE_INTERVAL} />}
+        </button>
       </div>
 
-      {/* ── section filter bar ────────────────────────────── */}
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12, flexShrink: 0, flexWrap: "wrap" as const }}>
-        {sections.map(s => (
-          <SectionBtn key={s.key} label={s.label} active={section === s.key} onClick={() => { setSection(s.key); setExpId(null); setSortKey(null); }} />
-        ))}
-        {sortKey && (
-          <button onClick={() => setSortKey(null)} style={{ marginLeft: "auto", fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, color: MUTED, background: "transparent", border: `1px solid ${RBORD}`, borderRadius: 20, padding: "4px 10px", cursor: "pointer" }}>
-            ✕ Sort
-          </button>
-        )}
-      </div>
-
-      {/* ── table wrapper (relative for gradient overlay) ─── */}
+      {/* ── table wrapper ── */}
       <div style={{ flex: 1, minHeight: 0, position: "relative" }}>
-        {/* invisible scrollbar */}
-        <style>{`
-          .kmp-scroll::-webkit-scrollbar { display: none; }
-          .kmp-scroll { scrollbar-width: none; -ms-overflow-style: none; }
-        `}</style>
-
-        <div className="kmp-scroll" style={{ height: "100%", overflowY: "auto", borderRadius: "10px 10px 0 0", border: `1px solid ${RBORD}`, borderBottom: "none" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+        <div className="kmp-scroll" style={{ height: "100%", overflowY: "auto", borderRadius: "9px 9px 0 0", border: `1px solid ${RBORD}`, borderBottom: "none" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
             <thead style={{ position: "sticky", top: 0, zIndex: 2 }}>
               <tr>
-                <th style={{ ...th, width: 32, textAlign: "right" as const }}>#</th>
-                <th style={{ ...th, width: 26 }} />
-                <th style={th}>Ticker</th>
-                <th style={th}>Asset</th>
-                <th style={th}>{portfolio === "ws" ? "Pillar" : "Typ"}</th>
-                <th style={{ ...thR, cursor: "pointer" }} onClick={() => toggleSort("weight")}>Gew.{si("weight")}</th>
-                <th style={{ ...thR, cursor: "pointer" }} onClick={() => toggleSort("sharpeOos")}>Sharpe{si("sharpeOos")}</th>
-                <th style={{ ...thR, cursor: "pointer" }} onClick={() => toggleSort("cagr")}>CAGR{si("cagr")}</th>
-                <th style={thR}>Max DD</th>
-                <th style={thR}>PF</th>
-                <th style={thR}>Trades</th>
-                <th style={thR}>WF / Win%</th>
-                <th style={th}>Status</th>
+                {/* # */}
+                <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 6px 9px", textAlign: "right" as const, borderBottom: `1px solid ${RBORD}`, background: BG, width: 28 }}>#</th>
+                <th style={{ width: 20, padding: 0, borderBottom: `1px solid ${RBORD}`, background: BG }} />
+                <Th label="Ticker"   k="ticker"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} style={thL} />
+                <Th label="Asset"    k="label"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} style={thL} />
+                <Th label="Pillar"   k="pillar"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} style={thL} />
+                <Th label="Gew."     k="weight"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} style={thBase} />
+                <Th label="Sharpe"   k="sharpeOos" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} style={thBase} />
+                <Th label="CAGR"     k="cagr"      sortKey={sortKey} sortDir={sortDir} onSort={handleSort} style={thBase} />
+                <Th label="Max DD"   k="maxDd"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} style={thBase} />
+                <Th label="PF"       k="pf"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} style={thBase} />
+                <Th label="Trades"   k="trades"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} style={thBase} />
+                <Th label="WF/Win%"  k="wfWin"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} style={thBase} />
+                <Th label="Status"   k="status"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} style={thL} />
+                {liveCols && <>
+                  <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: GOLD, padding: "0 8px 9px", textAlign: "right" as const, borderBottom: `1px solid ${RBORD}`, background: BG, whiteSpace: "nowrap" as const, borderLeft: `1px solid rgba(226,202,122,0.12)` }}>Preis</th>
+                  <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: GOLD, padding: "0 8px 9px", textAlign: "right" as const, borderBottom: `1px solid ${RBORD}`, background: BG, whiteSpace: "nowrap" as const }}>Δ%</th>
+                  <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: GOLD, padding: "0 8px 9px", textAlign: "right" as const, borderBottom: `1px solid ${RBORD}`, background: BG, whiteSpace: "nowrap" as const }}>Von–Bis</th>
+                </>}
               </tr>
             </thead>
             <tbody>
@@ -471,62 +623,97 @@ export default function StrategyMasterTable() {
                 const isArchived = row.status === "archived";
                 const isExp = expandedId === row.id;
                 if (!isArchived) rowNum++;
+                const live = liveCols ? matchLive(row.ticker, liveData) : null;
 
                 const dataRow = (
                   <tr
                     key={row.id}
                     onClick={() => !isArchived && toggle(row.id)}
                     style={{
-                      opacity: isArchived ? 0.28 : 1,
+                      opacity: isArchived ? 0.22 : 1,
                       cursor: isArchived ? "default" : "pointer",
                       borderBottom: `1px solid ${RBORD}`,
-                      background: isExp ? "rgba(255,255,255,0.025)" : "transparent",
+                      background: isExp ? "rgba(255,255,255,0.022)" : "transparent",
                       transition: "background .1s",
                     }}
-                    onMouseEnter={e => { if (!isArchived && !isExp) (e.currentTarget as HTMLTableRowElement).style.background = "rgba(255,255,255,0.018)"; }}
-                    onMouseLeave={e => { if (!isExp) (e.currentTarget as HTMLTableRowElement).style.background = "transparent"; }}
+                    onMouseEnter={e => { if (!isArchived && !isExp) (e.currentTarget as HTMLTableRowElement).style.background = "rgba(255,255,255,0.015)"; }}
+                    onMouseLeave={e => { if (!isExp) (e.currentTarget as HTMLTableRowElement).style.background = isArchived ? "transparent" : "transparent"; }}
                   >
-                    <td style={{ padding: "7px 10px", textAlign: "right" as const, fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, color: DIM, width: 32 }}>
+                    {/* # */}
+                    <td style={{ padding: "6px 6px", textAlign: "right" as const, fontSize: 9, color: DIM, width: 28, fontFamily: "var(--font-montserrat),sans-serif" }}>
                       {isArchived ? "" : rowNum}
                     </td>
-                    <td style={{ padding: "7px 6px", width: 26, textAlign: "center" as const }}>
+                    {/* expand arrow */}
+                    <td style={{ padding: "6px 4px", width: 20, textAlign: "center" as const }}>
                       {!isArchived && (
-                        <span style={{ fontSize: 11, color: isExp ? "rgba(255,255,255,0.6)" : DIM, display: "inline-block", transform: isExp ? "rotate(90deg)" : "none", transition: "transform .2s", lineHeight: 1 }}>›</span>
+                        <span style={{ fontSize: 10, color: isExp ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.18)", display: "inline-block", transform: isExp ? "rotate(90deg)" : "none", transition: "transform .2s", lineHeight: 1 }}>›</span>
                       )}
                     </td>
-                    <td style={{ padding: "7px 10px", fontWeight: 700, fontSize: 12, color: "rgba(255,255,255,0.88)", letterSpacing: ".02em" }}>{row.ticker}</td>
-                    <td style={{ padding: "7px 10px", color: "rgba(255,255,255,0.45)", fontSize: 11 }}>{row.label}</td>
-                    <td style={{ padding: "7px 10px", fontSize: 10, color: "rgba(255,255,255,0.3)", letterSpacing: ".04em" }}>{row.pillarLabel}</td>
-                    <td style={{ padding: "7px 10px", textAlign: "right", color: row.weight ? "rgba(255,255,255,0.6)" : DIM, fontWeight: 600 }}>
+                    {/* ticker + icon */}
+                    <td style={{ padding: "6px 8px" }}>
+                      <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <TickerIcon ticker={row.ticker} />
+                        <span style={{ fontWeight: 700, fontSize: 11, color: "rgba(255,255,255,0.9)", letterSpacing: ".02em", fontVariantNumeric: "tabular-nums" }}>{row.ticker}</span>
+                      </span>
+                    </td>
+                    {/* asset */}
+                    <td style={{ padding: "6px 8px", color: "rgba(255,255,255,0.38)", fontSize: 10 }}>{row.label}</td>
+                    {/* pillar */}
+                    <td style={{ padding: "6px 8px", fontSize: 9, color: "rgba(255,255,255,0.26)", letterSpacing: ".04em" }}>{row.pillarLabel}</td>
+                    {/* weight */}
+                    <td style={{ padding: "6px 8px", textAlign: "right" as const, color: row.weight ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.15)", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>
                       {row.weight != null ? `${row.weight}%` : "—"}
                     </td>
-                    <td style={{ padding: "7px 10px", textAlign: "right", fontWeight: 700,
-                      color: row.sharpeOos !== null ? (row.sharpeOos >= 0.5 ? "#fff" : row.sharpeOos < 0 ? RED : "rgba(255,255,255,0.6)") : DIM }}>
+                    {/* sharpe */}
+                    <td style={{ padding: "6px 8px", textAlign: "right" as const, fontWeight: 700, fontVariantNumeric: "tabular-nums",
+                      color: row.sharpeOos !== null ? (row.sharpeOos >= 0.5 ? "#fff" : row.sharpeOos < 0 ? RED : "rgba(255,255,255,0.55)") : "rgba(255,255,255,0.15)" }}>
                       {row.sharpeOos !== null ? fmtN(row.sharpeOos) : "—"}
                     </td>
-                    <td style={{ padding: "7px 10px", textAlign: "right", color: valColor(row.cagr), fontWeight: row.cagr ? 600 : 400 }}>
-                      {row.cagr ?? "—"}
-                    </td>
-                    <td style={{ padding: "7px 10px", textAlign: "right", color: row.maxDd ? RED : DIM }}>
-                      {row.maxDd ?? "—"}
-                    </td>
-                    <td style={{ padding: "7px 10px", textAlign: "right", color: (row.pf ?? 0) >= 1.3 ? "rgba(255,255,255,0.8)" : row.pf ? "rgba(255,255,255,0.5)" : DIM }}>
+                    {/* cagr */}
+                    <td style={{ padding: "6px 8px", textAlign: "right" as const, color: valColor(row.cagr), fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{row.cagr ?? "—"}</td>
+                    {/* maxdd */}
+                    <td style={{ padding: "6px 8px", textAlign: "right" as const, color: row.maxDd ? RED : "rgba(255,255,255,0.15)", fontVariantNumeric: "tabular-nums" }}>{row.maxDd ?? "—"}</td>
+                    {/* pf */}
+                    <td style={{ padding: "6px 8px", textAlign: "right" as const, color: (row.pf ?? 0) >= 1.3 ? "rgba(255,255,255,0.75)" : row.pf ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.15)", fontVariantNumeric: "tabular-nums" }}>
                       {row.pf != null ? fmtN(row.pf) : "—"}
                     </td>
-                    <td style={{ padding: "7px 10px", textAlign: "right", color: "rgba(255,255,255,0.35)", fontSize: 11 }}>
+                    {/* trades */}
+                    <td style={{ padding: "6px 8px", textAlign: "right" as const, color: "rgba(255,255,255,0.3)", fontSize: 10, fontVariantNumeric: "tabular-nums" }}>
                       {row.trades != null ? row.trades.toLocaleString("de") : "—"}
                     </td>
-                    <td style={{ padding: "7px 10px", textAlign: "right", color: "rgba(255,255,255,0.35)", fontSize: 11 }}>
-                      {row.wfWin ?? "—"}
-                    </td>
-                    <td style={{ padding: "7px 10px" }}><Chip status={row.status} /></td>
+                    {/* wf/win */}
+                    <td style={{ padding: "6px 8px", textAlign: "right" as const, color: "rgba(255,255,255,0.3)", fontSize: 10 }}>{row.wfWin ?? "—"}</td>
+                    {/* status */}
+                    <td style={{ padding: "6px 8px" }}><Chip status={row.status} /></td>
+
+                    {/* live columns */}
+                    {liveCols && (() => {
+                      const price = live?.lastClose ?? null;
+                      const chg   = live?.changePct ?? null;
+                      const from  = live?.firstDate  ? live.firstDate.slice(0,7).replace("-","/") : "—";
+                      const to    = live?.lastDate   ? live.lastDate.slice(5,10).replace("-",".") : "—";
+                      const chgColor = chg === null ? "rgba(255,255,255,0.25)" : chg >= 0 ? "rgba(255,255,255,0.8)" : RED;
+                      return (
+                        <>
+                          <td style={{ padding: "6px 8px", textAlign: "right" as const, fontVariantNumeric: "tabular-nums", color: price !== null ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.2)", borderLeft: `1px solid rgba(226,202,122,0.09)`, fontSize: 11, fontWeight: 600 }}>
+                            {price !== null ? fmtPrice(price, row.ticker) : "—"}
+                          </td>
+                          <td style={{ padding: "6px 8px", textAlign: "right" as const, fontVariantNumeric: "tabular-nums", color: chgColor, fontSize: 10 }}>
+                            {chg !== null ? `${chg >= 0 ? "+" : ""}${chg.toFixed(2)}%` : "—"}
+                          </td>
+                          <td style={{ padding: "6px 8px", textAlign: "right" as const, color: "rgba(255,255,255,0.25)", fontSize: 9, whiteSpace: "nowrap" as const }}>
+                            {from !== "—" ? `${from} – ${to}` : "—"}
+                          </td>
+                        </>
+                      );
+                    })()}
                   </tr>
                 );
 
                 const expRow = (
                   <tr key={`${row.id}_x`}>
-                    <td colSpan={13} style={{ padding: 0, border: "none" }}>
-                      <div style={{ maxHeight: isExp ? "700px" : "0", overflow: "hidden", transition: "max-height 0.38s cubic-bezier(0.4,0,0.2,1)" }}>
+                    <td colSpan={13 + (liveCols ? LIVE_COLS : 0)} style={{ padding: 0, border: "none" }}>
+                      <div style={{ maxHeight: isExp ? "720px" : "0", overflow: "hidden", transition: "max-height 0.38s cubic-bezier(0.4,0,0.2,1)" }}>
                         {isExp && <ExpandedRow row={row} />}
                       </div>
                     </td>
@@ -539,8 +726,8 @@ export default function StrategyMasterTable() {
           </table>
         </div>
 
-        {/* bottom fade */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 72, background: `linear-gradient(to bottom, transparent, ${BG})`, pointerEvents: "none", zIndex: 3 }} />
+        {/* bottom gradient — stronger/taller */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 140, background: `linear-gradient(to bottom, transparent 0%, ${BG}cc 60%, ${BG} 100%)`, pointerEvents: "none", zIndex: 3 }} />
       </div>
     </div>
   );
