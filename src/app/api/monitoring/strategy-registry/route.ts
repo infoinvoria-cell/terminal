@@ -92,6 +92,8 @@ async function fromSupabase() {
 
   const productionStrategies = entries.map((e) => {
     const resolved = resolveEntryExchange(e);
+    const cagrRaw = e.oos_cagr_pct != null ? Number(e.oos_cagr_pct) : null;
+    const ddRaw   = e.oos_max_dd_pct != null ? Number(e.oos_max_dd_pct) : null;
     return {
       asset: resolved.ticker,
       label: e.name ?? e.strategy_id,
@@ -102,6 +104,15 @@ async function fromSupabase() {
       status: e.status ?? "READY",
       strategyType: e.strategy_type ?? "macro",
       sleeveName: e.sleeve ?? "",
+      oos: {
+        cagr:          cagrRaw != null ? `${cagrRaw > 0 ? "+" : ""}${cagrRaw.toFixed(2)}%` : null,
+        maxDrawdown:   ddRaw != null ? `${ddRaw.toFixed(2)}%` : null,
+        sharpe:        e.oos_sharpe != null ? String(Number(e.oos_sharpe).toFixed(2)) : null,
+        calmar:        e.oos_calmar != null ? String(Number(e.oos_calmar).toFixed(2)) : null,
+        profitFactor:  e.oos_profit_factor != null ? String(Number(e.oos_profit_factor).toFixed(2)) : null,
+        trades:        e.oos_trades != null ? String(e.oos_trades) : null,
+        positiveYears: e.oos_positive_years_pct != null ? `${Number(e.oos_positive_years_pct).toFixed(0)}%` : null,
+      },
     };
   });
   const activeStrategies = productionStrategies.filter((s) => s.active);
