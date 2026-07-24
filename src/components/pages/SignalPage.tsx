@@ -68,15 +68,22 @@ function signalDateDaysAhead(signalDate?: string | null): number | null {
 
 function matchesFilter(card: SignalCardModel, filter: SignalCardFilter): boolean {
   if (filter === "all") return true;
+
   if (filter === "open") {
-    // Cards with signalDate more than 1 day in the future belong to AUSSTEHEND
+    // CLOSED trades → last7 only
+    if (card.status === "CLOSED") return false;
+    // Actively open trades → always show in AKTUELL
+    if (card.status === "OPEN") return true;
+    // Not-yet-open: exclude if signalDate or nextSignalLabel is more than 1 day ahead
     const sdDays = signalDateDaysAhead(card.signalDate);
     if (sdDays != null && sdDays > 1) return false;
+    const days = nextLabelDaysAhead(card.nextSignalLabel);
+    if (days != null && days > 1) return false;
     const hasDir = card.direction === "LONG" || card.direction === "SHORT";
     const hasTpSl = card.tp != null && card.sl != null;
-    const days = nextLabelDaysAhead(card.nextSignalLabel);
-    return hasDir || hasTpSl || (days != null && days >= 0 && days <= 1);
+    return hasDir || hasTpSl || (days != null && days >= 0);
   }
+
   if (filter === "last7") {
     if (card.ageDays != null && card.ageDays <= 7) return true;
     if (card.signalDate) {
@@ -86,14 +93,19 @@ function matchesFilter(card: SignalCardModel, filter: SignalCardFilter): boolean
     }
     return false;
   }
+
   if (filter === "pending") {
     if (card.direction === "PENDING") return true;
     const days = nextLabelDaysAhead(card.nextSignalLabel);
-    if (days != null && days >= 0 && days <= 2) return true;
-    // Also show cards with signalDate more than 1 day ahead
+    if (days != null && days > 1) return true;
+    // Cards with signalDate more than 1 day ahead
     const sdDays = signalDateDaysAhead(card.signalDate);
-    return sdDays != null && sdDays > 1;
+    if (sdDays != null && sdDays > 1) return true;
+    // Non-OPEN cards whose nextSignalLabel has no parseable date → show in pending
+    if (card.status !== "OPEN" && card.status !== "CLOSED" && card.nextSignalLabel && days === null) return true;
+    return false;
   }
+
   return true;
 }
 
