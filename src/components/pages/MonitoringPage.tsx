@@ -6018,16 +6018,14 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
 
   useEffect(() => {
     let disposed = false;
-    const FIVE_MINUTES = 5 * 60 * 1000;
-    // Global auto-refresh on EVERY tab — same global pipeline as the manual button. The
-    // in-flight mutex + 5-min elapsed guard inside requestMonitoringRefresh (plus the
-    // server-side lock) prevent any parallel/overlapping refresh run.
+    const THIRTY_SECONDS = 30_000;
+    // Auto-refresh every 30s — server-side mutex prevents parallel runs.
     const runAutoRefresh = () => {
       if (disposed) return;
       if (document.hidden) return;
       void requestMonitoringRefresh("auto");
     };
-    const timerId = window.setInterval(runAutoRefresh, FIVE_MINUTES);
+    const timerId = window.setInterval(runAutoRefresh, THIRTY_SECONDS);
     const unregisterInterval = registerMonitoringInterval(timerId);
     return () => {
       disposed = true;
@@ -6332,16 +6330,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           >
             <Activity size={13} strokeWidth={1.9} />
           </button>
-          <button
-            type="button"
-            className={`tab tab-action tab-refresh ${refreshStatus === "running" ? "is-running" : ""}${refreshStatus === "error" ? " is-error" : ""}`}
-            disabled={refreshStatus === "running"}
-            onClick={() => { void handleManualRefresh(); }}
-            title="Live-Daten jetzt aktualisieren"
-            aria-label="Refresh"
-          >
-            <RotateCw size={13} strokeWidth={2} className={refreshStatus === "running" ? "spin" : ""} />
-          </button>
+          {/* Refresh-Button entfernt — Auto-Refresh alle 30s */}
           <button
             type="button"
             className="tab tab-action tab-monitoring-settings"
