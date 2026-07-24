@@ -19,32 +19,7 @@ const MANIFEST_PATH = path.join(
 const PUBLIC_DIR = path.join(process.cwd(), "public");
 const UPSERT_CHUNK = 500;
 
-// Yahoo Finance ticker map — asset key → YF symbol
-const YF_TICKER: Record<string, string> = {
-  // Stocks
-  AAPL: "AAPL", MSFT: "MSFT", GOOGL: "GOOGL", AMZN: "AMZN",
-  NVDA: "NVDA", META: "META",
-  // Futures
-  "GC1!": "GC=F", "SI1!": "SI=F", "PL1!": "PL=F", "PA1!": "PA=F",
-  "CL1!": "CL=F", "NG1!": "NG=F", "HG1!": "HG=F", "RB1!": "RB=F",
-  "ES1!": "ES=F", "NQ1!": "NQ=F", "YM1!": "YM=F", "FDAX1!": "^GDAXI",
-  "RTY1!": "RTY=F", "ZB1!": "ZB=F",
-  "ZC1!": "ZC=F", "ZW1!": "ZW=F", "ZS1!": "ZS=F",
-  "CC1!": "CC=F", "KC1!": "KC=F", "SB1!": "SB=F", "CT1!": "CT=F",
-  "OJ1!": "OJ=F",
-  // FX
-  EURUSD: "EURUSD=X", GBPUSD: "GBPUSD=X", USDCHF: "CHF=X",
-  EURGBP: "EURGBP=X", GBPJPY: "GBPJPY=X",
-  ZARUSD: "ZAR=X", MXNUSD: "MXN=X", SEKUSD: "SEK=X",
-  BRLUSD: "BRL=X", CLPUSD: "CLP=X",
-  "6E1!": "6E=F", "6B1!": "6B=F", "6J1!": "6J=F",
-  "6A1!": "6A=F", "6S1!": "6S=F", "6C1!": "6C=F", "6N1!": "6N=F",
-  // Indices / Reference
-  VIX: "^VIX", DXY: "DX-Y.NYB", US10Y: "^TNX",
-  UKX: "^FTSE", "UKX!": "^FTSE", SPX: "^GSPC",
-  // Strategy-specific alias
-  NAS100USD_E_STEP_INVEST: "NQ=F",
-};
+// Data source: TradingView CSV cache only (no Yahoo Finance).
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -79,6 +54,15 @@ type OhlcRow = {
   close: number;
   volume?: number | null;
 };
+
+// Extra entries not in the gitignored manifest. Each points a new symbol to an
+// existing TVC cache file (FX futures use spot FX as proxy; ZB1! has its own file).
+const EXTRA_MANIFEST_ENTRIES: ManifestAsset[] = [
+  { asset: "6E1!", tab: "FX", timeframe: "D", cachePath: "public/generated/monitoring/tradingview_data_cache/D/OANDA_EURUSD_D.json" },
+  { asset: "6B1!", tab: "FX", timeframe: "D", cachePath: "public/generated/monitoring/tradingview_data_cache/D/OANDA_GBPUSD_D.json" },
+  { asset: "6S1!", tab: "FX", timeframe: "D", cachePath: "public/generated/monitoring/tradingview_data_cache/D/OANDA_USDCHF_D.json" },
+  { asset: "ZB1!", tab: "Anleihen", timeframe: "D", cachePath: "public/generated/monitoring/tradingview_data_cache/D/CBOT_ZB1_D.json" },
+];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -131,59 +115,6 @@ async function getLastDate(db: ReturnType<typeof createSupabaseServiceClient>, a
   return (data as Array<{ date: string }> | null)?.[0]?.date?.slice(0, 10) ?? null;
 }
 
-// ── Yahoo Finance gap-fill ────────────────────────────────────────────────────
-
-async function fetchYahooFinanceBars(
-  yfTicker: string,
-  afterDate: string,
-): Promise<Array<{ date: string; open: number; high: number; low: number; close: number }>> {
-  try {
-    const afterTs = Math.floor(new Date(`${afterDate}T00:00:00Z`).getTime() / 1000) + 86400;
-    const nowTs = Math.floor(Date.now() / 1000);
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yfTicker)}?interval=1d&period1=${afterTs}&period2=${nowTs}&includePrePost=false`;
-    const resp = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0", Accept: "application/json" },
-      signal: AbortSignal.timeout(10_000),
-    });
-    if (!resp.ok) return [];
-    const json = await resp.json() as {
-      chart?: {
-        result?: Array<{
-          timestamp?: number[];
-          indicators?: {
-            quote?: Array<{
-              open?: (number | null)[];
-              high?: (number | null)[];
-              low?: (number | null)[];
-              close?: (number | null)[];
-            }>;
-          };
-        }>;
-      };
-    };
-    const result = json?.chart?.result?.[0];
-    const timestamps = result?.timestamp ?? [];
-    const q = result?.indicators?.quote?.[0];
-    if (!timestamps.length || !q) return [];
-    const bars = [];
-    for (let i = 0; i < timestamps.length; i++) {
-      const ts = timestamps[i];
-      if (!ts) continue;
-      const date = new Date(ts * 1000).toISOString().slice(0, 10);
-      const open = q.open?.[i] ?? null;
-      const high = q.high?.[i] ?? null;
-      const low = q.low?.[i] ?? null;
-      const close = q.close?.[i] ?? null;
-      if (!date || open == null || high == null || low == null || close == null) continue;
-      if (close <= 0 || open <= 0) continue;
-      bars.push({ date, open, high, low, close });
-    }
-    return bars;
-  } catch {
-    return [];
-  }
-}
-
 // ── Main handler ──────────────────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
@@ -210,15 +141,20 @@ async function handleSync(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "Failed to parse manifest" }, { status: 500 });
   }
 
-  const assets = (manifest.assets ?? []).filter(
+  const manifestAssets = (manifest.assets ?? []).filter(
     (a) => a.tab !== "Dependency" && String(a.timeframe || "D").toUpperCase() === "D",
   );
+  // Merge extra entries, deduplicating by asset key (manifest wins if same key)
+  const manifestKeys = new Set(manifestAssets.map((a) => String(a.asset || "").toUpperCase()));
+  const assets = [
+    ...manifestAssets,
+    ...EXTRA_MANIFEST_ENTRIES.filter((e) => !manifestKeys.has(String(e.asset || "").toUpperCase())),
+  ];
 
   const db = createSupabaseServiceClient();
   const results: Array<{
     asset: string;
     tvcBarsAdded: number;
-    yfBarsAdded: number;
     lastDate: string | null;
     error?: string;
   }> = [];
@@ -231,11 +167,10 @@ async function handleSync(req: NextRequest): Promise<NextResponse> {
     if (onlyAsset && assetKey !== onlyAsset) continue;
 
     let tvcAdded = 0;
-    let yfAdded = 0;
     let entryError: string | undefined;
 
     try {
-      // ── Phase 1: TVC cache sync ───────────────────────────────────────────
+      // TVC cache sync (only source — no Yahoo Finance)
       const candidates = [entry.cachePath, entry.legacyCachePath].filter(Boolean) as string[];
       let cacheFilePath: string | null = null;
       for (const c of candidates) {
@@ -244,45 +179,24 @@ async function handleSync(req: NextRequest): Promise<NextResponse> {
         if (fs.existsSync(abs)) { cacheFilePath = abs; break; }
       }
 
-      let lastDate = await getLastDate(db, assetKey, "D");
+      const lastDate = await getLastDate(db, assetKey, "D");
 
       if (cacheFilePath) {
         const raw = JSON.parse(fs.readFileSync(cacheFilePath, "utf-8")) as { bars?: CacheBar[] };
         const newBars = parseTvcBars(Array.isArray(raw.bars) ? raw.bars : [], assetKey, "D", lastDate ?? undefined);
         if (!dryRun && newBars.length) {
           tvcAdded = await upsertRows(db, newBars);
-          if (newBars.length) {
-            const newest = newBars[newBars.length - 1]?.date;
-            if (newest && (!lastDate || newest > lastDate)) lastDate = newest;
-          }
         } else {
           tvcAdded = newBars.length;
         }
       }
 
-      // ── Phase 2: Yahoo Finance gap-fill ──────────────────────────────────
-      const yfTicker = YF_TICKER[assetKey] ?? null;
-      if (yfTicker && lastDate) {
-        const today = new Date().toISOString().slice(0, 10);
-        // Only fetch if cache is more than 1 day behind today
-        if (lastDate < today) {
-          const yfBars = await fetchYahooFinanceBars(yfTicker, lastDate);
-          if (!dryRun && yfBars.length) {
-            const rows: OhlcRow[] = yfBars.map((b) => ({ asset: assetKey, timeframe: "D", ...b }));
-            yfAdded = await upsertRows(db, rows);
-          } else {
-            yfAdded = yfBars.length;
-          }
-        }
-      }
-
-      // Re-read last date after upserts
       const finalLastDate = await getLastDate(db, assetKey, "D");
-      totalAdded += tvcAdded + yfAdded;
-      results.push({ asset: assetKey, tvcBarsAdded: tvcAdded, yfBarsAdded: yfAdded, lastDate: finalLastDate });
+      totalAdded += tvcAdded;
+      results.push({ asset: assetKey, tvcBarsAdded: tvcAdded, lastDate: finalLastDate });
     } catch (e) {
       entryError = String(e);
-      results.push({ asset: assetKey, tvcBarsAdded: tvcAdded, yfBarsAdded: yfAdded, lastDate: null, error: entryError });
+      results.push({ asset: assetKey, tvcBarsAdded: tvcAdded, lastDate: null, error: entryError });
     }
   }
 
@@ -303,7 +217,6 @@ async function handleSync(req: NextRequest): Promise<NextResponse> {
     summary: results.map((r) => ({
       asset: r.asset,
       tvc: r.tvcBarsAdded,
-      yf: r.yfBarsAdded,
       latest: r.lastDate,
       ok: r.lastDate === today,
       error: r.error,
