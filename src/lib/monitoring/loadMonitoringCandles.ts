@@ -125,6 +125,24 @@ const VERIFIED_AGRAR_TV_CACHE_SOURCES = new Set<string>([
   "CBOT:ZS1!",
 ]);
 
+// Fallback: pre-computed strategy payload files for non-agrar assets that may
+// lack TradingView cache or Supabase data. Maps TV source key → public path.
+const STRATEGY_ALL_S_MAP: Record<string, string> = {
+  "OANDA:EURUSD": "/generated/monitoring/all_s-0-eurusd-mt-eurusd.json",
+  "OANDA:GBPUSD": "/generated/monitoring/all_s-1-gbpusd-mt-gbpusd.json",
+  "EUREX:FDAX1!": "/generated/monitoring/all_s-4-dax-macro-fdax1.json",
+  "CAPITALCOM:DE40": "/generated/monitoring/all_s-4-dax-macro-fdax1.json",
+  "CBOT_MINI:YM1!": "/generated/monitoring/all_s-5-dow-macro-ym1.json",
+  "CME_MINI:NQ1!": "/generated/monitoring/all_s-6-nasdaq-macro-nq1.json",
+  "CME_MINI:ES1!": "/generated/monitoring/all_s-7-s-p500-macro-es1.json",
+  "COMEX:GC1!": "/generated/monitoring/all_s-10-gold-macro-gc1.json",
+  "NYMEX:CL1!": "/generated/monitoring/all_s-11-oil-macro-cl1.json",
+  "NYMEX:PA1!": "/generated/monitoring/all_s-13-palladium-macro-pa1.json",
+  "NYMEX:PL1!": "/generated/monitoring/all_s-14-platinum-macro-pl1.json",
+  "COMEX:SI1!": "/generated/monitoring/all_s-15-silver-macro-si1.json",
+  "CME:6S1!": "/generated/monitoring/all_s-18-chf-invest-6s1.json",
+};
+
 const TAB_CACHE_DIR: Record<MonitoringTabLabel, string | null> = {
   Agrar: "agrar",
   Metalle: "metalle",
@@ -643,6 +661,27 @@ export async function loadMonitoringCandles(
         }
       } catch {
         // fall through to no_data
+      }
+    }
+
+    // Pre-computed strategy payload fallback for assets without TVC cache or Supabase data.
+    if (!historyBars.length) {
+      const strategyPath = STRATEGY_ALL_S_MAP[sourceKey] ?? STRATEGY_ALL_S_MAP[params.source] ?? null;
+      if (strategyPath && timeframe === "D") {
+        try {
+          const cachedStrategy = getJson(strategyPath) as MonitoringPayloadLite | null;
+          const strategyPayload = cachedStrategy ?? await fetchJsonOnce<MonitoringPayloadLite>(strategyPath, 6000, signal);
+          if (strategyPayload && typeof strategyPayload === "object") {
+            const parsed = sanitizeBars(strategyPayload.bars, "D");
+            if (parsed.length > 0) {
+              historyBars = parsed;
+              payload = strategyPayload;
+              cacheResolvedPath = strategyPath;
+            }
+          }
+        } catch {
+          // fall through to no_data
+        }
       }
     }
 

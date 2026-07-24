@@ -1066,6 +1066,7 @@ function MonitoringChartInner({
   const autoFollowRef = useRef(false);
   const isProgrammaticRangeRef = useRef(false);
   const totalBarsRef = useRef(0);
+  const prevCandleDataRef = useRef<Array<CandlestickData<Time> | WhitespaceData<Time>> | null>(null);
   const redrawRef = useRef<() => void>(() => undefined);
   const panSyncActiveRef = useRef(false);
   const dragRef = useRef<"entry" | "sl" | "tp" | null>(null);
@@ -1666,6 +1667,7 @@ function MonitoringChartInner({
       autoFollowRef.current = false;
       isProgrammaticRangeRef.current = false;
       totalBarsRef.current = 0;
+      prevCandleDataRef.current = null;
     };
   }, [allDashboardMode, data.displaySymbol, data.variant, initialVisibleBars, overlayEnabled, showManualLevels]);
 
@@ -1748,7 +1750,27 @@ function MonitoringChartInner({
       },
     });
 
-    candle.setData(prepared.candlesWithWhitespace);
+    // Incremental update: if only the last bar changed (same time key), use
+    // series.update() to avoid view-position reset on 30s auto-refresh ticks.
+    const newData = prepared.candlesWithWhitespace;
+    const prev = prevCandleDataRef.current;
+    let usedUpdate = false;
+    if (prev && newData.length > 0 && (newData.length === prev.length || newData.length === prev.length + 1)) {
+      const lastNew = newData[newData.length - 1];
+      const lastPrev = prev[prev.length - 1];
+      // If lengths match, only the tail bar changed; if length grew by 1, append new bar.
+      const tailUnchanged = newData.length === prev.length
+        ? lastNew && lastPrev && String(lastNew.time) === String(lastPrev.time)
+        : true; // new bar appended — always safe to update
+      if (tailUnchanged && lastNew) {
+        candle.update(lastNew as CandlestickData<Time>);
+        usedUpdate = true;
+      }
+    }
+    if (!usedUpdate) {
+      candle.setData(newData);
+    }
+    prevCandleDataRef.current = newData;
 
     // Trend EMA overlays: compute from the real candle closes (ignoring whitespace) and
     // feed each EMA line series. Standard EMA seeded with the first close.
