@@ -419,6 +419,7 @@ export const CORE_INVEST_SOURCES: SignalSource[] = [
     candleFile: "BATS_SPY_D.json",
     candleSource: "cache",
     forcedStatus: "OPEN",
+    forcedDirection: "LONG",
     monitoringTarget: { tab: "invest", asset: "SPY" },
   },
   {
@@ -434,6 +435,7 @@ export const CORE_INVEST_SOURCES: SignalSource[] = [
     strategyFolder: "strategies",
     candleSource: "cache",
     forcedStatus: "OPEN",
+    forcedDirection: "LONG",
     monitoringTarget: { tab: "invest", asset: "QQQ_PASSIVE" },
   },
   {
@@ -449,6 +451,7 @@ export const CORE_INVEST_SOURCES: SignalSource[] = [
     strategyFolder: "strategies",
     candleSource: "cache",
     forcedStatus: "OPEN",
+    forcedDirection: "LONG",
     monitoringTarget: { tab: "invest", asset: "SPMO" },
   },
   {
@@ -464,6 +467,7 @@ export const CORE_INVEST_SOURCES: SignalSource[] = [
     strategyFolder: "strategies",
     candleSource: "cache",
     forcedStatus: "OPEN",
+    forcedDirection: "LONG",
     monitoringTarget: { tab: "invest", asset: "GLD" },
   },
   {

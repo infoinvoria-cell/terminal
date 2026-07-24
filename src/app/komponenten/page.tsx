@@ -1,7 +1,7 @@
-import fs from "node:fs";
-import path from "node:path";
 import { ComponentsShell } from "@/components/pages/ComponentsPage";
+import { createSupabaseServiceClient } from "@/lib/supabase-server";
 
+export const dynamic = "force-dynamic";
 export const metadata = { title: "Komponenten | Capitalife Terminal" };
 
 export type StrategyInventoryRow = {
@@ -16,46 +16,41 @@ export type StrategyInventoryRow = {
   tp: number | null;
 };
 
-function loadStrategyInventory(): StrategyInventoryRow[] {
-  const dir = path.join(process.cwd(), "public", "generated", "monitoring", "signals");
+async function loadStrategyInventory(): Promise<StrategyInventoryRow[]> {
   try {
-    const files = fs.readdirSync(dir).filter((f) => f.endsWith(".json"));
-    return files
-      .map((f) => {
-        try {
-          const raw = JSON.parse(fs.readFileSync(path.join(dir, f), "utf-8")) as {
-            symbol?: string;
-            source?: string;
-            strategyName?: string;
-            openTrade?: boolean;
-            signalEvents?: Array<{ time?: string; direction?: string; entry?: number; sl?: number; tp?: number }>;
-          };
-          const evs = (raw.signalEvents ?? [])
-            .filter((e) => e.time)
-            .sort((a, b) => (b.time ?? "").localeCompare(a.time ?? ""));
-          const latest = evs[0] ?? null;
-          return {
-            strategyId: raw.source ?? raw.strategyName ?? "",
-            symbol: raw.symbol ?? "",
-            strategyName: raw.strategyName ?? "",
-            openTrade: raw.openTrade === true,
-            direction: latest?.direction?.toUpperCase() ?? "",
-            latestSignalDate: latest?.time ?? null,
-            entry: latest?.entry ?? null,
-            sl: latest?.sl ?? null,
-            tp: latest?.tp ?? null,
-          } satisfies StrategyInventoryRow;
-        } catch {
-          return null;
-        }
-      })
-      .filter((r): r is StrategyInventoryRow => r !== null && Boolean(r.symbol));
+    const db = createSupabaseServiceClient();
+    const { data, error } = await db
+      .from("forward_signals")
+      .select("symbol, direction, in_position, signal_ts, strategy_id")
+      .order("signal_ts", { ascending: false });
+
+    if (error || !data) return [];
+
+    // Deduplicate: keep latest row per symbol
+    const seen = new Set<string>();
+    const rows: StrategyInventoryRow[] = [];
+    for (const row of data) {
+      if (!row.symbol || seen.has(row.symbol)) continue;
+      seen.add(row.symbol);
+      rows.push({
+        strategyId: row.strategy_id ?? row.symbol,
+        symbol: row.symbol,
+        strategyName: row.strategy_id ?? row.symbol,
+        openTrade: row.in_position === true,
+        direction: (row.direction ?? "").toUpperCase(),
+        latestSignalDate: row.signal_ts ? row.signal_ts.slice(0, 10) : null,
+        entry: null,
+        sl: null,
+        tp: null,
+      });
+    }
+    return rows;
   } catch {
     return [];
   }
 }
 
-export default function KomponentenRoute() {
-  const inventory = loadStrategyInventory();
+export default async function KomponentenRoute() {
+  const inventory = await loadStrategyInventory();
   return <ComponentsShell strategyInventory={inventory} />;
 }
