@@ -1,13 +1,4 @@
+export const runtime = "edge";
 import { NextResponse } from "next/server";
-import { getAgricultureMvaBindings } from "@/lib/monitoring/strategyTester/engines/macroValuation/bindings";
-
-export const runtime = "nodejs";
-
-export async function GET() {
-  const bindings = getAgricultureMvaBindings();
-  return NextResponse.json({
-    generatedAt: new Date().toISOString(),
-    symbols: bindings,
-    totalSymbols: bindings.length,
-  });
-}
+export async function GET() { return NextResponse.json({ error: "unavailable in cloud preview" }, { status: 503 }); }
+export async function POST() { return NextResponse.json({ error: "unavailable in cloud preview" }, { status: 503 }); }

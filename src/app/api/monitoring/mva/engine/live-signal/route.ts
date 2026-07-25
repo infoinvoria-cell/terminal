@@ -1,17 +1,4 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { runMacroValuationEngine } from "@/lib/monitoring/strategyTester/engines/macroValuation";
-
-export const runtime = "nodejs";
-
-export async function POST(request: NextRequest) {
-  const body = await request.json() as { symbol?: string; customInputs?: Record<string, unknown> };
-  const symbol = String(body.symbol ?? "").trim().toUpperCase();
-  const run = await runMacroValuationEngine(symbol, body.customInputs);
-  return NextResponse.json({
-    symbol,
-    runMode: "live_signal",
-    liveSignal: run.liveSignal,
-    dataBinding: run.dataBinding,
-    warnings: run.warnings,
-  });
-}
+export const runtime = "edge";
+import { NextResponse } from "next/server";
+export async function GET() { return NextResponse.json({ error: "unavailable in cloud preview" }, { status: 503 }); }
+export async function POST() { return NextResponse.json({ error: "unavailable in cloud preview" }, { status: 503 }); }
