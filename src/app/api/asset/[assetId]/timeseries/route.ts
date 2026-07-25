@@ -145,7 +145,11 @@ async function trySupabaseOhlc(assetId: string, tf: string): Promise<LocalBar[] 
 }
 
 async function tryYahooOhlc(assetId: string, tf: string): Promise<LocalBar[] | null> {
-  const sym = ASSET_YAHOO_MAP[assetId.toLowerCase()];
+  // Custom on-demand assets carry their Yahoo ticker in the id: custom_AAPL → AAPL
+  const lower = assetId.toLowerCase();
+  const sym = lower.startsWith("custom_")
+    ? assetId.slice("custom_".length)
+    : ASSET_YAHOO_MAP[lower];
   if (!sym) return null;
   const range = YAHOO_RANGE[tf] ?? "2y";
   const interval = YAHOO_INTERVAL[tf] ?? "1d";

@@ -486,6 +486,14 @@ export default function GlobeApp() {
 
   const [assets, setAssets] = useState<AssetItem[]>([]);
   const assetsRef = useRef<AssetItem[]>([]);
+  const customAssetsRef = useRef<AssetItem[]>((() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const raw = window.localStorage.getItem("clf_globe_custom_assets_v1");
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch { return []; }
+  })());
   useEffect(() => { assetsRef.current = assets; }, [assets]);
   const [globalNews, setGlobalNews] = useState<NewsItem[]>([]);
   const [assetNews, setAssetNews] = useState<NewsItem[]>([]);
@@ -662,7 +670,7 @@ export default function GlobeApp() {
     return Promise.allSettled([GlobeApi.getAssets()])
       .then(([assetsRes]) => {
         if (assetsRes.status === "fulfilled") {
-          setAssets(assetsRes.value.items ?? []);
+          setAssets([...(assetsRes.value.items ?? []), ...customAssetsRef.current]);
           shellLastUpdatedRef.current.assets = Date.now();
           return;
         }
@@ -1896,6 +1904,41 @@ export default function GlobeApp() {
     setOverlayState((prev) => ({ ...prev, [key]: !prev[key] }));
   }, []);
 
+  const onAddSymbol = useCallback((raw: string) => {
+    const ticker = String(raw || "").trim().toUpperCase();
+    if (!ticker) return;
+    const id = `custom_${ticker.replace(/[^A-Z0-9.=-]/g, "_")}`;
+    // De-dupe: if already present, just select it
+    if (assetsRef.current.some((a) => a.id === id)) {
+      setSelectedAssetId(id);
+      return;
+    }
+    const custom: AssetItem = {
+      id,
+      name: ticker,
+      category: "Custom",
+      iconKey: "custom",
+      tvSource: ticker,
+      symbol: ticker,
+      lat: 40.71,
+      lng: -74.01,
+      country: "—",
+      color: "#D4AF37",
+      defaultEnabled: true,
+      showOnGlobe: true,
+      locations: [],
+    };
+    customAssetsRef.current = [...customAssetsRef.current.filter((a) => a.id !== id), custom];
+    try {
+      window.localStorage.setItem("clf_globe_custom_assets_v1", JSON.stringify(customAssetsRef.current));
+    } catch { /* ignore */ }
+    setAssets((prev) => [...prev, custom]);
+    setEnabledAssets((prev) => (prev.includes(id) ? prev : [...prev, id]));
+    setSelectedAssetId(id);
+    activateSection("valuation");
+    activateSection("seasonality");
+  }, [activateSection]);
+
   const onSelectAssetFromWatchlist = useCallback((assetId: string) => {
     setSelectedAssetId(assetId);
     activateSection("valuation");
@@ -2147,6 +2190,7 @@ export default function GlobeApp() {
                 onAllOn={onAllOn}
                 onAllOff={onAllOff}
                 onRefreshData={onRefreshData}
+                onAddSymbol={onAddSymbol}
                 overlayState={overlayState}
                 overlayLoadingState={overlayLoadingState}
                 onToggleOverlay={onToggleOverlay}

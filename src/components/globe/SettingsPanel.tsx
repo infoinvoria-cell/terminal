@@ -20,6 +20,7 @@ type Props = {
   onAllOn: () => void;
   onAllOff: () => void;
   onRefreshData?: () => void;
+  onAddSymbol?: (symbol: string) => void;
   overlayState: OverlayToggleState;
   overlayLoadingState?: Partial<Record<keyof OverlayToggleState, boolean>>;
   onToggleOverlay: (key: keyof OverlayToggleState) => void;
@@ -160,11 +161,14 @@ export function SettingsPanel({
   onAllOn,
   onAllOff,
   onRefreshData,
+  onAddSymbol,
   overlayState,
   overlayLoadingState,
   onToggleOverlay,
 }: Props) {
   const [search, setSearch] = useState("");
+  const [addOpen, setAddOpen] = useState(false);
+  const [addValue, setAddValue] = useState("");
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [openTooltipKey, setOpenTooltipKey] = useState<keyof OverlayToggleState | null>(null);
   const [coreDropdownOpen, setCoreDropdownOpen] = useState(false);
@@ -433,7 +437,51 @@ export function SettingsPanel({
             Refresh
           </button>
         ) : null}
+        {onAddSymbol ? (
+          <button
+            type="button"
+            title="Add symbol (Yahoo)"
+            onClick={() => setAddOpen((v) => !v)}
+            className={`ivq-settings-action h-7 w-7 shrink-0 rounded-md border bg-transparent text-[13px] font-bold leading-none ${performanceMode ? "" : "transition"} border-[#D4AF37]/60 text-[#D4AF37] hover:border-[#D4AF37]`}
+          >
+            +
+          </button>
+        ) : null}
       </div>
+      {onAddSymbol && addOpen ? (
+        <div className="mb-2 flex items-center gap-1.5">
+          <input
+            autoFocus
+            value={addValue}
+            onChange={(e) => setAddValue(e.target.value.toUpperCase())}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && addValue.trim()) {
+                onAddSymbol(addValue.trim());
+                setAddValue("");
+                setAddOpen(false);
+              } else if (e.key === "Escape") {
+                setAddValue("");
+                setAddOpen(false);
+              }
+            }}
+            placeholder="Yahoo ticker e.g. AAPL, TSLA, BTC-USD"
+            className="h-7 min-w-0 flex-1 rounded-md border border-[#D4AF37]/40 bg-transparent px-2 text-[11px] text-slate-100 outline-none placeholder:text-slate-500 focus:border-[#D4AF37]/80"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              if (addValue.trim()) {
+                onAddSymbol(addValue.trim());
+                setAddValue("");
+                setAddOpen(false);
+              }
+            }}
+            className="ivq-settings-action h-7 rounded-md border border-[#D4AF37]/60 bg-transparent px-2 text-[10px] font-semibold text-[#D4AF37] hover:border-[#D4AF37]"
+          >
+            Add
+          </button>
+        </div>
+      ) : null}
 
       <div className="ivq-settings-scroll scroll-thin min-h-0 flex-1 overflow-y-auto pr-0.5">
         {orderedCategories.map((category) => {
