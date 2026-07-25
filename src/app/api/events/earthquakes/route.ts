@@ -12,10 +12,10 @@ function severityFromMag(mag: number): string {
 }
 
 function colorFromMag(mag: number): string {
-  if (mag >= 7) return "#ef4444";
-  if (mag >= 6) return "#f97316";
-  if (mag >= 5) return "#eab308";
-  return "#84cc16";
+  if (mag >= 7) return "#FF3333"; // M>7 red
+  if (mag >= 6) return "#f97316"; // M5-7 orange
+  if (mag >= 5) return "#f97316"; // M5-7 orange
+  return "#D4AF37"; // M<5 gold
 }
 
 export async function GET() {

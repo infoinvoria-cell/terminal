@@ -45,7 +45,7 @@ export const designTokens = {
   stroke: {
     soft: "rgba(120, 160, 255, 0.14)",
     panel: "rgba(109,132,160,0.35)",
-    accent: "rgba(41,98,255,0.40)",
+    accent: "rgba(212,175,55,0.40)",
   },
 } as const;
 

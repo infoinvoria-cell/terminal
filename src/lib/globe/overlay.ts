@@ -124,8 +124,8 @@ export function countryNameOf(feature: GeoFeature): string {
 }
 
 export function inflationColor(v: number | undefined): string {
-  if (v == null || Number.isNaN(v)) return "rgba(56, 80, 110, 0.20)";
-  if (v < 2) return "rgba(24, 46, 92, 0.62)";
+  if (v == null || Number.isNaN(v)) return "rgba(72, 72, 80, 0.20)";
+  if (v < 2) return "rgba(212, 175, 55, 0.42)";
   if (v < 4) return "rgba(76, 175, 80, 0.60)";
   if (v < 6) return "rgba(255, 235, 59, 0.60)";
   if (v < 8) return "rgba(255, 152, 0, 0.62)";
@@ -133,12 +133,13 @@ export function inflationColor(v: number | undefined): string {
 }
 
 export function policyRateColor(rate: number | undefined): string {
-  if (rate == null || Number.isNaN(rate)) return "rgba(56, 80, 110, 0.20)";
+  if (rate == null || Number.isNaN(rate)) return "rgba(72, 72, 80, 0.20)";
   const r = Math.max(0, Math.min(12, Number(rate)));
   const t = r / 12;
-  const red = Math.round(46 + t * 200);
-  const green = Math.round(98 + (1 - t) * 75);
-  const blue = Math.round(255 - t * 210);
+  // Gold (low) → red (high), no blue channel
+  const red = Math.round(212 + t * 43);
+  const green = Math.round(175 - t * 130);
+  const blue = Math.round(55 - t * 40);
   return `rgba(${red}, ${green}, ${blue}, 0.58)`;
 }
 
@@ -146,7 +147,7 @@ export function policyRateStroke(move: string | undefined): string {
   const m = String(move || "hold").toLowerCase();
   if (m === "up") return "rgba(255,56,76,0.84)";
   if (m === "down") return "rgba(57,255,64,0.84)";
-  return "rgba(41,98,255,0.56)";
+  return "rgba(212,175,55,0.56)";
 }
 
 function commodityRegionOf(feature: GeoFeature): string {
@@ -218,10 +219,10 @@ export function polygonStrokeColor(
   policyRateByCountry: Record<string, PolicyRateCountryEntry>,
 ): string {
   if (mode !== "policy_rate") {
-    return "rgba(41,98,255,0.58)";
+    return "rgba(212,175,55,0.58)";
   }
   const bucket = majorBucketOf(feature);
-  if (!bucket || !MAJOR_BUCKETS.has(bucket)) return "rgba(41,98,255,0.34)";
+  if (!bucket || !MAJOR_BUCKETS.has(bucket)) return "rgba(212,175,55,0.34)";
   const item = normalizeMapValue(policyRateByCountry, bucket);
   return policyRateStroke(item?.lastMove);
 }

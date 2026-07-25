@@ -718,7 +718,7 @@ function GlobeCanvasComponent({
         locationLabel: String(ship.destination || ""),
         icon,
         iconUrl: undefined,
-        color: shipType.includes("oil") ? "#7dd3fc" : "#bfdbfe",
+        color: "#FFFFFF",
         lat: Number(ship.lat),
         lng: Number(ship.lng),
         label: String(ship.name || "Vessel"),
@@ -789,7 +789,7 @@ function GlobeCanvasComponent({
     for (const route of overlayRoutes) {
       const path = Array.isArray(route.path) ? route.path : [];
       if (path.length < 2) continue;
-      const baseColor = String(route.color || "rgba(145,175,215,0.35)");
+      const baseColor = String(route.color || "rgba(212,175,55,0.35)");
       const isOil = String(route.id || "").toLowerCase().includes("oil");
       const isContainer = String(route.id || "").toLowerCase().includes("cont");
       for (let i = 0; i < path.length - 1; i += 1) {
@@ -1293,9 +1293,9 @@ function GlobeCanvasComponent({
           {overlayState.wildfires ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#ff9800]" />Wildfires: {geoEvents.filter((e) => String(e.type || "").includes("wildfire")).length}</div> : null}
           {overlayState.earthquakes ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#ffeb3b]" />Earthquakes: {geoEvents.filter((e) => String(e.type || "").includes("earthquake")).length}</div> : null}
           {overlayState.shippingDisruptions ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#ffac4d]" />Shipping Warnings: {shippingWarnCount}</div> : null}
-          {overlayState.shipTracking ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#7dd3fc]" />Ships: {shipTracking.length}</div> : null}
-          {overlayState.oilRoutes ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#93c5fd]" />Oil Routes: {oilCount}</div> : null}
-          {overlayState.containerTraffic ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#bfdbfe]" />Container Routes: {containerCount}</div> : null}
+          {overlayState.shipTracking ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#FFFFFF]" />Ships: {shipTracking.length}</div> : null}
+          {overlayState.oilRoutes ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#D4AF37]" />Oil Routes: {oilCount}</div> : null}
+          {overlayState.containerTraffic ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#FFFFFF]" />Container Routes: {containerCount}</div> : null}
           {overlayState.commodityRegions ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#facc15]" />Commodity Regions: {commodityRegions.length}</div> : null}
           {overlayState.commodityStressMap ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#ff7a47]" />Commodity Stress: {stressCount}</div> : null}
           {overlayState.regionalAssetHighlight ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#6ee7b7]" />Asset Regions: {(regionHighlight?.regions ?? []).length}</div> : null}
@@ -1307,7 +1307,7 @@ function GlobeCanvasComponent({
       return (
         <div className="absolute bottom-2 right-2 z-10 rounded-lg border border-slate-600/55 bg-transparent px-2 py-1.5 text-[10px]">
           <div className="mb-1 font-semibold uppercase tracking-[0.12em] text-slate-200">Inflation</div>
-          <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(24,46,92,0.60)]" />&lt;2%</div>
+          <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(212,175,55,0.42)]" />&lt;2%</div>
           <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(76,175,80,0.60)]" />2-4%</div>
           <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(255,235,59,0.60)]" />4-6%</div>
           <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(255,152,0,0.60)]" />6-8%</div>

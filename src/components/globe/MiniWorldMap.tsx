@@ -40,6 +40,8 @@ type Props = {
   cameraAltitude: number;
   goldThemeEnabled?: boolean;
   assetUsage: Record<string, number>;
+  newsHeatmapScores?: Record<string, number>;
+  newsHeatmapActive?: boolean;
   onSelectPoint: (point: MarkerPoint) => void;
 };
 
@@ -291,6 +293,8 @@ export function MiniWorldMap({
   cameraAltitude,
   goldThemeEnabled = false,
   assetUsage,
+  newsHeatmapScores = {},
+  newsHeatmapActive = false,
   onSelectPoint,
 }: Props) {
   const [worldFeatures, setWorldFeatures] = useState<GeoFeature[]>([]);
@@ -528,7 +532,7 @@ export function MiniWorldMap({
         country: String(ship.destination || ""),
         locationLabel: String(ship.destination || ""),
         icon,
-        color: shipType.includes("oil") ? "#7dd3fc" : "#bfdbfe",
+        color: "#FFFFFF",
         lat: Number(ship.lat),
         lng: Number(ship.lng),
         label: ship.name,
@@ -677,7 +681,7 @@ export function MiniWorldMap({
         .map((route) => ({
           id: route.id,
           d: routeSvgPath(route.path ?? []),
-          color: String(route.color || "rgba(145,175,215,0.3)"),
+          color: String(route.color || "rgba(212,175,55,0.3)"),
           width: Number(route.lineWidth ?? 0.5),
         }))
         .filter((row) => Boolean(row.d)),
@@ -721,6 +725,10 @@ export function MiniWorldMap({
                 const regionHit = regionHighlightCountries.has(row.country);
                 if (regionHit) {
                   return regionBiasColor(regionBias, overlayDetailLevel === 1 ? 0.22 : overlayDetailLevel === 2 ? 0.3 : 0.38);
+                }
+                const newsScore = newsHeatmapScores[row.country];
+                if (newsHeatmapActive && typeof newsScore === "number" && newsScore > 0) {
+                  return `rgba(239,68,68,${(0.12 + newsScore * 0.5).toFixed(3)})`;
                 }
                 const riskScore = globalRiskCountryScore.get(row.country);
                 const liquidityScore = globalLiquidityCountryScore.get(row.country);

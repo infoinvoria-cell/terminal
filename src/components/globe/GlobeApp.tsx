@@ -2150,6 +2150,8 @@ export default function GlobeApp() {
               cameraAltitude={Number(camera?.altitude ?? 1.8)}
               goldThemeEnabled={false}
               assetUsage={assetUsage}
+              newsHeatmapScores={newsHeatmapScores}
+              newsHeatmapActive={overlayState.newsHeatmap}
               onSelectPoint={onSelectPointFromMiniMap}
             />
           </div>
