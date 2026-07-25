@@ -6,8 +6,8 @@ import { MobileBottomNav } from "./MobileBottomNav";
 
 const STORAGE_KEY = "m_header_hidden";
 
-// Nav height must match MobileBottomNav exactly
-const NAV_H = "calc(76px + env(safe-area-inset-bottom, 34px) + 14px)";
+// Nav height: pill (62px) + bottom gap (10px) + safe-area + 8px breathing room
+const NAV_H = "calc(80px + env(safe-area-inset-bottom, 16px))";
 const HEADER_H = 52;
 
 // Pages where header is always hidden (no toggle)

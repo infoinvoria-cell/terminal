@@ -207,7 +207,7 @@ export function MobileBottomNav({ headerHidden, onToggleHeader }: Props) {
         style={{
           position: "fixed",
           left: 0, right: 0,
-          bottom: `calc(60px + env(safe-area-inset-bottom, 0px))`,
+          bottom: `calc(72px + env(safe-area-inset-bottom, 16px))`,
           zIndex: 999,
           transform: layersOpen ? "translateY(0)" : "translateY(calc(100% + 20px))",
           transition: "transform 260ms cubic-bezier(0.16,1,0.3,1)",
@@ -300,16 +300,25 @@ export function MobileBottomNav({ headerHidden, onToggleHeader }: Props) {
         </Link>
       </div>
 
-      {/* Bottom nav bar */}
+      {/* Bottom nav bar — Dynamic Island style */}
       <nav
         style={{
-          position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 1000,
-          display: "flex", alignItems: "center",
-          height: `calc(76px + env(safe-area-inset-bottom, 34px))`,
-          paddingBottom: "calc(env(safe-area-inset-bottom, 34px) + 14px)",
-          background: "#0c0d10",
-          borderTop: `1px solid rgba(255,255,255,0.08)`,
+          position: "fixed",
+          bottom: `calc(env(safe-area-inset-bottom, 16px) + 10px)`,
+          left: 12,
+          right: 12,
+          zIndex: 1000,
+          display: "flex",
+          alignItems: "center",
+          height: 62,
+          borderRadius: 32,
+          background: "rgba(18, 18, 20, 0.96)",
+          border: "1px solid rgba(255,255,255,0.10)",
+          boxShadow: "0 12px 48px rgba(0,0,0,0.75), 0 2px 10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)",
+          backdropFilter: "blur(20px) saturate(180%)",
+          WebkitBackdropFilter: "blur(20px) saturate(180%)",
           boxSizing: "border-box",
+          overflow: "hidden",
         }}
         aria-label="Mobile Navigation"
       >
