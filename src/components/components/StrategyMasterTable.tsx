@@ -441,7 +441,10 @@ function CandleChart({ ticker, refreshSecs = 30 }: { ticker: string; refreshSecs
         priceLineVisible: false, lastValueVisible: false,
       });
 
-      const filtered = bars.filter((b: OhlcBar) => b.time >= "2019-01-01");
+      // filter to 2019+; drop flat/incomplete bars (open=high=low=close = intraday placeholder)
+      const filtered = bars
+        .filter((b: OhlcBar) => b.time >= "2019-01-01")
+        .filter((b: OhlcBar) => (b.high - b.low) / Math.max(b.close, 0.0001) > 0.0002);
       series.setData(filtered);
 
       const total = filtered.length;

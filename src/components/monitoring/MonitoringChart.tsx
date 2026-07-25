@@ -1131,11 +1131,13 @@ function MonitoringChartInner({
         byTime.set(day, { time: day as Time, open, high, low, close });
       }
     }
-    const sorted = Array.from(byTime.values()).sort((a, b) => {
-      const at = typeof a.time === "number" ? a.time : String(a.time);
-      const bt = typeof b.time === "number" ? b.time : String(b.time);
-      return at < bt ? -1 : at > bt ? 1 : 0;
-    });
+    const sorted = Array.from(byTime.values())
+      .filter(b => (b.high - b.low) / Math.max(b.close, 0.0001) > 0.0002) // drop flat placeholder bars
+      .sort((a, b) => {
+        const at = typeof a.time === "number" ? a.time : String(a.time);
+        const bt = typeof b.time === "number" ? b.time : String(b.time);
+        return at < bt ? -1 : at > bt ? 1 : 0;
+      });
     const clipped = maxBars > 0 ? sorted.slice(-maxBars) : sorted;
     const overlay = overlayEnabled
       ? buildTradeOverlay(data, clipped, overlayColors)

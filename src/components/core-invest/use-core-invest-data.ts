@@ -10,6 +10,10 @@ const SLEEVE_CONFIGS = [
   { id: "CHF_6S", label: "CHF/6S", instrument: "6S1!", pineFile: "pine2.txt", weight: 0.05, emaFast: 20, emaSlow: 50, stopPct: 2, tpPct: 4 },
 ];
 
+// module-level cache so data survives page navigations within session
+const CI_OHLC_CACHE = new Map<string, { data: OhlcApiResponse; ts: number }>();
+const CI_OHLC_TTL = 120_000; // 2 min
+
 type OhlcApiResponse = {
   symbol: string;
   status: "ok" | "missing" | "error" | "empty";
@@ -118,9 +122,13 @@ function buildBuyholdCurve(bars: OhlcBar[]): { date: string; value: number }[] {
 }
 
 async function fetchOhlc(symbol: string): Promise<OhlcApiResponse> {
+  const cached = CI_OHLC_CACHE.get(symbol);
+  if (cached && Date.now() - cached.ts < CI_OHLC_TTL) return cached.data;
   const res = await fetch(`/api/core-invest/ohlc?symbol=${encodeURIComponent(symbol)}`);
   if (!res.ok) return { symbol, status: "error", bars: [], error: `HTTP ${res.status}` };
-  return res.json() as Promise<OhlcApiResponse>;
+  const data = await res.json() as OhlcApiResponse;
+  CI_OHLC_CACHE.set(symbol, { data, ts: Date.now() });
+  return data;
 }
 
 export function useCoreInvestData(): CoreInvestPanelData {
