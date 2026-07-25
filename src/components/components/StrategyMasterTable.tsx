@@ -853,7 +853,7 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
           {/* Left: candle chart */}
           <div>
             <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 6 }}>
-              OHLC · {row.ticker} · 1D · {isRealtime ? "5s" : "30s"} Refresh
+              OHLC · {row.ticker} · {candleTf} · {isRealtime ? "5s" : "30s"} Refresh
             </div>
             <CandleChart ticker={row.ticker} timeframe={candleTf} refreshSecs={refreshSecs} />
           </div>
