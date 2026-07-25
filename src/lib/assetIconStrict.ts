@@ -23,6 +23,16 @@ export const assetIconMap: Record<string, string> = {
   CHF: p("chf.png"),
   CAD: p("cad.png"),
 
+  SEK: p("flag_sek.webp"),
+  ZAR: p("flag_zar.jpg"),
+  BRL: p("flag_brl.jpg"),
+  NOK: p("flag_nok.webp"),
+  MXN: p("flag_mxn.png"),
+  CLP: p("flag_clp.webp"),
+  SEKUSD: p("flag_sek.webp"),
+  ZARUSD: p("flag_zar.jpg"),
+  BRLUSD: p("flag_brl.jpg"),
+
   XAU: p("Gold.png"),
   GOLD: p("Gold.png"),
   XAG: p("silver.png"),

@@ -20,7 +20,9 @@ export function GlobeShell() {
   return (
     <HomeDashboardProvider initialReportTrades={[]} initialBalanceRows={[]}>
       <div className="flex h-[100dvh] min-h-0 overflow-hidden bg-[#0c0d10]">
-        <Sidebar />
+        <div className="relative z-10 flex-shrink-0">
+          <Sidebar />
+        </div>
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <Topbar sectionLabel="GLOBE" />
           <HeaderDivider />

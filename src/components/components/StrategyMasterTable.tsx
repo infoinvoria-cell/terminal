@@ -35,6 +35,9 @@ const TICKER_ICON: Record<string, string> = {
   "DAX 1H / MT": AI + "dax.png", "DAX 2H": AI + "dax.png",
   "QQQ": AI + "nasdaq.png",  "SPY":  AI + "es_s&p.png", "SPMO": AI + "es_s&p.png",
   "6S1!": AI + "chf.png",
+  "SEKUSD": AI + "flag_sek.webp", "ZARUSD": AI + "flag_zar.jpg",
+  "BRLUSD": AI + "flag_brl.jpg",  "NOKUSD": AI + "flag_nok.webp",
+  "MXNUSD": AI + "flag_mxn.png",  "CLPUSD": AI + "flag_clp.webp",
 };
 
 function TickerIcon({ ticker }: { ticker: string }) {

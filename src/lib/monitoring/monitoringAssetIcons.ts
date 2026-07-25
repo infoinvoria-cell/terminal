@@ -3,6 +3,12 @@ import { effectivePublicUrl, ICON_PATH } from "@/lib/assetIconStrict";
 
 /** Exact filenames under /public/asset-icons/ — do not invent new names. */
 export const MONITORING_ASSET_ICON_FILES = {
+  flagSek: "flag_sek.webp",
+  flagZar: "flag_zar.jpg",
+  flagBrl: "flag_brl.jpg",
+  flagNok: "flag_nok.webp",
+  flagMxn: "flag_mxn.png",
+  flagClp: "flag_clp.webp",
   wheat: "wheat.webp",
   corn: "corn.png",
   cocoa: "cocoa.webp",
@@ -213,6 +219,31 @@ const MONITORING_ICON_FILE_BY_KEY: Record<string, string> = {
   USDCHF: MONITORING_ASSET_ICON_FILES.chf,
   "CHF INVEST": MONITORING_ASSET_ICON_FILES.chf,
   CHF: MONITORING_ASSET_ICON_FILES.chf,
+
+  // EM / Exotic FX
+  SEKUSD: MONITORING_ASSET_ICON_FILES.flagSek,
+  USDSEK: MONITORING_ASSET_ICON_FILES.flagSek,
+  SEK:    MONITORING_ASSET_ICON_FILES.flagSek,
+
+  ZARUSD: MONITORING_ASSET_ICON_FILES.flagZar,
+  USDZAR: MONITORING_ASSET_ICON_FILES.flagZar,
+  ZAR:    MONITORING_ASSET_ICON_FILES.flagZar,
+
+  BRLUSD: MONITORING_ASSET_ICON_FILES.flagBrl,
+  USDBRL: MONITORING_ASSET_ICON_FILES.flagBrl,
+  BRL:    MONITORING_ASSET_ICON_FILES.flagBrl,
+
+  NOKUSD: MONITORING_ASSET_ICON_FILES.flagNok,
+  USDNOK: MONITORING_ASSET_ICON_FILES.flagNok,
+  NOK:    MONITORING_ASSET_ICON_FILES.flagNok,
+
+  MXNUSD: MONITORING_ASSET_ICON_FILES.flagMxn,
+  USDMXN: MONITORING_ASSET_ICON_FILES.flagMxn,
+  MXN:    MONITORING_ASSET_ICON_FILES.flagMxn,
+
+  CLPUSD: MONITORING_ASSET_ICON_FILES.flagClp,
+  USDCLP: MONITORING_ASSET_ICON_FILES.flagClp,
+  CLP:    MONITORING_ASSET_ICON_FILES.flagClp,
 
   // Intraday MT FX legs
   GBPUSD: MONITORING_ASSET_ICON_FILES.gbpusd,
