@@ -2318,7 +2318,7 @@ export default function GlobeApp() {
                 </div>
               )}
             </div>
-            <div className="min-h-0 flex-1 overflow-hidden">
+            <div key={bottomPanelTab} className="clf-panel-fade min-h-0 flex-1 overflow-hidden">
               {bottomPanelTab === "chart" ? (
                 <Suspense fallback={<div className="grid h-full place-items-center text-xs text-white/40">Loading chart...</div>}>
                   <CandleChart

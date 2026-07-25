@@ -520,6 +520,7 @@ function CandleChartInner({
   tradeMarkers = EMPTY_TRADE_MARKERS,
 }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null);
+  const ohlcTooltipRef = useRef<HTMLDivElement | null>(null);
   const overlayCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
@@ -967,6 +968,25 @@ function CandleChartInner({
 
     chartRef.current = chart;
     seriesRef.current = candles;
+
+    // OHLC hover tooltip
+    const fmtNum = (v: number) => (Math.abs(v) >= 1000 ? v.toLocaleString("en-US", { maximumFractionDigits: 2 }) : v.toFixed(v >= 1 ? 2 : 4));
+    chart.subscribeCrosshairMove((param) => {
+      const tip = ohlcTooltipRef.current;
+      if (!tip) return;
+      const bar = param?.seriesData?.get(candles) as { open?: number; high?: number; low?: number; close?: number } | undefined;
+      if (!param?.point || !param?.time || !bar || bar.open == null) {
+        tip.style.display = "none";
+        return;
+      }
+      const up = (bar.close ?? 0) >= (bar.open ?? 0);
+      tip.innerHTML =
+        `<span style="color:${up ? "#39ff64" : "#ff5555"}">O</span> ${fmtNum(bar.open!)}  ` +
+        `<span style="color:${up ? "#39ff64" : "#ff5555"}">H</span> ${fmtNum(bar.high!)}  ` +
+        `<span style="color:${up ? "#39ff64" : "#ff5555"}">L</span> ${fmtNum(bar.low!)}  ` +
+        `<span style="color:${up ? "#39ff64" : "#ff5555"}">C</span> ${fmtNum(bar.close!)}`;
+      tip.style.display = "block";
+    });
 
     const onRange = () => {
       if (!activeRef.current) return;
@@ -1608,6 +1628,11 @@ function CandleChartInner({
           ref={hostRef}
           className="relative z-[2] h-full w-full"
           title={suppressTitleOverlay ? undefined : (sourceLabel ? `${title} - ${sourceLabel}` : title)}
+        />
+        <div
+          ref={ohlcTooltipRef}
+          className="pointer-events-none absolute z-[5] hidden rounded-md border border-white/10 bg-[rgba(10,10,12,0.94)] px-2 py-1 font-mono text-[9px] leading-[1.5] text-white/85 shadow-lg"
+          style={{ top: 6, left: 6 }}
         />
       </div>
       {(isPanelLoading || tfLoading || screenerChartDataPending) ? (
