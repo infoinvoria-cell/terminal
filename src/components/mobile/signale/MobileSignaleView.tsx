@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useInterval } from "@/hooks/use-interval";
 import { useClientMounted } from "@/hooks/use-client-mounted";
 import type { SignalPageModel, SignalCardModel, SignalCardFilter, SignalPageSection } from "@/lib/signals/signal-types";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
@@ -378,7 +380,7 @@ function SectionPanel({
   previews: SignalPageModel["previews"];
   onCardTap: (card: SignalCardModel) => void;
 }) {
-  const [filter, setFilter] = useState<SignalCardFilter>("open");
+  const [filter, setFilter] = useState<SignalCardFilter>("all");
 
   const allCards = section.groups.flatMap(g => g.cards);
   const visible  = allCards.filter(c => matchesFilter(c, filter));
@@ -459,9 +461,13 @@ function SectionPanel({
 // ── Main export ───────────────────────────────────────────────────────────────
 
 export function MobileSignaleView({ data }: { data: SignalPageModel }) {
+  const router = useRouter();
   const whiteSwan  = data.sections.find(s => s.id === "white_swan");
   const coreInvest = data.sections.find(s => s.id === "core_invest");
   const [selectedCard, setSelectedCard] = useState<SignalCardModel | null>(null);
+
+  const refresh = useCallback(() => { router.refresh(); }, [router]);
+  useInterval(refresh, 5000);
 
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden", background: "#0c0d10" }}>

@@ -363,7 +363,7 @@ function Acc2Note({ lastDate }: { lastDate: string | null }) {
         userSelect: "none",
       }}
     >
-      {lastDate ? `Data as of ${lastDate} · ` : ""}Acc 2: partial visible history · official end anchored to Performance Report · statement-based · Not live
+      {""}
     </div>
   );
 }

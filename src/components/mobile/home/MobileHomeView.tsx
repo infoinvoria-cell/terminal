@@ -223,8 +223,8 @@ export function MobileHomeView({
   capalifeData: CapalifeData;
 }) {
   const [tab,      setTab]      = useState<HomeTab>("portfolio");
-  const [view,     setView]     = useState<ViewMode>("Line");
-  const [timeframe, setTF]      = useState<TimeFrame>("1D");
+  const [view,     setView]     = useState<ViewMode>("Bar");
+  const [timeframe, setTF]      = useState<TimeFrame>("1M");
   const [lastLine, setLastLine] = useState<TimeFrame>("1D");
   const [lastBar,  setLastBar]  = useState<TimeFrame>("1M");
   const [lastTbl,  setLastTbl]  = useState<TimeFrame>("1M");
