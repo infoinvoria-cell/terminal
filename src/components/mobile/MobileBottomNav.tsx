@@ -305,7 +305,7 @@ export function MobileBottomNav({ headerHidden, onToggleHeader }: Props) {
       <nav
         style={{
           position: "fixed",
-          bottom: `calc(env(safe-area-inset-bottom, 16px) + 10px)`,
+          bottom: `calc(env(safe-area-inset-bottom, 16px) + 24px)`,
           left: 12,
           right: 12,
           zIndex: 1000,
