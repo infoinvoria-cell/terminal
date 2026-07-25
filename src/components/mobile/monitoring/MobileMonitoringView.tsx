@@ -32,23 +32,108 @@ const SCROLL_TABS = [
 const ALL_TABS = [...FIXED_TABS, ...SCROLL_TABS];
 const DEFAULT_IDX = FIXED_TABS.length; // Agrar
 
-// ── Fetch one asset's OHLC bars ───────────────────────────────────────────────
+// ── Static cache paths (public/generated/) ───────────────────────────────────
+
+const STATIC_PATH: Record<string, string> = {
+  // Agrar
+  "ZW1!":  "/generated/monitoring/tradingview_data_cache/D/CBOT_ZW1_D.json",
+  "ZC1!":  "/generated/monitoring/tradingview_data_cache/D/CBOT_ZC1_D.json",
+  "ZS1!":  "/generated/monitoring/tradingview_data_cache/D/CBOT_ZS1_D.json",
+  "CC1!":  "/generated/monitoring/tradingview_data_cache/D/ICEUS_CC1_D.json",
+  "KC1!":  "/generated/monitoring/tradingview_data_cache/D/ICEUS_KC1_D.json",
+  "SB1!":  "/generated/monitoring/tradingview_data_cache/D/ICEUS_SB1_D.json",
+  "CT1!":  "/generated/monitoring/tradingview_data_cache/D/ICEUS_CT1_D.json",
+  "OJ1!":  "/generated/monitoring/tradingview_data_cache/D/ICEUS_OJ1_D.json",
+  // Metalle + Energie
+  "GC1!":  "/generated/monitoring/tradingview_data_cache/D/COMEX_GC1_D.json",
+  "SI1!":  "/generated/monitoring/tradingview_data_cache/D/COMEX_SI1_D.json",
+  "HG1!":  "/generated/monitoring/tradingview_data_cache/D/COMEX_HG1_D.json",
+  "PL1!":  "/generated/monitoring/tradingview_data_cache/D/NYMEX_PL1_D.json",
+  "PA1!":  "/generated/monitoring/tradingview_data_cache/D/NYMEX_PA1_D.json",
+  "CL1!":  "/generated/monitoring/tradingview_data_cache/D/NYMEX_CL1_D.json",
+  "NG1!":  "/generated/monitoring/tradingview_data_cache/D/NYMEX_NG1_D.json",
+  "RB1!":  "/generated/monitoring/tradingview_data_cache/D/NYMEX_RB1_D.json",
+  // Indizes
+  "FDAX1!": "/generated/monitoring/tradingview_data_cache/D/EUREX_FDAX1_D.json",
+  "ES1!":  "/generated/monitoring/tradingview_data_cache/D/CME_MINI_ES1_D.json",
+  "YM1!":  "/generated/monitoring/tradingview_data_cache/D/CBOT_MINI_YM1_D.json",
+  "NQ1!":  "/generated/monitoring/tradingview_data_cache/D/CME_MINI_NQ1_D.json",
+  "UKX!":  "/generated/monitoring/tradingview_data_cache/D/TVC_UKX_D.json",
+  // Aktien
+  "AAPL":  "/generated/monitoring/tradingview_data_cache/D/NASDAQ_AAPL_D.json",
+  "MSFT":  "/generated/monitoring/tradingview_data_cache/D/NASDAQ_MSFT_D.json",
+  "NVDA":  "/generated/monitoring/tradingview_data_cache/D/NASDAQ_NVDA_D.json",
+  "GOOGL": "/generated/monitoring/tradingview_data_cache/D/NASDAQ_GOOGL_D.json",
+  "META":  "/generated/monitoring/tradingview_data_cache/D/NASDAQ_META_D.json",
+  "AMZN":  "/generated/monitoring/tradingview_data_cache/D/NASDAQ_AMZN_D.json",
+  // Invest
+  "SPY":   "/generated/monitoring/tradingview_data_cache/D/BATS_SPY_D.json",
+  "6S1!":  "/generated/monitoring/tradingview_data_cache/D/CME_6S1_D.json",
+  // FX
+  "EURGBP": "/generated/monitoring/tradingview_data_cache/D/VANTAGE_EURGBP_D.json",
+  "GBPJPY": "/generated/monitoring/tradingview_data_cache/D/VANTAGE_GBPJPY_D.json",
+  "MXNUSD": "/generated/monitoring/tradingview_data_cache/D/FX_IDC_MXNUSD_D.json",
+  "NOKUSD": "/generated/monitoring/tradingview_data_cache/D/CME_NOK1_D.json",
+  "CLPUSD": "/generated/monitoring/tradingview_data_cache/D/FX_IDC_CLPUSD_D.json",
+  "SEKUSD": "/generated/monitoring/tradingview_data_cache/D/FX_IDC_SEKUSD_D.json",
+  "BRLUSD": "/generated/monitoring/tradingview_data_cache/D/FX_IDC_BRLUSD_D.json",
+  "ZARUSD": "/generated/monitoring/tradingview_data_cache/D/FX_IDC_ZARUSD_D.json",
+  // Intraday (30M/1H/2H - proper datetime strings)
+  "EURUSD_30M": "/generated/monitoring/tradingview_data_cache/30M/OANDA_EURUSD_30M_20260719.json",
+  "GBPUSD_30M": "/generated/monitoring/tradingview_data_cache/30M/OANDA_GBPUSD_30M_20260719.json",
+  // DE30EUR: only daily-resolution data available → rendered as D chart
+  "DE30EUR_1H": "/generated/monitoring/tradingview_data_cache/D/OANDA_DE30EUR_1H.json",
+  "DE30EUR_2H": "/generated/monitoring/tradingview_data_cache/D/OANDA_DE30EUR_2H.json",
+};
+
+// ── Fetch + parse bars from static TV-cache JSON ──────────────────────────────
 
 type Bar = { time: string; open: number; high: number; low: number; close: number };
+type TvRawBar = { time?: number | string | null; date?: string | null; open?: number | null; high?: number | null; low?: number | null; close?: number | null };
+type TvCacheJson = { bars?: TvRawBar[] };
 
-async function fetchBars(symbol: string, timeframe: string): Promise<Bar[]> {
+function parseTvCacheBars(rawBars: TvRawBar[]): { bars: Bar[]; intraday: boolean } {
+  const first = rawBars?.[0];
+  const firstDate = String(first?.date ?? "");
+  const intraday = firstDate.includes("T"); // datetime → intraday; date-only → daily
+  const map = new Map<string, Bar>();
+  for (const row of rawBars ?? []) {
+    const dateStr = String(row.date ?? "");
+    let time: string;
+    if (intraday) {
+      if (!dateStr.includes("T")) continue;
+      time = dateStr.endsWith("Z") ? dateStr : dateStr + "Z";
+      if (time.length < 20) continue;
+    } else {
+      time = dateStr.slice(0, 10);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(time)) continue;
+    }
+    const open = Number(row.open), high = Number(row.high), low = Number(row.low), close = Number(row.close);
+    if (!Number.isFinite(open) || !Number.isFinite(high) || !Number.isFinite(low) || !Number.isFinite(close)) continue;
+    if (close <= 0 || open <= 0 || high < low) continue;
+    map.set(time, { time, open, high, low, close });
+  }
+  const bars = Array.from(map.values()).sort((a, b) => a.time.localeCompare(b.time));
+  return { bars, intraday };
+}
+
+// Returns bars + the actual timeframe detected from file content
+async function fetchBars(symbol: string): Promise<{ bars: Bar[]; detectedTf: string }> {
+  const path = STATIC_PATH[symbol];
+  if (!path) return { bars: [], detectedTf: "D" };
   try {
-    const res = await fetch(`/api/monitoring/ohlc?symbol=${encodeURIComponent(symbol)}&timeframe=${timeframe}&maxBars=320`);
-    if (!res.ok) return [];
-    const json = await res.json() as { bars?: Bar[] };
-    return Array.isArray(json.bars) ? json.bars : [];
+    const res = await fetch(path);
+    if (!res.ok) return { bars: [], detectedTf: "D" };
+    const json = await res.json() as TvCacheJson;
+    const { bars, intraday } = parseTvCacheBars(json.bars ?? []);
+    return { bars, detectedTf: intraday ? "30m" : "D" };
   } catch {
-    return [];
+    return { bars: [], detectedTf: "D" };
   }
 }
 
 function barsToCandleData(bars: Bar[]): MonitoringChartData["bars"] {
-  return bars.map(b => ({ time: b.time, open: b.open, high: b.high, low: b.low, close: b.close }));
+  return bars.map(b => ({ time: b.time as string | null, open: b.open, high: b.high, low: b.low, close: b.close }));
 }
 
 function displayLabel(code: string): string {
@@ -57,9 +142,8 @@ function displayLabel(code: string): string {
 
 // ── Single chart card ─────────────────────────────────────────────────────────
 
-function ChartCard({ symbol, timeframe, chartData, loading }: {
+function ChartCard({ symbol, chartData, loading }: {
   symbol: string;
-  timeframe: string;
   chartData: MonitoringChartData | null;
   loading: boolean;
 }) {
@@ -76,7 +160,7 @@ function ChartCard({ symbol, timeframe, chartData, loading }: {
         <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.8)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
           {displayLabel(symbol)}
         </span>
-        <span style={{ fontSize: 8, color: "rgba(255,255,255,0.2)", marginLeft: 2 }}>{timeframe}</span>
+        <span style={{ fontSize: 8, color: "rgba(255,255,255,0.2)", marginLeft: 2 }}>{chartData?.timeframe ?? "D"}</span>
         {lastClose != null && (
           <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)", marginLeft: "auto" }}>
             {lastClose >= 1000 ? lastClose.toFixed(0) : lastClose >= 10 ? lastClose.toFixed(2) : lastClose.toFixed(4)}
@@ -142,7 +226,7 @@ export function MobileMonitoringView() {
   const activeTab = ALL_TABS[activeIdx]!;
 
   // Load all assets for a tab
-  const loadTab = useCallback(async (tabId: string, assets: string[], timeframe: string) => {
+  const loadTab = useCallback(async (tabId: string, assets: string[], _timeframe: string) => {
     if (loadingRef.current[tabId]) return;
     if (doneRef.current[tabId]) return;
     loadingRef.current[tabId] = true;
@@ -151,7 +235,7 @@ export function MobileMonitoringView() {
 
     await Promise.all(
       assets.map(async (symbol) => {
-        const bars = await fetchBars(symbol, timeframe);
+        const { bars, detectedTf } = await fetchBars(symbol);
         const cd: MonitoringChartData = {
           displaySymbol: displayLabel(symbol),
           displayName:   symbol,
@@ -159,7 +243,7 @@ export function MobileMonitoringView() {
           bars:          barsToCandleData(bars),
           signals: [], boxes: [],
           variant: "compact",
-          timeframe,
+          timeframe: detectedTf,
         };
         cache.current[tabId]![symbol] = bars.length > 0 ? cd : null;
         setTick(v => v + 1); // progressive reveal
@@ -307,7 +391,7 @@ export function MobileMonitoringView() {
                         const isLoading = tabLoading && !(tabCache != null && symbol in tabCache);
                         return (
                           <div key={symbol} style={{ height: cardH, background: "#0c0d10" }}>
-                            <ChartCard symbol={symbol} timeframe={tab.timeframe} chartData={chartData} loading={isLoading} />
+                            <ChartCard symbol={symbol} chartData={chartData} loading={isLoading} />
                           </div>
                         );
                       })}
