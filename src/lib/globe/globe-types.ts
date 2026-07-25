@@ -17,7 +17,8 @@ export type OverlayMode =
   | "global_liquidity_map"
   | "shipping_disruptions"
   | "commodity_stress_map"
-  | "regional_asset_highlight";
+  | "regional_asset_highlight"
+  | "news_heatmap";
 
 export interface OverlayToggleState {
   assets: boolean;
@@ -35,6 +36,7 @@ export interface OverlayToggleState {
   regionalAssetHighlight: boolean;
   liveSignals: boolean;
   locations: boolean;
+  newsHeatmap: boolean;
 }
 
 export interface AssetLocation {

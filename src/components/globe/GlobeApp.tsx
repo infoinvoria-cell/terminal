@@ -11,6 +11,7 @@ import { MiniWorldMap } from "@/components/globe/MiniWorldMap";
 import { NewsColumns } from "@/components/globe/NewsColumns";
 import { SettingsPanel } from "@/components/globe/SettingsPanel";
 import { AssetHeatmapPanel } from "@/components/globe/AssetHeatmapPanel";
+import { GlobeAnalyticsPanel } from "@/components/globe/GlobeAnalyticsPanel";
 import { SignalDetailPanel } from "@/components/globe/SignalDetailPanel";
 import { GlobeApi, subscribeApiLoading } from "@/lib/globe/api";
 import { designTokens } from "@/lib/globe/designTokens";
@@ -93,6 +94,7 @@ const OVERLAY_CACHE_MS: Record<keyof OverlayToggleState, number> = {
   shippingDisruptions: 10 * 60 * 1000,
   commodityStressMap: 2 * 60 * 60 * 1000,
   regionalAssetHighlight: 2 * 60 * 60 * 1000,
+  newsHeatmap: 10 * 60 * 1000,
   locations: 24 * 60 * 60 * 1000,
   liveSignals: 5 * 60 * 1000,
 };
@@ -115,6 +117,7 @@ const OVERLAY_ACTIVATION_PRIORITY: Array<keyof OverlayToggleState> = [
   "containerTraffic",
   "commodityRegions",
   "earthquakes",
+  "newsHeatmap",
   "conflicts",
   "wildfires",
 ];
@@ -144,6 +147,7 @@ const DEFAULT_OVERLAY_STATE: OverlayToggleState = {
   regionalAssetHighlight: false,
   liveSignals: false,
   locations: false,
+  newsHeatmap: false,
 };
 const OVERLAY_LOADING_KEYS: Array<keyof OverlayToggleState> = [
   "assets",
@@ -176,6 +180,7 @@ const OVERLAY_LOADING_LABELS: Record<keyof OverlayToggleState, string> = {
   regionalAssetHighlight: "Loading regional highlight...",
   locations: "Loading locations...",
   liveSignals: "Loading live signals...",
+  newsHeatmap: "Loading news heatmap...",
 };
 
 function defaultEnabledIds(assets: AssetItem[]): string[] {
@@ -289,6 +294,7 @@ function mapOverlayKeyToMode(key: keyof OverlayToggleState): OverlayMode {
   if (key === "shippingDisruptions") return "shipping_disruptions";
   if (key === "commodityStressMap") return "commodity_stress_map";
   if (key === "regionalAssetHighlight") return "regional_asset_highlight";
+  if (key === "newsHeatmap") return "news_heatmap";
   return "none";
 }
 
@@ -381,6 +387,7 @@ const OVERLAY_EMOJI: Record<string, string> = {
   shippingDisruptions: "⛔",
   commodityStressMap: "📈",
   regionalAssetHighlight: "🗺️",
+  newsHeatmap: "📰",
 };
 const OVERLAY_LABELS: Record<string, string> = {
   liveSignals: "Live Signale",
@@ -398,6 +405,7 @@ const OVERLAY_LABELS: Record<string, string> = {
   shippingDisruptions: "Ship Disruptions",
   commodityStressMap: "Commodity Stress",
   regionalAssetHighlight: "Regional Highlight",
+  newsHeatmap: "News Heatmap",
 };
 type GlobeOverlayControlProps = {
   overlayState: import("@/lib/globe/globe-types").OverlayToggleState;
@@ -487,6 +495,8 @@ export default function GlobeApp() {
   const [focusLocation, setFocusLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [chartTimeframe, setChartTimeframe] = useState<"M" | "W" | "D" | "4H" | "1H">("D");
   const [globePrices, setGlobePrices] = useState<Record<string, number>>({});
+  const [globeChanges, setGlobeChanges] = useState<Record<string, number>>({});
+  const [bottomPanelTab, setBottomPanelTab] = useState<"chart" | "analytics">("chart");
   const [enabledAssets, setEnabledAssets] = useState<string[]>(initialPersisted.enabledAssets ?? []);
   const [overlayState, setOverlayState] = useState<OverlayToggleState>(initialOverlayState);
   const [selectedOverlay, setSelectedOverlay] = useState<OverlayMode>(initialOverlay);
@@ -546,6 +556,7 @@ export default function GlobeApp() {
   const [shippingDisruptionEvents, setShippingDisruptionEvents] = useState<GeoEventItem[]>([]);
   const [shippingDisruptionRoutes, setShippingDisruptionRoutes] = useState<OverlayRouteItem[]>([]);
   const [commodityStressRegions, setCommodityStressRegions] = useState<CommodityRegionItem[]>([]);
+  const [newsHeatmapScores, setNewsHeatmapScores] = useState<Record<string, number>>({});
   const [regionHighlight, setRegionHighlight] = useState<AssetRegionHighlightResponse | null>(null);
   const [recentSignal, setRecentSignal] = useState<RecentSignal>(null);
   const [deferredSections, setDeferredSections] = useState<DeferredSections>({
@@ -1076,13 +1087,20 @@ export default function GlobeApp() {
     const fetchPrices = () => {
       fetch("/api/prices/globe")
         .then((r) => r.ok ? r.json() : null)
-        .then((d: { prices?: Record<string, number | null> } | null) => {
+        .then((d: { prices?: Record<string, number | null>; changes?: Record<string, number | null> } | null) => {
           if (cancelled || !d?.prices) return;
           const clean: Record<string, number> = {};
           for (const [id, p] of Object.entries(d.prices)) {
             if (typeof p === "number" && Number.isFinite(p)) clean[id] = p;
           }
           setGlobePrices(clean);
+          if (d.changes) {
+            const chg: Record<string, number> = {};
+            for (const [id, c] of Object.entries(d.changes)) {
+              if (typeof c === "number" && Number.isFinite(c)) chg[id] = c;
+            }
+            setGlobeChanges(chg);
+          }
         })
         .catch(() => {/* ignore */});
     };
@@ -1518,6 +1536,20 @@ export default function GlobeApp() {
           }
         }
       }
+      if (overlayState.newsHeatmap && isStale(overlayLastUpdatedAtRef.current.newsHeatmap, overlayCacheMs("newsHeatmap"))) {
+        withOverlayLoad("newsHeatmap", fetch("/api/overlay/news_heatmap")
+          .then((r) => r.ok ? r.json() : null)
+          .then((d: { countries?: Array<{ country: string; score: number }> } | null) => {
+            if (!d?.countries) return;
+            const scores: Record<string, number> = {};
+            for (const c of d.countries) scores[c.country] = c.score;
+            setNewsHeatmapScores(scores);
+            overlayLastUpdatedAtRef.current.newsHeatmap = Date.now();
+          }))
+          .catch(() => {
+            // no-op
+          });
+      }
     }, GLOBE_TIMER_TICK_MS);
     return () => {
       window.clearInterval(timer);
@@ -1534,6 +1566,7 @@ export default function GlobeApp() {
     overlayState.earthquakes,
     overlayState.globalLiquidityMap,
     overlayState.globalRiskLayer,
+    overlayState.newsHeatmap,
     overlayState.oilRoutes,
     overlayState.regionalAssetHighlight,
     overlayState.shipTracking,
@@ -1560,6 +1593,7 @@ export default function GlobeApp() {
     overlayState.globalRiskLayer,
     overlayState.oilRoutes,
     overlayState.regionalAssetHighlight,
+    overlayState.newsHeatmap,
     overlayState.shipTracking,
     overlayState.shippingDisruptions,
     overlayState.wildfires,
@@ -2016,6 +2050,7 @@ export default function GlobeApp() {
     autoRotateSpeed: effectiveAutoRotateSpeed,
     goldThemeEnabled: false,
     globePrices,
+    newsHeatmapScores,
     onCameraChange,
     onSelectAsset: onGlobeSelectAsset,
     onFocusHandled,
@@ -2148,74 +2183,110 @@ export default function GlobeApp() {
               />
             </div>
           </div>
-          {/* Candle chart card — 30% (bottom right) */}
+          {/* Chart / Analytics card — 30% (bottom right) */}
           <div className={CARD} style={{ ...CARD_BORDER, flex: "0 0 30%" }}>
-            {/* Chart header: icon + name + timeframe dropdown */}
+            {/* Tab header */}
             <div className="shrink-0 flex items-center justify-between border-b border-white/[0.06] px-3 py-2">
-              <div className="flex items-center gap-1.5 min-w-0">
-                {selectedAsset?.iconKey && (
-                  <img
-                    src={`/asset-icons/${GLOBE_ICON_MAP[selectedAsset.iconKey] ?? `${selectedAsset.iconKey}.png`}`}
-                    alt=""
-                    width={16}
-                    height={16}
-                    className="shrink-0 rounded-sm object-contain"
-                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                  />
-                )}
-                <span className="truncate text-[11px] font-medium text-white/70">{chartHeaderLabel}</span>
-              </div>
-              {/* Timeframe: top-3 pills + dropdown */}
-              <div className="flex shrink-0 items-center gap-1">
-                {(["D", "4H", "W"] as const).map((tf) => (
-                  <button
-                    key={tf}
-                    type="button"
-                    onClick={() => setChartTimeframe(tf)}
-                    className={`rounded px-1.5 py-[2px] text-[9px] font-semibold transition ${
-                      chartTimeframe === tf
-                        ? "border border-white/30 bg-white/10 text-white"
-                        : "border border-white/10 bg-transparent text-white/40 hover:text-white/60"
-                    }`}
-                  >
-                    {tf === "D" ? "1d" : tf === "4H" ? "4h" : "1w"}
-                  </button>
-                ))}
-                <select
-                  value={chartTimeframe}
-                  onChange={(e) => setChartTimeframe(e.target.value as typeof chartTimeframe)}
-                  className="rounded border border-white/10 bg-transparent px-1 py-[2px] text-[9px] text-white/40 outline-none hover:text-white/60"
-                  style={{ background: "rgba(20,21,25,0.9)" }}
-                >
-                  {([["1H","1H"],["4H","4H"],["D","1D"],["W","1W"],["M","1M"]] as [typeof chartTimeframe, string][]).map(([key, label]) => (
-                    <option key={key} value={key} style={{ background: "#14151a" }}>{label}</option>
+              <div className="flex items-center gap-2 min-w-0">
+                {/* Tab switcher */}
+                <div className="flex items-center gap-0.5 rounded-md border border-white/[0.08] bg-white/[0.03] p-0.5">
+                  {(["chart", "analytics"] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      type="button"
+                      onClick={() => setBottomPanelTab(tab)}
+                      className={`rounded px-2 py-[2px] text-[9px] font-semibold transition ${
+                        bottomPanelTab === tab
+                          ? "bg-white/10 text-white"
+                          : "text-white/40 hover:text-white/60"
+                      }`}
+                    >
+                      {tab === "chart" ? "Chart" : "Analytics"}
+                    </button>
                   ))}
-                </select>
+                </div>
+                {bottomPanelTab === "chart" && (
+                  <>
+                    {selectedAsset?.iconKey && (
+                      <img
+                        src={`/asset-icons/${GLOBE_ICON_MAP[selectedAsset.iconKey] ?? `${selectedAsset.iconKey}.png`}`}
+                        alt=""
+                        width={16}
+                        height={16}
+                        className="shrink-0 rounded-sm object-contain"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                      />
+                    )}
+                    <span className="truncate text-[11px] font-medium text-white/70">{chartHeaderLabel}</span>
+                  </>
+                )}
               </div>
+              {/* Timeframe pills — only visible in chart mode */}
+              {bottomPanelTab === "chart" && (
+                <div className="flex shrink-0 items-center gap-1">
+                  {(["D", "4H", "W"] as const).map((tf) => (
+                    <button
+                      key={tf}
+                      type="button"
+                      onClick={() => setChartTimeframe(tf)}
+                      className={`rounded px-1.5 py-[2px] text-[9px] font-semibold transition ${
+                        chartTimeframe === tf
+                          ? "border border-white/30 bg-white/10 text-white"
+                          : "border border-white/10 bg-transparent text-white/40 hover:text-white/60"
+                      }`}
+                    >
+                      {tf === "D" ? "1d" : tf === "4H" ? "4h" : "1w"}
+                    </button>
+                  ))}
+                  <select
+                    value={chartTimeframe}
+                    onChange={(e) => setChartTimeframe(e.target.value as typeof chartTimeframe)}
+                    className="rounded border border-white/10 bg-transparent px-1 py-[2px] text-[9px] text-white/40 outline-none hover:text-white/60"
+                    style={{ background: "rgba(20,21,25,0.9)" }}
+                  >
+                    {([["1H","1H"],["4H","4H"],["D","1D"],["W","1W"],["M","1M"]] as [typeof chartTimeframe, string][]).map(([key, label]) => (
+                      <option key={key} value={key} style={{ background: "#14151a" }}>{label}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
             <div className="min-h-0 flex-1 overflow-hidden">
-              <Suspense fallback={<div className="grid h-full place-items-center text-xs text-white/40">Loading chart...</div>}>
-                <CandleChart
-                  payload={timeseries}
-                  evaluation={evaluation}
-                  seasonality={seasonality}
-                  dataSource={dataSource}
-                  title={chartHeaderLabel}
-                  sourceLabel={chartSourceLabel}
-                  goldThemeEnabled={false}
-                  themePrimary={GOLD_PRIMARY}
-                  isPanelLoading={panelLoading}
-                  isFullscreen={false}
-                  active={isPageActive}
-                  onToggleFullscreen={noop}
-                  loopReplayTick={0}
-                  onTimeRangeChange={onSharedTimeRangeChange}
-                  onRecentSignalChange={setRecentSignal}
-                  onTimeframeChange={setChartTimeframe}
-                  hideBuiltinChartToolbar
-                  suppressTitleOverlay
+              {bottomPanelTab === "chart" ? (
+                <Suspense fallback={<div className="grid h-full place-items-center text-xs text-white/40">Loading chart...</div>}>
+                  <CandleChart
+                    payload={timeseries}
+                    evaluation={evaluation}
+                    seasonality={seasonality}
+                    dataSource={dataSource}
+                    title={chartHeaderLabel}
+                    sourceLabel={chartSourceLabel}
+                    goldThemeEnabled={false}
+                    themePrimary={GOLD_PRIMARY}
+                    isPanelLoading={panelLoading}
+                    isFullscreen={false}
+                    active={isPageActive}
+                    onToggleFullscreen={noop}
+                    loopReplayTick={0}
+                    onTimeRangeChange={onSharedTimeRangeChange}
+                    onRecentSignalChange={setRecentSignal}
+                    onTimeframeChange={setChartTimeframe}
+                    hideBuiltinChartToolbar
+                    suppressTitleOverlay
+                  />
+                </Suspense>
+              ) : (
+                <GlobeAnalyticsPanel
+                  assets={assets}
+                  priceData={{ prices: globePrices, changes: globeChanges }}
+                  conflictEvents={conflictEvents}
+                  earthquakeEvents={earthquakeEvents}
+                  commodityStressRegions={commodityStressRegions}
+                  shippingDisruptionEvents={shippingDisruptionEvents}
+                  globalNews={globalNews}
+                  onSelectAsset={(id) => { setSelectedAssetId(id); setBottomPanelTab("chart"); }}
                 />
-              </Suspense>
+              )}
             </div>
           </div>
         </div>

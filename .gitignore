@@ -74,6 +74,10 @@ private-broker-files/
 workspace-cache/
 workspace-cache/**
 
+# local seasonality CSV data (TradingView exports) — never commit raw data
+workspace/
+trading_dashboard/
+
 # graph/local indexes can expose local paths/brain structure
 graphify-out/
 GRAPH_REPORT.md
@@ -95,6 +99,8 @@ public/generated/**
 !public/generated/monitoring/config/strategy_runtime_routes.json
 !public/generated/monitoring/config/strategy_tester_config.json
 !public/generated/monitoring/manifest.json
+!public/generated/monitoring/mobile/
+!public/generated/monitoring/mobile/**
 
 # personal photos - personal data, never commit (matches at any depth)
 # Exception: public/ avatars used by the UserGate UI

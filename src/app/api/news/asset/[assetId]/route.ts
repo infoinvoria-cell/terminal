@@ -2,6 +2,8 @@ export const runtime = "edge";
 import { NextResponse } from "next/server";
 import type { NewsResponse, NewsItem } from "@/lib/globe/globe-types";
 
+const NEWS_API_KEY = process.env.NEXT_PUBLIC_NEWS_API_KEY ?? "";
+
 const ASSET_QUERIES: Record<string, string> = {
   gc1: "gold futures GC1",
   gld_etf: "GLD gold ETF",
@@ -30,7 +32,6 @@ const ASSET_QUERIES: Record<string, string> = {
   brent: "brent oil UK price",
   natgas: "natural gas NG futures",
   silver: "silver SI futures price",
-  // Legacy IDs kept for backwards compat
   gold: "gold price",
   copper: "copper HG price",
   sp500: "S&P 500 index",
@@ -50,6 +51,44 @@ const ASSET_QUERIES: Record<string, string> = {
   ftse: "FTSE 100 UK",
   dow: "Dow Jones DJIA",
 };
+
+// ── NewsAPI.org ─────────────────────────────────────────────────
+
+type NewsApiArticle = {
+  title?: string;
+  url?: string;
+  source?: { name?: string };
+  publishedAt?: string;
+};
+
+async function fetchNewsApiAsset(query: string): Promise<NewsItem[]> {
+  if (!NEWS_API_KEY) return [];
+  const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&language=en&sortBy=publishedAt&pageSize=15&apiKey=${NEWS_API_KEY}`;
+  const res = await fetch(url, {
+    signal: AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined,
+  });
+  if (!res.ok) return [];
+  const data = await res.json() as { articles?: NewsApiArticle[] };
+  return (data?.articles ?? [])
+    .filter((a) => a.title && a.title !== "[Removed]")
+    .map((a, i) => {
+      const articleUrl = String(a.url ?? "");
+      const domain = articleUrl ? (() => {
+        try { return new URL(articleUrl).hostname.replace(/^www\./, ""); } catch { return ""; }
+      })() : "";
+      return {
+        newsId: `na-${i}`,
+        title: String(a.title ?? ""),
+        source: String(a.source?.name ?? domain),
+        url: articleUrl,
+        publishedAt: a.publishedAt ?? new Date().toISOString(),
+        timestamp: a.publishedAt ?? new Date().toISOString(),
+        sourceDomain: domain,
+      };
+    });
+}
+
+// ── Yahoo Finance fallback ──────────────────────────────────────
 
 type YahooNewsItem = {
   uuid?: string;
@@ -84,6 +123,18 @@ export async function GET(_req: Request, { params }: { params: Promise<{ assetId
   const query = ASSET_QUERIES[assetId] ?? assetId.replace(/_/g, " ");
 
   try {
+    // Prefer NewsAPI.org
+    if (NEWS_API_KEY) {
+      const items = await fetchNewsApiAsset(query);
+      if (items.length > 0) {
+        const response: NewsResponse = { updatedAt: new Date().toISOString(), items: items.slice(0, 15) };
+        return NextResponse.json(response, {
+          headers: { "Cache-Control": "public, max-age=300, stale-while-revalidate=600" },
+        });
+      }
+    }
+
+    // Fallback: Yahoo Finance
     const url = `https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}&newsCount=15&quotesCount=0&enableFuzzyQuery=false`;
     const res = await fetch(url, {
       headers: {

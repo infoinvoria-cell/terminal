@@ -59,6 +59,7 @@ type Props = {
   autoRotateSpeed: number;
   goldThemeEnabled?: boolean;
   globePrices?: Record<string, number>;
+  newsHeatmapScores?: Record<string, number>;
   onCameraChange: (camera: GlobeCameraState) => void;
   onSelectAsset: (assetId: string) => void;
   onFocusHandled: () => void;
@@ -303,6 +304,7 @@ function GlobeCanvasComponent({
   autoRotateSpeed,
   goldThemeEnabled = false,
   globePrices = {},
+  newsHeatmapScores = {},
   onCameraChange,
   onSelectAsset,
   onFocusHandled,
@@ -1657,6 +1659,11 @@ function GlobeCanvasComponent({
               }
               return selectedOverlay === "none" ? themeFillSoft : themeFillOverlay;
             }
+            const newsScore = newsHeatmapScores[country];
+            const newsTint = overlayState.newsHeatmap && typeof newsScore === "number" && newsScore > 0
+              ? `rgba(239,68,68,${(0.12 + newsScore * 0.5).toFixed(3)})`
+              : null;
+            if (newsTint) return newsTint;
             if (liquidityTint && riskTint) {
               return selectedOverlay === "global_risk_layer" ? riskTint : liquidityTint;
             }
