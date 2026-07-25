@@ -25,8 +25,6 @@ function classifyType(name: string): string {
   return "vessel";
 }
 
-const diag: { opened: boolean; error: string; firstMsg: string } = { opened: false, error: "", firstMsg: "" };
-
 async function collectShips(key: string, budgetMs = 5500, maxShips = 250): Promise<ShipTrackingItem[]> {
   return new Promise((resolve) => {
     const byMmsi = new Map<number, ShipTrackingItem>();
@@ -42,14 +40,12 @@ async function collectShips(key: string, budgetMs = 5500, maxShips = 250): Promi
     try {
       ws = new WebSocket("wss://stream.aisstream.io/v0/stream");
       ws.binaryType = "arraybuffer";
-    } catch (e) {
-      diag.error = `ctor:${String((e as Error)?.message ?? e)}`;
+    } catch {
       clearTimeout(timer);
       resolve([]);
       return;
     }
     ws.onopen = () => {
-      diag.opened = true;
       ws.send(JSON.stringify({
         APIKey: key,
         BoundingBoxes: [[[-90, -180], [90, 180]]],
@@ -60,7 +56,6 @@ async function collectShips(key: string, budgetMs = 5500, maxShips = 250): Promi
         const rawStr = typeof ev.data === "string"
           ? ev.data
           : new TextDecoder().decode(ev.data as ArrayBuffer);
-        if (!diag.firstMsg) diag.firstMsg = rawStr.slice(0, 200);
         const data = JSON.parse(rawStr) as AisMessage;
         if (data.MessageType !== "PositionReport") return;
         const meta = data.MetaData ?? {};
@@ -84,7 +79,7 @@ async function collectShips(key: string, budgetMs = 5500, maxShips = 250): Promi
         if (byMmsi.size >= maxShips) { clearTimeout(timer); done(); }
       } catch { /* ignore malformed */ }
     };
-    ws.onerror = (e: Event) => { diag.error = `ws:${String((e as unknown as { message?: string })?.message ?? "error")}`; clearTimeout(timer); done(); };
+    ws.onerror = () => { clearTimeout(timer); done(); };
     ws.onclose = () => { clearTimeout(timer); done(); };
   });
 }
@@ -100,8 +95,8 @@ export async function GET() {
   try {
     const items = await collectShips(AIS_KEY);
     return NextResponse.json(
-      { updatedAt: new Date().toISOString(), items, _diag: diag } as ShipTrackingResponse & { _diag: unknown },
-      { headers: { "Cache-Control": "no-store" } },
+      { updatedAt: new Date().toISOString(), items } satisfies ShipTrackingResponse,
+      { headers: { "Cache-Control": "public, max-age=120, stale-while-revalidate=300" } },
     );
   } catch {
     return NextResponse.json(
