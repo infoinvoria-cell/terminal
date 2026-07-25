@@ -110,6 +110,71 @@ async function tryLocalOhlc(assetId: string, tf: string, baseUrl: string) {
   }
 }
 
+// Yahoo Finance ticker per asset (for on-demand assets not in local cache)
+const ASSET_YAHOO_MAP: Record<string, string> = {
+  gld_etf: "GLD", gld_ci: "GLD", gc1: "GC=F", ym1: "YM=F", nq1: "NQ=F", ct1: "CT=F",
+  ukx: "^FTSE", eurusd_30m: "EURUSD=X", gbpusd_30m: "GBPUSD=X", dax_1h: "^GDAXI", dax_2h: "^GDAXI",
+  qqq: "QQQ", spmo: "SPMO", spy: "SPY", hg1: "HG=F", "6s1": "CHF=X", glgg: "GLGG.L", fiw: "FIW",
+  btcusd: "BTC-USD", ethusd: "ETH-USD", dxy: "DX-Y.NYB", vix: "^VIX", tnx: "^TNX",
+  crude: "CL=F", brent: "BZ=F", natgas: "NG=F", silver: "SI=F",
+  gold: "GC=F", copper: "HG=F", sp500: "ES=F", nasdaq: "NQ=F", dax: "^GDAXI",
+  eurusd: "EURUSD=X", gbpusd: "GBPUSD=X", usdchf: "CHF=X",
+};
+
+const YAHOO_RANGE: Record<string, string> = { D: "2y", W: "5y", M: "10y", "4H": "60d", "1H": "30d" };
+const YAHOO_INTERVAL: Record<string, string> = { D: "1d", W: "1wk", M: "1mo", "4H": "1h", "1H": "1h" };
+
+async function trySupabaseOhlc(assetId: string, tf: string): Promise<LocalBar[] | null> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+  if (!url.startsWith("https://") || !key) return null;
+  const tvSource = ASSET_TV_MAP[assetId.toLowerCase()];
+  const sym = tvSource ? (tvSource.includes(":") ? tvSource.split(":").pop()! : tvSource) : assetId.toUpperCase();
+  try {
+    const q = `${url}/rest/v1/monitoring_ohlc?asset=eq.${encodeURIComponent(sym)}&timeframe=eq.${encodeURIComponent(tf)}&select=date,open,high,low,close,volume&order=date.asc&limit=500`;
+    const res = await fetch(q, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
+      signal: AbortSignal.timeout?.(4000),
+    });
+    if (!res.ok) return null;
+    const rows = (await res.json()) as LocalBar[];
+    return Array.isArray(rows) && rows.length ? rows : null;
+  } catch {
+    return null;
+  }
+}
+
+async function tryYahooOhlc(assetId: string, tf: string): Promise<LocalBar[] | null> {
+  const sym = ASSET_YAHOO_MAP[assetId.toLowerCase()];
+  if (!sym) return null;
+  const range = YAHOO_RANGE[tf] ?? "2y";
+  const interval = YAHOO_INTERVAL[tf] ?? "1d";
+  try {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=${range}&interval=${interval}`;
+    const res = await fetch(url, {
+      headers: { "User-Agent": "Mozilla/5.0", Accept: "application/json" },
+      signal: AbortSignal.timeout?.(6000),
+    });
+    if (!res.ok) return null;
+    const data = await res.json() as {
+      chart?: { result?: Array<{ timestamp?: number[]; indicators?: { quote?: Array<{ open?: number[]; high?: number[]; low?: number[]; close?: number[]; volume?: number[] }> } }> };
+    };
+    const r = data?.chart?.result?.[0];
+    const ts = r?.timestamp ?? [];
+    const q = r?.indicators?.quote?.[0];
+    if (!ts.length || !q) return null;
+    const bars: LocalBar[] = [];
+    for (let i = 0; i < ts.length; i++) {
+      const o = q.open?.[i], h = q.high?.[i], l = q.low?.[i], c = q.close?.[i];
+      if (o == null || h == null || l == null || c == null) continue;
+      bars.push({ time: ts[i], open: o, high: h, low: l, close: c, volume: q.volume?.[i] ?? 0 });
+    }
+    return bars.length ? bars.slice(-500) : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ assetId: string }> },
@@ -118,8 +183,9 @@ export async function GET(
   const tf = (req.nextUrl.searchParams.get("tf") ?? "D").toUpperCase();
 
   const origin = req.nextUrl.origin;
-  const localBars = await tryLocalOhlc(assetId, tf, origin);
 
+  // Priority chain: local cache → Supabase monitoring_ohlc → Yahoo Finance → synthetic
+  const localBars = await tryLocalOhlc(assetId, tf, origin);
   if (localBars?.length) {
     const tail = localBars.slice(-500);
     return NextResponse.json({
@@ -128,6 +194,34 @@ export async function GET(
       source: "local_cache",
       updatedAt: new Date().toISOString(),
       ohlcv: tail.map(barToOhlcv),
+      supplyDemand: { demand: [], supply: [] },
+    }, {
+      headers: { "Cache-Control": "public, max-age=300, stale-while-revalidate=600" },
+    });
+  }
+
+  const supabaseBars = await trySupabaseOhlc(assetId, tf);
+  if (supabaseBars?.length) {
+    return NextResponse.json({
+      assetId,
+      symbol: assetId.toUpperCase(),
+      source: "supabase_ohlc",
+      updatedAt: new Date().toISOString(),
+      ohlcv: supabaseBars.map(barToOhlcv),
+      supplyDemand: { demand: [], supply: [] },
+    }, {
+      headers: { "Cache-Control": "public, max-age=300, stale-while-revalidate=600" },
+    });
+  }
+
+  const yahooBars = await tryYahooOhlc(assetId, tf);
+  if (yahooBars?.length) {
+    return NextResponse.json({
+      assetId,
+      symbol: assetId.toUpperCase(),
+      source: "yahoo_finance",
+      updatedAt: new Date().toISOString(),
+      ohlcv: yahooBars.map(barToOhlcv),
       supplyDemand: { demand: [], supply: [] },
     }, {
       headers: { "Cache-Control": "public, max-age=300, stale-while-revalidate=600" },
