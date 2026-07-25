@@ -698,15 +698,21 @@ export function MobileKomponentenView() {
     </div>
   );
 
+  // two-row height ≈ 90px used for bottom fade overlap
+  const NAV_H = "calc(76px + env(safe-area-inset-bottom, 34px))";
+  const FADE_H = 90; // px — ~2 list rows
+
   return (
-    <div style={{ height: "100%", position: "relative", display: "flex", flexDirection: "column", background: BG }}>
-      {/* scrollable content */}
-      <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch" } as React.CSSProperties}>
+    <div style={{ height: "100%", display: "flex", flexDirection: "column", background: BG, overflow: "hidden" }}>
+
+      {/* ── STICKY HEADER (never scrolls) ─────────────────────────────────── */}
+      <div style={{ flexShrink: 0, background: BG, zIndex: 10 }}>
 
         {/* Portfolio tabs */}
-        <div style={{ display: "flex", borderBottom: `1px solid ${RBORD}`, background: BG, position: "sticky", top: 0, zIndex: 10 }}>
+        <div style={{ display: "flex", borderBottom: `1px solid ${RBORD}` }}>
           {(["ws","ci"] as Portfolio[]).map(p => (
-            <button key={p} onClick={() => { setPortfolio(p); setPillarFilter("all"); setSortKey("weight"); setSortDir("desc"); }}
+            <button key={p}
+              onClick={() => { setPortfolio(p); setPillarFilter("all"); setSortKey("weight"); setSortDir("desc"); }}
               style={{
                 flex: 1, padding: "13px 0", fontSize: 11, fontWeight: 700,
                 fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em",
@@ -719,8 +725,8 @@ export function MobileKomponentenView() {
           ))}
         </div>
 
-        {/* KPI strip — 5 cards, equally spaced, full width */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6, padding: "10px 10px 0" }}>
+        {/* KPI strip — 5 cards, full width grid */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6, padding: "14px 10px 0" }}>
           {kpis.map(k => (
             <div key={k.label} style={{ background: CARD, border: `1px solid ${CBORD}`, borderRadius: 10, padding: "7px 8px" }}>
               <div style={{ fontSize: 7, fontWeight: 600, color: MUTED, letterSpacing: ".06em", textTransform: "uppercase", fontFamily: "var(--font-montserrat),sans-serif", marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{k.label}</div>
@@ -729,41 +735,104 @@ export function MobileKomponentenView() {
           ))}
         </div>
 
-        {/* Filter pills + search + live */}
-        {pillarsWithSearch}
+        {/* Filter pills + mini search + live — more spacing above */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "12px 12px 10px" }}>
+          {/* mini search */}
+          <div style={{ flexShrink: 0, position: "relative", width: 90 }}>
+            <input type="search" placeholder="Suchen…" value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{
+                width: "100%", boxSizing: "border-box",
+                background: "rgba(255,255,255,0.05)", border: `1px solid ${RBORD}`,
+                borderRadius: 20, padding: "4px 8px 4px 22px",
+                fontSize: 10, color: "#fff", fontFamily: "var(--font-montserrat),sans-serif",
+                outline: "none", appearance: "none",
+              }}
+            />
+            <svg width={10} height={10} viewBox="0 0 24 24" fill="none" stroke={MUTED} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              style={{ position: "absolute", left: 7, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </div>
 
-        {/* Column headers (clickable, with aggregates) */}
-        <div style={{ display: "flex", alignItems: "flex-end", padding: "4px 12px 6px", paddingLeft: 44, borderBottom: `1px solid ${RBORD}`, background: BG }}>
-          <ColHeader label="Pillar"  agg={`${filtered.length}`}   k="weight"   sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="22%" />
-          <ColHeader label="Gew."   agg={aggWeight ? `${aggWeight}%` : "—"}   k="weight"   sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="11%" />
-          <ColHeader label="Sharpe" agg={aggSharpe}  k="sharpeOos" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="14%" />
-          <ColHeader label="CAGR"   agg={aggCagr ? `${aggCagr}%` : "—"}    k="cagr"      sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="15%" />
-          <ColHeader label="Max DD" agg={aggMaxDd ? `${aggMaxDd}%` : "—"}   k="maxDd"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="17%" />
-          <ColHeader label="PF"     agg={aggPf}      k="pf"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="12%" />
-          <ColHeader label="Trades" agg={aggTrades}  k="trades"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="9%" />
-        </div>
-
-        {/* Strategy list */}
-        <div>
-          {filtered.map((row, i) => (
-            <StrategyRow key={row.id} row={row} num={i + 1} liveData={liveData} liveOn={liveOn} />
-          ))}
-          {filtered.length === 0 && (
-            <div style={{ padding: "40px 24px", textAlign: "center", fontSize: 12, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif" }}>
-              Keine Strategien gefunden
+          {/* scrollable pills with right fade */}
+          <div style={{ position: "relative", flex: 1, minWidth: 0 }}>
+            <div style={{ display: "flex", gap: 6, overflowX: "auto", scrollbarWidth: "none", paddingRight: 20 } as React.CSSProperties}>
+              {pillars.map(p => (
+                <button key={p} onClick={() => setPillarFilter(p)}
+                  style={{
+                    flexShrink: 0, fontSize: 10, fontWeight: 600,
+                    letterSpacing: ".07em", textTransform: "uppercase",
+                    fontFamily: "var(--font-montserrat),sans-serif",
+                    padding: "4px 11px", borderRadius: 20, cursor: "pointer",
+                    background: pillarFilter === p ? "rgba(255,255,255,0.07)" : "transparent",
+                    border: `1px solid ${pillarFilter === p ? "rgba(255,255,255,0.18)" : RBORD}`,
+                    color: pillarFilter === p ? "#fff" : MUTED,
+                    WebkitTapHighlightColor: "transparent",
+                  }}>
+                  {pillarLabel[p] ?? p}
+                </button>
+              ))}
             </div>
-          )}
+            <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 24, background: `linear-gradient(to right, transparent, ${BG})`, pointerEvents: "none" }} />
+          </div>
+
+          {/* live toggle */}
+          <ToggleBtn active={liveOn} onClick={() => setLiveOn(v => !v)}>
+            {liveOn ? "● Live" : "Live"}
+          </ToggleBtn>
         </div>
 
-        <div style={{ height: "calc(76px + env(safe-area-inset-bottom, 34px) + 60px)" }} />
+        {/* Column headers — more gap above table */}
+        <div style={{ display: "flex", alignItems: "flex-end", padding: "2px 12px 7px", paddingLeft: 44, borderBottom: `1px solid ${RBORD}` }}>
+          <ColHeader label="Pillar"  agg={`${filtered.length}`}              k="weight"   sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="22%" />
+          <ColHeader label="Gew."   agg={aggWeight ? `${aggWeight}%` : "—"}  k="weight"   sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="11%" />
+          <ColHeader label="Sharpe" agg={aggSharpe}                          k="sharpeOos" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="14%" />
+          <ColHeader label="CAGR"   agg={aggCagr ? `${aggCagr}%` : "—"}     k="cagr"      sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="15%" />
+          <ColHeader label="Max DD" agg={aggMaxDd ? `${aggMaxDd}%` : "—"}   k="maxDd"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="17%" />
+          <ColHeader label="PF"     agg={aggPf}                              k="pf"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="12%" />
+          <ColHeader label="Trades" agg={aggTrades}                          k="trades"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="9%" />
+        </div>
+
+        {/* subtle bottom fade so rows dissolve as they slide behind header */}
+        <div style={{ height: 10, background: `linear-gradient(to bottom, ${BG}, transparent)`, marginBottom: -10, position: "relative", zIndex: 2, pointerEvents: "none" }} />
       </div>
 
-      {/* bottom black fade — always visible, fixed over scroll */}
+      {/* ── SCROLLABLE LIST ────────────────────────────────────────────────── */}
       <div style={{
-        position: "absolute", bottom: 0, left: 0, right: 0,
-        height: "calc(76px + env(safe-area-inset-bottom, 34px) + 40px)",
-        background: `linear-gradient(to bottom, transparent, ${BG} 65%)`,
-        pointerEvents: "none", zIndex: 5,
+        flex: 1,
+        overflowY: "auto",
+        overflowX: "hidden",
+        // hide scrollbar cross-browser
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
+        WebkitOverflowScrolling: "touch",
+      } as React.CSSProperties}>
+        <style>{`::-webkit-scrollbar{display:none}`}</style>
+
+        {filtered.map((row, i) => (
+          <StrategyRow key={row.id} row={row} num={i + 1} liveData={liveData} liveOn={liveOn} />
+        ))}
+        {filtered.length === 0 && (
+          <div style={{ padding: "40px 24px", textAlign: "center", fontSize: 12, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif" }}>
+            Keine Strategien gefunden
+          </div>
+        )}
+
+        {/* bottom spacer so last rows aren't hidden under nav + fade */}
+        <div style={{ height: `calc(${NAV_H} + ${FADE_H}px)` }} />
+      </div>
+
+      {/* ── BOTTOM FADE — ~2 row heights, very subtle ──────────────────────── */}
+      <div style={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: `calc(${NAV_H} + ${FADE_H}px)`,
+        background: `linear-gradient(to bottom, transparent 0%, rgba(12,13,16,0.55) 40%, ${BG} 80%)`,
+        pointerEvents: "none",
+        zIndex: 6,
       }} />
     </div>
   );
