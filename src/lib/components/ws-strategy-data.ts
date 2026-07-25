@@ -24,6 +24,8 @@ export interface StrategyRow {
   status: RowStatus;
   dataFile?: string;           // relative path under /data/ for equity JSON
   intradayId?: string;         // id in /data/intraday-equity.json
+  codexGroup?: string;         // group for /api/monitoring/codex-equity-curve
+  codexSymbol?: string;        // symbol for /api/monitoring/codex-equity-curve
   isNotes?: string;            // IS-period note
   exchange?: string;
 }
@@ -121,13 +123,13 @@ const MACRO: StrategyRow[] = [
     id: "ct1_macro", ticker: "CT1!", label: "Cotton / Baumwolle", group: "Agrar",
     engine: "MacroA Filter", pillar: "macro", weight: 9,
     sharpeOos: 0.758, cagr: "+9.5%", maxDd: "−28.7%", calmar: 0.33, pf: 1.47, trades: 142, wfOos: "75%",
-    status: "active", exchange: "ICEUS",
+    status: "active", exchange: "ICEUS", codexGroup: "agrar", codexSymbol: "CT1",
   },
   {
     id: "gc1_macro", ticker: "GC1!", label: "Gold", group: "Metalle",
     engine: "MacroC", pillar: "macro", weight: 9,
     sharpeOos: 0.466, cagr: "+5.6%", maxDd: "−25.5%", calmar: 0.22, pf: 1.29, trades: 136, wfOos: "100%",
-    status: "active", exchange: "COMEX",
+    status: "active", exchange: "COMEX", dataFile: "anomaly/gc1_friday_long.json",
   },
 ];
 
@@ -165,19 +167,19 @@ const SEASONAL: StrategyRow[] = [
     id: "ct1_sea", ticker: "CT1!", label: "Cotton", group: "Agrar",
     engine: "M01D03 Long", pillar: "seasonal", weight: 2,
     sharpeOos: 0.139, cagr: "+2.4%", maxDd: "−1.9%", calmar: 1.26, pf: 13.96, trades: 8, wfOos: "75%",
-    status: "active", exchange: "ICEUS",
+    status: "active", exchange: "ICEUS", codexGroup: "agrar", codexSymbol: "CT1",
   },
   {
     id: "oj1_sea", ticker: "OJ1!", label: "Orange Juice", group: "Agrar",
     engine: "M06D28 Long", pillar: "seasonal", weight: 1,
     sharpeOos: 0.123, cagr: "+1.2%", maxDd: "−2.1%", calmar: null, pf: null, trades: 8, wfOos: null,
-    status: "active", exchange: "ICEUS",
+    status: "active", exchange: "ICEUS", codexGroup: "agrar", codexSymbol: "OJ1",
   },
   {
     id: "sb1_sea_s", ticker: "SB1!", label: "Sugar (Short)", group: "Agrar",
     engine: "M02D25 Short", pillar: "seasonal", weight: 1,
     sharpeOos: 0.123, cagr: "+6.2%", maxDd: "−6.7%", calmar: 0.93, pf: 3.85, trades: 8, wfOos: "100%",
-    status: "active", exchange: "ICEUS",
+    status: "active", exchange: "ICEUS", codexGroup: "agrar", codexSymbol: "SB1",
   },
   {
     id: "es1_sea", ticker: "ES1!", label: "S&P 500", group: "Indizes",
@@ -189,13 +191,13 @@ const SEASONAL: StrategyRow[] = [
     id: "sb1_sea_l", ticker: "SB1!", label: "Sugar (Long)", group: "Agrar",
     engine: "M09D24 Long", pillar: "seasonal", weight: 1,
     sharpeOos: 0.093, cagr: "+3.8%", maxDd: "−4.2%", calmar: null, pf: null, trades: 7, wfOos: null,
-    status: "active", exchange: "ICEUS",
+    status: "active", exchange: "ICEUS", codexGroup: "agrar", codexSymbol: "SB1",
   },
   {
     id: "zc1_sea", ticker: "ZC1!", label: "Corn", group: "Agrar",
     engine: "M03D29 Long", pillar: "seasonal", weight: 1,
     sharpeOos: 0.040, cagr: "+0.3%", maxDd: "−5.3%", calmar: 0.06, pf: 3.20, trades: 8, wfOos: "62%",
-    status: "active", exchange: "CBOT",
+    status: "active", exchange: "CBOT", codexGroup: "agrar", codexSymbol: "ZC1",
   },
 ];
 
@@ -235,19 +237,19 @@ const INTRADAY: StrategyRow[] = [
     id: "eurusd_30m", ticker: "6E1!", label: "EUR/USD Futures · 6E", group: "Intraday",
     engine: "SL 13pip · TP 3.0R · BE 1R · 08–12:30 UTC", pillar: "intraday", weight: 17,
     sharpeOos: null, cagr: "+21.4%", maxDd: "−18.7%", calmar: 1.145, pf: 1.325, trades: 1358, wfOos: "7/8",
-    status: "active", exchange: "CME", intradayId: "EUR30m",
+    status: "active", exchange: "CME", intradayId: "EUR30m", codexGroup: "intraday", codexSymbol: "EURUSD_30M",
   },
   {
     id: "dax_1h", ticker: "DAX 1H / MT", label: "DAX 1H", group: "Intraday",
     engine: "SL 40pt · TP 2.5R · BE 1.5R · 07–12 UTC", pillar: "intraday", weight: 17,
     sharpeOos: null, cagr: "+10.7%", maxDd: "−12.4%", calmar: 0.865, pf: 1.484, trades: 335, wfOos: "5/8",
-    status: "active", exchange: "OANDA", intradayId: "DAX1H",
+    status: "active", exchange: "OANDA", intradayId: "DAX1H", codexGroup: "intraday", codexSymbol: "DAX_1H",
   },
   {
     id: "dax_2h", ticker: "DAX 2H", label: "DAX 2H", group: "Intraday",
     engine: "SL ATR×0.8 · TP 3R · V4 Long-Only · 09–11 UTC", pillar: "intraday", weight: 6,
     sharpeOos: null, cagr: "+5.4%", maxDd: "−19.9%", calmar: 0.270, pf: 1.478, trades: 81, wfOos: "5/8",
-    status: "active", exchange: "OANDA", intradayId: "DAX2H",
+    status: "active", exchange: "OANDA", intradayId: "DAX2H", codexGroup: "intraday", codexSymbol: "DAX_2H",
   },
   {
     id: "gbpusd_30m", ticker: "GBPUSD 30M", label: "GBP/USD", group: "Intraday",

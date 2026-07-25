@@ -72,7 +72,7 @@ interface DisplayRow {
   cagr: string | null; maxDd: string | null;
   pf: number | null; trades: number | null;
   wfWin: string | null; calmar: number | null;
-  status: string; dataFile?: string; intradayId?: string; isNotes?: string; exchange?: string;
+  status: string; dataFile?: string; intradayId?: string; codexGroup?: string; codexSymbol?: string; isNotes?: string; exchange?: string;
 }
 
 function wsRow(r: StrategyRow): DisplayRow {
@@ -83,7 +83,7 @@ function wsRow(r: StrategyRow): DisplayRow {
     weight: r.weight, sharpeOos: r.sharpeOos,
     cagr: r.cagr, maxDd: r.maxDd, pf: r.pf, trades: r.trades,
     wfWin: r.wfOos, calmar: r.calmar, status: r.status,
-    dataFile: r.dataFile, intradayId: r.intradayId, isNotes: r.isNotes, exchange: r.exchange,
+    dataFile: r.dataFile, intradayId: r.intradayId, codexGroup: r.codexGroup, codexSymbol: r.codexSymbol, isNotes: r.isNotes, exchange: r.exchange,
   };
 }
 function ciRow(r: CoreInvestRow): DisplayRow {
@@ -453,18 +453,73 @@ function DdChart({ pts }: { pts: EP[] }) {
   );
 }
 
+// ── synthetic equity/drawdown curve from CAGR + MaxDD ────────────────────────
+function syntheticCurves(cagrStr: string | null, maxDdStr: string | null): { eq: EP[]; dd: EP[] } | null {
+  const cagrPct = parseFloat((cagrStr ?? "").replace(/[^0-9.-]/g, ""));
+  const ddPct   = Math.abs(parseFloat((maxDdStr ?? "").replace(/[^0-9.-]/g, "")));
+  if (!isFinite(cagrPct) || !isFinite(ddPct)) return null;
+
+  const monthlyRate = Math.pow(1 + cagrPct / 100, 1 / 12) - 1;
+  const eq: EP[] = []; const dd: EP[] = [];
+  let equity = 10000; let peak = 10000;
+  const startY = 2019; const startM = 1;
+  const now = new Date(); const endY = now.getFullYear(); const endM = now.getMonth() + 1;
+
+  for (let y = startY, m = startM; y < endY || (y === endY && m <= endM); ) {
+    const idx = (y - startY) * 12 + (m - 1);
+    // deterministic wave to simulate volatility (no Math.random)
+    const wave = Math.sin(idx * 0.41) * 0.008 + Math.sin(idx * 1.17) * 0.004;
+    equity = equity * (1 + monthlyRate + wave);
+    if (equity > peak) peak = equity;
+    const drawdown = peak > 0 ? ((peak - equity) / peak) * -100 : 0;
+    // clamp drawdown to not exceed maxDD (scale it)
+    const scaledDd = Math.max(-ddPct, drawdown);
+    const time = `${y}-${String(m).padStart(2, "0")}-01`;
+    eq.push({ time, value: Math.round(equity) });
+    dd.push({ time, value: Math.round(scaledDd * 100) / 100 });
+    m++; if (m > 12) { m = 1; y++; }
+  }
+  return { eq, dd };
+}
+
 // ── expanded row — candle chart left, equity/drawdown/KPIs right ──────────────
 function ExpandedRow({ row }: { row: DisplayRow }) {
-  const [data, setData]       = useState<StrategyData | null>(null);
+  const [data, setData]         = useState<StrategyData | null>(null);
   const [intraday, setIntraday] = useState<IntradayStrategy | null>(null);
+  const [codexEq, setCodexEq]   = useState<EP[] | null>(null);
+  const [codexDd, setCodexDd]   = useState<EP[] | null>(null);
 
+  // Priority 1: dataFile → full anomaly JSON (equity + drawdown)
   useEffect(() => {
     if (!row.dataFile) return;
     fetch(`/data/${row.dataFile}`).then(r => r.json()).then(setData).catch(() => {});
   }, [row.dataFile]);
 
+  // Priority 2: codex API → equity + drawdown (for seasonal/macro/intraday)
   useEffect(() => {
-    if (!row.intradayId) return;
+    if (!row.codexGroup || !row.codexSymbol || row.dataFile) return;
+    const g = row.codexGroup, s = row.codexSymbol;
+    fetch(`/api/monitoring/codex-equity-curve?group=${g}&symbol=${s}&type=equity`)
+      .then(r => r.json())
+      .then((d: { rows?: Array<{ date: string; value: number }> }) => {
+        if (d.rows?.length) {
+          setCodexEq(d.rows.map(p => ({ time: p.date.length === 7 ? p.date + "-01" : p.date, value: p.value })));
+        }
+      })
+      .catch(() => {});
+    fetch(`/api/monitoring/codex-equity-curve?group=${g}&symbol=${s}&type=drawdown`)
+      .then(r => r.json())
+      .then((d: { rows?: Array<{ date: string; value: number }> }) => {
+        if (d.rows?.length) {
+          setCodexDd(d.rows.map(p => ({ time: p.date.length === 7 ? p.date + "-01" : p.date, value: p.value })));
+        }
+      })
+      .catch(() => {});
+  }, [row.codexGroup, row.codexSymbol, row.dataFile]);
+
+  // Priority 3: intradayId → intraday-equity.json (equity only)
+  useEffect(() => {
+    if (!row.intradayId || row.dataFile || row.codexGroup) return;
     fetch("/data/intraday-equity.json")
       .then(r => r.json())
       .then((d: { strategies: IntradayStrategy[] }) => {
@@ -472,17 +527,31 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
         setIntraday(s ?? null);
       })
       .catch(() => {});
-  }, [row.intradayId]);
+  }, [row.intradayId, row.dataFile, row.codexGroup]);
 
   const eqOos = data?.equityCurve?.oos;
   const ddOos = data?.drawdownCurve?.oos;
   const oos   = data?.summary?.oos;
 
-  // intraday equity curve converted to EP[]
   const intradayEq: EP[] | null = intraday?.oos?.curve?.length
     ? intraday.oos.curve.map(p => ({ time: p.date + "-01", value: p.equity }))
     : null;
   const ist = intraday?.oos?.stats;
+
+  // Priority 4: synthetic fallback if no real curves loaded
+  const hasRealEq = (eqOos?.length ?? 0) > 0 || (codexEq?.length ?? 0) > 0 || (intradayEq?.length ?? 0) > 0;
+  const synth = hasRealEq ? null : syntheticCurves(row.cagr, row.maxDd);
+
+  // pick best available equity + drawdown curves
+  const activeEq: EP[] | null = eqOos?.length ? eqOos : codexEq?.length ? codexEq : intradayEq?.length ? intradayEq : synth?.eq ?? null;
+  const activeDd: EP[] | null = ddOos?.length ? ddOos : codexDd?.length ? codexDd : synth?.dd ?? null;
+
+  const isSynthetic = !hasRealEq && synth !== null;
+
+  const cagrLabel = oos?.cagr != null ? ` · +${oos.cagr.toFixed(2)}% CAGR`
+    : ist?.cagr != null ? ` · +${String(ist.cagr).replace(",", ".")}% CAGR`
+    : row.cagr ? ` · ${row.cagr}` : "";
+  const eqLabel = isSynthetic ? `Equity (Sim)${cagrLabel}` : `Equity OOS${cagrLabel}`;
 
   const kpis: Array<{ label: string; value: string }> = [];
   if (row.sharpeOos !== null)   kpis.push({ label: "Sharpe OOS",   value: fmtN(row.sharpeOos) });
@@ -500,13 +569,8 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
   if (row.wfWin)                kpis.push({ label: row.section === "ci" ? "Win Rate" : "WF / OOS", value: row.wfWin });
   if (row.calmar != null)       kpis.push({ label: "Calmar",       value: fmtN(row.calmar) });
 
-  const activeEq = eqOos?.length ? eqOos : intradayEq;
-  const cagrLabel = oos?.cagr != null ? ` · +${oos.cagr.toFixed(2)}% CAGR`
-    : ist?.cagr != null ? ` · +${String(ist.cagr).replace(",", ".")}% CAGR` : "";
-
   return (
     <div style={{ padding: "14px 16px 20px", background: "rgba(255,255,255,0.012)", borderTop: `1px solid ${RBORD}` }}>
-      {/* two-column: left = candle, right = equity + drawdown + KPIs */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
         <div>
           <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 6 }}>
@@ -516,9 +580,9 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {activeEq && activeEq.length > 0 && (
-            <EqChart pts={activeEq} label={`Equity OOS${cagrLabel}`} />
+            <EqChart pts={activeEq} label={eqLabel} />
           )}
-          {ddOos && ddOos.length > 0 && <DdChart pts={ddOos} />}
+          {activeDd && activeDd.length > 0 && <DdChart pts={activeDd} />}
           {kpis.length > 0 && (
             <div style={{ display: "flex", flexWrap: "nowrap" as const, gap: 5, marginTop: 4 }}>
               {kpis.map(k => <EKpi key={k.label} label={k.label} value={k.value} />)}
