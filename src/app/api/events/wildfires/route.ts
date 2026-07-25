@@ -2,77 +2,69 @@ export const runtime = "edge";
 import { NextResponse } from "next/server";
 import type { GeoEventsResponse, GeoEventItem } from "@/lib/globe/globe-types";
 
-const NASA_KEY = process.env.NASA_FIRMS_KEY ?? process.env.NEXT_PUBLIC_NASA_FIRMS_KEY ?? "";
-const FIRMS_URL = (key: string) =>
-  `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${key}/VIIRS_SNPP_NRT/-180,-90,180,90/1`;
+// NASA EONET is keyless and reliable; FIRMS requires a key and is rate/transaction
+// limited (often returns empty). Use EONET as the primary wildfire source.
+const EONET_URL = "https://eonet.gsfc.nasa.gov/api/v3/events?category=wildfires&status=open&limit=200";
 
-function severityFromBrightness(brightness: number): string {
-  if (brightness >= 500) return "critical";
-  if (brightness >= 400) return "high";
-  if (brightness >= 350) return "medium";
+function severityFromAcres(acres: number): string {
+  if (acres >= 50000) return "critical";
+  if (acres >= 10000) return "high";
+  if (acres >= 1000) return "medium";
   return "low";
 }
 
-function colorFromBrightness(brightness: number): string {
-  if (brightness >= 500) return "#ef4444";
-  if (brightness >= 400) return "#f97316";
-  if (brightness >= 350) return "#fb923c";
+function colorFromAcres(acres: number): string {
+  if (acres >= 50000) return "#FF3333";
+  if (acres >= 10000) return "#f97316";
+  if (acres >= 1000) return "#fb923c";
   return "#fbbf24";
 }
 
-function parseViirsCsv(csv: string): GeoEventItem[] {
-  const lines = csv.trim().split("\n");
-  if (lines.length < 2) return [];
-  const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
-  const latIdx = header.indexOf("latitude");
-  const lngIdx = header.indexOf("longitude");
-  const brightIdx = header.indexOf("bright_ti4");
-  const dateIdx = header.indexOf("acq_date");
-
-  const items: GeoEventItem[] = [];
-  for (let i = 1; i < Math.min(lines.length, 500); i++) {
-    const cols = lines[i].split(",");
-    const lat = parseFloat(cols[latIdx] ?? "");
-    const lng = parseFloat(cols[lngIdx] ?? "");
-    const brightness = parseFloat(cols[brightIdx] ?? "0");
-    const date = String(cols[dateIdx] ?? new Date().toISOString().slice(0, 10)).trim();
-    if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
-    items.push({
-      id: `fire-${i}-${lat.toFixed(3)}-${lng.toFixed(3)}`,
-      type: "wildfire",
-      date,
-      location: `${lat.toFixed(2)}, ${lng.toFixed(2)}`,
-      severity: severityFromBrightness(brightness),
-      description: `Brightness: ${brightness.toFixed(0)} K`,
-      lat,
-      lng,
-      color: colorFromBrightness(brightness),
-      headline: `🔥 Wildfire — ${date}`,
-      label: "🔥",
-    });
-  }
-  return items;
-}
+type EonetGeometry = { date?: string; coordinates?: number[]; magnitudeValue?: number; magnitudeUnit?: string; type?: string };
+type EonetEvent = { id?: string; title?: string; geometry?: EonetGeometry[]; sources?: Array<{ url?: string }> };
 
 export async function GET() {
-  if (!NASA_KEY) {
-    return NextResponse.json(
-      { updatedAt: new Date().toISOString(), layer: "wildfires", items: [] } satisfies GeoEventsResponse,
-      { headers: { "Cache-Control": "public, max-age=60" } },
-    );
-  }
-
   try {
-    const res = await fetch(FIRMS_URL(NASA_KEY), {
+    const res = await fetch(EONET_URL, {
+      headers: { Accept: "application/json", "User-Agent": "Mozilla/5.0" },
       signal: AbortSignal.timeout ? AbortSignal.timeout(10000) : undefined,
     });
-    if (!res.ok) throw new Error(`FIRMS ${res.status}`);
-    const csv = await res.text();
-    const items = parseViirsCsv(csv);
+    if (!res.ok) throw new Error(`EONET ${res.status}`);
+    const data = await res.json() as { events?: EonetEvent[] };
+    const events = data?.events ?? [];
+
+    const items: GeoEventItem[] = [];
+    for (const ev of events) {
+      // latest geometry point for the event
+      const geoms = (ev.geometry ?? []).filter((g) => Array.isArray(g.coordinates) && g.coordinates.length >= 2);
+      const g = geoms[geoms.length - 1];
+      if (!g?.coordinates) continue;
+      const lng = Number(g.coordinates[0]);
+      const lat = Number(g.coordinates[1]);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+      const acres = g.magnitudeUnit === "acres" && Number.isFinite(Number(g.magnitudeValue)) ? Number(g.magnitudeValue) : 0;
+      const date = String(g.date ?? new Date().toISOString()).slice(0, 10);
+      const title = String(ev.title ?? "Wildfire");
+      items.push({
+        id: `fire-${ev.id ?? `${lat.toFixed(3)}-${lng.toFixed(3)}`}`,
+        type: "wildfire",
+        date,
+        location: title,
+        severity: severityFromAcres(acres),
+        description: acres > 0 ? `${acres.toLocaleString("en-US")} acres` : "Active wildfire",
+        lat,
+        lng,
+        color: colorFromAcres(acres),
+        headline: `🔥 ${title}`,
+        url: ev.sources?.[0]?.url ?? "",
+        label: "🔥",
+      });
+    }
+
     const response: GeoEventsResponse = {
       updatedAt: new Date().toISOString(),
       layer: "wildfires",
-      items,
+      items: items.slice(0, 200),
     };
     return NextResponse.json(response, {
       headers: { "Cache-Control": "public, max-age=1800, stale-while-revalidate=3600" },
