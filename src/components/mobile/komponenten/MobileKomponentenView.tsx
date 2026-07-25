@@ -33,6 +33,9 @@ const TICKER_ICON: Record<string, string> = {
   "DAX 1H / MT": AI+"dax.png","DAX 2H": AI+"dax.png",
   "QQQ": AI+"nasdaq.png","SPY": AI+"es_s&p.png","SPMO": AI+"es_s&p.png",
   "6S1!": AI+"chf.png",
+  "SEKUSD": AI+"flag_sek.webp","ZARUSD": AI+"flag_zar.jpg",
+  "BRLUSD": AI+"flag_brl.jpg", "NOKUSD": AI+"flag_nok.webp",
+  "MXNUSD": AI+"flag_mxn.png", "CLPUSD": AI+"flag_clp.webp",
 };
 
 // ── types ─────────────────────────────────────────────────────────────────────
@@ -144,7 +147,8 @@ interface StrategyData {
 interface IntradayCurvePoint { date: string; equity: number; }
 interface IntradayStrategy {
   id: string;
-  oos: { curve: IntradayCurvePoint[]; stats: { cagr: number; maxDD: number; mar?: number; sharpe: number; pf: number; n: number; wr: number } };
+  is?:  { curve: IntradayCurvePoint[]; stats: { cagr: number; maxDD: number; mar?: number; sharpe: number; pf: number; n: number; wr: number } };
+  oos:  { curve: IntradayCurvePoint[]; stats: { cagr: number; maxDD: number; mar?: number; sharpe: number; pf: number; n: number; wr: number } };
 }
 
 // ── helpers ───────────────────────────────────────────────────────────────────
@@ -280,7 +284,7 @@ function MobileCandleChart({ ticker }: { ticker: string }) {
       if (total > 20) chart.timeScale().setVisibleLogicalRange({ from: total - 20, to: total + 2 });
       else chart.timeScale().fitContent();
       const last = filtered[filtered.length - 1];
-      if (last?.close) series.createPriceLine({ price: last.close, color: "rgba(255,255,255,0.40)", lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: true, title: "" });
+      if (last?.close) series.createPriceLine({ price: last.close, color: "rgba(255,255,255,0.40)", lineWidth: 1, lineStyle: LineStyle.Dashed, lineVisible: false, axisLabelVisible: true, title: "" });
     });
     return () => { destroyed = true; if (chart) { try { chart.remove(); } catch { /**/ } } };
   }, [bars]);
@@ -339,11 +343,21 @@ function ExpandedPanel({ row }: { row: DisplayRow }) {
   const eqOos = data?.equityCurve?.oos;
   const oos   = data?.summary?.oos;
   const ist   = intraday?.oos?.stats;
-  const intradayEq: EP[] | null = intraday?.oos?.curve?.length
-    ? intraday.oos.curve.map(p => ({ time: p.date + "-01", value: p.equity })) : null;
+  // chain IS + OOS — scale OOS to continue from IS end value (no vertical gap)
+  const intradayFull: EP[] | null = (() => {
+    if (!intraday) return null;
+    const isC  = (intraday.is?.curve  ?? []).map(p => ({ time: p.date + "-01", value: p.equity }));
+    const oosC = (intraday.oos?.curve ?? []).map(p => ({ time: p.date + "-01", value: p.equity }));
+    if (!isC.length) return oosC.length ? oosC : null;
+    if (!oosC.length) return isC;
+    const isEnd = isC[isC.length - 1].value;
+    const oosBase = oosC[0].value;
+    const scale = oosBase > 0 ? isEnd / oosBase : 1;
+    return [...isC, ...oosC.map(p => ({ time: p.time, value: p.value * scale }))];
+  })();
   const synthAll = syntheticCurves(row.cagr, row.maxDd);
-  const activeEq: EP[] = eqOos?.length ? eqOos : intradayEq?.length ? intradayEq : codexEq?.length ? codexEq! : synthAll?.eq ?? [];
-  const isSynth = !(eqOos?.length || codexEq?.length || intradayEq?.length);
+  const activeEq: EP[] = eqOos?.length ? eqOos : intradayFull?.length ? intradayFull : codexEq?.length ? codexEq! : synthAll?.eq ?? [];
+  const isSynth = !(eqOos?.length || codexEq?.length || intradayFull?.length);
   const activeDd: EP[] = (() => {
     if (!activeEq.length) return synthAll?.dd ?? [];
     let peak = activeEq[0]?.value ?? 0;
