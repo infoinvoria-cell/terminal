@@ -210,46 +210,51 @@ const SEASONAL_ARCHIVED: StrategyRow[] = [
   { id: "kc1_arch", ticker: "KC1!", label: "Coffee",   group: "Agrar", engine: "—", pillar: "seasonal", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "ICEUS" },
 ];
 
-// ── Anomaly Pillar (WS v1.2 addition) ───────────────────────────────────────
+// ── Anomaly Pillar (WS v1.2 · Source: ws_paper_trading_config_v1_2.json 2026-07-19) ─────────
+// v1.2 WS-internal ratio GC1:GLD:YM1 = 10:10:20; portfolio share → 2%:2%:4% = 8% total
 const ANOMALY: StrategyRow[] = [
   {
     id: "gc1_friday", ticker: "GC1!", label: "Gold", group: "Anomaly",
-    engine: "Friday Long", pillar: "anomaly", weight: null,
+    engine: "Friday Long", pillar: "anomaly", weight: 2,
     sharpeOos: 1.54, cagr: "+4.18%", maxDd: "−6.87%", calmar: null, pf: 2.28, trades: 377, wfOos: null,
     status: "active", dataFile: "anomaly/gc1_friday_long.json", exchange: "COMEX",
+    isNotes: "OOS 2019–2026 · Walk-Forward approved · IS 2004–2018 (1096 trades) · v1.2 config weight 10%",
   },
   {
     id: "gld_thursday", ticker: "GLD", label: "Gold ETF", group: "Anomaly",
-    engine: "Thursday Long", pillar: "anomaly", weight: null,
+    engine: "Thursday Long", pillar: "anomaly", weight: 2,
     sharpeOos: 0.506, cagr: "+3.38%", maxDd: "−7.29%", calmar: null, pf: 1.21, trades: 379, wfOos: null,
     status: "active", dataFile: "anomaly/gld_thursday_long.json", exchange: "NYSE",
+    isNotes: "OOS 2019–2026 · Walk-Forward approved · IS 2004–2018 (717 trades) · v1.2 config weight 10%",
   },
   {
     id: "ym1_tat", ticker: "YM1!", label: "Dow Jones — TAT", group: "Anomaly",
-    engine: "Turnaround Tuesday", pillar: "anomaly", weight: null,
+    engine: "Turnaround Tuesday", pillar: "anomaly", weight: 4,
     sharpeOos: 0.348, cagr: "+1.24%", maxDd: "−6.64%", calmar: null, pf: 1.21, trades: 164, wfOos: null,
     status: "active", dataFile: "anomaly/ym1_tat.json", exchange: "CBOT",
+    isNotes: "OOS 2019–2026 · Walk-Forward approved · IS 2002–2018 (873 trades) · v1.2 config weight 20% (highest diversification)",
   },
 ];
 
 // ── Intraday MT (v3-F, frozen 2026-07-18) ───────────────────────────────────
-// Sleeve = 40% of total portfolio (6E: 40/95×40=16.84%, DAX1H: same, DAX2H: 15/95×40=6.32%)
+// Sleeve = 32% of total portfolio (adjusted from 40% to free 8% for Anomaly pillar)
+// EUR30m 14% + DAX1H 14% + DAX2H 4% = 32%
 const INTRADAY: StrategyRow[] = [
   {
     id: "eurusd_30m", ticker: "6E1!", label: "EUR/USD Futures · 6E", group: "Intraday",
-    engine: "SL 13pip · TP 3.0R · BE 1R · 08–12:30 UTC", pillar: "intraday", weight: 17,
+    engine: "SL 13pip · TP 3.0R · BE 1R · 08–12:30 UTC", pillar: "intraday", weight: 14,
     sharpeOos: 1.535, cagr: "+21.4%", maxDd: "−18.7%", calmar: 1.145, pf: 1.325, trades: 1358, wfOos: "7/8",
     status: "active", exchange: "CME", intradayId: "EUR30m", codexGroup: "intraday", codexSymbol: "EURUSD_30M",
   },
   {
     id: "dax_1h", ticker: "DAX 1H / MT", label: "DAX 1H", group: "Intraday",
-    engine: "SL 40pt · TP 2.5R · BE 1.5R · 07–12 UTC", pillar: "intraday", weight: 17,
+    engine: "SL 40pt · TP 2.5R · BE 1.5R · 07–12 UTC", pillar: "intraday", weight: 14,
     sharpeOos: 2.683, cagr: "+10.7%", maxDd: "−12.4%", calmar: 0.865, pf: 1.484, trades: 335, wfOos: "5/8",
     status: "active", exchange: "OANDA", intradayId: "DAX1H", codexGroup: "intraday", codexSymbol: "DAX_1H",
   },
   {
     id: "dax_2h", ticker: "DAX 2H", label: "DAX 2H", group: "Intraday",
-    engine: "SL ATR×0.8 · TP 3R · V4 Long-Only · 09–11 UTC", pillar: "intraday", weight: 6,
+    engine: "SL ATR×0.8 · TP 3R · V4 Long-Only · 09–11 UTC", pillar: "intraday", weight: 4,
     sharpeOos: 2.459, cagr: "+5.4%", maxDd: "−19.9%", calmar: 0.270, pf: 1.478, trades: 81, wfOos: "5/8",
     status: "active", exchange: "OANDA", intradayId: "DAX2H", codexGroup: "intraday", codexSymbol: "DAX_2H",
   },

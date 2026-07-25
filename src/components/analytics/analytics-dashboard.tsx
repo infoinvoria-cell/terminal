@@ -99,15 +99,16 @@ const WS_STRATEGY_IDS = [
 ] as const;
 // Actual portfolio weights (ws-strategy-data.ts source of truth, 2026-07-25)
 // Anomaly strategies have null portfolio weight → 0 here (research overlay, not in blend)
-// Coverage: UKX(2)+CT1(9)+NQ1(3)+Intraday(40)+NVDA(3)+ZAR(3)+GC1(3)+MSFT(2)+BRL(2)+SEK(2) = 69%
+// Coverage: UKX(2)+CT1(9)+NQ1(3)+Intraday(32)+NVDA(3)+ZAR(3)+GC1V(3)+MSFT(2)+BRL(2)+SEK(2)+GC1F(2)+GLD(2)+YM1TAT(4) = 77%
+// v1.2 anomaly weights (ratio 1:1:2): GC1Friday=2%, GLD=2%, YM1TAT=4% | Intraday reduced 40%→32%
 const WS_FROZEN_WEIGHTS: Record<string, number> = {
-  "GC1 Friday Long":   0,   // Anomaly — null portfolio weight (research only)
-  "GLD Thursday Long": 0,   // Anomaly
-  "YM1 TAT":           0,   // Anomaly
+  "GC1 Friday Long":   2,   // Anomaly — v1.2 approved, IS+OOS WF validated
+  "GLD Thursday Long": 2,   // Anomaly — v1.2 approved
+  "YM1 TAT":           4,   // Anomaly — v1.2 highest weight (best diversification)
   "UKX Valuation":     2,   // Valuation
   "CT1 Macro A":       9,   // Macro
   "NQ1 Trend LO":      3,   // Trend
-  "Intraday MT v3-F":  40,  // Intraday sleeve
+  "Intraday MT v3-F":  32,  // Intraday sleeve (reduced from 40% to make room for Anomaly)
   "NVDA Valuation":    3,   // Valuation
   "ZARUSD Valuation":  3,   // Valuation
   "GC1 Valuation":     3,   // Valuation
@@ -115,11 +116,11 @@ const WS_FROZEN_WEIGHTS: Record<string, number> = {
   "BRLUSD Valuation":  2,   // Valuation
   "SEKUSD Valuation":  2,   // Valuation
 };
-// Default enabled: anomaly off (0% weight, research only); portfolio strategies on
+// All portfolio strategies enabled by default (anomaly now fully in portfolio)
 const WS_DEFAULT_ENABLED: Record<string, boolean> = {
-  "GC1 Friday Long":   false,
-  "GLD Thursday Long": false,
-  "YM1 TAT":           false,
+  "GC1 Friday Long":   true,
+  "GLD Thursday Long": true,
+  "YM1 TAT":           true,
   "UKX Valuation":     true,
   "CT1 Macro A":       true,
   "NQ1 Trend LO":      true,
@@ -132,9 +133,9 @@ const WS_DEFAULT_ENABLED: Record<string, boolean> = {
   "SEKUSD Valuation":  true,
 };
 const WS_STRATEGY_SHORT: Record<string, string> = {
-  "GC1 Friday Long":   "GC1! Friday",
+  "GC1 Friday Long":   "GC1 Friday",
   "GLD Thursday Long": "GLD Thursday",
-  "YM1 TAT":           "YM1! TAT",
+  "YM1 TAT":           "YM1 TAT",
   "UKX Valuation":     "UKX Val",
   "CT1 Macro A":       "CT1 Macro",
   "NQ1 Trend LO":      "NQ1 Trend",

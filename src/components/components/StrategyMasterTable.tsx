@@ -363,10 +363,11 @@ const TICKER_TF: Record<string, string> = {
 };
 
 // ── candle chart — price line, auto-refresh, signal overlay ──────────────────
+// NOTE: OHLC API only stocks daily (1D) bars. timeframe prop is display-only (shown in header).
 function CandleChart({ ticker, timeframe = "1D", refreshSecs = 30 }: { ticker: string; timeframe?: string; refreshSecs?: number }) {
   const ref  = useRef<HTMLDivElement>(null);
   const sym  = toOhlcSymbol(ticker);
-  const cacheKey = sym + ":" + timeframe;
+  const cacheKey = sym + ":1D";
 
   // seed from cache for instant display, then refresh in background
   const cached = OHLC_CACHE.get(cacheKey);
@@ -378,7 +379,7 @@ function CandleChart({ ticker, timeframe = "1D", refreshSecs = 30 }: { ticker: s
   useEffect(() => {
     const symEnc = encodeURIComponent(sym);
     fetchBars.current = () => {
-      fetch(`/api/monitoring/ohlc?symbol=${symEnc}&timeframe=${timeframe}`)
+      fetch(`/api/monitoring/ohlc?symbol=${symEnc}&timeframe=1D`)
         .then(r => r.json())
         .then(d => {
           const b: OhlcBar[] = Array.isArray(d.bars) && d.bars.length ? d.bars : [];
