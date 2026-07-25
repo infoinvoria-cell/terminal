@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type ReactNode, memo, useEffect, useMemo, useRef, useState } from "react";
 
 import ChartErrorBoundary from "@/components/globe/charts/ChartErrorBoundary";
 import { createPortal } from "react-dom";
@@ -1627,10 +1627,11 @@ function CandleChartInner({
   );
 }
 
-export default function CandleChart(props: Props) {
+const CandleChart = memo(function CandleChart(props: Props) {
   return (
     <ChartErrorBoundary>
       <CandleChartInner {...props} />
     </ChartErrorBoundary>
   );
-}
+});
+export default CandleChart;

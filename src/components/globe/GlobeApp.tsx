@@ -46,6 +46,7 @@ const ASSET_USAGE_STORAGE_KEY = "clf_globe_asset_usage_v1";
 const DATA_SOURCE_STORAGE_KEY = "clf_globe_data_source_v2";
 const GOLD_THEME_STORAGE_KEY = "clf_globe_gold_theme_v1";
 const GOLD_PRIMARY = "#e2ca7a";
+const noop = () => {};
 
 const GLOBE_ICON_MAP: Record<string, string> = {
   gold: "gold.png", silver: "silver.png", copper: "Kupfer.webp",
@@ -484,7 +485,6 @@ export default function GlobeApp() {
   const [selectedAssetId, setSelectedAssetId] = useState(initialPersisted.selectedAssetId || "");
   const [focusAssetId, setFocusAssetId] = useState<string | null>(null);
   const [focusLocation, setFocusLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [sharedTimeRange, setSharedTimeRange] = useState<SharedTimeRange | null>(null);
   const [chartTimeframe, setChartTimeframe] = useState<"M" | "W" | "D" | "4H" | "1H">("D");
   const [enabledAssets, setEnabledAssets] = useState<string[]>(initialPersisted.enabledAssets ?? []);
   const [overlayState, setOverlayState] = useState<OverlayToggleState>(initialOverlayState);
@@ -1807,13 +1807,8 @@ export default function GlobeApp() {
   const onSharedTimeRangeChange = useCallback((next: SharedTimeRange | null) => {
     if (!next) return;
     sharedTimeRangeRef.current = next;
-    setSharedTimeRange((prev) => {
-      if (!prev) return next;
-      const spanDelta = Math.abs(Number(prev.visibleSpan || 0) - Number(next.visibleSpan || 0));
-      const offDelta = Math.abs(Number(prev.rightOffset || 0) - Number(next.rightOffset || 0));
-      if (spanDelta < 0.001 && offDelta < 0.001) return prev;
-      return next;
-    });
+    // NOTE: setSharedTimeRange intentionally removed — state was never read by any consumer,
+    // calling it triggered GlobeApp re-renders on every chart scroll → render loop.
   }, []);
   const onGlobeSelectAsset = useCallback((assetId: string) => {
     onSelectAssetAnywhere(assetId);
@@ -2189,7 +2184,7 @@ export default function GlobeApp() {
                   isPanelLoading={panelLoading}
                   isFullscreen={false}
                   active={isPageActive}
-                  onToggleFullscreen={() => {}}
+                  onToggleFullscreen={noop}
                   loopReplayTick={0}
                   onTimeRangeChange={onSharedTimeRangeChange}
                   onRecentSignalChange={setRecentSignal}
