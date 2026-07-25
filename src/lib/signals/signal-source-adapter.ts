@@ -567,14 +567,22 @@ function buildAnomalyPerformance(id: string): StrategyPerformanceResult | null {
 
 // ── Production sleeves loader ──────────────────────────────────────────────────
 
-type ProductionSleeveAsset = { asset: string; label: string; status?: string; strategyType?: string; sleeveName?: string };
+type ProductionSleeveAsset = {
+  asset: string;
+  label: string;
+  status?: string;
+  strategyType?: string;
+  sleeveName?: string;
+  active?: boolean;
+  direction?: string;
+};
 type ProductionSleevesFile = { version?: string; sleeves?: Array<{ id: string; name: string; status: string; assets: ProductionSleeveAsset[] }> };
 
 function loadProductionSleeveCards(): SignalCardModel[] {
   const json = readJson<ProductionSleevesFile>(PRODUCTION_SLEEVES_PATH);
   if (!json?.sleeves) return [];
 
-  const existingIds = new Set([
+  const existingSymbols = new Set([
     ...WHITE_SWAN_SOURCES.map((s) => s.symbol),
     ...CORE_INVEST_SOURCES.map((s) => s.symbol),
   ]);
@@ -584,12 +592,19 @@ function loadProductionSleeveCards(): SignalCardModel[] {
     if (!["Final", "Final Candidate"].includes(sleeve.status)) continue;
     for (const asset of sleeve.assets) {
       if (!["Final", "Final Candidate"].includes(asset.status ?? "")) continue;
-      if (existingIds.has(asset.asset)) continue;
+      if (existingSymbols.has(asset.asset)) continue;
+      // Skip explicitly inactive assets
+      if (asset.active === false) continue;
 
       const category: SignalCardModel["category"] =
         asset.strategyType === "seasonal" ? "seasonal"
         : asset.strategyType === "macro" ? "macro"
         : "valuation";
+
+      const direction: SignalCardModel["direction"] =
+        asset.direction === "long" ? "LONG"
+        : asset.direction === "short" ? "SHORT"
+        : "CASH";
 
       cards.push({
         id: `sleeve-${sleeve.id}-${asset.asset.replace(/[^a-z0-9]/gi, "_")}`,
@@ -599,10 +614,10 @@ function loadProductionSleeveCards(): SignalCardModel[] {
         displaySymbol: asset.asset,
         assetName: asset.label,
         strategyName: sleeve.name,
-        direction: "CASH",
-        status: "VALIDATION",
+        direction,
+        status: direction !== "CASH" ? "PAPER_ONLY" : "VALIDATION",
         dataStatus: "missing",
-        nextSignalLabel: undefined,
+        nextSignalLabel: direction !== "CASH" ? "täglich prüfen" : undefined,
       });
     }
   }

@@ -54,6 +54,8 @@ function nextLabelDaysAhead(label?: string): number | null {
 // Cards without a visible top-right status (would show "—") are not signals
 function hasVisibleStatus(card: SignalCardModel): boolean {
   if (card.status === "OPEN" || card.status === "CLOSED") return true;
+  // Active direction (LONG/SHORT) cards are always visible
+  if (card.direction === "LONG" || card.direction === "SHORT") return true;
   const days = nextLabelDaysAhead(card.nextSignalLabel);
   return days != null && days >= 0; // has a future target date
 }
