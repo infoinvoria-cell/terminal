@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type ReactNode, memo, useEffect, useMemo, useRef, useState } from "react";
 
 import ChartErrorBoundary from "@/components/globe/charts/ChartErrorBoundary";
 import { createPortal } from "react-dom";
@@ -481,6 +481,9 @@ function mergeTimeseriesPayload(
   };
 }
 
+const EMPTY_TRADE_OVERLAYS: NonNullable<Props["tradeOverlays"]> = [];
+const EMPTY_TRADE_MARKERS: NonNullable<Props["tradeMarkers"]> = [];
+
 function CandleChartInner({
   payload,
   evaluation = null,
@@ -513,8 +516,8 @@ function CandleChartInner({
   emphasizeZones = false,
   zoneVisibility,
   disableZoneDedupe = false,
-  tradeOverlays = [],
-  tradeMarkers = [],
+  tradeOverlays = EMPTY_TRADE_OVERLAYS,
+  tradeMarkers = EMPTY_TRADE_MARKERS,
 }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const overlayCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -1627,10 +1630,11 @@ function CandleChartInner({
   );
 }
 
-export default function CandleChart(props: Props) {
+const CandleChart = memo(function CandleChart(props: Props) {
   return (
     <ChartErrorBoundary>
       <CandleChartInner {...props} />
     </ChartErrorBoundary>
   );
-}
+});
+export default CandleChart;
