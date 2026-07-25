@@ -1,0 +1,1053 @@
+/* ================================================================
+   Seasonal Dashboard — fullscreen viewport grid, no scrollbars.
+   73 / 27 columns · rows 52fr / 18fr / 30fr (shared left + right).
+   ================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+.app {
+  --c-bg:      #000000;
+  --c-bg2:     #0A0A0A;
+  --c-panel:   #0A0A0A;
+  --c-panel2:  #0A0A0A;
+  --c-hi:      #121214;
+  --c-soft:    rgba(255,255,255,0.08);
+  --c-line:    rgba(255,255,255,0.12);
+  --c-text:    #F4F7FA;
+  --c-text2:   #CDD6E0;
+  --c-text3:   #8E9DAD;
+  --c-bull:    #F0F3F7;
+  --c-bullS:   rgba(240,243,247,0.07);
+  --c-bear:    #DCC476;
+  --c-bearS:   rgba(220,196,118,0.10);
+  --c-axis:    #A8B4C4;
+  --c-grid:    rgba(255,255,255,0.03);
+  --c-zero:    rgba(255,255,255,0.15);
+  --c-hover:   rgba(255,255,255,0.18);
+  --c-today:   rgba(180,200,220,0.65);
+  --r:         8px;
+  --rs:        6px;
+  --layout-gap: 6px;
+  --layout-pad: 4px 6px;
+
+  height: 100dvh;
+  max-height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: var(--layout-pad);
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: "Montserrat", "Segoe UI", system-ui, sans-serif;
+  font-size: 12px;
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+}
+
+.app *,
+.app *::before,
+.app *::after {
+  box-sizing: border-box;
+}
+
+/* ── Aggressive focus/outline suppression for all chart interactions ── */
+.app *:focus,
+.app *:focus-visible,
+.app *:focus-within {
+  outline: none !important;
+  box-shadow: none !important;
+}
+.app :global(.recharts-wrapper),
+.app :global(.recharts-wrapper:focus),
+.app :global(.recharts-wrapper:focus-visible),
+.app :global(.recharts-surface),
+.app :global(.recharts-surface:focus),
+.app :global(.recharts-surface:focus-visible),
+.app :global(svg:focus),
+.app :global(svg:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+}
+.app :global(.recharts-active-dot),
+.app :global(.recharts-active-shape),
+.app :global(.recharts-layer:focus),
+.app :global(.recharts-layer:focus-visible),
+.app :global(.recharts-bar-rectangle:focus),
+.app :global(.recharts-bar-rectangle:focus-visible),
+.app :global(path:focus),
+.app :global(path:focus-visible),
+.app :global(rect:focus),
+.app :global(rect:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+}
+.app :global(.recharts-tooltip-cursor) {
+  display: none !important;
+}
+
+/* ── Strategy Engine: compact 2-row chart area, engine below in document flow ── */
+
+/* App root: height auto so page grows beyond viewport; body/html handle the scroll. */
+.appStrategyEngine {
+  height: auto !important;
+  max-height: none !important;
+  min-height: 100dvh !important;
+  overflow: visible !important;
+}
+
+/* Content grid: only 2 rows in engine mode — engine sits outside the grid.
+   Row 1 = 430px seasonal chart (measured: right panel KPI content needs ~485px =
+   430 + 6gap + 86 = 522px; previously 310px was clipping the lower KPI cards).
+   Row 2 = 86px WR/SR/QS strip. */
+.appStrategyEngine .content {
+  grid-template-rows: 430px 86px !important;
+  height: auto !important;
+  min-height: 0 !important;
+  flex: none !important;
+  overflow: visible !important;
+}
+
+/* rightPanel: spans both chart rows (430 + 6gap + 86 = 522px) — fits all 8 KPI cards */
+.appStrategyEngine .rightPanel {
+  grid-row: 1 / 3 !important;
+  height: 522px !important;
+  max-height: 522px !important;
+  overflow: hidden !important;
+}
+
+/* Engine zone: sits in normal document flow directly below the chart context.
+   min-height fills the remaining visible viewport so engine content starts
+   visible immediately and grows further on demand (page scroll). */
+.engineZone {
+  width: 100%;
+  flex-shrink: 0;
+  min-height: calc(100dvh - 530px); /* 430 + 6gap + 86 + 8 layout-pad = 530 */
+}
+
+/* Strategy Engine tester shell: flex column, grows with its content. */
+.wfShellStrategyEngine {
+  display: flex;
+  flex-direction: column;
+  background: #06070a;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding: 0;
+}
+
+/* ── Main grid: 6 panels, aligned rows across columns ── */
+.content {
+  display: grid;
+  grid-template-columns: minmax(0, 73fr) minmax(0, 27fr);
+  grid-template-rows: 52fr 18fr 30fr;
+  gap: var(--layout-gap);
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Combined seasonal + winrate (spans rows 1–2, left) ── */
+.combinedPanel {
+  grid-row: 1 / 3;
+  grid-column: 1;
+  background: var(--c-panel);
+  border: 1px solid var(--c-soft);
+  border-radius: var(--r);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+.combinedHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 9px 8px 5px;
+  flex-shrink: 0;
+  /* Cleaner: avoid stacked separators everywhere */
+  border-bottom: none;
+}
+
+/* ── Lookback dropdown (20Y/15Y/10Y/5Y/MAX) ───────────────────────── */
+.lookbackSelect {
+  height: 20px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 10, 10, 0.92);
+  color: rgba(244, 247, 250, 0.95);
+  font-size: 10px;
+  font-weight: 700;
+  outline: none;
+  padding: 0 8px;
+  -webkit-appearance: none;
+  appearance: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.lookbackSelect:hover {
+  border-color: rgba(255, 255, 255, 0.20);
+  background: rgba(10, 10, 10, 0.98);
+}
+
+.lookbackSelect:focus-visible {
+  border-color: rgba(220, 196, 118, 0.45);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 0 2px rgba(220, 196, 118, 0.14);
+}
+
+.lookbackSelect option {
+  background: #0a0a0a;
+  color: rgba(244, 247, 250, 0.95);
+}
+
+.lookbackSelect option:checked {
+  background: rgba(220, 196, 118, 0.18);
+  color: #ffffff;
+}
+
+/* ── Asset selector overlay scrollbar (no blue) ───────────────────── */
+/* Select Asset modal — scroll + list visuals only */
+.assetOverlayScroll {
+  color-scheme: dark;
+  scrollbar-color: #2e3238 #080808; /* Firefox: thumb track */
+  scrollbar-width: thin;
+}
+.assetOverlayScroll::-webkit-scrollbar {
+  width: 6px;
+}
+.assetOverlayScroll::-webkit-scrollbar-track {
+  background: #080808;
+  border-radius: 999px;
+}
+.assetOverlayScroll::-webkit-scrollbar-thumb {
+  background: #2e3238;
+  border-radius: 999px;
+}
+.assetOverlayScroll::-webkit-scrollbar-thumb:hover {
+  background: #3d434b;
+}
+
+/* Chart settings popover — dark grey scrollbar (no system blue) */
+.chartSettingsScroll {
+  color-scheme: dark;
+  scrollbar-color: #2e3238 #121416;
+  scrollbar-width: thin;
+}
+.chartSettingsScroll::-webkit-scrollbar {
+  width: 6px;
+}
+.chartSettingsScroll::-webkit-scrollbar-track {
+  background: #121416;
+  border-radius: 999px;
+}
+.chartSettingsScroll::-webkit-scrollbar-thumb {
+  background: #2e3238;
+  border-radius: 999px;
+}
+.chartSettingsScroll::-webkit-scrollbar-thumb:hover {
+  background: #3d434b;
+}
+
+.chartSettingsNumInput {
+  width: 56px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(0, 0, 0, 0.35);
+  color: #e4e8ed;
+  font-size: 10px;
+  font-family: Montserrat, "Segoe UI", sans-serif;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  flex-shrink: 0;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.chartSettingsNumInput::-webkit-outer-spin-button,
+.chartSettingsNumInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.assetOverlayGroupLabel {
+  margin-bottom: 8px;
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(168, 180, 196, 0.62);
+}
+
+.assetOverlayHint {
+  font-size: 9px;
+  color: rgba(168, 180, 196, 0.68);
+}
+
+.assetOverlayClose {
+  font-size: 18px;
+  line-height: 1;
+  color: rgba(168, 180, 196, 0.65);
+  transition: color 0.15s ease;
+}
+.assetOverlayClose:hover {
+  color: #f0f3f7;
+}
+
+.assetOverlayAssetBtn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 10px 13px;
+  border-radius: 6px;
+  border: 1px solid #111;
+  background: #060606;
+  text-align: left;
+  font-size: 11px;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.assetOverlayAssetBtn:hover {
+  background: #0c0c0c;
+  border-color: #181818;
+}
+.assetOverlayAssetBtnSelected {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.055);
+}
+.assetOverlayAssetBtnSelected:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.assetOverlayIconSlot {
+  flex: 0 0 22px;
+  width: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.assetOverlayAssetName {
+  font-weight: 500;
+  color: #e8edf3;
+  line-height: 1.2;
+}
+.assetOverlayAssetBtnSelected .assetOverlayAssetName {
+  color: #f0f3f7;
+}
+
+.assetOverlayAssetSymbol {
+  font-size: 8px;
+  color: rgba(168, 180, 196, 0.72);
+  line-height: 1.2;
+}
+
+.assetOverlayCheck {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 9px;
+  color: #f0f3f7;
+}
+
+.combinedBody {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: 52fr 18fr;
+  gap: 0;
+}
+
+.seasonalSlot,
+.winrateSlot {
+  min-height: 0;
+  overflow: hidden;
+  background: var(--c-panel);
+}
+
+.winrateSlot {
+  border-top: none;
+}
+
+.chartPlaceholder {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--c-text3);
+}
+
+.chartSurfaceEmbedded {
+  height: 100%;
+  min-height: 0;
+  outline: none !important;
+  user-select: none;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.chartSurfaceEmbedded :global(.recharts-wrapper),
+.chartSurfaceEmbedded :global(.recharts-wrapper:focus),
+.chartSurfaceEmbedded :global(.recharts-wrapper:focus-visible),
+.chartSurfaceEmbedded :global(.recharts-surface),
+.chartSurfaceEmbedded :global(.recharts-surface:focus),
+.chartSurfaceEmbedded :global(.recharts-surface:focus-visible),
+.chartSurfaceEmbedded :global(svg),
+.chartSurfaceEmbedded :global(svg:focus),
+.chartSurfaceEmbedded :global(svg:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.chartSurfaceEmbedded :global(.recharts-active-dot),
+.chartSurfaceEmbedded :global(.recharts-active-shape) {
+  display: none !important;
+}
+
+.chartSurfaceEmbedded :global(.recharts-tooltip-cursor),
+.chartSurfaceEmbedded :global(.recharts-cursor),
+.chartSurfaceEmbedded :global(.recharts-rectangle.recharts-tooltip-cursor) {
+  display: none !important;
+  fill: transparent !important;
+  stroke: transparent !important;
+  opacity: 0 !important;
+}
+
+.chartSurfaceEmbedded :global(.recharts-bar-rectangle:focus),
+.chartSurfaceEmbedded :global(.recharts-bar-rectangle:focus-visible) {
+  outline: none !important;
+}
+
+.kpiPanel {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+.setupPanel {
+  grid-row: 2;
+  grid-column: 2;
+}
+
+.wfPanel {
+  grid-row: 3;
+  grid-column: 1;
+}
+
+.savedPanel {
+  grid-row: 3;
+  grid-column: 2;
+}
+
+/* ── Right panel spanning all 3 rows ── */
+.rightPanel {
+  grid-row: 1 / 4;
+  grid-column: 2;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: var(--r);
+  border: 1px solid var(--c-soft);
+}
+
+/* Dezenter Zwischenraum zwischen KPIs / Returns / Next Pattern / Saved (wie Grid-Gap links) */
+.rightPanelSectionGap {
+  flex-shrink: 0;
+  height: 5px;
+  min-height: 5px;
+  background: var(--c-bg);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ── Panel shell ── */
+.panel,
+.kpiPanel,
+.setupPanel,
+.savedPanel,
+.wfPanel {
+  background: var(--c-panel);
+  border: 1px solid var(--c-soft);
+  border-radius: var(--r);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  height: 100%;
+}
+
+.ph {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 9px 8px 5px;
+  flex-shrink: 0;
+  border-bottom: none;
+}
+
+.pt {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text);
+  line-height: 1.2;
+}
+
+.ps { font-size: 9px; color: var(--c-text3); }
+.ps .ac { color: var(--c-text2); }
+
+.pb {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── KPI Panel ── */
+.kpiPanel {
+  container-type: size;
+  container-name: kpi;
+}
+
+.kpiHead {
+  padding: 5px 8px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text);
+  flex-shrink: 0;
+  border-bottom: none;
+}
+
+.kpiBody {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2px;
+}
+
+/* ── Saved / setup bodies ── */
+.setupBody,
+.savedInner {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.savedInner {
+  padding: 0 8px 5px;
+  font-size: 9px;
+}
+
+.savedInner :global(button) {
+  width: 100%;
+  text-align: left;
+}
+
+/* ── Walk-forward tester slot ── */
+.wfPanel {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+/* Recharts — no focus rectangles */
+.chartSurface {
+  height: 100%;
+  min-height: 0;
+  outline: none;
+  user-select: none;
+}
+
+.chartSurface :global(.recharts-wrapper),
+.chartSurface :global(.recharts-wrapper:focus),
+.chartSurface :global(.recharts-wrapper:focus-visible),
+.chartSurface :global(.recharts-surface),
+.chartSurface :global(.recharts-surface:focus),
+.chartSurface :global(.recharts-surface:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.chartSurface :global(.recharts-active-dot),
+.chartSurface :global(.recharts-active-shape) {
+  display: none !important;
+}
+
+.chartSurface :global(.recharts-tooltip-cursor),
+.chartSurface :global(.recharts-cursor),
+.chartSurface :global(.recharts-rectangle.recharts-tooltip-cursor) {
+  display: none !important;
+  fill: transparent !important;
+  stroke: transparent !important;
+  opacity: 0 !important;
+}
+
+.chartSurface :global(.recharts-bar-rectangle:focus),
+.chartSurface :global(.recharts-bar-rectangle:focus-visible) {
+  outline: none !important;
+}
+
+/* ── KPI content — larger, readable ── */
+.donuts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  padding: 6px 8px 5px;
+  flex-shrink: 0;
+}
+
+.donut {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 3px 5px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--c-soft);
+  border-radius: 8px;
+}
+
+.donuts svg {
+  width: min(100%, 72px);
+  height: auto;
+}
+
+.donutTitle {
+  font-size: 9.5px;
+  color: var(--c-text2);
+  text-transform: uppercase;
+  letter-spacing: 0.35px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.donutSub {
+  font-size: 9px;
+  color: var(--c-text3);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.sl {
+  padding: 2px 8px 4px;
+  font-size: 9.5px;
+  letter-spacing: 0.45px;
+  text-transform: uppercase;
+  color: var(--c-text2);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.sl::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--c-soft);
+}
+
+.kg, .kc, .kl, .kv, .ks, .sl { display: none; }
+
+.kFooter {
+  display: none;
+}
+
+/* ── KPI big cards (live hover) ── */
+.kpiBigGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  padding: 0 8px 8px;
+  flex: 1;
+  min-height: 0;
+  align-content: stretch;
+}
+
+.kpiBigCard {
+  background: rgba(255,255,255,0.035);
+  border: 1px solid var(--c-soft);
+  border-radius: 8px;
+  padding: 10px 10px 11px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+}
+
+.kpiBigLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+}
+
+.kpiBigValue {
+  margin-top: 6px;
+  font-size: clamp(20px, 2.8vh, 28px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.4px;
+  color: var(--c-text);
+}
+
+.kpiBigSub {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text3);
+  line-height: 1.2;
+}
+
+/* ── Next Setup simplified ── */
+.nextSetupRoot {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  padding: 8px 10px;
+}
+
+.nextSetupMain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+}
+
+.nextSetupMetric {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.nextSetupLabel {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--c-text2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.nextSetupValue {
+  font-size: clamp(18px, 2.4vh, 24px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.3px;
+}
+
+.nextSetupValueSmall {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-text);
+  line-height: 1.25;
+}
+
+.nextSetupChart {
+  flex: 0 0 108px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--c-soft);
+  border-radius: 7px;
+  padding: 4px 6px;
+}
+
+.nextSetupSpark {
+  width: 100%;
+  height: 100%;
+  min-height: 44px;
+}
+
+.nextSetupSparkEmpty {
+  width: 100%;
+  height: 44px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 4px;
+}
+
+.nextSetupRunBtn {
+  font-size: 11px;
+  color: var(--c-text2);
+  border: 1px solid var(--c-soft);
+  border-radius: 6px;
+  padding: 6px 12px;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* ── Walk-forward compact shell ── */
+.wfShell {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--c-panel);
+  border: 1px solid var(--c-soft);
+  border-radius: var(--r);
+  padding: 0;
+}
+
+.wfHeader {
+  flex-shrink: 0;
+  margin-bottom: 4px;
+}
+
+.wfTabs {
+  flex-shrink: 0;
+  margin-bottom: 4px;
+  display: flex;
+  gap: 4px;
+}
+
+.wfTopRow {
+  flex-shrink: 0;
+  margin-bottom: 4px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.wfTitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: #f0f3f7;
+  white-space: nowrap;
+}
+
+.wfCenterTabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wfActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wfMain {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.wfPerformance {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wfStats {
+  flex-shrink: 0;
+}
+
+.wfStatsRow {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 6px;
+  border-radius: 6px;
+  background: #060606;
+  padding: 8px;
+}
+
+.wfStatCard {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.wfStatLabel {
+  font-size: 8px;
+  color: #7a8898;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wfStatValue {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+
+.wfChartSlot {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.wfFolds {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.wfFolds table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.wfFolds th,
+.wfFolds td {
+  padding: 2px 3px 2px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wfConfig,
+.wfAudit {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Toolbar (legacy) */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.ctrl {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 8px;
+  background: var(--c-panel);
+  border: 1px solid var(--c-soft);
+  border-radius: var(--rs);
+  color: var(--c-text);
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.pill { font-size: 8.5px; padding: 1px 5px; border-radius: 20px; border: 1px solid var(--c-soft); color: var(--c-text2); }
+.pill.bull { color: var(--c-bull); border-color: var(--c-bullS); background: var(--c-bullS); }
+.pill.bear { color: var(--c-bear); border-color: var(--c-bearS); background: var(--c-bearS); }
+
+/* ── Pattern Scanner: fixed big cards left + 2×2 compact cards right ── */
+.scannerLayout {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 4px 8px 8px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.scannerBigRow {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 6px;
+  flex: 0 0 auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+.scannerBigCard {
+  flex: 0 0 172px;
+  width: 172px;
+  min-width: 172px;
+  max-width: 172px;
+  min-height: 198px;
+}
+
+.scannerBigCardIcon {
+  width: 13px;
+  height: 13px;
+  grid-row: 1 / 3;
+  align-self: center;
+}
+
+.scannerBigCardBtn {
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.scannerBigCardBtn:hover {
+  background: rgba(255, 255, 255, 0.038) !important;
+  border-color: rgba(255, 255, 255, 0.11) !important;
+}
+.scannerBigCardBtn[data-short="1"]:hover {
+  border-color: rgba(255, 255, 255, 0.085) !important;
+}
+
+.scannerSmallGrid {
+  flex: 1 1 0;
+  min-width: 200px;
+  max-width: 38%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 6px;
+  min-height: 0;
+  align-content: stretch;
+  align-items: stretch;
+}
+
+.scannerSmallCard {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+
+@media (max-width: 1100px) {
+  .app {
+    height: auto;
+    min-height: 100dvh;
+    max-height: none;
+    overflow: auto;
+  }
+
+  .content {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    height: auto;
+    overflow: visible;
+  }
+
+  .panel { min-height: 360px; }
+  .kpiPanel { min-height: 420px; }
+}

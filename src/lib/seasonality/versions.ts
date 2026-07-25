@@ -1,0 +1,10 @@
+export const SEASONALITY_CALCULATION_VERSION = "2.1_complete_years_bar_level_risk";
+export const SEASONALITY_METRIC_FORMULA_VERSION = "tv_bar_level_risk_metrics_v1";
+export const SEASONALITY_SHARPE_FORMULA_VERSION = "pine_array_stdev_biased_sqrt252_v1";
+export const SEASONALITY_HOLDING_GRID_VERSION = "10_12_14_16_18_20_v1";
+export const SEASONALITY_PATTERN_SELECTION_VERSION = "wr_avgperf_dd_hold_direction_v1";
+export const SEASONALITY_RESULT_IDENTITY_VERSION = "seasonality_result_identity_v1";
+export const SEASONALITY_DRAWDOWN_METHOD_VERSION = "bar_level_mark_to_market_v1";
+export const SEASONALITY_CALMAR_FORMULA_VERSION = "cagr_over_bar_level_maxdd_v1";
+export const SEASONALITY_QUALITY_RISK_INPUT_VERSION = "oos_bar_level_maxdd_v1";
+export const SEASONALITY_WALK_FORWARD_CACHE_VERSION = "seasonality_wf_cache_v3_local_family";
