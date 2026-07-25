@@ -2,7 +2,7 @@ export const runtime = "edge";
 import { NextResponse } from "next/server";
 import type { ShipTrackingResponse } from "@/lib/globe/globe-types";
 
-const AIS_KEY = process.env.AIS_API_KEY ?? "";
+const AIS_KEY = process.env.AIS_API_KEY ?? process.env.NEXT_PUBLIC_AIS_KEY ?? "";
 
 export async function GET() {
   if (!AIS_KEY) {

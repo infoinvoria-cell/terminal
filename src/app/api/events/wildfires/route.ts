@@ -2,7 +2,7 @@ export const runtime = "edge";
 import { NextResponse } from "next/server";
 import type { GeoEventsResponse, GeoEventItem } from "@/lib/globe/globe-types";
 
-const NASA_KEY = process.env.NASA_FIRMS_KEY ?? "";
+const NASA_KEY = process.env.NASA_FIRMS_KEY ?? process.env.NEXT_PUBLIC_NASA_FIRMS_KEY ?? "";
 const FIRMS_URL = (key: string) =>
   `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${key}/VIIRS_SNPP_NRT/-180,-90,180,90/1`;
 
