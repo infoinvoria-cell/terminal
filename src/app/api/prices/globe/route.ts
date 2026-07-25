@@ -68,19 +68,23 @@ export async function GET() {
       signal: AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined,
     });
     if (!res.ok) throw new Error(`Yahoo ${res.status}`);
-    const data = (await res.json()) as {
-      spark?: { result?: Array<{ symbol?: string; response?: Array<{ meta?: { regularMarketPrice?: number; chartPreviousClose?: number; previousClose?: number } }> }> };
-    };
-    const results = data?.spark?.result ?? [];
+    // Spark returns a flat object keyed by symbol:
+    // { "GC=F": { close: [..], chartPreviousClose, previousClose }, ... }
+    const data = (await res.json()) as Record<string, {
+      symbol?: string;
+      close?: Array<number | null>;
+      chartPreviousClose?: number | null;
+      previousClose?: number | null;
+    }>;
 
     const prices: Record<string, number | null> = {};
     const changes: Record<string, number | null> = {};
-    for (const r of results) {
-      const sym = r.symbol ?? "";
-      const meta = r.response?.[0]?.meta;
-      const price = typeof meta?.regularMarketPrice === "number" ? meta.regularMarketPrice : null;
-      const prevClose = typeof meta?.chartPreviousClose === "number" ? meta.chartPreviousClose
-        : typeof meta?.previousClose === "number" ? meta.previousClose : null;
+    for (const [sym, entry] of Object.entries(data ?? {})) {
+      if (!entry || typeof entry !== "object") continue;
+      const closes = Array.isArray(entry.close) ? entry.close.filter((v): v is number => typeof v === "number" && Number.isFinite(v)) : [];
+      const price = closes.length ? closes[closes.length - 1] : null;
+      const prevClose = typeof entry.chartPreviousClose === "number" ? entry.chartPreviousClose
+        : typeof entry.previousClose === "number" ? entry.previousClose : null;
       const changePct = price != null && prevClose != null && prevClose !== 0
         ? ((price - prevClose) / prevClose) * 100 : null;
       for (const id of symbolToIds[sym] ?? []) {
