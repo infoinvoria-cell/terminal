@@ -105,6 +105,25 @@ function ciRow(r: CoreInvestRow): DisplayRow {
 const WS_ROWS = WS_STRATEGIES.map(wsRow);
 const CI_ROWS = CI_STRATEGIES.map(ciRow);
 
+// ── OHLC in-memory cache (persists for session, avoids re-fetch on every expand) ─
+type OhlcCacheEntry = { bars: OhlcBar[]; ts: number };
+const OHLC_CACHE = new Map<string, OhlcCacheEntry>();
+const OHLC_CACHE_TTL = 60_000; // 60s before background refresh
+
+// approximate data-start year per ticker (for Von column)
+const TICKER_VON: Record<string, string> = {
+  "CT1!": "1970", "ZC1!": "1970", "SB1!": "1970", "OJ1!": "1970",
+  "ZW1!": "1970", "ZS1!": "1970", "CC1!": "1970", "KC1!": "1970",
+  "GC1!": "1975", "SI1!": "1975", "HG1!": "1988",
+  "CL1!": "1983", "NG1!": "1991",
+  "ES1!": "1993", "NQ1!": "1996", "YM1!": "1997",
+  "FDAX1!": "2000", "UKX!": "2001",
+  "6E1!": "2003", "6B1!": "2003", "6S1!": "2003", "6J1!": "2003",
+  "GOOGL": "2004", "AAPL": "2004", "MSFT": "1990", "NVDA": "2000",
+  "META": "2012", "AMZN": "2001",
+  "QQQ": "1999", "SPY": "1993", "GLD": "2004",
+};
+
 // ── live feed ─────────────────────────────────────────────────────────────────
 interface LiveFeedItem {
   symbol: string; tab: string; source: string;
@@ -178,9 +197,18 @@ function fmtDateTime(iso: string | null): string {
   return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
-// if firstDate is missing, estimate from lastDate - barCount trading days (~1.4 calendar days/bar)
-function estimateVon(item: LiveFeedItem): string {
+// Von date: firstDate from API, then OHLC cache first bar, then TICKER_VON lookup, then barCount estimate
+function estimateVon(item: LiveFeedItem, ticker?: string): string {
   if (item.firstDate) return fmtDate(item.firstDate);
+  // check OHLC cache for first bar date
+  if (ticker) {
+    const sym = toOhlcSymbol(ticker);
+    const cached = OHLC_CACHE.get(sym + ":1D");
+    if (cached?.bars?.length) return cached.bars[0].time.slice(0, 4); // year only
+    // known static lookup
+    const von = TICKER_VON[sym] ?? TICKER_VON[ticker.split(" ")[0]] ?? null;
+    if (von) return von;
+  }
   if (item.lastDate && item.barCount && item.barCount > 0) {
     const last = new Date(item.lastDate);
     last.setDate(last.getDate() - Math.round(item.barCount * 1.4));
@@ -325,20 +353,32 @@ interface IntradayStrategy {
 // ── candle chart — price line, auto-refresh, signal overlay ──────────────────
 function CandleChart({ ticker, refreshSecs = 30 }: { ticker: string; refreshSecs?: number }) {
   const ref  = useRef<HTMLDivElement>(null);
-  const [bars, setBars]   = useState<OhlcBar[] | null>(null);
+  const sym  = toOhlcSymbol(ticker);
+  const cacheKey = sym + ":1D";
+
+  // seed from cache for instant display, then refresh in background
+  const cached = OHLC_CACHE.get(cacheKey);
+  const [bars, setBars]   = useState<OhlcBar[] | null>(cached ? cached.bars : null);
   const [trade, setTrade] = useState<LiveTrade | null>(null);
 
   const fetchBars = useRef(() => {});
 
   useEffect(() => {
-    const sym = encodeURIComponent(toOhlcSymbol(ticker));
+    const symEnc = encodeURIComponent(sym);
     fetchBars.current = () => {
-      fetch(`/api/monitoring/ohlc?symbol=${sym}&timeframe=1D`)
+      fetch(`/api/monitoring/ohlc?symbol=${symEnc}&timeframe=1D`)
         .then(r => r.json())
-        .then(d => setBars(Array.isArray(d.bars) && d.bars.length ? d.bars : []))
-        .catch(() => setBars([]));
+        .then(d => {
+          const b: OhlcBar[] = Array.isArray(d.bars) && d.bars.length ? d.bars : [];
+          OHLC_CACHE.set(cacheKey, { bars: b, ts: Date.now() });
+          setBars(b);
+        })
+        .catch(() => { if (!OHLC_CACHE.has(cacheKey)) setBars([]); });
     };
-    fetchBars.current();
+    // only fetch if cache is stale
+    if (!cached || Date.now() - cached.ts > OHLC_CACHE_TTL) {
+      fetchBars.current();
+    }
 
     fetch("/api/monitoring/live-state")
       .then(r => r.json())
@@ -352,9 +392,10 @@ function CandleChart({ ticker, refreshSecs = 30 }: { ticker: string; refreshSecs
         setTrade(match ?? null);
       })
       .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticker]);
 
-  // auto-refresh at refreshSecs interval
+  // auto-refresh at refreshSecs interval (background, updates cache)
   useEffect(() => {
     const id = setInterval(() => fetchBars.current(), refreshSecs * 1000);
     return () => clearInterval(id);
@@ -410,14 +451,14 @@ function CandleChart({ ticker, refreshSecs = 30 }: { ticker: string; refreshSecs
         chart.timeScale().fitContent();
       }
 
-      // last price line — solid white, always visible on Y-axis
+      // last price — dashed line with Y-axis label only
       const lastBar = filtered[filtered.length - 1];
       if (lastBar?.close) {
         series.createPriceLine({
           price: lastBar.close,
-          color: "rgba(255,255,255,0.55)",
+          color: "rgba(255,255,255,0.40)",
           lineWidth: 1,
-          lineStyle: LineStyle.Solid,
+          lineStyle: LineStyle.Dashed,
           axisLabelVisible: true,
           title: "",
         });
@@ -465,8 +506,7 @@ function CandleChart({ ticker, refreshSecs = 30 }: { ticker: string; refreshSecs
 
 // ── equity / drawdown charts ──────────────────────────────────────────────────
 function EqChart({ pts, label }: { pts: EP[]; label: string }) {
-  const step = Math.max(1, Math.floor(pts.length / 120));
-  const d = pts.filter((_, i) => i % step === 0 || i === pts.length - 1).map(p => ({ t: p.time.slice(0, 7), v: Math.round(p.value) }));
+  const d = pts.map(p => ({ t: p.time.slice(0, 7), v: Math.round(p.value * 100) / 100 }));
   return (
     <div>
       <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 5 }}>{label}</div>
@@ -485,11 +525,10 @@ function EqChart({ pts, label }: { pts: EP[]; label: string }) {
 }
 
 function DdChart({ pts }: { pts: EP[] }) {
-  const step = Math.max(1, Math.floor(pts.length / 120));
-  const d = pts.filter((_, i) => i % step === 0 || i === pts.length - 1).map(p => ({ t: p.time.slice(0, 7), v: Math.round(p.value * 100) / 100 }));
+  const d = pts.map(p => ({ t: p.time.slice(0, 7), v: Math.round(p.value * 100) / 100 }));
   return (
     <div>
-      <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 5 }}>Drawdown (Jordan Curve)</div>
+      <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 5 }}>Drawdown</div>
       <ResponsiveContainer width="100%" height={65}>
         <AreaChart data={d} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
           <defs><linearGradient id="ddg2" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={GOLD} stopOpacity={0.25} /><stop offset="95%" stopColor={GOLD} stopOpacity={0.02} /></linearGradient></defs>
@@ -629,10 +668,7 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
   const activeDd: EP[] = ddOos?.length ? ddOos : codexDd?.length ? codexDd : synthAll?.dd ?? [];
   const isSynthetic = !hasRealEq;
 
-  const cagrLabel = oos?.cagr != null ? ` · +${oos.cagr.toFixed(2)}% CAGR`
-    : ist?.cagr != null ? ` · +${fmtN(ist.cagr)}% CAGR`
-    : row.cagr ? ` · ${row.cagr}` : "";
-  const eqLabel = isSynthetic ? `Equity (Sim)${cagrLabel}` : `Equity OOS${cagrLabel}`;
+  const eqLabel = isSynthetic ? "Equity (Sim)" : "Equity";
 
   // KPI cards — Sharpe, CAGR, MaxDD, PF, Trades, Calmar, WinRate + "Mehr" button
   const kpis: Array<{ label: string; value: string }> = [];
@@ -1091,7 +1127,7 @@ export default function StrategyMasterTable() {
                           <td suppressHydrationWarning style={{ padding: "5px 8px", textAlign: "left", color: "rgba(255,255,255,0.28)", fontSize: 9, whiteSpace: "nowrap" as const }}>
                             {live ? (
                               <span>
-                                {estimateVon(live)}
+                                {estimateVon(live, row.ticker)}
                                 <span style={{ color: "rgba(255,255,255,0.12)", margin: "0 4px" }}>–</span>
                                 {fmtDateTime(live.lastDate)}
                               </span>
