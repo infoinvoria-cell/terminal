@@ -803,7 +803,7 @@ export function MobileKomponentenView() {
         </div>
 
         {/* subtle bottom fade so rows dissolve as they slide behind header */}
-        <div style={{ height: 10, background: `linear-gradient(to bottom, ${BG}, transparent)`, marginBottom: -10, position: "relative", zIndex: 2, pointerEvents: "none" }} />
+        <div style={{ height: 16, background: `linear-gradient(to bottom, ${BG} 30%, transparent)`, marginBottom: -16, position: "relative", zIndex: 2, pointerEvents: "none" }} />
       </div>
 
       {/* ── SCROLLABLE LIST ────────────────────────────────────────────────── */}
