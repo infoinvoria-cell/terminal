@@ -158,8 +158,12 @@ function strNumColor(s: string | null): string {
   if (s.startsWith("−") || s.startsWith("-")) return GOLD;
   return "rgba(255,255,255,0.82)";
 }
+const archOrder = (s: string) => s === "archived" ? 1 : 0;
 function sortRows(rows: DisplayRow[], key: SortKey, dir: SortDir): DisplayRow[] {
   return [...rows].sort((a, b) => {
+    // archived always at bottom
+    const archDiff = archOrder(a.status) - archOrder(b.status);
+    if (archDiff !== 0) return archDiff;
     let av: number, bv: number;
     if (key === "cagr" || key === "maxDd") {
       const p = (s: string | null) => parseFloat((s ?? "").replace(/[^0-9.-]/g, "")) || 0;
@@ -632,7 +636,6 @@ export function MobileKomponentenView() {
 
   const filtered = sortRows(
     rawRows.filter(r => {
-      if (r.status === "archived") return false;
       if (pillarFilter !== "all" && r.pillarKey !== pillarFilter) return false;
       if (search) {
         const q = search.toLowerCase();
