@@ -169,7 +169,7 @@ export function GlobeAnalyticsPanel({
       <div className={SECTION}>
         <div className={SECTION_TITLE}>Risk Matrix</div>
         <div className="grid grid-cols-2 gap-2">
-          <RiskTile label="Geopolitics" value={conflictEvents.length} suffix="events" color={conflictEvents.length > 50 ? "#ef4444" : conflictEvents.length > 20 ? "#eab308" : "#22c55e"} />
+          <RiskTile label="Geopolitics" value={conflictEvents.length} suffix="hotspots" color={conflictEvents.length > 5 ? "#ef4444" : conflictEvents.length > 2 ? "#eab308" : "#22c55e"} />
           <RiskTile label="Earthquakes ≥5.0" value={quakeCount} suffix="24h" color={quakeCount > 5 ? "#ef4444" : quakeCount > 2 ? "#eab308" : "#22c55e"} />
           <RiskTile label="Commodity Stress" value={commodityStressRegions.length} suffix="regions" color={commodityStressRegions.length > 3 ? "#ef4444" : commodityStressRegions.length > 1 ? "#eab308" : "#22c55e"} />
           <RiskTile label="Ship Disruptions" value={shippingDisruptionEvents.length} suffix="active" color={shippingDisruptionEvents.length > 3 ? "#ef4444" : shippingDisruptionEvents.length > 1 ? "#eab308" : "#22c55e"} />
