@@ -324,7 +324,7 @@ function Th({ label, k, sortKey, sortDir, onSort, align = "left", agg }: {
       borderBottom: `1px solid ${RBORD}`, background: BG,
       userSelect: "none" as const, cursor: "pointer", transition: "color .1s",
     }}>
-      {agg && <div style={{ fontSize: 8, fontWeight: 500, letterSpacing: ".04em", color: "rgba(255,255,255,0.30)", marginBottom: 2, textTransform: "none" as const }}>{agg}</div>}
+      {agg && <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: ".03em", color: "rgba(255,255,255,0.50)", marginBottom: 2, textTransform: "none" as const }}>{agg}</div>}
       {label}{active && <span style={{ marginLeft: 3, fontSize: 9, opacity: 0.65 }}>{sortDir === "desc" ? "↓" : "↑"}</span>}
     </th>
   );
@@ -1123,7 +1123,7 @@ export default function StrategyMasterTable() {
                 return (
                   <tr>
                     <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 6px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, width: 26 }}>
-                      <div style={{ fontSize: 8, fontWeight: 500, color: "rgba(255,255,255,0.30)", marginBottom: 2 }}>{totalRows}</div>
+                      <div style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.50)", marginBottom: 2 }}>{totalRows}</div>
                       #
                     </th>
                     <th style={{ width: 18, padding: 0, borderBottom: `1px solid ${RBORD}`, background: BG }} />

@@ -89,11 +89,12 @@ const VALUATION: StrategyRow[] = [
   {
     id: "ukx_val", ticker: "UKX!", label: "FTSE 100", group: "Indizes",
     engine: "Valuation", pillar: "valuation", weight: 2,
-    // OOS 2019-26: −0.101 Net / −0.064 Gross (param-freeze miss, 41 trades)
-    // IS: Gross Sharpe +0.95, WF 28/29 folds positive (96.6%) — strongest WF consistency in portfolio
-    sharpeOos: -0.101, cagr: "−0.7%", maxDd: "−17.7%", calmar: null, pf: null, trades: 41, wfOos: "28/29 IS",
+    // OOS 17 yrs (2008–2025) — Equity-SMA10 robust variant, TV export Sept 1989 – Jun 2026
+    // Source: Brain/90_Inbox/indices_strategy_package/reference_exports/variant_stats_ukx.csv
+    // Portfolio OOS Sharpe (5-strategy equal weight): 0.898 | individual Sharpe not computed
+    sharpeOos: null, cagr: "+0.9%", maxDd: "−9.2%", calmar: 0.09, pf: 1.34, trades: 76, wfOos: null,
     status: "watch",
-    isNotes: "IS Sharpe +0.95 · WF 96.6% positiv (28/29) · OOS-Underperformance durch Param-Freeze 2019–2026",
+    isNotes: "OOS 17J: CAGR +0.9% · MaxDD 9.2% · PF 1.34 · 76 Trades · Portfolio-Sharpe 0.90 · Equity-SMA10 robust · kein WF (Time-Split)",
     exchange: "LSE",
   },
 ];
