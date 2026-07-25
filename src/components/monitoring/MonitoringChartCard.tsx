@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useMemo } from "react";
+import { useLiveQuotesContext } from "@/contexts/LiveQuotesContext";
 import MonitoringChart, { type MonitoringChartData } from "@/components/monitoring/MonitoringChart";
 import type { AgriAssetStatusSummary } from "@/lib/monitoring/agriFinalStatusTypes";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
@@ -147,6 +148,8 @@ type MonitoringChartCardProps = {
   /** All-tab radar mosaic: scales icon/name/visible-window per tile size. */
   radarTileSize?: AllTileSize;
   radarActiveSignal?: boolean;
+  /** Live close price from /api/live-quotes — patches last candle when provided */
+  liveClose?: number | null;
   /** Agrar v2.0: available strategy kinds for this asset (undefined = not an agri asset) */
   agriAvailableKinds?: { valuation: boolean; seasonal: boolean; macro: boolean };
   /** Agrar v2.0: currently active strategy kinds */
@@ -346,7 +349,11 @@ function MonitoringChartCardInner({
   agriAvailableKinds,
   agriActiveKinds = [],
   onAgriKindToggle,
+  liveClose = null,
 }: MonitoringChartCardProps) {
+  const liveQuotesCtx = useLiveQuotesContext();
+  const resolvedLiveClose = liveClose ?? (item?.code ? (liveQuotesCtx.get(item.code.toUpperCase())?.close ?? null) : null);
+
   const payload = item?.payload ?? null;
   const hasBars = !!payload?.bars?.length;
   const badge = item?.dataMismatch ? "DATA MISMATCH" : getBadge(payload);
@@ -437,19 +444,28 @@ function MonitoringChartCardInner({
 
   const chartData = useMemo(() => {
     const chartTrades = strategyActive ? strategyTrades : [];
+    const rawBars = payload?.bars ?? [];
+    const bars = resolvedLiveClose != null && rawBars.length > 0
+      ? [...rawBars.slice(0, -1), {
+          ...rawBars[rawBars.length - 1],
+          close: resolvedLiveClose,
+          high: Math.max(rawBars[rawBars.length - 1].high as number, resolvedLiveClose),
+          low: Math.min(rawBars[rawBars.length - 1].low as number, resolvedLiveClose),
+        }]
+      : rawBars;
     return {
       displaySymbol: item?.code ?? "-",
       displayName: item?.name ?? "-",
       tvSymbol: item?.tv,
       badge,
-      bars: payload?.bars ?? [],
+      bars,
       signals: [],
       trades: chartTrades,
       boxes: strategyActive ? [] : (payload?.boxes ?? []),
       variant,
       timeframe: item?.timeframe ?? "D",
     } satisfies MonitoringChartData;
-  }, [badge, item?.code, item?.name, item?.timeframe, item?.tv, payload?.bars, payload?.boxes, strategyActive, strategyTrades, variant]);
+  }, [badge, item?.code, item?.name, item?.timeframe, item?.tv, resolvedLiveClose, payload?.bars, payload?.boxes, strategyActive, strategyTrades, variant]);
 
   const fallbackText = loadStatus === "loading"
     ? "LOADING"

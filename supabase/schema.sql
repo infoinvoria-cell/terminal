@@ -252,3 +252,29 @@ create policy "Public read on strategy_entries" on public.strategy_entries
   for select using (true);
 create policy "Service role write on strategy_entries" on public.strategy_entries
   using (true) with check (true);
+
+-- ── Live Quotes ───────────────────────────────────────────────────────────────
+-- One row per symbol, upserted every 5 seconds by tools/live-feed/tv_live_feed.py
+create table if not exists public.live_quotes (
+  symbol      text        primary key,
+  open        numeric     not null,
+  high        numeric     not null,
+  low         numeric     not null,
+  close       numeric     not null,
+  volume      numeric     not null default 0,
+  timestamp   timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+
+alter table public.live_quotes enable row level security;
+
+-- Anon/authenticated may read (for /api/live-quotes polling)
+create policy "live_quotes_read" on public.live_quotes
+  for select to authenticated, anon using (true);
+
+-- Service role may upsert (from tv_live_feed.py)
+create policy "live_quotes_service_upsert" on public.live_quotes
+  for all to service_role using (true) with check (true);
+
+create index if not exists live_quotes_updated_at_idx
+  on public.live_quotes (updated_at desc);

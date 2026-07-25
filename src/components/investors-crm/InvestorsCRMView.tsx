@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { SentinelChat } from "./SentinelChat";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -74,116 +75,6 @@ function fmtDate(iso: string | null) {
   return d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
-function toIsoDate(de: string): string | null {
-  if (!de) return null;
-  const m = de.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
-  if (m) return `${m[3]}-${m[2]}-${m[1]}`;
-  return de || null;
-}
-
-// ── Modal for new investor ─────────────────────────────────────────────────────
-
-const EMPTY: Omit<Investor, "id" | "created_at"> = {
-  name: "", unternehmen: null, email: null, telefon: null,
-  kontaktquelle: null, kapitalrahmen: null, verfuegbar_ab: null,
-  status: "Neu", letzter_kontakt: null, naechster_schritt: null,
-  zustaendig: null, notizen: null,
-};
-
-function Modal({ onClose, onSave }: { onClose: () => void; onSave: (v: Omit<Investor, "id" | "created_at">) => Promise<void> }) {
-  const [form, setForm] = useState({ ...EMPTY, status: "Neu" });
-  const [saving, setSaving] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
-
-  const set = (k: string, v: string | null) => setForm(f => ({ ...f, [k]: v }));
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!form.name.trim()) { setErr("Name ist Pflichtfeld"); return; }
-    setSaving(true);
-    try {
-      await onSave({ ...form, name: form.name.trim() });
-      onClose();
-    } catch (e: unknown) {
-      setErr(e instanceof Error ? e.message : "Fehler beim Speichern");
-    } finally { setSaving(false); }
-  }
-
-  return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(0,0,0,0.65)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-      <div style={{ background: "#111214", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, width: "100%", maxWidth: 640, maxHeight: "90vh", overflowY: "auto", padding: 28 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#fff", fontFamily: "var(--font-montserrat,sans-serif)" }}>Investor hinzufügen</h2>
-          <button onClick={onClose} style={btnGhost}>✕</button>
-        </div>
-
-        <form onSubmit={submit}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <Field label="Name *" required><input style={inp} value={form.name} onChange={e => set("name", e.target.value)} placeholder="Vollständiger Name" /></Field>
-            <Field label="Unternehmen"><input style={inp} value={form.unternehmen ?? ""} onChange={e => set("unternehmen", e.target.value || null)} /></Field>
-            <Field label="E-Mail"><input style={inp} type="email" value={form.email ?? ""} onChange={e => set("email", e.target.value || null)} /></Field>
-            <Field label="Telefon"><input style={inp} value={form.telefon ?? ""} onChange={e => set("telefon", e.target.value || null)} /></Field>
-            <Field label="Kontaktquelle">
-              <select style={inp} value={form.kontaktquelle ?? ""} onChange={e => set("kontaktquelle", e.target.value || null)}>
-                <option value="">—</option>
-                {KONTAKTQUELLE.map(o => <option key={o}>{o}</option>)}
-              </select>
-            </Field>
-            <Field label="Kapitalrahmen">
-              <select style={inp} value={form.kapitalrahmen ?? ""} onChange={e => set("kapitalrahmen", e.target.value || null)}>
-                <option value="">—</option>
-                {KAPITALRAHMEN.map(o => <option key={o}>{o}</option>)}
-              </select>
-            </Field>
-            <Field label="Verfügbar ab">
-              <input style={inp} type="date" value={form.verfuegbar_ab ?? ""} onChange={e => set("verfuegbar_ab", e.target.value || null)} />
-            </Field>
-            <Field label="Status">
-              <select style={inp} value={form.status} onChange={e => set("status", e.target.value)}>
-                {STATUS_OPTS.map(o => <option key={o}>{o}</option>)}
-              </select>
-            </Field>
-            <Field label="Letzter Kontakt">
-              <input style={inp} type="date" value={form.letzter_kontakt ?? ""} onChange={e => set("letzter_kontakt", e.target.value || null)} />
-            </Field>
-            <Field label="Nächster Schritt">
-              <select style={inp} value={form.naechster_schritt ?? ""} onChange={e => set("naechster_schritt", e.target.value || null)}>
-                <option value="">—</option>
-                {NAECHSTER_SCHRITT_OPTS.map(o => <option key={o}>{o}</option>)}
-              </select>
-            </Field>
-            <Field label="Zuständig">
-              <select style={inp} value={form.zustaendig ?? ""} onChange={e => set("zustaendig", e.target.value || null)}>
-                <option value="">—</option>
-                {ZUSTAENDIG_OPTS.map(o => <option key={o}>{o}</option>)}
-              </select>
-            </Field>
-          </div>
-          <Field label="Notizen" style={{ marginTop: 12 }}>
-            <textarea style={{ ...inp, height: 80, resize: "vertical" }} value={form.notizen ?? ""} onChange={e => set("notizen", e.target.value || null)} />
-          </Field>
-          {err && <p style={{ color: "#f87171", fontSize: 12, marginTop: 8 }}>{err}</p>}
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 20 }}>
-            <button type="button" onClick={onClose} style={btnSecondary}>Abbrechen</button>
-            <button type="submit" disabled={saving} style={btnPrimary}>{saving ? "Speichert…" : "Hinzufügen"}</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-function Field({ label, children, required, style }: { label: string; children: React.ReactNode; required?: boolean; style?: React.CSSProperties }) {
-  return (
-    <div style={style}>
-      <label style={{ display: "block", fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 4, fontFamily: "var(--font-montserrat,sans-serif)", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
-        {label}{required && <span style={{ color: "#f87171" }}> *</span>}
-      </label>
-      {children}
-    </div>
-  );
-}
-
 // ── Styles ─────────────────────────────────────────────────────────────────────
 
 const inp: React.CSSProperties = {
@@ -203,10 +94,6 @@ const btnSecondary: React.CSSProperties = {
   color: "rgba(255,255,255,0.5)", borderRadius: 6, padding: "7px 16px", fontSize: 12,
   fontFamily: "var(--font-montserrat,sans-serif)", cursor: "pointer",
 };
-const btnGhost: React.CSSProperties = {
-  background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer", fontSize: 16,
-};
-
 // ── Column definitions ─────────────────────────────────────────────────────────
 
 type Col = { key: keyof Investor; label: string; w: number | string };
@@ -326,12 +213,6 @@ export function InvestorsCRMView() {
 
   useEffect(() => { load(); }, [load]);
 
-  async function create(body: Omit<Investor, "id" | "created_at">) {
-    const r = await fetch("/api/investors-crm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    if (!r.ok) throw new Error((await r.json()).error ?? "Fehler");
-    await load();
-  }
-
   async function patch(id: string, key: keyof Investor, value: string | null) {
     if (savingRef.current) return;
     savingRef.current = true;
@@ -393,7 +274,10 @@ export function InvestorsCRMView() {
               {rows.length} {rows.length === 1 ? "Interessent" : "Interessenten"} gespeichert
             </p>
           </div>
-          <button style={btnPrimary} onClick={() => setShowModal(true)}>+ Investor hinzufügen</button>
+          <button style={{ ...btnPrimary, display: "inline-flex", alignItems: "center", gap: 7 }} onClick={() => setShowModal(true)}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Mit Sentinel aufnehmen
+          </button>
         </div>
 
         {/* Filters */}
@@ -505,7 +389,7 @@ export function InvestorsCRMView() {
         )}
       </div>
 
-      {showModal && <Modal onClose={() => setShowModal(false)} onSave={create} />}
+      {showModal && <SentinelChat onClose={() => setShowModal(false)} onSaved={() => load()} />}
     </div>
   );
 }

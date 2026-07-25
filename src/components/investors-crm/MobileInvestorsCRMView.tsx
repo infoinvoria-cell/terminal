@@ -31,7 +31,6 @@ function InvestorCard({ investor, nr }: { investor: Investor; nr: number }) {
       border: "1px solid rgba(255,255,255,0.07)",
       borderRadius: 10, padding: "14px 16px", marginBottom: 10,
     }}>
-      {/* Header row */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <span style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-montserrat,sans-serif)", fontWeight: 700, marginRight: 6 }}>#{nr}</span>
@@ -45,7 +44,6 @@ function InvestorCard({ investor, nr }: { investor: Investor; nr: number }) {
         </span>
       </div>
 
-      {/* Info rows */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 12px" }}>
         {investor.email && <Row label="E-Mail" value={investor.email} />}
         {investor.telefon && <Row label="Tel." value={investor.telefon} />}
@@ -101,11 +99,10 @@ export function MobileInvestorsCRMView() {
   const nrMap = Object.fromEntries(rows.map((r, i) => [r.id, i + 1]));
 
   const STATUS_OPTS = ["Neu","Kontaktiert","Early Access gesendet","Interesse bestätigt","Gespräch geplant","Warm Commitment","Unterlagen ausstehend","Bereit für Onboarding","Später kontaktieren","Abgesagt"];
-  const inp: React.CSSProperties = { width: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#e4e4e7", fontSize: 13, fontFamily: "var(--font-montserrat,sans-serif)", padding: "9px 12px", outline: "none" };
+  const inp: React.CSSProperties = { width: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#e4e4e7", fontSize: 16, fontFamily: "var(--font-montserrat,sans-serif)", padding: "9px 12px", outline: "none" };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", background: "#090a0c", color: "#e4e4e7" }}>
-      {/* Header */}
       <div style={{ padding: "16px 16px 12px", flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
         <h1 style={{ margin: "0 0 2px", fontSize: 16, fontWeight: 800, fontFamily: "var(--font-montserrat,sans-serif)", color: "#fff" }}>Early Access Investoren</h1>
         <p style={{ margin: "0 0 12px", fontSize: 11, color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-montserrat,sans-serif)" }}>{rows.length} Einträge</p>
@@ -116,7 +113,6 @@ export function MobileInvestorsCRMView() {
         </select>
       </div>
 
-      {/* Cards */}
       <div style={{ flex: 1, overflowY: "auto", padding: "12px 16px 80px" }}>
         {loading ? (
           <p style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", fontSize: 13, paddingTop: 40, fontFamily: "var(--font-montserrat,sans-serif)" }}>Lädt…</p>

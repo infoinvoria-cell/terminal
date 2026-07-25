@@ -1,0 +1,1 @@
+worker: python tv_live_feed.py

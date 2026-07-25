@@ -165,7 +165,7 @@ const P_OUTER_H = P_H + P_FP * 2;   // 880
 
 function toMobileUrl(path: string | null): string {
   if (!path) return "/m/home";
-  if (path.startsWith("/signal") || path.startsWith("/monitoring")) return "/m/signale";
+  if (path.startsWith("/signal") || path.startsWith("/signals") || path.startsWith("/monitoring")) return "/m/signale";
   if (path.startsWith("/brain")) return "/m/brain";
   if (path.startsWith("/settings")) return "/m/settings";
   if (path.startsWith("/onboarding") || path.startsWith("/investors-crm")) return "/m/investors-crm";
@@ -432,7 +432,7 @@ export function Sidebar() {
         flexShrink: 0,
         overflow: "hidden",
       }}
-      className="flex h-full min-h-0 flex-col border-r border-[#2a2b30]/60 bg-[#0a0a0c] pt-4"
+      className="capitalife-sidebar relative z-[9999] isolate flex h-full min-h-0 flex-col border-r border-[#2a2b30]/60 bg-[#0a0a0c] pt-4"
     >
       {/* Logo */}
       <div className="flex w-full shrink-0 items-center justify-center" style={{ transition: `padding 250ms ${EASE}` }}>

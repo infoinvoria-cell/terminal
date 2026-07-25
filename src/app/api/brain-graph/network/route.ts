@@ -323,13 +323,16 @@ export async function GET() {
     const { nodes, links } = await getCached("obsidian", buildObsidianApiGraph);
     return NextResponse.json({ ...cap(nodes, links), source: "obsidian-api" });
   } catch {
-    // Fallback: filesystem scan
+    // Fallback: filesystem scan (only useful locally — Vercel has no vault on disk)
     const brainRoot = getCapitalifeBrainPath();
     if (brainRoot) {
       const { nodes, links } = await buildFsGraph(brainRoot);
-      return NextResponse.json({ ...cap(nodes, links), source: "filesystem" });
+      if (nodes.length > 0) {
+        return NextResponse.json({ ...cap(nodes, links), source: "filesystem" });
+      }
+      // Path was set but vault not reachable (e.g. Vercel with local path in env) — fall through
     }
-    // No local brain — try Supabase snapshot
+    // No local brain (or empty) — try Supabase snapshot
     try {
       const { nodes, links } = await getCached("supabase", buildSupabaseGraph);
       return NextResponse.json({ ...cap(nodes, links), source: "supabase" });
