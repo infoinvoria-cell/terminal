@@ -2215,6 +2215,8 @@ export default function GlobeApp() {
               assetUsage={assetUsage}
               newsHeatmapScores={newsHeatmapScores}
               newsHeatmapActive={overlayState.newsHeatmap}
+              focusLat={Number(camera?.lat)}
+              focusLng={Number(camera?.lng)}
               onSelectPoint={onSelectPointFromMiniMap}
             />
           </div>

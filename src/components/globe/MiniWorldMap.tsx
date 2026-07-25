@@ -42,6 +42,8 @@ type Props = {
   assetUsage: Record<string, number>;
   newsHeatmapScores?: Record<string, number>;
   newsHeatmapActive?: boolean;
+  focusLat?: number;
+  focusLng?: number;
   onSelectPoint: (point: MarkerPoint) => void;
 };
 
@@ -295,6 +297,8 @@ export function MiniWorldMap({
   assetUsage,
   newsHeatmapScores = {},
   newsHeatmapActive = false,
+  focusLat,
+  focusLng,
   onSelectPoint,
 }: Props) {
   const [worldFeatures, setWorldFeatures] = useState<GeoFeature[]>([]);
@@ -794,6 +798,16 @@ export function MiniWorldMap({
             />
           ))}
         </g>
+        {typeof focusLat === "number" && typeof focusLng === "number" && Number.isFinite(focusLat) && Number.isFinite(focusLng) ? (() => {
+          const { x, y } = project(focusLng, focusLat);
+          return (
+            <g pointerEvents="none">
+              <circle cx={x} cy={y} r={10} fill="none" stroke="rgba(212,175,55,0.55)" strokeWidth={0.8} vectorEffect="non-scaling-stroke" />
+              <line x1={x - 16} y1={y} x2={x + 16} y2={y} stroke="rgba(212,175,55,0.5)" strokeWidth={0.7} vectorEffect="non-scaling-stroke" />
+              <line x1={x} y1={y - 16} x2={x} y2={y + 16} stroke="rgba(212,175,55,0.5)" strokeWidth={0.7} vectorEffect="non-scaling-stroke" />
+            </g>
+          );
+        })() : null}
         {overlayRoutePaths.length ? (
           <g>
             {overlayRoutePaths.map((row) => (
