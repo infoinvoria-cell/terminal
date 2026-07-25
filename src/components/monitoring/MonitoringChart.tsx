@@ -295,6 +295,7 @@ type MonitoringChartProps = {
   data: MonitoringChartData;
   maxBars?: number;
   initialVisibleBars?: number;
+  initialRightOffset?: number;
   allDashboardMode?: boolean;
   showFullscreenControl?: boolean;
   isFullscreen?: boolean;
@@ -1025,6 +1026,7 @@ function MonitoringChartInner({
   data,
   maxBars = DEFAULT_MAX_BARS,
   initialVisibleBars,
+  initialRightOffset,
   allDashboardMode = false,
   showFullscreenControl = true,
   isFullscreen = false,
@@ -1297,7 +1299,7 @@ function MonitoringChartInner({
     const efficientMode = Boolean(uiPrefs?.efficientMode);
     const defaultVisibleBars = (isDashboard ? DASHBOARD_VISIBLE_BARS : isCompact ? COMPACT_VISIBLE_BARS : VISIBLE_BARS);
     const visibleBars = initialVisibleBars ?? (efficientMode ? Math.min(20, defaultVisibleBars) : defaultVisibleBars);
-    const rightOffset = isDashboard ? DASHBOARD_RIGHT_OFFSET : isCompact ? COMPACT_RIGHT_OFFSET : RIGHT_OFFSET;
+    const rightOffset = initialRightOffset ?? (isDashboard ? DASHBOARD_RIGHT_OFFSET : isCompact ? COMPACT_RIGHT_OFFSET : RIGHT_OFFSET);
     chartDensityRef.current = { visibleBars, rightOffset, isCompact, isDashboard };
     const backgroundColor = uiPrefs?.backgroundColor ?? MONITORING_CHART_BACKGROUND;
 
@@ -1671,7 +1673,7 @@ function MonitoringChartInner({
       totalBarsRef.current = 0;
       prevCandleDataRef.current = null;
     };
-  }, [allDashboardMode, data.displaySymbol, data.variant, initialVisibleBars, overlayEnabled, showManualLevels]);
+  }, [allDashboardMode, data.displaySymbol, data.variant, initialVisibleBars, initialRightOffset, overlayEnabled, showManualLevels]);
 
   // Live Auto: re-fit Y (always) and X (when liveChartAutoView) whenever data changes
   useEffect(() => {
@@ -1692,7 +1694,7 @@ function MonitoringChartInner({
     const isCompact = data.variant === "compact" || isDashboard;
     chartDensityRef.current = {
       visibleBars: initialVisibleBars ?? (isDashboard ? DASHBOARD_VISIBLE_BARS : isCompact ? COMPACT_VISIBLE_BARS : VISIBLE_BARS),
-      rightOffset: isDashboard ? DASHBOARD_RIGHT_OFFSET : isCompact ? COMPACT_RIGHT_OFFSET : RIGHT_OFFSET,
+      rightOffset: initialRightOffset ?? (isDashboard ? DASHBOARD_RIGHT_OFFSET : isCompact ? COMPACT_RIGHT_OFFSET : RIGHT_OFFSET),
       isCompact,
       isDashboard,
     };
@@ -2686,7 +2688,7 @@ function MonitoringChartInner({
       autoFollowRef.current = atRight;
       setShowGoToLatest(!atRight);
     }
-  }, [allDashboardMode, debugRenderingEnabled, initialVisibleBars, liveChartAutoView, manualHover, manualLevels, overlayEnabled, prepared, selectedTradeId, showManualLevels]);
+  }, [allDashboardMode, debugRenderingEnabled, initialVisibleBars, initialRightOffset, liveChartAutoView, manualHover, manualLevels, overlayEnabled, prepared, selectedTradeId, showManualLevels]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useClientMounted } from "@/hooks/use-client-mounted";
 import type { MonitoringChartData } from "@/components/monitoring/MonitoringChart";
+import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
 
 const MonitoringChart = dynamic(
   () => import("@/components/monitoring/MonitoringChart").then((m) => m.default ?? m),
@@ -85,6 +86,24 @@ const STATIC_PATH: Record<string, string> = {
   "DE30EUR_2H": "/generated/monitoring/mobile/DE30EUR_2H.json",
 };
 
+// ── Human-readable names per symbol key ──────────────────────────────────────
+
+const SYMBOL_NAMES: Record<string, string> = {
+  "ZW1!": "Wheat", "ZC1!": "Corn", "ZS1!": "Soybeans", "CC1!": "Cocoa",
+  "KC1!": "Coffee", "SB1!": "Sugar", "CT1!": "Cotton", "OJ1!": "Orange Juice",
+  "GC1!": "Gold", "SI1!": "Silver", "HG1!": "Copper", "PL1!": "Platinum",
+  "PA1!": "Palladium", "CL1!": "Crude Oil", "NG1!": "Nat. Gas", "RB1!": "Gasoline",
+  "FDAX1!": "DAX", "ES1!": "S&P 500", "YM1!": "Dow Jones", "NQ1!": "Nasdaq",
+  "UKX!": "FTSE 100", "AAPL": "Apple", "MSFT": "Microsoft", "NVDA": "Nvidia",
+  "GOOGL": "Alphabet", "META": "Meta", "AMZN": "Amazon", "SPY": "S&P ETF",
+  "QQQ": "Nasdaq ETF", "SPMO": "Momentum ETF", "GLD": "Gold ETF",
+  "6S1!": "CHF/USD", "EURGBP": "EUR/GBP", "GBPJPY": "GBP/JPY",
+  "MXNUSD": "MXN/USD", "NOKUSD": "NOK/USD", "CLPUSD": "CLP/USD",
+  "SEKUSD": "SEK/USD", "BRLUSD": "BRL/USD", "ZARUSD": "ZAR/USD",
+  "EURUSD_30M": "EUR/USD", "GBPUSD_30M": "GBP/USD",
+  "DE30EUR_1H": "DAX 1H", "DE30EUR_2H": "DAX 2H",
+};
+
 // ── Fetch + parse bars from static TV-cache JSON ──────────────────────────────
 
 type Bar = { time: string; open: number; high: number; low: number; close: number };
@@ -147,29 +166,27 @@ function ChartCard({ symbol, chartData, loading }: {
   loading: boolean;
 }) {
   const mounted = useClientMounted();
-  const lastClose = chartData?.bars.at(-1)?.close;
-  const prevClose = chartData?.bars.at(-2)?.close;
-  const change = lastClose != null && prevClose != null ? ((lastClose - prevClose) / prevClose) * 100 : null;
-  const changeColor = change == null ? "rgba(255,255,255,0.3)" : change >= 0 ? "#22c55e" : "#ef4444";
+  const iconUrl = getMonitoringAssetIconUrl({ code: symbol });
+  const label = displayLabel(symbol);
+  const name = SYMBOL_NAMES[symbol] ?? "";
 
   return (
     <div style={{ height: "100%", background: "#0c0d10", display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0 }}>
-      {/* Header */}
-      <div style={{ height: 26, display: "flex", alignItems: "center", padding: "0 8px", flexShrink: 0, gap: 6 }}>
-        <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.8)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-          {displayLabel(symbol)}
-        </span>
-        <span style={{ fontSize: 8, color: "rgba(255,255,255,0.2)", marginLeft: 2 }}>{chartData?.timeframe ?? "D"}</span>
-        {lastClose != null && (
-          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)", marginLeft: "auto" }}>
-            {lastClose >= 1000 ? lastClose.toFixed(0) : lastClose >= 10 ? lastClose.toFixed(2) : lastClose.toFixed(4)}
-          </span>
+      {/* Header: logo + symbol + name */}
+      <div style={{ height: 28, display: "flex", alignItems: "center", padding: "0 7px", flexShrink: 0, gap: 5 }}>
+        {iconUrl && (
+          <img src={iconUrl} alt="" width={14} height={14} style={{ borderRadius: 3, objectFit: "contain", flexShrink: 0 }} />
         )}
-        {change != null && (
-          <span style={{ fontSize: 8.5, fontWeight: 600, color: changeColor }}>
-            {change >= 0 ? "+" : ""}{change.toFixed(2)}%
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", lineHeight: 1, minWidth: 0 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.85)", letterSpacing: "0.04em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+            {label}
           </span>
-        )}
+          {name && (
+            <span style={{ fontSize: 7.5, color: "rgba(255,255,255,0.28)", whiteSpace: "nowrap", marginTop: 1 }}>
+              {name}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Chart body */}
@@ -187,8 +204,9 @@ function ChartCard({ symbol, chartData, loading }: {
         {mounted && chartData && (
           <MonitoringChart
             data={chartData}
-            maxBars={280}
-            initialVisibleBars={56}
+            maxBars={500}
+            initialVisibleBars={20}
+            initialRightOffset={10}
           />
         )}
       </div>
