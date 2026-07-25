@@ -2382,6 +2382,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     indices: null,
   });
   const [agrarLoadStateBySymbol, setAgrarLoadStateBySymbol] = useState<Record<string, AgrarCardLoadState>>({});
+  const [tabDataStatus, setTabDataStatus] = useState<Record<string, "ok" | "partial" | "missing" | "loading">>({});
   const [strategyEventsByFile, setStrategyEventsByFile] = useState<Record<string, StrategyEventsPayload>>({});
   const [strategyRuntimeRoutes, setStrategyRuntimeRoutes] = useState<StrategyRuntimeRouteRow[]>([]);
   const [tradingViewTradesBySource, setTradingViewTradesBySource] = useState<TradingViewTradesBySource>({});
@@ -4211,6 +4212,67 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     () => ({ ...strategyEventsByFile, ...wave1Prepared.eventsByFile }),
     [strategyEventsByFile, wave1Prepared.eventsByFile],
   );
+
+  // Compute per-tab data status for the status dots in the tab bar.
+  // Agrar + Wave1 tabs are covered by effectiveLoadStateBySymbol.
+  // Other tabs are tracked by the runtime controller's loadedTabs set, polled on interval.
+  useEffect(() => {
+    function computeStatus() {
+      const next: Record<string, "ok" | "partial" | "missing" | "loading"> = {};
+      const allLoadedTabs = new Set(getMonitoringRuntimeReport().loadedTabs);
+
+      // Agrar: derive from agrarLoadStateBySymbol
+      const agrarSymbols = ["ZW1!", "ZC1!", "ZS1!", "CC1!", "KC1!", "SB1!", "CT1!", "OJ1!"];
+      const agrarLoaded = agrarSymbols.filter((s) => effectiveLoadStateBySymbol[s]?.status === "loaded").length;
+      if (Object.keys(effectiveLoadStateBySymbol).length === 0 && !allLoadedTabs.has("agrar")) {
+        next["agrar"] = "loading";
+      } else if (agrarLoaded === agrarSymbols.length) {
+        next["agrar"] = "ok";
+      } else if (agrarLoaded > 0) {
+        next["agrar"] = "partial";
+      } else {
+        next["agrar"] = allLoadedTabs.has("agrar") ? "missing" : "loading";
+      }
+
+      // Indizes: from wave1Prepared.loadStateBySymbol
+      const indizesSymbols = ["FDAX1!", "ES1!", "YM1!", "NQ1!", "UKX!"];
+      const indizesLoaded = indizesSymbols.filter((s) => effectiveLoadStateBySymbol[s]?.status === "loaded").length;
+      if (indizesLoaded === indizesSymbols.length) {
+        next["indizes"] = "ok";
+      } else if (indizesLoaded > 0) {
+        next["indizes"] = "partial";
+      } else {
+        next["indizes"] = allLoadedTabs.has("indizes") ? "missing" : "loading";
+      }
+
+      // Intraday MT: from wave1Prepared.loadStateBySymbol
+      const intradayLoaded = Object.entries(effectiveLoadStateBySymbol).filter(
+        ([k, v]) => (k.includes("DE30") || k.includes("EURUSD") || k.includes("GBPUSD")) && v.status === "loaded",
+      ).length;
+      if (intradayLoaded >= 4) {
+        next["intraday_mt"] = "ok";
+      } else if (intradayLoaded > 0) {
+        next["intraday_mt"] = "partial";
+      } else {
+        next["intraday_mt"] = allLoadedTabs.has("intraday_mt") ? "loading" : "loading";
+      }
+
+      // Other tabs: use runtime loadedTabs as a proxy for "has been loaded"
+      for (const tabId of ["metalle_energie", "fx", "aktien", "invest", "anomaly", "live", "all"] as const) {
+        next[tabId] = allLoadedTabs.has(tabId) ? "ok" : "loading";
+      }
+      // FX tab: known stub issue — mark as partial until we know Supabase has the data
+      if (allLoadedTabs.has("fx")) {
+        next["fx"] = "partial";
+      }
+
+      setTabDataStatus(next);
+    }
+
+    computeStatus();
+    const id = window.setInterval(computeStatus, 3000);
+    return () => window.clearInterval(id);
+  }, [effectiveLoadStateBySymbol]);
 
   const orderedItems = useMemo(
     () =>
@@ -6237,7 +6299,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
                     setActiveTabPersisted(item.tabId);
                   }}
                 >
-                  <MonitoringTabIcon tabId={item.tabId} active={isActive} />
+                  <MonitoringTabIcon tabId={item.tabId} active={isActive} dataStatus={tabDataStatus[item.tabId]} />
                   <span className="monitoring-tab-label">{item.title}</span>
                 </button>
               );
