@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Activity,
+  BarChart2,
   BellRing,
   BriefcaseBusiness,
   ChartColumn,
@@ -401,6 +402,7 @@ export function Sidebar() {
   const brainActive         = (pathname?.startsWith("/brain") ?? false) || (pathname?.startsWith("/brain-graph") ?? false);
   const globeActive         = pathname?.startsWith("/globe") ?? false;
   const componentsActive    = pathname?.startsWith("/komponenten") ?? false;
+  const seasonalityActive   = pathname?.startsWith("/komponenten/seasonality") ?? false;
   const settingsActive      = pathname?.startsWith("/settings") ?? false;
   const investorsCRMActive  = (pathname?.startsWith("/onboarding") ?? false) || (pathname?.startsWith("/investors-crm") ?? false);
   const shellRouteActive    = pathname === "/" || !pathname;
@@ -484,7 +486,8 @@ export function Sidebar() {
         <SidebarLink href="/signal"      active={signalActive}     label="Signale"     icon={BellRing}    expanded={expanded} />
         <SidebarLink href="/monitoring"  active={monitoringActive} label="Monitoring"  icon={Activity}    expanded={expanded} />
         <SidebarIconButton page="analytics" activePage={sidebarPageState} label="Analytics"  icon={ChartColumn}  onSelect={onSelectPage} expanded={expanded} />
-<SidebarLink href="/komponenten" active={componentsActive} label="Komponenten" icon={Layers}      expanded={expanded} />
+<SidebarLink href="/komponenten" active={componentsActive && !seasonalityActive} label="Komponenten" icon={Layers}      expanded={expanded} />
+        <SidebarLink href="/komponenten/seasonality" active={seasonalityActive} label="Seasonality" icon={BarChart2} expanded={expanded} />
       </nav>
 
       <div className="mt-5 flex w-full flex-col items-center gap-3 px-2">

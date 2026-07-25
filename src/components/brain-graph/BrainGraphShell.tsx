@@ -235,8 +235,8 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
         const r = sizeR[i] ?? 1;
         const nodeAlpha = r >= 7  ? Math.min(0.97, alpha * 1.2)
                         : r >= 4  ? Math.min(0.90, alpha * 1.05)
-                        : r >= 2  ? alpha * 0.80
-                        :           alpha * 0.38;
+                        : r >= 2  ? alpha * 0.85
+                        :           alpha * 0.65;
         return { px, py, depth, alpha: nodeAlpha, r, idx: i };
       });
 
@@ -376,29 +376,25 @@ function StatusStrip({ status, nodeCount, linkCount, dataSource }: {
   const isObsidian = dataSource === "obsidian-api";
   const isFs = dataSource === "filesystem";
   const brainActive = isObsidian || isFs;
-  const gbStr = status?.vaultSizeGb != null ? `${status.vaultSizeGb} GB` : null;
-  const sourceLabel = isObsidian ? "obsidian" : isFs ? "fs" : null;
+  const gbStr = status?.vaultSizeGb != null
+    ? `${Number(status.vaultSizeGb).toFixed(1)} GB`
+    : null;
 
   return (
-    <div className="pointer-events-none absolute bottom-4 left-5 z-20 flex items-center text-sm text-[#6b7280]">
-      <span>{nodeCount} Nodes</span>
+    <div className="pointer-events-none absolute bottom-4 left-5 z-20 flex items-center text-xs text-[#6b7280]">
+      <span>{nodeCount.toLocaleString()} Nodes</span>
       {DOT}
-      <span>{linkCount} Links</span>
-      {gbStr && <>{DOT}<span>{gbStr}</span></>}
+      <span>{linkCount.toLocaleString()} Links</span>
+      {gbStr && <>{DOT}<span>{gbStr} Vault</span></>}
       {DOT}
       <span>{today}</span>
       {brainActive && (
         <>
           {DOT}
-          <span className={isObsidian ? "text-white/70" : "text-[#6b7280]"}>
-            {isObsidian ? "✓" : "○"} Capitalife Brain Active
+          <span className="text-[#52b36b]">
+            ✓ Brain aktiv
           </span>
         </>
-      )}
-      {sourceLabel && (
-        <span className={`ml-2 rounded px-1.5 py-0.5 text-xs font-medium ${isObsidian ? "bg-[#7c3aed]/20 text-[#a78bfa]" : "bg-white/[0.04] text-[#555]"}`}>
-          {sourceLabel}
-        </span>
       )}
     </div>
   );
