@@ -68,7 +68,7 @@ type FundManagerHomeProps = {
   balanceRows: ParsedBalanceRow[];
   portfolioKpisBaseline: DashboardKpis;
   universal: UniversalKpiStrings;
-  fsportfolio: FSPortfolioSnapshot;
+  fsportfolio: FSPortfolioSnapshot | undefined;
   capalifeData: CapalifeData;
   initialPage?: DashboardPage;
 };
@@ -77,7 +77,7 @@ type HomeShellProps = {
   serialized: SerializedTrade[];
   portfolioKpisBaseline: DashboardKpis;
   universal: UniversalKpiStrings;
-  fsportfolio: FSPortfolioSnapshot;
+  fsportfolio: FSPortfolioSnapshot | undefined;
   capalifeData: CapalifeData;
 };
 

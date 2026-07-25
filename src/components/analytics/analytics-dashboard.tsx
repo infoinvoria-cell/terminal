@@ -1914,7 +1914,7 @@ function WsLiveControlPanel({
   );
 }
 
-export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio: FSPortfolioSnapshot; capalifeData: CapalifeData }) {
+export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio: FSPortfolioSnapshot | undefined; capalifeData: CapalifeData }) {
   const router = useRouter();
   const [tab, setTab] = useState<AnalyticsTab>("whiteSwan");
   const [mode, setMode] = useState<AnalyticsMode>("live");
@@ -2014,13 +2014,13 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
   const ciBaseForCombined = useMemo(() => tab === "combined" ? getAnalyticsDataset("invest", "backtest", fsportfolio, capalifeData) : null, [tab, fsportfolio, capalifeData]);
   const dataset = useMemo(() => {
     if (tab === "invest") {
-      return buildScopedInvestDataset(fsportfolio, mode, investWeights, investEnabled, startFilter, baseDataset);
+      return buildScopedInvestDataset(fsportfolio!, mode, investWeights, investEnabled, startFilter, baseDataset);
     }
     if (tab === "whiteSwan" && mode === "backtest") {
       return buildScopedWsDataset(baseDatasetWithTrades, wsWeights, wsEnabled, wsRiskMultiplier);
     }
     if (tab === "combined" && ciBaseForCombined) {
-      const ciScoped = buildScopedInvestDataset(fsportfolio, "backtest", investWeights, investEnabled, startFilter, ciBaseForCombined);
+      const ciScoped = buildScopedInvestDataset(fsportfolio!, "backtest", investWeights, investEnabled, startFilter, ciBaseForCombined);
       const wsDatasetForCombined = buildWsDatasetFromEquityFile(capalifeData.wsPortfolioEquity, ciScoped.benchmarkSeries);
       return buildCombinedDataset(wsDatasetForCombined, ciScoped, combinedWsWeight / 100);
     }

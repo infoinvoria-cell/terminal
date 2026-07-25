@@ -1,16 +1,25 @@
 import { getFSPortfolioSnapshot } from "@/lib/fsportfolio/backtest";
 import { getCapalifeData } from "@/lib/capitalife-data";
 import { getTradesData } from "@/lib/load-trades";
-import { computeDashboardKpis } from "@/lib/trades-analytics";
+import { computeDashboardKpis, type SerializedTrade } from "@/lib/trades-analytics";
+import type { ParsedReportTrade, ParsedBalanceRow } from "@/lib/mt-report-parser";
 import { loadDashboardSnapshotAsync } from "@/lib/brain/dashboard-snapshot-loader";
 import type { UniversalKpiStrings } from "@/components/dashboard/universal-kpi-strip";
 
+const EMPTY_TRADES = {
+  rows: [] as Parameters<typeof computeDashboardKpis>[0],
+  serialized: [] as SerializedTrade[],
+  reportTrades: [] as ParsedReportTrade[],
+  balanceRows: [] as ParsedBalanceRow[],
+};
+
 export async function getDashboardPageData() {
-  const [{ rows, serialized, reportTrades, balanceRows }, snap] = await Promise.all([
-    getTradesData(),
-    loadDashboardSnapshotAsync(),
+  const [tradesResult, snap] = await Promise.all([
+    getTradesData().catch(() => EMPTY_TRADES),
+    loadDashboardSnapshotAsync().catch(() => null),
   ]);
-  const fsportfolio = await getFSPortfolioSnapshot();
+  const { rows, serialized, reportTrades, balanceRows } = tradesResult;
+  const fsportfolio = await getFSPortfolioSnapshot().catch(() => undefined);
   const portfolioKpisBaseline = computeDashboardKpis(rows);
 
   const kpis = portfolioKpisBaseline;

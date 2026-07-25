@@ -1,8 +1,8 @@
-import { MobileOnboardingCRMView } from "@/components/mobile/onboarding/MobileOnboardingCRMView";
+﻿import { MobileOnboardingCRMView } from "@/components/mobile/onboarding/MobileOnboardingCRMView";
 
-export const dynamic = "force-dynamic";
-export const metadata = { title: "Investor Onboarding — Capitalife" };
+export const metadata = { title: "Investor Onboarding â€” Capitalife" };
 
 export default function MobileOnboardingPage() {
   return <MobileOnboardingCRMView />;
 }
+
