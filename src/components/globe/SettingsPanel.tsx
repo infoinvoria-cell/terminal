@@ -31,7 +31,7 @@ type OverlayOption = {
   description: string;
 };
 
-const CATEGORY_ORDER = ["Cross Pairs", "FX", "Major FX", "Metals", "Equities", "Crypto", "Energy", "Agriculture", "Softs", "Livestock", "Commodities", "Bonds", "Stocks"];
+const CATEGORY_ORDER = ["White Swan Portfolio", "Intraday MT", "Core Invest", "Crypto", "Macro", "Commodities", "Cross Pairs", "FX", "Major FX", "Metals", "Equities", "Energy", "Agriculture", "Softs", "Livestock", "Bonds", "Stocks"];
 
 function formatFxSymbol(symbol: string): string {
   const raw = String(symbol || "").trim().toUpperCase();
