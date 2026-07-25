@@ -56,7 +56,9 @@ export async function GET() {
   const symbols = Object.keys(symbolToIds);
 
   try {
-    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols.map(encodeURIComponent).join(",")}&fields=regularMarketPrice,regularMarketChangePercent,regularMarketPreviousClose&formatted=false`;
+    // Yahoo v8 spark: one request, many symbols. The v7 /quote endpoint is
+    // rate-limited/blocked from shared edge IPs; v8 spark/chart is reliable.
+    const url = `https://query1.finance.yahoo.com/v8/finance/spark?symbols=${symbols.map(encodeURIComponent).join(",")}&range=1d&interval=1d&indicators=close&includeTimestamps=false`;
     const res = await fetch(url, {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -66,15 +68,21 @@ export async function GET() {
       signal: AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined,
     });
     if (!res.ok) throw new Error(`Yahoo ${res.status}`);
-    const data = (await res.json()) as YahooQuoteResponse;
-    const results = data?.quoteResponse?.result ?? [];
+    const data = (await res.json()) as {
+      spark?: { result?: Array<{ symbol?: string; response?: Array<{ meta?: { regularMarketPrice?: number; chartPreviousClose?: number; previousClose?: number } }> }> };
+    };
+    const results = data?.spark?.result ?? [];
 
     const prices: Record<string, number | null> = {};
     const changes: Record<string, number | null> = {};
-    for (const q of results) {
-      const sym = q.symbol ?? "";
-      const price = typeof q.regularMarketPrice === "number" ? q.regularMarketPrice : null;
-      const changePct = typeof q.regularMarketChangePercent === "number" ? q.regularMarketChangePercent : null;
+    for (const r of results) {
+      const sym = r.symbol ?? "";
+      const meta = r.response?.[0]?.meta;
+      const price = typeof meta?.regularMarketPrice === "number" ? meta.regularMarketPrice : null;
+      const prevClose = typeof meta?.chartPreviousClose === "number" ? meta.chartPreviousClose
+        : typeof meta?.previousClose === "number" ? meta.previousClose : null;
+      const changePct = price != null && prevClose != null && prevClose !== 0
+        ? ((price - prevClose) / prevClose) * 100 : null;
       for (const id of symbolToIds[sym] ?? []) {
         prices[id] = price;
         changes[id] = changePct;
