@@ -835,7 +835,7 @@ export function MiniWorldMap({
               className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-md px-1 py-[2px] text-[10px] leading-none shadow-[0_2px_8px_rgba(0,0,0,0.38)] transition ${
                 isSelected
                   ? `${goldThemeEnabled ? "border-[#e2ca7a]/90 bg-[#e2ca7a]/24 text-[#fff3d1]" : "border-white/60 bg-white/10 text-white"} border`
-                  : `border border-slate-600/75 bg-[rgba(8,14,24,0.78)] text-slate-100 ${goldThemeEnabled ? "hover:border-[#e2ca7a]/60" : "hover:border-white/40"}`
+                  : `border border-slate-600/75 bg-[rgba(12,12,14,0.78)] text-slate-100 ${goldThemeEnabled ? "hover:border-[#e2ca7a]/60" : "hover:border-white/40"}`
               }`}
               style={{ left: `${leftPct}%`, top: `${topPct}%` }}
               title={title}

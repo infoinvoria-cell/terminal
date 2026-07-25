@@ -1387,7 +1387,7 @@ function GlobeCanvasComponent({
           globeImageUrl={OCEAN_TEXTURE}
           backgroundColor="rgba(0,0,0,0)"
           showAtmosphere
-          atmosphereColor={goldThemeEnabled ? "#e2ca7a" : "rgba(255,255,255,0.55)"}
+          atmosphereColor={goldThemeEnabled ? "#e2ca7a" : "#D4AF37"}
           atmosphereAltitude={0.032}
           polygonsTransitionDuration={0}
           showGraticules={false}
@@ -1751,7 +1751,7 @@ function GlobeCanvasComponent({
       </div>
 
       {activeEvent ? (
-        <div className="absolute left-2 top-[78px] z-20 max-w-[260px] rounded-md border border-slate-600/55 bg-[rgba(6,12,22,0.88)] p-2 text-[10px] text-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
+        <div className="absolute left-2 top-[78px] z-20 max-w-[260px] rounded-md border border-slate-600/55 bg-[rgba(10,10,12,0.88)] p-2 text-[10px] text-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
           <div className="mb-0.5 flex items-center justify-between gap-2">
             <span className="font-semibold uppercase tracking-[0.08em] text-slate-200">
               {eventIcon(activeEvent.type)} {String(activeEvent.type || "event")}
