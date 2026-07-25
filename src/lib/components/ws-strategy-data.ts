@@ -28,6 +28,7 @@ export interface StrategyRow {
   codexSymbol?: string;        // symbol for /api/monitoring/codex-equity-curve
   isNotes?: string;            // IS-period note
   exchange?: string;
+  brainPath?: string;          // key for /api/monitoring/brain-equity?key=... (e.g. "stocks/NVDA")
 }
 
 // ── Valuation Pillar (24% of portfolio · top 4 → 3%, rest → 2%) ─────────────
@@ -42,19 +43,19 @@ const VALUATION: StrategyRow[] = [
     id: "nvda_val", ticker: "NVDA", label: "Nvidia", group: "Aktien",
     engine: "Valuation", pillar: "valuation", weight: 3,
     sharpeOos: 0.611, cagr: "+21.3%", maxDd: "−32.3%", calmar: 0.66, pf: 1.25, trades: 270, wfOos: "83%",
-    status: "active", exchange: "NASDAQ",
+    status: "active", exchange: "NASDAQ", brainPath: "stocks/NVDA",
   },
   {
     id: "zarusd_val", ticker: "ZARUSD", label: "ZAR/USD", group: "Forex",
     engine: "Valuation", pillar: "valuation", weight: 3,
     sharpeOos: 0.605, cagr: "+2.0%", maxDd: "−26.9%", calmar: 0.07, pf: 1.27, trades: 249, wfOos: "91%",
-    status: "active", exchange: "FX",
+    status: "active", exchange: "FX", brainPath: "forex/ZARUSD",
   },
   {
     id: "gc1_val", ticker: "GC1!", label: "Gold", group: "Metalle",
     engine: "Valuation", pillar: "valuation", weight: 3,
     sharpeOos: 0.609, cagr: "+8.1%", maxDd: "−23.6%", calmar: 0.34, pf: 1.33, trades: 180, wfOos: "71%",
-    status: "active", exchange: "COMEX",
+    status: "active", exchange: "COMEX", brainPath: "metals_energy/GC1",
   },
   {
     id: "ym1_val", ticker: "YM1!", label: "Dow Jones", group: "Indizes",
@@ -72,19 +73,19 @@ const VALUATION: StrategyRow[] = [
     id: "msft_val", ticker: "MSFT", label: "Microsoft", group: "Aktien",
     engine: "Valuation", pillar: "valuation", weight: 2,
     sharpeOos: 0.409, cagr: "+2.9%", maxDd: "−30.7%", calmar: 0.09, pf: 1.23, trades: 143, wfOos: "88%",
-    status: "active", exchange: "NASDAQ",
+    status: "active", exchange: "NASDAQ", brainPath: "stocks/MSFT",
   },
   {
     id: "brlusd_val", ticker: "BRLUSD", label: "BRL/USD", group: "Forex",
     engine: "Valuation", pillar: "valuation", weight: 2,
     sharpeOos: 0.295, cagr: "+2.4%", maxDd: "−28.6%", calmar: 0.08, pf: 1.20, trades: 124, wfOos: "57%",
-    status: "active", exchange: "FX",
+    status: "active", exchange: "FX", brainPath: "forex/BRLUSD",
   },
   {
     id: "sekusd_val", ticker: "SEKUSD", label: "SEK/USD", group: "Forex",
     engine: "Valuation", pillar: "valuation", weight: 2,
     sharpeOos: 0.283, cagr: "+1.9%", maxDd: "−20.6%", calmar: 0.09, pf: 1.16, trades: 170, wfOos: "75%",
-    status: "active", exchange: "FX",
+    status: "active", exchange: "FX", brainPath: "forex/SEKUSD",
   },
   {
     id: "ukx_val", ticker: "UKX!", label: "FTSE 100", group: "Indizes",

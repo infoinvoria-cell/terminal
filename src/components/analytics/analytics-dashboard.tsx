@@ -94,19 +94,26 @@ const WS_STRATEGY_IDS = [
   "GC1 Friday Long", "GLD Thursday Long", "YM1 TAT",
   "UKX Valuation", "CT1 Macro A", "NQ1 Trend LO",
   "Intraday MT v3-F",
+  "NVDA Valuation", "ZARUSD Valuation", "GC1 Valuation",
+  "MSFT Valuation", "BRLUSD Valuation", "SEKUSD Valuation",
 ] as const;
-// v1.1 frozen weights: 6 WS × 0.70 + Intraday 30%
 // Actual portfolio weights (ws-strategy-data.ts source of truth, 2026-07-25)
 // Anomaly strategies have null portfolio weight → 0 here (research overlay, not in blend)
-// Coverage: UKX(2)+CT1(9)+NQ1(3)+Intraday(40) = 54% of portfolio has equity curves
+// Coverage: UKX(2)+CT1(9)+NQ1(3)+Intraday(40)+NVDA(3)+ZAR(3)+GC1(3)+MSFT(2)+BRL(2)+SEK(2) = 69%
 const WS_FROZEN_WEIGHTS: Record<string, number> = {
   "GC1 Friday Long":   0,   // Anomaly — null portfolio weight (research only)
   "GLD Thursday Long": 0,   // Anomaly
   "YM1 TAT":           0,   // Anomaly
-  "UKX Valuation":     2,   // 2% — UKX! Valuation strategy
-  "CT1 Macro A":       9,   // 9% — CT1 Macro strategy
-  "NQ1 Trend LO":      3,   // 3% — NQ1 Trend strategy
-  "Intraday MT v3-F":  40,  // 40% — Intraday sleeve (6E1! + DAX1H + DAX2H)
+  "UKX Valuation":     2,   // Valuation
+  "CT1 Macro A":       9,   // Macro
+  "NQ1 Trend LO":      3,   // Trend
+  "Intraday MT v3-F":  40,  // Intraday sleeve
+  "NVDA Valuation":    3,   // Valuation
+  "ZARUSD Valuation":  3,   // Valuation
+  "GC1 Valuation":     3,   // Valuation
+  "MSFT Valuation":    2,   // Valuation
+  "BRLUSD Valuation":  2,   // Valuation
+  "SEKUSD Valuation":  2,   // Valuation
 };
 // Default enabled: anomaly off (0% weight, research only); portfolio strategies on
 const WS_DEFAULT_ENABLED: Record<string, boolean> = {
@@ -117,6 +124,12 @@ const WS_DEFAULT_ENABLED: Record<string, boolean> = {
   "CT1 Macro A":       true,
   "NQ1 Trend LO":      true,
   "Intraday MT v3-F":  true,
+  "NVDA Valuation":    true,
+  "ZARUSD Valuation":  true,
+  "GC1 Valuation":     true,
+  "MSFT Valuation":    true,
+  "BRLUSD Valuation":  true,
+  "SEKUSD Valuation":  true,
 };
 const WS_STRATEGY_SHORT: Record<string, string> = {
   "GC1 Friday Long":   "GC1! Friday",
@@ -126,6 +139,12 @@ const WS_STRATEGY_SHORT: Record<string, string> = {
   "CT1 Macro A":       "CT1 Macro",
   "NQ1 Trend LO":      "NQ1 Trend",
   "Intraday MT v3-F":  "Intraday v3-F",
+  "NVDA Valuation":    "NVDA Val",
+  "ZARUSD Valuation":  "ZAR Val",
+  "GC1 Valuation":     "GC1 Val",
+  "MSFT Valuation":    "MSFT Val",
+  "BRLUSD Valuation":  "BRL Val",
+  "SEKUSD Valuation":  "SEK Val",
 };
 const WS_INTRADAY_ID = "Intraday MT v3-F" as const;
 
@@ -1913,6 +1932,7 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
     () => ({ ...WS_DEFAULT_ENABLED })
   );
   const [anomalyGroupSeries, setAnomalyGroupSeries] = useState<Record<string, AnalyticsSeriesPoint[]>>({});
+  const [brainValSeries, setBrainValSeries]         = useState<Record<string, AnalyticsSeriesPoint[]>>({});
   const [wsRiskMultiplier, setWsRiskMultiplier] = useState<number>(() => {
     try { const s = typeof window !== "undefined" ? localStorage.getItem("ws-risk-multiplier") : null; return s ? Number(s) : 2.5; } catch { return 2.5; }
   });
@@ -1948,12 +1968,48 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
     });
   }, []);
 
+  // Load Brain valuation equity curves (daily normalized CSV → monthly % change)
+  useEffect(() => {
+    const files: Array<[string, string]> = [
+      ["NVDA Valuation",   "stocks/NVDA"],
+      ["ZARUSD Valuation", "forex/ZARUSD"],
+      ["GC1 Valuation",    "metals_energy/GC1"],
+      ["MSFT Valuation",   "stocks/MSFT"],
+      ["BRLUSD Valuation", "forex/BRLUSD"],
+      ["SEKUSD Valuation", "forex/SEKUSD"],
+    ];
+    Promise.all(
+      files.map(([id, key]) =>
+        fetch(`/api/monitoring/brain-equity?key=${encodeURIComponent(key)}`)
+          .then(r => r.ok ? r.json() : null)
+          .then(d => ({ id, pts: (d?.pts ?? []) as Array<{ time: string; value: number }> }))
+          .catch(() => ({ id, pts: [] as Array<{ time: string; value: number }> }))
+      )
+    ).then(results => {
+      const series: Record<string, AnalyticsSeriesPoint[]> = {};
+      for (const { id, pts } of results) {
+        if (!pts.length) continue;
+        // downsample daily → monthly: last trading day per month
+        const byMonth: Record<string, AnalyticsSeriesPoint> = {};
+        for (const p of pts) {
+          const mo = p.time.slice(0, 7);
+          byMonth[mo] = { date: p.time, value: p.value };
+        }
+        series[id] = Object.entries(byMonth)
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([, p]) => p);
+      }
+      if (Object.keys(series).length) setBrainValSeries(series);
+    });
+  }, []);
+
   const baseDataset = useMemo(() => getAnalyticsDataset(tab, mode, fsportfolio, capalifeData), [tab, mode, fsportfolio, capalifeData]);
-  // Merge trade-level anomaly curves (individual trade data points) into the base groupSeries
+  // Merge trade-level anomaly curves + Brain valuation daily curves into the base groupSeries
   const baseDatasetWithTrades = useMemo(() => {
-    if (!Object.keys(anomalyGroupSeries).length) return baseDataset;
-    return { ...baseDataset, groupSeries: { ...baseDataset.groupSeries, ...anomalyGroupSeries } };
-  }, [baseDataset, anomalyGroupSeries]);
+    const extra = { ...anomalyGroupSeries, ...brainValSeries };
+    if (!Object.keys(extra).length) return baseDataset;
+    return { ...baseDataset, groupSeries: { ...baseDataset.groupSeries, ...extra } };
+  }, [baseDataset, anomalyGroupSeries, brainValSeries]);
   const ciBaseForCombined = useMemo(() => tab === "combined" ? getAnalyticsDataset("invest", "backtest", fsportfolio, capalifeData) : null, [tab, fsportfolio, capalifeData]);
   const dataset = useMemo(() => {
     if (tab === "invest") {

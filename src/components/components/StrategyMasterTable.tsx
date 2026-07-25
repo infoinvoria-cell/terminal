@@ -77,7 +77,7 @@ interface DisplayRow {
   cagr: string | null; maxDd: string | null;
   pf: number | null; trades: number | null;
   wfWin: string | null; calmar: number | null;
-  status: string; dataFile?: string; intradayId?: string; codexGroup?: string; codexSymbol?: string; isNotes?: string; exchange?: string;
+  status: string; dataFile?: string; intradayId?: string; codexGroup?: string; codexSymbol?: string; isNotes?: string; exchange?: string; brainPath?: string;
 }
 
 function wsRow(r: StrategyRow): DisplayRow {
@@ -88,7 +88,7 @@ function wsRow(r: StrategyRow): DisplayRow {
     weight: r.weight, sharpeOos: r.sharpeOos,
     cagr: r.cagr, maxDd: r.maxDd, pf: r.pf, trades: r.trades,
     wfWin: r.wfOos, calmar: r.calmar, status: r.status,
-    dataFile: r.dataFile, intradayId: r.intradayId, codexGroup: r.codexGroup, codexSymbol: r.codexSymbol, isNotes: r.isNotes, exchange: r.exchange,
+    dataFile: r.dataFile, intradayId: r.intradayId, codexGroup: r.codexGroup, codexSymbol: r.codexSymbol, isNotes: r.isNotes, exchange: r.exchange, brainPath: r.brainPath,
   };
 }
 function ciRow(r: CoreInvestRow): DisplayRow {
@@ -656,6 +656,7 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
   const [intraday, setIntraday] = useState<IntradayStrategy | null>(null);
   const [codexEq, setCodexEq]   = useState<EP[] | null>(null);
   const [codexDd, setCodexDd]   = useState<EP[] | null>(null);
+  const [brainEq, setBrainEq]   = useState<EP[] | null>(null);
   const [showInfo, setShowInfo] = useState(false);
 
   const isRealtime = row.pillarKey === "anomaly" || row.pillarKey === "intraday";
@@ -686,6 +687,18 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
       })
       .catch(() => {});
   }, [row.codexGroup, row.codexSymbol, row.dataFile, row.intradayId]);
+
+  // Priority 3b: brainPath → /api/monitoring/brain-equity (valuation daily curves)
+  useEffect(() => {
+    if (!row.brainPath || row.dataFile || row.intradayId || row.codexGroup) return;
+    fetch(`/api/monitoring/brain-equity?key=${encodeURIComponent(row.brainPath)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        const pts: Array<{ time: string; value: number }> = d?.pts ?? [];
+        if (pts.length) setBrainEq(pts.map(p => ({ time: p.time, value: p.value })));
+      })
+      .catch(() => {});
+  }, [row.brainPath, row.dataFile, row.intradayId, row.codexGroup]);
 
   // Priority 3: intradayId → intraday-equity.json (always — real OOS equity)
   useEffect(() => {
@@ -725,11 +738,11 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
   const candleTf = TICKER_TF[row.ticker] ?? "1D";
 
   // always provide synthetic curves as fallback for missing pieces
-  const hasRealEq = (eqFull?.length ?? 0) > 0 || (eqOos?.length ?? 0) > 0 || (codexEq?.length ?? 0) > 0 || (intradayFull?.length ?? 0) > 0;
+  const hasRealEq = (eqFull?.length ?? 0) > 0 || (eqOos?.length ?? 0) > 0 || (codexEq?.length ?? 0) > 0 || (intradayFull?.length ?? 0) > 0 || (brainEq?.length ?? 0) > 0;
   const synthAll  = syntheticCurves(row.cagr, row.maxDd);
 
-  // priority: anomaly full > intraday full > OOS only > codex > synthetic
-  const activeEq: EP[] = eqFull?.length ? eqFull : intradayFull?.length ? intradayFull : eqOos?.length ? eqOos : codexEq?.length ? codexEq : synthAll?.eq ?? [];
+  // priority: anomaly full > intraday full > OOS only > brain daily > codex > synthetic
+  const activeEq: EP[] = eqFull?.length ? eqFull : intradayFull?.length ? intradayFull : eqOos?.length ? eqOos : brainEq?.length ? brainEq : codexEq?.length ? codexEq : synthAll?.eq ?? [];
 
   // drawdown always computed FROM activeEq — guarantees same point count & X alignment
   const activeDd: EP[] = (() => {
