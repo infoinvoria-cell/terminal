@@ -734,7 +734,7 @@ export function MobileKomponentenView() {
         </div>
 
         {/* KPI strip — 5 cards, full width grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6, padding: "14px 10px 0" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6, padding: "18px 10px 0" }}>
           {kpis.map(k => (
             <div key={k.label} style={{ background: CARD, border: `1px solid ${CBORD}`, borderRadius: 10, padding: "7px 8px" }}>
               <div style={{ fontSize: 7, fontWeight: 600, color: MUTED, letterSpacing: ".06em", textTransform: "uppercase", fontFamily: "var(--font-montserrat),sans-serif", marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{k.label}</div>
@@ -744,7 +744,7 @@ export function MobileKomponentenView() {
         </div>
 
         {/* Filter pills + mini search + live — more spacing above */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "12px 12px 10px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "16px 12px 10px" }}>
           {/* mini search */}
           <div style={{ flexShrink: 0, position: "relative", width: 90 }}>
             <input type="search" placeholder="Suchen…" value={search}
@@ -838,7 +838,7 @@ export function MobileKomponentenView() {
         left: 0,
         right: 0,
         height: `calc(${NAV_H} + ${FADE_H}px)`,
-        background: `linear-gradient(to bottom, transparent 0%, rgba(12,13,16,0.25) 55%, rgba(12,13,16,0.7) 100%)`,
+        background: `linear-gradient(to bottom, transparent 0%, rgba(12,13,16,0.4) 45%, ${BG} 90%)`,
         pointerEvents: "none",
         zIndex: 6,
       }} />
