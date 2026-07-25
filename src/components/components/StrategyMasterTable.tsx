@@ -451,7 +451,11 @@ function CandleChart({ ticker, timeframe = "1D", refreshSecs = 30 }: { ticker: s
         upColor: "#FFFFFF", downColor: "#D6B44B",
         borderVisible: false,
         wickUpColor: "#FFFFFF", wickDownColor: "#D6B44B",
-        priceLineVisible: false, lastValueVisible: false,
+        priceLineVisible: true,        // short line from last candle to Y-axis
+        priceLineColor: "rgba(255,255,255,0.40)",
+        priceLineWidth: 1,
+        priceLineStyle: LineStyle.Dashed,
+        lastValueVisible: true,
       });
 
       // remove flat placeholder bars (zero-range) and statistical outliers
@@ -472,20 +476,6 @@ function CandleChart({ ticker, timeframe = "1D", refreshSecs = 30 }: { ticker: s
         chart.timeScale().setVisibleLogicalRange({ from: total - 20, to: total + 2 });
       } else {
         chart.timeScale().fitContent();
-      }
-
-      // last price — Y-axis label only, no full-width horizontal line
-      const lastBar = filtered[filtered.length - 1];
-      if (lastBar?.close) {
-        series.createPriceLine({
-          price: lastBar.close,
-          color: "rgba(255,255,255,0.40)",
-          lineWidth: 1,
-          lineStyle: LineStyle.Dashed,
-          lineVisible: false,       // suppress full-width line; only show Y-axis label
-          axisLabelVisible: true,
-          title: "",
-        });
       }
 
       // entry signal overlay
