@@ -355,3 +355,34 @@ export const CI_META: Record<CIPillar, { label: string; weight: string; color: s
   etf_core:  { label: "ETF-Core",        weight: "80%", color: "#3d8bcd" },
   ci_sleeve: { label: "Strategy Sleeve", weight: "20%", color: "#a78bfa" },
 };
+
+// ── Canonical portfolio KPIs (OOS 2019–2026, frozen) ────────────────────────
+// White Swan v1.1 + Intraday v3-F combined
+export const WS_PORTFOLIO_KPIS = {
+  sharpe:     "1.526",
+  cagr:       "+8.36%",
+  maxDd:      "−8.71%",
+  calmar:     "0.78",
+  strategies: "27",
+} as const;
+
+// Core Invest v2.0: ETF-Core 80% (QQQ 45% · GLD 25% · SPMO 5% · SPY 5%) + Sleeves 20% (4×5%)
+export const CI_PORTFOLIO_KPIS = {
+  sharpe:     "1.152",
+  cagr:       "+17.11%",
+  maxDd:      "−21.7%",
+  calmar:     "0.787",
+  positions:  "8",
+} as const;
+
+// Core Invest v2.0 canonical allocation weights (decimals, must sum to 1.0)
+export const CI_WEIGHTS = {
+  QQQ_PASSIVE:    0.45,
+  GLD:            0.25,
+  SPMO:           0.05,
+  SPY:            0.05,
+  QQQ_PINE_1:     0.05,
+  QQQ_PINE_2_EMA: 0.05,
+  COPPER_HG:      0.05,
+  CHF_6S:         0.05,
+} as const;

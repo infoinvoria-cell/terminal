@@ -321,7 +321,7 @@ export default function IntradayEquityGrid() {
         alignItems: "center",
       }}>
         <span>
-          Portfolio v3-F · EUR 40% / DAX1H 40% / GBP 5% / DAX2H 15% · OOS MAR 1.732 · MaxDD 8.1% · Sharpe 1.526
+          Portfolio v3-F · EUR 40% / DAX1H 40% / DAX2H 15% · OOS MAR 1.732 · MaxDD 8.1% · Sharpe 1.526
         </span>
         {generatedAt && <span>Stand: {generatedAt}</span>}
       </div>

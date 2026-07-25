@@ -7,6 +7,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "rec
 import {
   WS_STRATEGIES, PILLAR_META, type StrategyRow, type Pillar,
   CI_STRATEGIES, CI_META, type CoreInvestRow, type CIPillar,
+  WS_PORTFOLIO_KPIS, CI_PORTFOLIO_KPIS,
 } from "@/lib/components/ws-strategy-data";
 
 // ── design tokens ─────────────────────────────────────────────────────────────
@@ -53,14 +54,18 @@ type SortKey   = "ticker"|"label"|"pillar"|"weight"|"sharpeOos"|"cagr"|"maxDd"|"
 type SortDir   = "desc"|"asc";
 
 const WS_KPIS = [
-  { label: "Sharpe OOS", value: "1.526" }, { label: "CAGR OOS",   value: "+8.36%" },
-  { label: "Max DD",     value: "−8.71%" }, { label: "Calmar",     value: "0.78"   },
-  { label: "Strategien", value: "27"      },
+  { label: "Sharpe OOS", value: WS_PORTFOLIO_KPIS.sharpe },
+  { label: "CAGR OOS",   value: WS_PORTFOLIO_KPIS.cagr   },
+  { label: "Max DD",     value: WS_PORTFOLIO_KPIS.maxDd  },
+  { label: "Calmar",     value: WS_PORTFOLIO_KPIS.calmar  },
+  { label: "Strategien", value: WS_PORTFOLIO_KPIS.strategies },
 ];
 const CI_KPIS = [
-  { label: "Sharpe OOS", value: "1.152"   }, { label: "CAGR OOS", value: "+17.11%" },
-  { label: "Max DD",     value: "−21.7%"  }, { label: "Calmar",   value: "0.787"   },
-  { label: "Positionen", value: "8"        },
+  { label: "Sharpe OOS", value: CI_PORTFOLIO_KPIS.sharpe    },
+  { label: "CAGR OOS",   value: CI_PORTFOLIO_KPIS.cagr      },
+  { label: "Max DD",     value: CI_PORTFOLIO_KPIS.maxDd     },
+  { label: "Calmar",     value: CI_PORTFOLIO_KPIS.calmar     },
+  { label: "Positionen", value: CI_PORTFOLIO_KPIS.positions  },
 ];
 
 // ── unified display row ───────────────────────────────────────────────────────

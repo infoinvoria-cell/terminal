@@ -29,13 +29,14 @@ const FONT_MONO  = "var(--font-montserrat,ui-monospace,monospace)";
 // Icon paths verified against /public directory:
 // /assets/invest/{spy,spmo,qqq,gld}.png   — invest-specific icons
 // /asset-icons/{nasdaq,Kupfer,chf}.png/webp — monitoring icons
+// CI v2.0: ETF-Core 80% (QQQ 45% · GLD 25% · SPMO 5% · SPY 5%) + Sleeves 20% (4×5%)
 const ALLOC_ITEMS = [
-  { id: "spmo",     label: "SPMO",       weight: 35,  icon: "/assets/invest/spmo.png"  },
-  { id: "spy",      label: "SPY",        weight: 15,  icon: "/assets/invest/spy.png"   },
-  { id: "qqq",      label: "QQQ",        weight: 15,  icon: "/assets/invest/qqq.png"   },
-  { id: "gld",      label: "GLD",        weight: 10,  icon: "/assets/invest/gld.png"   },
-  { id: "qqqPine1", label: "Pine 1",     weight: 7.5, icon: "/asset-icons/nasdaq.png"  },
-  { id: "qqqPine2", label: "Pine 2 EMA", weight: 7.5, icon: "/asset-icons/nasdaq.png"  },
+  { id: "qqq",      label: "QQQ",        weight: 45,  icon: "/assets/invest/qqq.png"   },
+  { id: "gld",      label: "GLD",        weight: 25,  icon: "/assets/invest/gld.png"   },
+  { id: "spmo",     label: "SPMO",       weight: 5,   icon: "/assets/invest/spmo.png"  },
+  { id: "spy",      label: "SPY",        weight: 5,   icon: "/assets/invest/spy.png"   },
+  { id: "qqqPine1", label: "Pine 1",     weight: 5,   icon: "/asset-icons/nasdaq.png"  },
+  { id: "qqqPine2", label: "Pine 2 EMA", weight: 5,   icon: "/asset-icons/nasdaq.png"  },
   { id: "copper",   label: "Copper/HG",  weight: 5,   icon: "/asset-icons/Kupfer.webp" },
   { id: "chf",      label: "CHF/6S",     weight: 5,   icon: "/asset-icons/chf.png"     },
 ];
