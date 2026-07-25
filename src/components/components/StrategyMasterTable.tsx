@@ -1108,6 +1108,7 @@ export default function StrategyMasterTable() {
                 const activeRows = rows.filter(r => r.status !== "archived");
                 const totalRows = rows.length;
                 const pillars = new Set(rows.map(r => r.pillarKey)).size;
+                const weightSum = rows.map(r => r.weight ?? 0).reduce((s, v) => s + v, 0);
                 const sharpes = rows.map(r => r.sharpeOos).filter((v): v is number => v != null);
                 const avgSharpe = sharpes.length ? (sharpes.reduce((s, v) => s + v, 0) / sharpes.length).toFixed(2) : null;
                 const cagrs = rows.map(r => parseFloat((r.cagr ?? "").replace(/[^0-9.-]/g, ""))).filter(v => !isNaN(v));
@@ -1123,21 +1124,21 @@ export default function StrategyMasterTable() {
                 return (
                   <tr>
                     <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 6px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, width: 26 }}>
-                      <div style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.50)", marginBottom: 2 }}>{totalRows}</div>
+                      <div style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.50)", marginBottom: 2 }}>n {totalRows}</div>
                       #
                     </th>
                     <th style={{ width: 18, padding: 0, borderBottom: `1px solid ${RBORD}`, background: BG }} />
                     <Th label="Ticker"  k="ticker"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
                     <Th label="Asset"   k="label"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
-                    <Th label="Pillar"  k="pillar"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={String(pillars)} />
-                    <Th label="Gew."    k="weight"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg="100%" />
-                    <Th label="Sharpe"  k="sharpeOos" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgSharpe ?? undefined} />
-                    <Th label="CAGR"    k="cagr"      sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgCagr ?? undefined} />
-                    <Th label="Max DD"  k="maxDd"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgDd ?? undefined} />
-                    <Th label="PF"      k="pf"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgPf ?? undefined} />
-                    <Th label="Trades"  k="trades"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={tradesSum > 0 ? String(tradesSum) : undefined} />
-                    <Th label="WF/Win%" k="wfWin"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgWf ?? undefined} />
-                    <Th label="Status"  k="status"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={activeRows.length > 0 ? String(activeRows.length) + " aktiv" : undefined} />
+                    <Th label="Pillar"  k="pillar"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={`n ${pillars}`} />
+                    <Th label="Gew."    k="weight"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={weightSum > 0 ? `Σ ${weightSum}%` : undefined} />
+                    <Th label="Sharpe"  k="sharpeOos" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgSharpe ? `∅ ${avgSharpe}` : undefined} />
+                    <Th label="CAGR"    k="cagr"      sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgCagr ? `∅ ${avgCagr}` : undefined} />
+                    <Th label="Max DD"  k="maxDd"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgDd ? `∅ ${avgDd}` : undefined} />
+                    <Th label="PF"      k="pf"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgPf ? `∅ ${avgPf}` : undefined} />
+                    <Th label="Trades"  k="trades"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={tradesSum > 0 ? `Σ ${tradesSum}` : undefined} />
+                    <Th label="WF/Win%" k="wfWin"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgWf ? `∅ ${avgWf}` : undefined} />
+                    <Th label="Status"  k="status"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={activeRows.length > 0 ? `n ${activeRows.length}` : undefined} />
                     {liveCols && <>
                       <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, borderLeft: "1px solid rgba(255,255,255,0.05)" }}>Preis</th>
                       <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG }}>Signal</th>
