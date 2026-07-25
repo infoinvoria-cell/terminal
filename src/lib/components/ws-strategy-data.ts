@@ -93,7 +93,7 @@ const VALUATION: StrategyRow[] = [
     // Source: Brain/90_Inbox/indices_strategy_package/reference_exports/variant_stats_ukx.csv
     // Portfolio OOS Sharpe (5-strategy equal weight): 0.898 | individual Sharpe not computed
     sharpeOos: null, cagr: "+0.9%", maxDd: "−9.2%", calmar: 0.09, pf: 1.34, trades: 76, wfOos: null,
-    status: "watch",
+    status: "active",
     isNotes: "OOS 17J: CAGR +0.9% · MaxDD 9.2% · PF 1.34 · 76 Trades · Portfolio-Sharpe 0.90 · Equity-SMA10 robust · kein WF (Time-Split)",
     exchange: "LSE",
   },
