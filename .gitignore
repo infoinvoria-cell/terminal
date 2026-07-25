@@ -142,3 +142,4 @@ GRAPH_REPORT.md
 !.env.example
 
 .vercel
+.env*
