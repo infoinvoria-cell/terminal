@@ -19,8 +19,7 @@ import {
   PieChart,
   Settings,
   Smartphone,
-  TrendingUp,
-  Users,
+Users,
 } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
@@ -485,8 +484,7 @@ export function Sidebar() {
         <SidebarLink href="/signal"      active={signalActive}     label="Signale"     icon={BellRing}    expanded={expanded} />
         <SidebarLink href="/monitoring"  active={monitoringActive} label="Monitoring"  icon={Activity}    expanded={expanded} />
         <SidebarIconButton page="analytics" activePage={sidebarPageState} label="Analytics"  icon={ChartColumn}  onSelect={onSelectPage} expanded={expanded} />
-        <SidebarIconButton page="invest"    activePage={sidebarPageState} label="Invest"     icon={TrendingUp}   onSelect={onSelectPage} expanded={expanded} />
-        <SidebarLink href="/komponenten" active={componentsActive} label="Komponenten" icon={Layers}      expanded={expanded} />
+<SidebarLink href="/komponenten" active={componentsActive} label="Komponenten" icon={Layers}      expanded={expanded} />
       </nav>
 
       <div className="mt-5 flex w-full flex-col items-center gap-3 px-2">
