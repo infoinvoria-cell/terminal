@@ -821,10 +821,10 @@ function GlobeCanvasComponent({
 
   const htmlLabelData = useMemo(() => {
     if (detailLevel === 1) {
-      return pointData.filter((d: any) => d.assetId === selectedAssetId || d.isCluster || d.isCrossEndpoint || d.kind === "event" || d.kind === "ship" || d.kind === "commodity");
+      return pointData.filter((d: any) => d.assetId === selectedAssetId || d.isCluster || d.isCrossEndpoint || d.kind === "event" || d.kind === "ship" || d.kind === "commodity" || d.kind === "signal");
     }
     if (detailLevel === 2) {
-      return pointData.filter((d: any) => d.assetId === selectedAssetId || d.isCrossEndpoint || !d.isCluster || d.kind === "event" || d.kind === "ship" || d.kind === "commodity" || d.kind === "region");
+      return pointData.filter((d: any) => d.assetId === selectedAssetId || d.isCrossEndpoint || !d.isCluster || d.kind === "event" || d.kind === "ship" || d.kind === "commodity" || d.kind === "region" || d.kind === "signal");
     }
     return pointData;
   }, [detailLevel, pointData, selectedAssetId]);
@@ -1492,6 +1492,28 @@ function GlobeCanvasComponent({
             el.style.borderRadius = "6px";
             el.style.background = d.id === hoveredPointId ? themeHoverBg : themeDefaultBg;
             el.style.border = d.id === hoveredPointId ? `1px solid ${themeHoverBorder}` : `1px solid ${themeDefaultBorder}`;
+            if (d.kind === "signal") {
+              const dot = document.createElement("span");
+              dot.style.display = "inline-block";
+              dot.style.width = "8px";
+              dot.style.height = "8px";
+              dot.style.borderRadius = "50%";
+              dot.style.background = String(d.color || "#D4AF37");
+              dot.style.boxShadow = `0 0 8px ${String(d.color || "#D4AF37")}`;
+              if (!d.signalInPosition) {
+                // PENDING → pulsing white
+                dot.style.animation = "clfSignalPulse 1.4s ease-in-out infinite";
+              }
+              el.appendChild(dot);
+              const tx = document.createElement("span");
+              tx.innerText = `${String(d.shortName || "")} ${String(d.signalDirection || "")}${d.signalPrice ? ` · ${d.signalPrice}` : ""}`.trim();
+              tx.style.fontSize = "9px";
+              tx.style.color = String(d.color || themeUiText);
+              tx.style.fontWeight = "700";
+              tx.style.whiteSpace = "nowrap";
+              el.appendChild(tx);
+              return el;
+            }
             if (d.kind === "event") {
               const icon = document.createElement("span");
               icon.innerText = d.isCluster ? `${d.clusterCount}x` : eventIcon(String(d.eventType || ""));

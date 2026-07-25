@@ -435,7 +435,10 @@ export interface MarkerPoint {
   aiScore: number;
   macroSensitivity: string;
   isCrossEndpoint?: boolean;
-  kind?: "asset" | "event" | "ship" | "commodity" | "region";
+  kind?: "asset" | "event" | "ship" | "commodity" | "region" | "signal";
+  signalDirection?: string;
+  signalInPosition?: boolean;
+  signalPrice?: string;
   eventType?: string;
   eventDate?: string;
   eventSeverity?: string;

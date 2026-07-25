@@ -557,6 +557,7 @@ export default function GlobeApp() {
   const [shippingDisruptionRoutes, setShippingDisruptionRoutes] = useState<OverlayRouteItem[]>([]);
   const [commodityStressRegions, setCommodityStressRegions] = useState<CommodityRegionItem[]>([]);
   const [newsHeatmapScores, setNewsHeatmapScores] = useState<Record<string, number>>({});
+  const [liveSignalItems, setLiveSignalItems] = useState<Array<{ symbol: string; direction: string; inPosition: boolean; strategyId: string | null }>>([]);
   const [regionHighlight, setRegionHighlight] = useState<AssetRegionHighlightResponse | null>(null);
   const [recentSignal, setRecentSignal] = useState<RecentSignal>(null);
   const [deferredSections, setDeferredSections] = useState<DeferredSections>({
@@ -1536,6 +1537,18 @@ export default function GlobeApp() {
           }
         }
       }
+      if (overlayState.liveSignals && isStale(overlayLastUpdatedAtRef.current.liveSignals, overlayCacheMs("liveSignals"))) {
+        withOverlayLoad("liveSignals", fetch("/api/signals/live")
+          .then((r) => r.ok ? r.json() : null)
+          .then((d: { items?: Array<{ symbol: string; direction: string; inPosition: boolean; strategyId: string | null }> } | null) => {
+            if (!d?.items) return;
+            setLiveSignalItems(d.items);
+            overlayLastUpdatedAtRef.current.liveSignals = Date.now();
+          }))
+          .catch(() => {
+            // no-op
+          });
+      }
       if (overlayState.newsHeatmap && isStale(overlayLastUpdatedAtRef.current.newsHeatmap, overlayCacheMs("newsHeatmap"))) {
         withOverlayLoad("newsHeatmap", fetch("/api/overlay/news_heatmap")
           .then((r) => r.ok ? r.json() : null)
@@ -1566,6 +1579,7 @@ export default function GlobeApp() {
     overlayState.earthquakes,
     overlayState.globalLiquidityMap,
     overlayState.globalRiskLayer,
+    overlayState.liveSignals,
     overlayState.newsHeatmap,
     overlayState.oilRoutes,
     overlayState.regionalAssetHighlight,
@@ -1718,12 +1732,61 @@ export default function GlobeApp() {
     }),
     [],
   );
+  const signalMarkers = useMemo(() => {
+    if (!overlayState.liveSignals || !liveSignalItems.length || !assets.length) return [] as MarkerPoint[];
+    const bySymbol = new Map<string, AssetItem>();
+    for (const a of assets) {
+      const tv = String(a.tvSource || "");
+      const sym = tv.includes(":") ? tv.split(":").pop()! : tv;
+      if (sym) bySymbol.set(sym.toUpperCase(), a);
+      if (a.symbol) bySymbol.set(String(a.symbol).toUpperCase(), a);
+    }
+    const out: MarkerPoint[] = [];
+    for (const sig of liveSignalItems) {
+      const asset = bySymbol.get(String(sig.symbol).toUpperCase());
+      if (!asset) continue;
+      const dir = sig.direction.toUpperCase();
+      const color = !sig.inPosition ? "#FFFFFF" : dir === "SHORT" ? "#FF3333" : "#D4AF37";
+      const price = globePrices[asset.id];
+      const priceStr = typeof price === "number" && Number.isFinite(price)
+        ? (price >= 1000 ? price.toLocaleString("en-US", { maximumFractionDigits: 0 }) : price.toFixed(2))
+        : "";
+      const dirLabel = dir === "SHORT" ? "SHORT" : dir === "LONG" ? "LONG" : "PENDING";
+      out.push({
+        id: `signal-${asset.id}`,
+        assetId: asset.id,
+        assetIds: [asset.id],
+        isCluster: false,
+        name: asset.name,
+        shortName: sig.symbol,
+        category: asset.category,
+        country: asset.country,
+        locationLabel: asset.country,
+        icon: asset.iconKey,
+        color,
+        lat: asset.lat,
+        lng: asset.lng,
+        label: `${sig.symbol} ${dirLabel}${priceStr ? ` · ${priceStr}` : ""}`,
+        clusterCount: 0,
+        aiScore: 0,
+        macroSensitivity: "",
+        kind: "signal",
+        signalDirection: dirLabel,
+        signalInPosition: sig.inPosition,
+        signalPrice: priceStr,
+        eventDescription: `${dirLabel}${sig.strategyId ? ` · ${sig.strategyId}` : ""}`,
+      } as MarkerPoint);
+    }
+    return out;
+  }, [overlayState.liveSignals, liveSignalItems, assets, globePrices]);
+
   const visibleMarkers = useMemo(
     () => {
       const base = overlayState.assets ? markers : [];
-      return overlayState.locations ? [...base, HQ_MARKER as never] : base;
+      const withHq = overlayState.locations ? [...base, HQ_MARKER as never] : base;
+      return signalMarkers.length ? [...withHq, ...(signalMarkers as never[])] : withHq;
     },
-    [markers, overlayState.assets, overlayState.locations, HQ_MARKER],
+    [markers, overlayState.assets, overlayState.locations, HQ_MARKER, signalMarkers],
   );
   const activeShipTracking = useMemo(
     () => (overlayState.shipTracking ? shipTracking : []),

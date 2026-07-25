@@ -6,6 +6,17 @@
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
+/* Globe live-signal pending pulse (imperative HTML markers) */
+@keyframes clfSignalPulse {
+  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 6px rgba(255,255,255,0.9); }
+  50% { opacity: 0.45; transform: scale(1.5); box-shadow: 0 0 14px rgba(255,255,255,0.6); }
+}
+/* Globe earthquake expanding ring (M>6) */
+@keyframes clfQuakeRing {
+  0% { transform: scale(0.6); opacity: 0.85; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
 /* ── PERMANENT SIDEBAR FIX ─────────────────────────────────────────────────
    Sidebar must always win against any canvas, WebGL, or overlay element.
    These rules are the single source of truth — do not remove them.
