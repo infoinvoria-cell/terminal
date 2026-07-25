@@ -55,36 +55,37 @@ export async function GET() {
   }
   const symbols = Object.keys(symbolToIds);
 
+  // Yahoo v8 chart per symbol — spark & v7/quote are blocked from shared edge
+  // IPs, but the v8 chart endpoint is reliable. Fetch each symbol in parallel.
+  async function fetchOne(sym: string): Promise<{ sym: string; price: number | null; prevClose: number | null }> {
+    try {
+      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=1d&interval=1d`;
+      const res = await fetch(url, {
+        headers: { "User-Agent": "Mozilla/5.0", Accept: "application/json" },
+        signal: AbortSignal.timeout ? AbortSignal.timeout(7000) : undefined,
+      });
+      if (!res.ok) return { sym, price: null, prevClose: null };
+      const data = await res.json() as {
+        chart?: { result?: Array<{ meta?: { regularMarketPrice?: number; chartPreviousClose?: number; previousClose?: number } }> };
+      };
+      const meta = data?.chart?.result?.[0]?.meta;
+      const price = typeof meta?.regularMarketPrice === "number" ? meta.regularMarketPrice : null;
+      const prevClose = typeof meta?.chartPreviousClose === "number" ? meta.chartPreviousClose
+        : typeof meta?.previousClose === "number" ? meta.previousClose : null;
+      return { sym, price, prevClose };
+    } catch {
+      return { sym, price: null, prevClose: null };
+    }
+  }
+
   try {
-    // Yahoo v8 spark: one request, many symbols. The v7 /quote endpoint is
-    // rate-limited/blocked from shared edge IPs; v8 spark/chart is reliable.
-    const url = `https://query1.finance.yahoo.com/v8/finance/spark?symbols=${symbols.map(encodeURIComponent).join(",")}&range=1d&interval=1d&indicators=close&includeTimestamps=false`;
-    const res = await fetch(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        Accept: "application/json",
-        Referer: "https://finance.yahoo.com/",
-      },
-      signal: AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined,
-    });
-    if (!res.ok) throw new Error(`Yahoo ${res.status}`);
-    // Spark returns a flat object keyed by symbol:
-    // { "GC=F": { close: [..], chartPreviousClose, previousClose }, ... }
-    const data = (await res.json()) as Record<string, {
-      symbol?: string;
-      close?: Array<number | null>;
-      chartPreviousClose?: number | null;
-      previousClose?: number | null;
-    }>;
+    const settled = await Promise.allSettled(symbols.map(fetchOne));
 
     const prices: Record<string, number | null> = {};
     const changes: Record<string, number | null> = {};
-    for (const [sym, entry] of Object.entries(data ?? {})) {
-      if (!entry || typeof entry !== "object") continue;
-      const closes = Array.isArray(entry.close) ? entry.close.filter((v): v is number => typeof v === "number" && Number.isFinite(v)) : [];
-      const price = closes.length ? closes[closes.length - 1] : null;
-      const prevClose = typeof entry.chartPreviousClose === "number" ? entry.chartPreviousClose
-        : typeof entry.previousClose === "number" ? entry.previousClose : null;
+    for (const s of settled) {
+      if (s.status !== "fulfilled") continue;
+      const { sym, price, prevClose } = s.value;
       const changePct = price != null && prevClose != null && prevClose !== 0
         ? ((price - prevClose) / prevClose) * 100 : null;
       for (const id of symbolToIds[sym] ?? []) {
