@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { TrendingUp, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import {
   WS_STRATEGIES, PILLAR_META, type StrategyRow, type Pillar,
   CI_STRATEGIES, CI_META, type CoreInvestRow, type CIPillar,
@@ -223,7 +223,7 @@ interface EP { time: string; value: number; }
 interface OhlcBar { time: string; open: number; high: number; low: number; close: number; }
 interface StrategyData {
   summary: { oos: { sharpe: number; cagr: number; maxDrawdownPercent: number; profitFactor: number; tradeCount: number; winRate: number; finalEquity: number } };
-  equityCurve: { oos: EP[] }; drawdownCurve: { oos: EP[] };
+  equityCurve: { oos: EP[]; full?: EP[]; is_?: EP[] }; drawdownCurve: { oos: EP[] };
 }
 
 // ── helpers ───────────────────────────────────────────────────────────────────
@@ -347,16 +347,26 @@ function LiveTimer({ secs, max }: { secs: number; max: number }) {
 
 // ── intraday equity data shape ────────────────────────────────────────────────
 interface IntradayCurvePoint { date: string; equity: number; }
+interface IntradayPeriodStats { cagr: number; maxDD: number; mar?: number; sharpe: number; pf: number; n: number; wr: number; }
 interface IntradayStrategy {
-  id: string; title: string;
-  oos: { curve: IntradayCurvePoint[]; stats: { cagr: number; maxDD: number; mar?: number; sharpe: number; pf: number; n: number; wr: number } };
+  id: string; title: string; timeframe?: string;
+  is?: { curve: IntradayCurvePoint[]; stats: IntradayPeriodStats };
+  oos: { curve: IntradayCurvePoint[]; stats: IntradayPeriodStats };
 }
 
+// ticker → correct OHLC timeframe for intraday strategies
+const TICKER_TF: Record<string, string> = {
+  "6E1!":        "30M",
+  "GBPUSD 30M":  "30M",
+  "DAX 1H / MT": "1H",
+  "DAX 2H":      "2H",
+};
+
 // ── candle chart — price line, auto-refresh, signal overlay ──────────────────
-function CandleChart({ ticker, refreshSecs = 30 }: { ticker: string; refreshSecs?: number }) {
+function CandleChart({ ticker, timeframe = "1D", refreshSecs = 30 }: { ticker: string; timeframe?: string; refreshSecs?: number }) {
   const ref  = useRef<HTMLDivElement>(null);
   const sym  = toOhlcSymbol(ticker);
-  const cacheKey = sym + ":1D";
+  const cacheKey = sym + ":" + timeframe;
 
   // seed from cache for instant display, then refresh in background
   const cached = OHLC_CACHE.get(cacheKey);
@@ -368,7 +378,7 @@ function CandleChart({ ticker, refreshSecs = 30 }: { ticker: string; refreshSecs
   useEffect(() => {
     const symEnc = encodeURIComponent(sym);
     fetchBars.current = () => {
-      fetch(`/api/monitoring/ohlc?symbol=${symEnc}&timeframe=1D`)
+      fetch(`/api/monitoring/ohlc?symbol=${symEnc}&timeframe=${timeframe}`)
         .then(r => r.json())
         .then(d => {
           const b: OhlcBar[] = Array.isArray(d.bars) && d.bars.length ? d.bars : [];
@@ -443,9 +453,8 @@ function CandleChart({ ticker, refreshSecs = 30 }: { ticker: string; refreshSecs
         priceLineVisible: false, lastValueVisible: false,
       });
 
-      // filter to 2019+; remove flat placeholder bars and statistical outliers
+      // remove flat placeholder bars (zero-range) and statistical outliers
       const pre = bars.filter((b: OhlcBar) =>
-        b.time >= "2019-01-01" &&
         (b.high - b.low) / Math.max(b.close, 0.0001) > 0.0002
       );
       // IQR outlier removal: drop bars where single-day price move >40% (rollover artifact)
@@ -528,17 +537,19 @@ const AXIS_TICK = { fill: "rgba(255,255,255,0.28)", fontSize: 8, fontFamily: "va
 const TOOLTIP_STYLE = { background: "#1c1d20", border: `1px solid ${CBORD}`, borderRadius: 8, fontSize: 10, fontFamily: "var(--font-montserrat),sans-serif", color: "#fff" };
 const CURSOR_STYLE  = { stroke: "rgba(255,255,255,0.22)", strokeWidth: 1, strokeDasharray: "3 3" };
 
-function EqChart({ pts, label, syncId }: { pts: EP[]; label: string; syncId: string }) {
+const REF_LINE_STYLE = { stroke: "rgba(255,255,255,0.28)", strokeDasharray: "4 3", strokeWidth: 1 };
+
+function EqChart({ pts, label, syncId, oosStart }: { pts: EP[]; label: string; syncId: string; oosStart?: string }) {
   const d = pts.map(p => ({ t: p.time.slice(0, 7), v: Math.round(p.value * 100) / 100 }));
   const vals = d.map(p => p.v);
   const mn = Math.min(...vals); const mx = Math.max(...vals);
+  const oosKey = oosStart ? oosStart.slice(0, 7) : undefined;
   return (
     <div style={{ marginBottom: 0 }}>
       <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 2, paddingLeft: Y_WIDTH + 2 }}>{label}</div>
       <ResponsiveContainer width="100%" height={95}>
         <AreaChart data={d} margin={CHART_M} syncId={syncId}>
           <defs><linearGradient id="eqg2" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#fff" stopOpacity={0.13}/><stop offset="95%" stopColor="#fff" stopOpacity={0.01}/></linearGradient></defs>
-          {/* No XAxis here — shared with DdChart below */}
           <YAxis tick={AXIS_TICK} tickLine={false} axisLine={false} width={Y_WIDTH}
             orientation="left" domain={[mn * 0.995, mx * 1.005]}
             tickFormatter={(v: number) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : `${v.toFixed(0)}`} />
@@ -547,16 +558,18 @@ function EqChart({ pts, label, syncId }: { pts: EP[]; label: string; syncId: str
             formatter={(v: any) => [`$${Number(v ?? 0).toLocaleString("de", { maximumFractionDigits: 0 })}`, "Equity"]}
             cursor={CURSOR_STYLE} />
           <Area type="monotone" dataKey="v" stroke="#fff" strokeWidth={1.5} strokeOpacity={0.75} fill="url(#eqg2)" dot={false} activeDot={{ r: 3, fill: "#fff", strokeWidth: 0 }} />
+          {oosKey && <ReferenceLine x={oosKey} {...REF_LINE_STYLE} label={{ value: "OOS", position: "insideTopRight", fill: "rgba(255,255,255,0.35)", fontSize: 8, fontFamily: "var(--font-montserrat),sans-serif" }} />}
         </AreaChart>
       </ResponsiveContainer>
     </div>
   );
 }
 
-function DdChart({ pts, syncId }: { pts: EP[]; syncId: string }) {
+function DdChart({ pts, syncId, oosStart }: { pts: EP[]; syncId: string; oosStart?: string }) {
   const d = pts.map(p => ({ t: p.time.slice(0, 7), v: Math.round(p.value * 100) / 100 }));
   const vals = d.map(p => p.v);
-  const mn = Math.min(...vals, -0.01); // always at least -0.01 so domain is valid
+  const mn = Math.min(...vals, -0.01);
+  const oosKey = oosStart ? oosStart.slice(0, 7) : undefined;
   return (
     <div style={{ marginTop: 0 }}>
       <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 2, paddingLeft: Y_WIDTH + 2 }}>Drawdown</div>
@@ -572,6 +585,7 @@ function DdChart({ pts, syncId }: { pts: EP[]; syncId: string }) {
             formatter={(v: any) => [`${Number(v ?? 0).toFixed(2)}%`, "DD"]}
             cursor={CURSOR_STYLE} />
           <Area type="monotone" dataKey="v" stroke={GOLD} strokeWidth={1.5} fill="url(#ddg2)" dot={false} activeDot={{ r: 3, fill: GOLD, strokeWidth: 0 }} />
+          {oosKey && <ReferenceLine x={oosKey} {...REF_LINE_STYLE} />}
         </AreaChart>
       </ResponsiveContainer>
     </div>
@@ -631,8 +645,8 @@ function pillarDescription(pillar: string): string {
 }
 
 function dataRangeLabel(pillar: string, intradayId?: string): string {
-  if (intradayId) return "OOS: Dez 2017 – laufend (live)";
-  if (pillar === "anomaly") return "OOS: Jan 2019 – laufend (live)";
+  if (intradayId) return "IS: 2006 – 2017 · OOS: Dez 2017 – laufend (live)";
+  if (pillar === "anomaly") return "IS+OOS: Jan 2003 – laufend (live)";
   return "OOS: Jan 2019 – Jun 2026";
 }
 
@@ -686,19 +700,36 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
   }, [row.intradayId, row.dataFile]);
 
   const eqOos = data?.equityCurve?.oos;
+  const eqFull = data?.equityCurve?.full;
   const ddOos = data?.drawdownCurve?.oos;
   const oos   = data?.summary?.oos;
 
-  const intradayEq: EP[] | null = intraday?.oos?.curve?.length
-    ? intraday.oos.curve.map(p => ({ time: p.date + "-01", value: p.equity }))
-    : null;
+  // intraday: combine IS + OOS for full history
+  const intradayFull: EP[] | null = (() => {
+    if (!intraday) return null;
+    const isC  = (intraday.is?.curve  ?? []).map(p => ({ time: p.date + "-01", value: p.equity }));
+    const oosC = (intraday.oos?.curve ?? []).map(p => ({ time: p.date + "-01", value: p.equity }));
+    const combined = [...isC, ...oosC];
+    return combined.length ? combined : null;
+  })();
   const ist = intraday?.oos?.stats;
 
+  // OOS boundary date for vertical line
+  const oosStart: string | undefined = (() => {
+    if (eqFull?.length && eqOos?.length) return eqOos[0]?.time;             // anomaly: first OOS point
+    if (intraday?.oos?.curve?.length)    return intraday.oos.curve[0]!.date + "-01"; // intraday OOS start
+    return undefined;
+  })();
+
+  // correct candle timeframe per ticker
+  const candleTf = TICKER_TF[row.ticker] ?? "1D";
+
   // always provide synthetic curves as fallback for missing pieces
-  const hasRealEq = (eqOos?.length ?? 0) > 0 || (codexEq?.length ?? 0) > 0 || (intradayEq?.length ?? 0) > 0;
+  const hasRealEq = (eqFull?.length ?? 0) > 0 || (eqOos?.length ?? 0) > 0 || (codexEq?.length ?? 0) > 0 || (intradayFull?.length ?? 0) > 0;
   const synthAll  = syntheticCurves(row.cagr, row.maxDd);
 
-  const activeEq: EP[] = eqOos?.length ? eqOos : intradayEq?.length ? intradayEq : codexEq?.length ? codexEq : synthAll?.eq ?? [];
+  // priority: anomaly full > intraday full > OOS only > codex > synthetic
+  const activeEq: EP[] = eqFull?.length ? eqFull : intradayFull?.length ? intradayFull : eqOos?.length ? eqOos : codexEq?.length ? codexEq : synthAll?.eq ?? [];
 
   // drawdown always computed FROM activeEq — guarantees same point count & X alignment
   const activeDd: EP[] = (() => {
@@ -801,15 +832,15 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
           {/* Left: candle chart */}
           <div>
             <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 6 }}>
-              OHLC · {row.ticker} · Daily · {isRealtime ? "5s" : "30s"} Refresh
+              OHLC · {row.ticker} · {candleTf} · {isRealtime ? "5s" : "30s"} Refresh
             </div>
-            <CandleChart ticker={row.ticker} refreshSecs={refreshSecs} />
+            <CandleChart ticker={row.ticker} timeframe={candleTf} refreshSecs={refreshSecs} />
           </div>
           {/* Right: equity + drawdown (always) + KPI row */}
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {activeEq.length > 0 && <EqChart pts={activeEq} label={eqLabel} syncId={SYNC_ID_PREFIX + row.id} />}
+            {activeEq.length > 0 && <EqChart pts={activeEq} label={eqLabel} syncId={SYNC_ID_PREFIX + row.id} oosStart={oosStart} />}
             {/* Drawdown always rendered, same syncId for aligned crosshair */}
-            {activeDd.length > 0 && <DdChart pts={activeDd} syncId={SYNC_ID_PREFIX + row.id} />}
+            {activeDd.length > 0 && <DdChart pts={activeDd} syncId={SYNC_ID_PREFIX + row.id} oosStart={oosStart} />}
             {/* KPI cards + "Mehr anzeigen" button */}
             <div style={{ display: "flex", flexWrap: "nowrap" as const, gap: 5, marginTop: 2 }}>
               {kpis.map(k => <EKpi key={k.label} label={k.label} value={k.value} />)}
