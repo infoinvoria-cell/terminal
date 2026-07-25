@@ -238,6 +238,18 @@ function overlayDetailLevel(altitude: number): 1 | 2 | 3 {
   return 3;
 }
 
+// Financial centers — shown as labels when zoomed in (Palantir-style city detail)
+const FINANCIAL_CENTERS: Array<{ name: string; lat: number; lng: number }> = [
+  { name: "New York", lat: 40.71, lng: -74.01 },
+  { name: "Chicago", lat: 41.88, lng: -87.63 },
+  { name: "London", lat: 51.51, lng: -0.13 },
+  { name: "Frankfurt", lat: 50.11, lng: 8.68 },
+  { name: "Zürich", lat: 47.37, lng: 8.54 },
+  { name: "Tokyo", lat: 35.68, lng: 139.69 },
+  { name: "Hong Kong", lat: 22.32, lng: 114.17 },
+  { name: "Singapore", lat: 1.35, lng: 103.82 },
+];
+
 function clamp01(value: number): number {
   return Math.max(0, Math.min(1, Number(value) || 0));
 }
@@ -819,15 +831,27 @@ function GlobeCanvasComponent({
     [markers, crossEndpointMarkers, geoEventPoints, shipPoints, commodityPoints, regionOverlayPoints],
   );
 
+  const cityLabels = useMemo(() => {
+    if (detailLevel < 2) return [] as any[];
+    return FINANCIAL_CENTERS.map((c) => ({
+      id: `city-${c.name}`,
+      kind: "city",
+      lat: c.lat,
+      lng: c.lng,
+      name: c.name,
+      color: "#D4AF37",
+    }));
+  }, [detailLevel]);
+
   const htmlLabelData = useMemo(() => {
     if (detailLevel === 1) {
       return pointData.filter((d: any) => d.assetId === selectedAssetId || d.isCluster || d.isCrossEndpoint || d.kind === "event" || d.kind === "ship" || d.kind === "commodity" || d.kind === "signal");
     }
     if (detailLevel === 2) {
-      return pointData.filter((d: any) => d.assetId === selectedAssetId || d.isCrossEndpoint || !d.isCluster || d.kind === "event" || d.kind === "ship" || d.kind === "commodity" || d.kind === "region" || d.kind === "signal");
+      return [...pointData.filter((d: any) => d.assetId === selectedAssetId || d.isCrossEndpoint || !d.isCluster || d.kind === "event" || d.kind === "ship" || d.kind === "commodity" || d.kind === "region" || d.kind === "signal"), ...cityLabels];
     }
-    return pointData;
-  }, [detailLevel, pointData, selectedAssetId]);
+    return [...pointData, ...cityLabels];
+  }, [detailLevel, pointData, selectedAssetId, cityLabels]);
 
   const crossArcs = useMemo(
     () =>
@@ -1492,6 +1516,27 @@ function GlobeCanvasComponent({
             el.style.borderRadius = "6px";
             el.style.background = d.id === hoveredPointId ? themeHoverBg : themeDefaultBg;
             el.style.border = d.id === hoveredPointId ? `1px solid ${themeHoverBorder}` : `1px solid ${themeDefaultBorder}`;
+            if (d.kind === "city") {
+              el.style.background = "transparent";
+              el.style.border = "none";
+              el.style.opacity = "0.72";
+              const dot = document.createElement("span");
+              dot.style.display = "inline-block";
+              dot.style.width = "3px";
+              dot.style.height = "3px";
+              dot.style.borderRadius = "50%";
+              dot.style.background = "#D4AF37";
+              el.appendChild(dot);
+              const tx = document.createElement("span");
+              tx.innerText = String(d.name || "").toUpperCase();
+              tx.style.fontSize = "8px";
+              tx.style.letterSpacing = "0.08em";
+              tx.style.color = "#D4AF37";
+              tx.style.fontWeight = "600";
+              tx.style.whiteSpace = "nowrap";
+              el.appendChild(tx);
+              return el;
+            }
             if (d.kind === "signal") {
               const dot = document.createElement("span");
               dot.style.display = "inline-block";
