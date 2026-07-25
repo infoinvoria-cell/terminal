@@ -31,6 +31,26 @@ import type {
 
 const cache = new Map<string, { expires: number; value: unknown }>();
 const inflightRequests = new Map<string, Promise<unknown>>();
+
+// Persistent localStorage cache (survives reloads) — SSR & quota safe
+const LS_PREFIX = "clf_api_cache:";
+function lsGet(url: string, now: number): unknown | undefined {
+  if (typeof window === "undefined") return undefined;
+  try {
+    const raw = window.localStorage.getItem(LS_PREFIX + url);
+    if (!raw) return undefined;
+    const row = JSON.parse(raw) as { expires: number; value: unknown };
+    if (row && typeof row.expires === "number" && row.expires > now) return row.value;
+    window.localStorage.removeItem(LS_PREFIX + url);
+  } catch { /* ignore */ }
+  return undefined;
+}
+function lsSet(url: string, value: unknown, expires: number): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(LS_PREFIX + url, JSON.stringify({ expires, value }));
+  } catch { /* quota / serialization — ignore */ }
+}
 const loadingLabels = new Map<number, string>();
 const loadingListeners = new Set<(state: ApiLoadingSnapshot) => void>();
 let loadingRequestSeq = 0;
@@ -179,18 +199,22 @@ async function fetchJson<T>(url: string, ttlMs: number, options?: FetchJsonOptio
   if (hit && hit.expires > now) {
     return hit.value as T;
   }
+  // Persistent cache hit → hydrate in-memory and return (fast reloads)
+  const persisted = lsGet(url, now);
+  if (persisted !== undefined) {
+    cache.set(url, { expires: now + Math.min(ttlMs, 60_000), value: persisted });
+    return persisted as T;
+  }
   const inflight = inflightRequests.get(url);
   if (inflight) {
     return inflight as Promise<T>;
   }
   const endLoading = beginLoading(url);
   const request = (async () => {
-    console.log("FETCH START", url);
     let res: Response;
     try {
       res = await fetch(url);
     } catch (err) {
-      console.error("FETCH ERROR", url, err);
       logApiFetchFailed(url, err, { phase: "network" });
       if (!required && fallback !== undefined) {
         return fallback;
@@ -205,7 +229,6 @@ async function fetchJson<T>(url: string, ttlMs: number, options?: FetchJsonOptio
       }
       throw err;
     }
-    console.log("FETCH RESPONSE", url, res.status, res.statusText);
     if (!res.ok) {
       let text = "";
       try {
@@ -232,6 +255,7 @@ async function fetchJson<T>(url: string, ttlMs: number, options?: FetchJsonOptio
       throw parseErr;
     }
     cache.set(url, { expires: now + ttlMs, value: parsed });
+    lsSet(url, parsed, now + ttlMs);
     return parsed;
   })()
     .finally(() => {
