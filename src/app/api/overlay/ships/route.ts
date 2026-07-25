@@ -25,7 +25,9 @@ function classifyType(name: string): string {
   return "vessel";
 }
 
-async function collectShips(key: string, budgetMs = 4500, maxShips = 250): Promise<ShipTrackingItem[]> {
+const diag: { opened: boolean; error: string; firstMsg: string } = { opened: false, error: "", firstMsg: "" };
+
+async function collectShips(key: string, budgetMs = 5500, maxShips = 250): Promise<ShipTrackingItem[]> {
   return new Promise((resolve) => {
     const byMmsi = new Map<number, ShipTrackingItem>();
     let settled = false;
@@ -39,21 +41,24 @@ async function collectShips(key: string, budgetMs = 4500, maxShips = 250): Promi
     const timer = setTimeout(done, budgetMs);
     try {
       ws = new WebSocket("wss://stream.aisstream.io/v0/stream");
-    } catch {
+    } catch (e) {
+      diag.error = `ctor:${String((e as Error)?.message ?? e)}`;
       clearTimeout(timer);
       resolve([]);
       return;
     }
     ws.onopen = () => {
+      diag.opened = true;
       ws.send(JSON.stringify({
         APIKey: key,
         BoundingBoxes: [[[-90, -180], [90, 180]]],
-        FilterMessageTypes: ["PositionReport"],
       }));
     };
     ws.onmessage = (ev: MessageEvent) => {
       try {
-        const data = JSON.parse(typeof ev.data === "string" ? ev.data : String(ev.data)) as AisMessage;
+        const rawStr = typeof ev.data === "string" ? ev.data : String(ev.data);
+        if (!diag.firstMsg) diag.firstMsg = rawStr.slice(0, 200);
+        const data = JSON.parse(rawStr) as AisMessage;
         if (data.MessageType !== "PositionReport") return;
         const meta = data.MetaData ?? {};
         const pr = data.Message?.PositionReport ?? {};
@@ -76,7 +81,7 @@ async function collectShips(key: string, budgetMs = 4500, maxShips = 250): Promi
         if (byMmsi.size >= maxShips) { clearTimeout(timer); done(); }
       } catch { /* ignore malformed */ }
     };
-    ws.onerror = () => { clearTimeout(timer); done(); };
+    ws.onerror = (e: Event) => { diag.error = `ws:${String((e as unknown as { message?: string })?.message ?? "error")}`; clearTimeout(timer); done(); };
     ws.onclose = () => { clearTimeout(timer); done(); };
   });
 }
@@ -92,8 +97,8 @@ export async function GET() {
   try {
     const items = await collectShips(AIS_KEY);
     return NextResponse.json(
-      { updatedAt: new Date().toISOString(), items } satisfies ShipTrackingResponse,
-      { headers: { "Cache-Control": "public, max-age=120, stale-while-revalidate=300" } },
+      { updatedAt: new Date().toISOString(), items, _diag: diag } as ShipTrackingResponse & { _diag: unknown },
+      { headers: { "Cache-Control": "no-store" } },
     );
   } catch {
     return NextResponse.json(
