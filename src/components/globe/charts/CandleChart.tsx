@@ -481,6 +481,9 @@ function mergeTimeseriesPayload(
   };
 }
 
+const EMPTY_TRADE_OVERLAYS: NonNullable<Props["tradeOverlays"]> = [];
+const EMPTY_TRADE_MARKERS: NonNullable<Props["tradeMarkers"]> = [];
+
 function CandleChartInner({
   payload,
   evaluation = null,
@@ -513,8 +516,8 @@ function CandleChartInner({
   emphasizeZones = false,
   zoneVisibility,
   disableZoneDedupe = false,
-  tradeOverlays = [],
-  tradeMarkers = [],
+  tradeOverlays = EMPTY_TRADE_OVERLAYS,
+  tradeMarkers = EMPTY_TRADE_MARKERS,
 }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const overlayCanvasRef = useRef<HTMLCanvasElement | null>(null);
