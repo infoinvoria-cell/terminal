@@ -279,13 +279,36 @@ export function SeasonalResearchDashboard({ onSwitchToLegacy: _unused }: Props) 
         if (cache.patternIndex && !cache.patternIndex.error && cache.patternIndex.winrateBars) {
           setPatternData(cache.patternIndex);
           setTodaySlot(cache.patternIndex.todaySlot);
+          seasonalWorkspaceViewCache.set(cacheKey, {
+            chartResult: cache.seasonalCurve?.points ? cache.seasonalCurve : null,
+            patternData: cache.patternIndex,
+            todaySlot: cache.patternIndex.todaySlot ?? null,
+          });
+          return; // Full cache hit — chart + patterns done
         }
-        seasonalWorkspaceViewCache.set(cacheKey, {
-          chartResult: cache.seasonalCurve?.points ? cache.seasonalCurve : null,
-          patternData: cache.patternIndex && !cache.patternIndex.error && cache.patternIndex.winrateBars ? cache.patternIndex : null,
-          todaySlot: cache.patternIndex?.todaySlot ?? null,
-        });
-        return; // Cache handled everything
+
+        // Chart from cache but no pattern data — fetch patterns live (static cache has patternIndex: null)
+        if (cache.seasonalCurve?.points) {
+          const patternRes = await fetch("/api/seasonality/walk-forward", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "loadPatternData", assetId: aid, lookbackYears: lookback }),
+          });
+          const patternData2 = await safeJson<Partial<PatternDataResult & { error?: string }>>(patternRes, {});
+          const nextPatternData = patternData2 && !patternData2.error && patternData2.winrateBars
+            ? patternData2 as PatternDataResult
+            : null;
+          if (nextPatternData) {
+            setPatternData(nextPatternData);
+            setTodaySlot(nextPatternData.todaySlot);
+          }
+          seasonalWorkspaceViewCache.set(cacheKey, {
+            chartResult: cache.seasonalCurve,
+            patternData: nextPatternData,
+            todaySlot: nextPatternData?.todaySlot ?? null,
+          });
+          return;
+        }
       }
 
       // Cache miss — fall back to individual API calls (cache needs to be built)
