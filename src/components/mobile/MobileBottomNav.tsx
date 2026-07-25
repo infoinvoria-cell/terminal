@@ -152,9 +152,10 @@ const SIDEBAR_GROUPS = [
   {
     label: "Tools",
     items: [
-      { href: "/m/signale",    label: "Signale",     Icon: IconBellRing },
-      { href: "/m/monitoring", label: "Monitoring",  Icon: IconActivity },
-      { href: "/m/analytics",  label: "Analytics",   Icon: IconChartColumn },
+      { href: "/m/signale",       label: "Signale",       Icon: IconBellRing },
+      { href: "/m/monitoring",    label: "Monitoring",    Icon: IconActivity },
+      { href: "/m/analytics",     label: "Analytics",     Icon: IconChartColumn },
+      { href: "/m/komponenten",   label: "Komponenten",   Icon: IconPackage },
     ],
   },
   {
