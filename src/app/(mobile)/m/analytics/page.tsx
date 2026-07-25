@@ -8,10 +8,8 @@ export default async function MobileAnalyticsPage() {
   const data = await getDashboardPageData();
   return (
     <MobileAnalyticsView
-      universal={data.universal}
-      kpis={data.portfolioKpisBaseline}
-      trades={data.serialized}
       capalifeData={data.capalifeData}
+      fsportfolio={data.fsportfolio}
     />
   );
 }
