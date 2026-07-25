@@ -1,4 +1,4 @@
-﻿import { getDashboardPageData } from "@/lib/dashboard/dashboard-page-data";
+﻿import { getDashboardPageData } from "@/lib/dashboard/dashboard-page-data-cloud";
 import { MobileHomeView } from "@/components/mobile/home/MobileHomeView";
 
 
@@ -24,4 +24,5 @@ export default async function MobileHomePage() {
     />
   );
 }
+
 

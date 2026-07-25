@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Montserrat, Nunito } from "next/font/google";
-import { cookies } from "next/headers";
 import { ClientProviders } from "@/components/providers";
 
 import IntroAnimation from "@/components/intro/IntroAnimation";
@@ -36,14 +35,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const initialHeaderHidden = cookieStore.get("fmd_header_hidden")?.value !== "0";
-
   return (
     <html
       lang="en"
@@ -53,7 +49,7 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{__html: `try{var h=localStorage.getItem('fmd_header_hidden');if(h==='1'||h==='true')document.documentElement.style.setProperty('--header-height','0px')}catch(e){}`}} />
         <MobileRedirect />
         <IntroAnimation />
-        <ClientProviders initialHeaderHidden={initialHeaderHidden}>
+        <ClientProviders initialHeaderHidden={true}>
           {children}
         </ClientProviders>
       </body>
