@@ -164,7 +164,7 @@ const SIDEBAR_GROUPS = [
       { href: "/m/manager",        label: "Manager",    Icon: IconBriefcase },
       { href: "/m/investors-crm",  label: "Investoren", Icon: IconPieChart },
       { href: "/m/onboarding",     label: "Onboarding", Icon: IconUsers },
-      { href: "/vermittler",       label: "Vermittler", Icon: IconNetwork },
+      { href: "/m/vermittler",     label: "Vermittler", Icon: IconNetwork },
     ],
   },
 ];
