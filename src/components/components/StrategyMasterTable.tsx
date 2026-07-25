@@ -110,18 +110,19 @@ type OhlcCacheEntry = { bars: OhlcBar[]; ts: number };
 const OHLC_CACHE = new Map<string, OhlcCacheEntry>();
 const OHLC_CACHE_TTL = 60_000; // 60s before background refresh
 
-// approximate data-start year per ticker (for Von column)
+// known data-start dates per ticker (DD.MM.YYYY format for Von column)
 const TICKER_VON: Record<string, string> = {
-  "CT1!": "1970", "ZC1!": "1970", "SB1!": "1970", "OJ1!": "1970",
-  "ZW1!": "1970", "ZS1!": "1970", "CC1!": "1970", "KC1!": "1970",
-  "GC1!": "1975", "SI1!": "1975", "HG1!": "1988",
-  "CL1!": "1983", "NG1!": "1991",
-  "ES1!": "1993", "NQ1!": "1996", "YM1!": "1997",
-  "FDAX1!": "2000", "UKX!": "2001",
-  "6E1!": "2003", "6B1!": "2003", "6S1!": "2003", "6J1!": "2003",
-  "GOOGL": "2004", "AAPL": "2004", "MSFT": "1990", "NVDA": "2000",
-  "META": "2012", "AMZN": "2001",
-  "QQQ": "1999", "SPY": "1993", "GLD": "2004",
+  "CT1!": "01.01.1970", "ZC1!": "01.01.1970", "SB1!": "01.01.1970", "OJ1!": "01.01.1970",
+  "ZW1!": "01.01.1970", "ZS1!": "01.01.1970", "CC1!": "01.01.1970", "KC1!": "01.01.1970",
+  "GC1!": "01.01.1975", "SI1!": "01.01.1975", "HG1!": "01.01.1988",
+  "CL1!": "01.01.1983", "NG1!": "01.01.1991",
+  "ES1!": "01.01.1993", "NQ1!": "01.01.1996", "YM1!": "01.01.1997",
+  "FDAX1!": "01.01.2000", "UKX!": "01.01.2001",
+  "6E1!": "13.01.2003", "6B1!": "01.01.2003", "6S1!": "01.01.2003", "6J1!": "01.01.2003",
+  "GOOGL": "19.08.2004", "AAPL": "12.12.1980", "MSFT": "13.03.1986", "NVDA": "22.01.1999",
+  "META": "18.05.2012", "AMZN": "15.05.1997",
+  "QQQ": "10.03.1999", "SPY": "22.01.1993", "GLD": "18.11.2004",
+  "ZARUSD": "01.01.2003", "SEKUSD": "01.01.2003", "BRLUSD": "01.01.2003",
 };
 
 // ── live feed ─────────────────────────────────────────────────────────────────
@@ -204,8 +205,8 @@ function estimateVon(item: LiveFeedItem, ticker?: string): string {
   if (ticker) {
     const sym = toOhlcSymbol(ticker);
     const cached = OHLC_CACHE.get(sym + ":1D");
-    if (cached?.bars?.length) return cached.bars[0].time.slice(0, 4); // year only
-    // known static lookup
+    if (cached?.bars?.length) return fmtDate(cached.bars[0].time); // full DD.MM.YYYY
+    // known static lookup (already DD.MM.YYYY)
     const von = TICKER_VON[sym] ?? TICKER_VON[ticker.split(" ")[0]] ?? null;
     if (von) return von;
   }
@@ -507,39 +508,58 @@ function CandleChart({ ticker, refreshSecs = 30 }: { ticker: string; refreshSecs
   return <div ref={ref} style={{ width: "100%", height: 280, borderRadius: 6, overflow: "hidden", background: BG }} />;
 }
 
-// ── equity / drawdown charts ──────────────────────────────────────────────────
-function EqChart({ pts, label }: { pts: EP[]; label: string }) {
+// ── equity / drawdown charts — synchronized crosshair via syncId ──────────────
+const SYNC_ID_PREFIX = "eq-dd-"; // unique per row via rowId prop
+
+const CHART_MARGIN = { top: 4, right: 38, bottom: 0, left: 38 };
+const AXIS_TICK = { fill: "rgba(255,255,255,0.28)", fontSize: 8, fontFamily: "var(--font-montserrat),sans-serif" };
+
+function EqChart({ pts, label, syncId }: { pts: EP[]; label: string; syncId: string }) {
   const d = pts.map(p => ({ t: p.time.slice(0, 7), v: Math.round(p.value * 100) / 100 }));
+  const vals = d.map(p => p.v);
+  const mn = Math.min(...vals);
+  const mx = Math.max(...vals);
   return (
     <div>
-      <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 5 }}>{label}</div>
-      <ResponsiveContainer width="100%" height={90}>
-        <AreaChart data={d} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
-          <defs><linearGradient id="eqg2" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#fff" stopOpacity={0.12} /><stop offset="95%" stopColor="#fff" stopOpacity={0.01} /></linearGradient></defs>
-          <XAxis dataKey="t" hide /><YAxis hide domain={["auto", "auto"]} />
+      <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 3 }}>{label}</div>
+      <ResponsiveContainer width="100%" height={95}>
+        <AreaChart data={d} margin={CHART_MARGIN} syncId={syncId}>
+          <defs><linearGradient id="eqg2" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#fff" stopOpacity={0.13} /><stop offset="95%" stopColor="#fff" stopOpacity={0.01} /></linearGradient></defs>
+          <XAxis dataKey="t" tick={AXIS_TICK} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+          <YAxis tick={AXIS_TICK} tickLine={false} axisLine={false} width={36}
+            domain={[mn * 0.995, mx * 1.005]}
+            tickFormatter={(v: number) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : `${v.toFixed(0)}`} />
           <Tooltip contentStyle={{ background: "#1c1d20", border: `1px solid ${CBORD}`, borderRadius: 8, fontSize: 10, fontFamily: "var(--font-montserrat),sans-serif", color: "#fff" }}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            formatter={(v: any) => [`$${Number(v ?? 0).toLocaleString("de", { maximumFractionDigits: 0 })}`, "Equity"]} />
-          <Area type="monotone" dataKey="v" stroke="#fff" strokeWidth={1.5} strokeOpacity={0.6} fill="url(#eqg2)" dot={false} />
+            formatter={(v: any) => [`$${Number(v ?? 0).toLocaleString("de", { maximumFractionDigits: 0 })}`, "Equity"]}
+            cursor={{ stroke: "rgba(255,255,255,0.25)", strokeWidth: 1, strokeDasharray: "3 3" }} />
+          <Area type="monotone" dataKey="v" stroke="#fff" strokeWidth={1.5} strokeOpacity={0.7} fill="url(#eqg2)" dot={false} activeDot={{ r: 3, fill: "#fff", strokeWidth: 0 }} />
         </AreaChart>
       </ResponsiveContainer>
     </div>
   );
 }
 
-function DdChart({ pts }: { pts: EP[] }) {
+function DdChart({ pts, syncId }: { pts: EP[]; syncId: string }) {
   const d = pts.map(p => ({ t: p.time.slice(0, 7), v: Math.round(p.value * 100) / 100 }));
+  const vals = d.map(p => p.v);
+  const mn = Math.min(...vals);
+  const mx = Math.max(...vals);
   return (
     <div>
-      <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 5 }}>Drawdown</div>
-      <ResponsiveContainer width="100%" height={65}>
-        <AreaChart data={d} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
-          <defs><linearGradient id="ddg2" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={GOLD} stopOpacity={0.25} /><stop offset="95%" stopColor={GOLD} stopOpacity={0.02} /></linearGradient></defs>
-          <XAxis dataKey="t" hide /><YAxis hide />
+      <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 3 }}>Drawdown</div>
+      <ResponsiveContainer width="100%" height={70}>
+        <AreaChart data={d} margin={CHART_MARGIN} syncId={syncId}>
+          <defs><linearGradient id="ddg2" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={GOLD} stopOpacity={0.28} /><stop offset="95%" stopColor={GOLD} stopOpacity={0.02} /></linearGradient></defs>
+          <XAxis dataKey="t" tick={AXIS_TICK} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+          <YAxis tick={AXIS_TICK} tickLine={false} axisLine={false} width={36}
+            domain={[mn * 1.05, 0]}
+            tickFormatter={(v: number) => `${v.toFixed(0)}%`} />
           <Tooltip contentStyle={{ background: "#1c1d20", border: `1px solid ${CBORD}`, borderRadius: 8, fontSize: 10, fontFamily: "var(--font-montserrat),sans-serif", color: "#fff" }}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            formatter={(v: any) => [`${Number(v ?? 0).toFixed(2)}%`, "DD"]} />
-          <Area type="monotone" dataKey="v" stroke={GOLD} strokeWidth={1.5} fill="url(#ddg2)" dot={false} />
+            formatter={(v: any) => [`${Number(v ?? 0).toFixed(2)}%`, "DD"]}
+            cursor={{ stroke: "rgba(255,255,255,0.25)", strokeWidth: 1, strokeDasharray: "3 3" }} />
+          <Area type="monotone" dataKey="v" stroke={GOLD} strokeWidth={1.5} fill="url(#ddg2)" dot={false} activeDot={{ r: 3, fill: GOLD, strokeWidth: 0 }} />
         </AreaChart>
       </ResponsiveContainer>
     </div>
@@ -765,9 +785,9 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
           </div>
           {/* Right: equity + drawdown (always) + KPI row */}
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {activeEq.length > 0 && <EqChart pts={activeEq} label={eqLabel} />}
-            {/* Drawdown always rendered */}
-            {activeDd.length > 0 && <DdChart pts={activeDd} />}
+            {activeEq.length > 0 && <EqChart pts={activeEq} label={eqLabel} syncId={SYNC_ID_PREFIX + row.id} />}
+            {/* Drawdown always rendered, same syncId for aligned crosshair */}
+            {activeDd.length > 0 && <DdChart pts={activeDd} syncId={SYNC_ID_PREFIX + row.id} />}
             {/* KPI cards + "Mehr anzeigen" button */}
             <div style={{ display: "flex", flexWrap: "nowrap" as const, gap: 5, marginTop: 2 }}>
               {kpis.map(k => <EKpi key={k.label} label={k.label} value={k.value} />)}
