@@ -58,11 +58,20 @@ type Props = {
   autoRotateEnabled: boolean;
   autoRotateSpeed: number;
   goldThemeEnabled?: boolean;
+  globePrices?: Record<string, number>;
   onCameraChange: (camera: GlobeCameraState) => void;
   onSelectAsset: (assetId: string) => void;
   onFocusHandled: () => void;
   onFocusLocationHandled: () => void;
 };
+
+function fmtGlobePrice(p: number): string {
+  if (!Number.isFinite(p) || p <= 0) return "";
+  if (p >= 10000) return `$${Math.round(p).toLocaleString("en-US")}`;
+  if (p >= 1000) return `$${p.toFixed(0)}`;
+  if (p >= 10) return `$${p.toFixed(2)}`;
+  return p.toFixed(3);
+}
 
 function easeInOutCubic(t: number): number {
   if (t < 0.5) return 4 * t * t * t;
@@ -293,6 +302,7 @@ function GlobeCanvasComponent({
   autoRotateEnabled,
   autoRotateSpeed,
   goldThemeEnabled = false,
+  globePrices = {},
   onCameraChange,
   onSelectAsset,
   onFocusHandled,
@@ -1604,6 +1614,15 @@ function GlobeCanvasComponent({
             name.style.maxWidth = "80px";
             name.style.textOverflow = "ellipsis";
             el.appendChild(name);
+            const priceVal = globePrices[String(d.assetId ?? "")];
+            if (priceVal != null && Number.isFinite(priceVal)) {
+              const priceEl = document.createElement("span");
+              priceEl.innerText = fmtGlobePrice(priceVal);
+              priceEl.style.fontSize = "8px";
+              priceEl.style.color = themeUiMuted;
+              priceEl.style.whiteSpace = "nowrap";
+              el.appendChild(priceEl);
+            }
             return el;
           }}
           polygonsData={worldFeatures}

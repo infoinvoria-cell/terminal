@@ -486,6 +486,7 @@ export default function GlobeApp() {
   const [focusAssetId, setFocusAssetId] = useState<string | null>(null);
   const [focusLocation, setFocusLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [chartTimeframe, setChartTimeframe] = useState<"M" | "W" | "D" | "4H" | "1H">("D");
+  const [globePrices, setGlobePrices] = useState<Record<string, number>>({});
   const [enabledAssets, setEnabledAssets] = useState<string[]>(initialPersisted.enabledAssets ?? []);
   const [overlayState, setOverlayState] = useState<OverlayToggleState>(initialOverlayState);
   const [selectedOverlay, setSelectedOverlay] = useState<OverlayMode>(initialOverlay);
@@ -1068,6 +1069,27 @@ export default function GlobeApp() {
     if (selectedAssetId && (enabledAssets.includes(selectedAssetId) || selected?.category === "Cross Pairs")) return;
     setSelectedAssetId(enabledAssets[0]);
   }, [assets, enabledAssets, selectedAssetId]);
+
+  useEffect(() => {
+    if (!isPageActive) return;
+    let cancelled = false;
+    const fetchPrices = () => {
+      fetch("/api/prices/globe")
+        .then((r) => r.ok ? r.json() : null)
+        .then((d: { prices?: Record<string, number | null> } | null) => {
+          if (cancelled || !d?.prices) return;
+          const clean: Record<string, number> = {};
+          for (const [id, p] of Object.entries(d.prices)) {
+            if (typeof p === "number" && Number.isFinite(p)) clean[id] = p;
+          }
+          setGlobePrices(clean);
+        })
+        .catch(() => {/* ignore */});
+    };
+    fetchPrices();
+    const interval = setInterval(fetchPrices, 60_000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [isPageActive]);
 
   useEffect(() => {
     setOverlayLoadingState((prev) => {
@@ -1993,6 +2015,7 @@ export default function GlobeApp() {
     autoRotateEnabled: isPageActive && effectiveAutoRotateEnabled,
     autoRotateSpeed: effectiveAutoRotateSpeed,
     goldThemeEnabled: false,
+    globePrices,
     onCameraChange,
     onSelectAsset: onGlobeSelectAsset,
     onFocusHandled,
@@ -2164,7 +2187,7 @@ export default function GlobeApp() {
                   className="rounded border border-white/10 bg-transparent px-1 py-[2px] text-[9px] text-white/40 outline-none hover:text-white/60"
                   style={{ background: "rgba(20,21,25,0.9)" }}
                 >
-                  {([["D","1d"],["4H","4h"],["W","1w"],["M","1M"],["1H","1h"]] as [typeof chartTimeframe, string][]).map(([key, label]) => (
+                  {([["1H","1H"],["4H","4H"],["D","1D"],["W","1W"],["M","1M"]] as [typeof chartTimeframe, string][]).map(([key, label]) => (
                     <option key={key} value={key} style={{ background: "#14151a" }}>{label}</option>
                   ))}
                 </select>
