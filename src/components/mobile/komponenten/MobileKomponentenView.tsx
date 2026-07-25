@@ -830,7 +830,7 @@ export function MobileKomponentenView() {
         left: 0,
         right: 0,
         height: `calc(${NAV_H} + ${FADE_H}px)`,
-        background: `linear-gradient(to bottom, transparent 0%, rgba(12,13,16,0.55) 40%, ${BG} 80%)`,
+        background: `linear-gradient(to bottom, transparent 0%, rgba(12,13,16,0.25) 55%, rgba(12,13,16,0.7) 100%)`,
         pointerEvents: "none",
         zIndex: 6,
       }} />
