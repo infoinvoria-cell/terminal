@@ -158,12 +158,13 @@ function fmtVon(iso: string | null): string {
   if (!iso) return "—";
   const d = new Date(iso);
   if (!isFinite(d.getTime())) return "—";
-  return `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getFullYear()).slice(2)}`;
+  return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
 }
 
-function fmtBisNow(): string {
-  const d = new Date();
-  return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+function fmtBis(iso: string | null): string {
+  const d = iso ? new Date(iso) : new Date();
+  if (!isFinite(d.getTime())) { const n = new Date(); return fmtBis(n.toISOString()); }
+  return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
 // ── data types ────────────────────────────────────────────────────────────────
@@ -610,54 +611,64 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
     : row.cagr ? ` · ${row.cagr}` : "";
   const eqLabel = isSynthetic ? `Equity (Sim)${cagrLabel}` : `Equity OOS${cagrLabel}`;
 
+  // KPI cards — order: Sharpe, CAGR, MaxDD, PF, Trades, Calmar, WinRate | last = WF (expand button)
   const kpis: Array<{ label: string; value: string }> = [];
-  if (row.sharpeOos !== null)        kpis.push({ label: "Sharpe OOS",    value: fmtN(row.sharpeOos) });
-  else if (ist?.sharpe != null)      kpis.push({ label: "Sharpe OOS",    value: fmtN(ist.sharpe) });
-  if (oos?.cagr != null)             kpis.push({ label: "CAGR OOS",      value: `${oos.cagr > 0 ? "+" : ""}${oos.cagr.toFixed(2)}%` });
-  else if (ist?.cagr != null)        kpis.push({ label: "CAGR OOS",      value: `+${fmtN(ist.cagr)}%` });
-  else if (row.cagr)                 kpis.push({ label: "CAGR",          value: row.cagr });
-  if (oos?.maxDrawdownPercent != null) kpis.push({ label: "Max DD",      value: `${oos.maxDrawdownPercent.toFixed(2)}%` });
-  else if (ist?.maxDD != null)       kpis.push({ label: "Max DD",        value: `−${fmtN(ist.maxDD)}%` });
-  else if (row.maxDd)                kpis.push({ label: "Max DD",        value: row.maxDd });
-  if (row.pf != null)                kpis.push({ label: "Profit Factor", value: fmtN(row.pf) });
-  else if (ist?.pf != null)          kpis.push({ label: "Profit Factor", value: fmtN(ist.pf) });
-  if (row.trades != null)            kpis.push({ label: "Trades",        value: String(row.trades) });
-  else if (ist?.n != null)           kpis.push({ label: "Trades",        value: String(ist.n) });
-  if (row.wfWin)                     kpis.push({ label: "WF / OOS",      value: row.wfWin });
-  if (row.calmar != null)            kpis.push({ label: "Calmar / MAR",  value: fmtN(row.calmar) });
-  else if (ist?.mar != null)         kpis.push({ label: "Calmar / MAR",  value: fmtN(ist.mar) });
-  if (ist?.wr != null)               kpis.push({ label: "Win Rate",      value: `${(ist.wr * 100).toFixed(1)}%` });
+  if (row.sharpeOos !== null)          kpis.push({ label: "Sharpe OOS",    value: fmtN(row.sharpeOos) });
+  else if (ist?.sharpe != null)        kpis.push({ label: "Sharpe OOS",    value: fmtN(ist.sharpe) });
+  if (oos?.cagr != null)               kpis.push({ label: "CAGR OOS",      value: `${oos.cagr > 0 ? "+" : ""}${oos.cagr.toFixed(2)}%` });
+  else if (ist?.cagr != null)          kpis.push({ label: "CAGR OOS",      value: `+${fmtN(ist.cagr)}%` });
+  else if (row.cagr)                   kpis.push({ label: "CAGR",          value: row.cagr });
+  if (oos?.maxDrawdownPercent != null) kpis.push({ label: "Max DD",        value: `${oos.maxDrawdownPercent.toFixed(2)}%` });
+  else if (ist?.maxDD != null)         kpis.push({ label: "Max DD",        value: `−${fmtN(ist.maxDD)}%` });
+  else if (row.maxDd)                  kpis.push({ label: "Max DD",        value: row.maxDd });
+  if (row.pf != null)                  kpis.push({ label: "Profit Factor", value: fmtN(row.pf) });
+  else if (ist?.pf != null)            kpis.push({ label: "Profit Factor", value: fmtN(ist.pf) });
+  if (row.trades != null)              kpis.push({ label: "Trades",        value: String(row.trades) });
+  else if (ist?.n != null)             kpis.push({ label: "Trades",        value: String(ist.n) });
+  if (row.calmar != null)              kpis.push({ label: "Calmar",        value: fmtN(row.calmar) });
+  else if (ist?.mar != null)           kpis.push({ label: "Calmar",        value: fmtN(ist.mar) });
+  if (ist?.wr != null)                 kpis.push({ label: "Win Rate",      value: `${(ist.wr * 100).toFixed(1)}%` });
+  else if (oos?.winRate != null)       kpis.push({ label: "Win Rate",      value: `${oos.winRate.toFixed(1)}%` });
+  // WF/OOS is rendered as the expand-button card (last position)
+  const wfValue = row.wfWin ?? null;
 
-  // info panel extended stats
-  const infoStats: Array<{ label: string; value: string }> = [
-    { label: "Asset",      value: `${row.label} (${row.ticker})` },
-    { label: "Exchange",   value: row.exchange ?? "—" },
-    { label: "Pillar",     value: row.pillarLabel },
-    { label: "Engine",     value: row.engine },
-    { label: "Richtung",   value: inferDirection(row.engine) },
+  // info panel stats with color hints
+  type InfoStat = { label: string; value: string; positive?: boolean; negative?: boolean; icon?: string };
+  const dir = inferDirection(row.engine);
+  const infoStats: InfoStat[] = [
+    { label: "Asset",        value: `${row.label} (${row.ticker})`,              icon: "asset" },
+    { label: "Exchange",     value: row.exchange ?? "—" },
+    { label: "Pillar",       value: row.pillarLabel },
+    { label: "Engine",       value: row.engine },
+    { label: "Richtung",     value: dir,
+      positive: dir === "Long Only" || dir === "Long",
+      negative: dir === "Short Only" || dir === "Short" },
     { label: "Datenbereich", value: dataRangeLabel(row.pillarKey, row.intradayId) },
-    { label: "Beschreibung", value: pillarDescription(row.pillarKey) },
+    { label: "Strategie",    value: pillarDescription(row.pillarKey) },
   ];
-  if (row.sharpeOos !== null)         infoStats.push({ label: "Sharpe OOS",    value: fmtN(row.sharpeOos) });
-  else if (ist?.sharpe != null)       infoStats.push({ label: "Sharpe OOS",    value: fmtN(ist.sharpe) });
-  if (ist?.mar != null)               infoStats.push({ label: "MAR (Calmar)",  value: fmtN(ist.mar) });
-  else if (row.calmar != null)        infoStats.push({ label: "Calmar",        value: fmtN(row.calmar) });
-  if (row.cagr)                       infoStats.push({ label: "CAGR OOS",      value: row.cagr });
-  if (row.maxDd)                      infoStats.push({ label: "Max DD",        value: row.maxDd });
-  if (row.pf != null)                 infoStats.push({ label: "Profit Factor", value: fmtN(row.pf) });
-  if (row.trades != null)             infoStats.push({ label: "# Trades",      value: String(row.trades) });
-  else if (ist?.n != null)            infoStats.push({ label: "# Trades",      value: String(ist.n) });
-  if (row.wfWin)                      infoStats.push({ label: "WF / OOS",      value: row.wfWin });
-  if (ist?.wr != null)                infoStats.push({ label: "Win Rate",      value: `${(ist.wr * 100).toFixed(1)}%` });
-  if (oos?.profitFactor != null)      infoStats.push({ label: "PF (Anomaly)",  value: fmtN(oos.profitFactor) });
-  if (oos?.winRate != null)           infoStats.push({ label: "WR (Anomaly)",  value: `${oos.winRate.toFixed(1)}%` });
-  if (oos?.tradeCount != null)        infoStats.push({ label: "Trades (An.)",  value: String(oos.tradeCount) });
-  if (row.isNotes)                    infoStats.push({ label: "Notiz",         value: row.isNotes });
-  infoStats.push({ label: "Status", value: row.status });
+  const sharpeV = row.sharpeOos ?? ist?.sharpe ?? null;
+  if (sharpeV != null) infoStats.push({ label: "Sharpe OOS", value: fmtN(sharpeV), positive: sharpeV >= 0.5, negative: sharpeV < 0 });
+  const calmarV = ist?.mar ?? row.calmar ?? null;
+  if (calmarV != null) infoStats.push({ label: "Calmar / MAR", value: fmtN(calmarV), positive: calmarV >= 0.5, negative: calmarV < 0.2 });
+  if (row.cagr) infoStats.push({ label: "CAGR OOS", value: row.cagr, positive: !row.cagr.startsWith("−"), negative: row.cagr.startsWith("−") });
+  if (row.maxDd) infoStats.push({ label: "Max DD", value: row.maxDd, negative: true });
+  const pfV = row.pf ?? ist?.pf ?? null;
+  if (pfV != null) infoStats.push({ label: "Profit Factor", value: fmtN(pfV), positive: pfV >= 1.3, negative: pfV < 1.1 });
+  const tradesV = row.trades ?? ist?.n ?? null;
+  if (tradesV != null) infoStats.push({ label: "# Trades", value: String(tradesV) });
+  if (wfValue) infoStats.push({ label: "WF / OOS", value: wfValue });
+  const wrV = ist?.wr != null ? ist.wr * 100 : oos?.winRate ?? null;
+  if (wrV != null) infoStats.push({ label: "Win Rate", value: `${Number(wrV).toFixed(1)}%` });
+  if (oos?.profitFactor != null) infoStats.push({ label: "PF (Anomaly)", value: fmtN(oos.profitFactor), positive: oos.profitFactor >= 1.5 });
+  if (oos?.tradeCount != null) infoStats.push({ label: "Trades (An.)", value: String(oos.tradeCount) });
+  if (row.isNotes) infoStats.push({ label: "Notiz", value: row.isNotes });
+  infoStats.push({ label: "Status", value: row.status, positive: row.status === "active", negative: row.status === "archived" });
+
+  const tickerIcon = TICKER_ICON[row.ticker];
 
   return (
     <div style={{ background: "rgba(255,255,255,0.012)", borderTop: `1px solid ${RBORD}` }}>
-      <div style={{ padding: "14px 16px 20px" }}>
+      <div style={{ padding: "14px 16px 16px" }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
           {/* Left: candle chart */}
           <div>
@@ -666,74 +677,66 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
             </div>
             <CandleChart ticker={row.ticker} refreshSecs={refreshSecs} />
           </div>
-          {/* Right: equity + drawdown + KPIs */}
+          {/* Right: equity + drawdown + KPI row */}
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {activeEq && activeEq.length > 0 && <EqChart pts={activeEq} label={eqLabel} />}
             {activeDd && activeDd.length > 0 && <DdChart pts={activeDd} />}
-            {kpis.length > 0 && (
-              <div style={{ display: "flex", flexWrap: "nowrap" as const, gap: 5, marginTop: 4 }}>
-                {kpis.map(k => <EKpi key={k.label} label={k.label} value={k.value} />)}
+            {/* KPI cards + integrated WF expand button */}
+            <div style={{ display: "flex", flexWrap: "nowrap" as const, gap: 5, marginTop: 2 }}>
+              {kpis.map(k => <EKpi key={k.label} label={k.label} value={k.value} />)}
+              {/* WF/OOS card doubles as the expand button */}
+              <div
+                onClick={() => setShowInfo(v => !v)}
+                style={{
+                  background: showInfo
+                    ? "linear-gradient(180deg,rgba(226,202,122,0.12) 0%,rgba(226,202,122,0.06) 100%)"
+                    : "linear-gradient(180deg,#1c1d20 0%,#141517 100%)",
+                  border: `1px solid ${showInfo ? "rgba(226,202,122,0.35)" : CBORD}`,
+                  borderRadius: 10, padding: "8px 10px", flex: "1 1 0", minWidth: 0,
+                  cursor: "pointer", transition: "all .15s",
+                }}
+              >
+                <div style={{ fontSize: 9, fontFamily: "var(--font-montserrat),sans-serif", fontWeight: 600, color: showInfo ? GOLD : MUTED, letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 5, whiteSpace: "nowrap" as const }}>
+                  WF / OOS
+                </div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4 }}>
+                  <span style={{ fontSize: 15, fontWeight: 700, fontFamily: "var(--font-montserrat),sans-serif", color: showInfo ? GOLD : "rgba(255,255,255,0.85)", letterSpacing: "-.02em" }}>
+                    {wfValue ?? "—"}
+                  </span>
+                  <svg width={12} height={12} viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0, transform: showInfo ? "rotate(180deg)" : "none", transition: "transform .2s", color: showInfo ? GOLD : MUTED }}>
+                    <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
               </div>
-            )}
+            </div>
           </div>
-        </div>
-
-        {/* Info toggle button — centered below the two columns */}
-        <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
-          <button
-            onClick={() => setShowInfo(v => !v)}
-            title={showInfo ? "Strategie-Info schließen" : "Strategie-Details anzeigen"}
-            style={{
-              display: "inline-flex", alignItems: "center", gap: 6,
-              background: showInfo ? "rgba(255,255,255,0.07)" : "transparent",
-              border: `1px solid ${showInfo ? "rgba(255,255,255,0.18)" : RBORD}`,
-              borderRadius: 20, padding: "4px 14px", cursor: "pointer",
-              color: showInfo ? "rgba(255,255,255,0.8)" : MUTED,
-              fontSize: 10, fontFamily: "var(--font-montserrat),sans-serif",
-              fontWeight: 600, letterSpacing: ".07em", textTransform: "uppercase" as const,
-              transition: "all .15s",
-            }}
-          >
-            <svg width={12} height={12} viewBox="0 0 12 12" fill="none">
-              <circle cx={6} cy={6} r={5} stroke="currentColor" strokeWidth={1.2} />
-              <rect x={5.4} y={5} width={1.2} height={4} rx={0.6} fill="currentColor" />
-              <rect x={5.4} y={3} width={1.2} height={1.2} rx={0.6} fill="currentColor" />
-            </svg>
-            {showInfo ? "Weniger" : "Strategie-Details"}
-          </button>
         </div>
       </div>
 
-      {/* Info panel — full width */}
+      {/* Info panel — full width, compact grid */}
       {showInfo && (
-        <div style={{
-          borderTop: `1px solid ${RBORD}`,
-          padding: "16px 16px 20px",
-          background: "rgba(255,255,255,0.018)",
-        }}>
-          <div style={{
-            fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif",
-            letterSpacing: ".08em", textTransform: "uppercase" as const, marginBottom: 12,
-          }}>
-            Strategie-Details · {row.label}
+        <div style={{ borderTop: `1px solid ${RBORD}`, padding: "14px 16px 18px", background: "rgba(255,255,255,0.016)" }}>
+          {/* header with asset icon */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+            {tickerIcon && <img src={tickerIcon} alt="" width={16} height={16} style={{ width: 16, height: 16, objectFit: "contain", borderRadius: 3, opacity: 0.85 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />}
+            <span style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".08em", textTransform: "uppercase" as const }}>
+              Strategie-Details · {row.label} · {row.pillarLabel}
+            </span>
           </div>
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-            gap: "8px 16px",
-          }}>
-            {infoStats.map(s => (
-              <div key={s.label} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <span style={{
-                  fontSize: 9, fontFamily: "var(--font-montserrat),sans-serif",
-                  color: MUTED, letterSpacing: ".07em", textTransform: "uppercase" as const,
-                }}>{s.label}</span>
-                <span style={{
-                  fontSize: 12, fontFamily: "var(--font-montserrat),sans-serif",
-                  color: "rgba(255,255,255,0.82)", fontWeight: 500, lineHeight: 1.3,
-                }}>{s.value}</span>
-              </div>
-            ))}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "6px 12px" }}>
+            {infoStats.map(s => {
+              const col = s.positive ? "#6ee7b7" : s.negative ? GOLD : "rgba(255,255,255,0.78)";
+              const arrow = s.positive ? "▲" : s.negative ? "▼" : null;
+              return (
+                <div key={s.label} style={{ display: "flex", flexDirection: "column", gap: 2, padding: "5px 8px", borderRadius: 6, background: "rgba(255,255,255,0.025)" }}>
+                  <span style={{ fontSize: 8, fontFamily: "var(--font-montserrat),sans-serif", color: MUTED, letterSpacing: ".07em", textTransform: "uppercase" as const }}>{s.label}</span>
+                  <span style={{ fontSize: 11, fontFamily: "var(--font-montserrat),sans-serif", color: col, fontWeight: 600, lineHeight: 1.35, display: "flex", alignItems: "center", gap: 4 }}>
+                    {arrow && <span style={{ fontSize: 8, opacity: 0.8 }}>{arrow}</span>}
+                    {s.value}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -1032,7 +1035,9 @@ export default function StrategyMasterTable() {
                             <SignalCell hasTrade={hasTrade} />
                           </td>
                           <td suppressHydrationWarning style={{ padding: "5px 8px", textAlign: "left", color: "rgba(255,255,255,0.28)", fontSize: 9, whiteSpace: "nowrap" as const }}>
-                            {from ? `${fmtVon(from)} – ${fmtBisNow()}` : "—"}
+                            {from ? (
+                              <span>{fmtVon(from)}<span style={{ color: "rgba(255,255,255,0.12)", margin: "0 4px" }}>–</span>{fmtBis(live?.lastDate ?? null)}</span>
+                            ) : "—"}
                           </td>
                         </>
                       );
