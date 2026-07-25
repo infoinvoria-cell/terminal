@@ -831,6 +831,34 @@ function GlobeCanvasComponent({
     [markers, crossEndpointMarkers, geoEventPoints, shipPoints, commodityPoints, regionOverlayPoints],
   );
 
+  const prevGlobePricesRef = useRef<Record<string, number>>({});
+  const priceDir = useMemo(() => {
+    const prev = prevGlobePricesRef.current;
+    const dir: Record<string, "up" | "down"> = {};
+    for (const [id, p] of Object.entries(globePrices)) {
+      const pv = prev[id];
+      if (typeof pv === "number" && typeof p === "number" && p !== pv) dir[id] = p > pv ? "up" : "down";
+    }
+    return dir;
+  }, [globePrices]);
+  useEffect(() => {
+    prevGlobePricesRef.current = { ...globePrices };
+  }, [globePrices]);
+
+  const hazardRings = useMemo(() => {
+    const out: Array<{ lat: number; lng: number; color: string }> = [];
+    for (const e of geoEvents ?? []) {
+      if (String(e.type) !== "earthquake") continue;
+      const col = String(e.color || "");
+      // M>=6 quakes → expanding hazard ring (red for M>=7, orange for M6-7)
+      if (col === "#FF3333") out.push({ lat: Number(e.lat), lng: Number(e.lng), color: "rgba(255,51,51,0.75)" });
+      else if (col === "#f97316") out.push({ lat: Number(e.lat), lng: Number(e.lng), color: "rgba(249,115,22,0.6)" });
+    }
+    return out;
+  }, [geoEvents]);
+
+  const ringsData = useMemo(() => [...rings, ...hazardRings], [rings, hazardRings]);
+
   const cityLabels = useMemo(() => {
     if (detailLevel < 2) return [] as any[];
     return FINANCIAL_CENTERS.map((c) => ({
@@ -1565,6 +1593,13 @@ function GlobeCanvasComponent({
               icon.style.fontSize = "10px";
               icon.style.color = goldThemeEnabled ? "#ffd58a" : "#ffd287";
               icon.style.fontWeight = "700";
+              // Conflict intensity → pulse speed (high severity pulses faster)
+              if (String(d.eventType || "") === "conflict") {
+                const sev = String(d.eventSeverity || "").toLowerCase();
+                const speed = sev === "high" || sev === "critical" ? "0.9s" : sev === "medium" ? "1.4s" : "2s";
+                icon.style.color = String(d.color || "#FF3333");
+                icon.style.animation = `clfSignalPulse ${speed} ease-in-out infinite`;
+              }
               el.appendChild(icon);
               if (detailLevel >= 2) {
                 const tx = document.createElement("span");
@@ -1688,8 +1723,17 @@ function GlobeCanvasComponent({
               const priceEl = document.createElement("span");
               priceEl.innerText = fmtGlobePrice(priceVal);
               priceEl.style.fontSize = "8px";
-              priceEl.style.color = themeUiMuted;
               priceEl.style.whiteSpace = "nowrap";
+              const dir = priceDir[String(d.assetId ?? "")];
+              if (dir === "up") {
+                priceEl.style.color = "#39ff64";
+                priceEl.style.animation = "clfPriceFlashUp 1.2s ease-out";
+              } else if (dir === "down") {
+                priceEl.style.color = "#FF3333";
+                priceEl.style.animation = "clfPriceFlashDown 1.2s ease-out";
+              } else {
+                priceEl.style.color = themeUiMuted;
+              }
               el.appendChild(priceEl);
             }
             return el;
@@ -1807,7 +1851,7 @@ function GlobeCanvasComponent({
           arcDashGap={(d: any) => Number(d.dashGap ?? 0)}
           arcDashAnimateTime={(d: any) => Number(d.animateTime ?? 0)}
           arcLabel={(d: any) => String(d.label || "")}
-          ringsData={rings}
+          ringsData={ringsData}
           ringColor={(d: { color: string }) => d.color || themePrimarySoft}
           ringMaxRadius={2.8}
           ringPropagationSpeed={2.8}
