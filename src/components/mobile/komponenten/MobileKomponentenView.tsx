@@ -710,17 +710,25 @@ export function MobileKomponentenView() {
 
         {/* Portfolio tabs */}
         <div style={{ display: "flex", borderBottom: `1px solid ${RBORD}` }}>
-          {(["ws","ci"] as Portfolio[]).map(p => (
-            <button key={p}
-              onClick={() => { setPortfolio(p); setPillarFilter("all"); setSortKey("weight"); setSortDir("desc"); }}
+          {([
+            { id: "ws", label: "White Swan",  logo: "/branding/white-swan-icon.png" },
+            { id: "ci", label: "Core Invest", logo: "/branding/capitalife-favicon.png" },
+          ] as { id: Portfolio; label: string; logo: string }[]).map(p => (
+            <button key={p.id}
+              onClick={() => { setPortfolio(p.id); setPillarFilter("all"); setSortKey("weight"); setSortDir("desc"); }}
               style={{
-                flex: 1, padding: "13px 0", fontSize: 11, fontWeight: 700,
+                flex: 1, padding: "11px 0", fontSize: 11, fontWeight: 700,
                 fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em",
                 textTransform: "uppercase", border: "none", cursor: "pointer", background: "none",
-                color: portfolio === p ? "#fff" : MUTED,
-                borderBottom: `2px solid ${portfolio === p ? "rgba(255,255,255,0.5)" : "transparent"}`,
+                color: portfolio === p.id ? "#fff" : MUTED,
+                borderBottom: `2px solid ${portfolio === p.id ? "rgba(255,255,255,0.5)" : "transparent"}`,
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
+                WebkitTapHighlightColor: "transparent",
               }}>
-              {p === "ws" ? "White Swan" : "Core Invest"}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={p.logo} alt="" width={16} height={16}
+                style={{ width: 16, height: 16, objectFit: "contain", opacity: portfolio === p.id ? 1 : 0.35, flexShrink: 0 }} />
+              {p.label}
             </button>
           ))}
         </div>
