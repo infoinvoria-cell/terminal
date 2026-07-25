@@ -123,6 +123,7 @@ const LIVE_SYMBOL_MAP: Record<string, string[]> = {
   "6E1!":        ["6E1!", "EURUSD", "EUR/USD", "6E"],
   "DAX 1H / MT": ["FDAX1!", "DAX", "DAX40", "GER40"],
   "DAX 2H":      ["FDAX1!", "DAX", "DAX40"],
+  "FDAX1!":      ["FDAX1!", "DAX", "DAX40"],
   "ES1!":        ["ES1!", "S&P500", "US500"],
   "NQ1!":        ["NQ1!", "NAS100", "NASDAQ"],
   "YM1!":        ["YM1!", "US30", "DOW30"],
@@ -130,8 +131,18 @@ const LIVE_SYMBOL_MAP: Record<string, string[]> = {
   "GLD":         ["GLD", "GC1!", "GOLD"],
   "CT1!":        ["CT1!", "COTTON"],
   "GOOGL":       ["GOOGL", "GOOGLE"],
-  "FDAX1!":      ["FDAX1!", "DAX", "DAX40"],
 };
+
+// maps display ticker → OHLC API symbol
+const OHLC_SYMBOL: Record<string, string> = {
+  "DAX 1H / MT": "FDAX1!",
+  "DAX 2H":      "FDAX1!",
+  "GBPUSD 30M":  "6B1!",
+  "GLD":         "GC1!",
+};
+function toOhlcSymbol(ticker: string): string {
+  return OHLC_SYMBOL[ticker] ?? ticker.split(" ")[0];
+}
 
 function matchLive(ticker: string, live: Map<string, LiveFeedItem>): LiveFeedItem | null {
   const candidates = LIVE_SYMBOL_MAP[ticker] ?? [ticker, ticker.replace("1!", ""), ticker.split(" ")[0]];
@@ -154,17 +165,28 @@ function fmtPrice(v: number, ticker: string): string {
   return v.toFixed(3);
 }
 
-function fmtVon(iso: string | null): string {
+function fmtDate(iso: string | null): string {
   if (!iso) return "—";
   const d = new Date(iso);
   if (!isFinite(d.getTime())) return "—";
   return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
 }
 
-function fmtBis(iso: string | null): string {
+function fmtDateTime(iso: string | null): string {
   const d = iso ? new Date(iso) : new Date();
-  if (!isFinite(d.getTime())) { const n = new Date(); return fmtBis(n.toISOString()); }
+  if (!isFinite(d.getTime())) return fmtDateTime(null);
   return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
+// if firstDate is missing, estimate from lastDate - barCount trading days (~1.4 calendar days/bar)
+function estimateVon(item: LiveFeedItem): string {
+  if (item.firstDate) return fmtDate(item.firstDate);
+  if (item.lastDate && item.barCount && item.barCount > 0) {
+    const last = new Date(item.lastDate);
+    last.setDate(last.getDate() - Math.round(item.barCount * 1.4));
+    return fmtDate(last.toISOString());
+  }
+  return "—";
 }
 
 // ── data types ────────────────────────────────────────────────────────────────
@@ -309,7 +331,7 @@ function CandleChart({ ticker, refreshSecs = 30 }: { ticker: string; refreshSecs
   const fetchBars = useRef(() => {});
 
   useEffect(() => {
-    const sym = encodeURIComponent(ticker.split(" ")[0]);
+    const sym = encodeURIComponent(toOhlcSymbol(ticker));
     fetchBars.current = () => {
       fetch(`/api/monitoring/ohlc?symbol=${sym}&timeframe=1D`)
         .then(r => r.json())
@@ -598,27 +620,28 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
     : null;
   const ist = intraday?.oos?.stats;
 
-  // synthetic fallback only when truly no real data
+  // always provide synthetic curves as fallback for missing pieces
   const hasRealEq = (eqOos?.length ?? 0) > 0 || (codexEq?.length ?? 0) > 0 || (intradayEq?.length ?? 0) > 0;
-  const synth = hasRealEq ? null : syntheticCurves(row.cagr, row.maxDd);
+  const synthAll  = syntheticCurves(row.cagr, row.maxDd);
 
-  const activeEq: EP[] | null = eqOos?.length ? eqOos : intradayEq?.length ? intradayEq : codexEq?.length ? codexEq : synth?.eq ?? null;
-  const activeDd: EP[] | null = ddOos?.length ? ddOos : codexDd?.length ? codexDd : synth?.dd ?? null;
-  const isSynthetic = !hasRealEq && synth !== null;
+  const activeEq: EP[] = eqOos?.length ? eqOos : intradayEq?.length ? intradayEq : codexEq?.length ? codexEq : synthAll?.eq ?? [];
+  // drawdown: always show — real first, synthetic fallback guaranteed
+  const activeDd: EP[] = ddOos?.length ? ddOos : codexDd?.length ? codexDd : synthAll?.dd ?? [];
+  const isSynthetic = !hasRealEq;
 
   const cagrLabel = oos?.cagr != null ? ` · +${oos.cagr.toFixed(2)}% CAGR`
-    : ist?.cagr != null ? ` · +${String(ist.cagr).replace(",", ".")}% CAGR`
+    : ist?.cagr != null ? ` · +${fmtN(ist.cagr)}% CAGR`
     : row.cagr ? ` · ${row.cagr}` : "";
   const eqLabel = isSynthetic ? `Equity (Sim)${cagrLabel}` : `Equity OOS${cagrLabel}`;
 
-  // KPI cards — order: Sharpe, CAGR, MaxDD, PF, Trades, Calmar, WinRate | last = WF (expand button)
+  // KPI cards — Sharpe, CAGR, MaxDD, PF, Trades, Calmar, WinRate + "Mehr" button
   const kpis: Array<{ label: string; value: string }> = [];
   if (row.sharpeOos !== null)          kpis.push({ label: "Sharpe OOS",    value: fmtN(row.sharpeOos) });
   else if (ist?.sharpe != null)        kpis.push({ label: "Sharpe OOS",    value: fmtN(ist.sharpe) });
   if (oos?.cagr != null)               kpis.push({ label: "CAGR OOS",      value: `${oos.cagr > 0 ? "+" : ""}${oos.cagr.toFixed(2)}%` });
   else if (ist?.cagr != null)          kpis.push({ label: "CAGR OOS",      value: `+${fmtN(ist.cagr)}%` });
   else if (row.cagr)                   kpis.push({ label: "CAGR",          value: row.cagr });
-  if (oos?.maxDrawdownPercent != null) kpis.push({ label: "Max DD",        value: `${oos.maxDrawdownPercent.toFixed(2)}%` });
+  if (oos?.maxDrawdownPercent != null) kpis.push({ label: "Max DD",        value: `−${Math.abs(oos.maxDrawdownPercent).toFixed(2)}%` });
   else if (ist?.maxDD != null)         kpis.push({ label: "Max DD",        value: `−${fmtN(ist.maxDD)}%` });
   else if (row.maxDd)                  kpis.push({ label: "Max DD",        value: row.maxDd });
   if (row.pf != null)                  kpis.push({ label: "Profit Factor", value: fmtN(row.pf) });
@@ -629,42 +652,66 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
   else if (ist?.mar != null)           kpis.push({ label: "Calmar",        value: fmtN(ist.mar) });
   if (ist?.wr != null)                 kpis.push({ label: "Win Rate",      value: `${(ist.wr * 100).toFixed(1)}%` });
   else if (oos?.winRate != null)       kpis.push({ label: "Win Rate",      value: `${oos.winRate.toFixed(1)}%` });
-  // WF/OOS is rendered as the expand-button card (last position)
-  const wfValue = row.wfWin ?? null;
 
-  // info panel stats with color hints
-  type InfoStat = { label: string; value: string; positive?: boolean; negative?: boolean; icon?: string };
-  const dir = inferDirection(row.engine);
-  const infoStats: InfoStat[] = [
-    { label: "Asset",        value: `${row.label} (${row.ticker})`,              icon: "asset" },
-    { label: "Exchange",     value: row.exchange ?? "—" },
-    { label: "Pillar",       value: row.pillarLabel },
-    { label: "Engine",       value: row.engine },
-    { label: "Richtung",     value: dir,
-      positive: dir === "Long Only" || dir === "Long",
-      negative: dir === "Short Only" || dir === "Short" },
-    { label: "Datenbereich", value: dataRangeLabel(row.pillarKey, row.intradayId) },
-    { label: "Strategie",    value: pillarDescription(row.pillarKey) },
-  ];
-  const sharpeV = row.sharpeOos ?? ist?.sharpe ?? null;
-  if (sharpeV != null) infoStats.push({ label: "Sharpe OOS", value: fmtN(sharpeV), positive: sharpeV >= 0.5, negative: sharpeV < 0 });
-  const calmarV = ist?.mar ?? row.calmar ?? null;
-  if (calmarV != null) infoStats.push({ label: "Calmar / MAR", value: fmtN(calmarV), positive: calmarV >= 0.5, negative: calmarV < 0.2 });
-  if (row.cagr) infoStats.push({ label: "CAGR OOS", value: row.cagr, positive: !row.cagr.startsWith("−"), negative: row.cagr.startsWith("−") });
-  if (row.maxDd) infoStats.push({ label: "Max DD", value: row.maxDd, negative: true });
-  const pfV = row.pf ?? ist?.pf ?? null;
-  if (pfV != null) infoStats.push({ label: "Profit Factor", value: fmtN(pfV), positive: pfV >= 1.3, negative: pfV < 1.1 });
-  const tradesV = row.trades ?? ist?.n ?? null;
-  if (tradesV != null) infoStats.push({ label: "# Trades", value: String(tradesV) });
-  if (wfValue) infoStats.push({ label: "WF / OOS", value: wfValue });
-  const wrV = ist?.wr != null ? ist.wr * 100 : oos?.winRate ?? null;
-  if (wrV != null) infoStats.push({ label: "Win Rate", value: `${Number(wrV).toFixed(1)}%` });
-  if (oos?.profitFactor != null) infoStats.push({ label: "PF (Anomaly)", value: fmtN(oos.profitFactor), positive: oos.profitFactor >= 1.5 });
-  if (oos?.tradeCount != null) infoStats.push({ label: "Trades (An.)", value: String(oos.tradeCount) });
-  if (row.isNotes) infoStats.push({ label: "Notiz", value: row.isNotes });
-  infoStats.push({ label: "Status", value: row.status, positive: row.status === "active", negative: row.status === "archived" });
-
+  // Info panel — 4 thematic boxes
+  const dir   = inferDirection(row.engine);
+  const sharpeV  = row.sharpeOos ?? ist?.sharpe ?? null;
+  const calmarV  = ist?.mar ?? row.calmar ?? null;
+  const pfV      = row.pf ?? ist?.pf ?? oos?.profitFactor ?? null;
+  const tradesV  = row.trades ?? ist?.n ?? oos?.tradeCount ?? null;
+  const wrV      = ist?.wr != null ? ist.wr * 100 : oos?.winRate ?? null;
+  const wfV      = row.wfWin;
   const tickerIcon = TICKER_ICON[row.ticker];
+
+  function val(v: string | number | null, suffix = ""): string {
+    return v != null ? `${v}${suffix}` : "—";
+  }
+  function signed(v: number | null, d = 2): string {
+    if (v == null) return "—";
+    return `${v >= 0 ? "+" : ""}${v.toFixed(d)}%`;
+  }
+
+  const infoBoxes = [
+    {
+      title: "Asset & Strategie",
+      items: [
+        { k: "Asset",     v: row.label, icon: tickerIcon },
+        { k: "Ticker",    v: row.ticker },
+        { k: "Exchange",  v: row.exchange ?? "—" },
+        { k: "Pillar",    v: row.pillarLabel },
+        { k: "Engine",    v: row.engine },
+        { k: "Richtung",  v: dir, arrow: dir === "Long Only" || dir === "Long" ? "up" : dir === "Short Only" || dir === "Short" ? "down" : null },
+      ],
+    },
+    {
+      title: "Performance OOS",
+      items: [
+        { k: "Sharpe OOS", v: val(sharpeV), arrow: sharpeV != null ? (sharpeV >= 0.5 ? "up" : sharpeV < 0 ? "down" : null) : null },
+        { k: "CAGR OOS",   v: row.cagr ?? (ist?.cagr != null ? `+${fmtN(ist.cagr)}%` : "—"), arrow: row.cagr && !row.cagr.startsWith("−") ? "up" : "down" },
+        { k: "Max DD",     v: row.maxDd ?? (ist?.maxDD != null ? `−${fmtN(ist.maxDD)}%` : "—"), arrow: "down" },
+        { k: "Calmar/MAR", v: val(calmarV), arrow: calmarV != null ? (calmarV >= 0.5 ? "up" : "down") : null },
+        { k: "Profit Factor", v: val(pfV), arrow: pfV != null ? (pfV >= 1.3 ? "up" : pfV < 1.05 ? "down" : null) : null },
+      ],
+    },
+    {
+      title: "Handel & Statistik",
+      items: [
+        { k: "# Trades",  v: val(tradesV) },
+        { k: "Win Rate",  v: wrV != null ? `${Number(wrV).toFixed(1)}%` : "—" },
+        { k: "WF / OOS",  v: wfV ?? "—", arrow: wfV ? "up" : null },
+        { k: "Final Equity", v: oos?.finalEquity != null ? `${oos.finalEquity.toFixed(0)}` : "—" },
+      ],
+    },
+    {
+      title: "Kontext & Zeitraum",
+      items: [
+        { k: "Datenbereich", v: dataRangeLabel(row.pillarKey, row.intradayId) },
+        { k: "Beschreibung", v: pillarDescription(row.pillarKey) },
+        { k: "Status",   v: row.status, arrow: row.status === "active" ? "up" : row.status === "archived" ? "down" : null },
+        ...(row.isNotes ? [{ k: "Notiz", v: row.isNotes }] : []),
+      ],
+    },
+  ];
 
   return (
     <div style={{ background: "rgba(255,255,255,0.012)", borderTop: `1px solid ${RBORD}` }}>
@@ -677,34 +724,33 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
             </div>
             <CandleChart ticker={row.ticker} refreshSecs={refreshSecs} />
           </div>
-          {/* Right: equity + drawdown + KPI row */}
+          {/* Right: equity + drawdown (always) + KPI row */}
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {activeEq && activeEq.length > 0 && <EqChart pts={activeEq} label={eqLabel} />}
-            {activeDd && activeDd.length > 0 && <DdChart pts={activeDd} />}
-            {/* KPI cards + integrated WF expand button */}
+            {activeEq.length > 0 && <EqChart pts={activeEq} label={eqLabel} />}
+            {/* Drawdown always rendered */}
+            {activeDd.length > 0 && <DdChart pts={activeDd} />}
+            {/* KPI cards + "Mehr anzeigen" button */}
             <div style={{ display: "flex", flexWrap: "nowrap" as const, gap: 5, marginTop: 2 }}>
               {kpis.map(k => <EKpi key={k.label} label={k.label} value={k.value} />)}
-              {/* WF/OOS card doubles as the expand button */}
+              {/* Mehr-Button — plain, no gold */}
               <div
                 onClick={() => setShowInfo(v => !v)}
                 style={{
-                  background: showInfo
-                    ? "linear-gradient(180deg,rgba(226,202,122,0.12) 0%,rgba(226,202,122,0.06) 100%)"
-                    : "linear-gradient(180deg,#1c1d20 0%,#141517 100%)",
-                  border: `1px solid ${showInfo ? "rgba(226,202,122,0.35)" : CBORD}`,
-                  borderRadius: 10, padding: "8px 10px", flex: "1 1 0", minWidth: 0,
-                  cursor: "pointer", transition: "all .15s",
+                  background: CARD, border: `1px solid ${CBORD}`,
+                  borderRadius: 10, padding: "8px 12px", flex: "0 0 auto",
+                  cursor: "pointer", display: "flex", flexDirection: "column" as const,
+                  alignItems: "flex-start", gap: 3, minWidth: 70,
                 }}
               >
-                <div style={{ fontSize: 9, fontFamily: "var(--font-montserrat),sans-serif", fontWeight: 600, color: showInfo ? GOLD : MUTED, letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 5, whiteSpace: "nowrap" as const }}>
-                  WF / OOS
-                </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4 }}>
-                  <span style={{ fontSize: 15, fontWeight: 700, fontFamily: "var(--font-montserrat),sans-serif", color: showInfo ? GOLD : "rgba(255,255,255,0.85)", letterSpacing: "-.02em" }}>
-                    {wfValue ?? "—"}
+                <span style={{ fontSize: 9, fontFamily: "var(--font-montserrat),sans-serif", fontWeight: 600, color: MUTED, letterSpacing: ".07em", textTransform: "uppercase" as const, whiteSpace: "nowrap" as const }}>
+                  Mehr
+                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <span style={{ fontSize: 15, fontWeight: 700, fontFamily: "var(--font-montserrat),sans-serif", color: "rgba(255,255,255,0.85)", letterSpacing: "-.02em" }}>
+                    Data
                   </span>
-                  <svg width={12} height={12} viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0, transform: showInfo ? "rotate(180deg)" : "none", transition: "transform .2s", color: showInfo ? GOLD : MUTED }}>
-                    <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" />
+                  <svg width={10} height={10} viewBox="0 0 10 10" fill="none" style={{ transform: showInfo ? "rotate(180deg)" : "none", transition: "transform .2s", color: MUTED }}>
+                    <path d="M1.5 3.5l3.5 3.5 3.5-3.5" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
               </div>
@@ -713,30 +759,38 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
         </div>
       </div>
 
-      {/* Info panel — full width, compact grid */}
+      {/* Info panel — 4 thematic boxes in one row */}
       {showInfo && (
-        <div style={{ borderTop: `1px solid ${RBORD}`, padding: "14px 16px 18px", background: "rgba(255,255,255,0.016)" }}>
-          {/* header with asset icon */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-            {tickerIcon && <img src={tickerIcon} alt="" width={16} height={16} style={{ width: 16, height: 16, objectFit: "contain", borderRadius: 3, opacity: 0.85 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />}
-            <span style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".08em", textTransform: "uppercase" as const }}>
-              Strategie-Details · {row.label} · {row.pillarLabel}
-            </span>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "6px 12px" }}>
-            {infoStats.map(s => {
-              const col = s.positive ? "#6ee7b7" : s.negative ? GOLD : "rgba(255,255,255,0.78)";
-              const arrow = s.positive ? "▲" : s.negative ? "▼" : null;
-              return (
-                <div key={s.label} style={{ display: "flex", flexDirection: "column", gap: 2, padding: "5px 8px", borderRadius: 6, background: "rgba(255,255,255,0.025)" }}>
-                  <span style={{ fontSize: 8, fontFamily: "var(--font-montserrat),sans-serif", color: MUTED, letterSpacing: ".07em", textTransform: "uppercase" as const }}>{s.label}</span>
-                  <span style={{ fontSize: 11, fontFamily: "var(--font-montserrat),sans-serif", color: col, fontWeight: 600, lineHeight: 1.35, display: "flex", alignItems: "center", gap: 4 }}>
-                    {arrow && <span style={{ fontSize: 8, opacity: 0.8 }}>{arrow}</span>}
-                    {s.value}
-                  </span>
+        <div style={{ borderTop: `1px solid ${RBORD}`, padding: "14px 16px 18px", background: "rgba(255,255,255,0.014)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+            {infoBoxes.map(box => (
+              <div key={box.title} style={{ background: "rgba(255,255,255,0.03)", border: `1px solid ${RBORD}`, borderRadius: 10, padding: "10px 12px", display: "flex", flexDirection: "column" as const, gap: 8 }}>
+                <div style={{ fontSize: 9, fontFamily: "var(--font-montserrat),sans-serif", fontWeight: 700, color: MUTED, letterSpacing: ".09em", textTransform: "uppercase" as const, borderBottom: `1px solid ${RBORD}`, paddingBottom: 6 }}>
+                  {box.title}
                 </div>
-              );
-            })}
+                {box.items.map(item => {
+                  const arrowColor = item.arrow === "up" ? "#6ee7b7" : item.arrow === "down" ? GOLD : "rgba(255,255,255,0.75)";
+                  return (
+                    <div key={item.k} style={{ display: "flex", flexDirection: "column" as const, gap: 1 }}>
+                      <span style={{ fontSize: 8, fontFamily: "var(--font-montserrat),sans-serif", color: "rgba(255,255,255,0.28)", letterSpacing: ".07em", textTransform: "uppercase" as const }}>{item.k}</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                        {"icon" in item && item.icon && (
+                          <img src={item.icon} alt="" width={12} height={12} style={{ width: 12, height: 12, objectFit: "contain", borderRadius: 2, flexShrink: 0 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                        )}
+                        {item.arrow && (
+                          <span style={{ fontSize: 8, color: arrowColor, lineHeight: 1 }}>
+                            {item.arrow === "up" ? "▲" : "▼"}
+                          </span>
+                        )}
+                        <span style={{ fontSize: 11, fontFamily: "var(--font-montserrat),sans-serif", color: arrowColor, fontWeight: 600, lineHeight: 1.35 }}>
+                          {item.v}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -1035,8 +1089,12 @@ export default function StrategyMasterTable() {
                             <SignalCell hasTrade={hasTrade} />
                           </td>
                           <td suppressHydrationWarning style={{ padding: "5px 8px", textAlign: "left", color: "rgba(255,255,255,0.28)", fontSize: 9, whiteSpace: "nowrap" as const }}>
-                            {from ? (
-                              <span>{fmtVon(from)}<span style={{ color: "rgba(255,255,255,0.12)", margin: "0 4px" }}>–</span>{fmtBis(live?.lastDate ?? null)}</span>
+                            {live ? (
+                              <span>
+                                {estimateVon(live)}
+                                <span style={{ color: "rgba(255,255,255,0.12)", margin: "0 4px" }}>–</span>
+                                {fmtDateTime(live.lastDate)}
+                              </span>
                             ) : "—"}
                           </td>
                         </>
