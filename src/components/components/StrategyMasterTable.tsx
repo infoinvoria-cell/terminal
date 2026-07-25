@@ -442,10 +442,18 @@ function CandleChart({ ticker, refreshSecs = 30 }: { ticker: string; refreshSecs
         priceLineVisible: false, lastValueVisible: false,
       });
 
-      // filter to 2019+; drop flat/incomplete bars (open=high=low=close = intraday placeholder)
-      const filtered = bars
-        .filter((b: OhlcBar) => b.time >= "2019-01-01")
-        .filter((b: OhlcBar) => (b.high - b.low) / Math.max(b.close, 0.0001) > 0.0002);
+      // filter to 2019+; remove flat placeholder bars and statistical outliers
+      const pre = bars.filter((b: OhlcBar) =>
+        b.time >= "2019-01-01" &&
+        (b.high - b.low) / Math.max(b.close, 0.0001) > 0.0002
+      );
+      // IQR outlier removal: drop bars where single-day price move >40% (rollover artifact)
+      const filtered = pre.filter((b: OhlcBar, i: number) => {
+        if (i === 0) return true;
+        const prev = pre[i - 1];
+        const jump = Math.abs(b.open - prev.close) / Math.max(prev.close, 0.0001);
+        return jump < 0.40; // 40% gap = rollover/bad data
+      });
       series.setData(filtered);
 
       const total = filtered.length;
@@ -509,31 +517,35 @@ function CandleChart({ ticker, refreshSecs = 30 }: { ticker: string; refreshSecs
 }
 
 // ── equity / drawdown charts — synchronized crosshair via syncId ──────────────
-const SYNC_ID_PREFIX = "eq-dd-"; // unique per row via rowId prop
+const SYNC_ID_PREFIX = "eq-dd-";
 
-const CHART_MARGIN = { top: 4, right: 38, bottom: 0, left: 38 };
+// Identical margins ensure pixel-perfect X-axis alignment between the two stacked charts
+const CHART_M   = { top: 4, right: 44, bottom: 0, left: 0 };
+const CHART_M_X = { top: 2, right: 44, bottom: 4, left: 0 }; // DdChart gets bottom space for X labels
+const Y_WIDTH   = 38; // same for both charts
 const AXIS_TICK = { fill: "rgba(255,255,255,0.28)", fontSize: 8, fontFamily: "var(--font-montserrat),sans-serif" };
+const TOOLTIP_STYLE = { background: "#1c1d20", border: `1px solid ${CBORD}`, borderRadius: 8, fontSize: 10, fontFamily: "var(--font-montserrat),sans-serif", color: "#fff" };
+const CURSOR_STYLE  = { stroke: "rgba(255,255,255,0.22)", strokeWidth: 1, strokeDasharray: "3 3" };
 
 function EqChart({ pts, label, syncId }: { pts: EP[]; label: string; syncId: string }) {
   const d = pts.map(p => ({ t: p.time.slice(0, 7), v: Math.round(p.value * 100) / 100 }));
   const vals = d.map(p => p.v);
-  const mn = Math.min(...vals);
-  const mx = Math.max(...vals);
+  const mn = Math.min(...vals); const mx = Math.max(...vals);
   return (
-    <div>
-      <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 3 }}>{label}</div>
+    <div style={{ marginBottom: 0 }}>
+      <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 2, paddingLeft: Y_WIDTH + 2 }}>{label}</div>
       <ResponsiveContainer width="100%" height={95}>
-        <AreaChart data={d} margin={CHART_MARGIN} syncId={syncId}>
-          <defs><linearGradient id="eqg2" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#fff" stopOpacity={0.13} /><stop offset="95%" stopColor="#fff" stopOpacity={0.01} /></linearGradient></defs>
-          <XAxis dataKey="t" tick={AXIS_TICK} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-          <YAxis tick={AXIS_TICK} tickLine={false} axisLine={false} width={36}
-            domain={[mn * 0.995, mx * 1.005]}
+        <AreaChart data={d} margin={CHART_M} syncId={syncId}>
+          <defs><linearGradient id="eqg2" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#fff" stopOpacity={0.13}/><stop offset="95%" stopColor="#fff" stopOpacity={0.01}/></linearGradient></defs>
+          {/* No XAxis here — shared with DdChart below */}
+          <YAxis tick={AXIS_TICK} tickLine={false} axisLine={false} width={Y_WIDTH}
+            orientation="left" domain={[mn * 0.995, mx * 1.005]}
             tickFormatter={(v: number) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : `${v.toFixed(0)}`} />
-          <Tooltip contentStyle={{ background: "#1c1d20", border: `1px solid ${CBORD}`, borderRadius: 8, fontSize: 10, fontFamily: "var(--font-montserrat),sans-serif", color: "#fff" }}
+          <Tooltip contentStyle={TOOLTIP_STYLE}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             formatter={(v: any) => [`$${Number(v ?? 0).toLocaleString("de", { maximumFractionDigits: 0 })}`, "Equity"]}
-            cursor={{ stroke: "rgba(255,255,255,0.25)", strokeWidth: 1, strokeDasharray: "3 3" }} />
-          <Area type="monotone" dataKey="v" stroke="#fff" strokeWidth={1.5} strokeOpacity={0.7} fill="url(#eqg2)" dot={false} activeDot={{ r: 3, fill: "#fff", strokeWidth: 0 }} />
+            cursor={CURSOR_STYLE} />
+          <Area type="monotone" dataKey="v" stroke="#fff" strokeWidth={1.5} strokeOpacity={0.75} fill="url(#eqg2)" dot={false} activeDot={{ r: 3, fill: "#fff", strokeWidth: 0 }} />
         </AreaChart>
       </ResponsiveContainer>
     </div>
@@ -543,22 +555,21 @@ function EqChart({ pts, label, syncId }: { pts: EP[]; label: string; syncId: str
 function DdChart({ pts, syncId }: { pts: EP[]; syncId: string }) {
   const d = pts.map(p => ({ t: p.time.slice(0, 7), v: Math.round(p.value * 100) / 100 }));
   const vals = d.map(p => p.v);
-  const mn = Math.min(...vals);
-  const mx = Math.max(...vals);
+  const mn = Math.min(...vals, -0.01); // always at least -0.01 so domain is valid
   return (
-    <div>
-      <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 3 }}>Drawdown</div>
-      <ResponsiveContainer width="100%" height={70}>
-        <AreaChart data={d} margin={CHART_MARGIN} syncId={syncId}>
-          <defs><linearGradient id="ddg2" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={GOLD} stopOpacity={0.28} /><stop offset="95%" stopColor={GOLD} stopOpacity={0.02} /></linearGradient></defs>
+    <div style={{ marginTop: 0 }}>
+      <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 2, paddingLeft: Y_WIDTH + 2 }}>Drawdown</div>
+      <ResponsiveContainer width="100%" height={72}>
+        <AreaChart data={d} margin={CHART_M_X} syncId={syncId}>
+          <defs><linearGradient id="ddg2" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={GOLD} stopOpacity={0.30}/><stop offset="95%" stopColor={GOLD} stopOpacity={0.02}/></linearGradient></defs>
           <XAxis dataKey="t" tick={AXIS_TICK} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-          <YAxis tick={AXIS_TICK} tickLine={false} axisLine={false} width={36}
-            domain={[mn * 1.05, 0]}
+          <YAxis tick={AXIS_TICK} tickLine={false} axisLine={false} width={Y_WIDTH}
+            orientation="left" domain={[mn * 1.1, 0]}
             tickFormatter={(v: number) => `${v.toFixed(0)}%`} />
-          <Tooltip contentStyle={{ background: "#1c1d20", border: `1px solid ${CBORD}`, borderRadius: 8, fontSize: 10, fontFamily: "var(--font-montserrat),sans-serif", color: "#fff" }}
+          <Tooltip contentStyle={TOOLTIP_STYLE}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             formatter={(v: any) => [`${Number(v ?? 0).toFixed(2)}%`, "DD"]}
-            cursor={{ stroke: "rgba(255,255,255,0.25)", strokeWidth: 1, strokeDasharray: "3 3" }} />
+            cursor={CURSOR_STYLE} />
           <Area type="monotone" dataKey="v" stroke={GOLD} strokeWidth={1.5} fill="url(#ddg2)" dot={false} activeDot={{ r: 3, fill: GOLD, strokeWidth: 0 }} />
         </AreaChart>
       </ResponsiveContainer>
@@ -687,8 +698,18 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
   const synthAll  = syntheticCurves(row.cagr, row.maxDd);
 
   const activeEq: EP[] = eqOos?.length ? eqOos : intradayEq?.length ? intradayEq : codexEq?.length ? codexEq : synthAll?.eq ?? [];
-  // drawdown: always show — real first, synthetic fallback guaranteed
-  const activeDd: EP[] = ddOos?.length ? ddOos : codexDd?.length ? codexDd : synthAll?.dd ?? [];
+
+  // drawdown always computed FROM activeEq — guarantees same point count & X alignment
+  const activeDd: EP[] = (() => {
+    if (!activeEq.length) return synthAll?.dd ?? [];
+    let peak = activeEq[0]?.value ?? 0;
+    return activeEq.map(p => {
+      if (p.value > peak) peak = p.value;
+      const dd = peak > 0 ? ((p.value - peak) / peak) * 100 : 0;
+      return { time: p.time, value: Math.round(dd * 100) / 100 };
+    });
+  })();
+
   const isSynthetic = !hasRealEq;
 
   const eqLabel = isSynthetic ? "Equity (Sim)" : "Equity";
@@ -870,6 +891,28 @@ export default function StrategyMasterTable() {
   const [liveTimer, setLiveTimer] = useState(30);
   const [tick, setTick]           = useState(0);
   const LIVE_INTERVAL = 30;
+
+  // TradingView-style OHLC prefetch — warm cache for ALL strategies on mount
+  useEffect(() => {
+    const allTickers = [...WS_ROWS, ...CI_ROWS].map(r => toOhlcSymbol(r.ticker));
+    const unique = [...new Set(allTickers)].filter(s => s.length > 0);
+    let i = 0;
+    const next = () => {
+      if (i >= unique.length) return;
+      const sym = unique[i++];
+      const key = sym + ":1D";
+      if (OHLC_CACHE.has(key)) { next(); return; } // already cached
+      fetch(`/api/monitoring/ohlc?symbol=${encodeURIComponent(sym)}&timeframe=1D`)
+        .then(r => r.json())
+        .then(d => {
+          const b: OhlcBar[] = Array.isArray(d.bars) && d.bars.length ? d.bars : [];
+          OHLC_CACHE.set(key, { bars: b, ts: Date.now() });
+        })
+        .catch(() => {})
+        .finally(() => setTimeout(next, 120)); // stagger 120ms per symbol to avoid overwhelming the server
+    };
+    setTimeout(next, 800); // start after initial render
+  }, []);
 
   // live feed + live state — same polling pattern as signals page
   // pre-fetch on mount so live data is ready when the toggle is clicked
