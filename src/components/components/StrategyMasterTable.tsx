@@ -310,9 +310,9 @@ function SignalCell({ hasTrade }: { hasTrade: boolean }) {
 }
 
 // ── sortable th ───────────────────────────────────────────────────────────────
-function Th({ label, k, sortKey, sortDir, onSort, align = "left" }: {
+function Th({ label, k, sortKey, sortDir, onSort, align = "left", agg }: {
   label: string; k: SortKey; sortKey: SortKey | null; sortDir: SortDir;
-  onSort: (k: SortKey) => void; align?: "left"|"right";
+  onSort: (k: SortKey) => void; align?: "left"|"right"; agg?: string;
 }) {
   const active = sortKey === k;
   return (
@@ -324,6 +324,7 @@ function Th({ label, k, sortKey, sortDir, onSort, align = "left" }: {
       borderBottom: `1px solid ${RBORD}`, background: BG,
       userSelect: "none" as const, cursor: "pointer", transition: "color .1s",
     }}>
+      {agg && <div style={{ fontSize: 8, fontWeight: 500, letterSpacing: ".04em", color: "rgba(255,255,255,0.30)", marginBottom: 2, textTransform: "none" as const }}>{agg}</div>}
       {label}{active && <span style={{ marginLeft: 3, fontSize: 9, opacity: 0.65 }}>{sortDir === "desc" ? "↓" : "↑"}</span>}
     </th>
   );
@@ -1103,26 +1104,48 @@ export default function StrategyMasterTable() {
         <div className="kmp" style={{ height: "100%", overflowY: "auto", borderRadius: "9px 9px 0 0", border: `1px solid ${RBORD}`, borderBottom: "none" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
             <thead style={{ position: "sticky", top: 0, zIndex: 2 }}>
-              <tr>
-                <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 6px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, width: 26 }}>#</th>
-                <th style={{ width: 18, padding: 0, borderBottom: `1px solid ${RBORD}`, background: BG }} />
-                <Th label="Ticker"  k="ticker"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
-                <Th label="Asset"   k="label"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
-                <Th label="Pillar"  k="pillar"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
-                <Th label="Gew."    k="weight"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
-                <Th label="Sharpe"  k="sharpeOos" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
-                <Th label="CAGR"    k="cagr"      sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
-                <Th label="Max DD"  k="maxDd"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
-                <Th label="PF"      k="pf"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
-                <Th label="Trades"  k="trades"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
-                <Th label="WF/Win%" k="wfWin"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
-                <Th label="Status"  k="status"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
-                {liveCols && <>
-                  <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, borderLeft: "1px solid rgba(255,255,255,0.05)" }}>Preis</th>
-                  <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG }}>Signal</th>
-                  <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, whiteSpace: "nowrap" as const }}>Von – Bis</th>
-                </>}
-              </tr>
+              {(() => {
+                const activeRows = rows.filter(r => r.status !== "archived");
+                const totalRows = rows.length;
+                const pillars = new Set(rows.map(r => r.pillarKey)).size;
+                const sharpes = rows.map(r => r.sharpeOos).filter((v): v is number => v != null);
+                const avgSharpe = sharpes.length ? (sharpes.reduce((s, v) => s + v, 0) / sharpes.length).toFixed(2) : null;
+                const cagrs = rows.map(r => parseFloat((r.cagr ?? "").replace(/[^0-9.-]/g, ""))).filter(v => !isNaN(v));
+                const avgCagr = cagrs.length ? (cagrs.reduce((s, v) => s + v, 0) / cagrs.length).toFixed(1) + "%" : null;
+                const dds = rows.map(r => parseFloat((r.maxDd ?? "").replace(/[^0-9.-]/g, ""))).filter(v => !isNaN(v) && v !== 0);
+                const avgDd = dds.length ? "−" + (dds.reduce((s, v) => s + v, 0) / dds.length).toFixed(1) + "%" : null;
+                const pfs = rows.map(r => r.pf).filter((v): v is number => v != null);
+                const avgPf = pfs.length ? (pfs.reduce((s, v) => s + v, 0) / pfs.length).toFixed(2) : null;
+                const tradesSum = rows.map(r => r.trades).filter((v): v is number => v != null).reduce((s, v) => s + v, 0);
+                // Only average WF values that are percentages (contain %) to avoid mixing with fold counts like "7/8"
+                const wfs = rows.map(r => r.wfWin ?? "").filter(v => v.includes("%")).map(v => parseFloat(v.replace(/[^0-9.]/g, ""))).filter(v => !isNaN(v) && v > 0);
+                const avgWf = wfs.length ? (wfs.reduce((s, v) => s + v, 0) / wfs.length).toFixed(0) + "%" : null;
+                return (
+                  <tr>
+                    <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 6px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, width: 26 }}>
+                      <div style={{ fontSize: 8, fontWeight: 500, color: "rgba(255,255,255,0.30)", marginBottom: 2 }}>{totalRows}</div>
+                      #
+                    </th>
+                    <th style={{ width: 18, padding: 0, borderBottom: `1px solid ${RBORD}`, background: BG }} />
+                    <Th label="Ticker"  k="ticker"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
+                    <Th label="Asset"   k="label"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
+                    <Th label="Pillar"  k="pillar"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={String(pillars)} />
+                    <Th label="Gew."    k="weight"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg="100%" />
+                    <Th label="Sharpe"  k="sharpeOos" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgSharpe ?? undefined} />
+                    <Th label="CAGR"    k="cagr"      sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgCagr ?? undefined} />
+                    <Th label="Max DD"  k="maxDd"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgDd ?? undefined} />
+                    <Th label="PF"      k="pf"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgPf ?? undefined} />
+                    <Th label="Trades"  k="trades"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={tradesSum > 0 ? String(tradesSum) : undefined} />
+                    <Th label="WF/Win%" k="wfWin"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgWf ?? undefined} />
+                    <Th label="Status"  k="status"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={activeRows.length > 0 ? String(activeRows.length) + " aktiv" : undefined} />
+                    {liveCols && <>
+                      <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, borderLeft: "1px solid rgba(255,255,255,0.05)" }}>Preis</th>
+                      <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG }}>Signal</th>
+                      <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, whiteSpace: "nowrap" as const }}>Von – Bis</th>
+                    </>}
+                  </tr>
+                );
+              })()}
             </thead>
             <tbody>
               {rows.map(row => {
