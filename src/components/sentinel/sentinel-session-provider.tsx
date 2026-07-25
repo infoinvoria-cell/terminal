@@ -116,8 +116,9 @@ export function SentinelSessionProvider({ children, userId }: { children: React.
       if (!response.ok) return;
       const payload = await response.json() as SentinelStatusPayload;
       setStatus((previous) => {
+        const providers = Array.isArray(payload.providers) ? payload.providers : [];
         const providerIsUsable = currentRun.provider
-          ? payload.providers.find((provider) => provider.id === currentRun.provider)?.usable === true
+          ? providers.find((provider) => provider.id === currentRun.provider)?.usable === true
           : false;
         if (currentRun.provider && providerIsUsable) {
           return { ...payload, activeProvider: currentRun.provider };

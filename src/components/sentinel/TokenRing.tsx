@@ -126,7 +126,7 @@ export function TokenRing({ activeProvider }: Props) {
   const totalFrac  = totalLimit > 0 ? Math.min(1, totalUsed / totalLimit) : null;
 
   // Model for active provider
-  const activeModel = status?.providers.find(p => p.id === provider)?.model ?? null;
+  const activeModel = status?.providers?.find(p => p.id === provider)?.model ?? null;
 
   return (
     <div style={{ position: "relative", flexShrink: 0 }}>
