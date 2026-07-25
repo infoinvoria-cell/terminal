@@ -41,6 +41,7 @@ async function collectShips(key: string, budgetMs = 5500, maxShips = 250): Promi
     const timer = setTimeout(done, budgetMs);
     try {
       ws = new WebSocket("wss://stream.aisstream.io/v0/stream");
+      ws.binaryType = "arraybuffer";
     } catch (e) {
       diag.error = `ctor:${String((e as Error)?.message ?? e)}`;
       clearTimeout(timer);
@@ -56,7 +57,9 @@ async function collectShips(key: string, budgetMs = 5500, maxShips = 250): Promi
     };
     ws.onmessage = (ev: MessageEvent) => {
       try {
-        const rawStr = typeof ev.data === "string" ? ev.data : String(ev.data);
+        const rawStr = typeof ev.data === "string"
+          ? ev.data
+          : new TextDecoder().decode(ev.data as ArrayBuffer);
         if (!diag.firstMsg) diag.firstMsg = rawStr.slice(0, 200);
         const data = JSON.parse(rawStr) as AisMessage;
         if (data.MessageType !== "PositionReport") return;
