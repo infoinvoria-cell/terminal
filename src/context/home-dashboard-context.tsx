@@ -19,8 +19,7 @@ export type DashboardPage =
   | "home"
   | "chat"
   | "analytics"
-  | "invest"
-  | "grid"
+| "grid"
   | "users"
   | "manager-overview"
   | "sub-ib-system"
@@ -109,7 +108,7 @@ export function HomeDashboardProvider({
     [initialReportTrades]
   );
 
-  const DASHBOARD_PAGES: DashboardPage[] = ["home","chat","analytics","invest","grid","users","manager-overview","sub-ib-system","investor-analytics"];
+  const DASHBOARD_PAGES: DashboardPage[] = ["home","chat","analytics","grid","users","manager-overview","sub-ib-system","investor-analytics"];
   const [page, setPageRaw] = useState<DashboardPage>(initialPage);
   const setPage = useCallback((p: DashboardPage) => {
     try { window.localStorage.setItem("dashboard_page", p); } catch { /* ignore */ }
