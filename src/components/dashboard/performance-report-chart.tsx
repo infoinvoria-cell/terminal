@@ -37,6 +37,7 @@ type Props = {
   timeframe: TimeFrame;
   view: ViewMode;
   capalifeData: CapalifeData;
+  compact?: boolean; // mobile: fewer x-axis ticks
 };
 
 type MonthlyReturnRow = {
@@ -368,7 +369,7 @@ function Acc2Note({ lastDate }: { lastDate: string | null }) {
   );
 }
 
-export function PerformanceReportChart({ trades, timeframe, view, capalifeData }: Props) {
+export function PerformanceReportChart({ trades, timeframe, view, capalifeData, compact }: Props) {
   const lineData = useMemo(() => buildLineData(trades, timeframe, capalifeData), [trades, timeframe, capalifeData]);
   const barData = useMemo(() => buildBarData(trades, timeframe, capalifeData), [trades, timeframe, capalifeData]);
   const tableRows = useMemo(() => buildTableList(trades, timeframe, capalifeData), [trades, timeframe, capalifeData]);
@@ -376,8 +377,8 @@ export function PerformanceReportChart({ trades, timeframe, view, capalifeData }
     () => validateHomeTrackRecordSeries(timeframe, lineData, capalifeData),
     [timeframe, lineData, capalifeData]
   );
-  const lineInterval = tickInterval(lineData.length);
-  const barInterval = tickInterval(barData.length);
+  const lineInterval = compact ? Math.max(1, tickInterval(lineData.length) * 2 + 1) : tickInterval(lineData.length);
+  const barInterval  = compact ? Math.max(1, tickInterval(barData.length)  * 2 + 1) : tickInterval(barData.length);
   const show1D1WNote = timeframe === "1D" || timeframe === "1W";
   const lastDataDate = useMemo(() => {
     if (!show1D1WNote) return null;
@@ -409,7 +410,7 @@ export function PerformanceReportChart({ trades, timeframe, view, capalifeData }
             </linearGradient>
           </defs>
           <CartesianGrid vertical={false} strokeDasharray="3 5" stroke="rgba(255,255,255,0.04)" />
-          <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#686b73", fontFamily: "var(--font-montserrat,sans-serif)" }} tickLine={false} axisLine={false} interval={lineInterval} />
+          <XAxis dataKey="label" tick={{ fontSize: compact ? 9 : 11, fill: "#686b73", fontFamily: "var(--font-montserrat,sans-serif)" }} tickLine={false} axisLine={false} interval={lineInterval} />
           <YAxis tick={{ fontSize: 11, fill: "#686b73", fontFamily: "var(--font-montserrat,sans-serif)" }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `${v >= 0 ? "+" : ""}${v}%`} />
           <Tooltip content={<ToolTip />} cursor={{ stroke: "rgba(255,255,255,0.10)", strokeWidth: 1 }} />
           <ReferenceLine y={0} stroke="rgba(255,255,255,0.16)" strokeWidth={1} />
@@ -433,7 +434,7 @@ export function PerformanceReportChart({ trades, timeframe, view, capalifeData }
           ))}
         </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 5" stroke="rgba(255,255,255,0.045)" />
-        <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#686b73", fontFamily: "var(--font-montserrat,sans-serif)" }} tickLine={false} axisLine={false} interval={barInterval} />
+        <XAxis dataKey="label" tick={{ fontSize: compact ? 9 : 11, fill: "#686b73", fontFamily: "var(--font-montserrat,sans-serif)" }} tickLine={false} axisLine={false} interval={barInterval} />
         <YAxis tick={{ fontSize: 11, fill: "#686b73", fontFamily: "var(--font-montserrat,sans-serif)" }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `${v > 0 ? "+" : ""}${v}%`} />
         <Tooltip content={<ToolTip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
         <ReferenceLine y={0} stroke="rgba(255,255,255,0.16)" strokeWidth={1} />

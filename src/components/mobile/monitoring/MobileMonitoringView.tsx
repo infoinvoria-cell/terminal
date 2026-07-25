@@ -8,6 +8,38 @@ type CacheEntry = { bars: OhlcBar[]; ts: number };
 const OHLC_CACHE = new Map<string, CacheEntry>();
 const CACHE_TTL = 60_000;
 
+// Display name map for chart headers
+const DISPLAY_NAME: Record<string, string> = {
+  "ZW1!": "Wheat",   "ZC1!": "Corn",    "ZS1!": "Soybeans", "CC1!": "Cocoa",
+  "KC1!": "Coffee",  "SB1!": "Sugar",   "CT1!": "Cotton",   "OJ1!": "OJ",
+  "GC1!": "Gold",    "SI1!": "Silver",  "HG1!": "Copper",   "PL1!": "Plat.",
+  "PA1!": "Pallad.", "CL1!": "Oil",     "NG1!": "NatGas",   "RB1!": "RBOB",
+  "FDAX1!": "DAX",   "ES1!": "S&P",     "YM1!": "Dow",      "NQ1!": "Nasdaq",
+  "UKX!": "FTSE",    "AAPL": "Apple",   "MSFT": "Microsoft","NVDA": "Nvidia",
+  "GOOGL": "Google", "META": "Meta",    "AMZN": "Amazon",
+  "SPY": "SPY",      "QQQ": "QQQ",      "SPMO": "SPMO",     "GLD": "Gold ETF",
+  "6S1!": "CHF",
+  "EURGBP": "EUR/GBP","GBPJPY": "GBP/JPY","MXNUSD": "MXN/USD","NOKUSD": "NOK/USD",
+  "CLPUSD": "CLP/USD","SEKUSD": "SEK/USD","BRLUSD": "BRL/USD","ZARUSD": "ZAR/USD",
+  "DE30EUR_2H": "DAX 2H","DE30EUR_1H": "DAX 1H","EURUSD_30M": "EUR/USD 30M","GBPUSD_30M": "GBP/USD 30M",
+};
+
+// Prefetch a list of symbols in the background (fire-and-forget)
+function prefetch(codes: string[]) {
+  codes.forEach(code => {
+    const ck = code + ":1D";
+    const c = OHLC_CACHE.get(ck);
+    if (c && Date.now() - c.ts < CACHE_TTL) return;
+    fetch(`/api/monitoring/ohlc?symbol=${encodeURIComponent(code)}&timeframe=1D`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        const b: OhlcBar[] = Array.isArray(d?.bars) && d.bars.length ? d.bars : [];
+        OHLC_CACHE.set(ck, { bars: b, ts: Date.now() });
+      })
+      .catch(() => {});
+  });
+}
+
 // Live + All are fixed-left; the rest are scrollable
 const FIXED_TABS = [
   { id: "live",  label: "Live",     assets: [] as string[] },
@@ -95,25 +127,29 @@ function ChartCell({ code }: { code: string }) {
         wickUpColor: "#FFFFFF", wickDownColor: "#D6B44B",
         priceLineVisible: false, lastValueVisible: false,
       });
-      const filtered = bars.filter(b =>
-        b.time >= "2019-01-01" && (b.high - b.low) / Math.max(b.close, 0.0001) > 0.0002
+      const pre = bars.filter(b => (b.high - b.low) / Math.max(b.close, 0.0001) > 0.0002);
+      const filtered = pre.filter((b, i) =>
+        i === 0 || Math.abs(b.open - pre[i-1].close) / Math.max(pre[i-1].close, 0.0001) < 0.40
       );
       series.setData(filtered);
-      chart.timeScale().fitContent();
+      const total = filtered.length;
+      if (total > 20) chart.timeScale().setVisibleLogicalRange({ from: total - 20, to: total + 2 });
+      else chart.timeScale().fitContent();
     });
     return () => { destroyed = true; if (chart) { try { chart.remove(); } catch {} } };
   }, [bars]);
 
-  const label = code.replace("1!", "").replace(/_/g, " ");
+  const sym   = code.replace("1!", "").replace(/_/g, " ");
+  const name  = DISPLAY_NAME[code] ?? sym;
 
   return (
     <div style={{ background: "#0c0d10", display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0 }}>
       {/* Header */}
-      <div style={{ height: 22, display: "flex", alignItems: "center", padding: "0 7px", flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-        <span style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-          {label}
+      <div style={{ height: 24, display: "flex", alignItems: "center", padding: "0 6px", flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.04)", gap: 4 }}>
+        <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.82)", letterSpacing: "0.02em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>
+          {name}
         </span>
-        <span style={{ fontSize: 8, color: "rgba(255,255,255,0.22)", marginLeft: "auto" }}>D</span>
+        <span style={{ fontSize: 8, color: "rgba(255,255,255,0.28)", flexShrink: 0, letterSpacing: "0.04em" }}>{sym}</span>
       </div>
       {/* Chart */}
       <div
@@ -143,6 +179,15 @@ export function MobileMonitoringView() {
   const panelRef    = useRef<HTMLDivElement>(null);
   const scrollTabRef = useRef<HTMLDivElement>(null);
   const programmatic = useRef(false);
+
+  // Prefetch first 3 tabs on mount so they load from cache instantly
+  useEffect(() => {
+    const first3 = SCROLL_TABS.slice(0, 3).flatMap(t => t.assets);
+    prefetch(first3);
+    // Then prefetch remaining tabs lazily
+    const id = setTimeout(() => prefetch(SCROLL_TABS.slice(3).flatMap(t => t.assets)), 3000);
+    return () => clearTimeout(id);
+  }, []);
 
   // Scroll panel to a tab index
   const goToTab = useCallback((idx: number) => {

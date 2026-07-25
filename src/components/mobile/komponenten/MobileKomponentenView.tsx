@@ -512,7 +512,7 @@ function StrategyRow({ row, num, liveData, liveOn }: {
       }}>
         {/* ticker row */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.22)", fontFamily: "var(--font-montserrat),sans-serif", width: 14, flexShrink: 0, textAlign: "right" }}>{num}</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-montserrat),sans-serif", width: 18, flexShrink: 0, textAlign: "right" }}>{num}</span>
           {iconSrc && <img src={iconSrc} alt="" width={15} height={15} style={{ width: 15, height: 15, objectFit: "contain", borderRadius: 3, flexShrink: 0 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />}
           <span style={{ fontSize: 12, fontWeight: 700, fontFamily: "var(--font-montserrat),sans-serif", color: "#fff", flexShrink: 0 }}>{row.ticker}</span>
           <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-montserrat),sans-serif", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>{row.label}</span>

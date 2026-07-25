@@ -215,9 +215,19 @@ function SignalCard({ card, onTap }: { card: SignalCardModel; onTap: () => void 
         {dateNode}
       </div>
 
-      {/* Row 3: direction only */}
-      <div style={{ display: "flex", alignItems: "center" }}>
+      {/* Row 3: direction + TP/SL */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <DirBadge dir={card.direction} />
+        {card.tp != null && (
+          <span style={{ fontSize: 9, color: "#22c55e", fontWeight: 700 }}>
+            TP {card.tp.toFixed(card.tp > 100 ? 0 : 4)}
+          </span>
+        )}
+        {card.sl != null && (
+          <span style={{ fontSize: 9, color: "#ef4444", fontWeight: 700 }}>
+            SL {card.sl.toFixed(card.sl > 100 ? 0 : 4)}
+          </span>
+        )}
       </div>
     </div>
   );

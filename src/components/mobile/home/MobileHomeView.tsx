@@ -310,7 +310,7 @@ export function MobileHomeView({
               </div>
               {/* Chart */}
               <div style={{ position: "absolute", inset: 0, paddingTop: 36, paddingLeft: 12, paddingRight: 8, paddingBottom: 6 }}>
-                <PerformanceReportChart trades={trades} timeframe={timeframe} view={view} capalifeData={capalifeData} />
+                <PerformanceReportChart trades={trades} timeframe={timeframe} view={view} capalifeData={capalifeData} compact />
               </div>
             </div>
           </div>
