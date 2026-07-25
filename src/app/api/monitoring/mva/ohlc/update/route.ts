@@ -1,18 +1,4 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { getImmediateRefreshLockState, triggerImmediateRefresh } from "@/lib/server/monitoring/immediateRefresh";
-import { getMonitoringLiveRefreshLoopState } from "@/lib/server/monitoring/liveRefreshLoop";
-
-export const runtime = "nodejs";
-
-export async function POST(_request: NextRequest) {
-  const refresh = await triggerImmediateRefresh();
-  return NextResponse.json({
-    ok: refresh.ok,
-    runMode: "live_signal",
-    updateMode: "incremental",
-    intervalMs: 300000,
-    refresh,
-    loop: getMonitoringLiveRefreshLoopState(),
-    lock: getImmediateRefreshLockState(),
-  });
-}
+export const runtime = "edge";
+import { NextResponse } from "next/server";
+export async function GET() { return NextResponse.json({ error: "unavailable in cloud preview" }, { status: 503 }); }
+export async function POST() { return NextResponse.json({ error: "unavailable in cloud preview" }, { status: 503 }); }

@@ -1,12 +1,4 @@
+export const runtime = "edge";
 import { NextResponse } from "next/server";
-import { getAgriFinalStatus } from "@/lib/server/monitoring/agriFinalStatus";
-
-export const runtime = "nodejs";
-
-export async function GET() {
-  return NextResponse.json(getAgriFinalStatus(), {
-    headers: {
-      "Cache-Control": "no-store",
-    },
-  });
-}
+export async function GET() { return NextResponse.json({ error: "unavailable in cloud preview" }, { status: 503 }); }
+export async function POST() { return NextResponse.json({ error: "unavailable in cloud preview" }, { status: 503 }); }
