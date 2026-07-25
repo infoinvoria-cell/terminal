@@ -2,10 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import { useGlobalPage, type GlobalPage } from "@/context/global-page-context";
-import { HeaderDivider } from "@/components/dashboard/header-divider";
-import { Sidebar } from "@/components/dashboard/sidebar";
 import { TabsRow } from "@/components/dashboard/tabs-row";
-import { Topbar } from "@/components/dashboard/topbar";
 import {
   UniversalKpiStrip,
   type UniversalKpiStrings,
@@ -165,13 +162,9 @@ function HomeShell({
   );
 
   return (
-    <div className="flex h-[100dvh] min-h-0 overflow-hidden bg-[#0c0d10]">
+    <>
       <SentinelFloatingWindow />
-      <Sidebar />
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        <Topbar sectionLabel={pageLabel(page)} />
-        <HeaderDivider />
-        <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-hidden px-8 pb-3 pt-6">
+      <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-hidden px-8 pb-3 pt-6">
           {page === "home" ? (
             <>
               <div className="shrink-0">
@@ -241,19 +234,7 @@ function HomeShell({
               ) : null}
             </div>
           )}
-        </div>
       </div>
-    </div>
+    </>
   );
-}
-
-function pageLabel(page: DashboardPage) {
-  if (page === "home") return "HOME";
-  if (page === "chat") return "SENTINEL";
-  if (page === "analytics") return "ANALYTICS";
-  if (page === "grid") return "GRID";
-  if (page === "users") return "USERS";
-  if (page === "manager-overview") return "MANAGER OVERVIEW";
-  if (page === "sub-ib-system") return "SUB-IB SYSTEM";
-  return "INVESTOR ANALYTICS";
 }

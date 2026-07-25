@@ -2,10 +2,6 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import useSWR from "swr";
-import { HomeDashboardProvider } from "@/context/home-dashboard-context";
-import { Sidebar } from "@/components/dashboard/sidebar";
-import { Topbar } from "@/components/dashboard/topbar";
-import { HeaderDivider } from "@/components/dashboard/header-divider";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -374,42 +370,33 @@ export function BrainGraphShell() {
   const linkCount = network?.links.length ?? 0;
 
   return (
-    <HomeDashboardProvider initialReportTrades={[]} initialBalanceRows={[]}>
-      <div className="flex h-[100dvh] min-h-0 overflow-hidden bg-[#07080a]">
-        <Sidebar />
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-          <Topbar sectionLabel="Brain Graph" />
-          <HeaderDivider />
-          <main className="relative min-h-0 flex-1 overflow-hidden">
-            {network && network.nodes.length > 0 ? (
-              <>
-                <GlobeCanvas
-                  data={network}
-                  spinning={spinning}
-                  onSelect={setSelected}
-                  selected={selected}
-                />
-                {selected && <NodePanel node={selected} onClose={() => setSelected(null)} />}
-              </>
-            ) : (
-              <div className="flex h-full flex-col items-center justify-center gap-2">
-                <div className="text-sm text-[#555]">
-                  {network ? "Graph nicht verfügbar" : "Lade Graph…"}
-                </div>
-                {network && (network as { message?: string }).message && (
-                  <div className="max-w-sm text-center text-xs text-[#444]">
-                    {(network as { message?: string }).message}
-                  </div>
-                )}
-              </div>
-            )}
-            <StatusStrip status={status ?? null} nodeCount={nodeCount} linkCount={linkCount} dataSource={network?.source} />
-            {network && network.nodes.length > 0 && (
-              <PlayButton spinning={spinning} onToggle={() => setSpinning((s) => !s)} />
-            )}
-          </main>
+    <main className="relative min-h-0 flex-1 overflow-hidden">
+      {network && network.nodes.length > 0 ? (
+        <>
+          <GlobeCanvas
+            data={network}
+            spinning={spinning}
+            onSelect={setSelected}
+            selected={selected}
+          />
+          {selected && <NodePanel node={selected} onClose={() => setSelected(null)} />}
+        </>
+      ) : (
+        <div className="flex h-full flex-col items-center justify-center gap-2">
+          <div className="text-sm text-[#555]">
+            {network ? "Graph nicht verfügbar" : "Lade Graph…"}
+          </div>
+          {network && (network as { message?: string }).message && (
+            <div className="max-w-sm text-center text-xs text-[#444]">
+              {(network as { message?: string }).message}
+            </div>
+          )}
         </div>
-      </div>
-    </HomeDashboardProvider>
+      )}
+      <StatusStrip status={status ?? null} nodeCount={nodeCount} linkCount={linkCount} dataSource={network?.source} />
+      {network && network.nodes.length > 0 && (
+        <PlayButton spinning={spinning} onToggle={() => setSpinning((s) => !s)} />
+      )}
+    </main>
   );
 }

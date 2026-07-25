@@ -473,7 +473,6 @@ export function Sidebar() {
         <SidebarIconButton page="home"  activePage={sidebarPageState} label="Home"     icon={Home}         onSelect={onSelectPage} expanded={expanded} />
         <SidebarIconButton page="chat"  activePage={sidebarPageState} label="Sentinel" icon={MessageSquare} onSelect={onSelectPage} expanded={expanded} />
         <SidebarLink href="/brain" active={brainActive} label="Brain Graph" icon={GitFork} expanded={expanded} />
-        <SidebarLink href="/brain-files" active={pathname?.startsWith("/brain-files") ?? false} label="Brain Vault" icon={GitFork} expanded={expanded} />
         <SidebarLink href="/globe" active={globeActive} label="Globe" icon={Globe} expanded={expanded} />
       </nav>
 

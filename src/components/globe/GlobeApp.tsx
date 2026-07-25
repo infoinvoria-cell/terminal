@@ -1824,6 +1824,9 @@ export default function GlobeApp() {
   const onFocusLocationHandled = useCallback(() => {
     setFocusLocation(null);
   }, []);
+  const onCameraChange = useCallback((cam: import("@/lib/globe/globe-types").GlobeCameraState) => {
+    setCamera(cam);
+  }, []);
 
   const seasonalityResearch = useMemo(
     () => buildGlobeSeasonalityAnalysis(timeseries?.ohlcv ?? [], seasonality),
@@ -1995,7 +1998,7 @@ export default function GlobeApp() {
     autoRotateEnabled: isPageActive && effectiveAutoRotateEnabled,
     autoRotateSpeed: effectiveAutoRotateSpeed,
     goldThemeEnabled: false,
-    onCameraChange: (cam: import("@/lib/globe/globe-types").GlobeCameraState) => setCamera(cam),
+    onCameraChange,
     onSelectAsset: onGlobeSelectAsset,
     onFocusHandled,
     onFocusLocationHandled,
