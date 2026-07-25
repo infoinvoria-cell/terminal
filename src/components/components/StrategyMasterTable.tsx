@@ -296,21 +296,26 @@ function LiveTimer({ secs, max }: { secs: number; max: number }) {
 interface IntradayCurvePoint { date: string; equity: number; }
 interface IntradayStrategy {
   id: string; title: string;
-  oos: { curve: IntradayCurvePoint[]; stats: { cagr: number; maxDD: number; sharpe: number; pf: number; n: number; wr: number } };
+  oos: { curve: IntradayCurvePoint[]; stats: { cagr: number; maxDD: number; mar?: number; sharpe: number; pf: number; n: number; wr: number } };
 }
 
-// ── candle chart — matches MonitoringChart, ~20 visible bars, optional signal overlay ──
-function CandleChart({ ticker }: { ticker: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [bars, setBars] = useState<OhlcBar[] | null>(null);
+// ── candle chart — price line, auto-refresh, signal overlay ──────────────────
+function CandleChart({ ticker, refreshSecs = 30 }: { ticker: string; refreshSecs?: number }) {
+  const ref  = useRef<HTMLDivElement>(null);
+  const [bars, setBars]   = useState<OhlcBar[] | null>(null);
   const [trade, setTrade] = useState<LiveTrade | null>(null);
+
+  const fetchBars = useRef(() => {});
 
   useEffect(() => {
     const sym = encodeURIComponent(ticker.split(" ")[0]);
-    fetch(`/api/monitoring/ohlc?symbol=${sym}&timeframe=1D`)
-      .then(r => r.json())
-      .then(d => setBars(Array.isArray(d.bars) && d.bars.length ? d.bars : []))
-      .catch(() => setBars([]));
+    fetchBars.current = () => {
+      fetch(`/api/monitoring/ohlc?symbol=${sym}&timeframe=1D`)
+        .then(r => r.json())
+        .then(d => setBars(Array.isArray(d.bars) && d.bars.length ? d.bars : []))
+        .catch(() => setBars([]));
+    };
+    fetchBars.current();
 
     fetch("/api/monitoring/live-state")
       .then(r => r.json())
@@ -326,6 +331,12 @@ function CandleChart({ ticker }: { ticker: string }) {
       .catch(() => {});
   }, [ticker]);
 
+  // auto-refresh at refreshSecs interval
+  useEffect(() => {
+    const id = setInterval(() => fetchBars.current(), refreshSecs * 1000);
+    return () => clearInterval(id);
+  }, [refreshSecs]);
+
   useEffect(() => {
     if (!ref.current || !bars?.length) return;
     let destroyed = false;
@@ -334,7 +345,7 @@ function CandleChart({ ticker }: { ticker: string }) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let ro: any = null;
 
-    import("lightweight-charts").then(({ createChart, CandlestickSeries, CrosshairMode, ColorType }) => {
+    import("lightweight-charts").then(({ createChart, CandlestickSeries, CrosshairMode, ColorType, LineStyle }) => {
       if (destroyed || !ref.current) return;
       const el = ref.current;
       chart = createChart(el, {
@@ -369,7 +380,6 @@ function CandleChart({ ticker }: { ticker: string }) {
       const filtered = bars.filter((b: OhlcBar) => b.time >= "2019-01-01");
       series.setData(filtered);
 
-      // show ~20 visible candles
       const total = filtered.length;
       if (total > 20) {
         chart.timeScale().setVisibleLogicalRange({ from: total - 20, to: total + 2 });
@@ -377,14 +387,27 @@ function CandleChart({ ticker }: { ticker: string }) {
         chart.timeScale().fitContent();
       }
 
-      // live signal overlay — entry line only (no SL/TP available from API)
+      // last price line — solid white, always visible on Y-axis
+      const lastBar = filtered[filtered.length - 1];
+      if (lastBar?.close) {
+        series.createPriceLine({
+          price: lastBar.close,
+          color: "rgba(255,255,255,0.55)",
+          lineWidth: 1,
+          lineStyle: LineStyle.Solid,
+          axisLabelVisible: true,
+          title: "",
+        });
+      }
+
+      // entry signal overlay
       if (trade?.entry_price) {
         const isLong = (trade.direction ?? "").toLowerCase() === "long";
         series.createPriceLine({
           price: trade.entry_price,
-          color: isLong ? "rgba(255,255,255,0.7)" : GOLD,
+          color: isLong ? "rgba(255,255,255,0.85)" : GOLD,
           lineWidth: 1,
-          lineStyle: 2,
+          lineStyle: LineStyle.Dashed,
           axisLabelVisible: true,
           title: `Einstieg ${isLong ? "▲" : "▼"}`,
         });
@@ -487,12 +510,45 @@ function syntheticCurves(cagrStr: string | null, maxDdStr: string | null): { eq:
   return { eq, dd };
 }
 
+// ── strategy info helpers ─────────────────────────────────────────────────────
+function inferDirection(engine: string): string {
+  const e = engine.toLowerCase();
+  if (e.includes("long-only") || e.includes("long only")) return "Long Only";
+  if (e.includes("short-only") || e.includes("short only")) return "Short Only";
+  if (e.includes("long") && e.includes("short")) return "Long & Short";
+  if (e.includes("long")) return "Long";
+  if (e.includes("short")) return "Short";
+  return "Long & Short";
+}
+
+function pillarDescription(pillar: string): string {
+  switch (pillar) {
+    case "valuation": return "Fundamentale Überbewertung / Unterbewertung als Einstiegssignal. Modell-basiert, kein Pattern.";
+    case "macro":     return "Makroökonomischer Filter (z.B. Trend-Regime, saisonale Makrostruktur). Hält Positionen über Wochen.";
+    case "trend":     return "EMA-basierter Trendfolge-Ansatz. Einstieg bei Crossover, Ausstieg bei Gegentrend.";
+    case "seasonal":  return "Kalender-basiertes Muster (festes Datum Ein-/Ausstieg). Historisch replizierbares Saisonal-Phänomen.";
+    case "anomaly":   return "Wochentagsanomalie (z.B. Freitag-Long, Dienstag-Reversal). Marktstruktur-basiert.";
+    case "intraday":  return "Intraday Mean-Reversion / Momentum. Hält keine Positionen über Nacht. Session-gebunden.";
+    default:          return "Multi-Asset Strategie.";
+  }
+}
+
+function dataRangeLabel(pillar: string, intradayId?: string): string {
+  if (intradayId) return "OOS: Dez 2017 – laufend (live)";
+  if (pillar === "anomaly") return "OOS: Jan 2019 – laufend (live)";
+  return "OOS: Jan 2019 – Jun 2026";
+}
+
 // ── expanded row — candle chart left, equity/drawdown/KPIs right ──────────────
 function ExpandedRow({ row }: { row: DisplayRow }) {
   const [data, setData]         = useState<StrategyData | null>(null);
   const [intraday, setIntraday] = useState<IntradayStrategy | null>(null);
   const [codexEq, setCodexEq]   = useState<EP[] | null>(null);
   const [codexDd, setCodexDd]   = useState<EP[] | null>(null);
+  const [showInfo, setShowInfo] = useState(false);
+
+  const isRealtime = row.pillarKey === "anomaly" || row.pillarKey === "intraday";
+  const refreshSecs = isRealtime ? 5 : 30;
 
   // Priority 1: dataFile → full anomaly JSON (equity + drawdown)
   useEffect(() => {
@@ -500,31 +556,29 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
     fetch(`/data/${row.dataFile}`).then(r => r.json()).then(setData).catch(() => {});
   }, [row.dataFile]);
 
-  // Priority 2: codex API → equity + drawdown (for seasonal/macro/intraday)
+  // Priority 2: codex API → equity + drawdown (seasonal/macro)
   useEffect(() => {
-    if (!row.codexGroup || !row.codexSymbol || row.dataFile) return;
+    if (!row.codexGroup || !row.codexSymbol || row.dataFile || row.intradayId) return;
     const g = row.codexGroup, s = row.codexSymbol;
     fetch(`/api/monitoring/codex-equity-curve?group=${g}&symbol=${s}&type=equity`)
       .then(r => r.json())
       .then((d: { rows?: Array<{ date: string; value: number }> }) => {
-        if (d.rows?.length) {
+        if (d.rows?.length)
           setCodexEq(d.rows.map(p => ({ time: p.date.length === 7 ? p.date + "-01" : p.date, value: p.value })));
-        }
       })
       .catch(() => {});
     fetch(`/api/monitoring/codex-equity-curve?group=${g}&symbol=${s}&type=drawdown`)
       .then(r => r.json())
       .then((d: { rows?: Array<{ date: string; value: number }> }) => {
-        if (d.rows?.length) {
+        if (d.rows?.length)
           setCodexDd(d.rows.map(p => ({ time: p.date.length === 7 ? p.date + "-01" : p.date, value: p.value })));
-        }
       })
       .catch(() => {});
-  }, [row.codexGroup, row.codexSymbol, row.dataFile]);
+  }, [row.codexGroup, row.codexSymbol, row.dataFile, row.intradayId]);
 
-  // Priority 3: intradayId → intraday-equity.json (equity only)
+  // Priority 3: intradayId → intraday-equity.json (always — real OOS equity)
   useEffect(() => {
-    if (!row.intradayId || row.dataFile || row.codexGroup) return;
+    if (!row.intradayId || row.dataFile) return;
     fetch("/data/intraday-equity.json")
       .then(r => r.json())
       .then((d: { strategies: IntradayStrategy[] }) => {
@@ -532,7 +586,7 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
         setIntraday(s ?? null);
       })
       .catch(() => {});
-  }, [row.intradayId, row.dataFile, row.codexGroup]);
+  }, [row.intradayId, row.dataFile]);
 
   const eqOos = data?.equityCurve?.oos;
   const ddOos = data?.drawdownCurve?.oos;
@@ -543,14 +597,12 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
     : null;
   const ist = intraday?.oos?.stats;
 
-  // Priority 4: synthetic fallback if no real curves loaded
+  // synthetic fallback only when truly no real data
   const hasRealEq = (eqOos?.length ?? 0) > 0 || (codexEq?.length ?? 0) > 0 || (intradayEq?.length ?? 0) > 0;
   const synth = hasRealEq ? null : syntheticCurves(row.cagr, row.maxDd);
 
-  // pick best available equity + drawdown curves
-  const activeEq: EP[] | null = eqOos?.length ? eqOos : codexEq?.length ? codexEq : intradayEq?.length ? intradayEq : synth?.eq ?? null;
+  const activeEq: EP[] | null = eqOos?.length ? eqOos : intradayEq?.length ? intradayEq : codexEq?.length ? codexEq : synth?.eq ?? null;
   const activeDd: EP[] | null = ddOos?.length ? ddOos : codexDd?.length ? codexDd : synth?.dd ?? null;
-
   const isSynthetic = !hasRealEq && synth !== null;
 
   const cagrLabel = oos?.cagr != null ? ` · +${oos.cagr.toFixed(2)}% CAGR`
@@ -559,42 +611,132 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
   const eqLabel = isSynthetic ? `Equity (Sim)${cagrLabel}` : `Equity OOS${cagrLabel}`;
 
   const kpis: Array<{ label: string; value: string }> = [];
-  if (row.sharpeOos !== null)   kpis.push({ label: "Sharpe OOS",   value: fmtN(row.sharpeOos) });
-  else if (ist?.sharpe != null) kpis.push({ label: "Sharpe OOS",   value: String(ist.sharpe).replace(",", ".") });
-  if (oos?.cagr != null)        kpis.push({ label: "CAGR OOS",     value: `${oos.cagr > 0 ? "+" : ""}${oos.cagr.toFixed(2)}%` });
-  else if (ist?.cagr != null)   kpis.push({ label: "CAGR OOS",     value: `+${String(ist.cagr).replace(",", ".")}%` });
-  else if (row.cagr)            kpis.push({ label: row.section === "ci" ? "Total Return" : "CAGR", value: row.cagr });
-  if (oos?.maxDrawdownPercent != null) kpis.push({ label: "Max DD", value: `${oos.maxDrawdownPercent.toFixed(2)}%` });
-  else if (ist?.maxDD != null)  kpis.push({ label: "Max DD",       value: `−${String(ist.maxDD).replace(",", ".")}%` });
-  else if (row.maxDd)           kpis.push({ label: "Max DD",       value: row.maxDd });
-  if (row.pf != null)           kpis.push({ label: "Profit Factor", value: fmtN(row.pf) });
-  else if (ist?.pf != null)     kpis.push({ label: "Profit Factor", value: String(ist.pf).replace(",", ".") });
-  if (row.trades != null)       kpis.push({ label: "Trades",       value: String(row.trades) });
-  else if (ist?.n != null)      kpis.push({ label: "Trades",       value: String(ist.n) });
-  if (row.wfWin)                kpis.push({ label: row.section === "ci" ? "Win Rate" : "WF / OOS", value: row.wfWin });
-  if (row.calmar != null)       kpis.push({ label: "Calmar",       value: fmtN(row.calmar) });
+  if (row.sharpeOos !== null)        kpis.push({ label: "Sharpe OOS",    value: fmtN(row.sharpeOos) });
+  else if (ist?.sharpe != null)      kpis.push({ label: "Sharpe OOS",    value: fmtN(ist.sharpe) });
+  if (oos?.cagr != null)             kpis.push({ label: "CAGR OOS",      value: `${oos.cagr > 0 ? "+" : ""}${oos.cagr.toFixed(2)}%` });
+  else if (ist?.cagr != null)        kpis.push({ label: "CAGR OOS",      value: `+${fmtN(ist.cagr)}%` });
+  else if (row.cagr)                 kpis.push({ label: "CAGR",          value: row.cagr });
+  if (oos?.maxDrawdownPercent != null) kpis.push({ label: "Max DD",      value: `${oos.maxDrawdownPercent.toFixed(2)}%` });
+  else if (ist?.maxDD != null)       kpis.push({ label: "Max DD",        value: `−${fmtN(ist.maxDD)}%` });
+  else if (row.maxDd)                kpis.push({ label: "Max DD",        value: row.maxDd });
+  if (row.pf != null)                kpis.push({ label: "Profit Factor", value: fmtN(row.pf) });
+  else if (ist?.pf != null)          kpis.push({ label: "Profit Factor", value: fmtN(ist.pf) });
+  if (row.trades != null)            kpis.push({ label: "Trades",        value: String(row.trades) });
+  else if (ist?.n != null)           kpis.push({ label: "Trades",        value: String(ist.n) });
+  if (row.wfWin)                     kpis.push({ label: "WF / OOS",      value: row.wfWin });
+  if (row.calmar != null)            kpis.push({ label: "Calmar / MAR",  value: fmtN(row.calmar) });
+  else if (ist?.mar != null)         kpis.push({ label: "Calmar / MAR",  value: fmtN(ist.mar) });
+  if (ist?.wr != null)               kpis.push({ label: "Win Rate",      value: `${(ist.wr * 100).toFixed(1)}%` });
+
+  // info panel extended stats
+  const infoStats: Array<{ label: string; value: string }> = [
+    { label: "Asset",      value: `${row.label} (${row.ticker})` },
+    { label: "Exchange",   value: row.exchange ?? "—" },
+    { label: "Pillar",     value: row.pillarLabel },
+    { label: "Engine",     value: row.engine },
+    { label: "Richtung",   value: inferDirection(row.engine) },
+    { label: "Datenbereich", value: dataRangeLabel(row.pillarKey, row.intradayId) },
+    { label: "Beschreibung", value: pillarDescription(row.pillarKey) },
+  ];
+  if (row.sharpeOos !== null)         infoStats.push({ label: "Sharpe OOS",    value: fmtN(row.sharpeOos) });
+  else if (ist?.sharpe != null)       infoStats.push({ label: "Sharpe OOS",    value: fmtN(ist.sharpe) });
+  if (ist?.mar != null)               infoStats.push({ label: "MAR (Calmar)",  value: fmtN(ist.mar) });
+  else if (row.calmar != null)        infoStats.push({ label: "Calmar",        value: fmtN(row.calmar) });
+  if (row.cagr)                       infoStats.push({ label: "CAGR OOS",      value: row.cagr });
+  if (row.maxDd)                      infoStats.push({ label: "Max DD",        value: row.maxDd });
+  if (row.pf != null)                 infoStats.push({ label: "Profit Factor", value: fmtN(row.pf) });
+  if (row.trades != null)             infoStats.push({ label: "# Trades",      value: String(row.trades) });
+  else if (ist?.n != null)            infoStats.push({ label: "# Trades",      value: String(ist.n) });
+  if (row.wfWin)                      infoStats.push({ label: "WF / OOS",      value: row.wfWin });
+  if (ist?.wr != null)                infoStats.push({ label: "Win Rate",      value: `${(ist.wr * 100).toFixed(1)}%` });
+  if (oos?.profitFactor != null)      infoStats.push({ label: "PF (Anomaly)",  value: fmtN(oos.profitFactor) });
+  if (oos?.winRate != null)           infoStats.push({ label: "WR (Anomaly)",  value: `${oos.winRate.toFixed(1)}%` });
+  if (oos?.tradeCount != null)        infoStats.push({ label: "Trades (An.)",  value: String(oos.tradeCount) });
+  if (row.isNotes)                    infoStats.push({ label: "Notiz",         value: row.isNotes });
+  infoStats.push({ label: "Status", value: row.status });
 
   return (
-    <div style={{ padding: "14px 16px 20px", background: "rgba(255,255,255,0.012)", borderTop: `1px solid ${RBORD}` }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
-        <div>
-          <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 6 }}>
-            OHLC · {row.ticker} · Daily
-          </div>
-          <CandleChart ticker={row.ticker} />
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {activeEq && activeEq.length > 0 && (
-            <EqChart pts={activeEq} label={eqLabel} />
-          )}
-          {activeDd && activeDd.length > 0 && <DdChart pts={activeDd} />}
-          {kpis.length > 0 && (
-            <div style={{ display: "flex", flexWrap: "nowrap" as const, gap: 5, marginTop: 4 }}>
-              {kpis.map(k => <EKpi key={k.label} label={k.label} value={k.value} />)}
+    <div style={{ background: "rgba(255,255,255,0.012)", borderTop: `1px solid ${RBORD}` }}>
+      <div style={{ padding: "14px 16px 20px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+          {/* Left: candle chart */}
+          <div>
+            <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 6 }}>
+              OHLC · {row.ticker} · Daily · {isRealtime ? "5s" : "30s"} Refresh
             </div>
-          )}
+            <CandleChart ticker={row.ticker} refreshSecs={refreshSecs} />
+          </div>
+          {/* Right: equity + drawdown + KPIs */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {activeEq && activeEq.length > 0 && <EqChart pts={activeEq} label={eqLabel} />}
+            {activeDd && activeDd.length > 0 && <DdChart pts={activeDd} />}
+            {kpis.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "nowrap" as const, gap: 5, marginTop: 4 }}>
+                {kpis.map(k => <EKpi key={k.label} label={k.label} value={k.value} />)}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Info toggle button — centered below the two columns */}
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
+          <button
+            onClick={() => setShowInfo(v => !v)}
+            title={showInfo ? "Strategie-Info schließen" : "Strategie-Details anzeigen"}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              background: showInfo ? "rgba(255,255,255,0.07)" : "transparent",
+              border: `1px solid ${showInfo ? "rgba(255,255,255,0.18)" : RBORD}`,
+              borderRadius: 20, padding: "4px 14px", cursor: "pointer",
+              color: showInfo ? "rgba(255,255,255,0.8)" : MUTED,
+              fontSize: 10, fontFamily: "var(--font-montserrat),sans-serif",
+              fontWeight: 600, letterSpacing: ".07em", textTransform: "uppercase" as const,
+              transition: "all .15s",
+            }}
+          >
+            <svg width={12} height={12} viewBox="0 0 12 12" fill="none">
+              <circle cx={6} cy={6} r={5} stroke="currentColor" strokeWidth={1.2} />
+              <rect x={5.4} y={5} width={1.2} height={4} rx={0.6} fill="currentColor" />
+              <rect x={5.4} y={3} width={1.2} height={1.2} rx={0.6} fill="currentColor" />
+            </svg>
+            {showInfo ? "Weniger" : "Strategie-Details"}
+          </button>
         </div>
       </div>
+
+      {/* Info panel — full width */}
+      {showInfo && (
+        <div style={{
+          borderTop: `1px solid ${RBORD}`,
+          padding: "16px 16px 20px",
+          background: "rgba(255,255,255,0.018)",
+        }}>
+          <div style={{
+            fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif",
+            letterSpacing: ".08em", textTransform: "uppercase" as const, marginBottom: 12,
+          }}>
+            Strategie-Details · {row.label}
+          </div>
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+            gap: "8px 16px",
+          }}>
+            {infoStats.map(s => (
+              <div key={s.label} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <span style={{
+                  fontSize: 9, fontFamily: "var(--font-montserrat),sans-serif",
+                  color: MUTED, letterSpacing: ".07em", textTransform: "uppercase" as const,
+                }}>{s.label}</span>
+                <span style={{
+                  fontSize: 12, fontFamily: "var(--font-montserrat),sans-serif",
+                  color: "rgba(255,255,255,0.82)", fontWeight: 500, lineHeight: 1.3,
+                }}>{s.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
