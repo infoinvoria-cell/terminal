@@ -1100,8 +1100,26 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           headers: { "Content-Type": "application/json" },
         });
       } catch {
+        // Workspace cache not found — fall back to pre-generated static file (works on Vercel)
+        try {
+          const staticFile = path.join(
+            process.cwd(),
+            "public", "generated", "seasonality",
+            `${assetId}_${lookbackYrs}y_cache.json`,
+          );
+          const staticRaw = await fs.readFile(staticFile, "utf-8");
+          const staticParsed = JSON.parse(staticRaw);
+          if (staticParsed._source === "static_generated") {
+            return new NextResponse(JSON.stringify(staticParsed), {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+        } catch {
+          // Static file also not found
+        }
         return NextResponse.json(
-          { error: "CACHE_NOT_FOUND", cacheFile, hint: `Run: python3 workspace/tools/seasonality/build_seasonality_research_cache.py --asset ${assetId} --lookback ${lookbackYrs}` },
+          { error: "CACHE_NOT_FOUND", cacheFile, hint: "Run: node scripts/generate-seasonality-cache.mjs" },
           { status: 404 },
         );
       }

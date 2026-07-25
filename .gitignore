@@ -101,6 +101,9 @@ public/generated/**
 !public/generated/monitoring/manifest.json
 !public/generated/monitoring/mobile/
 !public/generated/monitoring/mobile/**
+# Seasonality static cache for Vercel (pre-computed seasonal curves, no raw data)
+!public/generated/seasonality/
+!public/generated/seasonality/**
 
 # personal photos - personal data, never commit (matches at any depth)
 # Exception: public/ avatars used by the UserGate UI
