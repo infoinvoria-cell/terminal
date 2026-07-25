@@ -96,14 +96,27 @@ const WS_STRATEGY_IDS = [
   "Intraday MT v3-F",
 ] as const;
 // v1.1 frozen weights: 6 WS × 0.70 + Intraday 30%
+// Actual portfolio weights (ws-strategy-data.ts source of truth, 2026-07-25)
+// Anomaly strategies have null portfolio weight → 0 here (research overlay, not in blend)
+// Coverage: UKX(2)+CT1(9)+NQ1(3)+Intraday(40) = 54% of portfolio has equity curves
 const WS_FROZEN_WEIGHTS: Record<string, number> = {
-  "GC1 Friday Long":   13.86,
-  "GLD Thursday Long": 13.86,
-  "YM1 TAT":           13.86,
-  "UKX Valuation":     13.86,
-  "CT1 Macro A":        7.56,
-  "NQ1 Trend LO":       7.00,
-  "Intraday MT v3-F":  30.00,
+  "GC1 Friday Long":   0,   // Anomaly — null portfolio weight (research only)
+  "GLD Thursday Long": 0,   // Anomaly
+  "YM1 TAT":           0,   // Anomaly
+  "UKX Valuation":     2,   // 2% — UKX! Valuation strategy
+  "CT1 Macro A":       9,   // 9% — CT1 Macro strategy
+  "NQ1 Trend LO":      3,   // 3% — NQ1 Trend strategy
+  "Intraday MT v3-F":  40,  // 40% — Intraday sleeve (6E1! + DAX1H + DAX2H)
+};
+// Default enabled: anomaly off (0% weight, research only); portfolio strategies on
+const WS_DEFAULT_ENABLED: Record<string, boolean> = {
+  "GC1 Friday Long":   false,
+  "GLD Thursday Long": false,
+  "YM1 TAT":           false,
+  "UKX Valuation":     true,
+  "CT1 Macro A":       true,
+  "NQ1 Trend LO":      true,
+  "Intraday MT v3-F":  true,
 };
 const WS_STRATEGY_SHORT: Record<string, string> = {
   "GC1 Friday Long":   "GC1! Friday",
@@ -1897,8 +1910,9 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
     try { const s = typeof window !== "undefined" ? localStorage.getItem("ws-weights") : null; return s ? (JSON.parse(s) as Record<string, number>) : { ...WS_FROZEN_WEIGHTS }; } catch { return { ...WS_FROZEN_WEIGHTS }; }
   });
   const [wsEnabled, setWsEnabled] = useState<Record<string, boolean>>(
-    () => Object.fromEntries(WS_STRATEGY_IDS.map(id => [id, true] as [string, boolean]))
+    () => ({ ...WS_DEFAULT_ENABLED })
   );
+  const [anomalyGroupSeries, setAnomalyGroupSeries] = useState<Record<string, AnalyticsSeriesPoint[]>>({});
   const [wsRiskMultiplier, setWsRiskMultiplier] = useState<number>(() => {
     try { const s = typeof window !== "undefined" ? localStorage.getItem("ws-risk-multiplier") : null; return s ? Number(s) : 2.5; } catch { return 2.5; }
   });
@@ -1911,14 +1925,42 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
     try { localStorage.setItem("ws-risk-multiplier", String(wsRiskMultiplier)); } catch { /* ignore */ }
   }, [wsRiskMultiplier]);
 
+  // Load anomaly OOS equity curves from individual trade JSON files (trade-level resolution)
+  useEffect(() => {
+    const files: Array<[string, string]> = [
+      ["GC1 Friday Long",   "/data/anomaly/gc1_friday_long.json"],
+      ["GLD Thursday Long", "/data/anomaly/gld_thursday_long.json"],
+      ["YM1 TAT",           "/data/anomaly/ym1_tat.json"],
+    ];
+    Promise.all(
+      files.map(([id, url]) =>
+        fetch(url).then(r => r.ok ? r.json() : null).then(d => ({ id, d })).catch(() => ({ id, d: null }))
+      )
+    ).then(results => {
+      const series: Record<string, AnalyticsSeriesPoint[]> = {};
+      for (const { id, d } of results) {
+        const oos: Array<{ time: string; value: number }> = d?.equityCurve?.oos ?? [];
+        if (!oos.length) continue;
+        const base = oos[0].value;
+        series[id] = oos.map(p => ({ date: p.time, value: Number(((p.value / base - 1) * 100).toFixed(2)) }));
+      }
+      setAnomalyGroupSeries(series);
+    });
+  }, []);
+
   const baseDataset = useMemo(() => getAnalyticsDataset(tab, mode, fsportfolio, capalifeData), [tab, mode, fsportfolio, capalifeData]);
+  // Merge trade-level anomaly curves (individual trade data points) into the base groupSeries
+  const baseDatasetWithTrades = useMemo(() => {
+    if (!Object.keys(anomalyGroupSeries).length) return baseDataset;
+    return { ...baseDataset, groupSeries: { ...baseDataset.groupSeries, ...anomalyGroupSeries } };
+  }, [baseDataset, anomalyGroupSeries]);
   const ciBaseForCombined = useMemo(() => tab === "combined" ? getAnalyticsDataset("invest", "backtest", fsportfolio, capalifeData) : null, [tab, fsportfolio, capalifeData]);
   const dataset = useMemo(() => {
     if (tab === "invest") {
       return buildScopedInvestDataset(fsportfolio, mode, investWeights, investEnabled, startFilter, baseDataset);
     }
     if (tab === "whiteSwan" && mode === "backtest") {
-      return buildScopedWsDataset(baseDataset, wsWeights, wsEnabled, wsRiskMultiplier);
+      return buildScopedWsDataset(baseDatasetWithTrades, wsWeights, wsEnabled, wsRiskMultiplier);
     }
     if (tab === "combined" && ciBaseForCombined) {
       const ciScoped = buildScopedInvestDataset(fsportfolio, "backtest", investWeights, investEnabled, startFilter, ciBaseForCombined);
@@ -2047,7 +2089,7 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
                 onRiskChange={setWsRiskMultiplier}
                 onReset={() => {
                   setWsWeights({ ...WS_FROZEN_WEIGHTS });
-                  setWsEnabled(Object.fromEntries(WS_STRATEGY_IDS.map(id => [id, true])));
+                  setWsEnabled({ ...WS_DEFAULT_ENABLED });
                   setWsRiskMultiplier(2.5);
                 }}
               />
