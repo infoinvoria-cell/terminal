@@ -474,7 +474,7 @@ function CandleChart({ ticker, timeframe = "1D", refreshSecs = 30 }: { ticker: s
         chart.timeScale().fitContent();
       }
 
-      // last price — dashed line with Y-axis label only
+      // last price — Y-axis label only, no full-width horizontal line
       const lastBar = filtered[filtered.length - 1];
       if (lastBar?.close) {
         series.createPriceLine({
@@ -482,6 +482,7 @@ function CandleChart({ ticker, timeframe = "1D", refreshSecs = 30 }: { ticker: s
           color: "rgba(255,255,255,0.40)",
           lineWidth: 1,
           lineStyle: LineStyle.Dashed,
+          lineVisible: false,       // suppress full-width line; only show Y-axis label
           axisLabelVisible: true,
           title: "",
         });
@@ -559,7 +560,7 @@ function EqChart({ pts, label, syncId, oosStart }: { pts: EP[]; label: string; s
             formatter={(v: any) => [`$${Number(v ?? 0).toLocaleString("de", { maximumFractionDigits: 0 })}`, "Equity"]}
             cursor={CURSOR_STYLE} />
           <Area type="monotone" dataKey="v" stroke="#fff" strokeWidth={1.5} strokeOpacity={0.75} fill="url(#eqg2)" dot={false} activeDot={{ r: 3, fill: "#fff", strokeWidth: 0 }} />
-          {oosKey && <ReferenceLine x={oosKey} {...REF_LINE_STYLE} label={{ value: "OOS", position: "insideTopRight", fill: "rgba(255,255,255,0.35)", fontSize: 8, fontFamily: "var(--font-montserrat),sans-serif" }} />}
+          {oosKey && <ReferenceLine x={oosKey} {...REF_LINE_STYLE} label={{ value: "IS / OOS", position: "insideTopRight", fill: "rgba(255,255,255,0.40)", fontSize: 8, fontFamily: "var(--font-montserrat),sans-serif" }} />}
         </AreaChart>
       </ResponsiveContainer>
     </div>
@@ -718,13 +719,19 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
   const ddOos = data?.drawdownCurve?.oos;
   const oos   = data?.summary?.oos;
 
-  // intraday: combine IS + OOS for full history
+  // intraday: combine IS + OOS for full history — chain OOS to continue from IS end value
   const intradayFull: EP[] | null = (() => {
     if (!intraday) return null;
     const isC  = (intraday.is?.curve  ?? []).map(p => ({ time: p.date + "-01", value: p.equity }));
     const oosC = (intraday.oos?.curve ?? []).map(p => ({ time: p.date + "-01", value: p.equity }));
-    const combined = [...isC, ...oosC];
-    return combined.length ? combined : null;
+    if (!isC.length) return oosC.length ? oosC : null;
+    if (!oosC.length) return isC;
+    // scale OOS so first OOS point == last IS point (no vertical gap)
+    const isEnd  = isC[isC.length - 1].value;
+    const oosBase = oosC[0].value;
+    const scale = oosBase > 0 ? isEnd / oosBase : 1;
+    const oosScaled = oosC.map(p => ({ time: p.time, value: p.value * scale }));
+    return [...isC, ...oosScaled];
   })();
   const ist = intraday?.oos?.stats;
 
@@ -846,7 +853,7 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
           {/* Left: candle chart */}
           <div>
             <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 6 }}>
-              OHLC · {row.ticker} · {candleTf} · {isRealtime ? "5s" : "30s"} Refresh
+              OHLC · {row.ticker} · 1D · {isRealtime ? "5s" : "30s"} Refresh
             </div>
             <CandleChart ticker={row.ticker} timeframe={candleTf} refreshSecs={refreshSecs} />
           </div>
