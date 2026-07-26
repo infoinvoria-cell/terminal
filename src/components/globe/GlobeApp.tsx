@@ -2417,7 +2417,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
             onClick={() => setSatelliteMode((v) => !v)}
             className={`absolute right-2 top-2 z-30 flex h-7 w-7 items-center justify-center rounded-md border transition ${
               satelliteMode
-                ? "border-[#4ea3d8]/80 text-[#4ea3d8] bg-[rgba(78,163,216,0.12)]"
+                ? "border-[#dcdce4]/80 text-[#dcdce4] bg-[rgba(220,220,228,0.12)]"
                 : "border-white/15 text-white/50"
             }`}
             title={satelliteMode ? "Dark globe" : "Satellite texture"}
