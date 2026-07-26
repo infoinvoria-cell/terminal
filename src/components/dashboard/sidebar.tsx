@@ -12,6 +12,7 @@ import {
   GitFork,
   Globe,
   Home,
+  Info,
   Layers,
   MessageSquare,
   Network,
@@ -20,7 +21,7 @@ import {
   PieChart,
   Settings,
   Smartphone,
-Users,
+  Users,
 } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
@@ -397,6 +398,7 @@ export function Sidebar() {
   const mobileUrl = toMobileUrl(pathname);
   const desktopUrl = pathname ?? "/";
 
+  const aboutActive         = pathname?.startsWith("/about") ?? false;
   const monitoringActive    = pathname?.startsWith("/monitoring") ?? false;
   const signalActive        = pathname?.startsWith("/signal") ?? false;
   const brainActive         = (pathname?.startsWith("/brain") ?? false) || (pathname?.startsWith("/brain-graph") ?? false);
@@ -494,8 +496,9 @@ export function Sidebar() {
         <SidebarSep expanded={expanded} />
       </div>
 
-      {/* Group 3: Manager Overview · Investors · CRM · Vermittler */}
+      {/* Group 3: About · Manager Overview · Investors · CRM · Vermittler */}
       <nav className={cn("mt-2", navClass)} aria-label="Manager">
+        <SidebarLink href="/about" active={aboutActive} label="About" icon={Info} expanded={expanded} />
         <SidebarIconButton page="manager-overview"  activePage={sidebarPageState} label="Manager"   icon={BriefcaseBusiness} onSelect={onSelectPage} expanded={expanded} />
         <SidebarIconButton page="investor-analytics" activePage={sidebarPageState} label="Investors" icon={PieChart}          onSelect={onSelectPage} expanded={expanded} />
         <SidebarLink href="/onboarding" active={investorsCRMActive} label="Onboarding" icon={Users} expanded={expanded} />
