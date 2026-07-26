@@ -2645,6 +2645,19 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
               />
             )
           }
+          {impactPanel && (
+            <ImpactPanel
+              data={impactPanel}
+              onClose={closeImpactPanel}
+              onOpenChart={handleImpactOpenChart}
+              quotes={impactQuotes}
+            />
+          )}
+          <GlobePatternAlerts
+            patterns={visiblePatternAlerts}
+            onFocus={onPatternFocus}
+            onDismiss={onPatternDismiss}
+          />
           {/* Globe / Satellite toggle pills */}
           <div className="absolute left-2 top-2 z-30 flex gap-1">
             <button
