@@ -5,6 +5,9 @@ import Image from "next/image";
 import { Maximize2, Minimize2, Play, Pause } from "lucide-react";
 
 import { GlobeCanvas } from "@/components/globe/GlobeCanvas";
+import { GeoContextPanel } from "@/components/globe/GeoContextPanel";
+import { WORLD_CITIES } from "@/data/globe/world-cities";
+import { lookupCountryByName } from "@/data/globe/country-data";
 import { KpiGrid } from "@/components/globe/KpiGrid";
 import { MacroFundamentalsPanel } from "@/components/globe/MacroFundamentalsPanel";
 import { MiniWorldMap } from "@/components/globe/MiniWorldMap";
@@ -517,6 +520,7 @@ export default function GlobeApp() {
   const [globeRotateMode, setGlobeRotateMode] = useState<GlobeRotateMode>("off");
   const [visualLoopEnabled, setVisualLoopEnabled] = useState(false);
   const [visualLoopTick, setVisualLoopTick] = useState(0);
+  const [selectedGeoEntity, setSelectedGeoEntity] = useState<import("@/components/globe/GeoContextPanel").SelectedGeoEntity | null>(null);
   const [dataSource, setDataSource] = useState<DataSource>(() => {
     if (typeof window === "undefined") return "tradingview";
     try {
@@ -1788,13 +1792,41 @@ export default function GlobeApp() {
     return out;
   }, [overlayState.liveSignals, liveSignalItems, assets, globePrices]);
 
+  // City markers — visible when zoomed in (altitude < 1.6), scaled by weight
+  const cityMarkers = useMemo((): MarkerPoint[] => {
+    const alt = Number(camera?.altitude ?? 1.8);
+    if (alt > 1.6) return [];
+    const minWeight = alt > 1.0 ? 0.75 : alt > 0.6 ? 0.45 : 0.0;
+    return WORLD_CITIES.filter((c) => c.weight >= minWeight).map((c) => ({
+      id: `city:${c.id}`,
+      assetId: "",
+      assetIds: [],
+      isCluster: false,
+      name: c.name,
+      shortName: c.name,
+      category: "City",
+      country: c.countryName,
+      locationLabel: `${c.name}, ${c.countryName}`,
+      icon: "●",
+      color: c.weight >= 0.85 ? "#D4AF37" : "rgba(200,200,210,0.7)",
+      lat: c.lat,
+      lng: c.lng,
+      label: c.name,
+      clusterCount: 0,
+      aiScore: c.weight,
+      macroSensitivity: "medium",
+      kind: "city" as const,
+    }));
+  }, [camera?.altitude]);
+
   const visibleMarkers = useMemo(
     () => {
       const base = overlayState.assets ? markers : [];
       const withHq = overlayState.locations ? [...base, HQ_MARKER as never] : base;
-      return signalMarkers.length ? [...withHq, ...(signalMarkers as never[])] : withHq;
+      const withSignals = signalMarkers.length ? [...withHq, ...(signalMarkers as never[])] : withHq;
+      return cityMarkers.length ? [...withSignals, ...(cityMarkers as never[])] : withSignals;
     },
-    [markers, overlayState.assets, overlayState.locations, HQ_MARKER, signalMarkers],
+    [markers, overlayState.assets, overlayState.locations, HQ_MARKER, signalMarkers, cityMarkers],
   );
   const activeShipTracking = useMemo(
     () => (overlayState.shipTracking ? shipTracking : []),
@@ -1850,6 +1882,37 @@ export default function GlobeApp() {
     shipTracking,
     shippingDisruptionRoutes,
   ]);
+
+  const onCountryClick = useCallback((countryName: string, lat: number, lng: number) => {
+    const entry = lookupCountryByName(countryName);
+    setSelectedGeoEntity({
+      kind: "country",
+      id: entry?.iso ?? countryName,
+      iso: entry?.iso,
+      name: entry?.name ?? countryName,
+      lat,
+      lng,
+    });
+  }, []);
+
+  const onCityMarkerClick = useCallback((markerId: string) => {
+    const cityId = markerId.replace(/^city:/, "");
+    const city = WORLD_CITIES.find((c) => c.id === cityId);
+    if (!city) return;
+    setSelectedGeoEntity({
+      kind: "city",
+      id: cityId,
+      iso: city.countryIso,
+      name: city.name,
+      lat: city.lat,
+      lng: city.lng,
+    });
+  }, []);
+
+  const [geoFocusTarget, setGeoFocusTarget] = useState<{ lat: number; lng: number; altitude: number } | null>(null);
+  const onGeoZoomTo = useCallback((lat: number, lng: number, altitude: number) => {
+    setGeoFocusTarget({ lat, lng, altitude });
+  }, []);
 
   const onToggleAsset = useCallback((assetId: string) => {
     setEnabledAssets((prev) => {
@@ -2161,6 +2224,10 @@ export default function GlobeApp() {
     onSelectAsset: onGlobeSelectAsset,
     onFocusHandled,
     onFocusLocationHandled,
+    onCountryClick,
+    onCityMarkerClick,
+    geoFocusTarget,
+    onGeoFocusHandled: () => setGeoFocusTarget(null),
   };
 
   return (
@@ -2249,7 +2316,37 @@ export default function GlobeApp() {
                     ? <Pause size={12} strokeWidth={2} />
                     : <Play size={12} strokeWidth={2} />}
                 </button>
+                {/* Continent quick-nav */}
+                <div className="absolute bottom-2 left-1/2 z-30 flex -translate-x-1/2 gap-1">
+                  {([
+                    { label: "NA", lat: 40, lng: -100, alt: 2.2 },
+                    { label: "SA", lat: -15, lng: -60, alt: 2.0 },
+                    { label: "EU", lat: 50, lng: 15, alt: 1.8 },
+                    { label: "AF", lat: 5, lng: 22, alt: 2.0 },
+                    { label: "ME", lat: 27, lng: 45, alt: 1.6 },
+                    { label: "AS", lat: 35, lng: 105, alt: 2.2 },
+                    { label: "OC", lat: -25, lng: 135, alt: 2.0 },
+                  ] as const).map((c) => (
+                    <button
+                      key={c.label}
+                      type="button"
+                      onClick={() => {
+                        onGeoZoomTo(c.lat, c.lng, c.alt);
+                        setSelectedGeoEntity({ kind: "continent", id: c.label, name: c.label, lat: c.lat, lng: c.lng });
+                      }}
+                      className="rounded border border-white/15 bg-[rgba(10,10,14,0.75)] px-1.5 py-0.5 text-[8px] font-semibold tracking-[0.06em] text-white/50 transition hover:border-[#D4AF37]/50 hover:text-[#D4AF37] backdrop-blur-sm"
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
                 <GlobeCanvas {...globeCanvasProps} />
+                {/* Geo Context Panel — slides in on country/city click */}
+                <GeoContextPanel
+                  entity={selectedGeoEntity}
+                  onClose={() => setSelectedGeoEntity(null)}
+                  onZoomTo={onGeoZoomTo}
+                />
               </>
             )}
           </div>

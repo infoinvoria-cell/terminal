@@ -28,7 +28,7 @@ const DEFAULT_CAMERA: GlobeCameraState = {
   altitude: 1.95,
 };
 const MAX_ALTITUDE = 3.1;
-const MIN_ALTITUDE = 0.32;
+const MIN_ALTITUDE = 0.06;
 
 type Props = {
   markers: MarkerPoint[];
@@ -64,6 +64,10 @@ type Props = {
   onSelectAsset: (assetId: string) => void;
   onFocusHandled: () => void;
   onFocusLocationHandled: () => void;
+  onCountryClick?: (countryName: string, lat: number, lng: number) => void;
+  onCityMarkerClick?: (markerId: string) => void;
+  geoFocusTarget?: { lat: number; lng: number; altitude: number } | null;
+  onGeoFocusHandled?: () => void;
 };
 
 function fmtGlobePrice(p: number): string {
@@ -321,6 +325,10 @@ function GlobeCanvasComponent({
   onSelectAsset,
   onFocusHandled,
   onFocusLocationHandled,
+  onCountryClick,
+  onCityMarkerClick,
+  geoFocusTarget,
+  onGeoFocusHandled,
 }: Props) {
   const globeRef = useRef<any>(null);
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -1209,6 +1217,22 @@ function GlobeCanvasComponent({
   }, [active, focusLocation, onFocusLocationHandled, tweenCamera]);
 
   useEffect(() => {
+    if (!active) return;
+    if (!geoFocusTarget) return;
+    tweenCamera(
+      {
+        lat: Number(geoFocusTarget.lat),
+        lng: Number(geoFocusTarget.lng),
+        altitude: Math.max(MIN_ALTITUDE, Number(geoFocusTarget.altitude)),
+      },
+      1400,
+    );
+    setRings([{ lat: Number(geoFocusTarget.lat), lng: Number(geoFocusTarget.lng), color: "#D4AF37" }]);
+    window.setTimeout(() => setRings([]), 1800);
+    onGeoFocusHandled?.();
+  }, [active, geoFocusTarget, onGeoFocusHandled, tweenCamera]);
+
+  useEffect(() => {
     setActiveEvent(null);
   }, [selectedOverlay]);
 
@@ -1678,6 +1702,42 @@ function GlobeCanvasComponent({
               }
               return el;
             }
+            if (d.kind === "city") {
+              const dot = document.createElement("span");
+              dot.style.display = "inline-block";
+              // Size by weight (stored in aiScore field, 0-1)
+              const wt = Number(d.aiScore ?? 0.3);
+              const sz = detailLevel >= 3 ? Math.round(4 + wt * 6) : Math.round(3 + wt * 4);
+              dot.style.width = `${sz}px`;
+              dot.style.height = `${sz}px`;
+              dot.style.borderRadius = "50%";
+              dot.style.background = wt >= 0.85
+                ? "#D4AF37"
+                : wt >= 0.6
+                  ? "rgba(212,175,55,0.75)"
+                  : "rgba(160,160,180,0.6)";
+              dot.style.boxShadow = wt >= 0.85
+                ? `0 0 ${sz * 2}px rgba(212,175,55,0.55)`
+                : `0 0 ${sz}px rgba(180,180,200,0.3)`;
+              dot.style.animation = wt >= 0.85 ? "clfCityPulse 2.4s ease-in-out infinite" : "";
+              el.appendChild(dot);
+              if (detailLevel >= 2) {
+                const tx = document.createElement("span");
+                tx.innerText = String(d.shortName || d.name || "");
+                tx.style.fontSize = detailLevel >= 3 ? "9px" : "8px";
+                tx.style.color = wt >= 0.75 ? "#e8d5a7" : "rgba(200,200,210,0.7)";
+                tx.style.fontWeight = wt >= 0.75 ? "600" : "400";
+                tx.style.whiteSpace = "nowrap";
+                tx.style.marginLeft = "3px";
+                el.appendChild(tx);
+              }
+              el.style.cursor = "pointer";
+              el.addEventListener("click", (ev) => {
+                ev.stopPropagation();
+                onCityMarkerClick?.(d.id);
+              });
+              return el;
+            }
             if (d.isCluster) {
               const tx = document.createElement("span");
               tx.innerText = `${d.clusterCount}x`;
@@ -1858,6 +1918,16 @@ function GlobeCanvasComponent({
           ringRepeatPeriod={900}
           onPointClick={(point: MarkerPoint) => onPointClick(point)}
           onPointHover={onPointHover}
+          onPolygonClick={(feat: any, _ev: MouseEvent, coords: { lat: number; lng: number }) => {
+            const raw = countryNameOf(feat);
+            if (raw && onCountryClick) {
+              onCountryClick(String(raw), coords.lat, coords.lng);
+            }
+          }}
+          polygonLabel={(feat: any) => {
+            const name = countryNameOf(feat);
+            return name ? `<span style="font:600 10px/1.4 sans-serif;color:#e8d5a7;text-shadow:0 1px 6px #000">${name}</span>` : "";
+          }}
         />
       </div>
 
