@@ -15,6 +15,7 @@
     "create-shortcut": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/launcher/create-desktop-shortcut.ps1",
     "build:qqq-pine": "node tools/fsportfolio/build-qqq-invest-pine.mjs",
     "components:cache": "node scripts/build-components-cache.mjs",
+    "validate:strategy-proof": "node scripts/validate-strategy-proof-integrity.mjs",
     "brain:refresh": "node scripts/refresh-brain-graph.mjs",
     "monitoring:refresh": "node tools/monitoring/refresh-white-swan-ohlc.mjs",
     "monitoring:refresh-tvc": "python tools/monitoring/refresh-tvc-cache.py",

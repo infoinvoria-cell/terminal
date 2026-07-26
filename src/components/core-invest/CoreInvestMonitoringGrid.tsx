@@ -198,7 +198,8 @@ function CandleCard({ weightId, sleeve, strategyTrades, showEmas, isSelected, on
     assetId: weightId,
   }) ?? ASSET_ICON[weightId];
   const weight  = ALLOC_ITEMS.find(a => a.id === weightId)?.weight;
-  const isLong  = sleeve.currentSignal === "long";
+  const isValidated = sleeve.validationStatus === "validated";
+  const isLong = isValidated && sleeve.currentSignal === "long";
 
   return (
     <div
@@ -280,10 +281,12 @@ function CandleCard({ weightId, sleeve, strategyTrades, showEmas, isSelected, on
         </div>
       )}
 
-      {/* bottom-right: signal badge */}
+      {/* Never present approximate calculations as validated live signals. */}
       <div style={{ position: "absolute", bottom: 8, right: 8, pointerEvents: "none", display: "flex", alignItems: "center", gap: 5, background: "rgba(4,4,6,0.68)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 999, padding: "3px 8px" }}>
-        <span style={{ fontSize: 11, lineHeight: 1, color: isLong ? "#4ADE80" : "#9CA3AF" }}>{isLong ? "▲" : "△"}</span>
-        <span style={{ fontSize: 9, color: isLong ? "#E5E7EB" : T_DIM, letterSpacing: "0.05em", textTransform: "uppercase", fontWeight: 700 }}>{isLong ? "Long" : "Cash"}</span>
+        <span style={{ fontSize: 11, lineHeight: 1, color: isValidated && isLong ? "#4ADE80" : "#FBBF24" }}>{isValidated && isLong ? "▲" : "!"}</span>
+        <span style={{ fontSize: 9, color: isValidated && isLong ? "#E5E7EB" : "#FBBF24", letterSpacing: "0.05em", textTransform: "uppercase", fontWeight: 700 }}>
+          {isValidated ? (isLong ? "Long" : "Cash") : "Parity pending"}
+        </span>
       </div>
     </div>
   );
@@ -632,7 +635,9 @@ function InfoTile({ dataStatus, missingSymbols, sleeves }: InfoTileProps) {
     { id: "chf",      label: "CHF/6S",     sym: "6S1!", sid: "CHF_6S"          },
   ].map(r => ({
     ...r,
-    signal: byId[r.sid]?.currentSignal ?? "—",
+    signal: byId[r.sid]?.validationStatus === "validated"
+      ? byId[r.sid]?.currentSignal
+      : undefined,
     price:  byId[r.sid]?.bars?.at(-1)?.close,
   }));
 
@@ -664,7 +669,7 @@ function InfoTile({ dataStatus, missingSymbols, sleeves }: InfoTileProps) {
           {signals.map(row => {
             const icon = ASSET_ICON[row.id];
             const isLong = row.signal === "long";
-            const isCash = !isLong;
+            const isValidated = row.signal === "long" || row.signal === "cash";
             return (
               <div key={row.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
@@ -675,10 +680,11 @@ function InfoTile({ dataStatus, missingSymbols, sleeves }: InfoTileProps) {
                   </div>
                 </div>
                 <span style={{
-                  fontSize: 14, lineHeight: 1,
-                  color: isLong ? "#4ADE80" : isCash ? T_MUTED : "#F87171",
+                  fontSize: isValidated ? 14 : 9, lineHeight: 1,
+                  color: isLong ? "#4ADE80" : isValidated ? T_MUTED : "#FBBF24",
+                  fontWeight: isValidated ? 400 : 700,
                 }}>
-                  {isLong ? "▲" : "△"}
+                  {isValidated ? (isLong ? "▲" : "△") : "PARITY PENDING"}
                 </span>
               </div>
             );
@@ -717,23 +723,11 @@ export default function CoreInvestMonitoringGrid({ onStrategySelect, selectedStr
   const { sleeves, benchmarkCurve, qqqCurve, dataStatus, missingSymbols, loading, error } = useCoreInvestData();
 
   const [gldBars,     setGldBars]     = useState<OhlcBar[]>([]);
-  const [chfTrades,   setChfTrades]   = useState<TradeRow[]>([]);
-  const [pine1Trades, setPine1Trades] = useState<TradeRow[]>([]);
-  const [pine2Trades, setPine2Trades] = useState<TradeRow[]>([]);
-  const [hgTrades,    setHgTrades]    = useState<TradeRow[]>([]);
 
   useEffect(() => {
     let cancelled = false;
-    const loadTrades = (url: string, set: (t: TradeRow[]) => void) =>
-      fetch(url).then(r => r.json()).then(d => { if (!cancelled) set(Array.isArray(d.trades) ? d.trades : []); }).catch(() => {});
-
     fetch("/api/core-invest/ohlc?symbol=GLD")
       .then(r => r.json()).then(d => { if (!cancelled) setGldBars(d.bars ?? []); }).catch(() => {});
-
-    loadTrades("/generated/monitoring/strategies/CME_6S1_events.json",        setChfTrades);
-    loadTrades("/generated/monitoring/strategies/BATS_QQQ_pine1_events.json", setPine1Trades);
-    loadTrades("/generated/monitoring/strategies/BATS_QQQ_pine2_events.json", setPine2Trades);
-    loadTrades("/generated/monitoring/strategies/COMEX_HG1_events.json",      setHgTrades);
     return () => { cancelled = true; };
   }, []);
 
@@ -772,14 +766,14 @@ export default function CoreInvestMonitoringGrid({ onStrategySelect, selectedStr
       padding: 8,
       boxSizing: "border-box",
     }}>
-      <CandleCard weightId="qqqPine1" sleeve={pine1}  strategyTrades={pine1Trades}
+      <CandleCard weightId="qqqPine1" sleeve={pine1}
         isSelected={isCardSelected("qqqPine1")} onClick={makeCardClick("qqqPine1")} />
-      <CandleCard weightId="qqqPine2" sleeve={pine2}  strategyTrades={pine2Trades} showEmas
+      <CandleCard weightId="qqqPine2" sleeve={pine2} showEmas
         isSelected={isCardSelected("qqqPine2")} onClick={makeCardClick("qqqPine2")} />
       <InteractivePerformanceTile sleeves={sleeves} benchmarkCurve={benchmarkCurve} qqqCurve={qqqCurve} gldBars={gldBars} />
-      <CandleCard weightId="copper"   sleeve={copper} strategyTrades={hgTrades}    showEmas
+      <CandleCard weightId="copper"   sleeve={copper} showEmas
         isSelected={isCardSelected("copper")} onClick={makeCardClick("copper")} />
-      <CandleCard weightId="chf"      sleeve={chf}    strategyTrades={chfTrades}   showEmas
+      <CandleCard weightId="chf"      sleeve={chf} showEmas
         isSelected={isCardSelected("chf")} onClick={makeCardClick("chf")} />
       <InfoTile dataStatus={dataStatus} missingSymbols={missingSymbols} sleeves={sleeves} />
     </div>
