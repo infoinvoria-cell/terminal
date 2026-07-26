@@ -20,6 +20,7 @@ import GlobeTimeline from "@/components/globe/GlobeTimeline";
 import GlobeSentinelChat from "@/components/globe/GlobeSentinelChat";
 import GlobePatternAlerts from "@/components/globe/GlobePatternAlerts";
 import type { GlobePattern } from "@/app/api/globe/pattern-detection/route";
+import CountryFlag from "@/components/globe/CountryFlag";
 import { EVENT_IMPACT_MAP, REGION_LABELS, IMPACT_SYMBOL_TO_ID, detectEventRegion, impactAssetIds } from "@/lib/globe/eventImpactMap";
 import { AssetHeatmapPanel } from "@/components/globe/AssetHeatmapPanel";
 import { GlobeAnalyticsPanel } from "@/components/globe/GlobeAnalyticsPanel";
@@ -330,15 +331,32 @@ function timeAgo(iso: string | undefined): string {
 }
 
 // Source domain → flag/emoji
-const DOMAIN_FLAGS: Record<string, string> = {
-  "finance.yahoo.com": "🇺🇸", "fortune.com": "🇺🇸", "cnbc.com": "🇺🇸",
-  "wsj.com": "🇺🇸", "marketwatch.com": "🇺🇸", "bloomberg.com": "🇺🇸",
-  "reuters.com": "🌐", "biztoc.com": "🌐", "apnews.com": "🌐", "investing.com": "🌐",
-  "ft.com": "🇬🇧", "bbc.com": "🇬🇧", "theguardian.com": "🇬🇧", "economist.com": "🇬🇧",
-  "handelsblatt.com": "🇩🇪", "spiegel.de": "🇩🇪", "faz.net": "🇩🇪",
-  "financialpost.com": "🇨🇦", "thejournal.ie": "🇮🇪",
-  "scmp.com": "🇭🇰", "nikkei.com": "🇯🇵",
+// Source domain → ISO country code (rendered as an inline SVG flag, since
+// emoji flags do not render on Windows).
+const DOMAIN_COUNTRY: Record<string, string> = {
+  "finance.yahoo.com": "US", "fortune.com": "US", "cnbc.com": "US", "apnews.com": "US",
+  "wsj.com": "US", "marketwatch.com": "US", "bloomberg.com": "US",
+  "ft.com": "GB", "bbc.com": "GB", "theguardian.com": "GB", "economist.com": "GB",
+  "handelsblatt.com": "DE", "spiegel.de": "DE", "faz.net": "DE",
+  "financialpost.com": "CA", "thejournal.ie": "IE",
+  "scmp.com": "HK", "nikkei.com": "JP",
 };
+// Country name (from item.country) → ISO code, so the API's country still maps.
+const COUNTRY_NAME_TO_ISO: Record<string, string> = {
+  "united states": "US", usa: "US", "u.s.": "US", america: "US",
+  "united kingdom": "GB", uk: "GB", britain: "GB", england: "GB",
+  germany: "DE", deutschland: "DE", france: "FR", italy: "IT", spain: "ES",
+  switzerland: "CH", ireland: "IE", canada: "CA", japan: "JP", china: "CN",
+  "hong kong": "HK", australia: "AU", "new zealand": "NZ", "euro zone": "EU", eurozone: "EU", europe: "EU",
+};
+function newsCountryCode(domain: string, country?: string): string {
+  const d = DOMAIN_COUNTRY[domain.toLowerCase()];
+  if (d) return d;
+  const raw = String(country || "").trim();
+  if (!raw) return "";
+  if (raw.length === 2) return raw.toUpperCase();
+  return COUNTRY_NAME_TO_ISO[raw.toLowerCase()] ?? "";
+}
 
 // Headline keyword → asset icon
 const NEWS_ASSET_KEYWORDS: Array<[RegExp, string]> = [
@@ -457,7 +475,7 @@ function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
         {filtered.map((item, i) => {
           const ago = timeAgo(item.publishedAt ?? item.timestamp);
           const domain = item.sourceDomain ?? item.source?.split(" ")[0] ?? "";
-          const flag = DOMAIN_FLAGS[domain.toLowerCase()] ?? "🌐";
+          const countryCode = newsCountryCode(domain, item.country);
           const assetIcon = newsAssetIcon(item.title ?? "", item.description);
           const score = newsScore(item.title ?? "", item.description);
           const dot = score >= 8 ? "🔴" : score >= 5 ? "🟡" : "";
@@ -471,7 +489,7 @@ function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
               style={{ background: score >= 8 ? "rgba(255,60,60,0.06)" : "rgba(255,255,255,0.025)" }}
             >
               <div className="mb-1 flex items-center gap-1.5">
-                <span className="text-[11px] leading-none">{flag}</span>
+                <CountryFlag code={countryCode} title={domain || item.country || "Global"} />
                 {dot && <span className="text-[9px] leading-none">{dot}</span>}
                 {assetIcon && <span className="text-[10px] leading-none">{assetIcon}</span>}
                 {domain && (
