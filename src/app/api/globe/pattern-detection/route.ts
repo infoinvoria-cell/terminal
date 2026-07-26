@@ -110,6 +110,9 @@ function POST_impl(events: InEvent[]): GlobePattern[] {
     });
   }
 
+  // Regions already covered by a cluster/density pattern — don't double-alert.
+  const coveredRegions = new Set(patterns.map((p) => p.region).filter(Boolean) as string[]);
+
   // 3. Severe single events in a mapped region → direct asset-risk flag.
   for (const e of events) {
     if (!isSevere(e)) continue;
@@ -118,6 +121,8 @@ function POST_impl(events: InEvent[]): GlobePattern[] {
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
     const region = detectEventRegion(lat, lng);
     if (!region || !EVENT_IMPACT_MAP[region]) continue;
+    if (coveredRegions.has(region)) continue;
+    coveredRegions.add(region); // one severe alert per region max
     patterns.push({
       id: `severe:${e.id ?? `${lat.toFixed(2)},${lng.toFixed(2)}`}`,
       pattern: `Schweres Ereignis · ${REGION_LABELS[region] ?? region}`,

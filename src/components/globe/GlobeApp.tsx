@@ -356,6 +356,9 @@ const NEWS_ASSET_KEYWORDS: Array<[RegExp, string]> = [
 
 // Priority scoring (0-10) — critical macro/geopolitics rank highest
 const NEWS_EXCLUDE_RE = /\b(bitcoin|crypto|ethereum|btc|eth|nft|blockchain|defi|solana|dogecoin|cardano|xrp|ripple|altcoin|stablecoin|coinbase|binance|memecoin)\b/i;
+// Obvious non-finance noise (sports / entertainment / lifestyle). Only dropped
+// when the headline carries no finance signal (score <= 1).
+const NEWS_NOISE_RE = /\b(semifinal|quarterfinal|highlights?|elite|\d+U\b|nba|nfl|nhl|mlb|ncaa|premier league|la liga|soccer|touchdown|playoffs?|recipe|horoscope|zodiac|celebrity|red carpet|box office|movie|film|tv show|series premiere|episode|season \d|gaming|playstation|xbox|nintendo|kardashian|taylor swift|concert|album|trailer|prince harry|royal family|dating|weight loss|streaming service)\b/i;
 const NEWS_CRITICAL_RE = /\b(fed|rate hike|rate cut|war|sanction|crash|crisis|default|recession|collapse|contagion|bank run)\b/i; // 10
 const NEWS_HIGH_RE = /\b(inflation|gdp|earnings|tariff|opec|fomc|ecb|boj|cpi|ppi|unemployment|jobs report|payrolls)\b/i; // 7
 const NEWS_MEDIUM_RE = /\b(oil|gold|dollar|euro|yen|trade|supply|demand|yield|treasury|bond|stocks?|equit|nasdaq|s&p|dow)\b/i; // 4
@@ -386,8 +389,13 @@ function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
   const [sort, setSort] = useState<NewsSort>("score");
 
   const filtered = useMemo(() => {
-    // Always drop crypto headlines
-    let list = items.filter((item) => !NEWS_EXCLUDE_RE.test(`${item.title ?? ""} ${item.description ?? ""}`));
+    // Drop crypto headlines + non-finance noise (sports/entertainment with no finance signal)
+    let list = items.filter((item) => {
+      const text = `${item.title ?? ""} ${item.description ?? ""}`;
+      if (NEWS_EXCLUDE_RE.test(text)) return false;
+      if (NEWS_NOISE_RE.test(text) && newsScore(item.title ?? "", item.description) <= 1) return false;
+      return true;
+    });
     if (filter !== "all") {
       list = list.filter((item) => {
         const text = `${item.title ?? ""} ${item.description ?? ""}`;
