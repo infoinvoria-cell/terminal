@@ -146,7 +146,7 @@ const SIDEBAR_GROUPS = [
       { href: "/m/home",       label: "Home",        Icon: IconHome },
       { href: "/m/sentinel",   label: "Sentinel",    Icon: IconMessageSquare },
       { href: "/m/brain",      label: "Brain",       Icon: IconGitFork },
-      { href: "/globe",        label: "Globe",       Icon: IconGlobe },
+      { href: "/m/globe",      label: "Globe",       Icon: IconGlobe },
     ],
   },
   {

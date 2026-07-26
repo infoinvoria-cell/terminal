@@ -453,7 +453,7 @@ function GlobeOverlayControl({ overlayState, overlayLoadingState, onToggleOverla
   );
 }
 
-export default function GlobeApp() {
+export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) {
   const isPageActive = usePageActive();
   const initialPersisted = useMemo(loadInitialGlobeState, []);
   const hasPersisted = useMemo(hasPersistedGlobeState, []);
@@ -2267,11 +2267,13 @@ export default function GlobeApp() {
     <div className="relative h-full w-full overflow-hidden bg-[#06070a] text-white">
       <div
         className="grid h-full w-full p-3"
-        style={{ gridTemplateColumns: "20% 50% 30%", gridTemplateRows: "100%", gap: 12 }}
+        style={mobileMode
+          ? { gridTemplateColumns: "100%", gridTemplateRows: "100%", gap: 0, padding: 0 }
+          : { gridTemplateColumns: "20% 50% 30%", gridTemplateRows: "100%", gap: 12 }}
       >
 
         {/* ── LEFT: Watchlist + Overlay Control ── */}
-        <div className="flex min-h-0 flex-col gap-3 overflow-hidden">
+        <div className="flex min-h-0 flex-col gap-3 overflow-hidden" style={mobileMode ? { display: "none" } : undefined}>
           {/* Watchlist card — 60% */}
           <div className={CARD} style={{ ...CARD_BORDER, flex: "0 0 60%" }}>
             <div className={CARD_HEADER}>
@@ -2432,7 +2434,7 @@ export default function GlobeApp() {
         </div>
 
         {/* ── RIGHT: Asset News (30%) → Global News (flex) → Chart (30%) ── */}
-        <div className="flex min-h-0 flex-col gap-3 overflow-hidden">
+        <div className="flex min-h-0 flex-col gap-3 overflow-hidden" style={mobileMode ? { display: "none" } : undefined}>
           {/* Asset News card — 30% */}
           <div className={CARD} style={{ ...CARD_BORDER, flex: "0 0 30%" }}>
             <div className={CARD_HEADER}>
@@ -2627,3 +2629,5 @@ export default function GlobeApp() {
     </div>
   );
 }
+
+export default GlobeApp;
