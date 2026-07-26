@@ -887,8 +887,9 @@ function CandleChartInner({
       },
       rightPriceScale: {
         borderColor: "rgba(255,255,255,0.08)",
-        scaleMargins: { top: 0.12, bottom: 0.12 },
+        scaleMargins: { top: 0.06, bottom: 0.06 },
         minimumWidth: 62,
+        autoScale: true,
       },
       timeScale: {
         borderColor: "rgba(255,255,255,0.08)",
@@ -954,13 +955,17 @@ function CandleChartInner({
         baseImplementation: () => { priceRange?: { minValue: number; maxValue: number }; margins?: { above: number; below: number } } | null,
       ) => {
         const base = baseImplementation();
-        const trimmed = trimmedPriceRangeFromBars(currentBarsRef.current);
+        // Use only the last 40 bars so compact charts don't flatten against historical extremes
+        const recent = currentBarsRef.current.slice(-40);
+        const trimmed = trimmedPriceRangeFromBars(recent);
         if (!trimmed) return base;
+        const span = trimmed.maxValue - trimmed.minValue;
+        const pad = span * 0.04;
         return {
           ...(base ?? {}),
           priceRange: {
-            minValue: trimmed.minValue,
-            maxValue: trimmed.maxValue,
+            minValue: trimmed.minValue - pad,
+            maxValue: trimmed.maxValue + pad,
           },
         };
       },

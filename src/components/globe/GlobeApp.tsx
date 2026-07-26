@@ -475,9 +475,8 @@ type GlobeOverlayControlProps = {
 function GlobeOverlayControl({ overlayState, overlayLoadingState, onToggleOverlay }: GlobeOverlayControlProps) {
   const keys = Object.keys(OVERLAY_LABELS) as Array<keyof import("@/lib/globe/globe-types").OverlayToggleState>;
   return (
-    <div className="no-scrollbar h-full overflow-y-auto p-1.5">
-      {/* Compact labeled cards — icon + name + short description */}
-      <div className="grid gap-1" style={{ gridTemplateColumns: "1fr 1fr" }}>
+    <div className="no-scrollbar h-full overflow-y-auto p-2">
+      <div className="grid gap-1.5" style={{ gridTemplateColumns: "1fr 1fr" }}>
         {keys.map((key) => {
           const active = Boolean(overlayState[key]);
           const loading = Boolean(overlayLoadingState?.[key]);
@@ -488,22 +487,22 @@ function GlobeOverlayControl({ overlayState, overlayLoadingState, onToggleOverla
               onClick={() => onToggleOverlay(key)}
               aria-pressed={active}
               title={OVERLAY_DESC[key] ?? OVERLAY_LABELS[key] ?? key}
-              className="flex items-center gap-1.5 rounded-[6px] px-1.5 py-1 text-left transition"
+              className="flex items-center gap-2 rounded-[8px] px-2.5 py-2 text-left transition"
               style={{
-                background: active ? "rgba(255,255,255,0.09)" : "rgba(255,255,255,0.025)",
-                border: `1px solid ${active ? "rgba(200,200,208,0.45)" : "rgba(255,255,255,0.05)"}`,
+                background: active ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.03)",
+                border: `1px solid ${active ? "rgba(200,200,208,0.50)" : "rgba(255,255,255,0.07)"}`,
               }}
             >
-              <span style={{ fontSize: 13, lineHeight: 1, flexShrink: 0, opacity: active ? 1 : 0.5 }}>
+              <span style={{ fontSize: 15, lineHeight: 1, flexShrink: 0, opacity: active ? 1 : 0.45 }}>
                 {OVERLAY_EMOJI[key] ?? "◦"}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-[9.5px] font-semibold leading-tight"
-                  style={{ color: active ? "#ffffff" : "rgba(255,255,255,0.6)" }}>
+                <span className="block truncate text-[10px] font-semibold leading-snug"
+                  style={{ color: active ? "#ffffff" : "rgba(255,255,255,0.65)" }}>
                   {OVERLAY_LABELS[key] ?? key}{loading ? " …" : ""}
                 </span>
-                <span className="block truncate text-[8px] leading-tight"
-                  style={{ color: "rgba(255,255,255,0.32)" }}>
+                <span className="block truncate text-[8.5px] leading-tight mt-0.5"
+                  style={{ color: "rgba(255,255,255,0.35)" }}>
                   {OVERLAY_DESC[key] ?? ""}
                 </span>
               </span>
@@ -2141,6 +2140,13 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   }, []);
   const onCameraChange = useCallback((cam: import("@/lib/globe/globe-types").GlobeCameraState) => {
     setCamera(cam);
+    const alt = Number(cam.altitude ?? 2);
+    // Auto-switch: very deep zoom → satellite, zoom back out → globe
+    if (alt < 0.22) {
+      setMapMode("satellite");
+    } else if (alt > 0.55) {
+      setMapMode("globe");
+    }
   }, []);
 
   const seasonalityResearch = useMemo(
@@ -2821,12 +2827,6 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                 )}
                 {/* Globe canvas — Globe mode only */}
                 {mapMode === "globe" && <GlobeCanvas {...globeCanvasProps} />}
-                {/* Geo Context Panel — slides in on country/city click */}
-                <GeoContextPanel
-                  entity={selectedGeoEntity}
-                  onClose={() => setSelectedGeoEntity(null)}
-                  onZoomTo={onGeoZoomTo}
-                />
               </>
             )}
           </div>

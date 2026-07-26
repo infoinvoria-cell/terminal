@@ -550,21 +550,6 @@ export function SettingsPanel({
                           <AssetIcon assetId={asset.id} iconKey={asset.iconKey} category={asset.category} assetName={asset.name} assetSymbol={asset.symbol} />
                           <span className="min-w-0 flex-1 truncate">{compactAssetLabels ? compactLabel(asset) : shortName(asset.name, 11)}</span>
                         </button>
-                        {markerSelectable && (
-                          <button
-                            type="button"
-                            onClick={() => onToggleAsset(asset.id)}
-                            className={`grid h-[12px] w-[12px] place-items-center rounded-[3px] border text-[8px] transition ${
-                              checked
-                                ? `${goldThemeEnabled ? "border-[#c8c8c8]/90 text-[#ffffff]" : "border-white/50 text-white"} bg-transparent`
-                                : "border-neutral-500/70 bg-transparent text-transparent"
-                            }`}
-                            title={checked ? "Marker ausblenden" : "Marker einblenden"}
-                            aria-label={checked ? "Marker ausblenden" : "Marker einblenden"}
-                          >
-                            {"✓"}
-                          </button>
-                        )}
                       </div>
                     );
                   })}
