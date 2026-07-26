@@ -349,6 +349,14 @@ const NEWS_ASSET_KEYWORDS: Array<[RegExp, string]> = [
   [/\b(wheat|corn|soy|coffee|cocoa|sugar)\b/i, "🌾"],
 ];
 
+const NEWS_PRIORITY_RE = /\b(fed|rate hike|rate cut|crash|surge|war|sanction|inflation|recession|GDP|earnings|tariff|default|collapse|crisis|bank run|contagion)\b/i;
+const NEWS_CRYPTO_RE = /\b(bitcoin|btc|crypto|ethereum|eth|defi|altcoin|stablecoin|nft)\b/i;
+const NEWS_MACRO_RE = /\b(inflation|cpi|ppi|gdp|unemployment|fed|ecb|rate|yield|recession|debt ceiling|fiscal|monetary|central bank|treasury)\b/i;
+const NEWS_MARKET_RE = /\b(nasdaq|s&p|dow|equit|stocks?|earnings|ipo|dividend|short|buyback|market cap|rally|selloff|correction|bull|bear)\b/i;
+
+type NewsFilter = "all" | "breaking" | "markets" | "macro" | "crypto";
+type NewsSort = "newest" | "relevance";
+
 function newsAssetIcon(title: string, description?: string): string {
   const text = `${title} ${description ?? ""}`;
   for (const [re, icon] of NEWS_ASSET_KEYWORDS) {
@@ -357,18 +365,87 @@ function newsAssetIcon(title: string, description?: string): string {
   return "";
 }
 
+function newsCategory(title: string, description?: string): NewsFilter {
+  const text = `${title} ${description ?? ""}`;
+  if (NEWS_PRIORITY_RE.test(text)) return "breaking";
+  if (NEWS_CRYPTO_RE.test(text)) return "crypto";
+  if (NEWS_MACRO_RE.test(text)) return "macro";
+  if (NEWS_MARKET_RE.test(text)) return "markets";
+  return "all";
+}
+
 function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
+  const [filter, setFilter] = useState<NewsFilter>("all");
+  const [sort, setSort] = useState<NewsSort>("newest");
+
+  const filtered = useMemo(() => {
+    let list = items;
+    if (filter !== "all") {
+      list = list.filter((item) => {
+        const cat = newsCategory(item.title ?? "", item.description);
+        return cat === filter || (filter === "breaking" && cat === "breaking");
+      });
+    }
+    if (sort === "relevance") {
+      list = [...list].sort((a, b) => {
+        const aBreak = NEWS_PRIORITY_RE.test(`${a.title} ${a.description ?? ""}`);
+        const bBreak = NEWS_PRIORITY_RE.test(`${b.title} ${b.description ?? ""}`);
+        if (aBreak !== bBreak) return aBreak ? -1 : 1;
+        return 0;
+      });
+    }
+    return list;
+  }, [items, filter, sort]);
+
+  const FILTER_TABS: Array<{ id: NewsFilter; label: string }> = [
+    { id: "all", label: "All" },
+    { id: "breaking", label: "🔴 Break" },
+    { id: "markets", label: "📊 Mkt" },
+    { id: "macro", label: "🌍 Macro" },
+    { id: "crypto", label: "₿ Crypto" },
+  ];
+
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
+      {/* Filter bar */}
+      <div className="flex shrink-0 items-center gap-1 px-2 py-1.5 border-b border-white/5">
+        <div className="flex gap-0.5 overflow-x-auto no-scrollbar">
+          {FILTER_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setFilter(tab.id)}
+              className="shrink-0 rounded px-1.5 py-[2px] text-[8.5px] font-semibold transition"
+              style={{
+                background: filter === tab.id ? "rgba(255,255,255,0.12)" : "transparent",
+                color: filter === tab.id ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.35)",
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => setSort(sort === "newest" ? "relevance" : "newest")}
+          className="ml-auto shrink-0 rounded px-1.5 py-[2px] text-[8px] transition"
+          style={{ color: "rgba(255,255,255,0.30)", background: "transparent" }}
+          title={sort === "newest" ? "Sort: Newest" : "Sort: Relevance"}
+        >
+          {sort === "newest" ? "↓ New" : "★ Rel"}
+        </button>
+      </div>
       <div className="no-scrollbar min-h-0 flex-1 space-y-[3px] overflow-y-auto overflow-x-hidden px-2 pt-1 pb-8">
-        {items.length === 0 && (
+        {filtered.length === 0 && (
           <div className="pt-6 text-center text-[11px] text-white/20">No news</div>
         )}
-        {items.map((item, i) => {
+        {filtered.map((item, i) => {
           const ago = timeAgo(item.publishedAt ?? item.timestamp);
           const domain = item.sourceDomain ?? item.source?.split(" ")[0] ?? "";
           const flag = DOMAIN_FLAGS[domain.toLowerCase()] ?? "🌐";
           const assetIcon = newsAssetIcon(item.title ?? "", item.description);
+          const isPriority = NEWS_PRIORITY_RE.test(`${item.title ?? ""} ${item.description ?? ""}`);
+          const isAssetMatch = !!assetIcon;
           return (
             <a
               key={String(item.newsId || item.url || i)}
@@ -376,18 +453,24 @@ function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
               target="_blank"
               rel="noopener noreferrer"
               className="group block rounded-[10px] px-2.5 py-2 transition-colors"
-              style={{ background: "rgba(255,255,255,0.025)" }}
+              style={{ background: isPriority ? "rgba(255,60,60,0.06)" : "rgba(255,255,255,0.025)" }}
             >
               <div className="mb-1 flex items-center gap-1.5">
-                <span className="text-[11px] leading-none">{flag}{assetIcon}</span>
+                <span className="text-[11px] leading-none">{flag}</span>
+                {isPriority && (
+                  <span className="rounded-[3px] px-1 py-[1px] text-[8px] font-bold"
+                    style={{ background: "rgba(255,60,60,0.18)", color: "rgba(255,100,100,0.9)" }}>
+                    🔴
+                  </span>
+                )}
+                {isAssetMatch && !isPriority && (
+                  <span className="text-[10px] leading-none">{assetIcon}</span>
+                )}
                 {domain && (
                   <span className="rounded-[4px] px-1.5 py-[1px] text-[9px] font-semibold uppercase tracking-wide"
                     style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" }}>
                     {domain}
                   </span>
-                )}
-                {item.country && (
-                  <span className="text-[9px] text-white/30">{item.country}</span>
                 )}
                 {ago && (
                   <span className="ml-auto text-[9px] text-white/25">{ago}</span>
@@ -396,11 +479,6 @@ function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
               <p className="text-[11px] font-medium leading-snug text-white/80 group-hover:text-white line-clamp-2">
                 {item.title}
               </p>
-              {item.description && (
-                <p className="mt-0.5 text-[10px] leading-snug text-white/35 line-clamp-2">
-                  {item.description}
-                </p>
-              )}
             </a>
           );
         })}
@@ -501,10 +579,6 @@ function GlobeOverlayControl({ overlayState, overlayLoadingState, onToggleOverla
                   style={{ color: active ? "#ffffff" : "rgba(255,255,255,0.65)" }}>
                   {OVERLAY_LABELS[key] ?? key}{loading ? " …" : ""}
                 </span>
-                <span className="block truncate text-[8.5px] leading-tight mt-0.5"
-                  style={{ color: "rgba(255,255,255,0.35)" }}>
-                  {OVERLAY_DESC[key] ?? ""}
-                </span>
               </span>
             </button>
           );
@@ -585,6 +659,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   const [selectedGeoEntity, setSelectedGeoEntity] = useState<import("@/components/globe/GeoContextPanel").SelectedGeoEntity | null>(null);
   const [satelliteMode, setSatelliteMode] = useState(false);
   const [mapMode, setMapMode] = useState<"globe" | "satellite">("globe");
+  const [showContNav, setShowContNav] = useState(false);
   const [dataSource, setDataSource] = useState<DataSource>(() => {
     if (typeof window === "undefined") return "tradingview";
     try {
@@ -2492,35 +2567,41 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
           >
             {globeRotateMode !== "off" ? <Pause size={12} strokeWidth={2} /> : <Play size={12} strokeWidth={2} />}
           </button>}
-          {/* Continent nav */}
-          <div className="absolute bottom-2 left-1/2 z-30 flex -translate-x-1/2 gap-1">
-            {([
-              { label: "NA", lat: 40, lng: -100, alt: 2.2 },
-              { label: "SA", lat: -15, lng: -60, alt: 2.0 },
-              { label: "EU", lat: 50, lng: 15, alt: 1.8 },
-              { label: "AF", lat: 5, lng: 22, alt: 2.0 },
-              { label: "ME", lat: 27, lng: 45, alt: 1.6 },
-              { label: "AS", lat: 35, lng: 105, alt: 2.2 },
-              { label: "OC", lat: -25, lng: 135, alt: 2.0 },
-            ] as const).map((c) => (
-              <button
-                key={c.label}
-                type="button"
-                onClick={() => {
-                  onGeoZoomTo(c.lat, c.lng, c.alt);
-                  setSelectedGeoEntity({ kind: "continent", id: c.label, name: c.label, lat: c.lat, lng: c.lng });
-                }}
-                className="rounded border border-white/15 bg-[rgba(10,10,14,0.75)] px-1.5 py-0.5 text-[8px] font-semibold tracking-[0.06em] text-white/50 backdrop-blur-sm"
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
-          <GeoContextPanel
-            entity={selectedGeoEntity}
-            onClose={() => setSelectedGeoEntity(null)}
-            onZoomTo={onGeoZoomTo}
-          />
+          {/* Continent nav toggle + buttons */}
+          <button
+            type="button"
+            onClick={() => setShowContNav((v) => !v)}
+            className="absolute bottom-2 right-2 z-30 rounded border px-1.5 py-0.5 text-[8px] font-semibold tracking-[0.06em] backdrop-blur-sm transition"
+            style={{
+              border: showContNav ? "1px solid rgba(200,200,200,0.4)" : "1px solid rgba(255,255,255,0.1)",
+              background: "rgba(10,10,14,0.75)",
+              color: showContNav ? "rgba(200,200,200,0.8)" : "rgba(255,255,255,0.35)",
+            }}
+          >
+            ◎ Nav
+          </button>
+          {showContNav && (
+            <div className="absolute bottom-2 left-1/2 z-30 flex -translate-x-1/2 gap-1">
+              {([
+                { label: "NA", lat: 40, lng: -100, alt: 2.2 },
+                { label: "SA", lat: -15, lng: -60, alt: 2.0 },
+                { label: "EU", lat: 50, lng: 15, alt: 1.8 },
+                { label: "AF", lat: 5, lng: 22, alt: 2.0 },
+                { label: "ME", lat: 27, lng: 45, alt: 1.6 },
+                { label: "AS", lat: 35, lng: 105, alt: 2.2 },
+                { label: "OC", lat: -25, lng: 135, alt: 2.0 },
+              ] as const).map((c) => (
+                <button
+                  key={c.label}
+                  type="button"
+                  onClick={() => onGeoZoomTo(c.lat, c.lng, c.alt)}
+                  className="rounded border border-white/15 bg-[rgba(10,10,14,0.75)] px-1.5 py-0.5 text-[8px] font-semibold tracking-[0.06em] text-white/50 backdrop-blur-sm"
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* ③ 2D Mini Map */}
@@ -2807,9 +2888,23 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                     ? <Pause size={12} strokeWidth={2} />
                     : <Play size={12} strokeWidth={2} />}
                 </button>}
-                {/* Continent quick-nav — Globe mode only */}
+                {/* Continent quick-nav — Globe mode only, toggle-gated */}
                 {mapMode === "globe" && (
-                  <div className="absolute bottom-2 left-1/2 z-30 flex -translate-x-1/2 gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setShowContNav((v) => !v)}
+                    className="absolute bottom-3 right-2 z-30 rounded border px-1.5 py-0.5 text-[8px] font-semibold tracking-[0.06em] backdrop-blur-sm transition"
+                    style={{
+                      border: showContNav ? "1px solid rgba(200,200,200,0.4)" : "1px solid rgba(255,255,255,0.1)",
+                      background: "rgba(10,10,14,0.75)",
+                      color: showContNav ? "rgba(200,200,200,0.8)" : "rgba(255,255,255,0.35)",
+                    }}
+                  >
+                    ◎ Nav
+                  </button>
+                )}
+                {mapMode === "globe" && showContNav && (
+                  <div className="absolute bottom-3 left-1/2 z-30 flex -translate-x-1/2 gap-1">
                     {([
                       { label: "NA", lat: 40, lng: -100, alt: 2.2 },
                       { label: "SA", lat: -15, lng: -60, alt: 2.0 },
@@ -2822,10 +2917,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                       <button
                         key={c.label}
                         type="button"
-                        onClick={() => {
-                          onGeoZoomTo(c.lat, c.lng, c.alt);
-                          setSelectedGeoEntity({ kind: "continent", id: c.label, name: c.label, lat: c.lat, lng: c.lng });
-                        }}
+                        onClick={() => onGeoZoomTo(c.lat, c.lng, c.alt)}
                         className="rounded border border-white/15 bg-[rgba(10,10,14,0.75)] px-1.5 py-0.5 text-[8px] font-semibold tracking-[0.06em] text-white/50 transition hover:border-[#c8c8c8]/50 hover:text-[#c8c8c8] backdrop-blur-sm"
                       >
                         {c.label}

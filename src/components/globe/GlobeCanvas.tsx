@@ -1404,50 +1404,11 @@ function GlobeCanvasComponent({
         },
         1400,
       );
-      setRings([{ lat: Number(point.lat), lng: Number(point.lng), color: point.color }]);
-      window.setTimeout(() => setRings([]), 2000);
     },
     [crossPairPath, detailLevel, onSelectAsset, themePrimaryHex, tweenCamera, buildConnectionArcs],
   );
 
   const legend = useMemo(() => {
-    const hasUnifiedOverlay =
-      geoEvents.length > 0 ||
-      (overlayState.globalRiskLayer && globalRiskRegions.length > 0) ||
-      (overlayState.globalLiquidityMap && globalLiquidityRegions.length > 0) ||
-      (overlayState.shippingDisruptions && geoEvents.some((e) => String(e.event_type || e.type || "").toLowerCase().includes("shipping_disruption"))) ||
-      (overlayState.commodityStressMap && commodityRegions.some((r: any) => Number((r as any).stressScore ?? 0) > 0.1)) ||
-      (overlayState.regionalAssetHighlight && Boolean(regionHighlight?.regions?.length)) ||
-      (overlayState.shipTracking && shipTracking.length > 0) ||
-      (overlayState.oilRoutes && overlayRoutes.some((r) => String(r.id || "").toLowerCase().includes("oil"))) ||
-      (overlayState.containerTraffic && overlayRoutes.some((r) => String(r.id || "").toLowerCase().includes("cont"))) ||
-      (overlayState.commodityRegions && commodityRegions.length > 0);
-
-    if (hasUnifiedOverlay) {
-      const zoomLabel = detailLevel === 1 ? "L1 Icons" : detailLevel === 2 ? "L2 Labels" : "L3 Full";
-      const oilCount = overlayRoutes.filter((r) => String(r.id || "").toLowerCase().includes("oil")).length;
-      const containerCount = overlayRoutes.filter((r) => String(r.id || "").toLowerCase().includes("cont")).length;
-      const shippingWarnCount = geoEvents.filter((e) => String(e.event_type || e.type || "").toLowerCase().includes("shipping_disruption")).length;
-      const stressCount = commodityRegions.filter((r: any) => Number((r as any).stressScore ?? 0) > 0.1).length;
-      return (
-        <div className="absolute bottom-2 right-2 z-10 rounded-lg border border-neutral-600/55 bg-transparent px-2 py-1.5 text-[10px]">
-          <div className="mb-1 font-semibold uppercase tracking-[0.12em] text-neutral-200">Overlay Stack</div>
-          {overlayState.globalRiskLayer ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#9ca3af]" />Global Risk Regions: {globalRiskRegions.length}</div> : null}
-          {overlayState.globalLiquidityMap ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#5bff64]" />Global Liquidity: {globalLiquidityRegions.length}</div> : null}
-          {overlayState.conflicts ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#c4454d]" />Conflicts: {geoEvents.filter((e) => String(e.type || "").includes("conflict")).length}</div> : null}
-          {overlayState.wildfires ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#ff9800]" />Wildfires: {geoEvents.filter((e) => String(e.type || "").includes("wildfire")).length}</div> : null}
-          {overlayState.earthquakes ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#ffeb3b]" />Earthquakes: {geoEvents.filter((e) => String(e.type || "").includes("earthquake")).length}</div> : null}
-          {overlayState.shippingDisruptions ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#ffac4d]" />Shipping Warnings: {shippingWarnCount}</div> : null}
-          {overlayState.shipTracking ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#FFFFFF]" />Ships: {shipTracking.length}</div> : null}
-          {overlayState.oilRoutes ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#c8c8c8]" />Oil Routes: {oilCount}</div> : null}
-          {overlayState.containerTraffic ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#FFFFFF]" />Container Routes: {containerCount}</div> : null}
-          {overlayState.commodityRegions ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#facc15]" />Commodity Regions: {commodityRegions.length}</div> : null}
-          {overlayState.commodityStressMap ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#ff7a47]" />Commodity Stress: {stressCount}</div> : null}
-          {overlayState.regionalAssetHighlight ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#6ee7b7]" />Asset Regions: {(regionHighlight?.regions ?? []).length}</div> : null}
-          <div className="mt-1 border-t border-neutral-700/45 pt-1 text-neutral-300">Detail: {zoomLabel}</div>
-        </div>
-      );
-    }
     if (selectedOverlay === "inflation") {
       return (
         <div className="absolute bottom-2 right-2 z-10 rounded-lg border border-neutral-600/55 bg-transparent px-2 py-1.5 text-[10px]">
@@ -1551,20 +1512,20 @@ function GlobeCanvasComponent({
           }}
           pointRadius={(d: any) => {
             if (d.kind === "event") {
-              if (d.id === hoveredPointId) return d.isCluster ? 0.5 : 0.46;
-              return d.isCluster ? 0.43 : 0.37;
+              if (d.id === hoveredPointId) return d.isCluster ? 0.42 : 0.38;
+              return d.isCluster ? 0.36 : 0.28;
             }
             if (d.kind === "ship") {
-              return d.id === hoveredPointId ? 0.44 : 0.34;
+              return d.id === hoveredPointId ? 0.34 : 0.24;
             }
             if (d.kind === "commodity") {
-              return d.id === hoveredPointId ? 0.46 : 0.36;
+              return d.id === hoveredPointId ? 0.36 : 0.26;
             }
             if (d.kind === "region") {
-              return d.id === hoveredPointId ? 0.42 : 0.33;
+              return d.id === hoveredPointId ? 0.34 : 0.24;
             }
-            if (d.id === hoveredPointId) return d.isCluster ? 0.6 : 0.56;
-            return d.isCluster ? 0.52 : d.assetId === selectedAssetId ? 0.5 : 0.43;
+            if (d.id === hoveredPointId) return d.isCluster ? 0.46 : 0.40;
+            return d.isCluster ? 0.38 : d.assetId === selectedAssetId ? 0.36 : 0.30;
           }}
           pointLabel={(d: any) => {
             if (d.kind === "event") {
@@ -1672,11 +1633,7 @@ function GlobeCanvasComponent({
               dot.style.height = "8px";
               dot.style.borderRadius = "50%";
               dot.style.background = String(d.color || "#c8c8c8");
-              dot.style.boxShadow = `0 0 8px ${String(d.color || "#c8c8c8")}`;
-              if (!d.signalInPosition) {
-                // PENDING → pulsing white
-                dot.style.animation = "clfSignalPulse 1.4s ease-in-out infinite";
-              }
+              dot.style.boxShadow = `0 0 6px ${String(d.color || "#c8c8c8")}44`;
               el.appendChild(dot);
               const tx = document.createElement("span");
               tx.innerText = `${String(d.shortName || "")} ${String(d.signalDirection || "")}${d.signalPrice ? ` · ${d.signalPrice}` : ""}`.trim();
@@ -1695,10 +1652,7 @@ function GlobeCanvasComponent({
               icon.style.fontWeight = "700";
               // Conflict intensity → pulse speed (high severity pulses faster)
               if (String(d.eventType || "") === "conflict") {
-                const sev = String(d.eventSeverity || "").toLowerCase();
-                const speed = sev === "high" || sev === "critical" ? "0.9s" : sev === "medium" ? "1.4s" : "2s";
                 icon.style.color = String(d.color || "#FF3333");
-                icon.style.animation = `clfSignalPulse ${speed} ease-in-out infinite`;
               }
               el.appendChild(icon);
               if (detailLevel >= 2) {
@@ -1989,8 +1943,8 @@ function GlobeCanvasComponent({
           arcStartLng="startLng"
           arcEndLat="endLat"
           arcEndLng="endLng"
-          arcColor={() => ["rgba(190,190,190,0.85)", "rgba(140,140,140,0.35)"]}
-          arcStroke={(d: any) => (d.kind === "overlay" ? 0.28 : 0.32)}
+          arcColor={() => ["rgba(190,190,190,0.45)", "rgba(140,140,140,0.18)"]}
+          arcStroke={(d: any) => (d.kind === "overlay" ? 0.18 : 0.22)}
           arcAltitude={(d: any) => Number(d.altitude ?? 0.22)}
           arcDashLength={1}
           arcDashGap={0}
