@@ -17,7 +17,7 @@ const N = "var(--font-nunito), sans-serif";
 
 export default function AboutPage() {
   return (
-    <div className="relative flex h-full flex-col">
+    <div className="relative flex h-full w-full flex-col">
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
         <div className="px-8 pb-20 pt-5">
 
