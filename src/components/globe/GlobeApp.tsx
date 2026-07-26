@@ -16,6 +16,7 @@ import { MiniWorldMap } from "@/components/globe/MiniWorldMap";
 import { NewsColumns } from "@/components/globe/NewsColumns";
 import { SettingsPanel } from "@/components/globe/SettingsPanel";
 import ImpactPanel, { type ImpactPanelData } from "@/components/globe/ImpactPanel";
+import GlobeTimeline from "@/components/globe/GlobeTimeline";
 import { EVENT_IMPACT_MAP, REGION_LABELS, detectEventRegion, impactAssetIds } from "@/lib/globe/eventImpactMap";
 import { AssetHeatmapPanel } from "@/components/globe/AssetHeatmapPanel";
 import { GlobeAnalyticsPanel } from "@/components/globe/GlobeAnalyticsPanel";
@@ -658,6 +659,8 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   const [showContNav, setShowContNav] = useState(false);
   const [impactPanel, setImpactPanel] = useState<ImpactPanelData | null>(null);
   const [highlightedAssetIds, setHighlightedAssetIds] = useState<string[]>([]);
+  const [showTimeline, setShowTimeline] = useState(false);
+  const [timelineDay, setTimelineDay] = useState<string | null>(null);
   const [dataSource, setDataSource] = useState<DataSource>(() => {
     if (typeof window === "undefined") return "tradingview";
     try {
@@ -2146,6 +2149,16 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
     setEnabledAssets((prev) => (prev.includes(id) ? prev : [...prev, id]));
   }, []);
 
+  // ── Timeline: today (client) + optional day-scrub filter on globe events ──
+  const todayIso = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const displayGeoEvents = useMemo(
+    () =>
+      timelineDay
+        ? geoEvents.filter((e) => String(e.date || e.timestamp || "").slice(0, 10) === timelineDay)
+        : geoEvents,
+    [geoEvents, timelineDay],
+  );
+
   const onToggleAsset = useCallback((assetId: string) => {
     setEnabledAssets((prev) => {
       const has = prev.includes(assetId);
@@ -2444,7 +2457,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
     volatilityRegime: "Neutral",
     commodityRegionScores: emptyCommodityRegionScores,
     commodityMode: "Normal",
-    geoEvents,
+    geoEvents: displayGeoEvents,
     shipTracking: activeShipTracking,
     overlayRoutes: activeRouteOverlays,
     commodityRegions: activeCommodityRegions,
@@ -2885,6 +2898,18 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                   >
                     🛰 Satellite
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowTimeline((v) => !v)}
+                    className={`flex h-7 items-center gap-1 rounded-md border px-2 text-[10px] font-semibold transition ${
+                      showTimeline
+                        ? "border-[#D4AF37]/70 bg-[rgba(212,175,55,0.12)] text-[#D4AF37]"
+                        : "border-white/15 text-white/40 hover:text-white/70"
+                    }`}
+                    title="Event timeline (last 30 days)"
+                  >
+                    ⏱ Timeline
+                  </button>
                 </div>
                 {/* Fullscreen */}
                 <button
@@ -2991,6 +3016,15 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                     data={impactPanel}
                     onClose={closeImpactPanel}
                     onOpenChart={handleImpactOpenChart}
+                  />
+                )}
+                {showTimeline && (
+                  <GlobeTimeline
+                    geoEvents={geoEvents}
+                    selectedDay={timelineDay}
+                    onSelectDay={setTimelineDay}
+                    onClose={() => { setShowTimeline(false); setTimelineDay(null); }}
+                    todayIso={todayIso}
                   />
                 )}
               </>
