@@ -378,6 +378,23 @@ function downsampleSeries(series: AnalyticsSeriesPoint[], maxPoints = 420) {
   return series.filter((_, index) => index % step === 0 || index === series.length - 1);
 }
 
+// Rebase a cumulative-% series so its first point is 0% and every later point is
+// measured relative to it. Without this, clicking a year filter (1Y/3Y/YTD/2015…)
+// leaves the curve at its absolute inception-to-date value — e.g. "1Y" would start
+// the line at +50% instead of 0%, which reads as a wrong/misleading chart. A series
+// value v means equity ratio (1 + v/100); rebasing to the new first point v0 gives
+// ((1 + v/100) / (1 + v0/100) - 1) * 100.
+function rebaseSeries(series: AnalyticsSeriesPoint[]): AnalyticsSeriesPoint[] {
+  if (series.length < 2) return series;
+  const v0 = series[0]!.value;
+  const base = 1 + v0 / 100;
+  if (!Number.isFinite(base) || base === 0) return series;
+  return series.map((point) => ({
+    ...point,
+    value: Number((((1 + point.value / 100) / base - 1) * 100).toFixed(2)),
+  }));
+}
+
 function computeDrawdown(series: AnalyticsSeriesPoint[]) {
   let peak = -Infinity;
   return series.map((point) => {
@@ -974,8 +991,8 @@ function PerformanceCard({
       ? aggregateGroupSeries(dataset.groupSeries, activeGroups)
       : dataset.performanceSeries;
 
-  const rawPerformanceSeries = downsampleSeries(filterSeries(baseSeries, startFilter));
-  const rawBenchmarkSeries = downsampleSeries(filterSeries(dataset.benchmarkSeries, startFilter));
+  const rawPerformanceSeries = rebaseSeries(downsampleSeries(filterSeries(baseSeries, startFilter)));
+  const rawBenchmarkSeries = rebaseSeries(downsampleSeries(filterSeries(dataset.benchmarkSeries, startFilter)));
   const performanceSeries = compounded ? rawPerformanceSeries : toNonCompounded(rawPerformanceSeries);
   const benchmarkSeries = compounded ? rawBenchmarkSeries : toNonCompounded(rawBenchmarkSeries);
   const visibleGroups = activeGroups.filter((group) => dataset.groupSeries[group]?.length);
@@ -988,7 +1005,7 @@ function PerformanceCard({
 
     if (lineMode === "assets") {
       for (const group of visibleGroups) {
-        const rawGroup = downsampleSeries(filterSeries(dataset.groupSeries[group], startFilter));
+        const rawGroup = rebaseSeries(downsampleSeries(filterSeries(dataset.groupSeries[group], startFilter)));
         const groupSeries = compounded ? rawGroup : toNonCompounded(rawGroup);
         for (const point of groupSeries) {
           const row = rows.get(point.date) ?? { date: point.date };
@@ -2059,7 +2076,7 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
       ? aggregateGroupSeries(dataset.groupSeries, activeGroups)
       : dataset.performanceSeries;
 
-  const filteredPerformanceSeries = filterSeries(visiblePerformanceSeries, startFilter);
+  const filteredPerformanceSeries = rebaseSeries(filterSeries(visiblePerformanceSeries, startFilter));
   const filteredAnnualReturns = tab === "invest"
     ? dataset.annualReturns
     : dataset.annualReturns.filter((item) => {
