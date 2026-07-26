@@ -437,8 +437,15 @@ function createInvestDatasetFromSnapshot(mode: AnalyticsMode, fsportfolio: FSPor
 }
 
 export function getAnalyticsDataset(tab: AnalyticsTab, mode: AnalyticsMode, fsportfolio: FSPortfolioSnapshot | undefined, data: CapalifeData) {
-  if (tab === "invest" && fsportfolio) {
-    return createInvestDatasetFromSnapshot(mode, fsportfolio);
+  if (tab === "invest") {
+    // Full multi-asset snapshot (local, with OHLC) is richest — use it when ready.
+    // Otherwise (e.g. Vercel, no OHLC) fall back to the committed Pine backtest so
+    // Core Invest / Backtest still shows a real curve instead of an empty state.
+    const snapshotReady = Boolean(fsportfolio?.backtest?.ready);
+    if (mode === "backtest" && !snapshotReady && data.coreInvestPineBacktest) {
+      return data.coreInvestPineBacktest;
+    }
+    if (fsportfolio) return createInvestDatasetFromSnapshot(mode, fsportfolio);
   }
   if (mode === "backtest") return createBacktestDataset(tab, data);
   return createLiveDataset(tab, data);

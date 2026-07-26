@@ -399,6 +399,10 @@ export type CapalifeData = {
   whiteSwanAnnualReturns: WhiteSwanAnnualReturns;
   analyticsGenerated: AnalyticsGenerated;
   wsPortfolioEquity: WsPortfolioEquityFile | null;
+  // Core-Invest backtest built from the committed Pine series. Populated only by
+  // the analytics route (server-side) so the raw 1.6MB source never reaches the
+  // client; other pages leave it undefined.
+  coreInvestPineBacktest?: import("@/lib/analytics/portfolio-data").AnalyticsDataset | null;
 };
 
 export function getCapalifeData(): CapalifeData {
