@@ -1083,8 +1083,8 @@ function GlobeCanvasComponent({
         material.bumpMap = null;
         material.normalMap = null;
         material.specularMap = null;
-        material.color = new Color(goldThemeEnabled ? "#1a1711" : "#0f2541");
-        material.emissive = new Color(goldThemeEnabled ? "#2a2215" : "#132946");
+        material.color = new Color(goldThemeEnabled ? "#1a1711" : "#111111");
+        material.emissive = new Color(goldThemeEnabled ? "#2a2215" : "#0a0a0a");
         material.emissiveIntensity = 0.44;
         material.shininess = 0;
         material.specular = new Color("#000000");
@@ -1397,7 +1397,7 @@ function GlobeCanvasComponent({
       return (
         <div className="absolute bottom-2 right-2 z-10 rounded-lg border border-slate-600/55 bg-transparent px-2 py-1.5 text-[10px]">
           <div className="mb-1 font-semibold uppercase tracking-[0.12em] text-slate-200">Policy Rate</div>
-          <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(55,173,255,0.58)]" />Low Rate</div>
+          <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(200,200,208,0.58)]" />Low Rate</div>
           <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(255,115,96,0.62)]" />High Rate</div>
           <div className="mt-1.5 border-t border-slate-700/45 pt-1 text-slate-300">Up move = red glow | Down move = green glow</div>
         </div>
@@ -1467,8 +1467,8 @@ function GlobeCanvasComponent({
             : OCEAN_TEXTURE}
           backgroundColor="rgba(0,0,0,0)"
           showAtmosphere
-          atmosphereColor={satelliteMode ? "#4ea3d8" : goldThemeEnabled ? "#e2ca7a" : "#D4AF37"}
-          atmosphereAltitude={satelliteMode ? 0.18 : 0.032}
+          atmosphereColor={satelliteMode ? "#888888" : goldThemeEnabled ? "#e2ca7a" : "#333333"}
+          atmosphereAltitude={satelliteMode ? 0.18 : 0.05}
           polygonsTransitionDuration={0}
           showGraticules={satelliteMode}
           pointsData={pointData}
@@ -1647,7 +1647,7 @@ function GlobeCanvasComponent({
               const icon = document.createElement("span");
               icon.innerText = "SH";
               icon.style.fontSize = "10px";
-              icon.style.color = "#bde8ff";
+              icon.style.color = "#FFFFFF";
               icon.style.fontWeight = "700";
               el.appendChild(icon);
               if (detailLevel >= 2) {
@@ -1922,6 +1922,11 @@ function GlobeCanvasComponent({
           arcDashLength={(d: any) => Number(d.dashLength ?? 1)}
           arcDashGap={(d: any) => Number(d.dashGap ?? 0)}
           arcDashAnimateTime={(d: any) => Number(d.animateTime ?? 0)}
+          arcDashInitialGap={(d: any) => {
+            // Stable per-arc offset so animated arcs don't start/jump in sync.
+            const seed = Math.abs(Number(d.startLat ?? 0) * 73.13 + Number(d.startLng ?? 0) * 19.77);
+            return seed - Math.floor(seed);
+          }}
           arcLabel={(d: any) => String(d.label || "")}
           ringsData={ringsData}
           ringColor={(d: { color: string }) => d.color || themePrimarySoft}

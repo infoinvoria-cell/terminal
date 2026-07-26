@@ -2367,9 +2367,9 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
               onClick={() => setMapMode("satellite")}
               style={{
                 padding: "3px 8px", borderRadius: 14, fontSize: 10, fontWeight: 700, cursor: "pointer",
-                border: mapMode === "satellite" ? "1px solid rgba(78,163,216,0.6)" : "1px solid rgba(255,255,255,0.12)",
-                background: mapMode === "satellite" ? "rgba(78,163,216,0.15)" : "rgba(6,7,10,0.7)",
-                color: mapMode === "satellite" ? "#4ea3d8" : "rgba(255,255,255,0.4)",
+                border: mapMode === "satellite" ? "1px solid rgba(220,220,228,0.6)" : "1px solid rgba(255,255,255,0.12)",
+                background: mapMode === "satellite" ? "rgba(220,220,228,0.15)" : "rgba(6,7,10,0.7)",
+                color: mapMode === "satellite" ? "#dcdce4" : "rgba(255,255,255,0.4)",
               }}
             >🛰 SAT</button>
           </div>
@@ -2663,7 +2663,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                     onClick={() => setMapMode("satellite")}
                     className={`flex h-7 items-center gap-1 rounded-md border px-2 text-[10px] font-semibold transition ${
                       mapMode === "satellite"
-                        ? "border-[#4ea3d8]/70 bg-[rgba(78,163,216,0.12)] text-[#4ea3d8]"
+                        ? "border-[#dcdce4]/70 bg-[rgba(220,220,228,0.12)] text-[#dcdce4]"
                         : "border-white/15 text-white/40 hover:text-white/70"
                     }`}
                     title="Satellite map (Google Earth zoom)"
@@ -2687,7 +2687,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                   onClick={() => setSatelliteMode((v) => !v)}
                   className={`absolute right-12 top-3 z-30 flex h-7 w-7 items-center justify-center rounded-md border transition ${
                     satelliteMode
-                      ? "border-[#4ea3d8]/80 text-[#4ea3d8] bg-[rgba(78,163,216,0.12)]"
+                      ? "border-[#dcdce4]/80 text-[#dcdce4] bg-[rgba(220,220,228,0.12)]"
                       : "border-white/15 text-white/50 hover:border-white/40 hover:text-white"
                   }`}
                   title={satelliteMode ? "Dark globe" : "Satellite view"}

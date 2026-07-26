@@ -194,10 +194,10 @@ export function MapboxSatelliteView({
     if (showPorts) {
       for (const p of WORLD_PORTS) {
         const size = p.type === "mega" ? 20 : p.type === "major" ? 16 : 12;
-        const el = createMarkerEl("⚓", "rgba(96,165,250,0.85)", size);
+        const el = createMarkerEl("⚓", "rgba(220,220,228,0.85)", size);
         add(el, p.lng, p.lat, `
           <div style="font-family:sans-serif;font-size:12px;">
-            <b style="color:#60a5fa">⚓ ${p.name}</b><br/>
+            <b style="color:#dcdce4">⚓ ${p.name}</b><br/>
             <span style="color:#9ca3af">${p.countryIso} · ${p.type.charAt(0).toUpperCase() + p.type.slice(1)} Port</span>
             ${p.teu ? `<br/><span style="color:#d4af37">${p.teu}M TEU/yr</span>` : ""}
           </div>`);
@@ -333,8 +333,8 @@ export function MapboxSatelliteView({
           Mapbox Token erforderlich
         </div>
         <div style={{ fontSize: 13, color: "#9ca3af", maxWidth: 300, lineHeight: 1.6 }}>
-          Füge deinen Mapbox-Token als <code style={{ color: "#60a5fa" }}>NEXT_PUBLIC_MAPBOX_TOKEN</code> in{" "}
-          <code style={{ color: "#60a5fa" }}>.env.local</code> ein.
+          Füge deinen Mapbox-Token als <code style={{ color: "#d4af37" }}>NEXT_PUBLIC_MAPBOX_TOKEN</code> in{" "}
+          <code style={{ color: "#d4af37" }}>.env.local</code> ein.
           <br /><br />
           Kostenlosen Token bei{" "}
           <span style={{ color: "#d4af37" }}>mapbox.com</span> holen
@@ -369,7 +369,7 @@ export function MapboxSatelliteView({
         display: "flex", flexDirection: "column", gap: 4,
         fontSize: 11, color: "rgba(255,255,255,0.7)",
       }}>
-        {showPorts     && <div>⚓ <span style={{ color: "#60a5fa" }}>Ports</span></div>}
+        {showPorts     && <div>⚓ <span style={{ color: "#dcdce4" }}>Ports</span></div>}
         {showAirports  && <div>✈ <span style={{ color: "#34d399" }}>Airports</span></div>}
         {showMilitary  && <div>▲ <span style={{ color: "#d4af37" }}>Military</span></div>}
         {showShips && ships.length > 0 && <div>🚢 <span style={{ color: "#a855f7" }}>Ships ({ships.length})</span></div>}
