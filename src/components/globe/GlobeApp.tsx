@@ -23,6 +23,7 @@ import MarketSessions from "@/components/globe/MarketSessions";
 import EconomicCalendar from "@/components/globe/EconomicCalendar";
 import ScenarioStress from "@/components/globe/ScenarioStress";
 import ExposureGraph from "@/components/globe/ExposureGraph";
+import AlertsPanel, { type AlertRule } from "@/components/globe/AlertsPanel";
 import type { GlobePattern } from "@/app/api/globe/pattern-detection/route";
 import CountryFlag from "@/components/globe/CountryFlag";
 import { EVENT_IMPACT_MAP, REGION_LABELS, IMPACT_SYMBOL_TO_ID, detectEventRegion, impactAssetIds } from "@/lib/globe/eventImpactMap";
@@ -704,6 +705,16 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   const [showCalendar, setShowCalendar] = useState(false);
   const [showScenario, setShowScenario] = useState(false);
   const [showExposure, setShowExposure] = useState(false);
+  const [showAlerts, setShowAlerts] = useState(false);
+  const [alertRules, setAlertRules] = useState<AlertRule[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const raw = window.localStorage.getItem("clf_globe_alerts_v1");
+      return raw ? (JSON.parse(raw) as AlertRule[]) : [];
+    } catch {
+      return [];
+    }
+  });
   const [patternAlerts, setPatternAlerts] = useState<GlobePattern[]>([]);
   const [dismissedPatternIds, setDismissedPatternIds] = useState<string[]>([]);
   const [dataSource, setDataSource] = useState<DataSource>(() => {
@@ -2245,6 +2256,10 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   );
   const onPatternFocus = useCallback(
     (p: GlobePattern) => {
+      if (p.id.startsWith("alert:")) {
+        if (p.affectedAssets[0]) handleImpactOpenChart(p.affectedAssets[0]);
+        return;
+      }
       onGeoZoomTo(p.lat, p.lng, 1.5);
       if (p.region && EVENT_IMPACT_MAP[p.region]) {
         handleEventClick({ name: p.pattern, lat: p.lat, lng: p.lng, type: "pattern" });
@@ -2252,11 +2267,68 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
         setHighlightedAssetIds(impactAssetIds(p.affectedAssets));
       }
     },
-    [onGeoZoomTo, handleEventClick],
+    [onGeoZoomTo, handleEventClick, handleImpactOpenChart],
   );
   const onPatternDismiss = useCallback((id: string) => {
     setDismissedPatternIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
   }, []);
+
+  // ── Custom alerts (price × event), persisted ──
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("clf_globe_alerts_v1", JSON.stringify(alertRules));
+    } catch {
+      /* quota — ignore */
+    }
+  }, [alertRules]);
+  const addAlert = useCallback((rule: AlertRule) => setAlertRules((prev) => [...prev, rule]), []);
+  const removeAlert = useCallback((id: string) => setAlertRules((prev) => prev.filter((r) => r.id !== id)), []);
+  const alertAssetOptions = useMemo(
+    () => assets.filter((a) => enabledSet.has(a.id)).map((a) => ({ id: a.id, label: a.symbol || a.name })),
+    [assets, enabledSet],
+  );
+  const triggeredAlertIds = useMemo(() => {
+    const set = new Set<string>();
+    for (const r of alertRules) {
+      const chg = globeChanges[r.assetId];
+      if (typeof chg !== "number") continue;
+      const meets =
+        r.direction === "up" ? chg >= r.threshold : r.direction === "down" ? chg <= -r.threshold : Math.abs(chg) >= r.threshold;
+      if (!meets) continue;
+      if (
+        r.region &&
+        !geoEvents.some((e) => detectEventRegion(Number(e.lat ?? e.latitude), Number(e.lng ?? e.longitude)) === r.region)
+      )
+        continue;
+      set.add(r.id);
+    }
+    return set;
+  }, [alertRules, globeChanges, geoEvents]);
+  const alertPatterns = useMemo<GlobePattern[]>(
+    () =>
+      alertRules
+        .filter((r) => triggeredAlertIds.has(r.id))
+        .map((r) => {
+          const chg = globeChanges[r.assetId] ?? 0;
+          return {
+            id: `alert:${r.id}`,
+            pattern: `Alert · ${r.ticker} ${chg >= 0 ? "+" : ""}${chg.toFixed(1)}%`,
+            confidence: 1,
+            affectedAssets: [r.ticker],
+            action: "alert" as const,
+            lat: 0,
+            lng: 0,
+            region: r.region,
+            count: 1,
+            note: r.region ? `Event ${REGION_LABELS[r.region] ?? r.region}` : undefined,
+          };
+        }),
+    [alertRules, triggeredAlertIds, globeChanges],
+  );
+  const combinedAlerts = useMemo(
+    () => [...alertPatterns.filter((p) => !dismissedPatternIds.includes(p.id)), ...visiblePatternAlerts],
+    [alertPatterns, dismissedPatternIds, visiblePatternAlerts],
+  );
 
   // Live quotes for the assets shown in the impact panel (keyed by display ticker).
   const impactQuotes = useMemo(() => {
@@ -3057,6 +3129,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                         { label: "📅 Economic Calendar", active: showCalendar, onClick: () => setShowCalendar((v) => !v) },
                         { label: "⚗️ Scenario Stress", active: showScenario, onClick: () => setShowScenario((v) => !v) },
                         { label: "🕸 Exposure Graph", active: showExposure, onClick: () => setShowExposure((v) => !v) },
+                        { label: "🔔 Alerts", active: showAlerts, onClick: () => setShowAlerts((v) => !v) },
                         { label: "⏱ Event Timeline", active: showTimeline, onClick: () => setShowTimeline((v) => !v) },
                         { label: "🛰 Sentinel Intel", active: showSentinel, onClick: () => setShowSentinel((v) => !v) },
                         ...(mapMode === "globe" ? [
@@ -3154,7 +3227,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                   />
                 )}
                 <GlobePatternAlerts
-                  patterns={visiblePatternAlerts}
+                  patterns={combinedAlerts}
                   onFocus={onPatternFocus}
                   onDismiss={onPatternDismiss}
                 />
@@ -3177,6 +3250,17 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                       setEnabledAssets((prev) => (prev.includes(id) ? prev : [...prev, id]));
                     }}
                     onClose={() => setShowExposure(false)}
+                  />
+                )}
+                {showAlerts && (
+                  <AlertsPanel
+                    rules={alertRules}
+                    assetOptions={alertAssetOptions}
+                    changes={globeChanges}
+                    triggeredIds={triggeredAlertIds}
+                    onAdd={addAlert}
+                    onRemove={removeAlert}
+                    onClose={() => setShowAlerts(false)}
                   />
                 )}
               </>
