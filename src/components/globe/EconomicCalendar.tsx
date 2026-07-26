@@ -1,0 +1,93 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+
+// Curated schedule of high-impact macro events (UTC). FOMC/ECB use published
+// 2026 dates; NFP is the first Friday of each month (a fixed rule). Update the
+// hardcoded rows periodically — they are clearly the source of truth here.
+type MacroEvent = { iso: string; type: string; label: string; region: string; impact: string[] };
+
+const MACRO_EVENTS: MacroEvent[] = [
+  { iso: "2026-07-29T18:00:00Z", type: "fomc", label: "FOMC Rate Decision", region: "US", impact: ["ES1!", "NQ1!", "GC1!", "6E1!"] },
+  { iso: "2026-08-07T12:30:00Z", type: "nfp", label: "US Non-Farm Payrolls", region: "US", impact: ["ES1!", "GC1!", "6E1!"] },
+  { iso: "2026-08-12T12:30:00Z", type: "cpi", label: "US CPI (approx.)", region: "US", impact: ["GC1!", "6E1!", "ES1!"] },
+  { iso: "2026-09-04T12:30:00Z", type: "nfp", label: "US Non-Farm Payrolls", region: "US", impact: ["ES1!", "GC1!", "6E1!"] },
+  { iso: "2026-09-10T12:15:00Z", type: "ecb", label: "ECB Rate Decision", region: "EU", impact: ["6E1!", "FDAX1!"] },
+  { iso: "2026-09-16T18:00:00Z", type: "fomc", label: "FOMC Rate Decision", region: "US", impact: ["ES1!", "NQ1!", "GC1!", "6E1!"] },
+  { iso: "2026-10-02T12:30:00Z", type: "nfp", label: "US Non-Farm Payrolls", region: "US", impact: ["ES1!", "GC1!", "6E1!"] },
+  { iso: "2026-10-29T13:15:00Z", type: "ecb", label: "ECB Rate Decision", region: "EU", impact: ["6E1!", "FDAX1!"] },
+  { iso: "2026-10-28T18:00:00Z", type: "fomc", label: "FOMC Rate Decision", region: "US", impact: ["ES1!", "NQ1!", "GC1!", "6E1!"] },
+  { iso: "2026-12-09T19:00:00Z", type: "fomc", label: "FOMC Rate Decision", region: "US", impact: ["ES1!", "NQ1!", "GC1!", "6E1!"] },
+];
+
+const TYPE_ICON: Record<string, string> = { fomc: "🏛", ecb: "🏛", nfp: "👷", cpi: "📊", gdp: "📈", boj: "🏯" };
+
+type Props = { onClose: () => void };
+
+function fmtCountdown(ms: number): string {
+  if (ms <= 0) return "live";
+  const totalMin = Math.floor(ms / 60000);
+  const d = Math.floor(totalMin / 1440);
+  const h = Math.floor((totalMin % 1440) / 60);
+  const m = totalMin % 60;
+  if (d > 0) return `${d}d ${h}h`;
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+
+export default function EconomicCalendar({ onClose }: Props) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const iv = window.setInterval(() => setNow(Date.now()), 60_000);
+    return () => window.clearInterval(iv);
+  }, []);
+
+  const upcoming = useMemo(() => {
+    return MACRO_EVENTS.map((e) => ({ ...e, ms: new Date(e.iso).getTime() - now }))
+      .filter((e) => e.ms > -3 * 3600 * 1000) // keep events up to 3h after start
+      .sort((a, b) => a.ms - b.ms)
+      .slice(0, 8);
+  }, [now]);
+
+  return (
+    <div
+      className="absolute left-3 top-12 z-40 flex w-[250px] flex-col overflow-hidden rounded-[10px] backdrop-blur-md"
+      style={{ maxHeight: 340, background: "rgba(9,10,14,0.96)", border: "1px solid rgba(212,175,55,0.4)", boxShadow: "0 10px 30px rgba(0,0,0,0.6)" }}
+    >
+      <div className="flex items-center gap-1.5 px-2.5 py-2" style={{ borderBottom: "1px solid rgba(212,175,55,0.2)" }}>
+        <span className="text-[11px]">📅</span>
+        <span className="text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: "#D4AF37" }}>Economic Calendar</span>
+        <button type="button" onClick={onClose} className="ml-auto text-[13px] leading-none text-white/40 transition hover:text-white/80" aria-label="Close">×</button>
+      </div>
+      <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto py-1">
+        {upcoming.length === 0 && <div className="py-6 text-center text-[10px] text-white/30">Keine Termine</div>}
+        {upcoming.map((e) => {
+          const imminent = e.ms <= 48 * 3600 * 1000;
+          const live = e.ms <= 0;
+          return (
+            <div
+              key={e.iso}
+              className="flex items-center gap-2 px-2.5 py-1.5"
+              style={{ background: live ? "rgba(74,222,128,0.08)" : imminent ? "rgba(212,175,55,0.07)" : "transparent" }}
+            >
+              <span className="text-[12px]">{TYPE_ICON[e.type] ?? "•"}</span>
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-[10.5px] font-medium text-white/85">{e.label}</div>
+                <div className="truncate text-[8.5px] text-white/40">{e.impact.join(" · ")}</div>
+              </div>
+              <span
+                className="shrink-0 rounded px-1.5 py-[2px] text-[9px] font-bold tabular-nums"
+                style={{
+                  color: live ? "#4ade80" : imminent ? "#D4AF37" : "rgba(255,255,255,0.5)",
+                  background: live ? "rgba(74,222,128,0.14)" : imminent ? "rgba(212,175,55,0.12)" : "rgba(255,255,255,0.05)",
+                }}
+              >
+                {fmtCountdown(e.ms)}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
