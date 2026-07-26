@@ -2378,7 +2378,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                 }}
               >
                 <span style={{ fontSize: 12 }}>{OVERLAY_EMOJI[key] ?? "◦"}</span>
-                <span style={{ fontSize: 11, fontWeight: 600, color: active ? "#d4af37" : "rgba(255,255,255,0.45)" }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: active ? "#c8c8c8" : "rgba(255,255,255,0.45)" }}>
                   {OVERLAY_LABELS[key] ?? key}{loading ? " …" : ""}
                 </span>
               </button>
@@ -2420,7 +2420,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                 padding: "3px 8px", borderRadius: 14, fontSize: 10, fontWeight: 700, cursor: "pointer",
                 border: mapMode === "globe" ? "1px solid rgba(200,200,200,0.6)" : "1px solid rgba(255,255,255,0.12)",
                 background: mapMode === "globe" ? "rgba(200,200,200,0.15)" : "rgba(6,7,10,0.7)",
-                color: mapMode === "globe" ? "#d4af37" : "rgba(255,255,255,0.4)",
+                color: mapMode === "globe" ? "#c8c8c8" : "rgba(255,255,255,0.4)",
               }}
             >🌍 Globe</button>
             <button
@@ -3037,7 +3037,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
               <div
                 className="h-8 w-8 animate-spin rounded-full border-2"
                 style={{
-                  borderColor: "rgba(226,202,122,0.2)",
+                  borderColor: "rgba(200,200,200,0.2)",
                   borderTopColor: GOLD_PRIMARY,
                 }}
               />

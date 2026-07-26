@@ -56,11 +56,11 @@ const VAL_DRIVER_META: Record<ValDriverKey, { label: string; short: string; colo
   dollar: { label: "Dollar", short: "$", color: "#4CAF50" },
   gold: { label: "Gold", short: "Au", color: "#FFEB3B" },
   us10y: { label: "US10Y", short: "10Y", color: "#FF9800" },
-  combined: { label: "Combined", short: "Comb", color: "#2962ff" },
+  combined: { label: "Combined", short: "Comb", color: "#9a9a9a" },
 };
 
 const MACRO_COMPONENT_META: Record<"risk" | "fedLiquidity" | "cotIndex" | "cotNet", { short: string; color: string }> = {
-  risk: { short: "Risk", color: "#2962ff" },
+  risk: { short: "Risk", color: "#9a9a9a" },
   fedLiquidity: { short: "Fed", color: designTokens.signal.bull },
   cotIndex: { short: "COTi", color: "#FFEB3B" },
   cotNet: { short: "COTn", color: designTokens.signal.bear },
@@ -458,7 +458,7 @@ export function AssetHeatmapPanel({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [corrHover, setCorrHover] = useState<CorrHover>(null);
-  const accentColor = goldThemeEnabled ? "#e2ca7a" : "#2962ff";
+  const accentColor = goldThemeEnabled ? "#c8c8c8" : "#9a9a9a";
 
   const matrixBox = useElementSize<HTMLDivElement>();
   const cardsBox = useElementSize<HTMLDivElement>();
@@ -628,12 +628,12 @@ export function AssetHeatmapPanel({
   const renderCorrelation = () => {
     const corr = tabs?.correlation;
     if (!corr?.assets?.length || !corr.matrix?.length) {
-      return <div className="grid h-full place-items-center text-[10px] text-slate-400">No correlation data</div>;
+      return <div className="grid h-full place-items-center text-[10px] text-neutral-400">No correlation data</div>;
     }
 
     const keepIdx: number[] = correlationIndices;
     if (!keepIdx.length) {
-      return <div className="grid h-full place-items-center text-[10px] text-slate-400">No assets selected</div>;
+      return <div className="grid h-full place-items-center text-[10px] text-neutral-400">No assets selected</div>;
     }
     const assets = keepIdx.map((idx) => corr.assets[idx]);
     const matrix = keepIdx.map((i) => keepIdx.map((j) => Number(corr.matrix?.[i]?.[j] ?? (i === j ? 100 : 0))));
@@ -643,10 +643,10 @@ export function AssetHeatmapPanel({
     const corrHeaderBg = goldThemeEnabled ? "rgba(22,18,12,0.95)" : "rgba(8,18,34,1)";
     const corrHeaderBgActive = goldThemeEnabled ? "rgba(64,49,20,0.95)" : "rgba(22,45,84,0.95)";
     const corrHeaderText = goldThemeEnabled ? "#ead7ab" : "#cfe0ff";
-    const corrHeaderTextActive = goldThemeEnabled ? "#fff3d1" : "#dce8ff";
+    const corrHeaderTextActive = goldThemeEnabled ? "#ffffff" : "#dce8ff";
     const corrClusterBg = goldThemeEnabled ? "rgba(22,18,12,0.72)" : "rgba(8,18,34,0.72)";
-    const corrClusterLine = goldThemeEnabled ? "rgba(226,202,122,0.36)" : "rgba(71,85,105,0.88)";
-    const corrGridLine = goldThemeEnabled ? "rgba(226,202,122,0.22)" : "rgba(30,41,59,0.65)";
+    const corrClusterLine = goldThemeEnabled ? "rgba(200,200,200,0.36)" : "rgba(71,85,105,0.88)";
+    const corrGridLine = goldThemeEnabled ? "rgba(200,200,200,0.22)" : "rgba(30,41,59,0.65)";
     const clusters: Array<{ name: string; start: number; end: number; count: number }> = [];
     let start = 0;
     while (start < n) {
@@ -667,11 +667,11 @@ export function AssetHeatmapPanel({
 
     return (
       <div key={`corr-${timeframeLabel}-${String(corr.updatedAt || "")}-${keepIdx.length}`} className="flex min-h-0 flex-1 w-full flex-col gap-1 overflow-hidden">
-        <div className="flex h-[16px] w-full overflow-hidden rounded border border-slate-700/55" style={{ background: corrClusterBg }}>
+        <div className="flex h-[16px] w-full overflow-hidden rounded border border-neutral-700/55" style={{ background: corrClusterBg }}>
           {clusters.map((cluster, idx) => (
             <div
               key={`cluster-${cluster.name}-${cluster.start}`}
-              className="truncate px-1 text-center text-[8px] font-semibold uppercase tracking-[0.08em] text-slate-300"
+              className="truncate px-1 text-center text-[8px] font-semibold uppercase tracking-[0.08em] text-neutral-300"
               style={{
                 width: `${(cluster.count / Math.max(1, n)) * 100}%`,
                 lineHeight: "14px",
@@ -683,7 +683,7 @@ export function AssetHeatmapPanel({
             </div>
           ))}
         </div>
-        <div ref={matrixBox.ref} className="relative flex min-h-0 flex-1 w-full overflow-hidden rounded border border-slate-700/55 bg-transparent">
+        <div ref={matrixBox.ref} className="relative flex min-h-0 flex-1 w-full overflow-hidden rounded border border-neutral-700/55 bg-transparent">
           <div
             className="absolute inset-0"
             style={{
@@ -692,11 +692,11 @@ export function AssetHeatmapPanel({
               gridTemplateRows: `${m.headerH}px repeat(${n}, minmax(0, 1fr))`,
             }}
           >
-            <div className="border-b border-r border-slate-700/70 px-[2px] uppercase tracking-[0.04em] text-slate-300" style={{ background: corrHeaderBg, color: corrHeaderText, fontSize: `${headFont}px`, lineHeight: `${m.headerH - 2}px` }}>A</div>
+            <div className="border-b border-r border-neutral-700/70 px-[2px] uppercase tracking-[0.04em] text-neutral-300" style={{ background: corrHeaderBg, color: corrHeaderText, fontSize: `${headFont}px`, lineHeight: `${m.headerH - 2}px` }}>A</div>
             {assets.map((col, j) => (
               <div
                 key={`col-${col.assetId}`}
-                className="border-b border-r border-slate-700/70 px-[1px] text-center font-semibold text-slate-200"
+                className="border-b border-r border-neutral-700/70 px-[1px] text-center font-semibold text-neutral-200"
                 style={{
                   fontSize: `${headFont}px`,
                   lineHeight: `${Math.max(8, m.headerH - 2)}px`,
@@ -727,7 +727,7 @@ export function AssetHeatmapPanel({
               <Fragment key={`row-${rowAsset.assetId}`}>
                 <div
                   key={`row-head-${rowAsset.assetId}`}
-                  className="border-b border-r border-slate-700/65 px-[2px] font-semibold text-slate-200"
+                  className="border-b border-r border-neutral-700/65 px-[2px] font-semibold text-neutral-200"
                   style={{
                     fontSize: `${headFont}px`,
                     lineHeight: `${Math.max(8, Math.floor(m.cellH) - 2)}px`,
@@ -758,7 +758,7 @@ export function AssetHeatmapPanel({
                   return (
                     <div
                       key={`${rowAsset.assetId}-${colAsset.assetId}`}
-                      className="cursor-default border-b border-r border-slate-800/65 text-center font-semibold text-slate-100"
+                      className="cursor-default border-b border-r border-neutral-800/65 text-center font-semibold text-neutral-100"
                       style={{
                         backgroundColor: isDiagonal ? "transparent" : correlationCellColor(value),
                         fontSize: `${valueFont}px`,
@@ -833,20 +833,20 @@ export function AssetHeatmapPanel({
           </div>
           <div className="text-[10px] font-semibold">{fmt(row.score, 0)}</div>
         </div>
-        {!compact && <div className="truncate text-[8px] text-slate-100/90">{row.name}</div>}
-        <div className="truncate text-[7px] uppercase tracking-[0.06em] text-slate-200/80">{row.category}</div>
+        {!compact && <div className="truncate text-[8px] text-neutral-100/90">{row.name}</div>}
+        <div className="truncate text-[7px] uppercase tracking-[0.06em] text-neutral-200/80">{row.category}</div>
         <div className="mt-[3px] flex flex-1 flex-col justify-evenly gap-[3px]">
           {entries.map((entry) => {
             const active = entry.key === dominant || entry.key === topKey;
             return (
-              <div key={entry.key} className={`rounded px-[4px] py-[2px] ${active ? "bg-slate-900/35" : "bg-slate-900/20"}`}>
+              <div key={entry.key} className={`rounded px-[4px] py-[2px] ${active ? "bg-neutral-900/35" : "bg-neutral-900/20"}`}>
                 <div className="mb-[1px] flex items-center justify-between gap-1 text-[7px]">
                   <span style={{ color: entry.color }} className="font-semibold">
                     {entry.short}
                   </span>
-                  <span className="text-slate-100">{fmt(entry.value, 0)}</span>
+                  <span className="text-neutral-100">{fmt(entry.value, 0)}</span>
                 </div>
-                <div className="h-[4px] rounded-full bg-slate-950/45">
+                <div className="h-[4px] rounded-full bg-neutral-950/45">
                   <div
                     className="h-[4px] rounded-full"
                     style={{
@@ -885,13 +885,13 @@ export function AssetHeatmapPanel({
               return a && preferIconOnlyForexLabels(a) ? (
                 <span className="sr-only">{row.name}</span>
               ) : (
-                <div className="truncate text-[9px] font-semibold text-slate-100">{compactCode(row.assetId, row.symbol, row.name)}</div>
+                <div className="truncate text-[9px] font-semibold text-neutral-100">{compactCode(row.assetId, row.symbol, row.name)}</div>
               );
             })()}
           </div>
           <div className="text-[8px] font-semibold" style={{ color: stroke }}>{tone.direction}</div>
         </div>
-        <div className={`w-full overflow-hidden rounded border border-slate-700/45 bg-[rgba(4,10,20,0.6)] ${compact ? "h-[16px]" : "h-[24px]"}`}>
+        <div className={`w-full overflow-hidden rounded border border-neutral-700/45 bg-[rgba(4,10,20,0.6)] ${compact ? "h-[16px]" : "h-[24px]"}`}>
           <svg viewBox="0 0 100 30" preserveAspectRatio="none" className="h-full w-full">
             {spark.area ? <path d={spark.area} fill={stroke} fillOpacity={0.2} /> : null}
             {spark.line ? <path d={spark.line} fill="none" stroke={stroke} strokeWidth={1.6} /> : null}
@@ -899,7 +899,7 @@ export function AssetHeatmapPanel({
         </div>
         <div className="mt-[3px] grid flex-1 grid-cols-[30px_1fr] items-center gap-2">
           <div
-            className="grid h-7 w-7 place-items-center rounded-full border border-slate-200/35 text-[8px] font-semibold text-slate-100"
+            className="grid h-7 w-7 place-items-center rounded-full border border-neutral-200/35 text-[8px] font-semibold text-neutral-100"
             style={{
               background: `conic-gradient(${stroke} ${hit}%, ${tone.ringTrack} ${hit}% 100%)`,
               boxShadow: `0 0 ${Math.round(4 + tone.intensity * 6)}px ${stroke}55`,
@@ -908,17 +908,17 @@ export function AssetHeatmapPanel({
             <span className="grid h-[18px] w-[18px] place-items-center rounded-full bg-[#06101d] text-[7px]">{hit.toFixed(0)}</span>
           </div>
           <div className="grid grid-cols-3 gap-1 text-[7px]">
-            <div className="rounded bg-slate-900/35 px-[3px] py-[2px] text-slate-300">
-              <div className="text-[6px] uppercase text-slate-400">Hold</div>
-              <div className="font-semibold text-slate-100">{fmt(row.bestHoldPeriod, 0)}d</div>
+            <div className="rounded bg-neutral-900/35 px-[3px] py-[2px] text-neutral-300">
+              <div className="text-[6px] uppercase text-neutral-400">Hold</div>
+              <div className="font-semibold text-neutral-100">{fmt(row.bestHoldPeriod, 0)}d</div>
             </div>
-            <div className="rounded bg-slate-900/35 px-[3px] py-[2px] text-slate-300">
-              <div className="text-[6px] uppercase text-slate-400">Exp</div>
+            <div className="rounded bg-neutral-900/35 px-[3px] py-[2px] text-neutral-300">
+              <div className="text-[6px] uppercase text-neutral-400">Exp</div>
               <div className="font-semibold" style={{ color: stroke }}>{fmt(row.expectedReturn, 2)}%</div>
             </div>
-            <div className="rounded bg-slate-900/35 px-[3px] py-[2px] text-slate-300">
-              <div className="text-[6px] uppercase text-slate-400">Sig</div>
-              <div className="font-semibold text-slate-100">{signed >= 0 ? "Bull" : "Bear"}</div>
+            <div className="rounded bg-neutral-900/35 px-[3px] py-[2px] text-neutral-300">
+              <div className="text-[6px] uppercase text-neutral-400">Sig</div>
+              <div className="font-semibold text-neutral-100">{signed >= 0 ? "Bull" : "Bear"}</div>
             </div>
           </div>
         </div>
@@ -931,7 +931,7 @@ export function AssetHeatmapPanel({
     return (
       <div
         key={row.assetId}
-        className="ivq-tile h-full overflow-hidden rounded px-1.5 py-1 text-slate-100"
+        className="ivq-tile h-full overflow-hidden rounded px-1.5 py-1 text-neutral-100"
         style={{ backgroundColor: tone.bg, borderColor: tone.border }}
         title={`Distance to Demand: ${fmt(row.distanceToDemand, 3)}\nDistance to Supply: ${fmt(row.distanceToSupply, 3)}`}
       >
@@ -947,10 +947,10 @@ export function AssetHeatmapPanel({
               );
             })()}
           </div>
-          <div className="text-[8px] uppercase tracking-[0.06em] text-slate-200">{row.status}</div>
+          <div className="text-[8px] uppercase tracking-[0.06em] text-neutral-200">{row.status}</div>
         </div>
-        {!compact && <div className="truncate text-[9px] text-slate-100">{row.name}</div>}
-        <div className="mt-[2px] grid grid-cols-2 gap-1 text-[8px] text-slate-200/90">
+        {!compact && <div className="truncate text-[9px] text-neutral-100">{row.name}</div>}
+        <div className="mt-[2px] grid grid-cols-2 gap-1 text-[8px] text-neutral-200/90">
           <div className="truncate">D: {fmt(row.distanceToDemand, 2)}</div>
           <div className="truncate">S: {fmt(row.distanceToSupply, 2)}</div>
         </div>
@@ -994,7 +994,7 @@ export function AssetHeatmapPanel({
               {String(row.direction || (signed >= 0 ? "LONG" : "SHORT")).toUpperCase()}
             </span>
             <div
-              className="grid h-5 w-5 place-items-center rounded-full border border-slate-200/35 text-[8px] font-semibold text-slate-100"
+              className="grid h-5 w-5 place-items-center rounded-full border border-neutral-200/35 text-[8px] font-semibold text-neutral-100"
               style={{
                 background: `conic-gradient(${tone.line} ${score}%, ${tone.ringTrack} ${score}% 100%)`,
                 boxShadow: `0 0 ${Math.round(4 + (Math.abs(signed) / 100) * 6)}px ${tone.line}55`,
@@ -1004,15 +1004,15 @@ export function AssetHeatmapPanel({
             </div>
           </div>
         </div>
-        {!compact && <div className="truncate text-[8px] text-slate-100/90">{row.name}</div>}
+        {!compact && <div className="truncate text-[8px] text-neutral-100/90">{row.name}</div>}
         <div className="mt-[3px] flex flex-1 flex-col justify-evenly gap-[3px]">
           {compEntries.map((entry) => (
-            <div key={entry.key} className={`rounded px-[4px] py-[2px] ${entry.key === topComp ? "bg-slate-900/35" : "bg-slate-900/20"}`}>
+            <div key={entry.key} className={`rounded px-[4px] py-[2px] ${entry.key === topComp ? "bg-neutral-900/35" : "bg-neutral-900/20"}`}>
               <div className="mb-[1px] flex items-center justify-between text-[7px]">
                 <span style={{ color: entry.hintColor }} className="font-semibold">{entry.short}</span>
-                <span className="text-slate-100">{fmt(entry.value, 0)}</span>
+                <span className="text-neutral-100">{fmt(entry.value, 0)}</span>
               </div>
-              <div className="h-[4px] rounded-full bg-slate-950/45">
+              <div className="h-[4px] rounded-full bg-neutral-950/45">
                 <div
                   className="h-[4px] rounded-full"
                   style={{
@@ -1067,10 +1067,10 @@ export function AssetHeatmapPanel({
           </div>
           <div className="text-[10px] font-semibold">{fmt(row.aiScore, 0)}</div>
         </div>
-        {!compact && <div className="truncate text-[8px] text-slate-100/90">{row.name}</div>}
+        {!compact && <div className="truncate text-[8px] text-neutral-100/90">{row.name}</div>}
         <div className="mt-[3px] grid flex-1 grid-cols-[32px_1fr] items-center gap-2">
           <div
-            className="grid h-7 w-7 place-items-center rounded-full border border-slate-200/35 text-[8px] font-semibold text-slate-100"
+            className="grid h-7 w-7 place-items-center rounded-full border border-neutral-200/35 text-[8px] font-semibold text-neutral-100"
             style={{
               background: `conic-gradient(${seasonLine} ${seasonHit}%, ${seasonTrack} ${seasonHit}% 100%)`,
               boxShadow: `0 0 8px ${seasonLine}55`,
@@ -1080,14 +1080,14 @@ export function AssetHeatmapPanel({
           </div>
           <div className="flex flex-col justify-evenly gap-[3px]">
             {scoreBars.map((entry) => (
-              <div key={entry.key} className="rounded bg-slate-900/25 px-[4px] py-[2px]">
+              <div key={entry.key} className="rounded bg-neutral-900/25 px-[4px] py-[2px]">
                 <div className="mb-[1px] flex items-center justify-between text-[7px]">
                   <span className="font-semibold" style={{ color: entry.color }}>
                     {entry.label}
                   </span>
-                  <span className="text-slate-100">{fmt(entry.value, 0)}</span>
+                  <span className="text-neutral-100">{fmt(entry.value, 0)}</span>
                 </div>
-                <div className="h-[4px] rounded-full bg-slate-950/45">
+                <div className="h-[4px] rounded-full bg-neutral-950/45">
                   <div className="h-[4px] rounded-full" style={{ width: valueBar(entry.value), background: entry.color }} />
                 </div>
               </div>
@@ -1100,7 +1100,7 @@ export function AssetHeatmapPanel({
 
   const renderCardsNoScroll = (items: Array<HeatmapValuationItem | HeatmapSeasonalityItem | HeatmapMacroItem | HeatmapSupplyDemandItem | HeatmapCombinedItem>, modeId: HeatmapMode) => {
     if (!items.length) {
-      return <div className="grid h-full place-items-center text-[10px] text-slate-400">No assets selected</div>;
+      return <div className="grid h-full place-items-center text-[10px] text-neutral-400">No assets selected</div>;
     }
     const containerW = Math.max(420, cardsBox.size.w || 0);
     const containerH = Math.max(220, cardsBox.size.h || 0);
@@ -1133,9 +1133,9 @@ export function AssetHeatmapPanel({
   };
 
   const content = useMemo(() => {
-    if (loading) return <div className="grid h-full place-items-center text-[10px] text-slate-400">Loading heatmap...</div>;
+    if (loading) return <div className="grid h-full place-items-center text-[10px] text-neutral-400">Loading heatmap...</div>;
     if (error) return <div className="grid h-full place-items-center text-[10px] text-red-300/90">{error}</div>;
-    if (!tabs) return <div className="grid h-full place-items-center text-[10px] text-slate-400">No heatmap data</div>;
+    if (!tabs) return <div className="grid h-full place-items-center text-[10px] text-neutral-400">No heatmap data</div>;
     if (mode === "correlation") return renderCorrelation();
     if (mode === "valuation") return renderCardsNoScroll(filteredValuationItems, "valuation");
     if (mode === "seasonality") return renderCardsNoScroll(filteredSeasonalityItems, "seasonality");
@@ -1176,17 +1176,17 @@ export function AssetHeatmapPanel({
     return out;
   }, [availableCategories]);
   const activeBtnClass = goldThemeEnabled
-    ? "border-[#e2ca7a]/85 bg-[#e2ca7a]/24 text-[#fff3d1]"
-    : "border-[#2962ff]/85 bg-[#2962ff]/25 text-[#dce8ff]";
+    ? "border-[#c8c8c8]/85 bg-[#c8c8c8]/24 text-[#ffffff]"
+    : "border-[#9a9a9a]/85 bg-[#9a9a9a]/25 text-[#dce8ff]";
   const idleBtnClass = goldThemeEnabled
-    ? "border-slate-700/70 bg-[rgba(7,13,24,0.42)] text-slate-300 hover:border-[#e2ca7a]/55 hover:text-[#fff3d1]"
-    : "border-slate-700/70 bg-[rgba(7,13,24,0.42)] text-slate-300 hover:border-[#2962ff]/55 hover:text-[#dce8ff]";
+    ? "border-neutral-700/70 bg-[rgba(7,13,24,0.42)] text-neutral-300 hover:border-[#c8c8c8]/55 hover:text-[#ffffff]"
+    : "border-neutral-700/70 bg-[rgba(7,13,24,0.42)] text-neutral-300 hover:border-[#9a9a9a]/55 hover:text-[#dce8ff]";
 
   return (
     <div className="glass-panel ivq-panel flex h-full min-h-0 flex-col overflow-hidden p-[18px]">
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="ivq-section-label mb-0">Asset Heatmap</div>
-        <div className="text-[10px] text-slate-400">
+        <div className="text-[10px] text-neutral-400">
           {visibleCount}/{count} assets
           {mode === "correlation"
             ? ` | ${tabs?.correlation?.windowBars ?? 60}P | roll ${tabs?.correlation?.rollingWindow ?? 60}${tabs?.correlation?.timeframe ? ` | TF ${tabs.correlation.timeframe}` : ""}${tabs?.correlation?.updatedAt ? ` | updated ${String(tabs.correlation.updatedAt).replace("T", " ").slice(0, 16)}` : ""}`
@@ -1241,7 +1241,7 @@ export function AssetHeatmapPanel({
         ))}
       </div>
 
-      <div className="mb-2 min-h-[12px] text-[9px] text-slate-400">{mode === "correlation" ? corrTooltip : ""}</div>
+      <div className="mb-2 min-h-[12px] text-[9px] text-neutral-400">{mode === "correlation" ? corrTooltip : ""}</div>
 
       <div className="flex min-h-0 flex-1 overflow-hidden">{content}</div>
     </div>

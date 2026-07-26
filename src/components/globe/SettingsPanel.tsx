@@ -59,9 +59,9 @@ function TinyToggle({
   goldThemeEnabled?: boolean;
   onClick: () => void;
 }) {
-  const accentBg = goldThemeEnabled ? "bg-[#e2ca7a]/28" : "bg-white/15";
-  const accentBorder = goldThemeEnabled ? "border-[#e2ca7a]/70" : "border-white/40";
-  const knobColor = goldThemeEnabled ? "bg-[#e2ca7a] shadow-[0_0_8px_rgba(226,202,122,.72)]" : "bg-white shadow-none";
+  const accentBg = goldThemeEnabled ? "bg-[#c8c8c8]/28" : "bg-white/15";
+  const accentBorder = goldThemeEnabled ? "border-[#c8c8c8]/70" : "border-white/40";
+  const knobColor = goldThemeEnabled ? "bg-[#c8c8c8] shadow-[0_0_8px_rgba(200,200,200,.72)]" : "bg-white shadow-none";
   return (
     <button
       type="button"
@@ -224,9 +224,9 @@ export function SettingsPanel({
     [grouped],
   );
 
-  const accentBorder = goldThemeEnabled ? "border-[#e2ca7a]/72" : "border-white/25";
-  const accentHoverBorder = goldThemeEnabled ? "hover:border-[#e2ca7a]/50" : "hover:border-white/30";
-  const accentText = goldThemeEnabled ? "text-[#fff3d1]" : "text-white";
+  const accentBorder = goldThemeEnabled ? "border-[#c8c8c8]/72" : "border-white/25";
+  const accentHoverBorder = goldThemeEnabled ? "hover:border-[#c8c8c8]/50" : "hover:border-white/30";
+  const accentText = goldThemeEnabled ? "text-[#ffffff]" : "text-white";
   const activeCoreCount = OVERLAY_OPTIONS_CORE.filter((opt) => Boolean(overlayState[opt.key])).length;
   const activeAdvancedCount = OVERLAY_OPTIONS_ADVANCED.filter((opt) => Boolean(overlayState[opt.key])).length;
   const anyOverlayLoading = useMemo(
@@ -268,7 +268,7 @@ export function SettingsPanel({
             <span className="ml-2 inline-flex items-center gap-1.5">
               <span
                 className={`text-[8px] font-semibold uppercase tracking-[0.08em] ${
-                  loading ? (goldThemeEnabled ? "text-[#f7e7be]" : "text-[rgba(255,255,255,0.6)]") : (active ? accentText : "text-neutral-400")
+                  loading ? (goldThemeEnabled ? "text-[#ffffff]" : "text-[rgba(255,255,255,0.6)]") : (active ? accentText : "text-neutral-400")
                 }`}
               >
                 {overlayStateText(opt.key, active)}
@@ -280,7 +280,7 @@ export function SettingsPanel({
                 aria-label={`${opt.label} info`}
                 className={`inline-flex h-4 w-4 items-center justify-center rounded-full border text-[9px] leading-none transition ${
                   goldThemeEnabled
-                    ? "border-[#e2ca7a]/50 text-[#f7e7be] hover:border-[#e2ca7a]/75"
+                    ? "border-[#c8c8c8]/50 text-[#ffffff] hover:border-[#c8c8c8]/75"
                     : "border-neutral-500/70 text-neutral-300 hover:border-white/50 hover:text-white"
                 }`}
                 onMouseEnter={(event) => {
@@ -307,7 +307,7 @@ export function SettingsPanel({
         </div>
         <div
           className={`pointer-events-none absolute left-0 top-[calc(100%+5px)] z-30 max-w-[260px] rounded-md border border-neutral-600/70 bg-[rgba(6,12,22,0.96)] px-2 py-1.5 text-[10px] leading-snug text-neutral-200 shadow-[0_10px_28px_rgba(0,0,0,0.45)] transition ${
-            tooltipOpen ? "tranneutral-y-0 opacity-100" : "tranneutral-y-1 opacity-0"
+            tooltipOpen ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
           }`}
         >
           {opt.description}
@@ -359,7 +359,7 @@ export function SettingsPanel({
             <span className="ml-2 inline-flex items-center gap-1.5">
               <span
                 className={`text-[8px] font-semibold uppercase tracking-[0.08em] ${
-                  loading ? (goldThemeEnabled ? "text-[#f7e7be]" : "text-[rgba(255,255,255,0.6)]") : (active ? accentText : "text-neutral-400")
+                  loading ? (goldThemeEnabled ? "text-[#ffffff]" : "text-[rgba(255,255,255,0.6)]") : (active ? accentText : "text-neutral-400")
                 }`}
               >
                 {overlayStateText("assets", active)}
@@ -371,7 +371,7 @@ export function SettingsPanel({
                 aria-label="Assets info"
                 className={`inline-flex h-4 w-4 items-center justify-center rounded-full border text-[9px] leading-none transition ${
                   goldThemeEnabled
-                    ? "border-[#e2ca7a]/50 text-[#f7e7be] hover:border-[#e2ca7a]/75"
+                    ? "border-[#c8c8c8]/50 text-[#ffffff] hover:border-[#c8c8c8]/75"
                     : "border-neutral-500/70 text-neutral-300 hover:border-white/50 hover:text-white"
                 }`}
                 onMouseEnter={(event) => {
@@ -398,7 +398,7 @@ export function SettingsPanel({
         </div>
         <div
           className={`pointer-events-none absolute left-0 top-[calc(100%+5px)] z-30 max-w-[260px] rounded-md border border-neutral-600/70 bg-[rgba(6,12,22,0.96)] px-2 py-1.5 text-[10px] leading-snug text-neutral-200 shadow-[0_10px_28px_rgba(0,0,0,0.45)] transition ${
-            tooltipOpen ? "tranneutral-y-0 opacity-100" : "tranneutral-y-1 opacity-0"
+            tooltipOpen ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
           }`}
         >
           Shows or hides the global asset marker universe on both maps.
@@ -414,12 +414,12 @@ export function SettingsPanel({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search"
-          className={`ivq-settings-search h-7 min-w-0 flex-1 rounded-md border border-neutral-700/65 bg-transparent px-2 text-[11px] text-neutral-100 outline-none placeholder:text-neutral-500 ${goldThemeEnabled ? "focus:border-[#e2ca7a]/60" : "focus:border-white/40"}`}
+          className={`ivq-settings-search h-7 min-w-0 flex-1 rounded-md border border-neutral-700/65 bg-transparent px-2 text-[11px] text-neutral-100 outline-none placeholder:text-neutral-500 ${goldThemeEnabled ? "focus:border-[#c8c8c8]/60" : "focus:border-white/40"}`}
         />
         <button
           type="button"
           onClick={onAllOn}
-          className={`ivq-settings-action h-7 rounded-md border bg-transparent px-2 text-[10px] font-semibold ${performanceMode ? "" : "transition"} ${accentBorder} ${accentText} ${goldThemeEnabled ? "hover:border-[#e2ca7a]/85" : "hover:border-white/50"}`}
+          className={`ivq-settings-action h-7 rounded-md border bg-transparent px-2 text-[10px] font-semibold ${performanceMode ? "" : "transition"} ${accentBorder} ${accentText} ${goldThemeEnabled ? "hover:border-[#c8c8c8]/85" : "hover:border-white/50"}`}
         >
           All On
         </button>
@@ -436,7 +436,7 @@ export function SettingsPanel({
             onClick={onRefreshData}
             className={`ivq-settings-action h-7 rounded-md border bg-transparent px-2 text-[10px] font-semibold ${performanceMode ? "" : "transition"} ${
               goldThemeEnabled
-                ? "border-[#e2ca7a]/58 text-[#fff3d1] hover:border-[#e2ca7a]/85"
+                ? "border-[#c8c8c8]/58 text-[#ffffff] hover:border-[#c8c8c8]/85"
                 : "border-white/25 text-white hover:border-white/50"
             }`}
           >
@@ -448,7 +448,7 @@ export function SettingsPanel({
             type="button"
             title="Add symbol (Yahoo)"
             onClick={() => setAddOpen((v) => !v)}
-            className={`ivq-settings-action h-7 w-7 shrink-0 rounded-md border bg-transparent text-[13px] font-bold leading-none ${performanceMode ? "" : "transition"} border-[#D4AF37]/60 text-[#D4AF37] hover:border-[#D4AF37]`}
+            className={`ivq-settings-action h-7 w-7 shrink-0 rounded-md border bg-transparent text-[13px] font-bold leading-none ${performanceMode ? "" : "transition"} border-[#c8c8c8]/60 text-[#c8c8c8] hover:border-[#c8c8c8]`}
           >
             +
           </button>
@@ -471,7 +471,7 @@ export function SettingsPanel({
               }
             }}
             placeholder="Yahoo ticker e.g. AAPL, TSLA, BTC-USD"
-            className="h-7 min-w-0 flex-1 rounded-md border border-[#D4AF37]/40 bg-transparent px-2 text-[11px] text-neutral-100 outline-none placeholder:text-neutral-500 focus:border-[#D4AF37]/80"
+            className="h-7 min-w-0 flex-1 rounded-md border border-[#c8c8c8]/40 bg-transparent px-2 text-[11px] text-neutral-100 outline-none placeholder:text-neutral-500 focus:border-[#c8c8c8]/80"
           />
           <button
             type="button"
@@ -482,7 +482,7 @@ export function SettingsPanel({
                 setAddOpen(false);
               }
             }}
-            className="ivq-settings-action h-7 rounded-md border border-[#D4AF37]/60 bg-transparent px-2 text-[10px] font-semibold text-[#D4AF37] hover:border-[#D4AF37]"
+            className="ivq-settings-action h-7 rounded-md border border-[#c8c8c8]/60 bg-transparent px-2 text-[10px] font-semibold text-[#c8c8c8] hover:border-[#c8c8c8]"
           >
             Add
           </button>
@@ -534,9 +534,9 @@ export function SettingsPanel({
                         key={asset.id}
                         className={`ivq-settings-asset flex h-6 items-center gap-1 rounded-md px-1 text-[10px] ${performanceMode ? "" : "transition"} ${
                           selected
-                            ? `${goldThemeEnabled ? "bg-[#e2ca7a]/16 text-[#fff3d1]" : "bg-white/10 text-white"}`
+                            ? `${goldThemeEnabled ? "bg-[#c8c8c8]/16 text-[#ffffff]" : "bg-white/10 text-white"}`
                             : markerSelectable && checked
-                              ? `${goldThemeEnabled ? "bg-[#e2ca7a]/08 text-[#e8d5a7]" : "bg-white/[0.04] text-white/70"}`
+                              ? `${goldThemeEnabled ? "bg-[#c8c8c8]/08 text-[#c8c8c8]" : "bg-white/[0.04] text-white/70"}`
                               : "text-neutral-400"
                         }`}
                       >
@@ -556,7 +556,7 @@ export function SettingsPanel({
                             onClick={() => onToggleAsset(asset.id)}
                             className={`grid h-[12px] w-[12px] place-items-center rounded-[3px] border text-[8px] transition ${
                               checked
-                                ? `${goldThemeEnabled ? "border-[#e2ca7a]/90 text-[#fff3d1]" : "border-white/50 text-white"} bg-transparent`
+                                ? `${goldThemeEnabled ? "border-[#c8c8c8]/90 text-[#ffffff]" : "border-white/50 text-white"} bg-transparent`
                                 : "border-neutral-500/70 bg-transparent text-transparent"
                             }`}
                             title={checked ? "Marker ausblenden" : "Marker einblenden"}
@@ -580,7 +580,7 @@ export function SettingsPanel({
             <button
               type="button"
               onClick={() => { onAddSymbol(search.trim().toUpperCase()); setSearch(""); }}
-              className="h-7 rounded-md border border-[#D4AF37]/60 bg-transparent px-3 text-[10px] font-semibold text-[#D4AF37] transition hover:border-[#D4AF37]"
+              className="h-7 rounded-md border border-[#c8c8c8]/60 bg-transparent px-3 text-[10px] font-semibold text-[#c8c8c8] transition hover:border-[#c8c8c8]"
             >
               + Add &ldquo;{search.trim().toUpperCase()}&rdquo; via Yahoo Finance
             </button>
@@ -593,7 +593,7 @@ export function SettingsPanel({
         <div className="mb-1 flex items-center justify-between gap-2">
           <div className="ivq-section-label mb-0">Overlay Control</div>
           <div className="inline-flex items-center gap-1 text-[9px] font-semibold tracking-[0.08em] uppercase">
-            <span className={anyOverlayLoading ? (goldThemeEnabled ? "text-[#f7e7be]" : "text-[rgba(255,255,255,0.6)]") : "text-[#b2c5de]"}>
+            <span className={anyOverlayLoading ? (goldThemeEnabled ? "text-[#ffffff]" : "text-[rgba(255,255,255,0.6)]") : "text-[#b2c5de]"}>
               {anyOverlayLoading ? "Loading" : "Ready"}
             </span>
           </div>

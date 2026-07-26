@@ -30,7 +30,7 @@ function corrColor(v: number): string {
   return designTokens.signal.bear;
 }
 
-function scoreColor(v: number, neutralColor = "#4d87fe"): string {
+function scoreColor(v: number, neutralColor = "#9a9a9a"): string {
   const x = clamp100(v);
   if (x >= 80) return designTokens.signal.bull;
   if (x >= 60) return withAlpha(designTokens.signal.bull, 0.82);
@@ -39,7 +39,7 @@ function scoreColor(v: number, neutralColor = "#4d87fe"): string {
   return designTokens.signal.bear;
 }
 
-function qualityColor(label: string, neutralColor = "#4d87fe"): string {
+function qualityColor(label: string, neutralColor = "#9a9a9a"): string {
   const q = String(label || "").toLowerCase();
   if (q.includes("high")) return designTokens.signal.bull;
   if (q.includes("medium")) return neutralColor;
@@ -116,21 +116,21 @@ function RingGauge({
   const ringBg = `conic-gradient(${color} ${pct}%, rgba(83,104,140,0.28) 0)`;
   return (
     <div className="rounded-md bg-[rgba(10,20,38,0.58)] p-1.5">
-      <div className="mb-1 truncate text-[9px] uppercase tracking-[0.08em] text-slate-400">{label}</div>
+      <div className="mb-1 truncate text-[9px] uppercase tracking-[0.08em] text-neutral-400">{label}</div>
       <div className="flex items-center gap-2">
         <div
-          className="grid h-10 w-10 place-items-center rounded-full border border-slate-700/70"
+          className="grid h-10 w-10 place-items-center rounded-full border border-neutral-700/70"
           style={{ background: ringBg }}
         >
-          <span className="grid h-7 w-7 place-items-center rounded-full bg-[#081222] text-[9px] font-semibold text-slate-100">
+          <span className="grid h-7 w-7 place-items-center rounded-full bg-[#081222] text-[9px] font-semibold text-neutral-100">
             {pct.toFixed(0)}
           </span>
         </div>
         <div className="min-w-0 flex-1">
-          <div className="h-1.5 rounded-full bg-slate-700/35">
+          <div className="h-1.5 rounded-full bg-neutral-700/35">
             <div className="h-1.5 rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: color }} />
           </div>
-          <div className="mt-1 text-[9px] text-slate-400">Score</div>
+          <div className="mt-1 text-[9px] text-neutral-400">Score</div>
         </div>
       </div>
     </div>
@@ -142,7 +142,7 @@ export function SignalDetailPanel({ payload, fallbackWhy: fallback, recentSignal
   const pos = payload?.miniCorrelation?.positive ?? [];
   const neg = payload?.miniCorrelation?.negative ?? [];
 
-  const neutralAccent = goldThemeEnabled ? "#e2ca7a" : "#4d87fe";
+  const neutralAccent = goldThemeEnabled ? "#c8c8c8" : "#9a9a9a";
   const signalDirection: "bullish" | "bearish" = recentSignal?.direction ?? (Number(payload?.aiScore ?? 50) >= 50 ? "bullish" : "bearish");
   const directionColor = signalDirection === "bullish" ? designTokens.signal.bull : designTokens.signal.bear;
   const signalType = signalDirection === "bullish" ? "Bullish Setup" : "Bearish Setup";
@@ -182,7 +182,7 @@ export function SignalDetailPanel({ payload, fallbackWhy: fallback, recentSignal
         <div className="flex min-h-0 flex-col gap-2">
           <div className="grid grid-cols-1 gap-2 min-[480px]:grid-cols-[1fr_94px]">
             <div className="rounded-md bg-[rgba(8,18,34,0.56)] p-2">
-              <div className="mb-1 text-[9px] uppercase tracking-[0.08em] text-slate-400">Signal Type</div>
+              <div className="mb-1 text-[9px] uppercase tracking-[0.08em] text-neutral-400">Signal Type</div>
               <div className="flex items-center justify-between gap-2">
                 <div className="text-[12px] font-semibold" style={{ color: directionColor }}>
                   {signalType}
@@ -194,9 +194,9 @@ export function SignalDetailPanel({ payload, fallbackWhy: fallback, recentSignal
                   {String(payload?.signalQuality || "Low")}
                 </div>
               </div>
-              <div className="mt-1 text-[9px] text-slate-400">
-                Lookback Window: <span className="text-slate-200">3 bars</span> | Trigger:{" "}
-                <span className="text-slate-200">{Math.max(0, Number(recentSignal?.ageBars ?? 0))} bars ago</span>
+              <div className="mt-1 text-[9px] text-neutral-400">
+                Lookback Window: <span className="text-neutral-200">3 bars</span> | Trigger:{" "}
+                <span className="text-neutral-200">{Math.max(0, Number(recentSignal?.ageBars ?? 0))} bars ago</span>
               </div>
             </div>
             <RingGauge
@@ -214,7 +214,7 @@ export function SignalDetailPanel({ payload, fallbackWhy: fallback, recentSignal
           </div>
 
           <div className="rounded-md bg-[rgba(8,18,34,0.56)] p-2">
-            <div className="mb-1 text-[9px] uppercase tracking-[0.08em] text-slate-400">Signal Lookback Graph</div>
+            <div className="mb-1 text-[9px] uppercase tracking-[0.08em] text-neutral-400">Signal Lookback Graph</div>
             <div className="relative flex h-8 items-end gap-1">
               {lookbackHeights.map((h, idx) => {
                 const inWindow = idx >= winStart && idx <= winEnd;
@@ -237,7 +237,7 @@ export function SignalDetailPanel({ payload, fallbackWhy: fallback, recentSignal
               })}
             </div>
             {recentSignal?.lines?.length ? (
-              <div className="mt-1.5 text-[9px] text-slate-200">
+              <div className="mt-1.5 text-[9px] text-neutral-200">
                 {recentSignal.lines.slice(0, 2).map((line, idx) => (
                   <span key={`${line}-${idx}`} className="mr-2">
                     • {line}
@@ -250,15 +250,15 @@ export function SignalDetailPanel({ payload, fallbackWhy: fallback, recentSignal
 
         <div className="flex min-h-0 flex-col gap-2">
           <div className="rounded-md bg-[rgba(8,18,34,0.56)] p-2">
-            <div className="mb-1 text-[9px] uppercase tracking-[0.08em] text-slate-400">What Is Attractive Now</div>
+            <div className="mb-1 text-[9px] uppercase tracking-[0.08em] text-neutral-400">What Is Attractive Now</div>
             <div className="space-y-1.5">
               {attractiveRows.map((row) => (
                 <div key={row.label}>
                   <div className="mb-0.5 flex items-center justify-between text-[9px]">
-                    <span className="truncate text-slate-300">{row.label}</span>
+                    <span className="truncate text-neutral-300">{row.label}</span>
                     <span style={{ color: row.color }}>{row.score.toFixed(0)}</span>
                   </div>
-                  <div className="h-1.5 rounded-full bg-slate-700/35">
+                  <div className="h-1.5 rounded-full bg-neutral-700/35">
                     <div className="h-1.5 rounded-full" style={{ width: `${clamp100(row.score)}%`, backgroundColor: row.color }} />
                   </div>
                 </div>
@@ -267,18 +267,18 @@ export function SignalDetailPanel({ payload, fallbackWhy: fallback, recentSignal
           </div>
 
           <div className="min-h-0 rounded-md bg-[rgba(8,18,34,0.56)] p-2">
-            <div className="mb-1 text-[9px] uppercase tracking-[0.08em] text-slate-400">Mini Correlation Lens</div>
+            <div className="mb-1 text-[9px] uppercase tracking-[0.08em] text-neutral-400">Mini Correlation Lens</div>
             <div className="grid min-h-0 grid-cols-1 gap-2 min-[480px]:grid-cols-2">
               <div>
                 <div className="mb-1 text-[9px] uppercase tracking-[0.08em]" style={{ color: designTokens.signal.bull }}>Top +</div>
                 <div className="space-y-0.5">
                   {pos.slice(0, 3).map((row) => (
                     <div key={`p-${row.assetId}`} className="flex items-center justify-between text-[9px]">
-                      <span className="truncate text-slate-200">{row.symbol || row.name}</span>
+                      <span className="truncate text-neutral-200">{row.symbol || row.name}</span>
                       <span style={{ color: corrColor(row.value) }}>{row.value.toFixed(0)}</span>
                     </div>
                   ))}
-                  {!pos.length && <div className="text-[9px] text-slate-500">No + corr</div>}
+                  {!pos.length && <div className="text-[9px] text-neutral-500">No + corr</div>}
                 </div>
               </div>
               <div>
@@ -286,11 +286,11 @@ export function SignalDetailPanel({ payload, fallbackWhy: fallback, recentSignal
                 <div className="space-y-0.5">
                   {neg.slice(0, 3).map((row) => (
                     <div key={`n-${row.assetId}`} className="flex items-center justify-between text-[9px]">
-                      <span className="truncate text-slate-200">{row.symbol || row.name}</span>
+                      <span className="truncate text-neutral-200">{row.symbol || row.name}</span>
                       <span style={{ color: corrColor(row.value) }}>{row.value.toFixed(0)}</span>
                     </div>
                   ))}
-                  {!neg.length && <div className="text-[9px] text-slate-500">No - corr</div>}
+                  {!neg.length && <div className="text-[9px] text-neutral-500">No - corr</div>}
                 </div>
               </div>
             </div>

@@ -1376,8 +1376,8 @@ function GlobeCanvasComponent({
       const shippingWarnCount = geoEvents.filter((e) => String(e.event_type || e.type || "").toLowerCase().includes("shipping_disruption")).length;
       const stressCount = commodityRegions.filter((r: any) => Number((r as any).stressScore ?? 0) > 0.1).length;
       return (
-        <div className="absolute bottom-2 right-2 z-10 rounded-lg border border-slate-600/55 bg-transparent px-2 py-1.5 text-[10px]">
-          <div className="mb-1 font-semibold uppercase tracking-[0.12em] text-slate-200">Overlay Stack</div>
+        <div className="absolute bottom-2 right-2 z-10 rounded-lg border border-neutral-600/55 bg-transparent px-2 py-1.5 text-[10px]">
+          <div className="mb-1 font-semibold uppercase tracking-[0.12em] text-neutral-200">Overlay Stack</div>
           {overlayState.globalRiskLayer ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#9ca3af]" />Global Risk Regions: {globalRiskRegions.length}</div> : null}
           {overlayState.globalLiquidityMap ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#5bff64]" />Global Liquidity: {globalLiquidityRegions.length}</div> : null}
           {overlayState.conflicts ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#c4454d]" />Conflicts: {geoEvents.filter((e) => String(e.type || "").includes("conflict")).length}</div> : null}
@@ -1390,14 +1390,14 @@ function GlobeCanvasComponent({
           {overlayState.commodityRegions ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#facc15]" />Commodity Regions: {commodityRegions.length}</div> : null}
           {overlayState.commodityStressMap ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#ff7a47]" />Commodity Stress: {stressCount}</div> : null}
           {overlayState.regionalAssetHighlight ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#6ee7b7]" />Asset Regions: {(regionHighlight?.regions ?? []).length}</div> : null}
-          <div className="mt-1 border-t border-slate-700/45 pt-1 text-slate-300">Detail: {zoomLabel}</div>
+          <div className="mt-1 border-t border-neutral-700/45 pt-1 text-neutral-300">Detail: {zoomLabel}</div>
         </div>
       );
     }
     if (selectedOverlay === "inflation") {
       return (
-        <div className="absolute bottom-2 right-2 z-10 rounded-lg border border-slate-600/55 bg-transparent px-2 py-1.5 text-[10px]">
-          <div className="mb-1 font-semibold uppercase tracking-[0.12em] text-slate-200">Inflation</div>
+        <div className="absolute bottom-2 right-2 z-10 rounded-lg border border-neutral-600/55 bg-transparent px-2 py-1.5 text-[10px]">
+          <div className="mb-1 font-semibold uppercase tracking-[0.12em] text-neutral-200">Inflation</div>
           <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(200,200,200,0.42)]" />&lt;2%</div>
           <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(76,175,80,0.60)]" />2-4%</div>
           <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(255,235,59,0.60)]" />4-6%</div>
@@ -1408,21 +1408,21 @@ function GlobeCanvasComponent({
     }
     if (selectedOverlay === "policy_rate") {
       return (
-        <div className="absolute bottom-2 right-2 z-10 rounded-lg border border-slate-600/55 bg-transparent px-2 py-1.5 text-[10px]">
-          <div className="mb-1 font-semibold uppercase tracking-[0.12em] text-slate-200">Policy Rate</div>
+        <div className="absolute bottom-2 right-2 z-10 rounded-lg border border-neutral-600/55 bg-transparent px-2 py-1.5 text-[10px]">
+          <div className="mb-1 font-semibold uppercase tracking-[0.12em] text-neutral-200">Policy Rate</div>
           <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(200,200,208,0.58)]" />Low Rate</div>
           <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(255,115,96,0.62)]" />High Rate</div>
-          <div className="mt-1.5 border-t border-slate-700/45 pt-1 text-slate-300">Up move = red glow | Down move = green glow</div>
+          <div className="mt-1.5 border-t border-neutral-700/45 pt-1 text-neutral-300">Up move = red glow | Down move = green glow</div>
         </div>
       );
     }
     if (selectedOverlay === "commodity_shock") {
       return (
-        <div className="absolute bottom-2 right-2 z-10 rounded-lg border border-slate-600/55 bg-transparent px-2 py-1.5 text-[10px]">
-          <div className="mb-1 font-semibold uppercase tracking-[0.12em] text-slate-200">Commodity Shock</div>
+        <div className="absolute bottom-2 right-2 z-10 rounded-lg border border-neutral-600/55 bg-transparent px-2 py-1.5 text-[10px]">
+          <div className="mb-1 font-semibold uppercase tracking-[0.12em] text-neutral-200">Commodity Shock</div>
           <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(255,149,64,0.48)]" />Moderate</div>
           <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(255,149,64,0.68)]" />High</div>
-          <div className="mt-1.5 border-t border-slate-700/45 pt-1 text-slate-300">Mode: {commodityMode || "Normal"}</div>
+          <div className="mt-1.5 border-t border-neutral-700/45 pt-1 text-neutral-300">Mode: {commodityMode || "Normal"}</div>
         </div>
       );
     }
@@ -1458,7 +1458,7 @@ function GlobeCanvasComponent({
         <div className="globe-canvas pointer-events-none absolute inset-0 z-[2]" style={{ background: volatilityTint(volatilityScore) }} />
       )}
       {selectedOverlay === "volatility" && (
-        <div className="absolute right-2 top-2 z-20 rounded-md border border-slate-500/50 bg-transparent px-2 py-1 text-[11px] text-slate-100">
+        <div className="absolute right-2 top-2 z-20 rounded-md border border-neutral-500/50 bg-transparent px-2 py-1 text-[11px] text-neutral-100">
           Vol Regime: {volatilityRegime || "Neutral"} ({Math.round(volatilityScore)})
         </div>
       )}
@@ -1747,7 +1747,7 @@ function GlobeCanvasComponent({
                 const tx = document.createElement("span");
                 tx.innerText = String(d.shortName || d.name || "");
                 tx.style.fontSize = detailLevel >= 3 ? "9px" : "8px";
-                tx.style.color = wt >= 0.75 ? "#e8d5a7" : "rgba(200,200,210,0.7)";
+                tx.style.color = wt >= 0.75 ? "#c8c8c8" : "rgba(200,200,210,0.7)";
                 tx.style.fontWeight = wt >= 0.75 ? "600" : "400";
                 tx.style.whiteSpace = "nowrap";
                 tx.style.marginLeft = "3px";
@@ -1958,15 +1958,15 @@ function GlobeCanvasComponent({
           }}
           polygonLabel={(feat: any) => {
             const name = countryNameOf(feat);
-            return name ? `<span style="font:600 10px/1.4 sans-serif;color:#e8d5a7;text-shadow:0 1px 6px #000">${name}</span>` : "";
+            return name ? `<span style="font:600 10px/1.4 sans-serif;color:#c8c8c8;text-shadow:0 1px 6px #000">${name}</span>` : "";
           }}
         />
       </div>
 
       {activeEvent ? (
-        <div className="absolute left-2 top-[78px] z-20 max-w-[260px] rounded-md border border-slate-600/55 bg-[rgba(10,10,12,0.88)] p-2 text-[10px] text-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
+        <div className="absolute left-2 top-[78px] z-20 max-w-[260px] rounded-md border border-neutral-600/55 bg-[rgba(10,10,12,0.88)] p-2 text-[10px] text-neutral-100 shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
           <div className="mb-0.5 flex items-center justify-between gap-2">
-            <span className="font-semibold uppercase tracking-[0.08em] text-slate-200">
+            <span className="font-semibold uppercase tracking-[0.08em] text-neutral-200">
               {eventIcon(activeEvent.type)} {String(activeEvent.type || "event")}
             </span>
             <button
@@ -1977,24 +1977,24 @@ function GlobeCanvasComponent({
               close
             </button>
           </div>
-          <div className="text-slate-300">{activeEvent.location || "-"}</div>
-          <div className="mt-1 grid grid-cols-[auto_1fr] gap-x-1 gap-y-0.5 text-slate-300">
-            <span className="text-slate-500">Timestamp</span>
+          <div className="text-neutral-300">{activeEvent.location || "-"}</div>
+          <div className="mt-1 grid grid-cols-[auto_1fr] gap-x-1 gap-y-0.5 text-neutral-300">
+            <span className="text-neutral-500">Timestamp</span>
             <span>{activeEvent.timestamp || activeEvent.date || "-"}</span>
-            <span className="text-slate-500">Severity</span>
+            <span className="text-neutral-500">Severity</span>
             <span>{activeEvent.severity || "-"}</span>
             {String(activeEvent.sentiment || "").trim() ? (
               <>
-                <span className="text-slate-500">Sentiment</span>
+                <span className="text-neutral-500">Sentiment</span>
                 <span>{activeEvent.sentiment} ({Math.max(0, Math.min(100, Number(activeEvent.confidence || 0)))}%)</span>
               </>
             ) : null}
           </div>
           {String(activeEvent.headline || "").trim() ? (
-            <div className="mt-1.5 border-t border-slate-700/45 pt-1 text-slate-200">{activeEvent.headline}</div>
+            <div className="mt-1.5 border-t border-neutral-700/45 pt-1 text-neutral-200">{activeEvent.headline}</div>
           ) : null}
           {String(activeEvent.description || "").trim() ? (
-            <div className="mt-1 text-slate-300">{activeEvent.description}</div>
+            <div className="mt-1 text-neutral-300">{activeEvent.description}</div>
           ) : null}
           {String(activeEvent.url || "").trim() ? (
             <a

@@ -44,9 +44,9 @@ const MILITARY_BASES = [
 ];
 
 const NATION_COLOR: Record<string, string> = {
-  "US": "#d4af37",
-  "US/NATO": "#d4af37",
-  "US/UK": "#d4af37",
+  "US": "#c8c8c8",
+  "US/NATO": "#c8c8c8",
+  "US/UK": "#c8c8c8",
   "RU": "#ef4444",
   "CN": "#f97316",
   "NATO": "#ffffff",
@@ -262,7 +262,7 @@ export function MapboxSatelliteView({
           <div style="font-family:sans-serif;font-size:12px;">
             <b style="color:#dcdce4">⚓ ${p.name}</b><br/>
             <span style="color:#9ca3af">${p.countryIso} · ${p.type.charAt(0).toUpperCase() + p.type.slice(1)} Port</span>
-            ${p.teu ? `<br/><span style="color:#d4af37">${p.teu}M TEU/yr</span>` : ""}
+            ${p.teu ? `<br/><span style="color:#c8c8c8">${p.teu}M TEU/yr</span>` : ""}
           </div>`);
       }
     }
@@ -303,7 +303,7 @@ export function MapboxSatelliteView({
           <div style="font-family:sans-serif;font-size:12px;">
             <b style="color:#a855f7">🚢 ${s.name}</b><br/>
             <span style="color:#9ca3af">${s.shipType}</span><br/>
-            <span style="color:#d4af37">Speed: ${speed}</span><br/>
+            <span style="color:#c8c8c8">Speed: ${speed}</span><br/>
             <span style="color:#9ca3af">Dest: ${dest}</span>
           </div>`);
       }
@@ -326,10 +326,10 @@ export function MapboxSatelliteView({
 
     // Asset markers from Globe
     for (const m of markers.filter(mk => mk.kind === "asset" || mk.kind === "region")) {
-      const el = createMarkerEl("📍", "rgba(212,175,55,0.85)", 14);
+      const el = createMarkerEl("📍", "rgba(200,200,200,0.85)", 14);
       add(el, m.lng, m.lat, `
         <div style="font-family:sans-serif;font-size:12px;">
-          <b style="color:#d4af37">${m.label ?? m.name}</b><br/>
+          <b style="color:#c8c8c8">${m.label ?? m.name}</b><br/>
           <span style="color:#9ca3af">${m.category ?? ""}</span>
         </div>`);
     }
@@ -345,7 +345,7 @@ export function MapboxSatelliteView({
       type: "FeatureCollection",
       features: overlayRoutes.map(r => ({
         type: "Feature" as const,
-        properties: { name: r.name, color: r.color ?? "#d4af37" },
+        properties: { name: r.name, color: r.color ?? "#c8c8c8" },
         geometry: { type: "LineString" as const, coordinates: r.path.map(pt => [pt.lng, pt.lat]) },
       })),
     };
@@ -370,7 +370,7 @@ export function MapboxSatelliteView({
       <div style={{
         position: "absolute", bottom: 8, left: 8, zIndex: 10,
         background: "rgba(6,7,10,0.8)",
-        border: "1px solid rgba(212,175,55,0.2)",
+        border: "1px solid rgba(200,200,200,0.2)",
         borderRadius: 6, padding: "3px 8px",
         fontSize: 11, color: "rgba(255,255,255,0.5)", fontVariantNumeric: "tabular-nums",
       }}>
@@ -388,7 +388,7 @@ export function MapboxSatelliteView({
       }}>
         {showPorts     && <div>⚓ <span style={{ color: "#dcdce4" }}>Ports</span></div>}
         {showAirports  && <div>✈ <span style={{ color: "#34d399" }}>Airports</span></div>}
-        {showMilitary  && <div>▲ <span style={{ color: "#d4af37" }}>Military</span></div>}
+        {showMilitary  && <div>▲ <span style={{ color: "#c8c8c8" }}>Military</span></div>}
         {showShips && ships.length > 0 && <div>🚢 <span style={{ color: "#a855f7" }}>Ships ({ships.length})</span></div>}
         {showEvents && geoEvents.length > 0 && <div>⚡ <span style={{ color: "#f59e0b" }}>Events</span></div>}
       </div>
@@ -403,7 +403,7 @@ export function MapboxSatelliteView({
         }
         .clf-mapbox-popup .maplibregl-popup-content {
           background: rgba(10,11,14,0.95) !important;
-          border: 1px solid rgba(212,175,55,0.25) !important;
+          border: 1px solid rgba(200,200,200,0.25) !important;
           border-radius: 8px !important;
           padding: 10px 12px !important;
           color: #e5e7eb;

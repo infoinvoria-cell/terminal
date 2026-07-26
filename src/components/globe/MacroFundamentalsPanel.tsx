@@ -68,7 +68,7 @@ function clipPointsToRecent(points: MacroPoint[], lookbackDays = MACRO_LOOKBACK_
   return rows.slice(-Math.min(rows.length, 120));
 }
 
-function colorForRegime(regime: string, neutralColor = "#4d87fe"): string {
+function colorForRegime(regime: string, neutralColor = "#9a9a9a"): string {
   const r = String(regime || "").toLowerCase();
   if (r.includes("stress")) return designTokens.signal.bear;
   if (r.includes("low")) return designTokens.signal.bull;
@@ -368,7 +368,7 @@ function MacroCard({
   yMax,
   chartOptions,
   kpis = [],
-  primaryColor = "#2962ff",
+  primaryColor = "#9a9a9a",
   loopReplayTick = 0,
 }: {
   title: string;
@@ -385,7 +385,7 @@ function MacroCard({
     <div className="ivq-subpanel flex min-h-0 flex-col p-3">
       <div className="mb-1 flex items-center justify-between">
         <div className="ivq-section-label mb-0">{title}</div>
-        {subtitle ? <div className="text-[10px] text-slate-400">{subtitle}</div> : null}
+        {subtitle ? <div className="text-[10px] text-neutral-400">{subtitle}</div> : null}
       </div>
       <div className="min-h-0 flex-1 overflow-hidden rounded border" style={{ borderColor: `${primaryColor}33` }}>
         <MiniSeriesChart series={series} yMin={yMin} yMax={yMax} options={chartOptions} replayTick={loopReplayTick} />
@@ -393,12 +393,12 @@ function MacroCard({
       {kpis.length > 0 ? (
         <div className="mt-2 grid grid-cols-3 gap-2">
           {kpis.map((kpi) => (
-            <div key={kpi.label} className="rounded border border-slate-700/55 bg-[rgba(7,13,24,0.45)] px-1 py-[2px]">
-              <div className="truncate text-[8px] uppercase tracking-[0.08em] text-slate-400">{kpi.label}</div>
+            <div key={kpi.label} className="rounded border border-neutral-700/55 bg-[rgba(7,13,24,0.45)] px-1 py-[2px]">
+              <div className="truncate text-[8px] uppercase tracking-[0.08em] text-neutral-400">{kpi.label}</div>
               <div className="truncate text-[10px] font-semibold" style={{ color: toneColor(kpi.tone) }}>
                 {kpi.value}
               </div>
-              <div className="mt-[2px] h-[2px] rounded-full bg-slate-700/55">
+              <div className="mt-[2px] h-[2px] rounded-full bg-neutral-700/55">
                 <div className="h-[2px] rounded-full" style={{ width: `${Math.max(2, Math.min(100, Number(kpi.strength ?? 0)))}%`, backgroundColor: toneColor(kpi.tone) }} />
               </div>
             </div>
@@ -407,9 +407,9 @@ function MacroCard({
       ) : chartOptions?.showSeriesLegend === false || chartOptions?.showRightLabels ? null : (
         <div className="mt-2 grid grid-cols-3 gap-2">
           {series.map((s) => (
-            <div key={s.label} className="truncate rounded border border-slate-700/50 bg-[rgba(7,13,24,0.52)] px-1 py-[2px] text-[9px]">
+            <div key={s.label} className="truncate rounded border border-neutral-700/50 bg-[rgba(7,13,24,0.52)] px-1 py-[2px] text-[9px]">
               <span style={{ color: s.color }}>{s.label}</span>{" "}
-              <span className="text-slate-200">{valueAt(s.points).toFixed(1)}</span>
+              <span className="text-neutral-200">{valueAt(s.points).toFixed(1)}</span>
             </div>
           ))}
         </div>
@@ -429,8 +429,8 @@ export function MacroFundamentalsPanel({
 }) {
   const [data, setData] = useState<FundamentalOscillatorResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const primaryColor = goldThemeEnabled ? "#e2ca7a" : "#2962ff";
-  const primaryAltColor = goldThemeEnabled ? "#c9a84a" : "#4d87fe";
+  const primaryColor = goldThemeEnabled ? "#c8c8c8" : "#9a9a9a";
+  const primaryAltColor = goldThemeEnabled ? "#a0a0a0" : "#9a9a9a";
 
   useEffect(() => {
     if (!enabled) return;
@@ -558,7 +558,7 @@ export function MacroFundamentalsPanel({
   return (
     <div className="glass-panel ivq-panel h-full min-h-0 overflow-hidden p-1.5">
       <div className="mb-1 flex items-center justify-between px-1">
-        <div className="text-[10px] uppercase tracking-[0.12em] text-slate-400">Macro Dashboard</div>
+        <div className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">Macro Dashboard</div>
         <div className="text-[10px]" style={{ color: colorForRegime(data?.vix?.regime ?? "Neutral", primaryAltColor) }}>
           {loading ? "loading..." : `Risk: ${data?.vix?.regime ?? "Neutral"}`}
         </div>
@@ -596,7 +596,7 @@ export function MacroFundamentalsPanel({
           chartOptions={{
             mode: "step",
             levels: [
-              { value: 80, color: goldThemeEnabled ? "rgba(226,202,122,0.9)" : "rgba(77,135,254,0.9)", dash: "2 3" },
+              { value: 80, color: goldThemeEnabled ? "rgba(200,200,200,0.9)" : "rgba(77,135,254,0.9)", dash: "2 3" },
               { value: 20, color: "rgba(255,56,76,0.9)", dash: "2 3" },
             ],
             showRightLabels: false,

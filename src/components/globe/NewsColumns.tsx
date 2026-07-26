@@ -47,8 +47,8 @@ function sentimentMeta(sentiment: string, goldThemeEnabled = false): { label: st
   if (probe.includes("bear")) return { label: "Bearish", color: designTokens.signal.bear, glow: withAlpha(designTokens.signal.bear, 0.45) };
   return {
     label: "Neutral",
-    color: goldThemeEnabled ? "#e2ca7a" : "rgba(255,255,255,0.6)",
-    glow: goldThemeEnabled ? "rgba(226,202,122,0.45)" : "rgba(255,255,255,0.2)",
+    color: goldThemeEnabled ? "#c8c8c8" : "rgba(255,255,255,0.6)",
+    glow: goldThemeEnabled ? "rgba(200,200,200,0.45)" : "rgba(255,255,255,0.2)",
   };
 }
 
@@ -129,7 +129,7 @@ function NewsList({
   const [translations, setTranslations] = useState<Record<string, TranslationRow>>({});
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const rows = useMemo(() => sortRows(items).slice(0, 12), [items]);
-  const accentClass = goldThemeEnabled ? "hover:border-[#e2ca7a]/60 hover:text-[#fff3d1]" : "hover:border-[#2962ff]/60 hover:text-[#dce8ff]";
+  const accentClass = goldThemeEnabled ? "hover:border-[#c8c8c8]/60 hover:text-[#ffffff]" : "hover:border-[#9a9a9a]/60 hover:text-[#dce8ff]";
 
   const ensureGermanTranslation = async (item: NewsItem, idx: number) => {
     const key = rowKey(item, idx);
@@ -195,7 +195,7 @@ function NewsList({
         <button
           type="button"
           onClick={() => setShowGerman((prev) => !prev)}
-          className={`inline-flex h-6 shrink-0 items-center gap-1 rounded-md border border-slate-700/65 px-1.5 text-[9px] font-semibold text-slate-200 transition ${accentClass}`}
+          className={`inline-flex h-6 shrink-0 items-center gap-1 rounded-md border border-neutral-700/65 px-1.5 text-[9px] font-semibold text-neutral-200 transition ${accentClass}`}
           title={showGerman ? "Switch back to English" : "Translate to German"}
         >
           <span>{showGerman ? "EN" : "DE"}</span>
@@ -218,7 +218,7 @@ function NewsList({
             return (
               <article
                 key={key}
-                className="rounded-lg border border-slate-700/55 bg-[rgba(7,14,26,0.62)] text-[10px] text-slate-100 shadow-[0_10px_24px_rgba(0,0,0,0.18)]"
+                className="rounded-lg border border-neutral-700/55 bg-[rgba(7,14,26,0.62)] text-[10px] text-neutral-100 shadow-[0_10px_24px_rgba(0,0,0,0.18)]"
               >
                 <div className="grid grid-cols-[124px_minmax(0,1fr)_42px] items-start gap-2 px-2.5 py-2">
                   <div className="flex min-w-0 items-center gap-2">
@@ -227,15 +227,15 @@ function NewsList({
                       alt=""
                       width={18}
                       height={18}
-                      className="h-[18px] w-[18px] shrink-0 rounded-sm bg-slate-900/60 object-contain"
+                      className="h-[18px] w-[18px] shrink-0 rounded-sm bg-neutral-900/60 object-contain"
                       loading="lazy"
                       onError={(event) => {
                         event.currentTarget.src = headlineGlyph(item.source || item.title || "news");
                       }}
                     />
                     <div className="min-w-0">
-                      <div className="truncate text-[9px] font-semibold uppercase tracking-[0.08em] text-slate-300">{item.source}</div>
-                      <div className="mt-0.5 flex items-center gap-1.5 text-[8px] text-slate-400">
+                      <div className="truncate text-[9px] font-semibold uppercase tracking-[0.08em] text-neutral-300">{item.source}</div>
+                      <div className="mt-0.5 flex items-center gap-1.5 text-[8px] text-neutral-400">
                         <span>{countryFlag(country)}</span>
                         <span>{category}</span>
                       </div>
@@ -244,7 +244,7 @@ function NewsList({
 
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="inline-flex shrink-0 items-center gap-1 text-[8px] font-semibold text-slate-300">
+                      <span className="inline-flex shrink-0 items-center gap-1 text-[8px] font-semibold text-neutral-300">
                         <span
                           className="inline-block h-2 w-2 rounded-full"
                           style={{ backgroundColor: sentiment.color, boxShadow: `0 0 8px ${sentiment.glow}` }}
@@ -252,7 +252,7 @@ function NewsList({
                         {sentiment.label}
                       </span>
                       {translation?.loading && showGerman ? (
-                        <span className="rounded border border-slate-700/65 px-1 py-0 text-[8px] text-slate-300">
+                        <span className="rounded border border-neutral-700/65 px-1 py-0 text-[8px] text-neutral-300">
                           Translating...
                         </span>
                       ) : null}
@@ -260,13 +260,13 @@ function NewsList({
                     <button
                       type="button"
                       onClick={() => setExpandedRows((prev) => ({ ...prev, [key]: !prev[key] }))}
-                      className={`mt-0.5 block text-left text-[10.5px] font-semibold leading-snug text-slate-50 transition ${goldThemeEnabled ? "hover:text-[#ffe4a6]" : "hover:text-[#97b7ff]"}`}
+                      className={`mt-0.5 block text-left text-[10.5px] font-semibold leading-snug text-neutral-50 transition ${goldThemeEnabled ? "hover:text-[#ffe4a6]" : "hover:text-[#97b7ff]"}`}
                     >
                       <span className={expanded ? "" : "line-clamp-2"}>{titleText}</span>
                     </button>
                     {expanded ? (
                       <div className="mt-1 flex items-start justify-between gap-2">
-                        <div className="min-w-0 text-[8.5px] leading-snug text-slate-400">
+                        <div className="min-w-0 text-[8.5px] leading-snug text-neutral-400">
                           {translated ? translation?.description || item.description : item.description}
                           {relatedAssets.length ? `  ${relatedAssets.join(" / ").toUpperCase()}` : ""}
                         </div>
@@ -282,14 +282,14 @@ function NewsList({
                     ) : null}
                   </div>
 
-                  <div className="text-right text-[8px] text-slate-500">
+                  <div className="text-right text-[8px] text-neutral-500">
                     <div>{timestamp}</div>
                   </div>
                 </div>
               </article>
             );
           })}
-          {!rows.length ? <div className="text-[11px] text-slate-500">No relevant headlines</div> : null}
+          {!rows.length ? <div className="text-[11px] text-neutral-500">No relevant headlines</div> : null}
         </div>
       </div>
     </div>

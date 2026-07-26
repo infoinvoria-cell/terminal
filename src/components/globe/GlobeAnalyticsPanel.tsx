@@ -19,7 +19,7 @@ type Props = {
   onSelectAsset?: (id: string) => void;
 };
 
-const GOLD = "#e2ca7a";
+const GOLD = "#c8c8c8";
 
 function trafficLight(value: number, thresholds: { green: number; yellow: number; red: number; invert?: boolean }): { color: string; label: string } {
   const { green, yellow, red, invert } = thresholds;

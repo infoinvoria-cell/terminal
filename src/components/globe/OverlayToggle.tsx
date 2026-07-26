@@ -16,8 +16,8 @@ const OPTIONS: Array<{ id: OverlayMode; label: string }> = [
 
 export function OverlayToggle({ mode, onChange }: Props) {
   return (
-    <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pr-1 text-xs text-slate-200">
-      <span className="mr-1 text-[11px] uppercase tracking-[0.12em] text-slate-400">Macro Overlay</span>
+    <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pr-1 text-xs text-neutral-200">
+      <span className="mr-1 text-[11px] uppercase tracking-[0.12em] text-neutral-400">Macro Overlay</span>
       {OPTIONS.map((option) => {
         const active = mode === option.id;
         return (
@@ -27,8 +27,8 @@ export function OverlayToggle({ mode, onChange }: Props) {
             onClick={() => onChange(option.id)}
             className={`rounded-full border px-2 py-1 text-[11px] transition ${
               active
-                ? "border-[#2962ff]/70 bg-[#2962ff]/18 text-[#d9e4ff]"
-                : "border-slate-600/45 bg-slate-900/45 text-slate-300 hover:border-[#2962ff]/45 hover:text-[#d9e4ff]"
+                ? "border-[#9a9a9a]/70 bg-[#9a9a9a]/18 text-[#d9e4ff]"
+                : "border-neutral-600/45 bg-neutral-900/45 text-neutral-300 hover:border-[#9a9a9a]/45 hover:text-[#d9e4ff]"
             }`}
           >
             {option.label}

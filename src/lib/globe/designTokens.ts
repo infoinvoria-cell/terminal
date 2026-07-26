@@ -28,7 +28,7 @@ export const designTokens = {
     surfaceMuted: "rgba(10, 19, 35, 0.86)",
   },
   chart: {
-    accent: "#2962ff",
+    accent: "#9a9a9a",
     candleUp: "#f4f4f5",
     candleDown: "#71717a",
     factorCombined: signalColors.bullPrimary,
@@ -45,7 +45,7 @@ export const designTokens = {
   stroke: {
     soft: "rgba(120, 160, 255, 0.14)",
     panel: "rgba(109,132,160,0.35)",
-    accent: "rgba(212,175,55,0.40)",
+    accent: "rgba(200,200,200,0.40)",
   },
 } as const;
 

@@ -90,9 +90,9 @@ export function GeoContextPanel({ entity, onClose, onZoomTo }: Props) {
         width: 260,
         maxHeight: "calc(100% - 16px)",
         background: "rgba(10,10,14,0.93)",
-        border: "1px solid rgba(212,175,55,0.28)",
+        border: "1px solid rgba(200,200,200,0.28)",
         borderRadius: 10,
-        boxShadow: "0 8px 40px rgba(0,0,0,0.65), 0 0 0 1px rgba(212,175,55,0.06)",
+        boxShadow: "0 8px 40px rgba(0,0,0,0.65), 0 0 0 1px rgba(200,200,200,0.06)",
         backdropFilter: "blur(14px)",
       }}
     >
@@ -117,7 +117,7 @@ export function GeoContextPanel({ entity, onClose, onZoomTo }: Props) {
           <button
             type="button"
             onClick={() => onZoomTo(entity.lat, entity.lng, zoomAltitudes[entity.kind] ?? 0.55)}
-            className="flex items-center gap-1 rounded border border-[#D4AF37]/40 px-1.5 py-0.5 text-[9px] font-medium text-[#D4AF37] transition hover:border-[#D4AF37]/70 hover:bg-[#D4AF37]/10"
+            className="flex items-center gap-1 rounded border border-[#c8c8c8]/40 px-1.5 py-0.5 text-[9px] font-medium text-[#c8c8c8] transition hover:border-[#c8c8c8]/70 hover:bg-[#c8c8c8]/10"
             title="Zoom to"
           >
             <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
@@ -148,7 +148,7 @@ export function GeoContextPanel({ entity, onClose, onZoomTo }: Props) {
             onClick={() => setTab(t)}
             className={`flex-1 py-1.5 text-[9px] font-semibold uppercase tracking-[0.08em] transition ${
               tab === t
-                ? "border-b border-[#D4AF37] text-[#D4AF37]"
+                ? "border-b border-[#c8c8c8] text-[#c8c8c8]"
                 : "text-white/30 hover:text-white/60"
             }`}
           >
@@ -163,7 +163,7 @@ export function GeoContextPanel({ entity, onClose, onZoomTo }: Props) {
           <div className="flex items-center justify-center py-8">
             <div
               className="h-5 w-5 animate-spin rounded-full border-2"
-              style={{ borderColor: "rgba(212,175,55,0.2)", borderTopColor: "#D4AF37" }}
+              style={{ borderColor: "rgba(200,200,200,0.2)", borderTopColor: "#c8c8c8" }}
             />
           </div>
         )}
@@ -245,7 +245,7 @@ export function GeoContextPanel({ entity, onClose, onZoomTo }: Props) {
                     href={item.url || undefined}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block text-[10px] leading-snug text-white/80 hover:text-[#D4AF37] transition"
+                    className="block text-[10px] leading-snug text-white/80 hover:text-[#c8c8c8] transition"
                   >
                     {item.title}
                   </a>
@@ -266,7 +266,7 @@ export function GeoContextPanel({ entity, onClose, onZoomTo }: Props) {
         <div className="flex items-center gap-1.5">
           <div
             className="h-1.5 w-1.5 rounded-full animate-pulse"
-            style={{ background: "#D4AF37" }}
+            style={{ background: "#c8c8c8" }}
           />
           <span className="text-[8px] uppercase tracking-[0.1em] text-white/30">
             {entity.kind === "city" ? "City View" : entity.kind === "country" ? "Country View" : "Continental View"}

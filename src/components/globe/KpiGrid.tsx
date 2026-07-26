@@ -45,7 +45,7 @@ export function KpiGrid({ indicators, aiScore, breakdown, valuation10, valuation
   const trendColor = isBull ? designTokens.signal.bull : designTokens.signal.bear;
   const safeScore = Number.isFinite(aiScore) ? Math.max(0, Math.min(100, Number(aiScore))) : 50;
   const score = scoreColor(safeScore);
-  const neutralAccent = goldThemeEnabled ? "#e2ca7a" : "#4d87fe";
+  const neutralAccent = goldThemeEnabled ? "#c8c8c8" : "#9a9a9a";
   const breakdownItems: Array<keyof AiScoreBreakdown> = ["Valuation", "SupplyDemand", "Seasonality", "Momentum", "Volatility"];
   const val10Score = Number.isFinite(Number(valuation10)) ? Math.max(-100, Math.min(100, Number(valuation10))) : null;
   const val20Score = Number.isFinite(Number(valuation20)) ? Math.max(-100, Math.min(100, Number(valuation20))) : null;
@@ -53,12 +53,12 @@ export function KpiGrid({ indicators, aiScore, breakdown, valuation10, valuation
   return (
     <div className="grid h-full grid-cols-1 gap-[10px] min-[480px]:grid-cols-2 min-[769px]:grid-cols-5">
       <div className="ivq-kpi-card flex h-full flex-col rounded-lg bg-transparent p-2">
-        <div className="ivq-kpi-label text-[9px] uppercase tracking-[0.11em] text-slate-400">AI Score</div>
+        <div className="ivq-kpi-label text-[9px] uppercase tracking-[0.11em] text-neutral-400">AI Score</div>
         <div className="ivq-kpi-value flex items-center justify-between">
           <div className="text-base font-semibold" style={{ color: score }}>
             {safeScore.toFixed(0)}
           </div>
-          <div className="h-1.5 w-[62px] rounded-full bg-slate-700/50">
+          <div className="h-1.5 w-[62px] rounded-full bg-neutral-700/50">
             <div className="h-1.5 rounded-full" style={{ width: `${safeScore}%`, backgroundColor: score }} />
           </div>
         </div>
@@ -67,8 +67,8 @@ export function KpiGrid({ indicators, aiScore, breakdown, valuation10, valuation
             const v = Number(breakdown?.[name] ?? 50);
             return (
               <div key={name} className="min-w-0">
-                <div className="mb-[2px] truncate text-[8px] text-slate-500">{labelShort(name)}</div>
-                <div className="h-1 rounded-full bg-slate-700/45">
+                <div className="mb-[2px] truncate text-[8px] text-neutral-500">{labelShort(name)}</div>
+                <div className="h-1 rounded-full bg-neutral-700/45">
                   <div className="h-1 rounded-full" style={{ width: `${Math.max(0, Math.min(100, v))}%`, backgroundColor: scoreColor(v) }} />
                 </div>
               </div>
@@ -77,7 +77,7 @@ export function KpiGrid({ indicators, aiScore, breakdown, valuation10, valuation
         </div>
       </div>
       <div className="ivq-kpi-card flex h-full flex-col rounded-lg bg-transparent p-2">
-        <div className="ivq-kpi-label text-[9px] uppercase tracking-[0.11em] text-slate-400">Trend</div>
+        <div className="ivq-kpi-label text-[9px] uppercase tracking-[0.11em] text-neutral-400">Trend</div>
         <div className="ivq-kpi-value flex items-center justify-between gap-2">
           <div className="text-base font-semibold" style={{ color: trend === "-" ? "#e2e8f0" : trendColor }}>
             {trend}
@@ -87,14 +87,14 @@ export function KpiGrid({ indicators, aiScore, breakdown, valuation10, valuation
             <circle cx="4" cy={isBull ? "13" : "7"} r="1.2" fill={trendColor} />
           </svg>
         </div>
-        <div className="mt-auto h-1.5 rounded-full bg-slate-700/45">
+        <div className="mt-auto h-1.5 rounded-full bg-neutral-700/45">
           <div className="h-1.5 rounded-full" style={{ width: trend === "-" ? "50%" : "100%", backgroundColor: trendColor }} />
         </div>
       </div>
       <div className="ivq-kpi-card flex h-full flex-col rounded-lg bg-transparent p-2">
-        <div className="ivq-kpi-label text-[9px] uppercase tracking-[0.11em] text-slate-400">Volatility</div>
+        <div className="ivq-kpi-label text-[9px] uppercase tracking-[0.11em] text-neutral-400">Volatility</div>
         <div className="ivq-kpi-value flex items-center justify-between gap-2">
-          <div className="text-base font-semibold text-slate-100">{fmt(indicators?.volatility, "%")}</div>
+          <div className="text-base font-semibold text-neutral-100">{fmt(indicators?.volatility, "%")}</div>
           <svg width="20" height="12" viewBox="0 0 20 12" aria-hidden="true">
             <rect x="1" y="6" width="2.5" height="5" fill={neutralAccent} opacity="0.65" />
             <rect x="5" y="3" width="2.5" height="8" fill={neutralAccent} opacity="0.75" />
@@ -103,35 +103,35 @@ export function KpiGrid({ indicators, aiScore, breakdown, valuation10, valuation
             <rect x="17" y="4" width="2.5" height="7" fill={neutralAccent} opacity="0.75" />
           </svg>
         </div>
-        <div className="mt-auto h-1.5 rounded-full bg-slate-700/45">
+        <div className="mt-auto h-1.5 rounded-full bg-neutral-700/45">
           <div className="h-1.5 rounded-full" style={{ width: `${Math.max(8, Math.min(100, Number(indicators?.volatility ?? 0)))}%`, backgroundColor: neutralAccent }} />
         </div>
       </div>
       <div className="ivq-kpi-card flex h-full flex-col rounded-lg bg-transparent p-2">
-        <div className="ivq-kpi-label text-[9px] uppercase tracking-[0.11em] text-slate-400">Valuation 10</div>
+        <div className="ivq-kpi-label text-[9px] uppercase tracking-[0.11em] text-neutral-400">Valuation 10</div>
         <div className="ivq-kpi-value flex items-center justify-between gap-2">
           <div className="text-base font-semibold" style={{ color: valuationColor(val10Score) }}>
             {val10Score == null ? "-" : `${val10Score >= 0 ? "+" : ""}${val10Score.toFixed(0)}`}
           </div>
-          <div className="h-1.5 w-[62px] rounded-full bg-slate-700/45">
+          <div className="h-1.5 w-[62px] rounded-full bg-neutral-700/45">
             <div className="h-1.5 rounded-full" style={{ width: `${val10Score == null ? 50 : Math.abs(val10Score)}%`, backgroundColor: valuationColor(val10Score) }} />
           </div>
         </div>
-        <div className="mt-auto h-1.5 rounded-full bg-slate-700/45">
+        <div className="mt-auto h-1.5 rounded-full bg-neutral-700/45">
           <div className="h-1.5 rounded-full" style={{ width: `${val10Score == null ? 50 : Math.abs(val10Score)}%`, backgroundColor: valuationColor(val10Score) }} />
         </div>
       </div>
       <div className="ivq-kpi-card flex h-full flex-col rounded-lg bg-transparent p-2">
-        <div className="ivq-kpi-label text-[9px] uppercase tracking-[0.11em] text-slate-400">Valuation 20</div>
+        <div className="ivq-kpi-label text-[9px] uppercase tracking-[0.11em] text-neutral-400">Valuation 20</div>
         <div className="ivq-kpi-value flex items-center justify-between gap-2">
           <div className="text-base font-semibold" style={{ color: valuationColor(val20Score) }}>
             {val20Score == null ? "-" : `${val20Score >= 0 ? "+" : ""}${val20Score.toFixed(0)}`}
           </div>
-          <div className="h-1.5 w-[62px] rounded-full bg-slate-700/45">
+          <div className="h-1.5 w-[62px] rounded-full bg-neutral-700/45">
             <div className="h-1.5 rounded-full" style={{ width: `${val20Score == null ? 50 : Math.abs(val20Score)}%`, backgroundColor: valuationColor(val20Score) }} />
           </div>
         </div>
-        <div className="mt-auto h-1.5 rounded-full bg-slate-700/45">
+        <div className="mt-auto h-1.5 rounded-full bg-neutral-700/45">
           <div className="h-1.5 rounded-full" style={{ width: `${val20Score == null ? 50 : Math.abs(val20Score)}%`, backgroundColor: valuationColor(val20Score) }} />
         </div>
       </div>

@@ -492,7 +492,7 @@ function CandleChartInner({
   title = "Asset",
   sourceLabel = "TradingView",
   goldThemeEnabled = false,
-  themePrimary = "#4d87fe",
+  themePrimary = "#9a9a9a",
   isPanelLoading = false,
   isFullscreen = false,
   active = true,
@@ -573,8 +573,8 @@ function CandleChartInner({
   const zonePalette = screenerCandlePalette ? zoneFillColors(screenerCandlePalette) : null;
   const activeBtnClass = "border border-white/30 bg-white/10 text-white";
   const inactiveBtnClass = "border border-zinc-600/75 bg-[rgba(8,8,8,0.84)] text-zinc-300";
-  const titleBorderColor = goldThemeEnabled ? "rgba(226,202,122,0.58)" : designTokens.stroke.accent;
-  const titleTextColor = goldThemeEnabled ? "#fff3d1" : designTokens.text.secondary;
+  const titleBorderColor = goldThemeEnabled ? "rgba(200,200,200,0.58)" : designTokens.stroke.accent;
+  const titleTextColor = goldThemeEnabled ? "#ffffff" : designTokens.text.secondary;
   const hasServerMarkers = Array.isArray(serverMarkers);
   const safeServerMarkers = useMemo(() => Array.isArray(serverMarkers) ? serverMarkers : [], [serverMarkers]);
   const hasServerZones = Array.isArray(screenerZones);
@@ -1549,7 +1549,7 @@ function CandleChartInner({
             </button>
           ))}
           {tfLoading && (
-            <span className="ml-1 text-[9px] font-semibold text-slate-300">...</span>
+            <span className="ml-1 text-[9px] font-semibold text-neutral-300">...</span>
           )}
         </div>
 

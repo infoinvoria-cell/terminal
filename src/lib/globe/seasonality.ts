@@ -5,7 +5,7 @@ export async function fetchSeasonality(_assetId: string): Promise<SeasonalityDat
 }
 
 export function seasonTone(direction: string | undefined): string {
-  if (direction === "LONG") return "#e2ca7a";
+  if (direction === "LONG") return "#c8c8c8";
   if (direction === "SHORT") return "#a1a1aa";
   return "#737373";
 }

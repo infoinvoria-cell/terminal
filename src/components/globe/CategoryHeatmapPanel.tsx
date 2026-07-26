@@ -67,7 +67,7 @@ export function CategoryHeatmapPanel({ onPickAsset }: Props) {
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}
-          className="rounded border border-slate-700/70 px-1.5 py-[2px] text-[9px] font-semibold text-slate-300 transition hover:border-[#2962ff]/55 hover:text-[#dce8ff]"
+          className="rounded border border-neutral-700/70 px-1.5 py-[2px] text-[9px] font-semibold text-neutral-300 transition hover:border-[#9a9a9a]/55 hover:text-[#dce8ff]"
         >
           {visible ? "Hide" : "Show"}
         </button>
@@ -81,8 +81,8 @@ export function CategoryHeatmapPanel({ onPickAsset }: Props) {
             onClick={() => setCategory(cat)}
             className={`rounded border px-1.5 py-[2px] text-[9px] font-semibold transition ${
               category === cat
-                ? "border-[#2962ff]/85 bg-[#2962ff]/25 text-[#dce8ff]"
-                : "border-slate-700/70 bg-[rgba(7,13,24,0.42)] text-slate-300 hover:border-[#2962ff]/55 hover:text-[#dce8ff]"
+                ? "border-[#9a9a9a]/85 bg-[#9a9a9a]/25 text-[#dce8ff]"
+                : "border-neutral-700/70 bg-[rgba(7,13,24,0.42)] text-neutral-300 hover:border-[#9a9a9a]/55 hover:text-[#dce8ff]"
             }`}
           >
             {cat}
@@ -98,8 +98,8 @@ export function CategoryHeatmapPanel({ onPickAsset }: Props) {
             onClick={() => setSortBy(entry.id)}
             className={`rounded border px-1.5 py-[2px] text-[9px] font-semibold transition ${
               sortBy === entry.id
-                ? "border-[#2962ff]/85 bg-[#2962ff]/25 text-[#dce8ff]"
-                : "border-slate-700/70 bg-[rgba(7,13,24,0.42)] text-slate-300 hover:border-[#2962ff]/55 hover:text-[#dce8ff]"
+                ? "border-[#9a9a9a]/85 bg-[#9a9a9a]/25 text-[#dce8ff]"
+                : "border-neutral-700/70 bg-[rgba(7,13,24,0.42)] text-neutral-300 hover:border-[#9a9a9a]/55 hover:text-[#dce8ff]"
             }`}
           >
             {entry.label}
@@ -108,9 +108,9 @@ export function CategoryHeatmapPanel({ onPickAsset }: Props) {
       </div>
 
       {!visible ? (
-        <div className="grid h-full place-items-center text-[10px] text-slate-500">Heatmap hidden</div>
+        <div className="grid h-full place-items-center text-[10px] text-neutral-500">Heatmap hidden</div>
       ) : loading ? (
-        <div className="grid h-full place-items-center text-[10px] text-slate-400">Loading category heatmap...</div>
+        <div className="grid h-full place-items-center text-[10px] text-neutral-400">Loading category heatmap...</div>
       ) : error ? (
         <div className="grid h-full place-items-center text-[10px] text-red-300/90">{error}</div>
       ) : (
@@ -121,22 +121,22 @@ export function CategoryHeatmapPanel({ onPickAsset }: Props) {
                 key={item.assetId}
                 type="button"
                 onClick={() => onPickAsset?.(item.assetId)}
-                className="min-h-[74px] rounded border border-slate-700/55 p-3 text-left transition hover:border-[#2962ff]/58"
+                className="min-h-[74px] rounded border border-neutral-700/55 p-3 text-left transition hover:border-[#9a9a9a]/58"
                 style={{ backgroundColor: toneColor(item.tone) }}
                 title={`${item.name} | AI ${item.aiScore.toFixed(0)} | Confidence ${item.confidenceScore.toFixed(0)}%`}
               >
                 <div className="mb-1.5 flex items-center justify-between gap-2">
-                  <div className="truncate text-[12px] font-semibold text-slate-100">{item.name}</div>
-                  <div className="text-[12px] font-semibold text-slate-100">{item.aiScore.toFixed(0)}</div>
+                  <div className="truncate text-[12px] font-semibold text-neutral-100">{item.name}</div>
+                  <div className="text-[12px] font-semibold text-neutral-100">{item.aiScore.toFixed(0)}</div>
                 </div>
-                <div className="mb-1.5 text-[10px] uppercase tracking-[0.08em] text-slate-300">{item.category}</div>
-                <div className="flex items-center justify-between gap-2 text-[10px] text-slate-100">
+                <div className="mb-1.5 text-[10px] uppercase tracking-[0.08em] text-neutral-300">{item.category}</div>
+                <div className="flex items-center justify-between gap-2 text-[10px] text-neutral-100">
                   <span>Confidence {item.confidenceScore.toFixed(0)}%</span>
                   <span>{item.signalQuality}</span>
                 </div>
               </button>
             ))}
-            {!items.length && <div className="text-[10px] text-slate-500">No assets in selected category.</div>}
+            {!items.length && <div className="text-[10px] text-neutral-500">No assets in selected category.</div>}
           </div>
         </div>
       )}

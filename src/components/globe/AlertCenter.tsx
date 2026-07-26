@@ -25,14 +25,14 @@ export function AlertCenter({ items, onPickAsset }: Props) {
               <button
                 type="button"
                 onClick={() => onPickAsset?.(row.assetId)}
-                className="ivq-tile flex w-full items-start gap-2 rounded bg-[rgba(18,30,55,0.65)] px-2 py-1.5 text-left text-[11px] text-slate-100"
+                className="ivq-tile flex w-full items-start gap-2 rounded bg-[rgba(18,30,55,0.65)] px-2 py-1.5 text-left text-[11px] text-neutral-100"
               >
                 <span className="mt-[2px] inline-block h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: toneColor(row.tone) }} />
                 <span className="line-clamp-2">{row.title}</span>
               </button>
             </li>
           ))}
-          {!items.length && <li className="text-[11px] text-slate-500">No active alerts</li>}
+          {!items.length && <li className="text-[11px] text-neutral-500">No active alerts</li>}
         </ul>
       </div>
     </div>

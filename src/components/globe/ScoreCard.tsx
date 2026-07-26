@@ -29,17 +29,17 @@ export function ScoreCard({ score, breakdown }: Props) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="text-[10px] uppercase tracking-[0.12em] text-slate-400">AI Score</div>
+      <div className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">AI Score</div>
       <div className="flex flex-1 items-center justify-center">
         <div
-          className="grid h-[108px] w-[108px] place-items-center rounded-full border border-slate-600/60 p-2"
+          className="grid h-[108px] w-[108px] place-items-center rounded-full border border-neutral-600/60 p-2"
           style={{ backgroundImage: ring }}
         >
-          <div className="grid h-full w-full place-items-center rounded-full bg-slate-950/95 text-center">
+          <div className="grid h-full w-full place-items-center rounded-full bg-neutral-950/95 text-center">
             <div className="text-[28px] font-extrabold leading-none" style={{ color }}>
               {safeScore.toFixed(0)}
             </div>
-            <div className="text-[10px] uppercase tracking-[0.12em] text-slate-400">/100</div>
+            <div className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">/100</div>
           </div>
         </div>
       </div>
@@ -49,8 +49,8 @@ export function ScoreCard({ score, breakdown }: Props) {
           const barColor = scoreColor(v);
           return (
             <div key={name} className="min-w-0">
-              <div className="truncate text-[9px] text-slate-400">{labelShort(name)}</div>
-              <div className="h-1.5 rounded-full bg-slate-700/50">
+              <div className="truncate text-[9px] text-neutral-400">{labelShort(name)}</div>
+              <div className="h-1.5 rounded-full bg-neutral-700/50">
                 <div
                   className="h-1.5 rounded-full transition-all"
                   style={{ width: `${Math.max(0, Math.min(100, v))}%`, backgroundColor: barColor }}
