@@ -204,19 +204,28 @@ function scanDirectoryForSymbol(dirPath: string, symbol: string): string | null 
 async function loadFromSupabase(symbol: string): Promise<OhlcBar[]> {
   try {
     const db = createSupabaseServiceClient();
-    const { data, error } = await db
-      .from("invest_ohlc")
-      .select("date,open,high,low,close,volume")
-      .eq("symbol", symbol)
-      .order("date", { ascending: true });
-    if (error || !data?.length) return [];
     const deduped = new Map<string, OhlcBar>();
-    for (const r of data) {
-      const date = String(r.date ?? "").slice(0, 10);
-      if (!date) continue;
-      const open = Number(r.open), high = Number(r.high), low = Number(r.low), close = Number(r.close);
-      if (!Number.isFinite(open) || !Number.isFinite(high) || !Number.isFinite(low) || !Number.isFinite(close)) continue;
-      deduped.set(date, { date, open, high, low, close, volume: r.volume != null ? Number(r.volume) : null });
+    // PostgREST caps a single response at 1000 rows, so page through the full
+    // history with .range(). Without this, only the earliest ~1000 rows load and
+    // SPY (from 1993) never overlaps QQQ (from 1999) → "no common timeline" →
+    // the whole Core-Invest backtest silently falls back to an empty engine.
+    const PAGE = 1000;
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await db
+        .from("invest_ohlc")
+        .select("date,open,high,low,close,volume")
+        .eq("symbol", symbol)
+        .order("date", { ascending: true })
+        .range(from, from + PAGE - 1);
+      if (error || !data?.length) break;
+      for (const r of data) {
+        const date = String(r.date ?? "").slice(0, 10);
+        if (!date) continue;
+        const open = Number(r.open), high = Number(r.high), low = Number(r.low), close = Number(r.close);
+        if (!Number.isFinite(open) || !Number.isFinite(high) || !Number.isFinite(low) || !Number.isFinite(close)) continue;
+        deduped.set(date, { date, open, high, low, close, volume: r.volume != null ? Number(r.volume) : null });
+      }
+      if (data.length < PAGE) break;
     }
     return [...deduped.values()].sort((a, b) => a.date.localeCompare(b.date));
   } catch {
