@@ -1,44 +1,47 @@
 // Shared data for Bibel — Desktop + Mobile read from here. Edit once, both update.
 //
-// Sources:
-//   white-swan-official-kpis.json          → live CFD track record
-//   public/data/whiteswan/portfolio_f10_equity.json → WS OOS stats
-//   white-swan-global-strategy.json        → sleeve count & asset count
-//   core-invest-paper.config.json          → CI OOS validated_metrics
+// VERIFIZIERTE QUELLEN (Stand Jul 2026):
+//   white-swan-official-kpis.json   → WS LIVE-Konto (Futures/FX, KEIN CFD)
+//   portfolio_f10_equity.json       → WS Backtest f10 (.summary)
+//   white-swan-global-strategy.json → Sleeves, 35 Strategien / 29 Instrumente
+//   core-invest-paper.config.json   → CI OOS-Backtest (validated_metrics)
 //
-// Korr. zu SPY: approximate rolling 5yr correlation estimates
-//   WS ~0.05 (diversified uncorrelated futures)
-//   CI ~0.75 (QQQ/SPY dominant)
+//   WS Live  : 2024-04-11 – 2026-07-01 · +97.2% komb. · 35.2% p.a. · DD −11.76%
+//              Sharpe 1.6 · Calmar 3.0 · PF 1.28 · 121 Trades (89+32 sichtbar)
+//   WS BT f10: CAGR 4.608% · Vol 3.613% · Sharpe 1.267 · DD −4.419% · Calmar 1.043
+//   CI OOS   : CAGR 17.11% · Sharpe 1.152 · DD −21.73% · Calmar 0.787 (2019–2026)
+//
+//   Korr. zu SPY: geschätzt, keine Live-Regression (WS ~0.05 · CI ~0.75)
 
 export const ABOUT_STRATEGIES = [
   {
     id: "ws",
     number: "01",
-    type: "Futures · Walk-Forward OOS",
+    type: "Futures & FX · Live-Handel",
     name: "White Swan Portfolio",
-    badge: "Unkorreliert",
+    badge: "Live seit Apr 2024",
     badgeColor: "gold" as const,
     stats: [
-      { label: "CAGR OOS", value: "+4.6%",  color: "gold"  as const },
-      { label: "Max DD",   value: "−4.4%",  color: "red"   as const },
-      { label: "Sharpe",   value: "1.27",   color: "white" as const },
-      { label: "Calmar",   value: "1.04",   color: "white" as const },
+      { label: "CAGR p.a.", value: "+35.2%", color: "gold"  as const },
+      { label: "Max DD",    value: "−11.8%", color: "red"   as const },
+      { label: "Sharpe",    value: "1.60",   color: "white" as const },
+      { label: "Calmar",    value: "3.00",   color: "white" as const },
     ],
     details: [
-      { icon: "Layers",      key: "Komponenten",   value: "35 aktive Strategien" },
-      { icon: "Globe",       key: "Märkte",        value: "Agrar · Metalle · Indizes · Energie · Forex" },
-      { icon: "Clock",       key: "Zeithorizont",  value: "1–30 Tage je Sleeve" },
-      { icon: "Calendar",    key: "Backtest",      value: "OOS 2019–2026 · IS ab 2003" },
-      { icon: "CheckCircle", key: "Execution",     value: "Forward Tracking · kein Live-Konto" },
-      { icon: "Target",      key: "Korr. zu SPY",  value: "~0.05 (sehr niedrig)" },
+      { icon: "Layers",      key: "Aufbau",        value: "29 Instrumente · 35 Strategien" },
+      { icon: "Globe",       key: "Sleeves",       value: "Agrar · Metalle · Indizes · Energie · FX" },
+      { icon: "Clock",       key: "Trade-Horizont", value: "1–30 Tage je Sleeve" },
+      { icon: "BarChart2",   key: "Backtest f10",  value: "+4.6% p.a. · DD −4.4% · Sharpe 1.27" },
+      { icon: "CheckCircle", key: "Live-Basis",    value: "121 Trades · +97.2% kombiniert" },
+      { icon: "Target",      key: "Korr. zu SPY",  value: "~0.05 · unkorreliert (geschätzt)" },
     ],
   },
   {
     id: "ci",
     number: "02",
-    type: "ETF / Aktien / Rohstoffe · OOS BT",
+    type: "ETF · Aktien · Rohstoffe · Backtest",
     name: "Core Invest",
-    badge: "Leicht korreliert",
+    badge: "Backtest · Paper",
     badgeColor: "blue" as const,
     stats: [
       { label: "CAGR OOS", value: "+17.1%", color: "gold"  as const },
@@ -47,69 +50,76 @@ export const ABOUT_STRATEGIES = [
       { label: "Calmar",   value: "0.79",   color: "white" as const },
     ],
     details: [
-      { icon: "Layers",      key: "Assets",        value: "8 Komponenten" },
-      { icon: "Globe",       key: "Kern",          value: "QQQ 45% · GLD 25% · Sleeves 30%" },
-      { icon: "Clock",       key: "Zeithorizont",  value: "Wochen – 12 Monate" },
-      { icon: "RefreshCw",   key: "Rebalancing",   value: "Quartalsweise" },
-      { icon: "Calendar",    key: "Backtest",      value: "OOS 2019–2026 · IS ab 2000" },
-      { icon: "Target",      key: "Korr. zu SPY",  value: "~0.75 (hoch, QQQ-Kern)" },
+      { icon: "Layers",      key: "Komponenten",   value: "8 · QQQ 45% · GLD 25% · 6 Sleeves" },
+      { icon: "Globe",       key: "Kern",          value: "QQQ 45% · GLD 25%" },
+      { icon: "RefreshCw",   key: "Rebalancing",   value: "Quartalsweise (Mär/Jun/Sep/Dez)" },
+      { icon: "Calendar",    key: "OOS-Backtest",  value: "2019–2026 · IS ab 2000" },
+      { icon: "CheckCircle", key: "Status",        value: "Approved v2.0 · kein Live-Konto" },
+      { icon: "Target",      key: "Korr. zu SPY",  value: "~0.75 · marktnah (geschätzt)" },
     ],
   },
 ] as const;
 
+// Risiko-adjustierter Vergleich — alle Sharpe/Calmar verifiziert, Benchmarks geschätzt (~)
 export const ABOUT_COMPARISON = [
-  { name: "White Swan",     tag: "BT", cagr: "+4.6%",  dd: "−4.4%",  sharpe: "1.27", calmar: "1.04", horizon: "Tage–Wochen",   corrSpy: "~0.05",   accent: true  },
-  { name: "Core Invest",    tag: "BT", cagr: "+17.1%", dd: "−21.7%", sharpe: "1.15", calmar: "0.79", horizon: "Wochen–Monate", corrSpy: "~0.75",   accent: true  },
-  { name: "S&P 500",        tag: "",   cagr: "~10%",   dd: "−55%",   sharpe: "~0.5", calmar: "~0.2", horizon: "Langfrist",     corrSpy: "1.00",    accent: false },
-  { name: "DAX",            tag: "",   cagr: "~8%",    dd: "−60%",   sharpe: "~0.4", calmar: "~0.1", horizon: "Langfrist",     corrSpy: "~0.80",   accent: false },
-  { name: "Gold",           tag: "",   cagr: "~7%",    dd: "−45%",   sharpe: "~0.4", calmar: "~0.2", horizon: "Langfrist",     corrSpy: "~0.05",   accent: false },
-  { name: "60/40",          tag: "",   cagr: "~7%",    dd: "−35%",   sharpe: "~0.5", calmar: "~0.2", horizon: "Langfrist",     corrSpy: "~0.65",   accent: false },
-  { name: "Anleihen (AGG)", tag: "",   cagr: "~3%",    dd: "−20%",   sharpe: "~0.4", calmar: "~0.2", horizon: "Langfrist",     corrSpy: "~−0.05",  accent: false },
+  { name: "White Swan",     tag: "LIVE", cagr: "+35.2%", dd: "−11.8%", sharpe: "1.60", calmar: "3.00", corrSpy: "~0.05",  accent: true  },
+  { name: "Core Invest",    tag: "BT",   cagr: "+17.1%", dd: "−21.7%", sharpe: "1.15", calmar: "0.79", corrSpy: "~0.75",  accent: true  },
+  { name: "S&P 500",        tag: "",     cagr: "~10%",   dd: "−55%",   sharpe: "~0.5", calmar: "~0.2", corrSpy: "1.00",   accent: false },
+  { name: "Nasdaq 100",     tag: "",     cagr: "~13%",   dd: "−53%",   sharpe: "~0.6", calmar: "~0.2", corrSpy: "~0.90",  accent: false },
+  { name: "DAX",            tag: "",     cagr: "~8%",    dd: "−60%",   sharpe: "~0.4", calmar: "~0.1", corrSpy: "~0.80",  accent: false },
+  { name: "Gold",           tag: "",     cagr: "~7%",    dd: "−45%",   sharpe: "~0.4", calmar: "~0.2", corrSpy: "~0.05",  accent: false },
+  { name: "60/40",          tag: "",     cagr: "~7%",    dd: "−35%",   sharpe: "~0.5", calmar: "~0.2", corrSpy: "~0.65",  accent: false },
+  { name: "Anleihen (AGG)", tag: "",     cagr: "~3%",    dd: "−20%",   sharpe: "~0.4", calmar: "~0.2", corrSpy: "~−0.05", accent: false },
 ] as const;
 
+// Anlage & Konditionen — für Investoren
 export const ABOUT_INVESTOR = [
-  { key: "Liquidität",   value: "Täglich" },
-  { key: "Gebühren",     value: "Keine" },
-  { key: "Währung",      value: "EUR / USD" },
-  { key: "Ausschüttung", value: "Thesaurierend" },
-  { key: "Struktur",     value: "Eigenhandel" },
-  { key: "Regulierung",  value: "Kein reg. Fonds" },
+  { key: "Anlagehorizont", value: "min. 5 Jahre" },
+  { key: "Sinnvoll ab",    value: "3 Jahre" },
+  { key: "Liquidität",     value: "Täglich" },
+  { key: "Währung",        value: "EUR / USD" },
+  { key: "Ertrag",         value: "Thesaurierend" },
+  { key: "Struktur",       value: "Eigenhandel · Pre-Fund" },
 ] as const;
 
+// Risikoprofil
 export const ABOUT_RISK = [
-  { key: "White Swan",   value: "Niedrig (MaxDD ~4%)" },
-  { key: "Core Invest",  value: "Mittel (MaxDD ~22%)" },
-  { key: "WS Korr. SPY", value: "~0.05 — sehr niedrig" },
-  { key: "CI Korr. SPY", value: "~0.75 — hoch" },
-  { key: "Leverage",     value: "Variabel je Sleeve" },
+  { key: "White Swan",    value: "Niedrig–Mittel · DD ~12%" },
+  { key: "Core Invest",   value: "Mittel · DD ~22%" },
+  { key: "WS Korr. SPY",  value: "~0.05 · unkorreliert" },
+  { key: "CI Korr. SPY",  value: "~0.75 · marktnah" },
+  { key: "Diversifikation", value: "29 Märkte · 5 Sleeves" },
 ] as const;
 
+// White Swan · Live-Track-Record (KEIN CFD — echtes Futures/FX-Konto)
 export const ABOUT_TRACK_RECORD = [
-  { key: "Periode",       value: "Apr 2024 – Jul 2026" },
-  { key: "Gesamt",        value: "+97.2%" },
+  { key: "Zeitraum",      value: "Apr 2024 – Jul 2026" },
+  { key: "Kombiniert",    value: "+97.2%" },
   { key: "Kompoundiert",  value: "+114.6%" },
   { key: "p.a.",          value: "+35.2%" },
-  { key: "Calmar",        value: "3.0" },
   { key: "Sharpe",        value: "1.60" },
+  { key: "Calmar",        value: "3.00" },
   { key: "Max DD",        value: "−11.8%" },
-  { key: "Profit Factor", value: "1.28" },
-  { key: "Quelle",        value: "Broker-Statement" },
+  { key: "Profit-Faktor", value: "1.28" },
+  { key: "Basis",         value: "121 Trades · Performance-Report" },
 ] as const;
 
+// Anlagehorizont & Handel (Investor-Sicht vs. interner Trade-Horizont)
 export const ABOUT_ZEITHORIZONT = [
-  { key: "CFD Intraday", value: "Minuten – Stunden" },
-  { key: "CFD Swing",    value: "1–5 Tage" },
-  { key: "White Swan",   value: "1–30 Tage" },
-  { key: "Core Invest",  value: "Wochen – 12 Monate" },
-  { key: "WS Backtest",  value: "OOS ab 2019 · IS ab 2003" },
-  { key: "CI Backtest",  value: "OOS ab 2019 · IS ab 2000" },
+  { key: "Empfohlen",       value: "min. 5 Jahre" },
+  { key: "Sinnvoll ab",     value: "3 Jahre" },
+  { key: "WS Trades",       value: "1–30 Tage je Sleeve" },
+  { key: "CI Haltedauer",   value: "Wochen – 12 Monate" },
+  { key: "CI Rebalancing",  value: "Quartalsweise" },
+  { key: "Liquidität",      value: "Täglich handelbar" },
 ] as const;
 
+// Eckdaten & Aufbau
 export const ABOUT_ECKDATEN = [
-  { key: "Live seit",  value: "Apr 2024" },
-  { key: "WS Sleeves", value: "Agrar · Metalle · Indizes · Energie · Forex" },
-  { key: "WS Assets",  value: "29 Futures · 35 aktive Strategien" },
-  { key: "CI Kern",    value: "QQQ 45% · GLD 25% · Sleeves 30%" },
-  { key: "Märkte",     value: "Futures · CFD · ETF · FX" },
-  { key: "Signale",    value: "Vollautomatisch · regelbasiert" },
+  { key: "Live seit",   value: "Apr 2024 (White Swan)" },
+  { key: "WS Aufbau",   value: "29 Instrumente · 35 Strategien" },
+  { key: "WS Sleeves",  value: "Agrar · Metalle · Indizes · Energie · FX" },
+  { key: "CI Kern",     value: "QQQ 45% · GLD 25% · 6 Sleeves" },
+  { key: "Backtests",   value: "WS f10 · CI OOS 2019–2026" },
+  { key: "Signale",     value: "Vollautomatisch · regelbasiert" },
 ] as const;

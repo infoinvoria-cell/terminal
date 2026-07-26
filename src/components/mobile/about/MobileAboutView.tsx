@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Info, TrendingUp, TrendingDown, Activity, Zap,
+  BookOpen, TrendingUp,
   Layers, Calendar, Clock, Globe, Shield, Wallet,
   RefreshCw, BarChart2, Target, CheckCircle,
 } from "lucide-react";
@@ -27,6 +27,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   CheckCircle: <CheckCircle size={11} />,
   Target:      <Target size={11} />,
   RefreshCw:   <RefreshCw size={11} />,
+  BarChart2:   <BarChart2 size={11} />,
 };
 
 export function MobileAboutView() {
@@ -35,7 +36,7 @@ export function MobileAboutView() {
 
       {/* HEADER */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-        <Info size={14} color={ACCENT} />
+        <BookOpen size={14} color={ACCENT} />
         <div>
           <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: N }}>Bibel</p>
           <p style={{ margin: 0, fontSize: 9, color: MUTED, fontFamily: M }}>Intern · kein Angebot · nicht geprüft</p>
@@ -100,10 +101,10 @@ export function MobileAboutView() {
       <MCard style={{ marginBottom: 12 }}>
         <SHead icon={<BarChart2 size={12} />} label="Vergleich · Anlageklassen" />
         <div style={{ marginTop: 10, overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 440 }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 400 }}>
             <thead>
               <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-                {["Asset","CAGR","Max DD","Sharpe","Calmar","Horizont","Korr. SPY"].map(h => (
+                {["Asset","CAGR","Max DD","Sharpe","Calmar","Korr. SPY"].map(h => (
                   <th key={h} style={{ padding: "4px 8px", textAlign: "left", fontSize: 9, fontWeight: 600, color: MUTED, textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: M, whiteSpace: "nowrap" }}>{h}</th>
                 ))}
               </tr>
@@ -119,7 +120,6 @@ export function MobileAboutView() {
                   <td style={{ padding: "5px 8px", fontSize: 11, fontWeight: 600, color: "#f87171", fontFamily: N }}>{r.dd}</td>
                   <td style={{ padding: "5px 8px", fontSize: 11, color: "#fff", fontFamily: N }}>{r.sharpe}</td>
                   <td style={{ padding: "5px 8px", fontSize: 11, color: "#fff", fontFamily: N }}>{r.calmar}</td>
-                  <td style={{ padding: "5px 8px", fontSize: 10, color: MUTED, fontFamily: M, whiteSpace: "nowrap" }}>{r.horizon}</td>
                   <td style={{ padding: "5px 8px", fontSize: 10, color: MUTED, fontFamily: M, whiteSpace: "nowrap" }}>{r.corrSpy}</td>
                 </tr>
               ))}
@@ -131,7 +131,7 @@ export function MobileAboutView() {
       {/* TRACK RECORD + ZEITHORIZONT side by side */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
         <MCard>
-          <SHead icon={<TrendingUp size={12} />} label="Track Record" />
+          <SHead icon={<TrendingUp size={12} />} label="WS · Live-Record" />
           <div style={{ marginTop: 10 }}>
             {ABOUT_TRACK_RECORD.map(({ key, value }) => (
               <KVRow key={key} k={key} v={value} />
@@ -139,7 +139,7 @@ export function MobileAboutView() {
           </div>
         </MCard>
         <MCard>
-          <SHead icon={<Clock size={12} />} label="Zeithorizont" />
+          <SHead icon={<Clock size={12} />} label="Anlagehorizont" />
           <div style={{ marginTop: 10 }}>
             {ABOUT_ZEITHORIZONT.map(({ key, value }) => (
               <KVRow key={key} k={key} v={value} />

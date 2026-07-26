@@ -23,6 +23,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   CheckCircle: <CheckCircle size={12} />,
   Target:      <Target size={12} />,
   RefreshCw:   <RefreshCw size={12} />,
+  BarChart2:   <BarChart2 size={12} />,
 };
 
 export default function AboutPage() {
@@ -78,7 +79,7 @@ export default function AboutPage() {
             <table className="w-full">
               <thead className="sticky top-0 bg-[#1a1b1e]">
                 <tr className="border-b border-white/[0.04]">
-                  {["Asset","CAGR","Max DD","Sharpe","Calmar","Horizont","Korr. zu SPY"].map(h => (
+                  {["Asset","CAGR p.a.","Max DD","Sharpe","Calmar","Korr. zu SPY"].map(h => (
                     <th key={h} className="px-4 py-2 text-left text-[9px] font-semibold uppercase tracking-wider text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{h}</th>
                   ))}
                 </tr>
@@ -111,19 +112,19 @@ export default function AboutPage() {
       {/* ROW 3 — Track Record / Zeithorizont / Eckdaten */}
       <div className="grid min-h-0 flex-1 grid-cols-3 gap-3">
         <div className="flex min-h-0 flex-col overflow-hidden rounded-[18px] border border-white/[0.07] bg-gradient-to-b from-[#1e1f22] to-[#151618] p-4 shadow-[0_12px_32px_-12px_rgba(0,0,0,0.6)]">
-          <SectionHead icon={<TrendingUp size={12} />} label="Track Record · Live CFD" />
+          <SectionHead icon={<TrendingUp size={12} />} label="White Swan · Live-Track-Record" />
           <div className="mt-2.5 space-y-2">
             {ABOUT_TRACK_RECORD.map(({ key, value }) => <KV key={key} k={key} v={value} />)}
           </div>
         </div>
         <div className="flex min-h-0 flex-col overflow-hidden rounded-[18px] border border-white/[0.07] bg-gradient-to-b from-[#1e1f22] to-[#151618] p-4 shadow-[0_12px_32px_-12px_rgba(0,0,0,0.6)]">
-          <SectionHead icon={<Clock size={12} />} label="Zeithorizont" />
+          <SectionHead icon={<Clock size={12} />} label="Anlagehorizont & Handel" />
           <div className="mt-2.5 space-y-2">
             {ABOUT_ZEITHORIZONT.map(({ key, value }) => <KV key={key} k={key} v={value} />)}
           </div>
         </div>
         <div className="flex min-h-0 flex-col overflow-hidden rounded-[18px] border border-white/[0.07] bg-gradient-to-b from-[#1e1f22] to-[#151618] p-4 shadow-[0_12px_32px_-12px_rgba(0,0,0,0.6)]">
-          <SectionHead icon={<Globe size={12} />} label="Eckdaten" />
+          <SectionHead icon={<Globe size={12} />} label="Eckdaten & Aufbau" />
           <div className="mt-2.5 space-y-2">
             {ABOUT_ECKDATEN.map(({ key, value }) => <KV key={key} k={key} v={value} />)}
           </div>
@@ -181,9 +182,9 @@ function BadgeEl({ children, color }: { children: React.ReactNode; color: "gold"
   return <span className={`mt-0.5 shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${cls}`} style={{ fontFamily: M }}>{children}</span>;
 }
 
-function TRow({ name, tag, cagr, dd, sharpe, calmar, horizon, corrSpy, accent }: {
+function TRow({ name, tag, cagr, dd, sharpe, calmar, corrSpy, accent }: {
   name: string; tag: string; cagr: string; dd: string;
-  sharpe: string; calmar: string; horizon: string; corrSpy: string; accent: boolean;
+  sharpe: string; calmar: string; corrSpy: string; accent: boolean;
 }) {
   return (
     <tr className={accent ? "bg-[color:var(--dash-accent)]/[0.03]" : ""}>
@@ -195,7 +196,6 @@ function TRow({ name, tag, cagr, dd, sharpe, calmar, horizon, corrSpy, accent }:
       <td className="px-4 py-2 text-[11px] font-semibold text-red-400" style={{ fontFamily: N }}>{dd}</td>
       <td className="px-4 py-2 text-[11px] text-white" style={{ fontFamily: N }}>{sharpe}</td>
       <td className="px-4 py-2 text-[11px] text-white" style={{ fontFamily: N }}>{calmar}</td>
-      <td className="px-4 py-2 text-[10px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{horizon}</td>
       <td className="px-4 py-2 text-[10px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{corrSpy}</td>
     </tr>
   );
