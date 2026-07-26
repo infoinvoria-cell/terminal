@@ -33,6 +33,11 @@ export default function GlobePatternAlerts({ patterns, onFocus, onDismiss }: Pro
             {p.affectedAssets.length > 0 && (
               <div className="mt-0.5 truncate text-[9px] text-white/45">{p.affectedAssets.join(" · ")}</div>
             )}
+            {p.note && (
+              <div className="mt-0.5 truncate text-[9px] font-semibold" style={{ color: "#4ade80" }}>
+                📈 {p.note}
+              </div>
+            )}
           </button>
           <button
             type="button"

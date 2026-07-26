@@ -1,6 +1,6 @@
 export const runtime = "edge";
 import { NextResponse } from "next/server";
-import { detectEventRegion, EVENT_IMPACT_MAP, REGION_LABELS } from "@/lib/globe/eventImpactMap";
+import { detectEventRegion, EVENT_IMPACT_MAP, REGION_LABELS, IMPACT_SYMBOL_TO_ID } from "@/lib/globe/eventImpactMap";
 
 // Lightweight globe pattern detector. The client POSTs the current geo-events
 // (it already holds them) and this returns pattern alerts with a confidence
@@ -31,6 +31,8 @@ export type GlobePattern = {
   lng: number;
   region: string | null;
   count: number;
+  /** Set when an affected asset is also making an unusual price move. */
+  note?: string;
 };
 
 function isType(e: InEvent, needle: string): boolean {
@@ -69,7 +71,14 @@ function clusterByRegionOrGrid(events: InEvent[]): Map<string, InEvent[]> {
   return groups;
 }
 
-function POST_impl(events: InEvent[]): GlobePattern[] {
+// Absolute % move (by watchlist id) for an impact display ticker, if provided.
+function tickerMovePct(ticker: string, changes: Record<string, number>): number {
+  const id = IMPACT_SYMBOL_TO_ID[ticker];
+  const c = id ? changes[id] : undefined;
+  return typeof c === "number" && Number.isFinite(c) ? Math.abs(c) : 0;
+}
+
+function POST_impl(events: InEvent[], changes: Record<string, number> = {}): GlobePattern[] {
   const patterns: GlobePattern[] = [];
 
   // 1. Earthquake clusters — >3 in the same region/grid cell.
@@ -136,15 +145,29 @@ function POST_impl(events: InEvent[]): GlobePattern[] {
     });
   }
 
+  // 4. Price correlation — if an affected asset is also moving unusually
+  // (>=2%), the event↔asset link is confirmed: raise confidence, escalate to
+  // alert, and annotate which assets moved.
+  if (Object.keys(changes).length > 0) {
+    for (const p of patterns) {
+      const moved = p.affectedAssets.filter((t) => tickerMovePct(t, changes) >= 2);
+      if (moved.length === 0) continue;
+      p.confidence = Math.min(p.confidence + 0.08, 0.98);
+      p.action = "alert";
+      p.note = `Preis-Move bestätigt: ${moved.join(", ")}`;
+    }
+  }
+
   // Highest confidence first, cap output.
   return patterns.sort((a, b) => b.confidence - a.confidence).slice(0, 8);
 }
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { events?: InEvent[] };
+    const body = (await request.json()) as { events?: InEvent[]; changes?: Record<string, number> };
     const events = Array.isArray(body?.events) ? body.events : [];
-    const patterns = POST_impl(events);
+    const changes = body?.changes && typeof body.changes === "object" ? body.changes : {};
+    const patterns = POST_impl(events, changes);
     return NextResponse.json({ updatedAt: new Date().toISOString(), count: patterns.length, patterns });
   } catch {
     return NextResponse.json({ updatedAt: new Date().toISOString(), count: 0, patterns: [] });

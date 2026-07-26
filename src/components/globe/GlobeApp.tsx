@@ -2175,9 +2175,13 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
 
   // ── Pattern detection: poll every 5 min with current events ──
   const geoEventsRef = useRef<GeoEventItem[]>(geoEvents);
+  const globeChangesRef = useRef<Record<string, number>>(globeChanges);
   useEffect(() => {
     geoEventsRef.current = geoEvents;
   }, [geoEvents]);
+  useEffect(() => {
+    globeChangesRef.current = globeChanges;
+  }, [globeChanges]);
   useEffect(() => {
     let cancelled = false;
     const runDetection = async () => {
@@ -2187,7 +2191,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
         const res = await fetch("/api/globe/pattern-detection", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ events }),
+          body: JSON.stringify({ events, changes: globeChangesRef.current }),
         });
         if (!res.ok) return;
         const data = await res.json();
