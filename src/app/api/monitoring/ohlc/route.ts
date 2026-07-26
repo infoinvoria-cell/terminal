@@ -29,6 +29,25 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: error.message, bars: [] }, { status: 200 });
     }
 
+    // Fallback: for Core Invest ETFs not yet in monitoring_ohlc, try invest_ohlc
+    const INVEST_OHLC_SYMBOLS = new Set(["QQQ", "SPY", "SPMO", "GLD"]);
+    if (!data?.length && timeframe === "D" && INVEST_OHLC_SYMBOLS.has(symbol)) {
+      const { data: iData } = await db
+        .from("invest_ohlc")
+        .select("date,open,high,low,close")
+        .eq("symbol", symbol)
+        .gt("close", 0)
+        .order("date", { ascending: false })
+        .limit(limit);
+      if (iData?.length) {
+        const bars = iData
+          .reverse()
+          .map((r) => ({ time: String(r.date).slice(0, 10), open: Number(r.open), high: Number(r.high), low: Number(r.low), close: Number(r.close) }))
+          .filter((b) => b.time && b.open > 0 && b.high > 0 && b.low > 0 && b.close > 0 && b.low <= b.high);
+        return NextResponse.json({ bars, symbol, timeframe, count: bars.length, lastDate: bars.at(-1)?.time ?? null, source: "invest_ohlc" });
+      }
+    }
+
     if (!data?.length) {
       return NextResponse.json({ bars: [], symbol, timeframe, count: 0 });
     }
