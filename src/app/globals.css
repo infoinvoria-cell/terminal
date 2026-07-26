@@ -124,26 +124,23 @@ body {
   );
 }
 
+/* Scrollbars are hidden everywhere (dark/invisible) — scrolling still works.
+   Wheel/touch/drag scrolling is unaffected; only the visible track/thumb is gone. */
 * {
-  scrollbar-color: rgba(60, 60, 68, 0.85) #0a0a0c;
-  scrollbar-width: thin;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 *::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 0;
+  height: 0;
+  background: transparent;
 }
 
 *::-webkit-scrollbar-track {
-  background: #0a0a0c;
+  background: transparent;
 }
 
 *::-webkit-scrollbar-thumb {
-  background: rgba(60, 60, 68, 0.85);
-  border-radius: 999px;
-  border: 2px solid #0a0a0c;
-}
-
-*::-webkit-scrollbar-thumb:hover {
-  background: rgba(82, 82, 91, 0.95);
+  background: transparent;
 }

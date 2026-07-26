@@ -449,6 +449,24 @@ const OVERLAY_LABELS: Record<string, string> = {
   regionalAssetHighlight: "Regional Highlight",
   newsHeatmap: "News Heatmap",
 };
+const OVERLAY_DESC: Record<string, string> = {
+  liveSignals: "Aktive Trade-Signale",
+  locations: "Asset-Standorte",
+  assets: "Markt-Pins",
+  earthquakes: "Beben M>4.5",
+  conflicts: "Konfliktzonen",
+  wildfires: "Aktive Brände",
+  shipTracking: "Live AIS-Schiffe",
+  oilRoutes: "Öl-Handelsrouten",
+  containerTraffic: "Container-Routen",
+  commodityRegions: "Rohstoff-Regionen",
+  globalRiskLayer: "Länder-Risiko",
+  globalLiquidityMap: "Liquiditäts-Karte",
+  shippingDisruptions: "Hafen-Störungen",
+  commodityStressMap: "Rohstoff-Stress",
+  regionalAssetHighlight: "Asset-Regionen",
+  newsHeatmap: "News-Heatmap",
+};
 type GlobeOverlayControlProps = {
   overlayState: import("@/lib/globe/globe-types").OverlayToggleState;
   overlayLoadingState: Partial<Record<keyof import("@/lib/globe/globe-types").OverlayToggleState, boolean>>;
@@ -457,9 +475,9 @@ type GlobeOverlayControlProps = {
 function GlobeOverlayControl({ overlayState, overlayLoadingState, onToggleOverlay }: GlobeOverlayControlProps) {
   const keys = Object.keys(OVERLAY_LABELS) as Array<keyof import("@/lib/globe/globe-types").OverlayToggleState>;
   return (
-    <div className="h-full overflow-hidden p-1.5">
-      {/* Compact icon-only grid — 3 cols, all overlays visible without scrolling */}
-      <div className="grid gap-1" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+    <div className="no-scrollbar h-full overflow-y-auto p-1.5">
+      {/* Compact labeled cards — icon + name + short description */}
+      <div className="grid gap-1" style={{ gridTemplateColumns: "1fr 1fr" }}>
         {keys.map((key) => {
           const active = Boolean(overlayState[key]);
           const loading = Boolean(overlayLoadingState?.[key]);
@@ -469,21 +487,26 @@ function GlobeOverlayControl({ overlayState, overlayLoadingState, onToggleOverla
               type="button"
               onClick={() => onToggleOverlay(key)}
               aria-pressed={active}
-              title={OVERLAY_LABELS[key] ?? key}
-              className="flex flex-col items-center justify-center gap-0.5 rounded-[7px] transition"
+              title={OVERLAY_DESC[key] ?? OVERLAY_LABELS[key] ?? key}
+              className="flex items-center gap-1.5 rounded-[6px] px-1.5 py-1 text-left transition"
               style={{
-                aspectRatio: "1 / 1",
-                minHeight: 34,
-                backdropFilter: "blur(8px)",
-                WebkitBackdropFilter: "blur(8px)",
-                background: active ? "rgba(212,175,55,0.14)" : "rgba(255,255,255,0.03)",
-                border: `1px solid ${active ? "rgba(212,175,55,0.5)" : "rgba(255,255,255,0.05)"}`,
+                background: active ? "rgba(255,255,255,0.09)" : "rgba(255,255,255,0.025)",
+                border: `1px solid ${active ? "rgba(200,200,208,0.45)" : "rgba(255,255,255,0.05)"}`,
               }}
             >
-              <span style={{ fontSize: 15, lineHeight: 1, opacity: active ? 1 : 0.55 }}>
+              <span style={{ fontSize: 13, lineHeight: 1, flexShrink: 0, opacity: active ? 1 : 0.5 }}>
                 {OVERLAY_EMOJI[key] ?? "◦"}
               </span>
-              {loading && <span style={{ fontSize: 7, color: "rgba(255,255,255,0.3)", lineHeight: 1 }}>…</span>}
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[9.5px] font-semibold leading-tight"
+                  style={{ color: active ? "#ffffff" : "rgba(255,255,255,0.6)" }}>
+                  {OVERLAY_LABELS[key] ?? key}{loading ? " …" : ""}
+                </span>
+                <span className="block truncate text-[8px] leading-tight"
+                  style={{ color: "rgba(255,255,255,0.32)" }}>
+                  {OVERLAY_DESC[key] ?? ""}
+                </span>
+              </span>
             </button>
           );
         })}

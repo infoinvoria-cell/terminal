@@ -32,7 +32,8 @@ type OverlayOption = {
   description: string;
 };
 
-const CATEGORY_ORDER = ["White Swan Portfolio", "Intraday MT", "Core Invest", "Crypto", "Macro", "Commodities", "Cross Pairs", "FX", "Major FX", "Metals", "Equities", "Energy", "Agriculture", "Softs", "Livestock", "Bonds", "Stocks"];
+// Priority: markets/indices first, then Forex, then commodities, then rest, crypto last.
+const CATEGORY_ORDER = ["Equities", "White Swan Portfolio", "Core Invest", "Intraday MT", "Stocks", "Cross Pairs", "FX", "Major FX", "Commodities", "Metals", "Energy", "Agriculture", "Softs", "Livestock", "Macro", "Bonds", "Crypto"];
 
 function formatFxSymbol(symbol: string): string {
   const raw = String(symbol || "").trim().toUpperCase();
@@ -66,14 +67,14 @@ function TinyToggle({
       type="button"
       onClick={onClick}
       className={`relative h-[14px] w-[24px] rounded-full border transition ${
-        checked ? `${accentBorder} ${accentBg}` : "border-slate-600/70 bg-slate-800/70"
+        checked ? `${accentBorder} ${accentBg}` : "border-neutral-600/70 bg-neutral-800/70"
       }`}
       title={checked ? "On" : "Off"}
       aria-label={checked ? "On" : "Off"}
     >
       <span
         className={`absolute top-[1px] h-[10px] w-[10px] rounded-full transition ${
-          checked ? `left-[11px] ${knobColor}` : "left-[1px] bg-slate-400"
+          checked ? `left-[11px] ${knobColor}` : "left-[1px] bg-neutral-400"
         }`}
       />
     </button>
@@ -258,7 +259,7 @@ export function SettingsPanel({
             className={`flex h-7 min-w-0 flex-1 items-center justify-between rounded-md border px-2 text-left text-[10px] font-semibold transition ${
               active
                 ? `${accentBorder} ${accentText} bg-transparent`
-                : "border-slate-700/60 bg-transparent text-slate-200 hover:border-slate-500/70"
+                : "border-neutral-700/60 bg-transparent text-neutral-200 hover:border-neutral-500/70"
             }`}
             aria-pressed={active}
             title={`${opt.label} ${active ? "deaktivieren" : "aktivieren"}`}
@@ -267,7 +268,7 @@ export function SettingsPanel({
             <span className="ml-2 inline-flex items-center gap-1.5">
               <span
                 className={`text-[8px] font-semibold uppercase tracking-[0.08em] ${
-                  loading ? (goldThemeEnabled ? "text-[#f7e7be]" : "text-[rgba(255,255,255,0.6)]") : (active ? accentText : "text-slate-400")
+                  loading ? (goldThemeEnabled ? "text-[#f7e7be]" : "text-[rgba(255,255,255,0.6)]") : (active ? accentText : "text-neutral-400")
                 }`}
               >
                 {overlayStateText(opt.key, active)}
@@ -280,7 +281,7 @@ export function SettingsPanel({
                 className={`inline-flex h-4 w-4 items-center justify-center rounded-full border text-[9px] leading-none transition ${
                   goldThemeEnabled
                     ? "border-[#e2ca7a]/50 text-[#f7e7be] hover:border-[#e2ca7a]/75"
-                    : "border-slate-500/70 text-slate-300 hover:border-white/50 hover:text-white"
+                    : "border-neutral-500/70 text-neutral-300 hover:border-white/50 hover:text-white"
                 }`}
                 onMouseEnter={(event) => {
                   event.stopPropagation();
@@ -305,8 +306,8 @@ export function SettingsPanel({
           </button>
         </div>
         <div
-          className={`pointer-events-none absolute left-0 top-[calc(100%+5px)] z-30 max-w-[260px] rounded-md border border-slate-600/70 bg-[rgba(6,12,22,0.96)] px-2 py-1.5 text-[10px] leading-snug text-slate-200 shadow-[0_10px_28px_rgba(0,0,0,0.45)] transition ${
-            tooltipOpen ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
+          className={`pointer-events-none absolute left-0 top-[calc(100%+5px)] z-30 max-w-[260px] rounded-md border border-neutral-600/70 bg-[rgba(6,12,22,0.96)] px-2 py-1.5 text-[10px] leading-snug text-neutral-200 shadow-[0_10px_28px_rgba(0,0,0,0.45)] transition ${
+            tooltipOpen ? "tranneutral-y-0 opacity-100" : "tranneutral-y-1 opacity-0"
           }`}
         >
           {opt.description}
@@ -320,12 +321,12 @@ export function SettingsPanel({
       <button
         type="button"
         onClick={onToggle}
-        className={`flex h-7 w-full items-center justify-between rounded-md border px-2 text-[10px] font-semibold transition ${accentHoverBorder} border-slate-700/60 bg-transparent text-slate-200`}
+        className={`flex h-7 w-full items-center justify-between rounded-md border px-2 text-[10px] font-semibold transition ${accentHoverBorder} border-neutral-700/60 bg-transparent text-neutral-200`}
       >
         <span className="text-left">{title}</span>
         <span className="ml-2 inline-flex items-center gap-1">
-          <span className={`text-[9px] ${activeCount > 0 ? accentText : "text-slate-400"}`}>{`${activeCount}/${totalCount}`}</span>
-          <span className="text-[10px] text-slate-300">{open ? "v" : ">"}</span>
+          <span className={`text-[9px] ${activeCount > 0 ? accentText : "text-neutral-400"}`}>{`${activeCount}/${totalCount}`}</span>
+          <span className="text-[10px] text-neutral-300">{open ? "v" : ">"}</span>
         </span>
       </button>
     );
@@ -349,7 +350,7 @@ export function SettingsPanel({
             className={`flex h-8 min-w-0 flex-1 items-center justify-between rounded-md border px-2 text-left text-[11px] font-semibold transition ${
               active
                 ? `${accentBorder} ${accentText} bg-transparent`
-                : "border-slate-700/65 bg-transparent text-slate-200 hover:border-slate-500/70"
+                : "border-neutral-700/65 bg-transparent text-neutral-200 hover:border-neutral-500/70"
             }`}
             aria-pressed={active}
             title={`Assets ${active ? "deaktivieren" : "aktivieren"}`}
@@ -358,7 +359,7 @@ export function SettingsPanel({
             <span className="ml-2 inline-flex items-center gap-1.5">
               <span
                 className={`text-[8px] font-semibold uppercase tracking-[0.08em] ${
-                  loading ? (goldThemeEnabled ? "text-[#f7e7be]" : "text-[rgba(255,255,255,0.6)]") : (active ? accentText : "text-slate-400")
+                  loading ? (goldThemeEnabled ? "text-[#f7e7be]" : "text-[rgba(255,255,255,0.6)]") : (active ? accentText : "text-neutral-400")
                 }`}
               >
                 {overlayStateText("assets", active)}
@@ -371,7 +372,7 @@ export function SettingsPanel({
                 className={`inline-flex h-4 w-4 items-center justify-center rounded-full border text-[9px] leading-none transition ${
                   goldThemeEnabled
                     ? "border-[#e2ca7a]/50 text-[#f7e7be] hover:border-[#e2ca7a]/75"
-                    : "border-slate-500/70 text-slate-300 hover:border-white/50 hover:text-white"
+                    : "border-neutral-500/70 text-neutral-300 hover:border-white/50 hover:text-white"
                 }`}
                 onMouseEnter={(event) => {
                   event.stopPropagation();
@@ -396,8 +397,8 @@ export function SettingsPanel({
           </button>
         </div>
         <div
-          className={`pointer-events-none absolute left-0 top-[calc(100%+5px)] z-30 max-w-[260px] rounded-md border border-slate-600/70 bg-[rgba(6,12,22,0.96)] px-2 py-1.5 text-[10px] leading-snug text-slate-200 shadow-[0_10px_28px_rgba(0,0,0,0.45)] transition ${
-            tooltipOpen ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
+          className={`pointer-events-none absolute left-0 top-[calc(100%+5px)] z-30 max-w-[260px] rounded-md border border-neutral-600/70 bg-[rgba(6,12,22,0.96)] px-2 py-1.5 text-[10px] leading-snug text-neutral-200 shadow-[0_10px_28px_rgba(0,0,0,0.45)] transition ${
+            tooltipOpen ? "tranneutral-y-0 opacity-100" : "tranneutral-y-1 opacity-0"
           }`}
         >
           Shows or hides the global asset marker universe on both maps.
@@ -413,7 +414,7 @@ export function SettingsPanel({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search"
-          className={`ivq-settings-search h-7 min-w-0 flex-1 rounded-md border border-slate-700/65 bg-transparent px-2 text-[11px] text-slate-100 outline-none placeholder:text-slate-500 ${goldThemeEnabled ? "focus:border-[#e2ca7a]/60" : "focus:border-white/40"}`}
+          className={`ivq-settings-search h-7 min-w-0 flex-1 rounded-md border border-neutral-700/65 bg-transparent px-2 text-[11px] text-neutral-100 outline-none placeholder:text-neutral-500 ${goldThemeEnabled ? "focus:border-[#e2ca7a]/60" : "focus:border-white/40"}`}
         />
         <button
           type="button"
@@ -425,7 +426,7 @@ export function SettingsPanel({
         <button
           type="button"
           onClick={onAllOff}
-          className={`ivq-settings-action h-7 rounded-md border border-slate-700/65 bg-transparent px-2 text-[10px] font-semibold text-slate-200 ${performanceMode ? "" : "transition"} hover:border-slate-500/70`}
+          className={`ivq-settings-action h-7 rounded-md border border-neutral-700/65 bg-transparent px-2 text-[10px] font-semibold text-neutral-200 ${performanceMode ? "" : "transition"} hover:border-neutral-500/70`}
         >
           All Off
         </button>
@@ -470,7 +471,7 @@ export function SettingsPanel({
               }
             }}
             placeholder="Yahoo ticker e.g. AAPL, TSLA, BTC-USD"
-            className="h-7 min-w-0 flex-1 rounded-md border border-[#D4AF37]/40 bg-transparent px-2 text-[11px] text-slate-100 outline-none placeholder:text-slate-500 focus:border-[#D4AF37]/80"
+            className="h-7 min-w-0 flex-1 rounded-md border border-[#D4AF37]/40 bg-transparent px-2 text-[11px] text-neutral-100 outline-none placeholder:text-neutral-500 focus:border-[#D4AF37]/80"
           />
           <button
             type="button"
@@ -499,7 +500,7 @@ export function SettingsPanel({
           return (
             <section
               key={category}
-              className="ivq-settings-category mb-1.5 rounded-lg border border-slate-700/40 bg-transparent last:mb-0"
+              className="ivq-settings-category mb-1.5 rounded-lg border border-neutral-700/40 bg-transparent last:mb-0"
               style={performanceMode ? { contentVisibility: "auto", containIntrinsicSize: "200px" } : undefined}
             >
               <div className="flex items-center justify-between gap-1 px-1.5 py-1">
@@ -508,7 +509,7 @@ export function SettingsPanel({
                   <button
                     type="button"
                     onClick={() => setCollapsed((prev) => ({ ...prev, [category]: !prev[category] }))}
-                    className="text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-300"
+                    className="text-[10px] font-semibold uppercase tracking-[0.1em] text-neutral-300"
                   >
                     {category} ({visibleCount === totalCount ? `${totalCount}` : `${visibleCount}/${totalCount}`})
                   </button>
@@ -516,7 +517,7 @@ export function SettingsPanel({
                 <button
                   type="button"
                   onClick={() => setCollapsed((prev) => ({ ...prev, [category]: !prev[category] }))}
-                  className="rounded border border-slate-700/60 px-1 text-[10px] text-slate-400"
+                  className="rounded border border-neutral-700/60 px-1 text-[10px] text-neutral-400"
                 >
                   {isCollapsed ? "+" : "-"}
                 </button>
@@ -536,7 +537,7 @@ export function SettingsPanel({
                             ? `${goldThemeEnabled ? "bg-[#e2ca7a]/16 text-[#fff3d1]" : "bg-white/10 text-white"}`
                             : markerSelectable && checked
                               ? `${goldThemeEnabled ? "bg-[#e2ca7a]/08 text-[#e8d5a7]" : "bg-white/[0.04] text-white/70"}`
-                              : "text-slate-400"
+                              : "text-neutral-400"
                         }`}
                       >
                         <button
@@ -556,7 +557,7 @@ export function SettingsPanel({
                             className={`grid h-[12px] w-[12px] place-items-center rounded-[3px] border text-[8px] transition ${
                               checked
                                 ? `${goldThemeEnabled ? "border-[#e2ca7a]/90 text-[#fff3d1]" : "border-white/50 text-white"} bg-transparent`
-                                : "border-slate-500/70 bg-transparent text-transparent"
+                                : "border-neutral-500/70 bg-transparent text-transparent"
                             }`}
                             title={checked ? "Marker ausblenden" : "Marker einblenden"}
                             aria-label={checked ? "Marker ausblenden" : "Marker einblenden"}
@@ -575,7 +576,7 @@ export function SettingsPanel({
         {/* Yahoo Finance search hint when no match */}
         {search.trim() && totalVisible === 0 && onAddSymbol ? (
           <div className="flex flex-col items-center gap-1.5 py-3">
-            <span className="text-[10px] text-slate-400">No asset found for &ldquo;{search}&rdquo;</span>
+            <span className="text-[10px] text-neutral-400">No asset found for &ldquo;{search}&rdquo;</span>
             <button
               type="button"
               onClick={() => { onAddSymbol(search.trim().toUpperCase()); setSearch(""); }}
@@ -588,7 +589,7 @@ export function SettingsPanel({
       </div>
 
       {hideOverlayControls ? null : (
-      <div className="mt-2 rounded-lg border border-slate-700/45 bg-transparent p-2">
+      <div className="mt-2 rounded-lg border border-neutral-700/45 bg-transparent p-2">
         <div className="mb-1 flex items-center justify-between gap-2">
           <div className="ivq-section-label mb-0">Overlay Control</div>
           <div className="inline-flex items-center gap-1 text-[9px] font-semibold tracking-[0.08em] uppercase">

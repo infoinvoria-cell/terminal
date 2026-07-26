@@ -53,6 +53,7 @@ const NATION_COLOR: Record<string, string> = {
 };
 
 // ── Free satellite tiles (Esri World Imagery — no token / no account) ────────
+const CAMERA_KEY = "clf_sat_camera_v1";
 const ESRI_IMAGERY = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
 const ESRI_REFERENCE = "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}";
 
@@ -135,15 +136,39 @@ export function MapboxSatelliteView({
       if (map || !containerRef.current) return;
       if (container.clientWidth === 0 || container.clientHeight === 0) return;
 
+      // Restore last saved camera (persisted across mode/page switches).
+      let startCenter: [number, number] = [initialLng, initialLat];
+      let startZoom = initialZoom;
+      try {
+        const raw = localStorage.getItem(CAMERA_KEY);
+        if (raw) {
+          const c = JSON.parse(raw);
+          if (Number.isFinite(c.lng) && Number.isFinite(c.lat) && Number.isFinite(c.zoom)) {
+            startCenter = [c.lng, c.lat];
+            startZoom = c.zoom;
+          }
+        }
+      } catch { /* ignore */ }
+
       map = new maplibregl.Map({
         container,
         style: MAP_STYLE,
-        center: [initialLng, initialLat],
-        zoom: initialZoom,
+        center: startCenter,
+        zoom: startZoom,
         minZoom: 1,
         maxZoom: 19,
         attributionControl: false,
+        scrollZoom: true,
+        dragPan: true,
+        touchZoomRotate: true,
+        doubleClickZoom: true,
       });
+
+      // Ensure interaction handlers are active (some can be off after style swaps).
+      map.scrollZoom.enable();
+      map.dragPan.enable();
+      map.touchZoomRotate.enable();
+      map.keyboard.enable();
 
       const markReady = () => {
         // Globe projection at low zoom (MapLibre v5+); ignored if unsupported.
@@ -155,6 +180,14 @@ export function MapboxSatelliteView({
       if (map.isStyleLoaded()) markReady();
 
       map.on("zoom", () => map && setZoom(map.getZoom()));
+      // Persist camera on every move so zoom/pan survives mode & page switches.
+      map.on("moveend", () => {
+        if (!map) return;
+        try {
+          const c = map.getCenter();
+          localStorage.setItem(CAMERA_KEY, JSON.stringify({ lng: c.lng, lat: c.lat, zoom: map.getZoom() }));
+        } catch { /* ignore */ }
+      });
       map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
       map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-right");
 
@@ -362,6 +395,12 @@ export function MapboxSatelliteView({
 
       {/* Popup + control CSS */}
       <style>{`
+        /* Override the global "canvas { pointer-events: none }" rule so the map
+           receives wheel/drag/touch events — otherwise zoom & pan are dead. */
+        .maplibregl-map, .maplibregl-canvas-container, .maplibregl-canvas {
+          pointer-events: auto !important;
+          touch-action: none;
+        }
         .clf-mapbox-popup .maplibregl-popup-content {
           background: rgba(10,11,14,0.95) !important;
           border: 1px solid rgba(212,175,55,0.25) !important;

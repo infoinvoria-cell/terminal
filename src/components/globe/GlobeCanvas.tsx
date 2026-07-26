@@ -1788,18 +1788,24 @@ function GlobeCanvasComponent({
             fallback.style.color = themeUiText;
             fallback.style.display = d.iconUrl ? "none" : "inline-block";
             el.appendChild(fallback);
-            const name = document.createElement("span");
-            name.innerText = String(d.shortName || "").toUpperCase();
-            name.style.fontSize = "9px";
-            name.style.color = themeUiText;
-            name.style.fontWeight = d.assetId === selectedAssetId ? "700" : "600";
-            name.style.whiteSpace = "nowrap";
-            name.style.overflow = "hidden";
-            name.style.maxWidth = "80px";
-            name.style.textOverflow = "ellipsis";
-            el.appendChild(name);
+            // Declutter: at overview zoom (detailLevel 1) show only the icon.
+            // Names + prices appear once zoomed in (detailLevel >= 2), except the
+            // selected asset which always keeps its label.
+            const showAssetLabel = detailLevel >= 2 || d.assetId === selectedAssetId;
+            if (showAssetLabel) {
+              const name = document.createElement("span");
+              name.innerText = String(d.shortName || "").toUpperCase();
+              name.style.fontSize = "9px";
+              name.style.color = themeUiText;
+              name.style.fontWeight = d.assetId === selectedAssetId ? "700" : "600";
+              name.style.whiteSpace = "nowrap";
+              name.style.overflow = "hidden";
+              name.style.maxWidth = "80px";
+              name.style.textOverflow = "ellipsis";
+              el.appendChild(name);
+            }
             const priceVal = globePrices[String(d.assetId ?? "")];
-            if (priceVal != null && Number.isFinite(priceVal)) {
+            if (showAssetLabel && priceVal != null && Number.isFinite(priceVal)) {
               const priceEl = document.createElement("span");
               priceEl.innerText = fmtGlobePrice(priceVal);
               priceEl.style.fontSize = "8px";
@@ -1864,11 +1870,9 @@ function GlobeCanvasComponent({
             if (satelliteMode && selectedOverlay === "none") {
               return "rgba(0,0,0,0)";
             }
-            if (goldThemeEnabled && selectedOverlay === "none") {
-              return "rgba(116,97,54,0.32)";
-            }
-            if (!goldThemeEnabled && selectedOverlay === "none") {
-              return "rgba(68,68,76,0.52)";
+            // All-grey land fill (no gold, no blue) — same in gold & default theme.
+            if (selectedOverlay === "none") {
+              return "rgba(58,58,64,0.55)";
             }
             return base;
           }}
@@ -1918,11 +1922,9 @@ function GlobeCanvasComponent({
             if (satelliteMode && selectedOverlay === "none") {
               return "rgba(255,255,255,0.55)";
             }
-            if (goldThemeEnabled && selectedOverlay === "none") {
-              return "rgba(226,202,122,0.58)";
-            }
-            if (!goldThemeEnabled && selectedOverlay === "none") {
-              return "rgba(160,160,168,0.55)";
+            // All-grey country outlines (no gold, no blue) in both themes.
+            if (selectedOverlay === "none") {
+              return "rgba(170,170,178,0.6)";
             }
             return polygonStrokeColor(selectedOverlay, f, policyRateByCountry);
           }}
@@ -1933,16 +1935,11 @@ function GlobeCanvasComponent({
           arcEndLat="endLat"
           arcEndLng="endLng"
           arcColor={(d: any) => [String(d.color || themePrimaryHex), String(d.color || themePrimaryHex)]}
-          arcStroke={(d: any) => (d.kind === "overlay" ? 0.45 : 0.75)}
-          arcAltitude={(d: any) => Number(d.altitude ?? 0.26)}
-          arcDashLength={(d: any) => Number(d.dashLength ?? 1)}
-          arcDashGap={(d: any) => Number(d.dashGap ?? 0)}
-          arcDashAnimateTime={(d: any) => Number(d.animateTime ?? 0)}
-          arcDashInitialGap={(d: any) => {
-            // Stable per-arc offset so animated arcs don't start/jump in sync.
-            const seed = Math.abs(Number(d.startLat ?? 0) * 73.13 + Number(d.startLng ?? 0) * 19.77);
-            return seed - Math.floor(seed);
-          }}
+          arcStroke={(d: any) => (d.kind === "overlay" ? 0.28 : 0.32)}
+          arcAltitude={(d: any) => Number(d.altitude ?? 0.22)}
+          arcDashLength={1}
+          arcDashGap={0}
+          arcDashAnimateTime={0}
           arcLabel={(d: any) => String(d.label || "")}
           ringsData={ringsData}
           ringColor={(d: { color: string }) => d.color || themePrimarySoft}
