@@ -6,6 +6,7 @@ import { Maximize2, Minimize2, Play, Pause } from "lucide-react";
 
 import { GlobeCanvas } from "@/components/globe/GlobeCanvas";
 import { GeoContextPanel } from "@/components/globe/GeoContextPanel";
+import { MapboxSatelliteView } from "@/components/globe/MapboxSatelliteView";
 import { WORLD_CITIES } from "@/data/globe/world-cities";
 import { lookupCountryByName } from "@/data/globe/country-data";
 import { WORLD_PORTS } from "@/data/globe/world-ports";
@@ -523,6 +524,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   const [visualLoopTick, setVisualLoopTick] = useState(0);
   const [selectedGeoEntity, setSelectedGeoEntity] = useState<import("@/components/globe/GeoContextPanel").SelectedGeoEntity | null>(null);
   const [satelliteMode, setSatelliteMode] = useState(false);
+  const [mapMode, setMapMode] = useState<"globe" | "satellite">("globe");
   const [dataSource, setDataSource] = useState<DataSource>(() => {
     if (typeof window === "undefined") return "tradingview";
     try {
@@ -2323,15 +2325,56 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
           })}
         </div>
 
-        {/* ② Globe */}
+        {/* ② Globe / Satellite-Map */}
         <div
           ref={globeShellRef}
           className="globe-stage relative shrink-0 overflow-hidden"
           style={{ height: "56vw", minHeight: 240, maxHeight: 380 }}
         >
-          <GlobeCanvas {...globeCanvasProps} />
-          {/* Satellite toggle */}
-          <button
+          {mapMode === "globe"
+            ? <GlobeCanvas {...globeCanvasProps} />
+            : (
+              <MapboxSatelliteView
+                initialLat={Number(camera?.lat ?? 30)}
+                initialLng={Number(camera?.lng ?? 20)}
+                initialZoom={2}
+                geoEvents={geoEvents}
+                ships={activeShipTracking}
+                overlayRoutes={activeRouteOverlays}
+                markers={visibleMarkers}
+                showPorts
+                showAirports
+                showMilitary
+                showShips={overlayState.shipTracking}
+                showEvents={overlayState.earthquakes || overlayState.conflicts || overlayState.wildfires}
+              />
+            )
+          }
+          {/* Globe / Satellite toggle pills */}
+          <div className="absolute left-2 top-2 z-30 flex gap-1">
+            <button
+              type="button"
+              onClick={() => setMapMode("globe")}
+              style={{
+                padding: "3px 8px", borderRadius: 14, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                border: mapMode === "globe" ? "1px solid rgba(212,175,55,0.6)" : "1px solid rgba(255,255,255,0.12)",
+                background: mapMode === "globe" ? "rgba(212,175,55,0.15)" : "rgba(6,7,10,0.7)",
+                color: mapMode === "globe" ? "#d4af37" : "rgba(255,255,255,0.4)",
+              }}
+            >🌍 Globe</button>
+            <button
+              type="button"
+              onClick={() => setMapMode("satellite")}
+              style={{
+                padding: "3px 8px", borderRadius: 14, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                border: mapMode === "satellite" ? "1px solid rgba(78,163,216,0.6)" : "1px solid rgba(255,255,255,0.12)",
+                background: mapMode === "satellite" ? "rgba(78,163,216,0.15)" : "rgba(6,7,10,0.7)",
+                color: mapMode === "satellite" ? "#4ea3d8" : "rgba(255,255,255,0.4)",
+              }}
+            >🛰 SAT</button>
+          </div>
+          {/* Satellite texture toggle (Globe mode only) */}
+          {mapMode === "globe" && <button
             type="button"
             onClick={() => setSatelliteMode((v) => !v)}
             className={`absolute right-2 top-2 z-30 flex h-7 w-7 items-center justify-center rounded-md border transition ${
@@ -2339,24 +2382,24 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                 ? "border-[#4ea3d8]/80 text-[#4ea3d8] bg-[rgba(78,163,216,0.12)]"
                 : "border-white/15 text-white/50"
             }`}
-            title={satelliteMode ? "Dark globe" : "Satellite view"}
+            title={satelliteMode ? "Dark globe" : "Satellite texture"}
           >
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
               <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" strokeWidth="1.2"/>
               <ellipse cx="6.5" cy="6.5" rx="2" ry="4.5" stroke="currentColor" strokeWidth="1"/>
               <line x1="2" y1="6.5" x2="11" y2="6.5" stroke="currentColor" strokeWidth="1"/>
             </svg>
-          </button>
-          {/* Play/Pause */}
-          <button
+          </button>}
+          {/* Play/Pause — Globe mode only */}
+          {mapMode === "globe" && <button
             type="button"
             onClick={() => setGlobeRotateMode((m) => m === "off" ? "slow" : "off")}
-            className={`absolute left-2 top-2 z-30 flex h-7 w-7 items-center justify-center rounded-md border transition ${
+            className={`absolute right-10 top-2 z-30 flex h-7 w-7 items-center justify-center rounded-md border transition ${
               globeRotateMode !== "off" ? "border-[#D4AF37]/70 text-[#D4AF37]" : "border-white/15 text-white/50"
             }`}
           >
             {globeRotateMode !== "off" ? <Pause size={12} strokeWidth={2} /> : <Play size={12} strokeWidth={2} />}
-          </button>
+          </button>}
           {/* Continent nav */}
           <div className="absolute bottom-2 left-1/2 z-30 flex -translate-x-1/2 gap-1">
             {([
@@ -2601,6 +2644,33 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
           >
             {!isGlobeFullscreen && (
               <>
+                {/* Globe / Satellite-Map mode toggle */}
+                <div className="absolute left-3 top-3 z-30 flex gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setMapMode("globe")}
+                    className={`flex h-7 items-center gap-1 rounded-md border px-2 text-[10px] font-semibold transition ${
+                      mapMode === "globe"
+                        ? "border-[#D4AF37]/70 bg-[rgba(212,175,55,0.12)] text-[#D4AF37]"
+                        : "border-white/15 text-white/40 hover:text-white/70"
+                    }`}
+                    title="3D Globe view"
+                  >
+                    🌍 Globe
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMapMode("satellite")}
+                    className={`flex h-7 items-center gap-1 rounded-md border px-2 text-[10px] font-semibold transition ${
+                      mapMode === "satellite"
+                        ? "border-[#4ea3d8]/70 bg-[rgba(78,163,216,0.12)] text-[#4ea3d8]"
+                        : "border-white/15 text-white/40 hover:text-white/70"
+                    }`}
+                    title="Satellite map (Google Earth zoom)"
+                  >
+                    🛰 Satellite
+                  </button>
+                </div>
                 {/* Fullscreen */}
                 <button
                   type="button"
@@ -2611,8 +2681,8 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                 >
                   <Maximize2 size={14} strokeWidth={1.9} />
                 </button>
-                {/* Satellite mode toggle */}
-                <button
+                {/* Satellite texture toggle — only in Globe mode */}
+                {mapMode === "globe" && <button
                   type="button"
                   onClick={() => setSatelliteMode((v) => !v)}
                   className={`absolute right-12 top-3 z-30 flex h-7 w-7 items-center justify-center rounded-md border transition ${
@@ -2628,12 +2698,12 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                     <ellipse cx="6.5" cy="6.5" rx="2" ry="4.5" stroke="currentColor" strokeWidth="1"/>
                     <line x1="2" y1="6.5" x2="11" y2="6.5" stroke="currentColor" strokeWidth="1"/>
                   </svg>
-                </button>
-                {/* Auto-rotate play/pause */}
-                <button
+                </button>}
+                {/* Auto-rotate play/pause — Globe mode only */}
+                {mapMode === "globe" && <button
                   type="button"
                   onClick={() => setGlobeRotateMode((m) => m === "off" ? "slow" : "off")}
-                  className={`absolute left-3 top-3 z-30 flex h-7 w-7 items-center justify-center rounded-md border transition ${
+                  className={`absolute right-[5.5rem] top-3 z-30 flex h-7 w-7 items-center justify-center rounded-md border transition ${
                     globeRotateMode !== "off"
                       ? "border-[#D4AF37]/70 text-[#D4AF37]"
                       : "border-white/15 text-white hover:border-white/40"
@@ -2644,32 +2714,52 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                   {globeRotateMode !== "off"
                     ? <Pause size={12} strokeWidth={2} />
                     : <Play size={12} strokeWidth={2} />}
-                </button>
-                {/* Continent quick-nav */}
-                <div className="absolute bottom-2 left-1/2 z-30 flex -translate-x-1/2 gap-1">
-                  {([
-                    { label: "NA", lat: 40, lng: -100, alt: 2.2 },
-                    { label: "SA", lat: -15, lng: -60, alt: 2.0 },
-                    { label: "EU", lat: 50, lng: 15, alt: 1.8 },
-                    { label: "AF", lat: 5, lng: 22, alt: 2.0 },
-                    { label: "ME", lat: 27, lng: 45, alt: 1.6 },
-                    { label: "AS", lat: 35, lng: 105, alt: 2.2 },
-                    { label: "OC", lat: -25, lng: 135, alt: 2.0 },
-                  ] as const).map((c) => (
-                    <button
-                      key={c.label}
-                      type="button"
-                      onClick={() => {
-                        onGeoZoomTo(c.lat, c.lng, c.alt);
-                        setSelectedGeoEntity({ kind: "continent", id: c.label, name: c.label, lat: c.lat, lng: c.lng });
-                      }}
-                      className="rounded border border-white/15 bg-[rgba(10,10,14,0.75)] px-1.5 py-0.5 text-[8px] font-semibold tracking-[0.06em] text-white/50 transition hover:border-[#D4AF37]/50 hover:text-[#D4AF37] backdrop-blur-sm"
-                    >
-                      {c.label}
-                    </button>
-                  ))}
-                </div>
-                <GlobeCanvas {...globeCanvasProps} />
+                </button>}
+                {/* Continent quick-nav — Globe mode only */}
+                {mapMode === "globe" && (
+                  <div className="absolute bottom-2 left-1/2 z-30 flex -translate-x-1/2 gap-1">
+                    {([
+                      { label: "NA", lat: 40, lng: -100, alt: 2.2 },
+                      { label: "SA", lat: -15, lng: -60, alt: 2.0 },
+                      { label: "EU", lat: 50, lng: 15, alt: 1.8 },
+                      { label: "AF", lat: 5, lng: 22, alt: 2.0 },
+                      { label: "ME", lat: 27, lng: 45, alt: 1.6 },
+                      { label: "AS", lat: 35, lng: 105, alt: 2.2 },
+                      { label: "OC", lat: -25, lng: 135, alt: 2.0 },
+                    ] as const).map((c) => (
+                      <button
+                        key={c.label}
+                        type="button"
+                        onClick={() => {
+                          onGeoZoomTo(c.lat, c.lng, c.alt);
+                          setSelectedGeoEntity({ kind: "continent", id: c.label, name: c.label, lat: c.lat, lng: c.lng });
+                        }}
+                        className="rounded border border-white/15 bg-[rgba(10,10,14,0.75)] px-1.5 py-0.5 text-[8px] font-semibold tracking-[0.06em] text-white/50 transition hover:border-[#D4AF37]/50 hover:text-[#D4AF37] backdrop-blur-sm"
+                      >
+                        {c.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {/* MapboxSatelliteView — Satellite mode */}
+                {mapMode === "satellite" && (
+                  <MapboxSatelliteView
+                    initialLat={Number(camera?.lat ?? 30)}
+                    initialLng={Number(camera?.lng ?? 20)}
+                    initialZoom={2}
+                    geoEvents={geoEvents}
+                    ships={activeShipTracking}
+                    overlayRoutes={activeRouteOverlays}
+                    markers={visibleMarkers}
+                    showPorts
+                    showAirports
+                    showMilitary
+                    showShips={overlayState.shipTracking}
+                    showEvents={overlayState.earthquakes || overlayState.conflicts || overlayState.wildfires}
+                  />
+                )}
+                {/* Globe canvas — Globe mode only */}
+                {mapMode === "globe" && <GlobeCanvas {...globeCanvasProps} />}
                 {/* Geo Context Panel — slides in on country/city click */}
                 <GeoContextPanel
                   entity={selectedGeoEntity}
