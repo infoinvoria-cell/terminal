@@ -8,7 +8,14 @@ import {
 import {
   ABOUT_STRATEGIES, ABOUT_COMPARISON, ABOUT_INVESTOR,
   ABOUT_RISK, ABOUT_TRACK_RECORD, ABOUT_ZEITHORIZONT, ABOUT_ECKDATEN,
+  ABOUT_WS_SLEEVES, ABOUT_CI_ALLOC, ABOUT_CORRELATION,
 } from "@/lib/about/about-data";
+
+const SHADES = ["#e2ca7a", "rgba(226,202,122,0.62)", "rgba(226,202,122,0.38)", "rgba(255,255,255,0.18)", "rgba(255,255,255,0.10)"];
+const ALLOC: Record<string, { label: string; pct: number }[]> = {
+  ws: ABOUT_WS_SLEEVES.map((s) => ({ label: s.label, pct: s.pct })),
+  ci: [...ABOUT_CI_ALLOC],
+};
 
 const BG      = "#0c0d10";
 const CARD    = "linear-gradient(180deg,#1c1d20 0%,#141517 100%)";
@@ -84,6 +91,14 @@ export function MobileAboutView() {
             ))}
           </div>
 
+          {/* Allocation bar */}
+          <div style={{ marginBottom: 12 }}>
+            <p style={{ margin: "0 0 6px", fontSize: 8, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: MUTED, fontFamily: M }}>
+              {s.id === "ws" ? "Sleeve-Verteilung · 35 Strategien" : "Gewichtung v2.0"}
+            </p>
+            <MAllocBar segments={ALLOC[s.id]} />
+          </div>
+
           {/* Details */}
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {s.details.map((d) => (
@@ -125,6 +140,17 @@ export function MobileAboutView() {
               ))}
             </tbody>
           </table>
+        </div>
+      </MCard>
+
+      {/* KORRELATION ZU SPY */}
+      <MCard style={{ marginBottom: 12 }}>
+        <SHead icon={<Target size={12} />} label="Korrelation zu SPY" />
+        <p style={{ margin: "4px 0 0", fontSize: 9, color: MUTED, fontFamily: M }}>Geschätzt · niedriger = mehr Diversifikation</p>
+        <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+          {ABOUT_CORRELATION.map((c) => (
+            <MCorrBar key={c.name} name={c.name} corr={c.corr} accent={c.accent} />
+          ))}
         </div>
       </MCard>
 
@@ -200,6 +226,39 @@ function SHead({ icon, label }: { icon: React.ReactNode; label: string }) {
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
       <span style={{ color: ACCENT, flexShrink: 0 }}>{icon}</span>
       <p style={{ margin: 0, fontSize: 9, fontWeight: 600, color: ACCENT, textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: M }}>{label}</p>
+    </div>
+  );
+}
+
+function MAllocBar({ segments }: { segments: { label: string; pct: number }[] }) {
+  return (
+    <div>
+      <div style={{ display: "flex", height: 10, width: "100%", overflow: "hidden", borderRadius: 999, border: "1px solid rgba(255,255,255,0.06)" }}>
+        {segments.map((s, i) => (
+          <div key={s.label} style={{ width: `${s.pct}%`, background: SHADES[i % SHADES.length] }} />
+        ))}
+      </div>
+      <div style={{ marginTop: 7, display: "flex", flexWrap: "wrap", gap: "3px 12px" }}>
+        {segments.map((s, i) => (
+          <span key={s.label} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 9, color: MUTED, fontFamily: M }}>
+            <span style={{ width: 6, height: 6, borderRadius: 999, background: SHADES[i % SHADES.length] }} />
+            {s.label} <span style={{ color: "rgba(255,255,255,0.8)" }}>{s.pct}%</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MCorrBar({ name, corr, accent }: { name: string; corr: number; accent: boolean }) {
+  const w = Math.max(2, Math.min(100, ((corr + 0.1) / 1.1) * 100));
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <span style={{ width: 82, flexShrink: 0, fontSize: 10, fontWeight: accent ? 600 : 400, color: accent ? ACCENT : MUTED, fontFamily: M, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</span>
+      <div style={{ position: "relative", height: 8, flex: 1, overflow: "hidden", borderRadius: 999, background: "rgba(255,255,255,0.05)" }}>
+        <div style={{ position: "absolute", top: 0, bottom: 0, left: 0, borderRadius: 999, width: `${w}%`, background: accent ? ACCENT : "rgba(255,255,255,0.28)" }} />
+      </div>
+      <span style={{ width: 34, flexShrink: 0, textAlign: "right", fontSize: 10, fontWeight: 600, color: accent ? ACCENT : "rgba(255,255,255,0.7)", fontFamily: N }}>{corr.toFixed(2)}</span>
     </div>
   );
 }

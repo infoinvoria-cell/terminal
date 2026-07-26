@@ -114,6 +114,35 @@ export const ABOUT_ZEITHORIZONT = [
   { key: "Liquidität",      value: "Täglich handelbar" },
 ] as const;
 
+// White Swan Sleeve-Verteilung (aus 35 aktiven Strategien) — für Allocation-Balken
+export const ABOUT_WS_SLEEVES = [
+  { label: "Agrar",   n: 14, pct: 40.0 },
+  { label: "FX",      n: 8,  pct: 22.9 },
+  { label: "Metalle", n: 5,  pct: 14.3 },
+  { label: "Indizes", n: 5,  pct: 14.3 },
+  { label: "Energie", n: 3,  pct: 8.6  },
+] as const;
+
+// Core Invest Gewichtung v2.0 (frozen 2026-07-20) — für Allocation-Balken
+export const ABOUT_CI_ALLOC = [
+  { label: "QQQ Passiv",     pct: 45 },
+  { label: "Gold (GLD)",     pct: 25 },
+  { label: "Beta + Divers.", pct: 20 },
+  { label: "QQQ Tactical",   pct: 10 },
+] as const;
+
+// Korrelation zu SPY (numerisch, geschätzt) — für Korrelations-Balken
+export const ABOUT_CORRELATION = [
+  { name: "White Swan",     corr: 0.05,  accent: true  },
+  { name: "Core Invest",    corr: 0.75,  accent: true  },
+  { name: "S&P 500",        corr: 1.00,  accent: false },
+  { name: "Nasdaq 100",     corr: 0.90,  accent: false },
+  { name: "DAX",            corr: 0.80,  accent: false },
+  { name: "60/40",          corr: 0.65,  accent: false },
+  { name: "Gold",           corr: 0.05,  accent: false },
+  { name: "Anleihen (AGG)", corr: -0.05, accent: false },
+] as const;
+
 // Eckdaten & Aufbau
 export const ABOUT_ECKDATEN = [
   { key: "Live seit",   value: "Apr 2024 (White Swan)" },
