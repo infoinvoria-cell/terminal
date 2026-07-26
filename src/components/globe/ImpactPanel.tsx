@@ -15,7 +15,16 @@ type Props = {
   data: ImpactPanelData;
   onClose: () => void;
   onOpenChart?: (ticker: string) => void;
+  /** Live quote per display ticker (optional). */
+  quotes?: Record<string, { price: number; change: number }>;
 };
+
+function fmtPrice(p: number): string {
+  if (!Number.isFinite(p) || p <= 0) return "";
+  if (p >= 1000) return p.toLocaleString("en-US", { maximumFractionDigits: 0 });
+  if (p >= 1) return p.toFixed(2);
+  return p.toFixed(4);
+}
 
 function dirArrow(direction: ImpactDirection): string {
   if (direction === "up") return "↑";
@@ -29,7 +38,7 @@ function dirColor(direction: ImpactDirection): string {
   return "#eab308";
 }
 
-export default function ImpactPanel({ data, onClose, onOpenChart }: Props) {
+export default function ImpactPanel({ data, onClose, onOpenChart, quotes }: Props) {
   const arrow = dirArrow(data.direction);
   const color = dirColor(data.direction);
   return (
@@ -67,19 +76,29 @@ export default function ImpactPanel({ data, onClose, onOpenChart }: Props) {
           {data.event}
         </div>
         <div className="mb-2 flex flex-wrap gap-1">
-          {data.assets.map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => onOpenChart?.(t)}
-              className="flex items-center gap-0.5 rounded-[5px] px-1.5 py-[2px] text-[10px] font-semibold transition hover:brightness-125"
-              style={{ background: "rgba(255,255,255,0.06)", color: "#e5e5e5" }}
-              title={`Open chart · ${t}`}
-            >
-              {t}
-              <span style={{ color, fontWeight: 700 }}>{arrow}</span>
-            </button>
-          ))}
+          {data.assets.map((t) => {
+            const q = quotes?.[t];
+            const chg = q?.change ?? 0;
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() => onOpenChart?.(t)}
+                className="flex items-center gap-0.5 rounded-[5px] px-1.5 py-[2px] text-[10px] font-semibold transition hover:brightness-125"
+                style={{ background: "rgba(255,255,255,0.06)", color: "#e5e5e5" }}
+                title={`Open chart · ${t}`}
+              >
+                {t}
+                <span style={{ color, fontWeight: 700 }}>{arrow}</span>
+                {q && q.price > 0 && (
+                  <span className="ml-0.5 text-[9px] font-normal" style={{ color: chg >= 0 ? "#4ade80" : "#f87171" }}>
+                    {fmtPrice(q.price)}
+                    {Number.isFinite(chg) && chg !== 0 ? ` ${chg >= 0 ? "+" : ""}${chg.toFixed(1)}%` : ""}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
         <div className="text-[9.5px] leading-snug text-white/50">
           <span className="text-white/35">Grund: </span>

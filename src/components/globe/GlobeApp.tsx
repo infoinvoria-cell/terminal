@@ -20,7 +20,7 @@ import GlobeTimeline from "@/components/globe/GlobeTimeline";
 import GlobeSentinelChat from "@/components/globe/GlobeSentinelChat";
 import GlobePatternAlerts from "@/components/globe/GlobePatternAlerts";
 import type { GlobePattern } from "@/app/api/globe/pattern-detection/route";
-import { EVENT_IMPACT_MAP, REGION_LABELS, detectEventRegion, impactAssetIds } from "@/lib/globe/eventImpactMap";
+import { EVENT_IMPACT_MAP, REGION_LABELS, IMPACT_SYMBOL_TO_ID, detectEventRegion, impactAssetIds } from "@/lib/globe/eventImpactMap";
 import { AssetHeatmapPanel } from "@/components/globe/AssetHeatmapPanel";
 import { GlobeAnalyticsPanel } from "@/components/globe/GlobeAnalyticsPanel";
 import { SignalDetailPanel } from "@/components/globe/SignalDetailPanel";
@@ -2223,6 +2223,17 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
     setDismissedPatternIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
   }, []);
 
+  // Live quotes for the assets shown in the impact panel (keyed by display ticker).
+  const impactQuotes = useMemo(() => {
+    if (!impactPanel) return {} as Record<string, { price: number; change: number }>;
+    const out: Record<string, { price: number; change: number }> = {};
+    for (const t of impactPanel.assets) {
+      const id = IMPACT_SYMBOL_TO_ID[t];
+      if (id && globePrices[id] != null) out[t] = { price: globePrices[id], change: globeChanges[id] ?? 0 };
+    }
+    return out;
+  }, [impactPanel, globePrices, globeChanges]);
+
   const onToggleAsset = useCallback((assetId: string) => {
     setEnabledAssets((prev) => {
       const has = prev.includes(assetId);
@@ -3092,6 +3103,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                     data={impactPanel}
                     onClose={closeImpactPanel}
                     onOpenChart={handleImpactOpenChart}
+                    quotes={impactQuotes}
                   />
                 )}
                 {showTimeline && (
