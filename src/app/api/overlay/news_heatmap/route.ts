@@ -18,7 +18,7 @@ export type NewsHeatmapResponse = {
 // Country / city → normalized name (matches MiniWorldMap + GlobeCanvas normalizeCountryName)
 const COUNTRY_ALIASES: Record<string, string> = {
   "united states": "united states", "u.s.": "united states", "usa": "united states", "america": "united states", "washington": "united states",
-  "united kingdom": "united kingdom", " uk ": "united kingdom", "britain": "united kingdom", "london": "united kingdom",
+  "united kingdom": "united kingdom", "uk": "united kingdom", "britain": "united kingdom", "london": "united kingdom", "british": "united kingdom",
   "russia": "russia", "moscow": "russia", "kremlin": "russia",
   "china": "china", "beijing": "china",
   "germany": "germany", "berlin": "germany",
