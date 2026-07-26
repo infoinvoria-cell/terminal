@@ -2154,7 +2154,7 @@ export default function GlobeApp() {
     active: isPageActive,
     autoRotateEnabled: isPageActive && effectiveAutoRotateEnabled,
     autoRotateSpeed: effectiveAutoRotateSpeed,
-    goldThemeEnabled: false,
+    goldThemeEnabled,
     globePrices,
     newsHeatmapScores,
     onCameraChange,
@@ -2183,7 +2183,7 @@ export default function GlobeApp() {
                 enabledSet={enabledSet}
                 categoryEnabled={categoryEnabled}
                 selectedAssetId={selectedAssetId}
-                goldThemeEnabled={false}
+                goldThemeEnabled={goldThemeEnabled}
                 onSelectAsset={onSelectAssetFromWatchlist}
                 onToggleAsset={onToggleAsset}
                 onToggleCategory={onToggleCategory}
@@ -2272,7 +2272,7 @@ export default function GlobeApp() {
               regionHighlight={activeRegionHighlight}
               selectedOverlay={selectedOverlay}
               cameraAltitude={Number(camera?.altitude ?? 1.8)}
-              goldThemeEnabled={false}
+              goldThemeEnabled={goldThemeEnabled}
               assetUsage={assetUsage}
               newsHeatmapScores={newsHeatmapScores}
               newsHeatmapActive={overlayState.newsHeatmap}
@@ -2294,7 +2294,7 @@ export default function GlobeApp() {
               <GlobeNewsColumn
                 items={assetNews}
                 title={`${selectedAsset?.name ?? "Asset"} News`}
-                goldThemeEnabled={false}
+                goldThemeEnabled={goldThemeEnabled}
               />
             </div>
           </div>
@@ -2307,7 +2307,7 @@ export default function GlobeApp() {
               <GlobeNewsColumn
                 items={globalNews}
                 title="Global News"
-                goldThemeEnabled={false}
+                goldThemeEnabled={goldThemeEnabled}
               />
             </div>
           </div>
@@ -2389,13 +2389,13 @@ export default function GlobeApp() {
                     dataSource={dataSource}
                     title={chartHeaderLabel}
                     sourceLabel={chartSourceLabel}
-                    goldThemeEnabled={false}
+                    goldThemeEnabled={goldThemeEnabled}
                     themePrimary={GOLD_PRIMARY}
                     isPanelLoading={panelLoading}
                     isFullscreen={false}
                     active={isPageActive}
                     onToggleFullscreen={noop}
-                    loopReplayTick={0}
+                    loopReplayTick={visualLoopTick}
                     onTimeRangeChange={onSharedTimeRangeChange}
                     onRecentSignalChange={setRecentSignal}
                     onTimeframeChange={setChartTimeframe}
@@ -2432,6 +2432,21 @@ export default function GlobeApp() {
             aria-label="Exit fullscreen"
           >
             <Minimize2 size={15} strokeWidth={1.9} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setGlobeRotateMode((m) => m === "off" ? "slow" : "off")}
+            className={`absolute left-4 top-4 z-30 flex h-8 w-8 items-center justify-center rounded-md border transition ${
+              globeRotateMode !== "off"
+                ? "border-[#D4AF37]/70 text-[#D4AF37]"
+                : "border-white/15 text-white hover:border-white/40"
+            }`}
+            title={globeRotateMode !== "off" ? "Stop rotation" : "Auto-rotate globe"}
+            aria-label={globeRotateMode !== "off" ? "Stop rotation" : "Auto-rotate globe"}
+          >
+            {globeRotateMode !== "off"
+              ? <Pause size={13} strokeWidth={2} />
+              : <Play size={13} strokeWidth={2} />}
           </button>
           <GlobeCanvas {...globeCanvasProps} />
         </div>
