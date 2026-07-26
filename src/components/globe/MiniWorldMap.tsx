@@ -701,7 +701,7 @@ export function MiniWorldMap({
         .map((route) => ({
           id: route.id,
           d: routeCurvePath(route.path ?? []),
-          color: String(route.color || "rgba(212,175,55,0.3)"),
+          color: String(route.color || "rgba(200,200,200,0.3)"),
           width: Number(route.lineWidth ?? 0.5),
         }))
         .filter((row) => Boolean(row.d)),
@@ -727,7 +727,7 @@ export function MiniWorldMap({
     return out;
   }, [assetMarkers, overlayMarkers]);
 
-  const themePrimaryHex = goldThemeEnabled ? "#e2ca7a" : "#d4d4d8";
+  const themePrimaryHex = "#d4d4d8";
   const themePrimaryFill = goldThemeEnabled ? "rgba(226,202,122,0.68)" : "rgba(212,212,216,0.65)";
   const themeStroke = goldThemeEnabled ? "rgba(226,202,122,0.62)" : "rgba(200,200,208,0.60)";
   const themeLandBase = goldThemeEnabled ? "rgba(86,74,43,0.20)" : "rgba(72,72,80,0.22)";
@@ -818,9 +818,9 @@ export function MiniWorldMap({
           const { x, y } = project(focusLng, focusLat);
           return (
             <g pointerEvents="none">
-              <circle cx={x} cy={y} r={10} fill="none" stroke="rgba(212,175,55,0.55)" strokeWidth={0.8} vectorEffect="non-scaling-stroke" />
-              <line x1={x - 16} y1={y} x2={x + 16} y2={y} stroke="rgba(212,175,55,0.5)" strokeWidth={0.7} vectorEffect="non-scaling-stroke" />
-              <line x1={x} y1={y - 16} x2={x} y2={y + 16} stroke="rgba(212,175,55,0.5)" strokeWidth={0.7} vectorEffect="non-scaling-stroke" />
+              <circle cx={x} cy={y} r={10} fill="none" stroke="rgba(200,200,200,0.55)" strokeWidth={0.8} vectorEffect="non-scaling-stroke" />
+              <line x1={x - 16} y1={y} x2={x + 16} y2={y} stroke="rgba(200,200,200,0.5)" strokeWidth={0.7} vectorEffect="non-scaling-stroke" />
+              <line x1={x} y1={y - 16} x2={x} y2={y + 16} stroke="rgba(200,200,200,0.5)" strokeWidth={0.7} vectorEffect="non-scaling-stroke" />
             </g>
           );
         })() : null}
@@ -873,10 +873,10 @@ export function MiniWorldMap({
                 event.stopPropagation();
                 onSelectPoint(point);
               }}
-              className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-md px-1 py-[2px] text-[10px] leading-none shadow-[0_2px_8px_rgba(0,0,0,0.38)] transition ${
+              className={`absolute -tranneutral-x-1/2 -tranneutral-y-1/2 rounded-md px-1 py-[2px] text-[10px] leading-none shadow-[0_2px_8px_rgba(0,0,0,0.38)] transition ${
                 isSelected
-                  ? `${goldThemeEnabled ? "border-[#e2ca7a]/90 bg-[#e2ca7a]/24 text-[#fff3d1]" : "border-white/60 bg-white/10 text-white"} border`
-                  : `border border-slate-600/75 bg-[rgba(12,12,14,0.78)] text-slate-100 ${goldThemeEnabled ? "hover:border-[#e2ca7a]/60" : "hover:border-white/40"}`
+                  ? `${goldThemeEnabled ? "border-[#c8c8c8]/90 bg-[#c8c8c8]/24 text-[#ffffff]" : "border-white/60 bg-white/10 text-white"} border`
+                  : `border border-neutral-600/75 bg-[rgba(12,12,14,0.78)] text-neutral-100 ${goldThemeEnabled ? "hover:border-[#c8c8c8]/60" : "hover:border-white/40"}`
               }`}
               style={{ left: `${leftPct}%`, top: `${topPct}%` }}
               title={title}

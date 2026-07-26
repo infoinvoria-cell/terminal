@@ -348,17 +348,19 @@ function GlobeCanvasComponent({
   const [hoveredPointId, setHoveredPointId] = useState("");
   const [activeEvent, setActiveEvent] = useState<GeoEventItem | null>(null);
   const internalCameraRef = useRef<GlobeCameraState | null>(null);
-  const themePrimaryHex = goldThemeEnabled ? "#e2ca7a" : "#d4d4d8";
-  const themePrimarySoft = goldThemeEnabled ? "#c9a84a" : "#a1a1aa";
-  const themeFillStrong = goldThemeEnabled ? "rgba(226,202,122,0.84)" : "rgba(212,212,216,0.72)";
-  const themeFillSoft = goldThemeEnabled ? "rgba(226,202,122,0.70)" : "rgba(180,180,184,0.52)";
-  const themeFillOverlay = goldThemeEnabled ? "rgba(226,202,122,0.56)" : "rgba(160,160,164,0.38)";
-  const themeStrokeStrong = goldThemeEnabled ? "rgba(226,202,122,0.98)" : "rgba(228,228,231,0.95)";
-  const themeUiBg = goldThemeEnabled ? "rgba(17,14,9,0.90)" : "rgba(18,18,22,0.92)";
-  const themeUiBorder = goldThemeEnabled ? "rgba(226,202,122,0.55)" : "rgba(160,160,168,0.40)";
-  const themeUiText = goldThemeEnabled ? "#fff2d2" : "#e4e4e7";
-  const themeUiSubText = goldThemeEnabled ? "#e8d5a7" : "#a1a1aa";
-  const themeUiMuted = goldThemeEnabled ? "#d6be86" : "#71717a";
+  // Globe visuals are forced to a pure neutral grey/white palette — no gold,
+  // no blue — regardless of the app's gold theme. (Pure greys: r=g=b.)
+  const themePrimaryHex = "#d4d4d4";
+  const themePrimarySoft = "#a0a0a0";
+  const themeFillStrong = "rgba(214,214,214,0.72)";
+  const themeFillSoft = "rgba(180,180,180,0.52)";
+  const themeFillOverlay = "rgba(160,160,160,0.38)";
+  const themeStrokeStrong = "rgba(230,230,230,0.95)";
+  const themeUiBg = "rgba(18,18,18,0.92)";
+  const themeUiBorder = "rgba(160,160,160,0.40)";
+  const themeUiText = "#e6e6e6";
+  const themeUiSubText = "#a0a0a0";
+  const themeUiMuted = "#707070";
   const logoSrc = "/CAPITALIFE_Logo.png";
   const logoFallbackSrc = "/CAPITALIFE_Logo.png";
   const logoAlt = "Capitalife";
@@ -807,7 +809,7 @@ function GlobeCanvasComponent({
     for (const route of overlayRoutes) {
       const path = Array.isArray(route.path) ? route.path : [];
       if (path.length < 2) continue;
-      const baseColor = String(route.color || "rgba(212,175,55,0.35)");
+      const baseColor = String(route.color || "rgba(200,200,200,0.35)");
       const isOil = String(route.id || "").toLowerCase().includes("oil");
       const isContainer = String(route.id || "").toLowerCase().includes("cont");
       for (let i = 0; i < path.length - 1; i += 1) {
@@ -873,7 +875,7 @@ function GlobeCanvasComponent({
       lat: c.lat,
       lng: c.lng,
       name: c.name,
-      color: "#D4AF37",
+      color: "#c8c8c8",
     }));
   }, [detailLevel]);
 
@@ -1079,8 +1081,8 @@ function GlobeCanvasComponent({
         material.bumpMap = null;
         material.normalMap = null;
         material.specularMap = null;
-        material.color = new Color(goldThemeEnabled ? "#1a1711" : "#111111");
-        material.emissive = new Color(goldThemeEnabled ? "#2a2215" : "#0a0a0a");
+        material.color = new Color("#111111");
+        material.emissive = new Color("#0a0a0a");
         material.emissiveIntensity = 0.44;
         material.shininess = 0;
         material.specular = new Color("#000000");
@@ -1240,7 +1242,7 @@ function GlobeCanvasComponent({
       },
       1400,
     );
-    setRings([{ lat: Number(geoFocusTarget.lat), lng: Number(geoFocusTarget.lng), color: "#D4AF37" }]);
+    setRings([{ lat: Number(geoFocusTarget.lat), lng: Number(geoFocusTarget.lng), color: "#c8c8c8" }]);
     window.setTimeout(() => setRings([]), 1800);
     onGeoFocusHandled?.();
   }, [active, geoFocusTarget, onGeoFocusHandled, tweenCamera]);
@@ -1383,7 +1385,7 @@ function GlobeCanvasComponent({
           {overlayState.earthquakes ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#ffeb3b]" />Earthquakes: {geoEvents.filter((e) => String(e.type || "").includes("earthquake")).length}</div> : null}
           {overlayState.shippingDisruptions ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#ffac4d]" />Shipping Warnings: {shippingWarnCount}</div> : null}
           {overlayState.shipTracking ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#FFFFFF]" />Ships: {shipTracking.length}</div> : null}
-          {overlayState.oilRoutes ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#D4AF37]" />Oil Routes: {oilCount}</div> : null}
+          {overlayState.oilRoutes ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#c8c8c8]" />Oil Routes: {oilCount}</div> : null}
           {overlayState.containerTraffic ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#FFFFFF]" />Container Routes: {containerCount}</div> : null}
           {overlayState.commodityRegions ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#facc15]" />Commodity Regions: {commodityRegions.length}</div> : null}
           {overlayState.commodityStressMap ? <div className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-full bg-[#ff7a47]" />Commodity Stress: {stressCount}</div> : null}
@@ -1396,7 +1398,7 @@ function GlobeCanvasComponent({
       return (
         <div className="absolute bottom-2 right-2 z-10 rounded-lg border border-slate-600/55 bg-transparent px-2 py-1.5 text-[10px]">
           <div className="mb-1 font-semibold uppercase tracking-[0.12em] text-slate-200">Inflation</div>
-          <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(212,175,55,0.42)]" />&lt;2%</div>
+          <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(200,200,200,0.42)]" />&lt;2%</div>
           <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(76,175,80,0.60)]" />2-4%</div>
           <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(255,235,59,0.60)]" />4-6%</div>
           <div className="flex items-center gap-1"><span className="h-2.5 w-3 rounded-sm bg-[rgba(255,152,0,0.60)]" />6-8%</div>
@@ -1464,7 +1466,7 @@ function GlobeCanvasComponent({
       <div
         ref={stageRef}
         className="globe-stage absolute inset-0 z-[3] pointer-events-auto"
-        style={{ filter: `drop-shadow(0 0 10px ${goldThemeEnabled ? "rgba(226,202,122,0.22)" : "rgba(255,255,255,0.08)"})` }}
+        style={{ filter: `drop-shadow(0 0 10px ${goldThemeEnabled ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.08)"})` }}
       >
         <Globe
           ref={globeRef}
@@ -1478,7 +1480,7 @@ function GlobeCanvasComponent({
             : OCEAN_TEXTURE}
           backgroundColor="rgba(0,0,0,0)"
           showAtmosphere
-          atmosphereColor={satelliteMode ? "#888888" : goldThemeEnabled ? "#e2ca7a" : "#333333"}
+          atmosphereColor={satelliteMode ? "#888888" : "#3a3a3a"}
           atmosphereAltitude={satelliteMode ? 0.18 : 0.05}
           polygonsTransitionDuration={0}
           showGraticules={satelliteMode}
@@ -1597,13 +1599,13 @@ function GlobeCanvasComponent({
               dot.style.width = "3px";
               dot.style.height = "3px";
               dot.style.borderRadius = "50%";
-              dot.style.background = "#D4AF37";
+              dot.style.background = "#c8c8c8";
               el.appendChild(dot);
               const tx = document.createElement("span");
               tx.innerText = String(d.name || "").toUpperCase();
               tx.style.fontSize = "8px";
               tx.style.letterSpacing = "0.08em";
-              tx.style.color = "#D4AF37";
+              tx.style.color = "#c8c8c8";
               tx.style.fontWeight = "600";
               tx.style.whiteSpace = "nowrap";
               el.appendChild(tx);
@@ -1615,8 +1617,8 @@ function GlobeCanvasComponent({
               dot.style.width = "8px";
               dot.style.height = "8px";
               dot.style.borderRadius = "50%";
-              dot.style.background = String(d.color || "#D4AF37");
-              dot.style.boxShadow = `0 0 8px ${String(d.color || "#D4AF37")}`;
+              dot.style.background = String(d.color || "#c8c8c8");
+              dot.style.boxShadow = `0 0 8px ${String(d.color || "#c8c8c8")}`;
               if (!d.signalInPosition) {
                 // PENDING → pulsing white
                 dot.style.animation = "clfSignalPulse 1.4s ease-in-out infinite";
@@ -1635,7 +1637,7 @@ function GlobeCanvasComponent({
               const icon = document.createElement("span");
               icon.innerText = d.isCluster ? `${d.clusterCount}x` : eventIcon(String(d.eventType || ""));
               icon.style.fontSize = "10px";
-              icon.style.color = goldThemeEnabled ? "#ffd58a" : "#ffd287";
+              icon.style.color = "#d0d0d0";
               icon.style.fontWeight = "700";
               // Conflict intensity → pulse speed (high severity pulses faster)
               if (String(d.eventType || "") === "conflict") {
@@ -1732,12 +1734,12 @@ function GlobeCanvasComponent({
               dot.style.height = `${sz}px`;
               dot.style.borderRadius = "50%";
               dot.style.background = wt >= 0.85
-                ? "#D4AF37"
+                ? "#c8c8c8"
                 : wt >= 0.6
-                  ? "rgba(212,175,55,0.75)"
+                  ? "rgba(200,200,200,0.75)"
                   : "rgba(160,160,180,0.6)";
               dot.style.boxShadow = wt >= 0.85
-                ? `0 0 ${sz * 2}px rgba(212,175,55,0.55)`
+                ? `0 0 ${sz * 2}px rgba(200,200,200,0.55)`
                 : `0 0 ${sz}px rgba(180,180,200,0.3)`;
               dot.style.animation = wt >= 0.85 ? "clfCityPulse 2.4s ease-in-out infinite" : "";
               el.appendChild(dot);
@@ -1872,7 +1874,7 @@ function GlobeCanvasComponent({
             }
             // All-grey land fill (no gold, no blue) — same in gold & default theme.
             if (selectedOverlay === "none") {
-              return "rgba(58,58,64,0.55)";
+              return "rgba(60,60,60,0.55)";
             }
             return base;
           }}
@@ -1924,7 +1926,7 @@ function GlobeCanvasComponent({
             }
             // All-grey country outlines (no gold, no blue) in both themes.
             if (selectedOverlay === "none") {
-              return "rgba(170,170,178,0.6)";
+              return "rgba(175,175,175,0.6)";
             }
             return polygonStrokeColor(selectedOverlay, f, policyRateByCountry);
           }}
@@ -1970,7 +1972,7 @@ function GlobeCanvasComponent({
             <button
               type="button"
               onClick={() => setActiveEvent(null)}
-              className={`rounded border border-slate-700/60 px-1 py-0 text-[9px] text-slate-300 transition ${goldThemeEnabled ? "hover:border-[#e2ca7a]/55 hover:text-[#fff3d1]" : "hover:border-white/30 hover:text-white"}`}
+              className="rounded border border-neutral-700/60 px-1 py-0 text-[9px] text-neutral-300 transition hover:border-white/30 hover:text-white"
             >
               close
             </button>
@@ -1999,7 +2001,7 @@ function GlobeCanvasComponent({
               href={String(activeEvent.url)}
               target="_blank"
               rel="noreferrer"
-              className={`mt-1 inline-block text-[10px] underline underline-offset-2 ${goldThemeEnabled ? "text-[#ffd58a] decoration-[#e2ca7a]/65" : "text-zinc-300 decoration-white/40"}`}
+              className="mt-1 inline-block text-[10px] underline underline-offset-2 text-zinc-300 decoration-white/40"
             >
               Open source
             </a>

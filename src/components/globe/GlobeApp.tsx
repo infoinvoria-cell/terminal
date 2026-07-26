@@ -51,7 +51,7 @@ const GlobeSeasonalityChart = lazy(() => import("@/components/globe/charts/Globe
 const ASSET_USAGE_STORAGE_KEY = "clf_globe_asset_usage_v1";
 const DATA_SOURCE_STORAGE_KEY = "clf_globe_data_source_v2";
 const GOLD_THEME_STORAGE_KEY = "clf_globe_gold_theme_v1";
-const GOLD_PRIMARY = "#e2ca7a";
+const GOLD_PRIMARY = "#c8c8c8";
 const noop = () => {};
 
 const GLOBE_ICON_MAP: Record<string, string> = {
@@ -1793,7 +1793,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
       name: "Capitalife HQ",
       lat: 50.11,
       lng: 8.68,
-      color: "#e2ca7a",
+      color: "#c8c8c8",
       category: "Locations",
       iconKey: "hq",
       symbol: "",
@@ -1823,7 +1823,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
       const asset = bySymbol.get(String(sig.symbol).toUpperCase());
       if (!asset) continue;
       const dir = sig.direction.toUpperCase();
-      const color = !sig.inPosition ? "#FFFFFF" : dir === "SHORT" ? "#FF3333" : "#D4AF37";
+      const color = !sig.inPosition ? "#FFFFFF" : dir === "SHORT" ? "#FF3333" : "#c8c8c8";
       const price = globePrices[asset.id];
       const priceStr = typeof price === "number" && Number.isFinite(price)
         ? (price >= 1000 ? price.toLocaleString("en-US", { maximumFractionDigits: 0 }) : price.toFixed(2))
@@ -1873,7 +1873,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
       country: c.countryName,
       locationLabel: `${c.name}, ${c.countryName}`,
       icon: "●",
-      color: c.weight >= 0.85 ? "#D4AF37" : "rgba(200,200,210,0.7)",
+      color: c.weight >= 0.85 ? "#c8c8c8" : "rgba(200,200,210,0.7)",
       lat: c.lat,
       lng: c.lng,
       label: c.name,
@@ -2081,7 +2081,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
       lat: 40.71,
       lng: -74.01,
       country: "—",
-      color: "#D4AF37",
+      color: "#c8c8c8",
       defaultEnabled: true,
       showOnGlobe: true,
       locations: [],
@@ -2212,7 +2212,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   const avgReturnPct = Math.max(0, Math.min(100, Math.abs(finiteOr(avgReturn, 0)) * 18));
   const sharpePct = Math.max(0, Math.min(100, Math.abs(finiteOr(seasonSharpe, 0)) * 32));
   const sortinoPct = Math.max(0, Math.min(100, Math.abs(finiteOr(seasonSortino, 0)) * 24));
-  const neutralAccent = goldThemeEnabled ? GOLD_PRIMARY : "#4d87fe";
+  const neutralAccent = goldThemeEnabled ? GOLD_PRIMARY : "#9a9a9a";
   const colorizeRiskMetric = (value: number): string => {
     const v = Math.abs(finiteOr(value, 0));
     if (seasonStats.interpretation === "No seasonal edge") return designTokens.signal.bear;
@@ -2371,8 +2371,8 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                   gap: 5,
                   padding: "5px 10px",
                   borderRadius: 20,
-                  border: active ? "1px solid rgba(212,175,55,0.55)" : "1px solid rgba(255,255,255,0.08)",
-                  background: active ? "rgba(212,175,55,0.12)" : "rgba(255,255,255,0.03)",
+                  border: active ? "1px solid rgba(200,200,200,0.55)" : "1px solid rgba(255,255,255,0.08)",
+                  background: active ? "rgba(200,200,200,0.12)" : "rgba(255,255,255,0.03)",
                   cursor: "pointer",
                   whiteSpace: "nowrap",
                 }}
@@ -2418,8 +2418,8 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
               onClick={() => setMapMode("globe")}
               style={{
                 padding: "3px 8px", borderRadius: 14, fontSize: 10, fontWeight: 700, cursor: "pointer",
-                border: mapMode === "globe" ? "1px solid rgba(212,175,55,0.6)" : "1px solid rgba(255,255,255,0.12)",
-                background: mapMode === "globe" ? "rgba(212,175,55,0.15)" : "rgba(6,7,10,0.7)",
+                border: mapMode === "globe" ? "1px solid rgba(200,200,200,0.6)" : "1px solid rgba(255,255,255,0.12)",
+                background: mapMode === "globe" ? "rgba(200,200,200,0.15)" : "rgba(6,7,10,0.7)",
                 color: mapMode === "globe" ? "#d4af37" : "rgba(255,255,255,0.4)",
               }}
             >🌍 Globe</button>
@@ -2456,7 +2456,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
             type="button"
             onClick={() => setGlobeRotateMode((m) => m === "off" ? "slow" : "off")}
             className={`absolute right-10 top-2 z-30 flex h-7 w-7 items-center justify-center rounded-md border transition ${
-              globeRotateMode !== "off" ? "border-[#D4AF37]/70 text-[#D4AF37]" : "border-white/15 text-white/50"
+              globeRotateMode !== "off" ? "border-[#c8c8c8]/70 text-[#c8c8c8]" : "border-white/15 text-white/50"
             }`}
           >
             {globeRotateMode !== "off" ? <Pause size={12} strokeWidth={2} /> : <Play size={12} strokeWidth={2} />}
@@ -2712,7 +2712,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                     onClick={() => setMapMode("globe")}
                     className={`flex h-7 items-center gap-1 rounded-md border px-2 text-[10px] font-semibold transition ${
                       mapMode === "globe"
-                        ? "border-[#D4AF37]/70 bg-[rgba(212,175,55,0.12)] text-[#D4AF37]"
+                        ? "border-[#c8c8c8]/70 bg-[rgba(200,200,200,0.12)] text-[#c8c8c8]"
                         : "border-white/15 text-white/40 hover:text-white/70"
                     }`}
                     title="3D Globe view"
@@ -2766,7 +2766,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                   onClick={() => setGlobeRotateMode((m) => m === "off" ? "slow" : "off")}
                   className={`absolute right-[5.5rem] top-3 z-30 flex h-7 w-7 items-center justify-center rounded-md border transition ${
                     globeRotateMode !== "off"
-                      ? "border-[#D4AF37]/70 text-[#D4AF37]"
+                      ? "border-[#c8c8c8]/70 text-[#c8c8c8]"
                       : "border-white/15 text-white hover:border-white/40"
                   }`}
                   title={globeRotateMode !== "off" ? "Stop rotation" : "Auto-rotate globe"}
@@ -2795,7 +2795,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                           onGeoZoomTo(c.lat, c.lng, c.alt);
                           setSelectedGeoEntity({ kind: "continent", id: c.label, name: c.label, lat: c.lat, lng: c.lng });
                         }}
-                        className="rounded border border-white/15 bg-[rgba(10,10,14,0.75)] px-1.5 py-0.5 text-[8px] font-semibold tracking-[0.06em] text-white/50 transition hover:border-[#D4AF37]/50 hover:text-[#D4AF37] backdrop-blur-sm"
+                        className="rounded border border-white/15 bg-[rgba(10,10,14,0.75)] px-1.5 py-0.5 text-[8px] font-semibold tracking-[0.06em] text-white/50 transition hover:border-[#c8c8c8]/50 hover:text-[#c8c8c8] backdrop-blur-sm"
                       >
                         {c.label}
                       </button>
@@ -3015,7 +3015,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
             onClick={() => setGlobeRotateMode((m) => m === "off" ? "slow" : "off")}
             className={`absolute left-4 top-4 z-30 flex h-8 w-8 items-center justify-center rounded-md border transition ${
               globeRotateMode !== "off"
-                ? "border-[#D4AF37]/70 text-[#D4AF37]"
+                ? "border-[#c8c8c8]/70 text-[#c8c8c8]"
                 : "border-white/15 text-white hover:border-white/40"
             }`}
             title={globeRotateMode !== "off" ? "Stop rotation" : "Auto-rotate globe"}
