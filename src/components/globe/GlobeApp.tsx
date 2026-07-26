@@ -404,7 +404,7 @@ function newsScore(title: string, description?: string): number {
 
 function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
   const [filter, setFilter] = useState<NewsFilter>("all");
-  const [sort, setSort] = useState<NewsSort>("score");
+  const [sort, setSort] = useState<NewsSort>("newest");
 
   const filtered = useMemo(() => {
     // Drop crypto headlines + non-finance noise (sports/entertainment with no finance signal)
@@ -426,6 +426,11 @@ function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
     if (sort === "score") {
       list = [...list].sort(
         (a, b) => newsScore(b.title ?? "", b.description) - newsScore(a.title ?? "", a.description),
+      );
+    } else {
+      // Newest first — sort explicitly so it doesn't rely on upstream order.
+      list = [...list].sort((a, b) =>
+        String(b.publishedAt ?? b.timestamp ?? "").localeCompare(String(a.publishedAt ?? a.timestamp ?? "")),
       );
     }
     return list;
