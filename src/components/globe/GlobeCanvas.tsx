@@ -1936,7 +1936,7 @@ function GlobeCanvasComponent({
           arcStartLng="startLng"
           arcEndLat="endLat"
           arcEndLng="endLng"
-          arcColor={(d: any) => [String(d.color || themePrimaryHex), String(d.color || themePrimaryHex)]}
+          arcColor={() => ["rgba(190,190,190,0.85)", "rgba(140,140,140,0.35)"]}
           arcStroke={(d: any) => (d.kind === "overlay" ? 0.28 : 0.32)}
           arcAltitude={(d: any) => Number(d.altitude ?? 0.22)}
           arcDashLength={1}

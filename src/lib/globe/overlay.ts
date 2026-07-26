@@ -125,7 +125,7 @@ export function countryNameOf(feature: GeoFeature): string {
 
 export function inflationColor(v: number | undefined): string {
   if (v == null || Number.isNaN(v)) return "rgba(72, 72, 80, 0.20)";
-  if (v < 2) return "rgba(212, 175, 55, 0.42)";
+  if (v < 2) return "rgba(140, 140, 140, 0.42)";
   if (v < 4) return "rgba(76, 175, 80, 0.60)";
   if (v < 6) return "rgba(255, 235, 59, 0.60)";
   if (v < 8) return "rgba(255, 152, 0, 0.62)";
@@ -147,7 +147,7 @@ export function policyRateStroke(move: string | undefined): string {
   const m = String(move || "hold").toLowerCase();
   if (m === "up") return "rgba(255,56,76,0.84)";
   if (m === "down") return "rgba(57,255,64,0.84)";
-  return "rgba(212,175,55,0.56)";
+  return "rgba(150,150,150,0.5)";
 }
 
 function commodityRegionOf(feature: GeoFeature): string {
@@ -177,7 +177,7 @@ function majorBucketOf(feature: GeoFeature): string {
 }
 
 function commodityColor(value: number | undefined): string {
-  if (value == null || Number.isNaN(value) || Number(value) <= 0) return "rgba(52, 86, 136, 0.24)";
+  if (value == null || Number.isNaN(value) || Number(value) <= 0) return "rgba(58, 58, 58, 0.35)";
   const v = Math.max(0, Math.min(1, Number(value)));
   const alpha = 0.45 + v * 0.22;
   return `rgba(255, 149, 64, ${alpha.toFixed(3)})`;
@@ -191,17 +191,17 @@ export function polygonColor(
   commodityByRegion: Record<string, number>,
 ): string {
   if (mode === "none" || mode === "volatility") {
-    return "rgba(52, 86, 136, 0.24)";
+    return "rgba(58, 58, 58, 0.35)";
   }
   if (mode === "inflation") {
     const bucket = majorBucketOf(feature);
-    if (!bucket || !MAJOR_BUCKETS.has(bucket)) return "rgba(52, 86, 136, 0.24)";
+    if (!bucket || !MAJOR_BUCKETS.has(bucket)) return "rgba(58, 58, 58, 0.35)";
     const value = normalizeMapValue(inflationByCountry, bucket);
     return inflationColor(value);
   }
   if (mode === "policy_rate") {
     const bucket = majorBucketOf(feature);
-    if (!bucket || !MAJOR_BUCKETS.has(bucket)) return "rgba(52, 86, 136, 0.24)";
+    if (!bucket || !MAJOR_BUCKETS.has(bucket)) return "rgba(58, 58, 58, 0.35)";
     const item = normalizeMapValue(policyRateByCountry, bucket);
     return policyRateColor(item?.rate);
   }
@@ -210,7 +210,7 @@ export function polygonColor(
     const value = Number(commodityByRegion[region] ?? 0);
     return commodityColor(value);
   }
-  return "rgba(52, 86, 136, 0.24)";
+  return "rgba(58, 58, 58, 0.35)";
 }
 
 export function polygonStrokeColor(
@@ -219,10 +219,10 @@ export function polygonStrokeColor(
   policyRateByCountry: Record<string, PolicyRateCountryEntry>,
 ): string {
   if (mode !== "policy_rate") {
-    return "rgba(212,175,55,0.58)";
+    return "rgba(175,175,175,0.55)";
   }
   const bucket = majorBucketOf(feature);
-  if (!bucket || !MAJOR_BUCKETS.has(bucket)) return "rgba(212,175,55,0.34)";
+  if (!bucket || !MAJOR_BUCKETS.has(bucket)) return "rgba(150,150,150,0.4)";
   const item = normalizeMapValue(policyRateByCountry, bucket);
   return policyRateStroke(item?.lastMove);
 }
