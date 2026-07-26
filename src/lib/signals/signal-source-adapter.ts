@@ -932,6 +932,28 @@ async function loadCandlesForSource(source: SignalSource): Promise<MonitoringCan
       .gt("close", 0)
       .order("date", { ascending: false })
       .limit(5000);
+    // Fallback to invest_ohlc for Core Invest ETFs
+    const INVEST_OHLC_SYMBOLS = new Set(["QQQ", "SPY", "SPMO", "GLD"]);
+    if (!data?.length && INVEST_OHLC_SYMBOLS.has(source.symbol)) {
+      const { data: iData } = await db
+        .from("invest_ohlc")
+        .select("date,open,high,low,close")
+        .eq("symbol", source.symbol)
+        .gt("close", 0)
+        .order("date", { ascending: false })
+        .limit(5000);
+      if (iData?.length) {
+        const iBars = iData.reverse().map((r) => ({
+          time: String(r.date).slice(0, 10),
+          open: Number(r.open),
+          high: Number(r.high),
+          low: Number(r.low),
+          close: Number(r.close),
+        })).filter((b) => b.time && b.open > 0 && b.high > 0 && b.low > 0 && b.close > 0 && b.low <= b.high);
+        return iBars;
+      }
+    }
+
     if (!data?.length) return [];
     const bars = data
       .reverse()

@@ -37,7 +37,7 @@ export function MobileAboutView() {
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
         <Info size={14} color={ACCENT} />
         <div>
-          <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: N }}>Info Panel</p>
+          <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: N }}>Bibel</p>
           <p style={{ margin: 0, fontSize: 9, color: MUTED, fontFamily: M }}>Intern · kein Angebot · nicht geprüft</p>
         </div>
       </div>
@@ -75,7 +75,7 @@ export function MobileAboutView() {
                 <p style={{ margin: 0, fontSize: 9, color: MUTED, fontFamily: M }}>{st.label}</p>
                 <p style={{
                   margin: "2px 0 0", fontSize: 18, fontWeight: 700, fontFamily: N,
-                  color: st.color === "green" ? "#4ade80" : st.color === "red" ? "#a1a1aa" : "#fff",
+                  color: st.color === "gold" ? ACCENT : st.color === "red" ? "#a1a1aa" : "#fff",
                 }}>
                   {st.value}
                 </p>
@@ -103,7 +103,7 @@ export function MobileAboutView() {
           <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 440 }}>
             <thead>
               <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-                {["Asset","CAGR","Max DD","Sharpe","Calmar","Horizont"].map(h => (
+                {["Asset","CAGR","Max DD","Sharpe","Calmar","Horizont","Korr. SPY"].map(h => (
                   <th key={h} style={{ padding: "4px 8px", textAlign: "left", fontSize: 9, fontWeight: 600, color: MUTED, textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: M, whiteSpace: "nowrap" }}>{h}</th>
                 ))}
               </tr>
@@ -115,11 +115,12 @@ export function MobileAboutView() {
                     {r.name}
                     {r.tag && <span style={{ marginLeft: 4, fontSize: 8, fontWeight: 600, background: r.accent ? "rgba(226,202,122,0.15)" : "rgba(255,255,255,0.06)", color: r.accent ? ACCENT : MUTED, padding: "1px 4px", borderRadius: 3 }}>{r.tag}</span>}
                   </td>
-                  <td style={{ padding: "5px 8px", fontSize: 11, fontWeight: 600, color: "#4ade80", fontFamily: N }}>{r.cagr}</td>
+                  <td style={{ padding: "5px 8px", fontSize: 11, fontWeight: 600, color: ACCENT, fontFamily: N }}>{r.cagr}</td>
                   <td style={{ padding: "5px 8px", fontSize: 11, fontWeight: 600, color: "#f87171", fontFamily: N }}>{r.dd}</td>
                   <td style={{ padding: "5px 8px", fontSize: 11, color: "#fff", fontFamily: N }}>{r.sharpe}</td>
                   <td style={{ padding: "5px 8px", fontSize: 11, color: "#fff", fontFamily: N }}>{r.calmar}</td>
                   <td style={{ padding: "5px 8px", fontSize: 10, color: MUTED, fontFamily: M, whiteSpace: "nowrap" }}>{r.horizon}</td>
+                  <td style={{ padding: "5px 8px", fontSize: 10, color: MUTED, fontFamily: M, whiteSpace: "nowrap" }}>{r.corrSpy}</td>
                 </tr>
               ))}
             </tbody>

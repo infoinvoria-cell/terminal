@@ -133,8 +133,8 @@ export default function AboutPage() {
 
 // ─── Primitives ───────────────────────────────────────────────────────────────
 
-function BigStat({ label, value, color }: { label: string; value: string; color: "green"|"red"|"white" }) {
-  const c = color === "green" ? "text-green-400" : color === "red" ? "text-zinc-400" : "text-white";
+function BigStat({ label, value, color }: { label: string; value: string; color: "gold"|"red"|"white" }) {
+  const c = color === "gold" ? "text-[color:var(--dash-accent)]" : color === "red" ? "text-zinc-400" : "text-white";
   return (
     <div className="rounded-[12px] border border-white/[0.05] bg-white/[0.03] px-4 py-3">
       <p className="mb-1.5 text-[10px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{label}</p>
@@ -178,9 +178,9 @@ function BadgeEl({ children, color }: { children: React.ReactNode; color: "gold"
   return <span className={`mt-1 shrink-0 rounded-full border px-3 py-1 text-[11px] font-semibold ${cls}`} style={{ fontFamily: M }}>{children}</span>;
 }
 
-function TRow({ name, tag, cagr, dd, sharpe, calmar, horizon, corr, accent }: {
+function TRow({ name, tag, cagr, dd, sharpe, calmar, horizon, corrSpy, accent }: {
   name: string; tag: string; cagr: string; dd: string;
-  sharpe: string; calmar: string; horizon: string; corr: string; accent: boolean;
+  sharpe: string; calmar: string; horizon: string; corrSpy: string; accent: boolean;
 }) {
   return (
     <tr className={accent ? "bg-[color:var(--dash-accent)]/[0.03]" : ""}>
@@ -188,12 +188,12 @@ function TRow({ name, tag, cagr, dd, sharpe, calmar, horizon, corr, accent }: {
         <span className={`text-[12px] font-medium ${accent ? "text-[color:var(--dash-accent)]" : "text-white"}`} style={{ fontFamily: M }}>{name}</span>
         {tag && <span className={`ml-1.5 rounded px-1 py-0.5 text-[9px] font-semibold ${accent ? "bg-[color:var(--dash-accent)]/15 text-[color:var(--dash-accent)]" : "bg-white/[0.06] text-zinc-500"}`}>{tag}</span>}
       </td>
-      <td className="px-5 py-2.5 text-[12px] font-semibold text-green-400" style={{ fontFamily: N }}>{cagr}</td>
+      <td className="px-5 py-2.5 text-[12px] font-semibold text-[color:var(--dash-accent)]" style={{ fontFamily: N }}>{cagr}</td>
       <td className="px-5 py-2.5 text-[12px] font-semibold text-red-400" style={{ fontFamily: N }}>{dd}</td>
       <td className="px-5 py-2.5 text-[12px] text-white" style={{ fontFamily: N }}>{sharpe}</td>
       <td className="px-5 py-2.5 text-[12px] text-white" style={{ fontFamily: N }}>{calmar}</td>
       <td className="px-5 py-2.5 text-[11px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{horizon}</td>
-      <td className="px-5 py-2.5 text-[11px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{corr}</td>
+      <td className="px-5 py-2.5 text-[11px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{corrSpy}</td>
     </tr>
   );
 }
