@@ -905,16 +905,18 @@ function CandleChartInner({
       crosshair: {
         mode: CrosshairMode.Normal,
         vertLine: {
-          color: "rgba(216,206,182,0.42)",
+          color: "rgba(216,206,182,0.85)",
           width: 1,
           style: LineStyle.Dashed,
-          labelBackgroundColor: "rgba(12,12,12,0.94)",
+          labelVisible: true,
+          labelBackgroundColor: "#2a2a2a",
         },
         horzLine: {
-          color: "rgba(216,206,182,0.42)",
+          color: "rgba(216,206,182,0.85)",
           width: 1,
           style: LineStyle.Dashed,
-          labelBackgroundColor: "rgba(12,12,12,0.94)",
+          labelVisible: true,
+          labelBackgroundColor: "#2a2a2a",
         },
       },
       handleScroll: {
@@ -955,12 +957,13 @@ function CandleChartInner({
         baseImplementation: () => { priceRange?: { minValue: number; maxValue: number }; margins?: { above: number; below: number } } | null,
       ) => {
         const base = baseImplementation();
-        // Use only the last 40 bars so compact charts don't flatten against historical extremes
-        const recent = currentBarsRef.current.slice(-40);
+        // Scale to roughly the visible window (~20 bars) so the candles fill the
+        // chart height instead of flattening against older extremes.
+        const recent = currentBarsRef.current.slice(-22);
         const trimmed = trimmedPriceRangeFromBars(recent);
         if (!trimmed) return base;
-        const span = trimmed.maxValue - trimmed.minValue;
-        const pad = span * 0.04;
+        const span = trimmed.maxValue - trimmed.minValue || Math.abs(trimmed.maxValue) * 0.01 || 1;
+        const pad = span * 0.06;
         return {
           ...(base ?? {}),
           priceRange: {

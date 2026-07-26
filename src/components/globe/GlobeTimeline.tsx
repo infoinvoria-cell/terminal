@@ -99,7 +99,7 @@ export default function GlobeTimeline({ geoEvents, selectedDay, onSelectDay, onC
       {/* Hover tooltip */}
       {hovered && hovered.events.length > 0 && (
         <div
-          className="absolute bottom-[52px] z-40 w-[210px] -translate-x-1/2 rounded-[8px] px-2.5 py-2"
+          className="absolute bottom-[34px] z-40 w-[210px] -translate-x-1/2 rounded-[8px] px-2.5 py-2"
           style={{
             left: `${((buckets.indexOf(hovered) + 0.5) / buckets.length) * 100}%`,
             background: "rgba(12,13,17,0.97)",
@@ -117,8 +117,8 @@ export default function GlobeTimeline({ geoEvents, selectedDay, onSelectDay, onC
         </div>
       )}
 
-      <div className="flex items-center gap-1 px-2 py-0.5" style={{ height: 48 }}>
-        <span className="shrink-0 text-[9px] font-bold uppercase tracking-[0.1em] text-[#D4AF37]">⏱ Timeline</span>
+      <div className="flex items-center gap-1 px-2" style={{ height: 30 }}>
+        <span className="shrink-0 text-[8px] font-semibold uppercase tracking-[0.08em] text-[#D4AF37]/80">⏱</span>
         <div className="relative flex h-full min-w-0 flex-1 items-end">
           {buckets.map((b) => {
             const isSel = selectedDay === b.date;
@@ -132,25 +132,25 @@ export default function GlobeTimeline({ geoEvents, selectedDay, onSelectDay, onC
                 onMouseEnter={() => setHoverDay(b.date)}
                 onMouseLeave={() => setHoverDay((d) => (d === b.date ? null : d))}
                 onClick={() => onSelectDay(isSel ? null : b.date)}
-                className="group relative flex h-full flex-1 flex-col items-center justify-end pb-2.5"
+                className="group relative flex h-full flex-1 flex-col items-center justify-end pb-1.5"
                 style={{ minWidth: 0 }}
                 title={b.date}
               >
                 {/* dots stacked */}
                 <div className="flex flex-col-reverse items-center gap-[1px]">
-                  {Array.from({ length: Math.min(red, 3) }).map((_, i) => (
-                    <span key={`r${i}`} className="h-[4px] w-[4px] rounded-full" style={{ background: dotHex("red") }} />
+                  {Array.from({ length: Math.min(red, 2) }).map((_, i) => (
+                    <span key={`r${i}`} className="h-[3px] w-[3px] rounded-full" style={{ background: dotHex("red") }} />
                   ))}
-                  {Array.from({ length: Math.min(orange, 3) }).map((_, i) => (
-                    <span key={`o${i}`} className="h-[4px] w-[4px] rounded-full" style={{ background: dotHex("orange") }} />
+                  {Array.from({ length: Math.min(orange, 2) }).map((_, i) => (
+                    <span key={`o${i}`} className="h-[3px] w-[3px] rounded-full" style={{ background: dotHex("orange") }} />
                   ))}
-                  {Array.from({ length: Math.min(gold, 2) }).map((_, i) => (
-                    <span key={`g${i}`} className="h-[4px] w-[4px] rounded-full" style={{ background: dotHex("gold") }} />
+                  {Array.from({ length: Math.min(gold, 1) }).map((_, i) => (
+                    <span key={`g${i}`} className="h-[3px] w-[3px] rounded-full" style={{ background: dotHex("gold") }} />
                   ))}
                 </div>
                 {/* tick / day marker */}
                 <div
-                  className="absolute bottom-0 h-[7px] w-px"
+                  className="absolute bottom-0 h-[5px] w-px"
                   style={{ background: isSel ? "#D4AF37" : "rgba(255,255,255,0.14)" }}
                 />
                 {isSel && (
