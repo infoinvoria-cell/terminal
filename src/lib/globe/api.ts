@@ -32,8 +32,26 @@ import type {
 const cache = new Map<string, { expires: number; value: unknown }>();
 const inflightRequests = new Map<string, Promise<unknown>>();
 
-// Persistent localStorage cache (survives reloads) — SSR & quota safe
-const LS_PREFIX = "clf_api_cache:";
+// Persistent localStorage cache (survives reloads) — SSR & quota safe.
+// The version segment invalidates ALL persisted caches when data shape/content
+// changes (e.g. asset universe). Bump LS_CACHE_VERSION on such changes so
+// returning users pick up fresh data immediately instead of after TTL expiry.
+const LS_CACHE_ROOT = "clf_api_cache:";
+const LS_CACHE_VERSION = "v2"; // bumped: Crypto→Forex asset universe change
+const LS_PREFIX = `${LS_CACHE_ROOT}${LS_CACHE_VERSION}:`;
+// One-time purge of any cache entries from older versions (or the unversioned
+// legacy prefix) so a data change reaches returning users on next load.
+(function lsPurgeStaleVersions() {
+  if (typeof window === "undefined") return;
+  try {
+    const toRemove: string[] = [];
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const k = window.localStorage.key(i);
+      if (k && k.startsWith(LS_CACHE_ROOT) && !k.startsWith(LS_PREFIX)) toRemove.push(k);
+    }
+    for (const k of toRemove) window.localStorage.removeItem(k);
+  } catch { /* ignore */ }
+})();
 function lsGet(url: string, now: number): unknown | undefined {
   if (typeof window === "undefined") return undefined;
   try {
