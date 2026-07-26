@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import {
-  Info, TrendingUp, TrendingDown, Activity, Target,
+  Info, TrendingUp, TrendingDown, Activity, Zap,
   Layers, Calendar, Clock, Globe, Shield, Wallet,
-  RefreshCw, BarChart2, Zap,
+  RefreshCw, BarChart2, Target, CheckCircle,
 } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Info Panel — Capitalife",
-  description: "Internes Infopanel: Strategien, Metriken, Investoren-Überblick.",
 };
 
 // Sources: white-swan-official-kpis.json · portfolio_f10_equity.json
@@ -20,103 +19,108 @@ export default function AboutPage() {
   return (
     <div className="relative flex h-full flex-col">
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
-        <div className="px-7 pb-20 pt-5">
+        <div className="px-8 pb-20 pt-5">
 
           {/* ── HEADER ─────────────────────────────────────────────────────── */}
-          <div className="mb-5 flex items-center gap-2.5">
-            <Info size={18} className="shrink-0 text-[color:var(--dash-accent)]" />
+          <div className="mb-6 flex items-center gap-2.5">
+            <Info size={16} className="shrink-0 text-[color:var(--dash-accent)]" />
             <div>
-              <h1 className="text-[14px] font-bold leading-none text-white" style={{ fontFamily: N }}>
-                Info Panel
-              </h1>
-              <p className="mt-0.5 text-[10px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>
-                Intern · kein Angebot · nicht geprüft
-              </p>
+              <h1 className="text-[13px] font-bold leading-none text-white" style={{ fontFamily: N }}>Info Panel</h1>
+              <p className="mt-0.5 text-[10px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>Intern · kein Angebot · nicht geprüft</p>
             </div>
           </div>
 
-          {/* ── ROW 1 — 3 Strategien nebeneinander ────────────────────────── */}
-          <div className="mb-4 grid grid-cols-3 gap-3">
+          {/* ── ROW 1 — ZWEI STRATEGIEN ────────────────────────────────────── */}
+          <div className="mb-5 grid grid-cols-2 gap-5">
 
-            {/* CFD Live */}
-            <Card accent>
-              <div className="mb-3 flex items-center justify-between">
+            {/* WHITE SWAN */}
+            <div className="rounded-[20px] border border-white/[0.07] bg-gradient-to-b from-[#1e1f22] to-[#151618] p-7 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.6)]">
+              <div className="mb-5 flex items-start justify-between">
                 <div>
-                  <CardLabel>Live · CFD-Strategie</CardLabel>
-                  <CardTitle>Intraday &amp; Swing</CardTitle>
+                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>
+                    01 · Futures · Walk-Forward OOS
+                  </p>
+                  <h2 className="text-[26px] font-bold text-white" style={{ fontFamily: N, letterSpacing: "-0.02em" }}>
+                    White Swan Portfolio
+                  </h2>
                 </div>
-                <Badge color="gold">Live</Badge>
+                <span className="mt-1 rounded-full border border-[color:var(--dash-accent)]/30 bg-[color:var(--dash-accent)]/10 px-3 py-1 text-[11px] font-semibold text-[color:var(--dash-accent)]" style={{ fontFamily: M }}>
+                  Unkorreliert
+                </span>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <StatRow icon={<TrendingUp size={12} className="text-green-400" />} label="Rendite p.a." value="+35.2%" green />
-                <StatRow icon={<TrendingDown size={12} className="text-red-400" />} label="Max DD" value="−11.8%" red />
-                <StatRow icon={<Activity size={12} />} label="Sharpe" value="1.60" />
-                <StatRow icon={<Zap size={12} />} label="Calmar" value="3.0" />
-                <StatRow icon={<Target size={12} />} label="Profit Factor" value="1.28" />
-                <StatRow icon={<Calendar size={12} />} label="Seit" value="Apr 2024" />
-              </div>
-            </Card>
 
-            {/* White Swan */}
-            <Card>
-              <div className="mb-3 flex items-center justify-between">
-                <div>
-                  <CardLabel>01 · Futures · OOS BT</CardLabel>
-                  <CardTitle>White Swan Portfolio</CardTitle>
-                </div>
-                <Badge color="gold">Unkorreliert</Badge>
+              {/* 4 big stat boxes */}
+              <div className="mb-5 grid grid-cols-4 gap-3">
+                <BigStat icon={<TrendingUp size={14} />} label="CAGR OOS" value="+4.6%" color="green" />
+                <BigStat icon={<TrendingDown size={14} />} label="Max DD" value="−4.4%" color="red" />
+                <BigStat icon={<Activity size={14} />} label="Sharpe" value="1.27" />
+                <BigStat icon={<Zap size={14} />} label="Calmar" value="1.04" />
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <StatRow icon={<TrendingUp size={12} className="text-green-400" />} label="CAGR OOS" value="+4.6%" green />
-                <StatRow icon={<TrendingDown size={12} className="text-red-400" />} label="Max DD" value="−4.4%" red />
-                <StatRow icon={<Activity size={12} />} label="Sharpe" value="1.27" />
-                <StatRow icon={<Zap size={12} />} label="Calmar" value="1.04" />
-                <StatRow icon={<Layers size={12} />} label="Strategien" value="35 aktiv" />
-                <StatRow icon={<Globe size={12} />} label="Sleeves" value="5 Märkte" />
-              </div>
-            </Card>
 
-            {/* Core Invest */}
-            <Card>
-              <div className="mb-3 flex items-center justify-between">
+              {/* Details grid */}
+              <div className="grid grid-cols-2 gap-x-8 gap-y-2.5">
+                <Row icon={<Layers size={12} />} k="Komponenten" v="35 aktive Strategien" />
+                <Row icon={<Globe size={12} />} k="Märkte" v="Agrar · Metalle · Indizes · Energie · Forex" />
+                <Row icon={<Clock size={12} />} k="Zeithorizont" v="1–30 Tage je Sleeve" />
+                <Row icon={<Calendar size={12} />} k="Backtest" v="OOS 2019–2026 · IS ab 2003" />
+                <Row icon={<CheckCircle size={12} />} k="Execution" v="Forward Tracking · kein Live-Konto" />
+                <Row icon={<Target size={12} />} k="Korrelation" v="Sehr niedrig zu Aktien" />
+              </div>
+            </div>
+
+            {/* CORE INVEST */}
+            <div className="rounded-[20px] border border-white/[0.07] bg-gradient-to-b from-[#1e1f22] to-[#151618] p-7 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.6)]">
+              <div className="mb-5 flex items-start justify-between">
                 <div>
-                  <CardLabel>02 · ETF / Aktien · OOS BT</CardLabel>
-                  <CardTitle>Core Invest</CardTitle>
+                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>
+                    02 · ETF / Aktien / Rohstoffe · OOS BT
+                  </p>
+                  <h2 className="text-[26px] font-bold text-white" style={{ fontFamily: N, letterSpacing: "-0.02em" }}>
+                    Core Invest
+                  </h2>
                 </div>
-                <Badge color="blue">Leicht korr.</Badge>
+                <span className="mt-1 rounded-full border border-blue-400/30 bg-blue-400/10 px-3 py-1 text-[11px] font-semibold text-blue-400" style={{ fontFamily: M }}>
+                  Leicht korreliert
+                </span>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <StatRow icon={<TrendingUp size={12} className="text-green-400" />} label="CAGR OOS" value="+17.1%" green />
-                <StatRow icon={<TrendingDown size={12} className="text-red-400" />} label="Max DD" value="−21.7%" red />
-                <StatRow icon={<Activity size={12} />} label="Sharpe" value="1.15" />
-                <StatRow icon={<Zap size={12} />} label="Calmar" value="0.79" />
-                <StatRow icon={<Layers size={12} />} label="Assets" value="8" />
-                <StatRow icon={<RefreshCw size={12} />} label="Rebalancing" value="Quartalsweise" />
+
+              <div className="mb-5 grid grid-cols-4 gap-3">
+                <BigStat icon={<TrendingUp size={14} />} label="CAGR OOS" value="+17.1%" color="green" />
+                <BigStat icon={<TrendingDown size={14} />} label="Max DD" value="−21.7%" color="red" />
+                <BigStat icon={<Activity size={14} />} label="Sharpe" value="1.15" />
+                <BigStat icon={<Zap size={14} />} label="Calmar" value="0.79" />
               </div>
-            </Card>
+
+              <div className="grid grid-cols-2 gap-x-8 gap-y-2.5">
+                <Row icon={<Layers size={12} />} k="Assets" v="8 Komponenten" />
+                <Row icon={<Globe size={12} />} k="Kern" v="QQQ 45% · GLD 25% · Sleeves 30%" />
+                <Row icon={<Clock size={12} />} k="Zeithorizont" v="Wochen – 12 Monate" />
+                <Row icon={<RefreshCw size={12} />} k="Rebalancing" v="Quartalsweise" />
+                <Row icon={<Calendar size={12} />} k="Backtest" v="OOS 2019–2026 · IS ab 2000" />
+                <Row icon={<CheckCircle size={12} />} k="Status" v="Approved · Frozen · kein Live-Konto" />
+              </div>
+            </div>
           </div>
 
           {/* ── ROW 2 — Vergleich + Investor/Risiko ───────────────────────── */}
-          <div className="mb-4 grid grid-cols-[1fr_260px] gap-3">
+          <div className="mb-5 grid grid-cols-[1fr_280px] gap-5">
 
-            {/* Comparison table */}
-            <Card noPad>
-              <div className="flex items-center gap-2 border-b border-white/[0.05] px-4 py-2.5">
-                <BarChart2 size={12} className="text-[color:var(--dash-accent)]" />
-                <CardLabel>Vergleich · Anlageklassen</CardLabel>
+            <div className="rounded-[20px] border border-white/[0.07] bg-gradient-to-b from-[#1e1f22] to-[#151618] shadow-[0_16px_40px_-16px_rgba(0,0,0,0.6)]">
+              <div className="flex items-center gap-2 border-b border-white/[0.05] px-6 py-3.5">
+                <BarChart2 size={13} className="text-[color:var(--dash-accent)]" />
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-[color:var(--dash-accent)]" style={{ fontFamily: M }}>Vergleich · Anlageklassen</p>
               </div>
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/[0.04]">
                     {["Strategie / Asset", "CAGR", "Max DD", "Sharpe", "Calmar", "Horizont", "Korr. zu WS"].map(h => (
-                      <th key={h} className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{h}</th>
+                      <th key={h} className="px-5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/[0.03]">
-                  <TR accent name="CFD Live-Strategie" tag="LV" cagr="+35.2%" dd="−11.8%" s="1.60" c="3.0" h="Intraday–Tage" k="—" />
                   <TR accent name="White Swan" tag="BT" cagr="+4.6%" dd="−4.4%" s="1.27" c="1.04" h="Tage–Wochen" k="—" />
-                  <TR name="Core Invest" tag="BT" cagr="+17.1%" dd="−21.7%" s="1.15" c="0.79" h="Wochen–Monate" k="mittel" />
+                  <TR accent name="Core Invest" tag="BT" cagr="+17.1%" dd="−21.7%" s="1.15" c="0.79" h="Wochen–Monate" k="mittel" />
                   <TR name="S&P 500" cagr="~10%" dd="−55%" s="~0.5" c="~0.2" h="Langfrist" k="niedrig" />
                   <TR name="DAX" cagr="~8%" dd="−60%" s="~0.4" c="~0.1" h="Langfrist" k="niedrig" />
                   <TR name="Gold" cagr="~7%" dd="−45%" s="~0.4" c="~0.2" h="Langfrist" k="mittel" />
@@ -124,16 +128,12 @@ export default function AboutPage() {
                   <TR name="Anleihen (AGG)" cagr="~3%" dd="−20%" s="~0.4" c="~0.2" h="Langfrist" k="sehr niedrig" />
                 </tbody>
               </table>
-            </Card>
+            </div>
 
-            {/* Investor + Risiko */}
-            <div className="flex flex-col gap-3">
-              <Card>
-                <div className="mb-2.5 flex items-center gap-2">
-                  <Wallet size={12} className="text-[color:var(--dash-accent)]" />
-                  <CardLabel>Für Investoren</CardLabel>
-                </div>
-                <div className="space-y-1.5">
+            <div className="flex flex-col gap-5">
+              <div className="flex-1 rounded-[20px] border border-white/[0.07] bg-gradient-to-b from-[#1e1f22] to-[#151618] p-5 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.6)]">
+                <SectionHead icon={<Wallet size={13} />} label="Für Investoren" />
+                <div className="mt-3 space-y-2.5">
                   <KV k="Liquidität"   v="Täglich" />
                   <KV k="Gebühren"     v="Keine" />
                   <KV k="Währung"      v="EUR / USD" />
@@ -141,67 +141,57 @@ export default function AboutPage() {
                   <KV k="Struktur"     v="Eigenhandel" />
                   <KV k="Regulierung"  v="Kein reg. Fonds" />
                 </div>
-              </Card>
-              <Card>
-                <div className="mb-2.5 flex items-center gap-2">
-                  <Shield size={12} className="text-[color:var(--dash-accent)]" />
-                  <CardLabel>Risikoprofil</CardLabel>
+              </div>
+              <div className="flex-1 rounded-[20px] border border-white/[0.07] bg-gradient-to-b from-[#1e1f22] to-[#151618] p-5 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.6)]">
+                <SectionHead icon={<Shield size={13} />} label="Risikoprofil" />
+                <div className="mt-3 space-y-2.5">
+                  <KV k="White Swan"  v="Niedrig (MaxDD ~4%)" />
+                  <KV k="Core Invest" v="Mittel (MaxDD ~22%)" />
+                  <KV k="Korrelation" v="WS zu Aktien: sehr niedrig" />
+                  <KV k="Leverage"    v="Variabel je Sleeve" />
                 </div>
-                <div className="space-y-1.5">
-                  <KV k="CFD"          v="Mittel–Hoch" />
-                  <KV k="White Swan"   v="Niedrig" />
-                  <KV k="Core Invest"  v="Mittel" />
-                  <KV k="Korrelation"  v="WS zu Aktien: sehr niedrig" />
-                  <KV k="Leverage"     v="Variabel" />
-                </div>
-              </Card>
+              </div>
             </div>
           </div>
 
-          {/* ── ROW 3 — Zeithorizont / Eckdaten / Track Record ────────────── */}
-          <div className="grid grid-cols-3 gap-3">
-            <Card>
-              <div className="mb-2.5 flex items-center gap-2">
-                <Clock size={12} className="text-[color:var(--dash-accent)]" />
-                <CardLabel>Zeithorizont</CardLabel>
+          {/* ── ROW 3 — Track Record + Zeithorizont + Eckdaten ───────────── */}
+          <div className="grid grid-cols-3 gap-5">
+            <div className="rounded-[20px] border border-white/[0.07] bg-gradient-to-b from-[#1e1f22] to-[#151618] p-5 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.6)]">
+              <SectionHead icon={<TrendingUp size={13} />} label="Track Record · Live CFD" />
+              <div className="mt-3 space-y-2.5">
+                <KV k="Periode"      v="Apr 2024 – Jul 2026" />
+                <KV k="Gesamt"       v="+97.2%" />
+                <KV k="Kompoundiert" v="+114.6%" />
+                <KV k="p.a."         v="+35.2%" />
+                <KV k="Calmar"       v="3.0" />
+                <KV k="Sharpe"       v="1.60" />
+                <KV k="Max DD"       v="−11.8%" />
+                <KV k="Profit Factor" v="1.28" />
+                <KV k="Quelle"       v="Broker-Statement" />
               </div>
-              <div className="space-y-1.5">
-                <KV k="CFD Intraday"  v="Minuten–Stunden" />
+            </div>
+            <div className="rounded-[20px] border border-white/[0.07] bg-gradient-to-b from-[#1e1f22] to-[#151618] p-5 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.6)]">
+              <SectionHead icon={<Clock size={13} />} label="Zeithorizont" />
+              <div className="mt-3 space-y-2.5">
+                <KV k="CFD Intraday"  v="Minuten – Stunden" />
                 <KV k="CFD Swing"     v="1–5 Tage" />
                 <KV k="White Swan"    v="1–30 Tage" />
-                <KV k="Core Invest"   v="Wochen–12 Monate" />
-                <KV k="WS IS-Periode" v="2003–2018" />
-                <KV k="CI IS-Periode" v="2000–2018" />
+                <KV k="Core Invest"   v="Wochen – 12 Monate" />
+                <KV k="WS Backtest"   v="OOS ab 2019 · IS ab 2003" />
+                <KV k="CI Backtest"   v="OOS ab 2019 · IS ab 2000" />
               </div>
-            </Card>
-            <Card>
-              <div className="mb-2.5 flex items-center gap-2">
-                <Globe size={12} className="text-[color:var(--dash-accent)]" />
-                <CardLabel>Eckdaten</CardLabel>
+            </div>
+            <div className="rounded-[20px] border border-white/[0.07] bg-gradient-to-b from-[#1e1f22] to-[#151618] p-5 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.6)]">
+              <SectionHead icon={<Globe size={13} />} label="Eckdaten" />
+              <div className="mt-3 space-y-2.5">
+                <KV k="Live seit"   v="Apr 2024" />
+                <KV k="WS Sleeves"  v="Agrar · Metalle · Indizes · Energie · Forex" />
+                <KV k="WS Assets"   v="29 Futures · 35 aktive Strategien" />
+                <KV k="CI Kern"     v="QQQ 45% · GLD 25% · Sleeves 30%" />
+                <KV k="Märkte"      v="Futures · CFD · ETF · FX" />
+                <KV k="Signale"     v="Vollautomatisch · regelbasiert" />
               </div>
-              <div className="space-y-1.5">
-                <KV k="Live seit"     v="Apr 2024" />
-                <KV k="WS Sleeves"    v="Agrar · Metalle · Indizes · Energie · Forex" />
-                <KV k="WS Assets"     v="29 Futures" />
-                <KV k="CI Kern"       v="QQQ 45% · GLD 25%" />
-                <KV k="Märkte"        v="Futures · CFD · ETF · FX" />
-                <KV k="Signale"       v="Vollautomatisch" />
-              </div>
-            </Card>
-            <Card>
-              <div className="mb-2.5 flex items-center gap-2">
-                <TrendingUp size={12} className="text-[color:var(--dash-accent)]" />
-                <CardLabel>Track Record · Live</CardLabel>
-              </div>
-              <div className="space-y-1.5">
-                <KV k="Periode"       v="Apr 2024 – Jul 2026" />
-                <KV k="Gesamt"        v="+97.2%" />
-                <KV k="Kompoundiert"  v="+114.6%" />
-                <KV k="p.a."          v="+35.2%" />
-                <KV k="Calmar"        v="3.0" />
-                <KV k="Quelle"        v="Broker-Statement" />
-              </div>
-            </Card>
+            </div>
           </div>
 
         </div>
@@ -218,61 +208,26 @@ export default function AboutPage() {
 
 // ─── Primitives ───────────────────────────────────────────────────────────────
 
-function Card({ children, noPad = false, accent = false }: {
-  children: React.ReactNode; noPad?: boolean; accent?: boolean;
+function BigStat({ icon, label, value, color }: {
+  icon: React.ReactNode; label: string; value: string; color?: "green" | "red";
 }) {
+  const valColor = color === "green" ? "text-green-400" : color === "red" ? "text-zinc-400" : "text-white";
   return (
-    <div className={[
-      "rounded-[16px] border shadow-[0_12px_32px_-12px_rgba(0,0,0,0.5)]",
-      accent
-        ? "border-[color:var(--dash-accent)]/20 bg-gradient-to-b from-[#201e16] to-[#161510]"
-        : "border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517]",
-      noPad ? "" : "p-4",
-    ].join(" ")}>
-      {children}
+    <div className="rounded-[12px] border border-white/[0.05] bg-white/[0.03] px-4 py-3">
+      <div className="mb-1.5 flex items-center gap-1.5 text-[color:var(--dash-muted)]">{icon}
+        <span className="text-[10px]" style={{ fontFamily: M }}>{label}</span>
+      </div>
+      <p className={`text-[22px] font-bold leading-none ${valColor}`} style={{ fontFamily: N }}>{value}</p>
     </div>
   );
 }
 
-function CardLabel({ children }: { children: React.ReactNode }) {
+function Row({ icon, k, v }: { icon: React.ReactNode; k: string; v: string }) {
   return (
-    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[color:var(--dash-accent)]" style={{ fontFamily: M }}>
-      {children}
-    </p>
-  );
-}
-
-function CardTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="mt-0.5 text-[15px] font-bold text-white" style={{ fontFamily: N }}>
-      {children}
-    </p>
-  );
-}
-
-function Badge({ children, color }: { children: React.ReactNode; color: "gold" | "blue" }) {
-  const cls = color === "gold"
-    ? "border-[color:var(--dash-accent)]/30 bg-[color:var(--dash-accent)]/10 text-[color:var(--dash-accent)]"
-    : "border-blue-400/30 bg-blue-400/10 text-blue-400";
-  return (
-    <span className={`shrink-0 self-start rounded-full border px-2 py-0.5 text-[10px] font-semibold ${cls}`} style={{ fontFamily: M }}>
-      {children}
-    </span>
-  );
-}
-
-function StatRow({ icon, label, value, green = false, red = false }: {
-  icon: React.ReactNode; label: string; value: string; green?: boolean; red?: boolean;
-}) {
-  return (
-    <div className="flex items-center gap-1.5 rounded-[8px] border border-white/[0.04] bg-white/[0.025] px-2.5 py-2">
+    <div className="flex items-center gap-2">
       <span className="shrink-0 text-[color:var(--dash-muted)]">{icon}</span>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[9px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{label}</p>
-        <p className={`text-[13px] font-bold leading-tight ${green ? "text-green-400" : red ? "text-red-400" : "text-white"}`} style={{ fontFamily: N }}>
-          {value}
-        </p>
-      </div>
+      <span className="text-[11px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{k}</span>
+      <span className="ml-auto text-right text-[11px] font-medium text-white" style={{ fontFamily: M }}>{v}</span>
     </div>
   );
 }
@@ -286,28 +241,31 @@ function KV({ k, v }: { k: string; v: string }) {
   );
 }
 
+function SectionHead({ icon, label }: { icon: React.ReactNode; label: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-[color:var(--dash-accent)]">{icon}</span>
+      <p className="text-[11px] font-semibold uppercase tracking-widest text-[color:var(--dash-accent)]" style={{ fontFamily: M }}>{label}</p>
+    </div>
+  );
+}
+
 function TR({ name, tag, cagr, dd, s, c, h, k, accent = false }: {
   name: string; tag?: string; cagr: string; dd: string;
   s: string; c: string; h: string; k: string; accent?: boolean;
 }) {
   return (
     <tr className={accent ? "bg-[color:var(--dash-accent)]/[0.03]" : ""}>
-      <td className="px-4 py-2">
-        <span className={`text-[12px] font-medium ${accent ? "text-[color:var(--dash-accent)]" : "text-white"}`} style={{ fontFamily: M }}>
-          {name}
-        </span>
-        {tag && (
-          <span className={`ml-1.5 rounded px-1 py-0.5 text-[9px] font-semibold ${accent ? "bg-[color:var(--dash-accent)]/15 text-[color:var(--dash-accent)]" : "bg-white/[0.06] text-zinc-500"}`}>
-            {tag}
-          </span>
-        )}
+      <td className="px-5 py-2.5">
+        <span className={`text-[12px] font-medium ${accent ? "text-[color:var(--dash-accent)]" : "text-white"}`} style={{ fontFamily: M }}>{name}</span>
+        {tag && <span className={`ml-1.5 rounded px-1 py-0.5 text-[9px] font-semibold ${accent ? "bg-[color:var(--dash-accent)]/15 text-[color:var(--dash-accent)]" : "bg-white/[0.06] text-zinc-500"}`}>{tag}</span>}
       </td>
-      <td className="px-4 py-2 text-[12px] font-semibold text-green-400" style={{ fontFamily: N }}>{cagr}</td>
-      <td className="px-4 py-2 text-[12px] font-semibold text-red-400" style={{ fontFamily: N }}>{dd}</td>
-      <td className="px-4 py-2 text-[12px] text-white" style={{ fontFamily: N }}>{s}</td>
-      <td className="px-4 py-2 text-[12px] text-white" style={{ fontFamily: N }}>{c}</td>
-      <td className="px-4 py-2 text-[11px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{h}</td>
-      <td className="px-4 py-2 text-[11px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{k}</td>
+      <td className="px-5 py-2.5 text-[12px] font-semibold text-green-400" style={{ fontFamily: N }}>{cagr}</td>
+      <td className="px-5 py-2.5 text-[12px] font-semibold text-red-400" style={{ fontFamily: N }}>{dd}</td>
+      <td className="px-5 py-2.5 text-[12px] text-white" style={{ fontFamily: N }}>{s}</td>
+      <td className="px-5 py-2.5 text-[12px] text-white" style={{ fontFamily: N }}>{c}</td>
+      <td className="px-5 py-2.5 text-[11px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{h}</td>
+      <td className="px-5 py-2.5 text-[11px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{k}</td>
     </tr>
   );
 }
