@@ -2,7 +2,7 @@
 
 import { lazy, useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
 import Image from "next/image";
-import { Maximize2, Minimize2, Play, Pause } from "lucide-react";
+import { Maximize2, Minimize2, Play, Pause, Settings as SettingsIcon } from "lucide-react";
 
 import { GlobeCanvas } from "@/components/globe/GlobeCanvas";
 import { GeoContextPanel } from "@/components/globe/GeoContextPanel";
@@ -691,6 +691,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   const [showTimeline, setShowTimeline] = useState(false);
   const [timelineDay, setTimelineDay] = useState<string | null>(null);
   const [showSentinel, setShowSentinel] = useState(false);
+  const [showGlobeSettings, setShowGlobeSettings] = useState(false);
   const [patternAlerts, setPatternAlerts] = useState<GlobePattern[]>([]);
   const [dismissedPatternIds, setDismissedPatternIds] = useState<string[]>([]);
   const [dataSource, setDataSource] = useState<DataSource>(() => {
@@ -3008,31 +3009,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                   >
                     🛰 Satellite
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowTimeline((v) => !v)}
-                    className={`flex h-7 items-center gap-1 rounded-md border px-2 text-[10px] font-semibold transition ${
-                      showTimeline
-                        ? "border-[#D4AF37]/70 bg-[rgba(212,175,55,0.12)] text-[#D4AF37]"
-                        : "border-white/15 text-white/40 hover:text-white/70"
-                    }`}
-                    title="Event timeline (last 30 days)"
-                  >
-                    ⏱ Timeline
-                  </button>
                 </div>
-                {/* Sentinel Globe Intel chat */}
-                <button
-                  type="button"
-                  onClick={() => setShowSentinel((v) => !v)}
-                  className={`absolute right-[2.75rem] top-3 z-40 flex h-7 w-7 items-center justify-center rounded-md border text-[13px] transition ${
-                    showSentinel ? "border-[#D4AF37]/70 bg-[rgba(212,175,55,0.14)]" : "border-white/15 hover:border-white/50"
-                  }`}
-                  title="Sentinel Globe Intel"
-                  aria-label="Sentinel Globe Intel"
-                >
-                  🛰
-                </button>
                 {/* Fullscreen */}
                 <button
                   type="button"
@@ -3043,54 +3020,54 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                 >
                   <Maximize2 size={14} strokeWidth={1.9} />
                 </button>
-                {/* Satellite texture toggle — only in Globe mode */}
-                {mapMode === "globe" && <button
+                {/* Settings gear — consolidates layer/view toggles */}
+                <button
                   type="button"
-                  onClick={() => setSatelliteMode((v) => !v)}
-                  className={`absolute right-12 top-3 z-30 flex h-7 w-7 items-center justify-center rounded-md border transition ${
-                    satelliteMode
-                      ? "border-[#dcdce4]/80 text-[#dcdce4] bg-[rgba(220,220,228,0.12)]"
-                      : "border-white/15 text-white/50 hover:border-white/40 hover:text-white"
+                  onClick={() => setShowGlobeSettings((v) => !v)}
+                  className={`absolute right-12 top-3 z-40 flex h-7 w-7 items-center justify-center rounded-md border transition ${
+                    showGlobeSettings ? "border-[#D4AF37]/70 bg-[rgba(212,175,55,0.14)] text-[#D4AF37]" : "border-white/15 text-white/70 hover:border-white/50 hover:text-white"
                   }`}
-                  title={satelliteMode ? "Dark globe" : "Satellite view"}
-                  aria-label="Toggle satellite"
+                  title="Globe settings"
+                  aria-label="Globe settings"
                 >
-                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                    <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" strokeWidth="1.2"/>
-                    <ellipse cx="6.5" cy="6.5" rx="2" ry="4.5" stroke="currentColor" strokeWidth="1"/>
-                    <line x1="2" y1="6.5" x2="11" y2="6.5" stroke="currentColor" strokeWidth="1"/>
-                  </svg>
-                </button>}
-                {/* Auto-rotate play/pause — Globe mode only */}
-                {mapMode === "globe" && <button
-                  type="button"
-                  onClick={() => setGlobeRotateMode((m) => m === "off" ? "slow" : "off")}
-                  className={`absolute right-[5.5rem] top-3 z-30 flex h-7 w-7 items-center justify-center rounded-md border transition ${
-                    globeRotateMode !== "off"
-                      ? "border-[#c8c8c8]/70 text-[#c8c8c8]"
-                      : "border-white/15 text-white hover:border-white/40"
-                  }`}
-                  title={globeRotateMode !== "off" ? "Stop rotation" : "Auto-rotate globe"}
-                  aria-label={globeRotateMode !== "off" ? "Stop rotation" : "Auto-rotate globe"}
-                >
-                  {globeRotateMode !== "off"
-                    ? <Pause size={12} strokeWidth={2} />
-                    : <Play size={12} strokeWidth={2} />}
-                </button>}
-                {/* Continent quick-nav — Globe mode only, toggle-gated */}
-                {mapMode === "globe" && (
-                  <button
-                    type="button"
-                    onClick={() => setShowContNav((v) => !v)}
-                    className="absolute bottom-3 right-2 z-30 rounded border px-1.5 py-0.5 text-[8px] font-semibold tracking-[0.06em] backdrop-blur-sm transition"
-                    style={{
-                      border: showContNav ? "1px solid rgba(200,200,200,0.4)" : "1px solid rgba(255,255,255,0.1)",
-                      background: "rgba(10,10,14,0.75)",
-                      color: showContNav ? "rgba(200,200,200,0.8)" : "rgba(255,255,255,0.35)",
-                    }}
-                  >
-                    ◎ Nav
-                  </button>
+                  <SettingsIcon size={14} strokeWidth={1.9} />
+                </button>
+                {showGlobeSettings && (
+                  <>
+                    {/* click-away backdrop */}
+                    <div className="absolute inset-0 z-40" onClick={() => setShowGlobeSettings(false)} />
+                    <div
+                      className="absolute right-12 top-11 z-50 w-[190px] overflow-hidden rounded-[9px] py-1 backdrop-blur-md"
+                      style={{ background: "rgba(10,11,15,0.96)", border: "1px solid rgba(255,255,255,0.12)", boxShadow: "0 8px 26px rgba(0,0,0,0.55)" }}
+                    >
+                      {([
+                        { label: "⏱ Event Timeline", active: showTimeline, onClick: () => setShowTimeline((v) => !v) },
+                        { label: "🛰 Sentinel Intel", active: showSentinel, onClick: () => setShowSentinel((v) => !v) },
+                        ...(mapMode === "globe" ? [
+                          { label: "🌐 Satellite Texture", active: satelliteMode, onClick: () => setSatelliteMode((v) => !v) },
+                          { label: globeRotateMode !== "off" ? "⏸ Auto-Rotate" : "▶ Auto-Rotate", active: globeRotateMode !== "off", onClick: () => setGlobeRotateMode((m) => (m === "off" ? "slow" : "off")) },
+                          { label: "◎ Continent Nav", active: showContNav, onClick: () => setShowContNav((v) => !v) },
+                        ] : []),
+                      ] as Array<{ label: string; active: boolean; onClick: () => void }>).map((opt) => (
+                        <button
+                          key={opt.label}
+                          type="button"
+                          onClick={opt.onClick}
+                          className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[11px] transition hover:bg-white/[0.06]"
+                          style={{ color: opt.active ? "#D4AF37" : "rgba(255,255,255,0.7)" }}
+                        >
+                          <span className="flex-1">{opt.label}</span>
+                          <span
+                            className="h-3 w-3 shrink-0 rounded-full border"
+                            style={{
+                              borderColor: opt.active ? "#D4AF37" : "rgba(255,255,255,0.25)",
+                              background: opt.active ? "#D4AF37" : "transparent",
+                            }}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </>
                 )}
                 {mapMode === "globe" && showContNav && (
                   <div className="absolute bottom-3 left-1/2 z-30 flex -translate-x-1/2 gap-1">
