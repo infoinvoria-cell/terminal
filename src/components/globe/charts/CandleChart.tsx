@@ -894,8 +894,8 @@ function CandleChartInner({
       timeScale: {
         borderColor: "rgba(255,255,255,0.08)",
         secondsVisible: false,
-        rightOffset: 20,
-        barSpacing: 8.4,
+        rightOffset: 2,
+        barSpacing: 18,
         fixLeftEdge: false,
       },
       grid: {

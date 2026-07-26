@@ -1786,28 +1786,53 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
     () => buildDisplayMarkers(assets, enabledAssets, categoryEnabled, markerScores, markerZoomLevel),
     [assets, enabledAssets, categoryEnabled, markerScores, markerZoomLevel],
   );
-  const HQ_MARKER = useMemo(
-    () => ({
-      id: "__capitalife_hq__",
-      name: "Capitalife HQ",
-      lat: 50.11,
-      lng: 8.68,
-      color: "#c8c8c8",
-      category: "Locations",
-      iconKey: "hq",
-      symbol: "",
-      tvSource: "",
-      country: "Germany",
-      defaultEnabled: true,
-      showOnGlobe: true,
-      locations: [],
-      score: 1,
-      size: 8,
-      pulse: false,
-      labelVisible: true,
-    }),
-    [],
-  );
+  const EXCHANGE_MARKERS = useMemo(() => [
+    { id: "__exch_nyse__",  name: "NYSE",   lat: 40.71,  lng: -74.01,  country: "US" },
+    { id: "__exch_cme__",   name: "CME",    lat: 41.88,  lng: -87.63,  country: "US" },
+    { id: "__exch_comex__", name: "COMEX",  lat: 40.71,  lng: -74.01,  country: "US" },
+    { id: "__exch_cbot__",  name: "CBOT",   lat: 41.88,  lng: -87.63,  country: "US" },
+    { id: "__exch_nymex__", name: "NYMEX",  lat: 40.71,  lng: -74.00,  country: "US" },
+    { id: "__exch_iceus__", name: "ICE US", lat: 40.71,  lng: -73.98,  country: "US" },
+    { id: "__exch_nas__",   name: "NASDAQ", lat: 40.76,  lng: -73.98,  country: "US" },
+    { id: "__exch_lse__",   name: "LSE",    lat: 51.51,  lng: -0.10,   country: "GB" },
+    { id: "__exch_eurex__", name: "EUREX",  lat: 50.11,  lng: 8.68,    country: "DE" },
+    { id: "__exch_xetra__", name: "XETRA",  lat: 50.11,  lng: 8.68,    country: "DE" },
+    { id: "__exch_euronx__",name: "Euronext",lat: 48.86, lng: 2.35,    country: "FR" },
+    { id: "__exch_tse__",   name: "TSE",    lat: 35.68,  lng: 139.69,  country: "JP" },
+    { id: "__exch_hkex__",  name: "HKEX",   lat: 22.32,  lng: 114.17,  country: "HK" },
+    { id: "__exch_sse__",   name: "SSE",    lat: 31.23,  lng: 121.47,  country: "CN" },
+    { id: "__exch_sgx__",   name: "SGX",    lat: 1.35,   lng: 103.82,  country: "SG" },
+    { id: "__exch_asx__",   name: "ASX",    lat: -33.87, lng: 151.21,  country: "AU" },
+    { id: "__exch_bse__",   name: "BSE",    lat: 19.08,  lng: 72.88,   country: "IN" },
+    { id: "__exch_krx__",   name: "KRX",    lat: 37.57,  lng: 126.98,  country: "KR" },
+    { id: "__exch_bmv__",   name: "BMV",    lat: 19.43,  lng: -99.13,  country: "MX" },
+    { id: "__exch_b3__",    name: "B3",     lat: -23.55, lng: -46.63,  country: "BR" },
+    { id: "__exch_jse__",   name: "JSE",    lat: -26.20, lng: 28.04,   country: "ZA" },
+  ].map((ex) => ({
+    ...ex,
+    color: "#a0a0a0",
+    category: "Locations",
+    iconKey: "exchange",
+    symbol: "",
+    tvSource: "",
+    defaultEnabled: true,
+    showOnGlobe: true,
+    locations: [],
+    score: 1,
+    size: 7,
+    pulse: false,
+    labelVisible: true,
+    isCluster: false,
+    assetIds: [],
+    clusterCount: 0,
+    aiScore: 0.5,
+    macroSensitivity: "",
+    shortName: ex.name,
+    locationLabel: ex.country,
+    label: ex.name,
+    icon: "EX",
+    kind: "location",
+  })), []);
   const signalMarkers = useMemo(() => {
     if (!overlayState.liveSignals || !liveSignalItems.length || !assets.length) return [] as MarkerPoint[];
     const bySymbol = new Map<string, AssetItem>();
@@ -1915,12 +1940,12 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   const visibleMarkers = useMemo(
     () => {
       const base = overlayState.assets ? markers : [];
-      const withHq = overlayState.locations ? [...base, HQ_MARKER as never] : base;
+      const withHq = overlayState.locations ? [...base, ...(EXCHANGE_MARKERS as never[])] : base;
       const withSignals = signalMarkers.length ? [...withHq, ...(signalMarkers as never[])] : withHq;
       const withCities = cityMarkers.length ? [...withSignals, ...(cityMarkers as never[])] : withSignals;
       return portMarkers.length ? [...withCities, ...(portMarkers as never[])] : withCities;
     },
-    [markers, overlayState.assets, overlayState.locations, HQ_MARKER, signalMarkers, cityMarkers, portMarkers],
+    [markers, overlayState.assets, overlayState.locations, EXCHANGE_MARKERS, signalMarkers, cityMarkers, portMarkers],
   );
   const activeShipTracking = useMemo(
     () => (overlayState.shipTracking ? shipTracking : []),
