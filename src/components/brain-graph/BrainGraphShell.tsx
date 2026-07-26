@@ -273,11 +273,15 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
     let prevW = -1;
     let prevH = -1;
 
-    const onPointerDownCapture = (e: Event) => {
+    const onNavIntent = (e: Event) => {
       const target = e.target as HTMLElement | null;
       if (target?.closest?.("a,button")) pausedUntil = performance.now() + 600;
     };
-    document.addEventListener("pointerdown", onPointerDownCapture, true);
+    // Cover every input path (mouse, pen, touch, synthetic) — capture phase so
+    // the pause is armed before Next's <Link> onClick runs router.push.
+    document.addEventListener("pointerdown", onNavIntent, true);
+    document.addEventListener("mousedown", onNavIntent, true);
+    document.addEventListener("click", onNavIntent, true);
 
     function loop(ts: number) {
       rafRef.current = requestAnimationFrame(loop);
@@ -301,7 +305,9 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
     rafRef.current = requestAnimationFrame(loop);
     return () => {
       cancelAnimationFrame(rafRef.current);
-      document.removeEventListener("pointerdown", onPointerDownCapture, true);
+      document.removeEventListener("pointerdown", onNavIntent, true);
+      document.removeEventListener("mousedown", onNavIntent, true);
+      document.removeEventListener("click", onNavIntent, true);
     };
   }, []);
 
