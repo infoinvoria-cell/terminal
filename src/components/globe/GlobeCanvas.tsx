@@ -888,11 +888,25 @@ function GlobeCanvasComponent({
 
   const htmlLabelData = useMemo(() => {
     if (detailLevel === 1) {
-      return pointData.filter((d: any) => d.assetId === selectedAssetId || d.isCluster || d.isCrossEndpoint || d.kind === "event" || d.kind === "ship" || d.kind === "commodity" || d.kind === "signal");
+      // Very zoomed out: only selected asset + clusters. No individual labels (clutter).
+      return pointData.filter((d: any) => d.assetId === selectedAssetId || d.isCluster);
     }
     if (detailLevel === 2) {
-      return [...pointData.filter((d: any) => d.assetId === selectedAssetId || d.isCrossEndpoint || !d.isCluster || d.kind === "event" || d.kind === "ship" || d.kind === "commodity" || d.kind === "region" || d.kind === "signal"), ...cityLabels];
+      // Medium zoom: selected + clusters + cross-pair endpoints + overlay points (events/ships/regions).
+      // City labels only for major hubs (weight >= 0.6).
+      const majorCities = cityLabels.filter((c: any) => Number(c.aiScore ?? 0) >= 0.6);
+      return [...pointData.filter((d: any) =>
+        d.assetId === selectedAssetId ||
+        d.isCluster ||
+        d.isCrossEndpoint ||
+        d.kind === "event" ||
+        d.kind === "ship" ||
+        d.kind === "commodity" ||
+        d.kind === "region" ||
+        d.kind === "signal"
+      ), ...majorCities];
     }
+    // Level 3 (zoomed in): everything
     return [...pointData, ...cityLabels];
   }, [detailLevel, pointData, selectedAssetId, cityLabels]);
 
@@ -1830,10 +1844,9 @@ function GlobeCanvasComponent({
             fallback.style.color = themeUiText;
             fallback.style.display = d.iconUrl ? "none" : "inline-block";
             el.appendChild(fallback);
-            // Declutter: at overview zoom (detailLevel 1) show only the icon.
-            // Names + prices appear once zoomed in (detailLevel >= 2), except the
-            // selected asset which always keeps its label.
-            const showAssetLabel = detailLevel >= 2 || d.assetId === selectedAssetId;
+            // Declutter: at overview/medium zoom show only the icon dot.
+            // Names + prices appear only when closely zoomed in (level 3) or asset is selected.
+            const showAssetLabel = detailLevel >= 3 || d.assetId === selectedAssetId;
             if (showAssetLabel) {
               const name = document.createElement("span");
               name.innerText = String(d.shortName || "").toUpperCase();
