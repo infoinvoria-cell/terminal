@@ -2,7 +2,7 @@
 
 import { lazy, useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
 import Image from "next/image";
-import { Maximize2, Minimize2 } from "lucide-react";
+import { Maximize2, Minimize2, Play, Pause } from "lucide-react";
 
 import { GlobeCanvas } from "@/components/globe/GlobeCanvas";
 import { KpiGrid } from "@/components/globe/KpiGrid";
@@ -2223,6 +2223,7 @@ export default function GlobeApp() {
           >
             {!isGlobeFullscreen && (
               <>
+                {/* Fullscreen */}
                 <button
                   type="button"
                   onClick={onToggleGlobeFullscreen}
@@ -2231,6 +2232,22 @@ export default function GlobeApp() {
                   aria-label="Fullscreen"
                 >
                   <Maximize2 size={14} strokeWidth={1.9} />
+                </button>
+                {/* Auto-rotate play/pause */}
+                <button
+                  type="button"
+                  onClick={() => setGlobeRotateMode((m) => m === "off" ? "slow" : "off")}
+                  className={`absolute left-3 top-3 z-30 flex h-7 w-7 items-center justify-center rounded-md border transition ${
+                    globeRotateMode !== "off"
+                      ? "border-[#D4AF37]/70 text-[#D4AF37]"
+                      : "border-white/15 text-white hover:border-white/40"
+                  }`}
+                  title={globeRotateMode !== "off" ? "Stop rotation" : "Auto-rotate globe"}
+                  aria-label={globeRotateMode !== "off" ? "Stop rotation" : "Auto-rotate globe"}
+                >
+                  {globeRotateMode !== "off"
+                    ? <Pause size={12} strokeWidth={2} />
+                    : <Play size={12} strokeWidth={2} />}
                 </button>
                 <GlobeCanvas {...globeCanvasProps} />
               </>

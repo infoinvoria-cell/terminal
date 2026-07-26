@@ -267,15 +267,31 @@ function regionBiasColor(bias: string, alpha = 0.36): string {
   return `rgba(148,163,184,${alpha.toFixed(3)})`;
 }
 
-function routeSvgPath(points: Array<{ lat: number; lng: number }>): string {
+function routeCurvePath(points: Array<{ lat: number; lng: number }>): string {
   if (!Array.isArray(points) || points.length < 2) return "";
-  let d = "";
-  for (let i = 0; i < points.length; i += 1) {
-    const row = points[i];
-    const { x, y } = project(Number(row.lng), Number(row.lat));
-    d += `${i === 0 ? "M" : "L"}${x.toFixed(2)} ${y.toFixed(2)} `;
+  const proj = points.map((p) => project(Number(p.lng), Number(p.lat)));
+  if (proj.length === 2) {
+    const [a, b] = proj;
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    const bulge = Math.min(len * 0.22, 30);
+    const cx = (a.x + b.x) / 2 - (dy / Math.max(len, 1)) * bulge;
+    const cy = (a.y + b.y) / 2 + (dx / Math.max(len, 1)) * bulge;
+    return `M${a.x.toFixed(1)} ${a.y.toFixed(1)} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
   }
-  return d.trim();
+  let d = `M${proj[0].x.toFixed(1)} ${proj[0].y.toFixed(1)}`;
+  for (let i = 0; i < proj.length - 1; i++) {
+    const curr = proj[i];
+    const next = proj[i + 1];
+    if (i === proj.length - 2) {
+      d += ` Q${curr.x.toFixed(1)} ${curr.y.toFixed(1)} ${next.x.toFixed(1)} ${next.y.toFixed(1)}`;
+    } else {
+      const mid = { x: (curr.x + next.x) / 2, y: (curr.y + next.y) / 2 };
+      d += ` Q${curr.x.toFixed(1)} ${curr.y.toFixed(1)} ${mid.x.toFixed(1)} ${mid.y.toFixed(1)}`;
+    }
+  }
+  return d;
 }
 
 export function MiniWorldMap({
@@ -684,7 +700,7 @@ export function MiniWorldMap({
       (overlayRoutes ?? [])
         .map((route) => ({
           id: route.id,
-          d: routeSvgPath(route.path ?? []),
+          d: routeCurvePath(route.path ?? []),
           color: String(route.color || "rgba(212,175,55,0.3)"),
           width: Number(route.lineWidth ?? 0.5),
         }))
@@ -810,17 +826,28 @@ export function MiniWorldMap({
         })() : null}
         {overlayRoutePaths.length ? (
           <g>
-            {overlayRoutePaths.map((row) => (
-              <path
-                key={`route-${row.id}`}
-                d={row.d}
-                fill="none"
-                stroke={row.color}
-                strokeWidth={Math.max(0.3, Math.min(1.2, row.width))}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                vectorEffect="non-scaling-stroke"
-              />
+            {overlayRoutePaths.map((row, idx) => (
+              <g key={`route-${row.id}`}>
+                <path
+                  id={`clf-rt-${row.id}`}
+                  d={row.d}
+                  fill="none"
+                  stroke={row.color}
+                  strokeWidth={Math.max(0.4, Math.min(1.4, row.width))}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  vectorEffect="non-scaling-stroke"
+                />
+                <circle r="2.2" fill={row.color} opacity="0.9">
+                  <animateMotion
+                    dur={`${14 + (idx % 5) * 4}s`}
+                    repeatCount="indefinite"
+                    rotate="auto"
+                  >
+                    <mpath href={`#clf-rt-${row.id}`} />
+                  </animateMotion>
+                </circle>
+              </g>
             ))}
           </g>
         ) : null}

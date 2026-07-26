@@ -218,6 +218,11 @@ export function SettingsPanel({
     return map;
   }, [groupedFull, orderedCategories, search]);
 
+  const totalVisible = useMemo(
+    () => [...grouped.values()].reduce((sum, list) => sum + list.length, 0),
+    [grouped],
+  );
+
   const accentBorder = goldThemeEnabled ? "border-[#e2ca7a]/72" : "border-white/25";
   const accentHoverBorder = goldThemeEnabled ? "hover:border-[#e2ca7a]/50" : "hover:border-white/30";
   const accentText = goldThemeEnabled ? "text-[#fff3d1]" : "text-white";
@@ -567,6 +572,19 @@ export function SettingsPanel({
             </section>
           );
         })}
+        {/* Yahoo Finance search hint when no match */}
+        {search.trim() && totalVisible === 0 && onAddSymbol ? (
+          <div className="flex flex-col items-center gap-1.5 py-3">
+            <span className="text-[10px] text-slate-400">No asset found for &ldquo;{search}&rdquo;</span>
+            <button
+              type="button"
+              onClick={() => { onAddSymbol(search.trim().toUpperCase()); setSearch(""); }}
+              className="h-7 rounded-md border border-[#D4AF37]/60 bg-transparent px-3 text-[10px] font-semibold text-[#D4AF37] transition hover:border-[#D4AF37]"
+            >
+              + Add &ldquo;{search.trim().toUpperCase()}&rdquo; via Yahoo Finance
+            </button>
+          </div>
+        ) : null}
       </div>
 
       {hideOverlayControls ? null : (
