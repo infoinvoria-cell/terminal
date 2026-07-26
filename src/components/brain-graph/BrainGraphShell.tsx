@@ -410,12 +410,16 @@ export function BrainGraphShell() {
   const [selected, setSelected] = useState<NetworkNode | null>(null);
   const [spinning, setSpinning] = useState(true);
 
-  const nodeCount = network?.nodes.length ?? 0;
-  const linkCount = network?.links.length ?? 0;
+  // The cloud preview returns { error: "unavailable in cloud preview" } with no
+  // nodes/links arrays, so guard every array access — network can be a truthy
+  // object without a graph.
+  const hasGraph = Array.isArray(network?.nodes) && network.nodes.length > 0;
+  const nodeCount = network?.nodes?.length ?? 0;
+  const linkCount = network?.links?.length ?? 0;
 
   return (
     <main className="relative min-h-0 flex-1 overflow-hidden">
-      {network && network.nodes.length > 0 ? (
+      {hasGraph ? (
         <>
           <GlobeCanvas
             data={network}
@@ -438,7 +442,7 @@ export function BrainGraphShell() {
         </div>
       )}
       <StatusStrip status={status ?? null} nodeCount={nodeCount} linkCount={linkCount} dataSource={network?.source} />
-      {network && network.nodes.length > 0 && (
+      {hasGraph && (
         <PlayButton spinning={spinning} onToggle={() => setSpinning((s) => !s)} />
       )}
     </main>
