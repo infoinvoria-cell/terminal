@@ -2263,6 +2263,282 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
     satelliteMode,
   };
 
+  // ── MOBILE LAYOUT ─────────────────────────────────────────────────────────
+  if (mobileMode) {
+    const overlayKeys = Object.keys(OVERLAY_LABELS) as Array<keyof OverlayToggleState>;
+    return (
+      <div
+        className="no-scrollbar"
+        style={{
+          height: "100%",
+          overflowY: "auto",
+          overflowX: "hidden",
+          background: "#06070a",
+          color: "#fff",
+          display: "flex",
+          flexDirection: "column",
+          gap: 0,
+        }}
+      >
+        {/* ① Overlay Control — horizontal single-row swipe strip */}
+        <div
+          className="no-scrollbar"
+          style={{
+            display: "flex",
+            gap: 6,
+            padding: "8px 12px",
+            overflowX: "auto",
+            flexShrink: 0,
+            borderBottom: "1px solid rgba(255,255,255,0.05)",
+          }}
+        >
+          {overlayKeys.map((key) => {
+            const active = Boolean(overlayState[key]);
+            const loading = Boolean(overlayLoadingState?.[key]);
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => onToggleOverlay(key)}
+                aria-pressed={active}
+                style={{
+                  flexShrink: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
+                  padding: "5px 10px",
+                  borderRadius: 20,
+                  border: active ? "1px solid rgba(212,175,55,0.55)" : "1px solid rgba(255,255,255,0.08)",
+                  background: active ? "rgba(212,175,55,0.12)" : "rgba(255,255,255,0.03)",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <span style={{ fontSize: 12 }}>{OVERLAY_EMOJI[key] ?? "◦"}</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: active ? "#d4af37" : "rgba(255,255,255,0.45)" }}>
+                  {OVERLAY_LABELS[key] ?? key}{loading ? " …" : ""}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ② Globe */}
+        <div
+          ref={globeShellRef}
+          className="globe-stage relative shrink-0 overflow-hidden"
+          style={{ height: "56vw", minHeight: 240, maxHeight: 380 }}
+        >
+          <GlobeCanvas {...globeCanvasProps} />
+          {/* Satellite toggle */}
+          <button
+            type="button"
+            onClick={() => setSatelliteMode((v) => !v)}
+            className={`absolute right-2 top-2 z-30 flex h-7 w-7 items-center justify-center rounded-md border transition ${
+              satelliteMode
+                ? "border-[#4ea3d8]/80 text-[#4ea3d8] bg-[rgba(78,163,216,0.12)]"
+                : "border-white/15 text-white/50"
+            }`}
+            title={satelliteMode ? "Dark globe" : "Satellite view"}
+          >
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" strokeWidth="1.2"/>
+              <ellipse cx="6.5" cy="6.5" rx="2" ry="4.5" stroke="currentColor" strokeWidth="1"/>
+              <line x1="2" y1="6.5" x2="11" y2="6.5" stroke="currentColor" strokeWidth="1"/>
+            </svg>
+          </button>
+          {/* Play/Pause */}
+          <button
+            type="button"
+            onClick={() => setGlobeRotateMode((m) => m === "off" ? "slow" : "off")}
+            className={`absolute left-2 top-2 z-30 flex h-7 w-7 items-center justify-center rounded-md border transition ${
+              globeRotateMode !== "off" ? "border-[#D4AF37]/70 text-[#D4AF37]" : "border-white/15 text-white/50"
+            }`}
+          >
+            {globeRotateMode !== "off" ? <Pause size={12} strokeWidth={2} /> : <Play size={12} strokeWidth={2} />}
+          </button>
+          {/* Continent nav */}
+          <div className="absolute bottom-2 left-1/2 z-30 flex -translate-x-1/2 gap-1">
+            {([
+              { label: "NA", lat: 40, lng: -100, alt: 2.2 },
+              { label: "SA", lat: -15, lng: -60, alt: 2.0 },
+              { label: "EU", lat: 50, lng: 15, alt: 1.8 },
+              { label: "AF", lat: 5, lng: 22, alt: 2.0 },
+              { label: "ME", lat: 27, lng: 45, alt: 1.6 },
+              { label: "AS", lat: 35, lng: 105, alt: 2.2 },
+              { label: "OC", lat: -25, lng: 135, alt: 2.0 },
+            ] as const).map((c) => (
+              <button
+                key={c.label}
+                type="button"
+                onClick={() => {
+                  onGeoZoomTo(c.lat, c.lng, c.alt);
+                  setSelectedGeoEntity({ kind: "continent", id: c.label, name: c.label, lat: c.lat, lng: c.lng });
+                }}
+                className="rounded border border-white/15 bg-[rgba(10,10,14,0.75)] px-1.5 py-0.5 text-[8px] font-semibold tracking-[0.06em] text-white/50 backdrop-blur-sm"
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+          <GeoContextPanel
+            entity={selectedGeoEntity}
+            onClose={() => setSelectedGeoEntity(null)}
+            onZoomTo={onGeoZoomTo}
+          />
+        </div>
+
+        {/* ③ 2D Mini Map */}
+        <div className="shrink-0 overflow-hidden" style={{ height: "34vw", minHeight: 140, maxHeight: 240 }}>
+          <MiniWorldMap
+            markers={visibleMarkers}
+            selectedAssetId={selectedAssetId}
+            selectedAssetCategory={selectedAsset?.category ?? ""}
+            selectedAssetLocations={selectedAssetLocations}
+            crossPairColor={crossPairPath?.color ?? null}
+            geoEvents={geoEvents}
+            shipTracking={activeShipTracking}
+            overlayRoutes={activeRouteOverlays}
+            commodityRegions={activeCommodityRegions}
+            globalRiskRegions={activeGlobalRiskRegions}
+            globalLiquidityRegions={activeGlobalLiquidityRegions}
+            regionHighlight={activeRegionHighlight}
+            selectedOverlay={selectedOverlay}
+            cameraAltitude={Number(camera?.altitude ?? 1.8)}
+            goldThemeEnabled={goldThemeEnabled}
+            assetUsage={assetUsage}
+            newsHeatmapScores={newsHeatmapScores}
+            newsHeatmapActive={overlayState.newsHeatmap}
+            focusLat={Number(camera?.lat)}
+            focusLng={Number(camera?.lng)}
+            onSelectPoint={onSelectPointFromMiniMap}
+          />
+        </div>
+
+        {/* ④ Watchlist */}
+        <div
+          className="shrink-0"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.05)", padding: "8px 0 0" }}
+        >
+          <div style={{ padding: "0 12px 6px", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.35)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            Watchlist
+          </div>
+          <div className="no-scrollbar" style={{ height: 220, overflowY: "auto" }}>
+            <SettingsPanel
+              assets={assets}
+              enabledSet={enabledSet}
+              categoryEnabled={categoryEnabled}
+              selectedAssetId={selectedAssetId}
+              goldThemeEnabled={goldThemeEnabled}
+              onSelectAsset={onSelectAssetFromWatchlist}
+              onToggleAsset={onToggleAsset}
+              onToggleCategory={onToggleCategory}
+              onAllOn={onAllOn}
+              onAllOff={onAllOff}
+              onRefreshData={onRefreshData}
+              onAddSymbol={onAddSymbol}
+              overlayState={overlayState}
+              overlayLoadingState={overlayLoadingState}
+              onToggleOverlay={onToggleOverlay}
+              hideOverlayControls
+            />
+          </div>
+        </div>
+
+        {/* ⑤ Global News */}
+        <div
+          className="shrink-0"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.05)", padding: "8px 0 0" }}
+        >
+          <div style={{ padding: "0 12px 6px", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.35)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            Global News
+          </div>
+          <div className="no-scrollbar" style={{ height: 260, overflowY: "auto" }}>
+            <GlobeNewsColumn
+              items={globalNews}
+              title="Global News"
+              goldThemeEnabled={goldThemeEnabled}
+            />
+          </div>
+        </div>
+
+        {/* ⑥ Asset News */}
+        <div
+          className="shrink-0"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.05)", padding: "8px 0 0" }}
+        >
+          <div style={{ padding: "0 12px 6px", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.35)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            {selectedAsset?.name ?? "Asset"} News
+          </div>
+          <div className="no-scrollbar" style={{ height: 260, overflowY: "auto" }}>
+            <GlobeNewsColumn
+              items={assetNews}
+              title={`${selectedAsset?.name ?? "Asset"} News`}
+              goldThemeEnabled={goldThemeEnabled}
+            />
+          </div>
+        </div>
+
+        {/* ⑦ Candle Chart */}
+        <div
+          className="shrink-0"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.05)", padding: "8px 0 0" }}
+        >
+          <div style={{ padding: "0 12px 6px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.35)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+              Chart — {chartHeaderLabel}
+            </span>
+            <div style={{ display: "flex", gap: 4 }}>
+              {(["D", "4H", "W"] as const).map((tf) => (
+                <button
+                  key={tf}
+                  type="button"
+                  onClick={() => setChartTimeframe(tf)}
+                  style={{
+                    padding: "2px 7px", borderRadius: 4, fontSize: 10, fontWeight: 600, cursor: "pointer",
+                    border: chartTimeframe === tf ? "1px solid rgba(255,255,255,0.3)" : "1px solid rgba(255,255,255,0.08)",
+                    background: chartTimeframe === tf ? "rgba(255,255,255,0.1)" : "transparent",
+                    color: chartTimeframe === tf ? "#fff" : "rgba(255,255,255,0.4)",
+                  }}
+                >
+                  {tf === "D" ? "1D" : tf === "4H" ? "4H" : "1W"}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div style={{ height: 300 }}>
+            <Suspense fallback={<div style={{ display: "grid", height: "100%", placeItems: "center", fontSize: 12, color: "rgba(255,255,255,0.3)" }}>Loading chart…</div>}>
+              <CandleChart
+                payload={timeseries}
+                evaluation={evaluation}
+                seasonality={seasonality}
+                dataSource={dataSource}
+                title={chartHeaderLabel}
+                sourceLabel={chartSourceLabel}
+                goldThemeEnabled={goldThemeEnabled}
+                themePrimary={GOLD_PRIMARY}
+                isPanelLoading={panelLoading}
+                isFullscreen={false}
+                active={isPageActive}
+                onToggleFullscreen={noop}
+                loopReplayTick={visualLoopTick}
+                onTimeRangeChange={onSharedTimeRangeChange}
+                onRecentSignalChange={setRecentSignal}
+                onTimeframeChange={setChartTimeframe}
+                hideBuiltinChartToolbar
+                suppressTitleOverlay
+              />
+            </Suspense>
+          </div>
+        </div>
+
+        {/* bottom breathing room for nav bar */}
+        <div style={{ height: 16, flexShrink: 0 }} />
+      </div>
+    );
+  }
+  // ── END MOBILE LAYOUT ─────────────────────────────────────────────────────
+
   return (
     <div className="relative h-full w-full overflow-hidden bg-[#06070a] text-white">
       <div
