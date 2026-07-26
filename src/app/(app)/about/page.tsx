@@ -1,377 +1,306 @@
 import type { Metadata } from "next";
-import { KpiCard } from "@/components/dashboard/kpi-card";
+import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: "About — Capitalife Capital",
-  description: "Systematisches, regelbasiertes Trading — unkorreliert zu klassischen Märkten.",
+  title: "Info Panel — Capitalife Capital",
+  description: "Internes Infopanel: Strategien, Metriken, Investoren-Überblick.",
 };
 
-// Verified number sources:
-// Live CFD         → src/data/capitalife/white-swan-official-kpis.json
-//   annualized_return_pct=35.2, max_drawdown_pct=-11.76, sharpe=1.6, calmar=3
-//   period: 2024-04-11 – 2026-07-01
-// White Swan OOS   → public/data/whiteswan/portfolio_f10_equity.json summary
-//   cagr=4.608, maxDD=-4.419, sharpe=1.267, calmar=1.043 (OOS 2019–2026)
-// WS Sleeve count  → src/data/capitalife/white-swan-global-strategy.json
-//   active_entries=35, 5 sleeves
-// Core Invest OOS  → src/data/capitalife/core-invest-paper.config.json validated_metrics.oos_period
-//   cagr_pct=17.11, sharpe=1.152, max_dd_pct=-21.73, calmar=0.787
+// Number sources (all verified):
+// white-swan-official-kpis.json  → Live CFD: cagr=35.2, dd=-11.76, sharpe=1.6, calmar=3, pf=1.28
+// portfolio_f10_equity.json      → WS OOS: cagr=4.608, dd=-4.419, sharpe=1.267, calmar=1.043
+// white-swan-global-strategy.json → active_entries=35, 5 sleeves
+// core-invest-paper.config.json  → CI OOS: cagr=17.11, dd=-21.73, sharpe=1.152, calmar=0.787
+
+const M = "var(--font-montserrat), sans-serif";
+const N = "var(--font-nunito), sans-serif";
 
 export default function AboutPage() {
   return (
-    // Outer wrapper: h-full but NO scroll — provides the relative context for the gradient overlay
     <div className="relative flex h-full flex-col">
-
-      {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
-        <div className="px-8 pb-24 pt-8">
+        <div className="px-7 pb-20 pt-5">
 
-          {/* ── HEADER ──────────────────────────────────────────────────────── */}
-          <div className="mb-8 flex items-center gap-3">
-            <div className="h-[1px] w-6 bg-[color:var(--dash-accent)]" />
-            <span
-              className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--dash-accent)]"
-              style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-            >
-              Capital Management · Internes Infopanel
-            </span>
+          {/* ── HEADER ─────────────────────────────────────────────────────── */}
+          <div className="mb-6 flex items-center gap-3">
+            <Image
+              src="/CAPITALIFE_ICON.png"
+              alt="Capitalife"
+              width={28}
+              height={28}
+              className="shrink-0 opacity-90"
+            />
+            <div>
+              <h1 className="text-[15px] font-bold leading-none text-white" style={{ fontFamily: N }}>
+                Info Panel
+              </h1>
+              <p className="mt-0.5 text-[11px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>
+                Capitalife Capital · Internes Dokument · kein Angebot
+              </p>
+            </div>
           </div>
 
-          <h1
-            className="mb-2 text-[28px] font-bold leading-tight text-white"
-            style={{ fontFamily: "var(--font-nunito), sans-serif", letterSpacing: "-0.02em" }}
-          >
-            Capitalife Capital
-          </h1>
-          <p
-            className="mb-10 text-sm text-[color:var(--dash-muted)]"
-            style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-          >
-            Systematisches, regelbasiertes Trading — unkorreliert zu klassischen Märkten.
-          </p>
-
-          {/* ── KPI STRIP — LIVE STRATEGIE ────────────────────────────────── */}
-          <SectionLabel>Live-Strategie · Apr 2024 – Jul 2026¹</SectionLabel>
-          <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-            <KpiCard label="Rendite p.a." value="+35.2%" subtitle="Ann., statement-basiert" />
-            <KpiCard label="Max. Drawdown" value="−11.8%" subtitle="Live-Konto" valueVariant="negative" />
-            <KpiCard label="Sharpe Ratio" value="1.60" subtitle="Live-Konto" />
-            <KpiCard label="Calmar Ratio" value="3.0" subtitle="Return / MaxDD p.a." />
-            <KpiCard label="Profit Factor" value="1.28" subtitle="Live-Konto" />
-          </div>
-
-          {/* ── ZWEI STRATEGIEN ───────────────────────────────────────────── */}
-          <SectionLabel>Strategien</SectionLabel>
-          <div className="mb-8 grid gap-4 lg:grid-cols-2">
+          {/* ── ROW 1: Strategy side-by-side ───────────────────────────────── */}
+          <div className="mb-4 grid gap-3 lg:grid-cols-2">
 
             {/* White Swan */}
-            <div className="rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] p-6 shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]">
-              <div className="mb-4 flex items-start justify-between gap-3">
+            <Card>
+              <div className="mb-3 flex items-start justify-between gap-2">
                 <div>
-                  <p
-                    className="text-[11px] font-semibold uppercase tracking-widest text-[color:var(--dash-muted)]"
-                    style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-                  >
-                    01 · Futures
-                  </p>
-                  <p
-                    className="mt-1 text-[20px] font-bold text-white"
-                    style={{ fontFamily: "var(--font-nunito), sans-serif" }}
-                  >
-                    White Swan Portfolio
-                  </p>
+                  <Label>01 · Futures / Commodities</Label>
+                  <Title>White Swan Portfolio</Title>
                 </div>
-                <span
-                  className="shrink-0 rounded-full border border-[color:var(--dash-accent)]/30 bg-[color:var(--dash-accent)]/10 px-3 py-1 text-[11px] font-semibold text-[color:var(--dash-accent)]"
-                  style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-                >
-                  Unkorreliert
-                </span>
+                <Badge color="gold">Unkorreliert</Badge>
               </div>
-
-              <p
-                className="mb-5 text-sm leading-relaxed text-[color:var(--dash-muted)]"
-                style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-              >
-                35 aktive Komponentenstrategien über 5 Sleeves (Agrar, Metalle, Indizes, Energie, Forex).
-                Vollständig regelbasiert, keine Diskretionärentscheidungen.
-              </p>
-
-              {/* OOS stats grid */}
-              <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {/* 4-stat grid */}
+              <div className="mb-3 grid grid-cols-4 gap-2">
                 {[
-                  { label: "CAGR (OOS)", value: "+4.6%" },
-                  { label: "Max DD (OOS)", value: "−4.4%" },
-                  { label: "Sharpe (OOS)", value: "1.27" },
-                  { label: "Calmar (OOS)", value: "1.04" },
-                ].map(({ label, value }) => (
-                  <div key={label} className="rounded-[14px] border border-white/[0.04] bg-white/[0.03] px-4 py-3">
-                    <p
-                      className="text-[11px] text-[color:var(--dash-muted)]"
-                      style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-                    >
-                      {label}
-                    </p>
-                    <p
-                      className="mt-1 text-[18px] font-bold text-white"
-                      style={{ fontFamily: "var(--font-nunito), sans-serif" }}
-                    >
-                      {value}
-                    </p>
-                  </div>
+                  { l: "CAGR OOS",   v: "+4.6%",  neg: false },
+                  { l: "Max DD",     v: "−4.4%",  neg: true  },
+                  { l: "Sharpe",     v: "1.27",   neg: false },
+                  { l: "Calmar",     v: "1.04",   neg: false },
+                ].map(({ l, v, neg }) => (
+                  <MiniStat key={l} label={l} value={v} negative={neg} />
                 ))}
               </div>
-
-              {/* Sleeves */}
-              <div className="mb-5 space-y-1.5">
-                {[
-                  { name: "Agrar Final",   active: 14, assets: "ZC1! ZW1! ZS1! CC1! KC1! OJ1! SB1! CT1!" },
-                  { name: "Metals5",       active: 5,  assets: "GC1! SI1! HG1! PL1! PA1!" },
-                  { name: "Indices Hybrid",active: 5,  assets: "ES1! NQ1! YM1! FDAX1! UKX" },
-                  { name: "Energy Robust3",active: 3,  assets: "CL1! NG1! RB1!" },
-                  { name: "Forex8",        active: 8,  assets: "EURGBP MXNUSD NOKUSD CLPUSD GBPJPY SEKUSD BRLUSD ZARUSD" },
-                ].map(({ name, active, assets }) => (
-                  <div key={name} className="flex items-center justify-between rounded-[10px] border border-white/[0.04] px-3 py-2">
-                    <div className="flex items-center gap-3">
-                      <span
-                        className="min-w-[20px] text-center text-[13px] font-bold text-[color:var(--dash-accent)]"
-                        style={{ fontFamily: "var(--font-nunito), sans-serif" }}
-                      >
-                        {active}
-                      </span>
-                      <span
-                        className="text-[12px] text-white"
-                        style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-                      >
-                        {name}
-                      </span>
-                    </div>
-                    <span
-                      className="hidden text-[11px] text-[color:var(--dash-muted)] sm:block"
-                      style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-                    >
-                      {assets}
-                    </span>
-                  </div>
-                ))}
+              {/* Two-col info */}
+              <div className="mb-3 grid grid-cols-2 gap-x-6 gap-y-1.5 text-[12px]">
+                <KV k="Komponenten"     v="35 aktive Strategien" />
+                <KV k="Sleeves"         v="Agrar · Metalle · Indizes · Energie · Forex" />
+                <KV k="Anlagehorizont"  v="Tage – Wochen (je Strategie)" />
+                <KV k="Rebalancing"     v="Sleeve-gewichtet, laufend" />
+                <KV k="Execution"       v="Forward Tracking · kein Live-Konto" />
+                <KV k="Backtest"        v="Walk-Forward OOS 2019–2026 (IS ab 2003)" />
               </div>
-
-              <p
-                className="text-[11px] leading-relaxed text-zinc-600"
-                style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-              >
-                ⚠️ Walk-Forward OOS Backtest 2019–2026. Forward Tracking only — keine Live-Execution.
-              </p>
-            </div>
+              <Caveat>OOS-Backtest, nicht unabhängig geprüft. Keine Live-Execution. AuM EUR 0.</Caveat>
+            </Card>
 
             {/* Core Invest */}
-            <div className="rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] p-6 shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]">
-              <div className="mb-4 flex items-start justify-between gap-3">
+            <Card>
+              <div className="mb-3 flex items-start justify-between gap-2">
                 <div>
-                  <p
-                    className="text-[11px] font-semibold uppercase tracking-widest text-[color:var(--dash-muted)]"
-                    style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-                  >
-                    02 · ETF / Aktien
-                  </p>
-                  <p
-                    className="mt-1 text-[20px] font-bold text-white"
-                    style={{ fontFamily: "var(--font-nunito), sans-serif" }}
-                  >
-                    Core Invest
-                  </p>
+                  <Label>02 · ETF / Aktien / Rohstoffe</Label>
+                  <Title>Core Invest</Title>
                 </div>
-                <span
-                  className="shrink-0 rounded-full border border-blue-400/30 bg-blue-400/10 px-3 py-1 text-[11px] font-semibold text-blue-400"
-                  style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-                >
-                  Leicht korreliert
-                </span>
+                <Badge color="blue">Leicht korreliert</Badge>
               </div>
-
-              <p
-                className="mb-5 text-sm leading-relaxed text-[color:var(--dash-muted)]"
-                style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-              >
-                Systematisch-regelbasiertes Langfrist-Portfolio über 8 Komponenten.
-                Vierteljährliches Rebalancing. Status: approved, frozen — noch kein Live-Konto.
-              </p>
-
-              <div className="mb-5 grid grid-cols-2 gap-3">
+              <div className="mb-3 grid grid-cols-4 gap-2">
                 {[
-                  { label: "CAGR (OOS)", value: "+17.1%" },
-                  { label: "Max DD (OOS)", value: "−21.7%" },
-                  { label: "Sharpe (OOS)", value: "1.15" },
-                  { label: "Calmar (OOS)", value: "0.79" },
-                ].map(({ label, value }) => (
-                  <div key={label} className="rounded-[14px] border border-white/[0.04] bg-white/[0.03] px-4 py-3">
-                    <p
-                      className="text-[11px] text-[color:var(--dash-muted)]"
-                      style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-                    >
-                      {label}
-                    </p>
-                    <p
-                      className="mt-1 text-[18px] font-bold text-white"
-                      style={{ fontFamily: "var(--font-nunito), sans-serif" }}
-                    >
-                      {value}
-                    </p>
-                  </div>
+                  { l: "CAGR OOS",   v: "+17.1%", neg: false },
+                  { l: "Max DD",     v: "−21.7%", neg: true  },
+                  { l: "Sharpe",     v: "1.15",   neg: false },
+                  { l: "Calmar",     v: "0.79",   neg: false },
+                ].map(({ l, v, neg }) => (
+                  <MiniStat key={l} label={l} value={v} negative={neg} />
                 ))}
               </div>
-
-              <div className="mb-5 space-y-1.5">
-                {[
-                  { symbol: "QQQ Passive",   weight: "45%", note: "ETF-Kern" },
-                  { symbol: "GLD",           weight: "25%", note: "Gold-Anker" },
-                  { symbol: "SPMO",          weight: "5%",  note: "Momentum-ETF" },
-                  { symbol: "QQQ Pine 1/2",  weight: "10%", note: "Strategie-Sleeve" },
-                  { symbol: "SPY",           weight: "5%",  note: "Benchmark-Sleeve" },
-                  { symbol: "HG / CHF (6S)", weight: "10%", note: "Rohstoff + Forex" },
-                ].map(({ symbol, weight, note }) => (
-                  <div key={symbol} className="flex items-center justify-between rounded-[10px] border border-white/[0.04] px-3 py-2">
-                    <span
-                      className="text-[12px] text-white"
-                      style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-                    >
-                      {symbol}
-                    </span>
-                    <div className="flex items-center gap-3">
-                      <span
-                        className="hidden text-[11px] text-[color:var(--dash-muted)] sm:block"
-                        style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-                      >
-                        {note}
-                      </span>
-                      <span
-                        className="w-10 text-right text-[12px] font-semibold text-[color:var(--dash-accent)]"
-                        style={{ fontFamily: "var(--font-nunito), sans-serif" }}
-                      >
-                        {weight}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+              <div className="mb-3 grid grid-cols-2 gap-x-6 gap-y-1.5 text-[12px]">
+                <KV k="Komponenten"     v="8 Assets (QQQ 45% · GLD 25% · Sleeves 30%)" />
+                <KV k="Benchmark"       v="SPY" />
+                <KV k="Anlagehorizont"  v="Wochen – Monate (Langfrist)" />
+                <KV k="Rebalancing"     v="Quartalsweise (Mrz · Jun · Sep · Dez)" />
+                <KV k="Status"          v="Approved · Frozen · noch kein Live-Konto" />
+                <KV k="Backtest"        v="Grid-Sweep 50.388 Komb. · OOS 2019–2026 (IS ab 2000)" />
               </div>
+              <Caveat>OOS-Backtest, SPMO-Proxy 2000–2015. Calmar-optimiert. Kein Live-Track-Record.</Caveat>
+            </Card>
+          </div>
 
-              <p
-                className="text-[11px] leading-relaxed text-zinc-600"
-                style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-              >
-                ⚠️ OOS 2019–2026 · 50.388 Kombinationen Grid-Sweep · Calmar-optimiert · SPMO-Proxy für 2000–2015.
-              </p>
+          {/* ── ROW 2: Vergleich + Investor-Facts ──────────────────────────── */}
+          <div className="mb-4 grid gap-3 lg:grid-cols-[1fr_320px]">
+
+            {/* Comparison table */}
+            <Card noPad>
+              <div className="border-b border-white/[0.06] px-4 py-2.5">
+                <Label>Vergleich · Anlageklassen</Label>
+              </div>
+              <table className="w-full text-[12px]">
+                <thead>
+                  <tr className="border-b border-white/[0.04]">
+                    {["Strategie / Asset", "CAGR", "Max DD", "Sharpe", "Calmar", "Horizont", "Korr. zu WS"].map(h => (
+                      <th key={h} className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/[0.03]">
+                  <TRow accent name="CFD Live-Strategie" tag="LV" cagr="+35.2%" dd="−11.8%" sharpe="1.60" calmar="3.0" horizon="Intraday–Tage" corr="n/a" />
+                  <TRow accent name="White Swan (OOS BT)" tag="BT" cagr="+4.6%" dd="−4.4%" sharpe="1.27" calmar="1.04" horizon="Tage–Wochen" corr="—" />
+                  <TRow name="Core Invest (OOS BT)" tag="BT" cagr="+17.1%" dd="−21.7%" sharpe="1.15" calmar="0.79" horizon="Wochen–Monate" corr="mittel" />
+                  <TRow name="S&P 500" cagr="~10%" dd="−55%" sharpe="~0.5" calmar="~0.2" horizon="Langfrist" corr="niedrig" />
+                  <TRow name="DAX" cagr="~8%" dd="−60%" sharpe="~0.4" calmar="~0.1" horizon="Langfrist" corr="niedrig" />
+                  <TRow name="Gold" cagr="~7%" dd="−45%" sharpe="~0.4" calmar="~0.2" horizon="Langfrist" corr="mittel" />
+                  <TRow name="60/40" cagr="~7%" dd="−35%" sharpe="~0.5" calmar="~0.2" horizon="Langfrist" corr="niedrig" />
+                  <TRow name="Anleihen (AGG)" cagr="~3%" dd="−20%" sharpe="~0.4" calmar="~0.2" horizon="Langfrist" corr="sehr niedrig" />
+                </tbody>
+              </table>
+            </Card>
+
+            {/* Investor facts */}
+            <div className="flex flex-col gap-3">
+              <Card>
+                <Label>Für Investoren</Label>
+                <div className="mt-2 space-y-1.5">
+                  <KV k="Struktur"         v="Eigenverantwortlich verwaltetes Konto" />
+                  <KV k="Mindestanlage"    v="Nicht definiert (intern)" />
+                  <KV k="Liquidität"       v="Täglich (Futures / CFD)" />
+                  <KV k="Gebühren"         v="Keine externe Management Fee" />
+                  <KV k="Transparenz"      v="Live-Dashboard + Signal-Log" />
+                  <KV k="Ausschüttung"     v="Keine — Thesaurierend" />
+                  <KV k="Währung"          v="EUR / USD" />
+                  <KV k="Regulierung"      v="Eigenhandel · kein regulierter Fonds" />
+                </div>
+              </Card>
+              <Card>
+                <Label>Risikoprofil</Label>
+                <div className="mt-2 space-y-1.5">
+                  <KV k="CFD-Strategie"    v="Mittel–Hoch (MaxDD ~12%)" />
+                  <KV k="White Swan"       v="Niedrig (OOS MaxDD ~4%)" />
+                  <KV k="Core Invest"      v="Mittel (OOS MaxDD ~22%)" />
+                  <KV k="Korrelation"      v="WS zu Aktien: sehr niedrig" />
+                  <KV k="Leverage"         v="Variabel (je Sleeve / Broker)" />
+                  <KV k="Margin"           v="Intraday-Kontrolle aktiv" />
+                </div>
+              </Card>
             </div>
           </div>
 
-          {/* ── VERGLEICHSTABELLE ─────────────────────────────────────────── */}
-          <SectionLabel>Vergleich · klassische Anlageklassen</SectionLabel>
-          <div className="mb-8 overflow-x-auto rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-white/[0.06]">
-                  {["Asset / Strategie", "CAGR", "Max DD", "Sharpe", "Calmar", "Status"].map((h) => (
-                    <th
-                      key={h}
-                      className="px-5 py-4 text-left text-[11px] font-semibold uppercase tracking-widest text-[color:var(--dash-muted)]"
-                      style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/[0.04]">
-                <CRow name="CFD-Strategie (Live)" tag="LV" cagr="+35.2%" dd="−11.8%" sharpe="1.60" calmar="3.0" status="Live · Apr 2024–Jul 2026¹" accent />
-                <CRow name="White Swan Portfolio" tag="BT" cagr="+4.6%" dd="−4.4%" sharpe="1.27" calmar="1.04" status="OOS Backtest 2019–2026" accent />
-                <CRow name="Core Invest" tag="BT" cagr="+17.1%" dd="−21.7%" sharpe="1.15" calmar="0.79" status="OOS Backtest 2019–2026" />
-                <CRow name="S&P 500 (SPY)" cagr="~10%" dd="−55%" sharpe="~0.5" calmar="~0.2" status="Historisch" />
-                <CRow name="DAX" cagr="~8%" dd="−60%" sharpe="~0.4" calmar="~0.1" status="Historisch" />
-                <CRow name="Gold" cagr="~7%" dd="−45%" sharpe="~0.4" calmar="~0.2" status="Historisch" />
-                <CRow name="60/40 Portfolio" cagr="~7%" dd="−35%" sharpe="~0.5" calmar="~0.2" status="Historisch" />
-              </tbody>
-            </table>
+          {/* ── ROW 3: Eckdaten + Zeithorizont ────────────────────────────── */}
+          <div className="grid gap-3 lg:grid-cols-3">
+            <Card>
+              <Label>Zeithorizont</Label>
+              <div className="mt-2 space-y-1.5">
+                <KV k="CFD Intraday"      v="Minuten – Stunden" />
+                <KV k="CFD Swing"         v="1–5 Tage" />
+                <KV k="White Swan"        v="1–30 Tage (je Sleeves)" />
+                <KV k="Core Invest"       v="Wochen – 12 Monate" />
+                <KV k="WS Backtest"       v="OOS ab Jan 2019 / IS ab 2003" />
+                <KV k="CI Backtest"       v="OOS ab Jan 2019 / IS ab 2000" />
+              </div>
+            </Card>
+            <Card>
+              <Label>Eckdaten</Label>
+              <div className="mt-2 space-y-1.5">
+                <KV k="Live-Tracking seit"  v="Apr 2024" />
+                <KV k="WS Komponenten"      v="35 aktiv · 5 Sleeves · 29 Assets" />
+                <KV k="CI Assets"           v="8 Komponenten (4 ETF + 4 Sleeves)" />
+                <KV k="Märkte"              v="Futures · CFD · ETF · Aktien · FX" />
+                <KV k="Monitoring"          v="24/7 via Capitalife Terminal" />
+                <KV k="Signale"             v="Automatisch · regelbasiert · kein Ermessen" />
+              </div>
+            </Card>
+            <Card>
+              <Label>Track Record</Label>
+              <div className="mt-2 space-y-1.5">
+                <KV k="Periode"             v="Apr 2024 – Jul 2026 (Live)" />
+                <KV k="Rendite gesamt"      v="+97.2% (kompoundiert +114.6%)" />
+                <KV k="Rendite p.a."        v="+35.2% ann." />
+                <KV k="Calmar (Live)"       v="3.0 (Rendite / MaxDD)" />
+                <KV k="Profit Factor"       v="1.28" />
+                <KV k="Quelle"             v="Broker-Statement (nicht geprüft)" />
+              </div>
+            </Card>
           </div>
 
-          {/* ── QUICK STATS ───────────────────────────────────────────────── */}
-          <SectionLabel>Eckdaten</SectionLabel>
-          <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-            <KpiCard label="Live-Tracking seit" value="Apr 2024" />
-            <KpiCard label="WS Komponenten" value="35" />
-            <KpiCard label="WS Sleeves" value="5" />
-            <KpiCard label="Backtest-Daten ab" value="2003" />
-            <KpiCard label="Core Invest Assets" value="8" />
-            <KpiCard label="Live-Monitoring" value="24/7" />
-          </div>
-
-          {/* footnote */}
-          <p
-            className="text-[11px] leading-relaxed text-zinc-600"
-            style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-          >
-            ¹ Statement-basiert (Broker-Export), nicht unabhängig geprüft. BT = Walk-Forward OOS Backtest. LV = Live.
-            Klassische Asset-Zahlen sind approximierte Richtwerte.
-            White Swan: Forward Tracking only — keine Live-Execution, AuM EUR 0.
-            Core Invest: approved, frozen, noch kein Live-Konto.
+          <p className="mt-4 text-[10px] leading-relaxed text-zinc-700" style={{ fontFamily: M }}>
+            ¹ Statement-basiert, nicht unabhängig geprüft. BT = Walk-Forward OOS Backtest. LV = Live.
+            Klassische Asset-Zahlen sind approximierte historische Richtwerte. Kein Anlageberatungsangebot.
           </p>
 
         </div>
       </div>
 
-      {/* ── SCROLL FADE — indicates more content below ──────────────────── */}
+      {/* Scroll fade */}
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-28"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-20"
         style={{ background: "linear-gradient(to top, #0a0a0c 0%, transparent 100%)" }}
       />
     </div>
   );
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// ─── Primitive building blocks ────────────────────────────────────────────────
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function Card({ children, noPad = false }: { children: React.ReactNode; noPad?: boolean }) {
   return (
-    <div className="mb-4 flex items-center gap-2">
-      <div className="h-[1px] w-4 rounded-full bg-[color:var(--dash-accent)]" />
-      <span
-        className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--dash-accent)]"
-        style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-      >
-        {children}
-      </span>
+    <div className={`rounded-[16px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] shadow-[0_12px_32px_-12px_rgba(0,0,0,0.5)] ${noPad ? "" : "p-4"}`}>
+      {children}
     </div>
   );
 }
 
-function CRow({
-  name, tag, cagr, dd, sharpe, calmar, status, accent = false,
+function Label({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[color:var(--dash-accent)]" style={{ fontFamily: M }}>
+      {children}
+    </p>
+  );
+}
+
+function Title({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="mt-0.5 text-[16px] font-bold text-white" style={{ fontFamily: N }}>
+      {children}
+    </p>
+  );
+}
+
+function Badge({ children, color }: { children: React.ReactNode; color: "gold" | "blue" }) {
+  const cls = color === "gold"
+    ? "border-[color:var(--dash-accent)]/30 bg-[color:var(--dash-accent)]/10 text-[color:var(--dash-accent)]"
+    : "border-blue-400/30 bg-blue-400/10 text-blue-400";
+  return (
+    <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${cls}`} style={{ fontFamily: M }}>
+      {children}
+    </span>
+  );
+}
+
+function MiniStat({ label, value, negative }: { label: string; value: string; negative?: boolean }) {
+  return (
+    <div className="rounded-[10px] border border-white/[0.04] bg-white/[0.025] px-3 py-2">
+      <p className="text-[10px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{label}</p>
+      <p className={`mt-0.5 text-[15px] font-bold ${negative ? "text-zinc-400" : "text-white"}`} style={{ fontFamily: N }}>{value}</p>
+    </div>
+  );
+}
+
+function KV({ k, v }: { k: string; v: string }) {
+  return (
+    <div className="flex items-start justify-between gap-2">
+      <span className="shrink-0 text-[11px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{k}</span>
+      <span className="text-right text-[11px] text-white" style={{ fontFamily: M }}>{v}</span>
+    </div>
+  );
+}
+
+function Caveat({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[10px] leading-relaxed text-zinc-600" style={{ fontFamily: M }}>⚠️ {children}</p>
+  );
+}
+
+function TRow({
+  name, tag, cagr, dd, sharpe, calmar, horizon, corr, accent = false,
 }: {
   name: string; tag?: string; cagr: string; dd: string;
-  sharpe: string; calmar: string; status: string; accent?: boolean;
+  sharpe: string; calmar: string; horizon: string; corr: string; accent?: boolean;
 }) {
   return (
-    <tr className={accent ? "bg-[color:var(--dash-accent)]/[0.04]" : ""}>
-      <td className="px-5 py-3">
-        <span
-          className={accent ? "font-medium text-[color:var(--dash-accent)]" : "font-medium text-white"}
-          style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-        >
-          {name}
-        </span>
+    <tr className={accent ? "bg-[color:var(--dash-accent)]/[0.035]" : ""}>
+      <td className="px-4 py-2">
+        <span className={`${accent ? "text-[color:var(--dash-accent)]" : "text-white"} font-medium`} style={{ fontFamily: M }}>{name}</span>
         {tag && (
-          <span
-            className={`ml-2 rounded px-1.5 py-0.5 text-[10px] font-semibold ${accent ? "bg-[color:var(--dash-accent)]/15 text-[color:var(--dash-accent)]" : "bg-white/[0.06] text-zinc-500"}`}
-            style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-          >
+          <span className={`ml-1.5 rounded px-1 py-0.5 text-[9px] font-bold ${accent ? "bg-[color:var(--dash-accent)]/15 text-[color:var(--dash-accent)]" : "bg-white/[0.06] text-zinc-500"}`}>
             {tag}
           </span>
         )}
       </td>
-      <td className="px-5 py-3 font-semibold text-green-400" style={{ fontFamily: "var(--font-nunito), sans-serif" }}>{cagr}</td>
-      <td className="px-5 py-3 font-semibold text-red-400" style={{ fontFamily: "var(--font-nunito), sans-serif" }}>{dd}</td>
-      <td className="px-5 py-3 text-white" style={{ fontFamily: "var(--font-nunito), sans-serif" }}>{sharpe}</td>
-      <td className="px-5 py-3 text-white" style={{ fontFamily: "var(--font-nunito), sans-serif" }}>{calmar}</td>
-      <td className="px-5 py-3 text-[11px] text-zinc-500" style={{ fontFamily: "var(--font-montserrat), sans-serif" }}>{status}</td>
+      <td className="px-4 py-2 font-semibold text-green-400" style={{ fontFamily: N }}>{cagr}</td>
+      <td className="px-4 py-2 font-semibold text-red-400" style={{ fontFamily: N }}>{dd}</td>
+      <td className="px-4 py-2 text-white" style={{ fontFamily: N }}>{sharpe}</td>
+      <td className="px-4 py-2 text-white" style={{ fontFamily: N }}>{calmar}</td>
+      <td className="px-4 py-2 text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{horizon}</td>
+      <td className="px-4 py-2 text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{corr}</td>
     </tr>
   );
 }
