@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import {
+  Info, TrendingUp, TrendingDown, Activity, Target,
+  Layers, Calendar, Clock, Globe, Shield, Wallet,
+  RefreshCw, BarChart2, Zap,
+} from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Info Panel — Capitalife Capital",
+  title: "Info Panel — Capitalife",
   description: "Internes Infopanel: Strategien, Metriken, Investoren-Überblick.",
 };
 
-// Number sources (all verified):
-// white-swan-official-kpis.json  → Live CFD: cagr=35.2, dd=-11.76, sharpe=1.6, calmar=3, pf=1.28
-// portfolio_f10_equity.json      → WS OOS: cagr=4.608, dd=-4.419, sharpe=1.267, calmar=1.043
-// white-swan-global-strategy.json → active_entries=35, 5 sleeves
-// core-invest-paper.config.json  → CI OOS: cagr=17.11, dd=-21.73, sharpe=1.152, calmar=0.787
+// Sources: white-swan-official-kpis.json · portfolio_f10_equity.json
+//          white-swan-global-strategy.json · core-invest-paper.config.json
 
 const M = "var(--font-montserrat), sans-serif";
 const N = "var(--font-nunito), sans-serif";
@@ -22,99 +23,89 @@ export default function AboutPage() {
         <div className="px-7 pb-20 pt-5">
 
           {/* ── HEADER ─────────────────────────────────────────────────────── */}
-          <div className="mb-6 flex items-center gap-3">
-            <Image
-              src="/CAPITALIFE_ICON.png"
-              alt="Capitalife"
-              width={28}
-              height={28}
-              className="shrink-0 opacity-90"
-            />
+          <div className="mb-5 flex items-center gap-2.5">
+            <Info size={18} className="shrink-0 text-[color:var(--dash-accent)]" />
             <div>
-              <h1 className="text-[15px] font-bold leading-none text-white" style={{ fontFamily: N }}>
+              <h1 className="text-[14px] font-bold leading-none text-white" style={{ fontFamily: N }}>
                 Info Panel
               </h1>
-              <p className="mt-0.5 text-[11px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>
-                Capitalife Capital · Internes Dokument · kein Angebot
+              <p className="mt-0.5 text-[10px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>
+                Intern · kein Angebot · nicht geprüft
               </p>
             </div>
           </div>
 
-          {/* ── ROW 1: Strategy side-by-side ───────────────────────────────── */}
-          <div className="mb-4 grid gap-3 lg:grid-cols-2">
+          {/* ── ROW 1 — 3 Strategien nebeneinander ────────────────────────── */}
+          <div className="mb-4 grid grid-cols-3 gap-3">
+
+            {/* CFD Live */}
+            <Card accent>
+              <div className="mb-3 flex items-center justify-between">
+                <div>
+                  <CardLabel>Live · CFD-Strategie</CardLabel>
+                  <CardTitle>Intraday &amp; Swing</CardTitle>
+                </div>
+                <Badge color="gold">Live</Badge>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <StatRow icon={<TrendingUp size={12} className="text-green-400" />} label="Rendite p.a." value="+35.2%" green />
+                <StatRow icon={<TrendingDown size={12} className="text-red-400" />} label="Max DD" value="−11.8%" red />
+                <StatRow icon={<Activity size={12} />} label="Sharpe" value="1.60" />
+                <StatRow icon={<Zap size={12} />} label="Calmar" value="3.0" />
+                <StatRow icon={<Target size={12} />} label="Profit Factor" value="1.28" />
+                <StatRow icon={<Calendar size={12} />} label="Seit" value="Apr 2024" />
+              </div>
+            </Card>
 
             {/* White Swan */}
             <Card>
-              <div className="mb-3 flex items-start justify-between gap-2">
+              <div className="mb-3 flex items-center justify-between">
                 <div>
-                  <Label>01 · Futures / Commodities</Label>
-                  <Title>White Swan Portfolio</Title>
+                  <CardLabel>01 · Futures · OOS BT</CardLabel>
+                  <CardTitle>White Swan Portfolio</CardTitle>
                 </div>
                 <Badge color="gold">Unkorreliert</Badge>
               </div>
-              {/* 4-stat grid */}
-              <div className="mb-3 grid grid-cols-4 gap-2">
-                {[
-                  { l: "CAGR OOS",   v: "+4.6%",  neg: false },
-                  { l: "Max DD",     v: "−4.4%",  neg: true  },
-                  { l: "Sharpe",     v: "1.27",   neg: false },
-                  { l: "Calmar",     v: "1.04",   neg: false },
-                ].map(({ l, v, neg }) => (
-                  <MiniStat key={l} label={l} value={v} negative={neg} />
-                ))}
+              <div className="grid grid-cols-2 gap-2">
+                <StatRow icon={<TrendingUp size={12} className="text-green-400" />} label="CAGR OOS" value="+4.6%" green />
+                <StatRow icon={<TrendingDown size={12} className="text-red-400" />} label="Max DD" value="−4.4%" red />
+                <StatRow icon={<Activity size={12} />} label="Sharpe" value="1.27" />
+                <StatRow icon={<Zap size={12} />} label="Calmar" value="1.04" />
+                <StatRow icon={<Layers size={12} />} label="Strategien" value="35 aktiv" />
+                <StatRow icon={<Globe size={12} />} label="Sleeves" value="5 Märkte" />
               </div>
-              {/* Two-col info */}
-              <div className="mb-3 grid grid-cols-2 gap-x-6 gap-y-1.5 text-[12px]">
-                <KV k="Komponenten"     v="35 aktive Strategien" />
-                <KV k="Sleeves"         v="Agrar · Metalle · Indizes · Energie · Forex" />
-                <KV k="Anlagehorizont"  v="Tage – Wochen (je Strategie)" />
-                <KV k="Rebalancing"     v="Sleeve-gewichtet, laufend" />
-                <KV k="Execution"       v="Forward Tracking · kein Live-Konto" />
-                <KV k="Backtest"        v="Walk-Forward OOS 2019–2026 (IS ab 2003)" />
-              </div>
-              <Caveat>OOS-Backtest, nicht unabhängig geprüft. Keine Live-Execution. AuM EUR 0.</Caveat>
             </Card>
 
             {/* Core Invest */}
             <Card>
-              <div className="mb-3 flex items-start justify-between gap-2">
+              <div className="mb-3 flex items-center justify-between">
                 <div>
-                  <Label>02 · ETF / Aktien / Rohstoffe</Label>
-                  <Title>Core Invest</Title>
+                  <CardLabel>02 · ETF / Aktien · OOS BT</CardLabel>
+                  <CardTitle>Core Invest</CardTitle>
                 </div>
-                <Badge color="blue">Leicht korreliert</Badge>
+                <Badge color="blue">Leicht korr.</Badge>
               </div>
-              <div className="mb-3 grid grid-cols-4 gap-2">
-                {[
-                  { l: "CAGR OOS",   v: "+17.1%", neg: false },
-                  { l: "Max DD",     v: "−21.7%", neg: true  },
-                  { l: "Sharpe",     v: "1.15",   neg: false },
-                  { l: "Calmar",     v: "0.79",   neg: false },
-                ].map(({ l, v, neg }) => (
-                  <MiniStat key={l} label={l} value={v} negative={neg} />
-                ))}
+              <div className="grid grid-cols-2 gap-2">
+                <StatRow icon={<TrendingUp size={12} className="text-green-400" />} label="CAGR OOS" value="+17.1%" green />
+                <StatRow icon={<TrendingDown size={12} className="text-red-400" />} label="Max DD" value="−21.7%" red />
+                <StatRow icon={<Activity size={12} />} label="Sharpe" value="1.15" />
+                <StatRow icon={<Zap size={12} />} label="Calmar" value="0.79" />
+                <StatRow icon={<Layers size={12} />} label="Assets" value="8" />
+                <StatRow icon={<RefreshCw size={12} />} label="Rebalancing" value="Quartalsweise" />
               </div>
-              <div className="mb-3 grid grid-cols-2 gap-x-6 gap-y-1.5 text-[12px]">
-                <KV k="Komponenten"     v="8 Assets (QQQ 45% · GLD 25% · Sleeves 30%)" />
-                <KV k="Benchmark"       v="SPY" />
-                <KV k="Anlagehorizont"  v="Wochen – Monate (Langfrist)" />
-                <KV k="Rebalancing"     v="Quartalsweise (Mrz · Jun · Sep · Dez)" />
-                <KV k="Status"          v="Approved · Frozen · noch kein Live-Konto" />
-                <KV k="Backtest"        v="Grid-Sweep 50.388 Komb. · OOS 2019–2026 (IS ab 2000)" />
-              </div>
-              <Caveat>OOS-Backtest, SPMO-Proxy 2000–2015. Calmar-optimiert. Kein Live-Track-Record.</Caveat>
             </Card>
           </div>
 
-          {/* ── ROW 2: Vergleich + Investor-Facts ──────────────────────────── */}
-          <div className="mb-4 grid gap-3 lg:grid-cols-[1fr_320px]">
+          {/* ── ROW 2 — Vergleich + Investor/Risiko ───────────────────────── */}
+          <div className="mb-4 grid grid-cols-[1fr_260px] gap-3">
 
             {/* Comparison table */}
             <Card noPad>
-              <div className="border-b border-white/[0.06] px-4 py-2.5">
-                <Label>Vergleich · Anlageklassen</Label>
+              <div className="flex items-center gap-2 border-b border-white/[0.05] px-4 py-2.5">
+                <BarChart2 size={12} className="text-[color:var(--dash-accent)]" />
+                <CardLabel>Vergleich · Anlageklassen</CardLabel>
               </div>
-              <table className="w-full text-[12px]">
+              <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/[0.04]">
                     {["Strategie / Asset", "CAGR", "Max DD", "Sharpe", "Calmar", "Horizont", "Korr. zu WS"].map(h => (
@@ -123,112 +114,127 @@ export default function AboutPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/[0.03]">
-                  <TRow accent name="CFD Live-Strategie" tag="LV" cagr="+35.2%" dd="−11.8%" sharpe="1.60" calmar="3.0" horizon="Intraday–Tage" corr="n/a" />
-                  <TRow accent name="White Swan (OOS BT)" tag="BT" cagr="+4.6%" dd="−4.4%" sharpe="1.27" calmar="1.04" horizon="Tage–Wochen" corr="—" />
-                  <TRow name="Core Invest (OOS BT)" tag="BT" cagr="+17.1%" dd="−21.7%" sharpe="1.15" calmar="0.79" horizon="Wochen–Monate" corr="mittel" />
-                  <TRow name="S&P 500" cagr="~10%" dd="−55%" sharpe="~0.5" calmar="~0.2" horizon="Langfrist" corr="niedrig" />
-                  <TRow name="DAX" cagr="~8%" dd="−60%" sharpe="~0.4" calmar="~0.1" horizon="Langfrist" corr="niedrig" />
-                  <TRow name="Gold" cagr="~7%" dd="−45%" sharpe="~0.4" calmar="~0.2" horizon="Langfrist" corr="mittel" />
-                  <TRow name="60/40" cagr="~7%" dd="−35%" sharpe="~0.5" calmar="~0.2" horizon="Langfrist" corr="niedrig" />
-                  <TRow name="Anleihen (AGG)" cagr="~3%" dd="−20%" sharpe="~0.4" calmar="~0.2" horizon="Langfrist" corr="sehr niedrig" />
+                  <TR accent name="CFD Live-Strategie" tag="LV" cagr="+35.2%" dd="−11.8%" s="1.60" c="3.0" h="Intraday–Tage" k="—" />
+                  <TR accent name="White Swan" tag="BT" cagr="+4.6%" dd="−4.4%" s="1.27" c="1.04" h="Tage–Wochen" k="—" />
+                  <TR name="Core Invest" tag="BT" cagr="+17.1%" dd="−21.7%" s="1.15" c="0.79" h="Wochen–Monate" k="mittel" />
+                  <TR name="S&P 500" cagr="~10%" dd="−55%" s="~0.5" c="~0.2" h="Langfrist" k="niedrig" />
+                  <TR name="DAX" cagr="~8%" dd="−60%" s="~0.4" c="~0.1" h="Langfrist" k="niedrig" />
+                  <TR name="Gold" cagr="~7%" dd="−45%" s="~0.4" c="~0.2" h="Langfrist" k="mittel" />
+                  <TR name="60/40" cagr="~7%" dd="−35%" s="~0.5" c="~0.2" h="Langfrist" k="niedrig" />
+                  <TR name="Anleihen (AGG)" cagr="~3%" dd="−20%" s="~0.4" c="~0.2" h="Langfrist" k="sehr niedrig" />
                 </tbody>
               </table>
             </Card>
 
-            {/* Investor facts */}
+            {/* Investor + Risiko */}
             <div className="flex flex-col gap-3">
               <Card>
-                <Label>Für Investoren</Label>
-                <div className="mt-2 space-y-1.5">
-                  <KV k="Struktur"         v="Eigenverantwortlich verwaltetes Konto" />
-                  <KV k="Mindestanlage"    v="Nicht definiert (intern)" />
-                  <KV k="Liquidität"       v="Täglich (Futures / CFD)" />
-                  <KV k="Gebühren"         v="Keine externe Management Fee" />
-                  <KV k="Transparenz"      v="Live-Dashboard + Signal-Log" />
-                  <KV k="Ausschüttung"     v="Keine — Thesaurierend" />
-                  <KV k="Währung"          v="EUR / USD" />
-                  <KV k="Regulierung"      v="Eigenhandel · kein regulierter Fonds" />
+                <div className="mb-2.5 flex items-center gap-2">
+                  <Wallet size={12} className="text-[color:var(--dash-accent)]" />
+                  <CardLabel>Für Investoren</CardLabel>
+                </div>
+                <div className="space-y-1.5">
+                  <KV k="Liquidität"   v="Täglich" />
+                  <KV k="Gebühren"     v="Keine" />
+                  <KV k="Währung"      v="EUR / USD" />
+                  <KV k="Ausschüttung" v="Thesaurierend" />
+                  <KV k="Struktur"     v="Eigenhandel" />
+                  <KV k="Regulierung"  v="Kein reg. Fonds" />
                 </div>
               </Card>
               <Card>
-                <Label>Risikoprofil</Label>
-                <div className="mt-2 space-y-1.5">
-                  <KV k="CFD-Strategie"    v="Mittel–Hoch (MaxDD ~12%)" />
-                  <KV k="White Swan"       v="Niedrig (OOS MaxDD ~4%)" />
-                  <KV k="Core Invest"      v="Mittel (OOS MaxDD ~22%)" />
-                  <KV k="Korrelation"      v="WS zu Aktien: sehr niedrig" />
-                  <KV k="Leverage"         v="Variabel (je Sleeve / Broker)" />
-                  <KV k="Margin"           v="Intraday-Kontrolle aktiv" />
+                <div className="mb-2.5 flex items-center gap-2">
+                  <Shield size={12} className="text-[color:var(--dash-accent)]" />
+                  <CardLabel>Risikoprofil</CardLabel>
+                </div>
+                <div className="space-y-1.5">
+                  <KV k="CFD"          v="Mittel–Hoch" />
+                  <KV k="White Swan"   v="Niedrig" />
+                  <KV k="Core Invest"  v="Mittel" />
+                  <KV k="Korrelation"  v="WS zu Aktien: sehr niedrig" />
+                  <KV k="Leverage"     v="Variabel" />
                 </div>
               </Card>
             </div>
           </div>
 
-          {/* ── ROW 3: Eckdaten + Zeithorizont ────────────────────────────── */}
-          <div className="grid gap-3 lg:grid-cols-3">
+          {/* ── ROW 3 — Zeithorizont / Eckdaten / Track Record ────────────── */}
+          <div className="grid grid-cols-3 gap-3">
             <Card>
-              <Label>Zeithorizont</Label>
-              <div className="mt-2 space-y-1.5">
-                <KV k="CFD Intraday"      v="Minuten – Stunden" />
-                <KV k="CFD Swing"         v="1–5 Tage" />
-                <KV k="White Swan"        v="1–30 Tage (je Sleeves)" />
-                <KV k="Core Invest"       v="Wochen – 12 Monate" />
-                <KV k="WS Backtest"       v="OOS ab Jan 2019 / IS ab 2003" />
-                <KV k="CI Backtest"       v="OOS ab Jan 2019 / IS ab 2000" />
+              <div className="mb-2.5 flex items-center gap-2">
+                <Clock size={12} className="text-[color:var(--dash-accent)]" />
+                <CardLabel>Zeithorizont</CardLabel>
+              </div>
+              <div className="space-y-1.5">
+                <KV k="CFD Intraday"  v="Minuten–Stunden" />
+                <KV k="CFD Swing"     v="1–5 Tage" />
+                <KV k="White Swan"    v="1–30 Tage" />
+                <KV k="Core Invest"   v="Wochen–12 Monate" />
+                <KV k="WS IS-Periode" v="2003–2018" />
+                <KV k="CI IS-Periode" v="2000–2018" />
               </div>
             </Card>
             <Card>
-              <Label>Eckdaten</Label>
-              <div className="mt-2 space-y-1.5">
-                <KV k="Live-Tracking seit"  v="Apr 2024" />
-                <KV k="WS Komponenten"      v="35 aktiv · 5 Sleeves · 29 Assets" />
-                <KV k="CI Assets"           v="8 Komponenten (4 ETF + 4 Sleeves)" />
-                <KV k="Märkte"              v="Futures · CFD · ETF · Aktien · FX" />
-                <KV k="Monitoring"          v="24/7 via Capitalife Terminal" />
-                <KV k="Signale"             v="Automatisch · regelbasiert · kein Ermessen" />
+              <div className="mb-2.5 flex items-center gap-2">
+                <Globe size={12} className="text-[color:var(--dash-accent)]" />
+                <CardLabel>Eckdaten</CardLabel>
+              </div>
+              <div className="space-y-1.5">
+                <KV k="Live seit"     v="Apr 2024" />
+                <KV k="WS Sleeves"    v="Agrar · Metalle · Indizes · Energie · Forex" />
+                <KV k="WS Assets"     v="29 Futures" />
+                <KV k="CI Kern"       v="QQQ 45% · GLD 25%" />
+                <KV k="Märkte"        v="Futures · CFD · ETF · FX" />
+                <KV k="Signale"       v="Vollautomatisch" />
               </div>
             </Card>
             <Card>
-              <Label>Track Record</Label>
-              <div className="mt-2 space-y-1.5">
-                <KV k="Periode"             v="Apr 2024 – Jul 2026 (Live)" />
-                <KV k="Rendite gesamt"      v="+97.2% (kompoundiert +114.6%)" />
-                <KV k="Rendite p.a."        v="+35.2% ann." />
-                <KV k="Calmar (Live)"       v="3.0 (Rendite / MaxDD)" />
-                <KV k="Profit Factor"       v="1.28" />
-                <KV k="Quelle"             v="Broker-Statement (nicht geprüft)" />
+              <div className="mb-2.5 flex items-center gap-2">
+                <TrendingUp size={12} className="text-[color:var(--dash-accent)]" />
+                <CardLabel>Track Record · Live</CardLabel>
+              </div>
+              <div className="space-y-1.5">
+                <KV k="Periode"       v="Apr 2024 – Jul 2026" />
+                <KV k="Gesamt"        v="+97.2%" />
+                <KV k="Kompoundiert"  v="+114.6%" />
+                <KV k="p.a."          v="+35.2%" />
+                <KV k="Calmar"        v="3.0" />
+                <KV k="Quelle"        v="Broker-Statement" />
               </div>
             </Card>
           </div>
-
-          <p className="mt-4 text-[10px] leading-relaxed text-zinc-700" style={{ fontFamily: M }}>
-            ¹ Statement-basiert, nicht unabhängig geprüft. BT = Walk-Forward OOS Backtest. LV = Live.
-            Klassische Asset-Zahlen sind approximierte historische Richtwerte. Kein Anlageberatungsangebot.
-          </p>
 
         </div>
       </div>
 
       {/* Scroll fade */}
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-20"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-16"
         style={{ background: "linear-gradient(to top, #0a0a0c 0%, transparent 100%)" }}
       />
     </div>
   );
 }
 
-// ─── Primitive building blocks ────────────────────────────────────────────────
+// ─── Primitives ───────────────────────────────────────────────────────────────
 
-function Card({ children, noPad = false }: { children: React.ReactNode; noPad?: boolean }) {
+function Card({ children, noPad = false, accent = false }: {
+  children: React.ReactNode; noPad?: boolean; accent?: boolean;
+}) {
   return (
-    <div className={`rounded-[16px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] shadow-[0_12px_32px_-12px_rgba(0,0,0,0.5)] ${noPad ? "" : "p-4"}`}>
+    <div className={[
+      "rounded-[16px] border shadow-[0_12px_32px_-12px_rgba(0,0,0,0.5)]",
+      accent
+        ? "border-[color:var(--dash-accent)]/20 bg-gradient-to-b from-[#201e16] to-[#161510]"
+        : "border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517]",
+      noPad ? "" : "p-4",
+    ].join(" ")}>
       {children}
     </div>
   );
 }
 
-function Label({ children }: { children: React.ReactNode }) {
+function CardLabel({ children }: { children: React.ReactNode }) {
   return (
     <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[color:var(--dash-accent)]" style={{ fontFamily: M }}>
       {children}
@@ -236,9 +242,9 @@ function Label({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Title({ children }: { children: React.ReactNode }) {
+function CardTitle({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mt-0.5 text-[16px] font-bold text-white" style={{ fontFamily: N }}>
+    <p className="mt-0.5 text-[15px] font-bold text-white" style={{ fontFamily: N }}>
       {children}
     </p>
   );
@@ -249,58 +255,59 @@ function Badge({ children, color }: { children: React.ReactNode; color: "gold" |
     ? "border-[color:var(--dash-accent)]/30 bg-[color:var(--dash-accent)]/10 text-[color:var(--dash-accent)]"
     : "border-blue-400/30 bg-blue-400/10 text-blue-400";
   return (
-    <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${cls}`} style={{ fontFamily: M }}>
+    <span className={`shrink-0 self-start rounded-full border px-2 py-0.5 text-[10px] font-semibold ${cls}`} style={{ fontFamily: M }}>
       {children}
     </span>
   );
 }
 
-function MiniStat({ label, value, negative }: { label: string; value: string; negative?: boolean }) {
+function StatRow({ icon, label, value, green = false, red = false }: {
+  icon: React.ReactNode; label: string; value: string; green?: boolean; red?: boolean;
+}) {
   return (
-    <div className="rounded-[10px] border border-white/[0.04] bg-white/[0.025] px-3 py-2">
-      <p className="text-[10px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{label}</p>
-      <p className={`mt-0.5 text-[15px] font-bold ${negative ? "text-zinc-400" : "text-white"}`} style={{ fontFamily: N }}>{value}</p>
+    <div className="flex items-center gap-1.5 rounded-[8px] border border-white/[0.04] bg-white/[0.025] px-2.5 py-2">
+      <span className="shrink-0 text-[color:var(--dash-muted)]">{icon}</span>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[9px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{label}</p>
+        <p className={`text-[13px] font-bold leading-tight ${green ? "text-green-400" : red ? "text-red-400" : "text-white"}`} style={{ fontFamily: N }}>
+          {value}
+        </p>
+      </div>
     </div>
   );
 }
 
 function KV({ k, v }: { k: string; v: string }) {
   return (
-    <div className="flex items-start justify-between gap-2">
+    <div className="flex items-baseline justify-between gap-2">
       <span className="shrink-0 text-[11px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{k}</span>
-      <span className="text-right text-[11px] text-white" style={{ fontFamily: M }}>{v}</span>
+      <span className="text-right text-[11px] font-medium text-white" style={{ fontFamily: M }}>{v}</span>
     </div>
   );
 }
 
-function Caveat({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="text-[10px] leading-relaxed text-zinc-600" style={{ fontFamily: M }}>⚠️ {children}</p>
-  );
-}
-
-function TRow({
-  name, tag, cagr, dd, sharpe, calmar, horizon, corr, accent = false,
-}: {
+function TR({ name, tag, cagr, dd, s, c, h, k, accent = false }: {
   name: string; tag?: string; cagr: string; dd: string;
-  sharpe: string; calmar: string; horizon: string; corr: string; accent?: boolean;
+  s: string; c: string; h: string; k: string; accent?: boolean;
 }) {
   return (
-    <tr className={accent ? "bg-[color:var(--dash-accent)]/[0.035]" : ""}>
+    <tr className={accent ? "bg-[color:var(--dash-accent)]/[0.03]" : ""}>
       <td className="px-4 py-2">
-        <span className={`${accent ? "text-[color:var(--dash-accent)]" : "text-white"} font-medium`} style={{ fontFamily: M }}>{name}</span>
+        <span className={`text-[12px] font-medium ${accent ? "text-[color:var(--dash-accent)]" : "text-white"}`} style={{ fontFamily: M }}>
+          {name}
+        </span>
         {tag && (
-          <span className={`ml-1.5 rounded px-1 py-0.5 text-[9px] font-bold ${accent ? "bg-[color:var(--dash-accent)]/15 text-[color:var(--dash-accent)]" : "bg-white/[0.06] text-zinc-500"}`}>
+          <span className={`ml-1.5 rounded px-1 py-0.5 text-[9px] font-semibold ${accent ? "bg-[color:var(--dash-accent)]/15 text-[color:var(--dash-accent)]" : "bg-white/[0.06] text-zinc-500"}`}>
             {tag}
           </span>
         )}
       </td>
-      <td className="px-4 py-2 font-semibold text-green-400" style={{ fontFamily: N }}>{cagr}</td>
-      <td className="px-4 py-2 font-semibold text-red-400" style={{ fontFamily: N }}>{dd}</td>
-      <td className="px-4 py-2 text-white" style={{ fontFamily: N }}>{sharpe}</td>
-      <td className="px-4 py-2 text-white" style={{ fontFamily: N }}>{calmar}</td>
-      <td className="px-4 py-2 text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{horizon}</td>
-      <td className="px-4 py-2 text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{corr}</td>
+      <td className="px-4 py-2 text-[12px] font-semibold text-green-400" style={{ fontFamily: N }}>{cagr}</td>
+      <td className="px-4 py-2 text-[12px] font-semibold text-red-400" style={{ fontFamily: N }}>{dd}</td>
+      <td className="px-4 py-2 text-[12px] text-white" style={{ fontFamily: N }}>{s}</td>
+      <td className="px-4 py-2 text-[12px] text-white" style={{ fontFamily: N }}>{c}</td>
+      <td className="px-4 py-2 text-[11px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{h}</td>
+      <td className="px-4 py-2 text-[11px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{k}</td>
     </tr>
   );
 }
