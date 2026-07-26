@@ -336,7 +336,8 @@ function timeAgo(iso: string | undefined): string {
 const DOMAIN_COUNTRY: Record<string, string> = {
   "finance.yahoo.com": "US", "fortune.com": "US", "cnbc.com": "US", "apnews.com": "US",
   "wsj.com": "US", "marketwatch.com": "US", "bloomberg.com": "US",
-  "ft.com": "GB", "bbc.com": "GB", "theguardian.com": "GB", "economist.com": "GB",
+  "nasdaq.com": "US", "investors.com": "US", "seekingalpha.com": "US", "forbes.com": "US", "businessinsider.com": "US",
+  "ft.com": "GB", "bbc.com": "GB", "theguardian.com": "GB", "economist.com": "GB", "reuters.com": "GB",
   "handelsblatt.com": "DE", "spiegel.de": "DE", "faz.net": "DE",
   "financialpost.com": "CA", "thejournal.ie": "IE",
   "scmp.com": "HK", "nikkei.com": "JP",
