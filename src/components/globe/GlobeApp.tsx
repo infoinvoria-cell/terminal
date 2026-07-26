@@ -19,6 +19,7 @@ import ImpactPanel, { type ImpactPanelData } from "@/components/globe/ImpactPane
 import GlobeTimeline from "@/components/globe/GlobeTimeline";
 import GlobeSentinelChat from "@/components/globe/GlobeSentinelChat";
 import GlobePatternAlerts from "@/components/globe/GlobePatternAlerts";
+import MarketSessions from "@/components/globe/MarketSessions";
 import type { GlobePattern } from "@/app/api/globe/pattern-detection/route";
 import CountryFlag from "@/components/globe/CountryFlag";
 import { EVENT_IMPACT_MAP, REGION_LABELS, IMPACT_SYMBOL_TO_ID, detectEventRegion, impactAssetIds } from "@/lib/globe/eventImpactMap";
@@ -696,6 +697,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   const [timelineDay, setTimelineDay] = useState<string | null>(null);
   const [showSentinel, setShowSentinel] = useState(false);
   const [showGlobeSettings, setShowGlobeSettings] = useState(false);
+  const [showSessions, setShowSessions] = useState(true);
   const [patternAlerts, setPatternAlerts] = useState<GlobePattern[]>([]);
   const [dismissedPatternIds, setDismissedPatternIds] = useState<string[]>([]);
   const [dataSource, setDataSource] = useState<DataSource>(() => {
@@ -3045,6 +3047,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                       style={{ background: "rgba(10,11,15,0.96)", border: "1px solid rgba(255,255,255,0.12)", boxShadow: "0 8px 26px rgba(0,0,0,0.55)" }}
                     >
                       {([
+                        { label: "🕐 Market Sessions", active: showSessions, onClick: () => setShowSessions((v) => !v) },
                         { label: "⏱ Event Timeline", active: showTimeline, onClick: () => setShowTimeline((v) => !v) },
                         { label: "🛰 Sentinel Intel", active: showSentinel, onClick: () => setShowSentinel((v) => !v) },
                         ...(mapMode === "globe" ? [
@@ -3146,6 +3149,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                   onFocus={onPatternFocus}
                   onDismiss={onPatternDismiss}
                 />
+                {showSessions && !showTimeline && <MarketSessions />}
               </>
             )}
           </div>
