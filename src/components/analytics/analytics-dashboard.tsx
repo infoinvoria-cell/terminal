@@ -2018,7 +2018,11 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
       // Without it (e.g. Vercel: the base is the Pine backtest fallback), render
       // the base dataset directly so the curve/metrics show instead of an empty
       // recomputation.
-      const canScope = mode === "backtest" ? Boolean(fsportfolio?.backtest?.ready) : Boolean(fsportfolio);
+      // Only scope when the snapshot has full history (adaptiveStartDate ≤ 2005).
+      // Sparse Supabase data (post-2005 start) produces misleading metrics — fall back to baseDataset (Pine).
+      const adaptiveStart = fsportfolio?.backtest?.adaptiveStartDate ?? null;
+      const hasFullHistory = Boolean(adaptiveStart && adaptiveStart <= "2005-01-01");
+      const canScope = mode === "backtest" ? Boolean(fsportfolio?.backtest?.ready) && hasFullHistory : Boolean(fsportfolio);
       if (!canScope) return baseDataset;
       return buildScopedInvestDataset(fsportfolio!, mode, investWeights, investEnabled, startFilter, baseDataset);
     }

@@ -441,8 +441,12 @@ export function getAnalyticsDataset(tab: AnalyticsTab, mode: AnalyticsMode, fspo
     // Full multi-asset snapshot (local, with OHLC) is richest — use it when ready.
     // Otherwise (e.g. Vercel, no OHLC) fall back to the committed Pine backtest so
     // Core Invest / Backtest still shows a real curve instead of an empty state.
+    // Also fall back to Pine when Supabase data is sparse (adaptiveStartDate after 2005),
+    // because a few years of data produces misleading low-volatility/n-a metrics.
     const snapshotReady = Boolean(fsportfolio?.backtest?.ready);
-    if (mode === "backtest" && !snapshotReady && data.coreInvestPineBacktest) {
+    const adaptiveStart = fsportfolio?.backtest?.adaptiveStartDate ?? null;
+    const hasFullHistory = Boolean(adaptiveStart && adaptiveStart <= "2005-01-01");
+    if (mode === "backtest" && (!snapshotReady || !hasFullHistory) && data.coreInvestPineBacktest) {
       return data.coreInvestPineBacktest;
     }
     if (fsportfolio) return createInvestDatasetFromSnapshot(mode, fsportfolio);
