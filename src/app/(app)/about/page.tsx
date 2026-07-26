@@ -1,265 +1,196 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Capitalife Capital — About",
+  title: "About — Capitalife Capital",
   description: "Systematisches, regelbasiertes Trading — unkorreliert zu klassischen Märkten.",
 };
 
-// ─── Design tokens ────────────────────────────────────────────────────────────
-const gold   = "#e2ca7a";
-const goldDim = "rgba(226,202,122,0.18)";
-const goldBorder = "rgba(226,202,122,0.22)";
-const bg     = "#0a0a0c";
-const surface = "rgba(255,255,255,0.03)";
-const surfaceHover = "rgba(255,255,255,0.05)";
-const border = "rgba(255,255,255,0.07)";
-const textPrimary   = "#f0f2f5";
-const textSecondary = "#8b8f99";
-const textMuted     = "#5a5d66";
-const green  = "#4ade80";
-const red    = "#f87171";
-
-// ─── Static data (source-verified) ────────────────────────────────────────────
-// White Swan F+10 Portfolio — public/data/whiteswan/portfolio_f10_equity.json
-//   summary.cagr=4.608, summary.maxDD=-4.419, summary.sharpe=1.267
-//   meta.is_start=2003-01-01, meta.oos_start=2019-01-01
-// Short-term CFD — src/data/capitalife/performance-monthly.json
-//   period: 11.04.2024 – 01.07.2026, basis: Statement-based
-//   From Performance Source Register: return=97.2%, ann.=35.2%, maxDD=-11.76%, sharpe=1.60
-// White Swan strategy count — src/data/capitalife/white-swan-global-strategy.json
+// Numbers sourced from verified files only — no estimates:
+// White Swan F+10  → public/data/whiteswan/portfolio_f10_equity.json
+//   cagr=4.608, maxDD=-4.419, sharpe=1.267 (OOS 2019-2026 backtest)
+// CFD live         → src/data/capitalife/performance-monthly.json +
+//                    04_Track_Record/Performance Source Register.md
+//   Ann.=35.2%, maxDD=-11.76%, sharpe=1.60 (statement-based, Apr 2024–Jul 2026)
+// Strategy count   → src/data/capitalife/white-swan-global-strategy.json
 //   active_entries=35, unique_assets=29
 
 export default function AboutPage() {
   return (
-    <main
-      style={{
-        color: textPrimary,
-        fontFamily: "var(--font-montserrat, 'Montserrat', sans-serif)",
-      }}
-    >
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px 80px" }}>
+    <div className="h-full overflow-y-auto overflow-x-hidden">
+      <div className="mx-auto max-w-5xl px-6 pb-20 pt-10 lg:px-10">
 
         {/* ── HERO ──────────────────────────────────────────────────────────── */}
-        <section style={{ paddingTop: 80, paddingBottom: 72, borderBottom: `1px solid ${border}` }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 28 }}>
-            <div style={{ width: 32, height: 2, background: gold, borderRadius: 1 }} />
-            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", color: gold, textTransform: "uppercase" }}>
+        <section className="border-b border-white/[0.06] pb-16">
+          <div className="mb-7 flex items-center gap-2">
+            <div className="h-0.5 w-8 rounded-full bg-[#e2ca7a]" />
+            <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#e2ca7a]">
               Capital Management
             </span>
           </div>
 
-          <h1 style={{
-            fontSize: "clamp(32px, 5vw, 58px)",
-            fontWeight: 800,
-            letterSpacing: "-0.02em",
-            lineHeight: 1.08,
-            marginBottom: 20,
-            color: textPrimary,
-          }}>
+          <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-white lg:text-6xl" style={{ letterSpacing: "-0.02em" }}>
             CAPITALIFE CAPITAL
           </h1>
-
-          <p style={{
-            fontSize: "clamp(16px, 2.2vw, 22px)",
-            fontWeight: 400,
-            color: textSecondary,
-            maxWidth: 680,
-            lineHeight: 1.5,
-            marginBottom: 52,
-          }}>
+          <p className="mb-12 max-w-2xl text-lg text-zinc-400 leading-relaxed">
             Systematisches, regelbasiertes Trading —<br />
             unkorreliert zu klassischen Märkten.
           </p>
 
-          {/* Three hero numbers */}
-          <div style={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-            <HeroStat
-              label="Rendite p.a. (Live)"
-              value="+35.2%"
-              sub="CFD-Konto Apr 2024 – Jul 2026"
-              note="statement-basiert"
-            />
-            <HeroStat
-              label="Max. Drawdown (Live)"
-              value="-11.8%"
-              sub="CFD-Konto Apr 2024 – Jul 2026"
-              note="statement-basiert"
-            />
-            <HeroStat
-              label="Sharpe Ratio (Live)"
-              value="1.60"
-              sub="CFD-Konto Apr 2024 – Jul 2026"
-              note="statement-basiert"
-            />
+          {/* Hero stats */}
+          <div className="flex flex-wrap gap-3">
+            {[
+              { label: "Rendite p.a. (Live)", value: "+35.2%", sub: "Apr 2024 – Jul 2026¹" },
+              { label: "Max. Drawdown (Live)", value: "−11.8%", sub: "Apr 2024 – Jul 2026¹" },
+              { label: "Sharpe Ratio (Live)",  value: "1.60",   sub: "Apr 2024 – Jul 2026¹" },
+            ].map(({ label, value, sub }) => (
+              <div
+                key={label}
+                className="flex-1 basis-44 rounded-xl border border-[#e2ca7a]/20 bg-[#e2ca7a]/10 px-6 py-5"
+              >
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-[#e2ca7a]">{label}</p>
+                <p className="text-4xl font-extrabold leading-none text-[#e2ca7a]" style={{ letterSpacing: "-0.03em" }}>{value}</p>
+                <p className="mt-2 text-xs text-zinc-500">{sub}</p>
+              </div>
+            ))}
           </div>
-
-          <p style={{ marginTop: 20, fontSize: 11, color: textMuted, letterSpacing: "0.03em" }}>
-            ¹ Statement-basiert, nicht unabhängig geprüft. Kein Forward-Looking Prospekt.
-            White Swan Portfolio: ausschließlich Walk-Forward Backtest-Daten (2003–2026).
+          <p className="mt-4 text-[11px] text-zinc-600">
+            ¹ Statement-basiert (RoboForex), nicht unabhängig geprüft. Backtest-Daten White Swan: Walk-Forward OOS 2019–2026.
           </p>
         </section>
 
-        {/* ── UNSERE PHILOSOPHIE ───────────────────────────────────────────── */}
-        <section style={{ paddingTop: 64, paddingBottom: 64, borderBottom: `1px solid ${border}` }}>
+        {/* ── PHILOSOPHIE ───────────────────────────────────────────────────── */}
+        <section className="border-b border-white/[0.06] py-16">
           <SectionLabel>Unsere Philosophie</SectionLabel>
-          <h2 style={h2Style}>Zwei Strategien. Ein System.</h2>
+          <h2 className="mb-10 text-2xl font-bold tracking-tight text-white lg:text-3xl">Zwei Strategien. Ein System.</h2>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16, marginTop: 40 }}>
-
+          <div className="grid gap-4 lg:grid-cols-2">
             <StrategyCard
               tag="01"
               title="WHITE SWAN PORTFOLIO"
               badge="Unkorreliert"
-              badgeColor={gold}
+              badgeClass="border-[#e2ca7a]/30 bg-[#e2ca7a]/10 text-[#e2ca7a]"
               desc="Vollständig regelbasiert über 35 aktive Strategien auf 29 Futures-Märkten. Diversifikation über Rohstoffe, Edelmetalle, Agrar, Indizes und Forex."
               goal="Positive Rendite unabhängig von Marktphasen"
               stats={[
                 { label: "CAGR (OOS Backtest 2019–2026)", value: "+4.6%" },
-                { label: "Max DD (OOS Backtest)", value: "-4.4%" },
-                { label: "Sharpe (OOS Backtest)", value: "1.27" },
-                { label: "Aktive Strategien", value: "35" },
-                { label: "Unique Assets", value: "29" },
+                { label: "Max DD (OOS Backtest)",          value: "−4.4%" },
+                { label: "Sharpe (OOS Backtest)",          value: "1.27"  },
+                { label: "Aktive Strategien",              value: "35"    },
+                { label: "Unique Assets",                  value: "29"    },
               ]}
               caveat="Backtest-Daten (Walk-Forward OOS). Kein Live-Track-Record."
             />
-
             <StrategyCard
               tag="02"
               title="CORE INVEST"
               badge="Leicht korreliert"
-              badgeColor="rgba(96,165,250,0.9)"
+              badgeClass="border-blue-400/30 bg-blue-400/10 text-blue-400"
               desc="Langfristige, systematische Investments in ausgewählte Qualitäts-Assets. ETFs, Aktien und Rohstoffe mit klar definierten Ein- und Ausstiegsregeln."
               goal="Markt schlagen bei kontrolliertem Drawdown"
               stats={[
-                { label: "Ansatz", value: "Aktiv / regelbasiert" },
-                { label: "Universum", value: "ETFs · Aktien · Rohstoffe" },
+                { label: "Ansatz",      value: "Aktiv / regelbasiert" },
+                { label: "Universum",   value: "ETFs · Aktien · Rohstoffe" },
                 { label: "Haltedauer", value: "Wochen – Monate" },
-                { label: "Status", value: "Forschungsphase" },
+                { label: "Status",      value: "Forschungsphase" },
               ]}
               caveat="Noch kein öffentlicher Track Record."
             />
           </div>
         </section>
 
-        {/* ── WARUM CAPITALIFE ─────────────────────────────────────────────── */}
-        <section style={{ paddingTop: 64, paddingBottom: 64, borderBottom: `1px solid ${border}` }}>
+        {/* ── WARUM CAPITALIFE ──────────────────────────────────────────────── */}
+        <section className="border-b border-white/[0.06] py-16">
           <SectionLabel>Für Vertriebler</SectionLabel>
-          <h2 style={h2Style}>Warum Capitalife?</h2>
+          <h2 className="mb-10 text-2xl font-bold tracking-tight text-white lg:text-3xl">Warum Capitalife?</h2>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12, marginTop: 40 }}>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              { icon: "⚙️", title: "100% regelbasiert", text: "Kein Bauchgefühl, kein menschliches Ermessen. Jede Entscheidung folgt einem dokumentierten Algorithmus." },
-              { icon: "📈", title: "20+ Jahre Backtest", text: "Walk-Forward-optimiert auf echten Marktdaten seit 2003. Keine Kurvenanpassung, keine In-Sample-Tricks." },
-              { icon: "🔗", title: "Unkorreliert", text: "Weiße Schwan-Strategien zeigen keine signifikante Korrelation zu DAX, S&P 500 oder klassischen Fonds." },
-              { icon: "🔍", title: "Volle Transparenz", text: "Jedes Signal nachvollziehbar, jede Regel dokumentiert. Live-Dashboard für alle Positionen." },
-              { icon: "📊", title: "Live-Monitoring 24/7", text: "Capitalife Terminal überwacht alle Positionen in Echtzeit und liefert tägliche Signale." },
-              { icon: "🏦", title: "Reguliertes Konto", text: "Execution über Interactive Brokers. Geregelt, transparent, vollständig eigenverantwortlich verwaltet." },
+              { icon: "⚙️", title: "100% regelbasiert",       text: "Kein Bauchgefühl, kein menschliches Ermessen. Jede Entscheidung folgt einem dokumentierten Algorithmus." },
+              { icon: "📈", title: "20+ Jahre Backtest",       text: "Walk-Forward-optimiert auf echten Marktdaten seit 2003. Keine Kurvenanpassung, keine In-Sample-Tricks." },
+              { icon: "🔗", title: "Unkorreliert",             text: "White Swan-Strategien zeigen keine signifikante Korrelation zu DAX, S&P 500 oder klassischen Fonds." },
+              { icon: "🔍", title: "Volle Transparenz",        text: "Jedes Signal nachvollziehbar, jede Regel dokumentiert. Live-Dashboard für alle Positionen." },
+              { icon: "📊", title: "Live-Monitoring 24/7",     text: "Capitalife Terminal überwacht alle Positionen in Echtzeit und liefert tägliche Signale." },
+              { icon: "🏦", title: "Reguliertes Konto",        text: "Execution über Interactive Brokers. Geregelt, transparent, vollständig eigenverantwortlich verwaltet." },
             ].map(({ icon, title, text }) => (
-              <FeatureCard key={title} icon={icon} title={title} text={text} />
-            ))}
-          </div>
-        </section>
-
-        {/* ── VERGLEICH MIT KLASSISCHEN ASSETS ──────────────────────────────── */}
-        <section style={{ paddingTop: 64, paddingBottom: 64, borderBottom: `1px solid ${border}` }}>
-          <SectionLabel>Vergleich</SectionLabel>
-          <h2 style={h2Style}>Capitalife vs. Klassische Anlageklassen</h2>
-          <p style={{ color: textSecondary, fontSize: 14, marginTop: 8, marginBottom: 36 }}>
-            White Swan: Walk-Forward OOS Backtest 2019–2026 ·
-            CFD-Strategie: Live-Statement Apr 2024 – Jul 2026 ·
-            Klassische Assets: historische Richtwerte (Literatur/Indexanbieter)
-          </p>
-
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-              <thead>
-                <tr>
-                  {["Asset / Strategie", "CAGR", "Max DD", "Sharpe", "Korrelation zu WS", "Status"].map((h) => (
-                    <th key={h} style={{ textAlign: "left", padding: "10px 16px", color: textMuted, fontWeight: 600, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", borderBottom: `1px solid ${border}` }}>
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <CompareRow
-                  name="White Swan Portfolio"
-                  tag="BT"
-                  cagr="+4.6%"
-                  dd="-4.4%"
-                  sharpe="1.27"
-                  corr="—"
-                  status="OOS Backtest 2019–2026"
-                  highlight
-                />
-                <CompareRow
-                  name="CFD-Strategie (Intraday)"
-                  tag="LV"
-                  cagr="+35.2%"
-                  dd="-11.8%"
-                  sharpe="1.60"
-                  corr="niedrig"
-                  status="Live Statement ¹"
-                  highlight
-                />
-                <CompareRow name="S&P 500 (SPY)" cagr="~10%" dd="-55%" sharpe="~0.5" corr="niedrig" status="Historisch" />
-                <CompareRow name="DAX" cagr="~8%" dd="-60%" sharpe="~0.4" corr="niedrig" status="Historisch" />
-                <CompareRow name="Gold" cagr="~7%" dd="-45%" sharpe="~0.4" corr="mittel" status="Historisch" />
-                <CompareRow name="Anleihen (AGG)" cagr="~3%" dd="-20%" sharpe="~0.4" corr="niedrig" status="Historisch" />
-                <CompareRow name="60/40 Portfolio" cagr="~7%" dd="-35%" sharpe="~0.5" corr="mittel" status="Historisch" />
-              </tbody>
-            </table>
-          </div>
-          <p style={{ marginTop: 14, fontSize: 11, color: textMuted }}>
-            ¹ Statement-basiert, nicht unabhängig geprüft. BT = Backtest. LV = Live.
-            Klassische Asset-Zahlen sind approximierte Richtwerte aus öffentlich verfügbaren Quellen (Morningstar, Bloomberg-Historien).
-          </p>
-        </section>
-
-        {/* ── TRACK RECORD & DATEN ─────────────────────────────────────────── */}
-        <section style={{ paddingTop: 64, paddingBottom: 64, borderBottom: `1px solid ${border}` }}>
-          <SectionLabel>Daten & Track Record</SectionLabel>
-          <h2 style={h2Style}>Zahlen mit Substanz</h2>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12, marginTop: 40 }}>
-            {[
-              { value: "Apr 2024", label: "Live-Tracking seit", sub: "CFD-Konto (Live)", ok: true },
-              { value: "29", label: "Unique Assets im WS-Universum", sub: "White Swan Portfolio", ok: true },
-              { value: "35", label: "Aktive Strategien", sub: "White Swan Portfolio", ok: true },
-              { value: "2003", label: "Backtest-Daten seit", sub: "Walk-Forward IS + OOS", ok: true },
-              { value: "24/7", label: "Live-Monitoring", sub: "via Capitalife Terminal", ok: true },
-              { value: "0", label: "Live-Execution (White Swan)", sub: "Forward Tracking only — kein Broker", ok: false },
-            ].map(({ value, label, sub, ok }) => (
-              <div key={label} style={{ padding: "20px 20px", background: surface, border: `1px solid ${border}`, borderRadius: 10 }}>
-                <div style={{ fontSize: 28, fontWeight: 800, color: ok ? gold : red, letterSpacing: "-0.02em", lineHeight: 1 }}>
-                  {value}
-                </div>
-                <div style={{ marginTop: 8, fontSize: 13, fontWeight: 600, color: textPrimary }}>{label}</div>
-                <div style={{ marginTop: 4, fontSize: 11, color: textMuted }}>{sub}</div>
+              <div key={title} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+                <div className="mb-3 text-2xl">{icon}</div>
+                <p className="mb-2 text-sm font-bold text-white">{title}</p>
+                <p className="text-sm leading-relaxed text-zinc-400">{text}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* ── KONTAKT / CTA ────────────────────────────────────────────────── */}
-        <section style={{ paddingTop: 64 }}>
-          <SectionLabel>Kontakt</SectionLabel>
-          <h2 style={h2Style}>Sprechen Sie uns an.</h2>
-          <p style={{ color: textSecondary, fontSize: 16, marginTop: 12, maxWidth: 560, lineHeight: 1.6 }}>
-            Interesse an einer Zusammenarbeit oder haben Sie Fragen zu unseren Strategien?
-            Wir freuen uns auf Ihre Nachricht.
+        {/* ── VERGLEICH ─────────────────────────────────────────────────────── */}
+        <section className="border-b border-white/[0.06] py-16">
+          <SectionLabel>Vergleich</SectionLabel>
+          <h2 className="mb-2 text-2xl font-bold tracking-tight text-white lg:text-3xl">Capitalife vs. Klassische Anlageklassen</h2>
+          <p className="mb-8 text-sm text-zinc-500">
+            White Swan: Walk-Forward OOS Backtest 2019–2026 · CFD-Strategie: Live-Statement Apr 2024–Jul 2026 · Klassische Assets: historische Richtwerte
           </p>
 
-          <div style={{ display: "flex", gap: 12, marginTop: 36, flexWrap: "wrap" }}>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/[0.06]">
+                  {["Asset / Strategie", "CAGR", "Max DD", "Sharpe", "Korrelation zu WS", "Status"].map((h) => (
+                    <th key={h} className="pb-3 pr-6 text-left text-[11px] font-semibold uppercase tracking-widest text-zinc-600 first:pl-0">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/[0.04]">
+                <CompareRow name="White Swan Portfolio" tag="BT" cagr="+4.6%" dd="−4.4%" sharpe="1.27" corr="—"      status="OOS Backtest 2019–2026" highlight />
+                <CompareRow name="CFD-Strategie (Intraday)" tag="LV" cagr="+35.2%" dd="−11.8%" sharpe="1.60" corr="niedrig" status="Live Statement¹"       highlight />
+                <CompareRow name="S&P 500 (SPY)"       cagr="~10%" dd="−55%" sharpe="~0.5" corr="niedrig" status="Historisch" />
+                <CompareRow name="DAX"                  cagr="~8%"  dd="−60%" sharpe="~0.4" corr="niedrig" status="Historisch" />
+                <CompareRow name="Gold"                 cagr="~7%"  dd="−45%" sharpe="~0.4" corr="mittel"  status="Historisch" />
+                <CompareRow name="Anleihen (AGG)"       cagr="~3%"  dd="−20%" sharpe="~0.4" corr="niedrig" status="Historisch" />
+                <CompareRow name="60/40 Portfolio"      cagr="~7%"  dd="−35%" sharpe="~0.5" corr="mittel"  status="Historisch" />
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-4 text-[11px] text-zinc-600">
+            ¹ Statement-basiert, nicht unabhängig geprüft. BT = Backtest. LV = Live. Klassische Asset-Zahlen sind approximierte Richtwerte.
+          </p>
+        </section>
+
+        {/* ── TRACK RECORD & DATEN ──────────────────────────────────────────── */}
+        <section className="border-b border-white/[0.06] py-16">
+          <SectionLabel>Daten & Track Record</SectionLabel>
+          <h2 className="mb-10 text-2xl font-bold tracking-tight text-white lg:text-3xl">Zahlen mit Substanz</h2>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { value: "Apr 2024", label: "Live-Tracking seit",            sub: "CFD-Konto (Live)",                ok: true  },
+              { value: "29",       label: "Unique Assets im WS-Universum", sub: "White Swan Portfolio",            ok: true  },
+              { value: "35",       label: "Aktive Strategien",             sub: "White Swan Portfolio",            ok: true  },
+              { value: "2003",     label: "Backtest-Daten seit",           sub: "Walk-Forward IS + OOS",           ok: true  },
+              { value: "24/7",     label: "Live-Monitoring",               sub: "via Capitalife Terminal",         ok: true  },
+              { value: "0",        label: "Live-Execution White Swan",     sub: "Forward Tracking only — kein Broker", ok: false },
+            ].map(({ value, label, sub, ok }) => (
+              <div key={label} className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-5">
+                <p className={`text-3xl font-extrabold leading-none ${ok ? "text-[#e2ca7a]" : "text-red-400"}`} style={{ letterSpacing: "-0.02em" }}>{value}</p>
+                <p className="mt-3 text-sm font-semibold text-white">{label}</p>
+                <p className="mt-1 text-xs text-zinc-500">{sub}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── KONTAKT / CTA ─────────────────────────────────────────────────── */}
+        <section className="pt-16">
+          <SectionLabel>Kontakt</SectionLabel>
+          <h2 className="mb-3 text-2xl font-bold tracking-tight text-white lg:text-3xl">Sprechen Sie uns an.</h2>
+          <p className="mb-10 max-w-xl text-base leading-relaxed text-zinc-400">
+            Interesse an einer Zusammenarbeit oder Fragen zu unseren Strategien? Wir freuen uns auf Ihre Nachricht.
+          </p>
+
+          <div className="flex flex-wrap gap-3">
             <a
               href="mailto:jgfxtrading.business@gmail.com"
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 8,
-                padding: "12px 24px", borderRadius: 8,
-                background: gold, color: "#0a0a0c",
-                fontWeight: 700, fontSize: 14, textDecoration: "none",
-                letterSpacing: "0.02em",
-              }}
+              className="inline-flex items-center gap-2 rounded-lg bg-[#e2ca7a] px-6 py-3 text-sm font-bold text-[#0a0a0c] transition-opacity hover:opacity-90"
             >
               E-Mail senden
             </a>
@@ -267,22 +198,14 @@ export default function AboutPage() {
               href="https://calendly.com"
               target="_blank"
               rel="noopener noreferrer"
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 8,
-                padding: "12px 24px", borderRadius: 8,
-                background: "transparent",
-                border: `1px solid ${goldBorder}`,
-                color: gold,
-                fontWeight: 700, fontSize: 14, textDecoration: "none",
-                letterSpacing: "0.02em",
-              }}
+              className="inline-flex items-center gap-2 rounded-lg border border-[#e2ca7a]/25 px-6 py-3 text-sm font-bold text-[#e2ca7a] transition-opacity hover:opacity-80"
             >
               Termin buchen
             </a>
           </div>
 
-          <p style={{ marginTop: 48, fontSize: 11, color: textMuted, maxWidth: 700, lineHeight: 1.7 }}>
-            <strong style={{ color: textSecondary }}>Rechtlicher Hinweis:</strong>{" "}
+          <p className="mt-12 max-w-2xl text-[11px] leading-relaxed text-zinc-600">
+            <strong className="text-zinc-500">Rechtlicher Hinweis:</strong>{" "}
             Diese Seite dient ausschließlich zu Informationszwecken und stellt keine Anlageberatung,
             kein Angebot und keine Aufforderung zum Kauf oder Verkauf von Finanzinstrumenten dar.
             Vergangene Performance ist kein verlässlicher Indikator für zukünftige Ergebnisse.
@@ -291,120 +214,52 @@ export default function AboutPage() {
         </section>
 
       </div>
-    </main>
+    </div>
   );
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-const h2Style: React.CSSProperties = {
-  fontSize: "clamp(22px, 3vw, 34px)",
-  fontWeight: 700,
-  letterSpacing: "-0.02em",
-  marginTop: 8,
-};
-
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-      <div style={{ width: 20, height: 2, background: gold, borderRadius: 1 }} />
-      <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: gold, textTransform: "uppercase" }}>
-        {children}
-      </span>
-    </div>
-  );
-}
-
-function HeroStat({ label, value, sub, note }: { label: string; value: string; sub: string; note?: string }) {
-  return (
-    <div style={{
-      flex: "1 1 200px",
-      padding: "24px 28px",
-      background: goldDim,
-      border: `1px solid ${goldBorder}`,
-      borderRadius: 12,
-    }}>
-      <div style={{ fontSize: 11, fontWeight: 600, color: gold, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 8 }}>
-        {label}
-      </div>
-      <div style={{ fontSize: 40, fontWeight: 800, color: gold, letterSpacing: "-0.03em", lineHeight: 1 }}>
-        {value}
-      </div>
-      <div style={{ marginTop: 8, fontSize: 12, color: textSecondary }}>{sub}</div>
-      {note && <div style={{ marginTop: 4, fontSize: 11, color: textMuted }}>¹ {note}</div>}
+    <div className="mb-1 flex items-center gap-2">
+      <div className="h-0.5 w-5 rounded-full bg-[#e2ca7a]" />
+      <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#e2ca7a]">{children}</span>
     </div>
   );
 }
 
 function StrategyCard({
-  tag, title, badge, badgeColor, desc, goal, stats, caveat,
+  tag, title, badge, badgeClass, desc, goal, stats, caveat,
 }: {
-  tag: string; title: string; badge: string; badgeColor: string;
+  tag: string; title: string; badge: string; badgeClass: string;
   desc: string; goal: string;
   stats: { label: string; value: string }[];
   caveat: string;
 }) {
   return (
-    <div style={{
-      background: surface,
-      border: `1px solid ${border}`,
-      borderRadius: 12,
-      padding: "28px 28px",
-      display: "flex",
-      flexDirection: "column",
-      gap: 16,
-    }}>
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+    <div className="flex flex-col gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] p-6">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <span style={{ fontSize: 11, color: textMuted, fontWeight: 600 }}>{tag}</span>
-          <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: "-0.01em", marginTop: 2 }}>{title}</div>
+          <p className="text-[11px] font-semibold text-zinc-600">{tag}</p>
+          <p className="mt-0.5 text-base font-bold text-white">{title}</p>
         </div>
-        <span style={{
-          padding: "4px 10px", borderRadius: 20,
-          background: `${badgeColor}22`, border: `1px solid ${badgeColor}44`,
-          color: badgeColor, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap",
-        }}>
-          {badge}
-        </span>
+        <span className={`shrink-0 rounded-full border px-3 py-1 text-[11px] font-bold ${badgeClass}`}>{badge}</span>
       </div>
-
-      <p style={{ fontSize: 14, color: textSecondary, lineHeight: 1.6, margin: 0 }}>{desc}</p>
-
-      <div style={{ padding: "12px 14px", background: `${goldDim}`, borderRadius: 8, borderLeft: `3px solid ${gold}` }}>
-        <span style={{ fontSize: 12, fontWeight: 600, color: gold }}>Ziel: </span>
-        <span style={{ fontSize: 12, color: textSecondary }}>{goal}</span>
+      <p className="text-sm leading-relaxed text-zinc-400">{desc}</p>
+      <div className="rounded-lg border-l-2 border-[#e2ca7a] bg-[#e2ca7a]/[0.07] px-4 py-2.5">
+        <span className="text-xs font-semibold text-[#e2ca7a]">Ziel: </span>
+        <span className="text-xs text-zinc-400">{goal}</span>
       </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <div className="divide-y divide-white/[0.05]">
         {stats.map(({ label, value }) => (
-          <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: `1px solid ${border}` }}>
-            <span style={{ fontSize: 12, color: textSecondary }}>{label}</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: textPrimary }}>{value}</span>
+          <div key={label} className="flex items-center justify-between py-1.5">
+            <span className="text-xs text-zinc-500">{label}</span>
+            <span className="text-xs font-bold text-white">{value}</span>
           </div>
         ))}
       </div>
-
-      <p style={{ fontSize: 11, color: textMuted, margin: 0, lineHeight: 1.5, borderTop: `1px solid ${border}`, paddingTop: 12 }}>
-        ⚠️ {caveat}
-      </p>
-    </div>
-  );
-}
-
-function FeatureCard({ icon, title, text }: { icon: string; title: string; text: string }) {
-  return (
-    <div style={{
-      padding: "22px 22px",
-      background: surface,
-      border: `1px solid ${border}`,
-      borderRadius: 10,
-      display: "flex",
-      flexDirection: "column",
-      gap: 10,
-    }}>
-      <div style={{ fontSize: 24 }}>{icon}</div>
-      <div style={{ fontSize: 14, fontWeight: 700, color: textPrimary }}>{title}</div>
-      <div style={{ fontSize: 13, color: textSecondary, lineHeight: 1.6 }}>{text}</div>
+      <p className="border-t border-white/[0.05] pt-3 text-[11px] leading-relaxed text-zinc-600">⚠️ {caveat}</p>
     </div>
   );
 }
@@ -415,23 +270,21 @@ function CompareRow({
   name: string; tag?: string; cagr: string; dd: string; sharpe: string;
   corr: string; status: string; highlight?: boolean;
 }) {
-  const rowBg = highlight ? "rgba(226,202,122,0.05)" : "transparent";
-  const nameColor = highlight ? gold : textPrimary;
   return (
-    <tr style={{ background: rowBg, borderBottom: `1px solid ${border}` }}>
-      <td style={{ padding: "12px 16px", color: nameColor, fontWeight: highlight ? 700 : 400 }}>
-        {name}
+    <tr className={highlight ? "bg-[#e2ca7a]/[0.04]" : ""}>
+      <td className="py-3 pr-6 font-medium">
+        <span className={highlight ? "text-[#e2ca7a]" : "text-white"}>{name}</span>
         {tag && (
-          <span style={{ marginLeft: 8, fontSize: 10, padding: "2px 6px", borderRadius: 4, background: highlight ? goldDim : "rgba(255,255,255,0.06)", color: highlight ? gold : textMuted, fontWeight: 700 }}>
+          <span className={`ml-2 rounded px-1.5 py-0.5 text-[10px] font-bold ${highlight ? "bg-[#e2ca7a]/15 text-[#e2ca7a]" : "bg-white/[0.06] text-zinc-500"}`}>
             {tag}
           </span>
         )}
       </td>
-      <td style={{ padding: "12px 16px", color: green, fontWeight: 600 }}>{cagr}</td>
-      <td style={{ padding: "12px 16px", color: red, fontWeight: 600 }}>{dd}</td>
-      <td style={{ padding: "12px 16px", color: textPrimary }}>{sharpe}</td>
-      <td style={{ padding: "12px 16px", color: textSecondary }}>{corr}</td>
-      <td style={{ padding: "12px 16px", color: textMuted, fontSize: 12 }}>{status}</td>
+      <td className="py-3 pr-6 font-semibold text-green-400">{cagr}</td>
+      <td className="py-3 pr-6 font-semibold text-red-400">{dd}</td>
+      <td className="py-3 pr-6 text-white">{sharpe}</td>
+      <td className="py-3 pr-6 text-zinc-400">{corr}</td>
+      <td className="py-3 text-xs text-zinc-600">{status}</td>
     </tr>
   );
 }
