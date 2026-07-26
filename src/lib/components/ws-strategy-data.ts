@@ -90,12 +90,10 @@ const VALUATION: StrategyRow[] = [
   {
     id: "ukx_val", ticker: "UKX!", label: "FTSE 100", group: "Indizes",
     engine: "Valuation", pillar: "valuation", weight: 2,
-    // OOS 17 yrs (2008–2025) — Equity-SMA10 robust variant, TV export Sept 1989 – Jun 2026
-    // Source: Brain/90_Inbox/indices_strategy_package/reference_exports/variant_stats_ukx.csv
-    // Portfolio OOS Sharpe (5-strategy equal weight): 0.898 | individual Sharpe not computed
-    sharpeOos: null, cagr: "+0.9%", maxDd: "−9.2%", calmar: 0.09, pf: 1.34, trades: 76, wfOos: null,
+    // Reproduced from Brain ws_step14_final_portfolio.py on 2026-07-26.
+    sharpeOos: -0.064, cagr: "−0.50%", maxDd: "−17.42%", calmar: null, pf: 0.93, trades: 41, wfOos: null,
     status: "active",
-    isNotes: "OOS 17J: CAGR +0.9% · MaxDD 9.2% · PF 1.34 · 76 Trades · Portfolio-Sharpe 0.90 · Equity-SMA10 robust · kein WF (Time-Split)",
+    isNotes: "OOS 2019–2026 · Brain engine rerun 2026-07-26 · 41 Trades · PF 0.93 · previous 76-trade variant removed",
     exchange: "LSE",
   },
 ];
@@ -174,8 +172,9 @@ const SEASONAL: StrategyRow[] = [
   {
     id: "oj1_sea", ticker: "OJ1!", label: "Orange Juice", group: "Agrar",
     engine: "M06D28 Long", pillar: "seasonal", weight: 1,
-    sharpeOos: 0.123, cagr: "+1.2%", maxDd: "−2.1%", calmar: null, pf: null, trades: 8, wfOos: null,
+    sharpeOos: 0.163, cagr: "+0.77%", maxDd: "−6.23%", calmar: 0.123, pf: 5.55, trades: 8, wfOos: null,
     status: "active", exchange: "ICEUS", codexGroup: "agrar", codexSymbol: "OJ1",
+    isNotes: "OOS 2019–2026 · Brain engine rerun 2026-07-26 · 8 Trades · PF 5.55",
   },
   {
     id: "sb1_sea_s", ticker: "SB1!", label: "Sugar (Short)", group: "Agrar",
@@ -237,32 +236,33 @@ const ANOMALY: StrategyRow[] = [
 ];
 
 // ── Intraday MT (v3-F, frozen 2026-07-18) ───────────────────────────────────
-// Sleeve = 32% of total portfolio (adjusted from 40% to free 8% for Anomaly pillar)
-// EUR30m 14% + DAX1H 14% + DAX2H 4% = 32%
+// Sleeve = 32% of total portfolio. Preserve validated v3-F ratios
+// (EUR 40% / DAX1H 40% / GBP 5% / DAX2H 15%) inside the sleeve.
 const INTRADAY: StrategyRow[] = [
   {
     id: "eurusd_30m", ticker: "6E1!", label: "EUR/USD Futures · 6E", group: "Intraday",
-    engine: "SL 13pip · TP 3.0R · BE 1R · 08–12:30 UTC", pillar: "intraday", weight: 14,
+    engine: "SL 13pip · TP 3.0R · BE 1R · 08–12:30 UTC", pillar: "intraday", weight: 12.8,
     sharpeOos: 1.535, cagr: "+21.4%", maxDd: "−18.7%", calmar: 1.145, pf: 1.325, trades: 1358, wfOos: "7/8",
     status: "active", exchange: "CME", intradayId: "EUR30m", codexGroup: "intraday", codexSymbol: "EURUSD_30M",
   },
   {
     id: "dax_1h", ticker: "DAX 1H / MT", label: "DAX 1H", group: "Intraday",
-    engine: "SL 40pt · TP 2.5R · BE 1.5R · 07–12 UTC", pillar: "intraday", weight: 14,
+    engine: "SL 40pt · TP 2.5R · BE 1.5R · 07–12 UTC", pillar: "intraday", weight: 12.8,
     sharpeOos: 2.683, cagr: "+10.7%", maxDd: "−12.4%", calmar: 0.865, pf: 1.484, trades: 335, wfOos: "5/8",
     status: "active", exchange: "OANDA", intradayId: "DAX1H", codexGroup: "intraday", codexSymbol: "DAX_1H",
   },
   {
     id: "dax_2h", ticker: "DAX 2H", label: "DAX 2H", group: "Intraday",
-    engine: "SL ATR×0.8 · TP 3R · V4 Long-Only · 09–11 UTC", pillar: "intraday", weight: 4,
+    engine: "SL ATR×0.8 · TP 3R · V4 Long-Only · 09–11 UTC", pillar: "intraday", weight: 4.8,
     sharpeOos: 2.459, cagr: "+5.4%", maxDd: "−19.9%", calmar: 0.270, pf: 1.478, trades: 81, wfOos: "5/8",
     status: "active", exchange: "OANDA", intradayId: "DAX2H", codexGroup: "intraday", codexSymbol: "DAX_2H",
   },
   {
     id: "gbpusd_30m", ticker: "GBPUSD 30M", label: "GBP/USD", group: "Intraday",
-    engine: "OOS Gate-Fail · IS 8/8 · 5% Restgew.", pillar: "intraday", weight: null,
-    sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null,
-    status: "archived", exchange: "OANDA",
+    engine: "SL 10pip · TP 3.5R · BE 1R · 09–10:30 UTC", pillar: "intraday", weight: 1.6,
+    sharpeOos: null, cagr: "+0.4%", maxDd: "−33.2%", calmar: 0.011, pf: 1.029, trades: 746, wfOos: "6/18",
+    status: "active", exchange: "OANDA", intradayId: "GBP30m", codexGroup: "intraday", codexSymbol: "GBPUSD_30M",
+    isNotes: "OOS gate-fail standalone · retained at validated v3-F 5% sleeve weight for diversification",
   },
 ];
 
@@ -284,12 +284,12 @@ export const PILLAR_META: Record<Pillar, { label: string; weight: string; color:
   trend:     { label: "Trend",     weight: "15%", color: "#00c8a0", count: 3 },
   seasonal:  { label: "Seasonal",  weight: "15%", color: "#a78bfa", count: 7 },
   anomaly:   { label: "Anomaly",   weight: "v1.2", color: "#f472b6", count: 3 },
-  intraday:  { label: "Intraday",  weight: "v3-F", color: "#94a3b8", count: 3 },
+  intraday:  { label: "Intraday",  weight: "32% · v3-F", color: "#94a3b8", count: 4 },
 };
 
 // ── Core Invest (Research / Pre-Fund) ────────────────────────────────────────
 export type CIPillar = "etf_core" | "ci_sleeve";
-export type CIStatus = "research" | "validation" | "parity_pending";
+export type CIStatus = "research" | "partial_validation" | "parity_pending";
 
 export interface CoreInvestRow {
   id: string;
@@ -336,19 +336,20 @@ export const CI_STRATEGIES: CoreInvestRow[] = [
   {
     id: "qqq_pine1", ticker: "QQQ", label: "QQQ Pine 1", group: "Strategy Sleeve",
     engine: "SMA(400) + SMA(5) · Long/Cash · TP 2% · SL 25%", pillar: "ci_sleeve", weight: 5,
-    pf: 1.628, maxDd: "−16.65%", trades: 638, winRate: "73.35%", totalReturn: "+580.95%", status: "validation",
-    notes: "Partial validation · TradingView TV-Export auf QQQ ausstehend",
+    pf: 1.628, maxDd: "−16.65%", trades: 638, winRate: "73.35%", totalReturn: "+580.95%", status: "partial_validation",
+    notes: "Python approximation · TradingView execution parity on QQQ pending",
   },
   {
     id: "qqq_pine2", ticker: "QQQ", label: "QQQ Pine 2 EMA", group: "Strategy Sleeve",
     engine: "EMA(20)/EMA(50) + Valuation · Long/Cash · TP 4% · SL 2%", pillar: "ci_sleeve", weight: 5,
-    pf: 2.158, maxDd: "−28.59%", trades: 68, winRate: "42.65%", totalReturn: "+358.27%", status: "validation",
-    notes: "Regime-Filter (VIX/SPX/DXY/US10Y) ausstehend",
+    pf: 2.158, maxDd: "−28.59%", trades: 68, winRate: "42.65%", totalReturn: "+358.27%", status: "partial_validation",
+    notes: "EMA-only approximation · DXY/GC1/ZB1 valuation parity pending",
   },
   {
     id: "hg1_ci", ticker: "HG1!", label: "Copper / HG", group: "Strategy Sleeve",
     engine: "Pine 2 EMA · Long/Cash · TP 4% · SL 2%", pillar: "ci_sleeve", weight: 5,
-    pf: 2.082, maxDd: "−40.43%", trades: 88, winRate: "30.68%", totalReturn: "+483.82%", status: "validation",
+    pf: 2.082, maxDd: "−40.43%", trades: 88, winRate: "30.68%", totalReturn: "+483.82%", status: "partial_validation",
+    notes: "EMA-only approximation · DXY/GC1/ZB1 valuation parity pending",
   },
   {
     id: "6s1_ci", ticker: "6S1!", label: "CHF / Swiss Franc", group: "Strategy Sleeve",
@@ -364,21 +365,23 @@ export const CI_META: Record<CIPillar, { label: string; weight: string; color: s
 };
 
 // ── Canonical portfolio KPIs (OOS 2019–2026, frozen) ────────────────────────
-// White Swan v1.1 + Intraday v3-F combined
+// No verified aggregate exists for the current WS + Anomaly + Intraday blend.
+// Never display KPIs from the older 22-strategy v1.1 run as current portfolio KPIs.
 export const WS_PORTFOLIO_KPIS = {
-  sharpe:     "1.526",
-  cagr:       "+8.36%",
-  maxDd:      "−8.71%",
-  calmar:     "0.78",
-  strategies: "27",
+  sharpe:     "nicht validiert",
+  cagr:       "nicht validiert",
+  maxDd:      "nicht validiert",
+  calmar:     "nicht validiert",
+  strategies: "29",
 } as const;
 
-// Core Invest v2.0: ETF-Core 80% (QQQ 45% · GLD 25% · SPMO 5% · SPY 5%) + Sleeves 20% (4×5%)
+// The current aggregate includes strategy sleeves without exact Pine execution
+// parity. Historical approximation metrics must not be shown as validated OOS.
 export const CI_PORTFOLIO_KPIS = {
-  sharpe:     "1.152",
-  cagr:       "+17.11%",
-  maxDd:      "−21.7%",
-  calmar:     "0.787",
+  sharpe:     "nicht validiert",
+  cagr:       "nicht validiert",
+  maxDd:      "nicht validiert",
+  calmar:     "nicht validiert",
   positions:  "8",
 } as const;
 

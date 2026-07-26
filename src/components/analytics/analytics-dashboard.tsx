@@ -97,10 +97,9 @@ const WS_STRATEGY_IDS = [
   "NVDA Valuation", "ZARUSD Valuation", "GC1 Valuation",
   "MSFT Valuation", "BRLUSD Valuation", "SEKUSD Valuation",
 ] as const;
-// Actual portfolio weights (ws-strategy-data.ts source of truth, 2026-07-25)
-// Anomaly strategies have null portfolio weight → 0 here (research overlay, not in blend)
-// Coverage: UKX(2)+CT1(9)+NQ1(3)+Intraday(32)+NVDA(3)+ZAR(3)+GC1V(3)+MSFT(2)+BRL(2)+SEK(2)+GC1F(2)+GLD(2)+YM1TAT(4) = 77%
-// v1.2 anomaly weights (ratio 1:1:2): GC1Friday=2%, GLD=2%, YM1TAT=4% | Intraday reduced 40%→32%
+// The analytics control covers a selected 77% subset of the 100% component
+// registry. Keep the real subtotal visible; buildScopedWsDataset normalizes only
+// when calculating an explicitly user-selected scenario.
 const WS_FROZEN_WEIGHTS: Record<string, number> = {
   "GC1 Friday Long":   2,   // Anomaly — v1.2 approved, IS+OOS WF validated
   "GLD Thursday Long": 2,   // Anomaly — v1.2 approved
@@ -108,7 +107,7 @@ const WS_FROZEN_WEIGHTS: Record<string, number> = {
   "UKX Valuation":     2,   // Valuation
   "CT1 Macro A":       9,   // Macro
   "NQ1 Trend LO":      3,   // Trend
-  "Intraday MT v3-F":  32,  // Intraday sleeve (reduced from 40% to make room for Anomaly)
+  "Intraday MT v3-F":  32,  // internally 40/40/5/15: EUR/DAX1H/GBP/DAX2H
   "NVDA Valuation":    3,   // Valuation
   "ZARUSD Valuation":  3,   // Valuation
   "GC1 Valuation":     3,   // Valuation
