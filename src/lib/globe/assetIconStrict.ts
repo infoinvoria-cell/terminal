@@ -38,6 +38,39 @@ export const assetIconMap: Record<string, string> = {
   SP500: p("SP.png"),
 
   DOLLAR: p("Dollar.png"),
+
+  // Indices / futures with dedicated files
+  DOWJONES: p("dow_jones.png"),
+  DOW: p("dow_jones.png"),
+
+  // Agricultural commodities
+  COTTON: p("cotton.png"),
+  CORN: p("corn.png"),
+  WHEAT: p("wheat.webp"),
+  COFFEE: p("coffee.png"),
+  COCOA: p("cocoa.png"),
+  SUGAR: p("sugar.png"),
+  SOYBEANS: p("soybeans.png"),
+  SOY: p("soybeans.png"),
+  OJ: p("orange_juice.jpg"),
+
+  // Precious metals
+  PALLADIUM: p("palladium.png"),
+  PLATINUM: p("platinum.png"),
+
+  // Single stocks
+  AAPL: p("apple.png"),
+  APPLE: p("apple.png"),
+  MSFT: p("microsoft.png"),
+  MICROSOFT: p("microsoft.png"),
+  NVDA: p("nvidia.png"),
+  NVIDIA: p("nvidia.png"),
+  META: p("meta.png"),
+  AMZN: p("amazon.png"),
+  AMAZON: p("amazon.png"),
+  GOOGL: p("google.png"),
+  GOOG: p("google.png"),
+  GOOGLE: p("google.png"),
 };
 
 /** ISO FX legs only — excludes XAU/XAG etc. so "XAGUSD" is not treated as a currency cross. */
@@ -184,11 +217,93 @@ const TOKEN_TO_KEY: Record<string, string> = {
   cad: "CAD",
   dxy: "DOLLAR",
   dollar: "DOLLAR",
-  dow: "USD",
-  dowjones: "USD",
+  dow: "DOWJONES",
+  dowjones: "DOWJONES",
+  ym: "DOWJONES",
+  nq: "NASDAQ",
+  qqq: "NASDAQ",
   russell: "USD",
-  djia: "USD",
+  djia: "DOWJONES",
+  // Agricultural commodities
+  cotton: "COTTON",
+  ct: "COTTON",
+  corn: "CORN",
+  wheat: "WHEAT",
+  coffee: "COFFEE",
+  cocoa: "COCOA",
+  sugar: "SUGAR",
+  soy: "SOYBEANS",
+  soybeans: "SOYBEANS",
+  soybean: "SOYBEANS",
+  oj: "OJ",
+  orangejuice: "OJ",
+  // Precious metals
+  palladium: "PALLADIUM",
+  xpd: "PALLADIUM",
+  platinum: "PLATINUM",
+  xpt: "PLATINUM",
+  // Single stocks
+  aapl: "AAPL",
+  apple: "AAPL",
+  msft: "MSFT",
+  microsoft: "MSFT",
+  nvda: "NVDA",
+  nvidia: "NVDA",
+  meta: "META",
+  amzn: "AMZN",
+  amazon: "AMZN",
+  googl: "GOOGL",
+  goog: "GOOGL",
+  google: "GOOGL",
 };
+
+/** Country iconKey → key, used only as a last resort before the neutral fallback. */
+const COUNTRY_ICONKEY_TO_KEY: Record<string, string> = {
+  de: "DAX",
+  us: "SP500",
+  gb: "GBP",
+  uk: "GBP",
+};
+
+/** Name/symbol keyword → strict map key. Wins over generic country iconKeys. */
+const NAME_KEYWORD_TO_KEY: Array<[RegExp, string]> = [
+  [/dow\s*jones|\bdjia\b|\bdow\b/i, "DOWJONES"],
+  [/nasdaq|\bndx\b|\bqqq\b/i, "NASDAQ"],
+  [/s&p\s*500|\bs&p\b|\bspx\b|\bspy\b|\bspmo\b/i, "SP500"],
+  [/\bdax\b/i, "DAX"],
+  [/\bcotton\b/i, "COTTON"],
+  [/\bcorn\b/i, "CORN"],
+  [/\bwheat\b/i, "WHEAT"],
+  [/\bcoffee\b/i, "COFFEE"],
+  [/\bcocoa\b/i, "COCOA"],
+  [/\bsugar\b/i, "SUGAR"],
+  [/\bsoy(bean)?s?\b/i, "SOYBEANS"],
+  [/orange\s*juice/i, "OJ"],
+  [/\bpalladium\b/i, "PALLADIUM"],
+  [/\bplatinum\b/i, "PLATINUM"],
+  [/\bapple\b|\baapl\b/i, "AAPL"],
+  [/\bmicrosoft\b|\bmsft\b/i, "MSFT"],
+  [/\bnvidia\b|\bnvda\b/i, "NVDA"],
+  [/\bmeta\b|facebook/i, "META"],
+  [/\bamazon\b|\bamzn\b/i, "AMZN"],
+  [/\bgoogle\b|\bgoogl\b|alphabet/i, "GOOGL"],
+  // FX / regional indices that reuse a currency icon
+  [/swiss\s*franc|\bchf\b/i, "CHF"],
+  [/\bnikkei\b/i, "JPY"],
+  [/euro\s*stoxx|\bstoxx\b/i, "EUR"],
+  [/\bcac\b/i, "EUR"],
+  [/\bibex\b/i, "EUR"],
+  [/ftse\s*mib/i, "EUR"],
+  [/\basx\b|australia\s*200/i, "AUD"],
+  [/japan\s*10y?|\bjgb\b/i, "JPY"],
+];
+
+/** Keyword → glyph (no local file for these). */
+const CRYPTO_GLYPH: Array<[RegExp, string]> = [
+  [/bitcoin|\bbtc\b|\bxbt\b/i, "₿"],
+  [/ethereum|\beth\b/i, "Ξ"],
+  [/natural\s*gas|\bnatgas\b|\bttf\b/i, "🔥"],
+];
 
 function normalizeToken(raw: string): string {
   return String(raw || "")
@@ -296,8 +411,30 @@ export function resolveDashboardAssetIcon(input: {
     }
   }
 
+  // Name/symbol keyword pass — resolves index futures & commodities whose
+  // iconKey is only a generic country code (e.g. "Dow Jones Futures" tagged "us").
+  const haystack = `${assetName} ${assetSymbol} ${input.iconKey ?? ""}`;
+  for (const [re, key] of NAME_KEYWORD_TO_KEY) {
+    if (re.test(haystack)) {
+      const s = getSingleIcon(key);
+      if (s) return s;
+    }
+  }
+  for (const [re, glyph] of CRYPTO_GLYPH) {
+    if (re.test(haystack)) {
+      return { type: "glyph", char: glyph };
+    }
+  }
+
   const last = resolveAssetIcon(assetSymbol || assetName || input.iconKey || "");
   if (last.type !== "fallback") return last;
+
+  // Last resort: generic country-code iconKey → representative index icon.
+  const countryKey = COUNTRY_ICONKEY_TO_KEY[iconKey] ?? COUNTRY_ICONKEY_TO_KEY[normalizeToken(assetSymbol)];
+  if (countryKey) {
+    const s = getSingleIcon(countryKey);
+    if (s) return s;
+  }
 
   return { type: "fallback", icon: NEUTRAL_ASSET_FALLBACK };
 }

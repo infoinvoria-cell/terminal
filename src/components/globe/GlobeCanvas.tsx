@@ -359,10 +359,6 @@ function GlobeCanvasComponent({
   const themeUiText = goldThemeEnabled ? "#fff2d2" : "#e4e4e7";
   const themeUiSubText = goldThemeEnabled ? "#e8d5a7" : "#a1a1aa";
   const themeUiMuted = goldThemeEnabled ? "#d6be86" : "#71717a";
-  const themeHoverBg = goldThemeEnabled ? "rgba(26,20,10,0.92)" : "rgba(22,22,26,0.92)";
-  const themeHoverBorder = goldThemeEnabled ? "rgba(226,202,122,0.76)" : "rgba(210,210,216,0.72)";
-  const themeDefaultBg = goldThemeEnabled ? "rgba(14,11,8,0.80)" : "rgba(15,15,18,0.80)";
-  const themeDefaultBorder = goldThemeEnabled ? "rgba(226,202,122,0.46)" : "rgba(140,140,148,0.42)";
   const logoSrc = "/CAPITALIFE_Logo.png";
   const logoFallbackSrc = "/CAPITALIFE_Logo.png";
   const logoAlt = "Capitalife";
@@ -1172,6 +1168,21 @@ function GlobeCanvasComponent({
     animationRef.current = requestAnimationFrame(run);
   }, []);
 
+  // FIX 4 — double-click anywhere on the globe zooms back out to overview.
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const onDblClick = () => {
+      const globe = globeRef.current;
+      const from = globe?.pointOfView?.();
+      const curLat = Number(from?.lat ?? DEFAULT_CAMERA.lat);
+      const curLng = Number(from?.lng ?? DEFAULT_CAMERA.lng);
+      tweenCamera({ lat: curLat, lng: curLng, altitude: 2.5 }, 1000);
+    };
+    stage.addEventListener("dblclick", onDblClick);
+    return () => stage.removeEventListener("dblclick", onDblClick);
+  }, [tweenCamera]);
+
   useEffect(() => {
     if (!active) return;
     if (!focusAssetId) return;
@@ -1568,10 +1579,15 @@ function GlobeCanvasComponent({
             el.style.gap = "4px";
             el.style.whiteSpace = "nowrap";
             el.style.pointerEvents = "none";
-            el.style.padding = "2px 6px";
-            el.style.borderRadius = "6px";
-            el.style.background = d.id === hoveredPointId ? themeHoverBg : themeDefaultBg;
-            el.style.border = d.id === hoveredPointId ? `1px solid ${themeHoverBorder}` : `1px solid ${themeDefaultBorder}`;
+            // FIX 2 — ultra-clean labels: no box, no border, no radius. Just icon/dot + text.
+            el.style.padding = "0";
+            el.style.borderRadius = "0";
+            el.style.background = "transparent";
+            el.style.border = "none";
+            // Subtle hover feedback via glow instead of a box
+            el.style.filter = d.id === hoveredPointId
+              ? "drop-shadow(0 0 4px rgba(255,255,255,0.85))"
+              : "drop-shadow(0 1px 2px rgba(0,0,0,0.9))";
             if (d.kind === "city") {
               el.style.background = "transparent";
               el.style.border = "none";
