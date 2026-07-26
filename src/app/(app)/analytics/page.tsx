@@ -3,6 +3,13 @@ import { getDashboardPageData } from "@/lib/dashboard/dashboard-page-data-cloud"
 import { getFSPortfolioSnapshot } from "@/lib/fsportfolio/backtest";
 import { buildCoreInvestPineBacktest } from "@/lib/analytics/core-invest-pine";
 
+// Render per-request instead of at build time. The Live/Forward series and OHLC
+// come from Supabase (invest_ohlc / monitoring_ohlc), so a static prerender would
+// freeze the data at build time and serve a stale page from the edge cache. Forcing
+// dynamic keeps analytics data fresh (guarded by the snapshot TTL cache) and ensures
+// each deploy invalidates the previously cached page.
+export const dynamic = "force-dynamic";
+
 export default async function AnalyticsPage() {
   // The Core-Invest tab needs the fsportfolio snapshot. Load it only here (not in
   // the shared cloud data loader used by Sentinel/Monitoring). It reads committed
