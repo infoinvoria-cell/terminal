@@ -326,12 +326,11 @@ function timeAgo(iso: string | undefined): string {
 // Source domain → flag/emoji
 const DOMAIN_FLAGS: Record<string, string> = {
   "finance.yahoo.com": "🇺🇸", "fortune.com": "🇺🇸", "cnbc.com": "🇺🇸",
-  "wsj.com": "🇺🇸", "marketwatch.com": "🇺🇸", "bloomberg.com": "📊",
-  "reuters.com": "🌐", "biztoc.com": "🌐", "apnews.com": "🌐",
-  "ft.com": "🇬🇧", "bbc.com": "🇬🇧", "theguardian.com": "🇬🇧",
+  "wsj.com": "🇺🇸", "marketwatch.com": "🇺🇸", "bloomberg.com": "🇺🇸",
+  "reuters.com": "🌐", "biztoc.com": "🌐", "apnews.com": "🌐", "investing.com": "🌐",
+  "ft.com": "🇬🇧", "bbc.com": "🇬🇧", "theguardian.com": "🇬🇧", "economist.com": "🇬🇧",
   "handelsblatt.com": "🇩🇪", "spiegel.de": "🇩🇪", "faz.net": "🇩🇪",
   "financialpost.com": "🇨🇦", "thejournal.ie": "🇮🇪",
-  "cryptobriefing.com": "₿", "cointelegraph.com": "₿", "coindesk.com": "₿",
   "scmp.com": "🇭🇰", "nikkei.com": "🇯🇵",
 };
 
@@ -349,13 +348,16 @@ const NEWS_ASSET_KEYWORDS: Array<[RegExp, string]> = [
   [/\b(wheat|corn|soy|coffee|cocoa|sugar)\b/i, "🌾"],
 ];
 
-const NEWS_PRIORITY_RE = /\b(fed|rate hike|rate cut|crash|surge|war|sanction|inflation|recession|GDP|earnings|tariff|default|collapse|crisis|bank run|contagion)\b/i;
-const NEWS_CRYPTO_RE = /\b(bitcoin|btc|crypto|ethereum|eth|defi|altcoin|stablecoin|nft)\b/i;
-const NEWS_MACRO_RE = /\b(inflation|cpi|ppi|gdp|unemployment|fed|ecb|rate|yield|recession|debt ceiling|fiscal|monetary|central bank|treasury)\b/i;
-const NEWS_MARKET_RE = /\b(nasdaq|s&p|dow|equit|stocks?|earnings|ipo|dividend|short|buyback|market cap|rally|selloff|correction|bull|bear)\b/i;
+// Priority scoring (0-10) — critical macro/geopolitics rank highest
+const NEWS_EXCLUDE_RE = /\b(bitcoin|crypto|ethereum|btc|eth|nft|blockchain|defi|solana|dogecoin|cardano|xrp|ripple|altcoin|stablecoin|coinbase|binance|memecoin)\b/i;
+const NEWS_CRITICAL_RE = /\b(fed|rate hike|rate cut|war|sanction|crash|crisis|default|recession|collapse|contagion|bank run)\b/i; // 10
+const NEWS_HIGH_RE = /\b(inflation|gdp|earnings|tariff|opec|fomc|ecb|boj|cpi|ppi|unemployment|jobs report|payrolls)\b/i; // 7
+const NEWS_MEDIUM_RE = /\b(oil|gold|dollar|euro|yen|trade|supply|demand|yield|treasury|bond|stocks?|equit|nasdaq|s&p|dow)\b/i; // 4
+const NEWS_MACRO_RE = /\b(inflation|cpi|ppi|gdp|unemployment|fed|ecb|boj|rate|yield|recession|debt ceiling|fiscal|monetary|central bank|treasury|fomc)\b/i;
+const NEWS_MARKET_RE = /\b(nasdaq|s&p|dow|equit|stocks?|earnings|ipo|dividend|buyback|market cap|rally|selloff|correction|bull|bear)\b/i;
 
-type NewsFilter = "all" | "breaking" | "markets" | "macro" | "crypto";
-type NewsSort = "newest" | "relevance";
+type NewsFilter = "all" | "breaking" | "markets" | "macro";
+type NewsSort = "score" | "newest";
 
 function newsAssetIcon(title: string, description?: string): string {
   const text = `${title} ${description ?? ""}`;
@@ -365,34 +367,34 @@ function newsAssetIcon(title: string, description?: string): string {
   return "";
 }
 
-function newsCategory(title: string, description?: string): NewsFilter {
+function newsScore(title: string, description?: string): number {
   const text = `${title} ${description ?? ""}`;
-  if (NEWS_PRIORITY_RE.test(text)) return "breaking";
-  if (NEWS_CRYPTO_RE.test(text)) return "crypto";
-  if (NEWS_MACRO_RE.test(text)) return "macro";
-  if (NEWS_MARKET_RE.test(text)) return "markets";
-  return "all";
+  if (NEWS_CRITICAL_RE.test(text)) return 10;
+  if (NEWS_HIGH_RE.test(text)) return 7;
+  if (NEWS_MEDIUM_RE.test(text)) return 4;
+  return 1;
 }
 
 function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
   const [filter, setFilter] = useState<NewsFilter>("all");
-  const [sort, setSort] = useState<NewsSort>("newest");
+  const [sort, setSort] = useState<NewsSort>("score");
 
   const filtered = useMemo(() => {
-    let list = items;
+    // Always drop crypto headlines
+    let list = items.filter((item) => !NEWS_EXCLUDE_RE.test(`${item.title ?? ""} ${item.description ?? ""}`));
     if (filter !== "all") {
       list = list.filter((item) => {
-        const cat = newsCategory(item.title ?? "", item.description);
-        return cat === filter || (filter === "breaking" && cat === "breaking");
+        const text = `${item.title ?? ""} ${item.description ?? ""}`;
+        if (filter === "breaking") return newsScore(item.title ?? "", item.description) >= 8;
+        if (filter === "macro") return NEWS_MACRO_RE.test(text);
+        if (filter === "markets") return NEWS_MARKET_RE.test(text);
+        return true;
       });
     }
-    if (sort === "relevance") {
-      list = [...list].sort((a, b) => {
-        const aBreak = NEWS_PRIORITY_RE.test(`${a.title} ${a.description ?? ""}`);
-        const bBreak = NEWS_PRIORITY_RE.test(`${b.title} ${b.description ?? ""}`);
-        if (aBreak !== bBreak) return aBreak ? -1 : 1;
-        return 0;
-      });
+    if (sort === "score") {
+      list = [...list].sort(
+        (a, b) => newsScore(b.title ?? "", b.description) - newsScore(a.title ?? "", a.description),
+      );
     }
     return list;
   }, [items, filter, sort]);
@@ -402,7 +404,6 @@ function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
     { id: "breaking", label: "🔴 Break" },
     { id: "markets", label: "📊 Mkt" },
     { id: "macro", label: "🌍 Macro" },
-    { id: "crypto", label: "₿ Crypto" },
   ];
 
   return (
@@ -427,12 +428,12 @@ function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
         </div>
         <button
           type="button"
-          onClick={() => setSort(sort === "newest" ? "relevance" : "newest")}
+          onClick={() => setSort(sort === "score" ? "newest" : "score")}
           className="ml-auto shrink-0 rounded px-1.5 py-[2px] text-[8px] transition"
           style={{ color: "rgba(255,255,255,0.30)", background: "transparent" }}
-          title={sort === "newest" ? "Sort: Newest" : "Sort: Relevance"}
+          title={sort === "score" ? "Sort: Priority" : "Sort: Newest"}
         >
-          {sort === "newest" ? "↓ New" : "★ Rel"}
+          {sort === "score" ? "★ Prio" : "↓ New"}
         </button>
       </div>
       <div className="no-scrollbar min-h-0 flex-1 space-y-[3px] overflow-y-auto overflow-x-hidden px-2 pt-1 pb-8">
@@ -444,8 +445,8 @@ function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
           const domain = item.sourceDomain ?? item.source?.split(" ")[0] ?? "";
           const flag = DOMAIN_FLAGS[domain.toLowerCase()] ?? "🌐";
           const assetIcon = newsAssetIcon(item.title ?? "", item.description);
-          const isPriority = NEWS_PRIORITY_RE.test(`${item.title ?? ""} ${item.description ?? ""}`);
-          const isAssetMatch = !!assetIcon;
+          const score = newsScore(item.title ?? "", item.description);
+          const dot = score >= 8 ? "🔴" : score >= 5 ? "🟡" : "";
           return (
             <a
               key={String(item.newsId || item.url || i)}
@@ -453,19 +454,12 @@ function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
               target="_blank"
               rel="noopener noreferrer"
               className="group block rounded-[10px] px-2.5 py-2 transition-colors"
-              style={{ background: isPriority ? "rgba(255,60,60,0.06)" : "rgba(255,255,255,0.025)" }}
+              style={{ background: score >= 8 ? "rgba(255,60,60,0.06)" : "rgba(255,255,255,0.025)" }}
             >
               <div className="mb-1 flex items-center gap-1.5">
                 <span className="text-[11px] leading-none">{flag}</span>
-                {isPriority && (
-                  <span className="rounded-[3px] px-1 py-[1px] text-[8px] font-bold"
-                    style={{ background: "rgba(255,60,60,0.18)", color: "rgba(255,100,100,0.9)" }}>
-                    🔴
-                  </span>
-                )}
-                {isAssetMatch && !isPriority && (
-                  <span className="text-[10px] leading-none">{assetIcon}</span>
-                )}
+                {dot && <span className="text-[9px] leading-none">{dot}</span>}
+                {assetIcon && <span className="text-[10px] leading-none">{assetIcon}</span>}
                 {domain && (
                   <span className="rounded-[4px] px-1.5 py-[1px] text-[9px] font-semibold uppercase tracking-wide"
                     style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" }}>

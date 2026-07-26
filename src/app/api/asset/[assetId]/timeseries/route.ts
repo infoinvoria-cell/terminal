@@ -20,8 +20,12 @@ const ASSET_TV_MAP: Record<string, string> = {
   "6s1": "CME:6S1!",
   glgg: "BATS:SPY",
   fiw: "BATS:SPY",
-  btcusd: "BATS:SPY",
-  ethusd: "BATS:SPY",
+  "6e1": "CME:6E1!",
+  "6b1": "CME:6B1!",
+  "6j1": "CME:6J1!",
+  "6s1_fx": "CME:6S1!",
+  "6a1": "CME:6A1!",
+  "6c1": "CME:6C1!",
   dxy: "TVC:DXY",
   vix: "TVC:VIX",
   tnx: "TVC:US10Y",
@@ -118,8 +122,8 @@ const ASSET_YAHOO_MAP: Record<string, string> = {
   eurusd_30m: "EURUSD=X", gbpusd_30m: "GBPUSD=X", dax_1h: "^GDAXI", dax_2h: "^GDAXI",
   // Core Invest
   qqq: "QQQ", spmo: "SPMO", spy: "SPY", hg1: "HG=F", "6s1": "CHF=X", glgg: "GLGG.L", fiw: "FIW",
-  // Crypto
-  btcusd: "BTC-USD", ethusd: "ETH-USD", xrpusd: "XRP-USD", solusd: "SOL-USD", adausd: "ADA-USD", dogeusd: "DOGE-USD",
+  // Forex (CME futures → FX spot symbols for pricing)
+  "6e1": "EURUSD=X", "6b1": "GBPUSD=X", "6j1": "JPY=X", "6s1_fx": "CHF=X", "6a1": "AUDUSD=X", "6c1": "CAD=X",
   // Macro
   dxy: "DX-Y.NYB", vix: "^VIX", tnx: "^TNX", us2y: "^IRX",
   // Major FX

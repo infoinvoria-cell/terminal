@@ -1109,7 +1109,11 @@ function GlobeCanvasComponent({
         material.specular = new Color("#000000");
         material.needsUpdate = true;
       }
-
+      // Perf: cap device pixel ratio so high-DPI screens don't render 4x pixels.
+      const renderer = globe.renderer?.();
+      if (renderer?.setPixelRatio) {
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      }
     };
 
     window.setTimeout(applyLook, 0);

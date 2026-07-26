@@ -10,9 +10,9 @@ const ASSET_SYMBOL_MAP: Record<string, string> = {
   // Core Invest
   qqq: "QQQ", spmo: "SPMO", spy: "SPY", hg1: "HG=F", "6s1": "CHF=X",
   glgg: "GLGG.L", fiw: "FIW",
-  // Crypto
-  btcusd: "BTC-USD", ethusd: "ETH-USD", xrpusd: "XRP-USD",
-  solusd: "SOL-USD", adausd: "ADA-USD", dogeusd: "DOGE-USD",
+  // Forex (CME currency futures → mapped to FX spot symbols for pricing)
+  "6e1": "EURUSD=X", "6b1": "GBPUSD=X", "6j1": "JPY=X",
+  "6s1_fx": "CHF=X", "6a1": "AUDUSD=X", "6c1": "CAD=X",
   // Macro
   dxy: "DX-Y.NYB", vix: "^VIX", tnx: "^TNX", us2y: "^IRX",
   // Major FX

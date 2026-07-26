@@ -887,7 +887,7 @@ function CandleChartInner({
       },
       rightPriceScale: {
         borderColor: "rgba(255,255,255,0.08)",
-        scaleMargins: { top: 0.06, bottom: 0.06 },
+        scaleMargins: { top: 0.1, bottom: 0.1 },
         minimumWidth: 62,
         autoScale: true,
       },
