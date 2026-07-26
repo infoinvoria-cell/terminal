@@ -1383,9 +1383,10 @@ function CandleChartInner({
       const totalBars = bars.length;
       if (!Number.isFinite(totalBars) || totalBars <= 0) return;
       if (autoFitRenderKeyRef.current !== renderKey) {
-        const rightOff = 20;
-        const from = totalBars - GLOBE_VISIBLE_BARS - rightOff;
-        const to = totalBars - 1 + rightOff;
+        // Show the last ~20 candles filling the chart width, small right margin only.
+        const rightMargin = 2;
+        const from = Math.max(0, totalBars - GLOBE_VISIBLE_BARS);
+        const to = totalBars - 1 + rightMargin;
         chart.timeScale().setVisibleLogicalRange({ from, to });
         autoFitRenderKeyRef.current = renderKey;
       }
