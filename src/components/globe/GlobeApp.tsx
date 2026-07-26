@@ -491,16 +491,14 @@ function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
               href={item.url || "#"}
               target="_blank"
               rel="noopener noreferrer"
-              className="group block rounded-[10px] px-2.5 py-2 transition-colors"
-              style={{ background: score >= 8 ? "rgba(255,60,60,0.06)" : "rgba(255,255,255,0.025)" }}
+              className="group block rounded-[10px] px-2.5 py-2 transition-colors hover:bg-white/[0.03]"
             >
               <div className="mb-1 flex items-center gap-1.5">
                 <CountryFlag code={countryCode} title={domain || item.country || "Global"} />
                 {dot && <span className="text-[9px] leading-none">{dot}</span>}
                 {assetIcon && <span className="text-[10px] leading-none">{assetIcon}</span>}
                 {domain && (
-                  <span className="rounded-[4px] px-1.5 py-[1px] text-[9px] font-semibold uppercase tracking-wide"
-                    style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" }}>
+                  <span className="text-[9px] lowercase text-white/40">
                     {domain}
                   </span>
                 )}
