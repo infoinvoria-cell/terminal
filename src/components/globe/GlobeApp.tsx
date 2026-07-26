@@ -2283,6 +2283,14 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   }, [alertRules]);
   const addAlert = useCallback((rule: AlertRule) => setAlertRules((prev) => [...prev, rule]), []);
   const removeAlert = useCallback((id: string) => setAlertRules((prev) => prev.filter((r) => r.id !== id)), []);
+
+  // The left-side gear panels share one slot — opening one closes the others.
+  const toggleLeftPanel = useCallback((which: "calendar" | "scenario" | "exposure" | "alerts") => {
+    setShowCalendar((v) => (which === "calendar" ? !v : false));
+    setShowScenario((v) => (which === "scenario" ? !v : false));
+    setShowExposure((v) => (which === "exposure" ? !v : false));
+    setShowAlerts((v) => (which === "alerts" ? !v : false));
+  }, []);
   const alertAssetOptions = useMemo(
     () => assets.filter((a) => enabledSet.has(a.id)).map((a) => ({ id: a.id, label: a.symbol || a.name })),
     [assets, enabledSet],
@@ -3126,10 +3134,10 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                     >
                       {([
                         { label: "🕐 Market Sessions", active: showSessions, onClick: () => setShowSessions((v) => !v) },
-                        { label: "📅 Economic Calendar", active: showCalendar, onClick: () => setShowCalendar((v) => !v) },
-                        { label: "⚗️ Scenario Stress", active: showScenario, onClick: () => setShowScenario((v) => !v) },
-                        { label: "🕸 Exposure Graph", active: showExposure, onClick: () => setShowExposure((v) => !v) },
-                        { label: "🔔 Alerts", active: showAlerts, onClick: () => setShowAlerts((v) => !v) },
+                        { label: "📅 Economic Calendar", active: showCalendar, onClick: () => toggleLeftPanel("calendar") },
+                        { label: "⚗️ Scenario Stress", active: showScenario, onClick: () => toggleLeftPanel("scenario") },
+                        { label: "🕸 Exposure Graph", active: showExposure, onClick: () => toggleLeftPanel("exposure") },
+                        { label: "🔔 Alerts", active: showAlerts, onClick: () => toggleLeftPanel("alerts") },
                         { label: "⏱ Event Timeline", active: showTimeline, onClick: () => setShowTimeline((v) => !v) },
                         { label: "🛰 Sentinel Intel", active: showSentinel, onClick: () => setShowSentinel((v) => !v) },
                         ...(mapMode === "globe" ? [
