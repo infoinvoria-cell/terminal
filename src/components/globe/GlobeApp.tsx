@@ -17,6 +17,7 @@ import { NewsColumns } from "@/components/globe/NewsColumns";
 import { SettingsPanel } from "@/components/globe/SettingsPanel";
 import ImpactPanel, { type ImpactPanelData } from "@/components/globe/ImpactPanel";
 import GlobeTimeline from "@/components/globe/GlobeTimeline";
+import GlobeSentinelChat from "@/components/globe/GlobeSentinelChat";
 import { EVENT_IMPACT_MAP, REGION_LABELS, detectEventRegion, impactAssetIds } from "@/lib/globe/eventImpactMap";
 import { AssetHeatmapPanel } from "@/components/globe/AssetHeatmapPanel";
 import { GlobeAnalyticsPanel } from "@/components/globe/GlobeAnalyticsPanel";
@@ -661,6 +662,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   const [highlightedAssetIds, setHighlightedAssetIds] = useState<string[]>([]);
   const [showTimeline, setShowTimeline] = useState(false);
   const [timelineDay, setTimelineDay] = useState<string | null>(null);
+  const [showSentinel, setShowSentinel] = useState(false);
   const [dataSource, setDataSource] = useState<DataSource>(() => {
     if (typeof window === "undefined") return "tradingview";
     try {
@@ -2911,6 +2913,18 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                     ⏱ Timeline
                   </button>
                 </div>
+                {/* Sentinel Globe Intel chat */}
+                <button
+                  type="button"
+                  onClick={() => setShowSentinel((v) => !v)}
+                  className={`absolute right-[2.75rem] top-3 z-40 flex h-7 w-7 items-center justify-center rounded-md border text-[13px] transition ${
+                    showSentinel ? "border-[#D4AF37]/70 bg-[rgba(212,175,55,0.14)]" : "border-white/15 hover:border-white/50"
+                  }`}
+                  title="Sentinel Globe Intel"
+                  aria-label="Sentinel Globe Intel"
+                >
+                  🛰
+                </button>
                 {/* Fullscreen */}
                 <button
                   type="button"
@@ -3025,6 +3039,16 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                     onSelectDay={setTimelineDay}
                     onClose={() => { setShowTimeline(false); setTimelineDay(null); }}
                     todayIso={todayIso}
+                  />
+                )}
+                {showSentinel && (
+                  <GlobeSentinelChat
+                    geoEvents={geoEvents}
+                    overlayState={overlayState}
+                    assets={assets}
+                    enabledAssets={enabledAssets}
+                    prices={globePrices}
+                    onClose={() => setShowSentinel(false)}
                   />
                 )}
               </>
