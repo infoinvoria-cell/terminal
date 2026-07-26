@@ -323,6 +323,40 @@ function timeAgo(iso: string | undefined): string {
   return `${Math.floor(diff / 1440)}d`;
 }
 
+// Source domain → flag/emoji
+const DOMAIN_FLAGS: Record<string, string> = {
+  "finance.yahoo.com": "🇺🇸", "fortune.com": "🇺🇸", "cnbc.com": "🇺🇸",
+  "wsj.com": "🇺🇸", "marketwatch.com": "🇺🇸", "bloomberg.com": "📊",
+  "reuters.com": "🌐", "biztoc.com": "🌐", "apnews.com": "🌐",
+  "ft.com": "🇬🇧", "bbc.com": "🇬🇧", "theguardian.com": "🇬🇧",
+  "handelsblatt.com": "🇩🇪", "spiegel.de": "🇩🇪", "faz.net": "🇩🇪",
+  "financialpost.com": "🇨🇦", "thejournal.ie": "🇮🇪",
+  "cryptobriefing.com": "₿", "cointelegraph.com": "₿", "coindesk.com": "₿",
+  "scmp.com": "🇭🇰", "nikkei.com": "🇯🇵",
+};
+
+// Headline keyword → asset icon
+const NEWS_ASSET_KEYWORDS: Array<[RegExp, string]> = [
+  [/\bgold\b/i, "🥇"], [/\bsilver\b/i, "🥈"],
+  [/\b(oil|crude|brent|wti)\b/i, "🛢"], [/\b(gas|lng)\b/i, "🔥"],
+  [/\b(nasdaq|s&p|dow|equit|stocks?)\b/i, "📈"],
+  [/\b(bitcoin|btc|crypto|ethereum|eth)\b/i, "₿"],
+  [/\b(tariff|trade war|sanction)\b/i, "🏛"],
+  [/\b(fed|ecb|central bank|rate hike|rate cut)\b/i, "🏛"],
+  [/\b(inflation|cpi|ppi)\b/i, "📊"],
+  [/\b(dollar|usd|euro|yen|forex|currency)\b/i, "💵"],
+  [/\b(copper|metal|commodit)\b/i, "🔩"],
+  [/\b(wheat|corn|soy|coffee|cocoa|sugar)\b/i, "🌾"],
+];
+
+function newsAssetIcon(title: string, description?: string): string {
+  const text = `${title} ${description ?? ""}`;
+  for (const [re, icon] of NEWS_ASSET_KEYWORDS) {
+    if (re.test(text)) return icon;
+  }
+  return "";
+}
+
 function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
@@ -333,6 +367,8 @@ function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
         {items.map((item, i) => {
           const ago = timeAgo(item.publishedAt ?? item.timestamp);
           const domain = item.sourceDomain ?? item.source?.split(" ")[0] ?? "";
+          const flag = DOMAIN_FLAGS[domain.toLowerCase()] ?? "🌐";
+          const assetIcon = newsAssetIcon(item.title ?? "", item.description);
           return (
             <a
               key={String(item.newsId || item.url || i)}
@@ -343,6 +379,7 @@ function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
               style={{ background: "rgba(255,255,255,0.025)" }}
             >
               <div className="mb-1 flex items-center gap-1.5">
+                <span className="text-[11px] leading-none">{flag}{assetIcon}</span>
                 {domain && (
                   <span className="rounded-[4px] px-1.5 py-[1px] text-[9px] font-semibold uppercase tracking-wide"
                     style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" }}>
@@ -420,9 +457,9 @@ type GlobeOverlayControlProps = {
 function GlobeOverlayControl({ overlayState, overlayLoadingState, onToggleOverlay }: GlobeOverlayControlProps) {
   const keys = Object.keys(OVERLAY_LABELS) as Array<keyof import("@/lib/globe/globe-types").OverlayToggleState>;
   return (
-    <div className="h-full overflow-y-auto p-1.5"
-      style={{ scrollbarWidth: "none" }}>
-      <div className="grid gap-1" style={{ gridTemplateColumns: "1fr 1fr" }}>
+    <div className="h-full overflow-hidden p-1.5">
+      {/* Compact icon-only grid — 3 cols, all overlays visible without scrolling */}
+      <div className="grid gap-1" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
         {keys.map((key) => {
           const active = Boolean(overlayState[key]);
           const loading = Boolean(overlayLoadingState?.[key]);
@@ -432,20 +469,21 @@ function GlobeOverlayControl({ overlayState, overlayLoadingState, onToggleOverla
               type="button"
               onClick={() => onToggleOverlay(key)}
               aria-pressed={active}
-              className="flex flex-col items-start gap-0.5 rounded-[8px] px-1.5 py-1.5 text-left transition"
+              title={OVERLAY_LABELS[key] ?? key}
+              className="flex flex-col items-center justify-center gap-0.5 rounded-[7px] transition"
               style={{
+                aspectRatio: "1 / 1",
+                minHeight: 34,
                 backdropFilter: "blur(8px)",
                 WebkitBackdropFilter: "blur(8px)",
-                background: active ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.03)",
-                border: `1px solid ${active ? "rgba(255,255,255,0.20)" : "rgba(255,255,255,0.05)"}`,
+                background: active ? "rgba(212,175,55,0.14)" : "rgba(255,255,255,0.03)",
+                border: `1px solid ${active ? "rgba(212,175,55,0.5)" : "rgba(255,255,255,0.05)"}`,
               }}
             >
-              <span style={{ fontSize: 11, lineHeight: 1 }}>{OVERLAY_EMOJI[key] ?? "◦"}</span>
-              <span className="mt-0.5 w-full truncate text-[9px] font-medium leading-tight"
-                style={{ color: active ? "#ffffff" : "rgba(255,255,255,0.38)" }}>
-                {OVERLAY_LABELS[key] ?? key}
+              <span style={{ fontSize: 15, lineHeight: 1, opacity: active ? 1 : 0.55 }}>
+                {OVERLAY_EMOJI[key] ?? "◦"}
               </span>
-              {loading && <span className="text-[8px] text-white/25">…</span>}
+              {loading && <span style={{ fontSize: 7, color: "rgba(255,255,255,0.3)", lineHeight: 1 }}>…</span>}
             </button>
           );
         })}
