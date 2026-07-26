@@ -33,11 +33,8 @@ export default function AboutPage() {
   return (
     <main
       style={{
-        minHeight: "100vh",
-        background: bg,
         color: textPrimary,
         fontFamily: "var(--font-montserrat, 'Montserrat', sans-serif)",
-        overflowX: "hidden",
       }}
     >
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px 80px" }}>
