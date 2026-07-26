@@ -2014,13 +2014,18 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
   const ciBaseForCombined = useMemo(() => tab === "combined" ? getAnalyticsDataset("invest", "backtest", fsportfolio, capalifeData) : null, [tab, fsportfolio, capalifeData]);
   const dataset = useMemo(() => {
     if (tab === "invest") {
-      return buildScopedInvestDataset(fsportfolio!, mode, investWeights, investEnabled, startFilter, baseDataset);
+      // fsportfolio is undefined in the cloud preview (no local backtest snapshot).
+      // Scoped weighting needs it — fall back to the base dataset instead of crashing.
+      if (!fsportfolio) return baseDataset;
+      return buildScopedInvestDataset(fsportfolio, mode, investWeights, investEnabled, startFilter, baseDataset);
     }
     if (tab === "whiteSwan" && mode === "backtest") {
       return buildScopedWsDataset(baseDatasetWithTrades, wsWeights, wsEnabled, wsRiskMultiplier);
     }
     if (tab === "combined" && ciBaseForCombined) {
-      const ciScoped = buildScopedInvestDataset(fsportfolio!, "backtest", investWeights, investEnabled, startFilter, ciBaseForCombined);
+      const ciScoped = fsportfolio
+        ? buildScopedInvestDataset(fsportfolio, "backtest", investWeights, investEnabled, startFilter, ciBaseForCombined)
+        : ciBaseForCombined;
       const wsDatasetForCombined = buildWsDatasetFromEquityFile(capalifeData.wsPortfolioEquity, ciScoped.benchmarkSeries);
       return buildCombinedDataset(wsDatasetForCombined, ciScoped, combinedWsWeight / 100);
     }
