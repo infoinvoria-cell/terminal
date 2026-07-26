@@ -21,6 +21,7 @@ import GlobeSentinelChat from "@/components/globe/GlobeSentinelChat";
 import GlobePatternAlerts from "@/components/globe/GlobePatternAlerts";
 import MarketSessions from "@/components/globe/MarketSessions";
 import EconomicCalendar from "@/components/globe/EconomicCalendar";
+import ScenarioStress from "@/components/globe/ScenarioStress";
 import type { GlobePattern } from "@/app/api/globe/pattern-detection/route";
 import CountryFlag from "@/components/globe/CountryFlag";
 import { EVENT_IMPACT_MAP, REGION_LABELS, IMPACT_SYMBOL_TO_ID, detectEventRegion, impactAssetIds } from "@/lib/globe/eventImpactMap";
@@ -700,6 +701,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   const [showGlobeSettings, setShowGlobeSettings] = useState(false);
   const [showSessions, setShowSessions] = useState(true);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showScenario, setShowScenario] = useState(false);
   const [patternAlerts, setPatternAlerts] = useState<GlobePattern[]>([]);
   const [dismissedPatternIds, setDismissedPatternIds] = useState<string[]>([]);
   const [dataSource, setDataSource] = useState<DataSource>(() => {
@@ -3051,6 +3053,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                       {([
                         { label: "🕐 Market Sessions", active: showSessions, onClick: () => setShowSessions((v) => !v) },
                         { label: "📅 Economic Calendar", active: showCalendar, onClick: () => setShowCalendar((v) => !v) },
+                        { label: "⚗️ Scenario Stress", active: showScenario, onClick: () => setShowScenario((v) => !v) },
                         { label: "⏱ Event Timeline", active: showTimeline, onClick: () => setShowTimeline((v) => !v) },
                         { label: "🛰 Sentinel Intel", active: showSentinel, onClick: () => setShowSentinel((v) => !v) },
                         ...(mapMode === "globe" ? [
@@ -3154,6 +3157,14 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                 />
                 {showSessions && !showTimeline && <MarketSessions />}
                 {showCalendar && <EconomicCalendar onClose={() => setShowCalendar(false)} />}
+                {showScenario && (
+                  <ScenarioStress
+                    prices={globePrices}
+                    onHighlight={setHighlightedAssetIds}
+                    onOpenChart={handleImpactOpenChart}
+                    onClose={() => setShowScenario(false)}
+                  />
+                )}
               </>
             )}
           </div>
