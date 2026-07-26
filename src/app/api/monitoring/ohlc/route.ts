@@ -4,7 +4,9 @@ import { createSupabaseServiceClient } from "@/lib/supabase-server";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const symbol = searchParams.get("symbol");
-  const timeframe = searchParams.get("timeframe") ?? "1D";
+  // Normalize "1D" → "D" to match how data is stored in monitoring_ohlc
+  const rawTf = searchParams.get("timeframe") ?? "D";
+  const timeframe = rawTf === "1D" ? "D" : rawTf === "1W" ? "W" : rawTf === "1M" ? "M" : rawTf;
   const limitStr = searchParams.get("limit") ?? "500";
   const limit = Math.min(5000, Math.max(1, parseInt(limitStr, 10) || 500));
 
