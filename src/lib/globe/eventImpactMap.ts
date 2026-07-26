@@ -80,6 +80,11 @@ export function impactAssetIds(symbols: string[]): string[] {
   return symbols.map((s) => IMPACT_SYMBOL_TO_ID[s]).filter(Boolean) as string[];
 }
 
+/** Inverse: watchlist asset ID → display ticker. */
+export const ID_TO_IMPACT_SYMBOL: Record<string, string> = Object.fromEntries(
+  Object.entries(IMPACT_SYMBOL_TO_ID).map(([ticker, id]) => [id, ticker]),
+);
+
 // Region-Detector: welche Region ist ein Event? (rough lat/lng bounding boxes)
 export function detectEventRegion(lat: number, lng: number): string | null {
   if (lat > 12 && lat < 22 && lng > 40 && lng < 50) return "red_sea";
