@@ -18,6 +18,8 @@ import { SettingsPanel } from "@/components/globe/SettingsPanel";
 import ImpactPanel, { type ImpactPanelData } from "@/components/globe/ImpactPanel";
 import GlobeTimeline from "@/components/globe/GlobeTimeline";
 import GlobeSentinelChat from "@/components/globe/GlobeSentinelChat";
+import GlobePatternAlerts from "@/components/globe/GlobePatternAlerts";
+import type { GlobePattern } from "@/app/api/globe/pattern-detection/route";
 import { EVENT_IMPACT_MAP, REGION_LABELS, detectEventRegion, impactAssetIds } from "@/lib/globe/eventImpactMap";
 import { AssetHeatmapPanel } from "@/components/globe/AssetHeatmapPanel";
 import { GlobeAnalyticsPanel } from "@/components/globe/GlobeAnalyticsPanel";
@@ -663,6 +665,8 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   const [showTimeline, setShowTimeline] = useState(false);
   const [timelineDay, setTimelineDay] = useState<string | null>(null);
   const [showSentinel, setShowSentinel] = useState(false);
+  const [patternAlerts, setPatternAlerts] = useState<GlobePattern[]>([]);
+  const [dismissedPatternIds, setDismissedPatternIds] = useState<string[]>([]);
   const [dataSource, setDataSource] = useState<DataSource>(() => {
     if (typeof window === "undefined") return "tradingview";
     try {
@@ -2161,6 +2165,56 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
     [geoEvents, timelineDay],
   );
 
+  // ── Pattern detection: poll every 5 min with current events ──
+  const geoEventsRef = useRef<GeoEventItem[]>(geoEvents);
+  useEffect(() => {
+    geoEventsRef.current = geoEvents;
+  }, [geoEvents]);
+  useEffect(() => {
+    let cancelled = false;
+    const runDetection = async () => {
+      const events = geoEventsRef.current;
+      if (!events || events.length === 0) return;
+      try {
+        const res = await fetch("/api/globe/pattern-detection", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ events }),
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled && Array.isArray(data?.patterns)) setPatternAlerts(data.patterns as GlobePattern[]);
+      } catch {
+        /* ignore — best-effort */
+      }
+    };
+    const t0 = window.setTimeout(runDetection, 8000);
+    const iv = window.setInterval(runDetection, 5 * 60 * 1000);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t0);
+      window.clearInterval(iv);
+    };
+  }, []);
+  const visiblePatternAlerts = useMemo(
+    () => patternAlerts.filter((p) => !dismissedPatternIds.includes(p.id)),
+    [patternAlerts, dismissedPatternIds],
+  );
+  const onPatternFocus = useCallback(
+    (p: GlobePattern) => {
+      onGeoZoomTo(p.lat, p.lng, 1.5);
+      if (p.region && EVENT_IMPACT_MAP[p.region]) {
+        handleEventClick({ name: p.pattern, lat: p.lat, lng: p.lng, type: "pattern" });
+      } else if (p.affectedAssets.length) {
+        setHighlightedAssetIds(impactAssetIds(p.affectedAssets));
+      }
+    },
+    [onGeoZoomTo, handleEventClick],
+  );
+  const onPatternDismiss = useCallback((id: string) => {
+    setDismissedPatternIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+  }, []);
+
   const onToggleAsset = useCallback((assetId: string) => {
     setEnabledAssets((prev) => {
       const has = prev.includes(assetId);
@@ -3051,6 +3105,11 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                     onClose={() => setShowSentinel(false)}
                   />
                 )}
+                <GlobePatternAlerts
+                  patterns={visiblePatternAlerts}
+                  onFocus={onPatternFocus}
+                  onDismiss={onPatternDismiss}
+                />
               </>
             )}
           </div>
