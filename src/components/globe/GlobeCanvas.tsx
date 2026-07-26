@@ -68,6 +68,7 @@ type Props = {
   onCityMarkerClick?: (markerId: string) => void;
   geoFocusTarget?: { lat: number; lng: number; altitude: number } | null;
   onGeoFocusHandled?: () => void;
+  satelliteMode?: boolean;
 };
 
 function fmtGlobePrice(p: number): string {
@@ -329,6 +330,7 @@ function GlobeCanvasComponent({
   onCityMarkerClick,
   geoFocusTarget,
   onGeoFocusHandled,
+  satelliteMode = false,
 }: Props) {
   const globeRef = useRef<any>(null);
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -1460,13 +1462,15 @@ function GlobeCanvasComponent({
           rendererConfig={rendererConfig as any}
           width={size.width}
           height={size.height}
-          globeImageUrl={OCEAN_TEXTURE}
+          globeImageUrl={satelliteMode
+            ? "https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
+            : OCEAN_TEXTURE}
           backgroundColor="rgba(0,0,0,0)"
           showAtmosphere
-          atmosphereColor={goldThemeEnabled ? "#e2ca7a" : "#D4AF37"}
-          atmosphereAltitude={0.032}
+          atmosphereColor={satelliteMode ? "#4ea3d8" : goldThemeEnabled ? "#e2ca7a" : "#D4AF37"}
+          atmosphereAltitude={satelliteMode ? 0.18 : 0.032}
           polygonsTransitionDuration={0}
-          showGraticules={false}
+          showGraticules={satelliteMode}
           pointsData={pointData}
           pointLat="lat"
           pointLng="lng"
@@ -1840,6 +1844,10 @@ function GlobeCanvasComponent({
             }
             if (liquidityTint) return liquidityTint;
             if (riskTint) return riskTint;
+            // Satellite mode: transparent fill so earth texture shows through
+            if (satelliteMode && selectedOverlay === "none") {
+              return "rgba(0,0,0,0)";
+            }
             if (goldThemeEnabled && selectedOverlay === "none") {
               return "rgba(116,97,54,0.32)";
             }
@@ -1890,6 +1898,10 @@ function GlobeCanvasComponent({
             }
             if (liquidityStroke) return liquidityStroke;
             if (riskStroke) return riskStroke;
+            // Satellite mode: bright white borders for visibility over imagery
+            if (satelliteMode && selectedOverlay === "none") {
+              return "rgba(255,255,255,0.55)";
+            }
             if (goldThemeEnabled && selectedOverlay === "none") {
               return "rgba(226,202,122,0.58)";
             }

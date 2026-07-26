@@ -8,6 +8,7 @@ import { GlobeCanvas } from "@/components/globe/GlobeCanvas";
 import { GeoContextPanel } from "@/components/globe/GeoContextPanel";
 import { WORLD_CITIES } from "@/data/globe/world-cities";
 import { lookupCountryByName } from "@/data/globe/country-data";
+import { WORLD_PORTS } from "@/data/globe/world-ports";
 import { KpiGrid } from "@/components/globe/KpiGrid";
 import { MacroFundamentalsPanel } from "@/components/globe/MacroFundamentalsPanel";
 import { MiniWorldMap } from "@/components/globe/MiniWorldMap";
@@ -521,6 +522,7 @@ export default function GlobeApp() {
   const [visualLoopEnabled, setVisualLoopEnabled] = useState(false);
   const [visualLoopTick, setVisualLoopTick] = useState(0);
   const [selectedGeoEntity, setSelectedGeoEntity] = useState<import("@/components/globe/GeoContextPanel").SelectedGeoEntity | null>(null);
+  const [satelliteMode, setSatelliteMode] = useState(false);
   const [dataSource, setDataSource] = useState<DataSource>(() => {
     if (typeof window === "undefined") return "tradingview";
     try {
@@ -1819,14 +1821,44 @@ export default function GlobeApp() {
     }));
   }, [camera?.altitude]);
 
+  // Port markers — visible at zoom < 1.2 when satellite mode is on
+  const portMarkers = useMemo((): MarkerPoint[] => {
+    if (!satelliteMode) return [];
+    const alt = Number(camera?.altitude ?? 1.8);
+    if (alt > 1.2) return [];
+    const minType = alt > 0.7 ? "mega" : "major";
+    const allowed = minType === "mega" ? ["mega"] : ["mega", "major", "regional"];
+    return WORLD_PORTS.filter((p) => allowed.includes(p.type)).map((p) => ({
+      id: `port:${p.id}`,
+      assetId: "",
+      assetIds: [],
+      isCluster: false,
+      name: p.name,
+      shortName: p.name,
+      category: "Port",
+      country: p.countryIso,
+      locationLabel: `${p.name} Port`,
+      icon: "⚓",
+      color: p.type === "mega" ? "#38bdf8" : "rgba(100,180,220,0.7)",
+      lat: p.lat,
+      lng: p.lng,
+      label: p.name,
+      clusterCount: 0,
+      aiScore: p.type === "mega" ? 1 : p.type === "major" ? 0.6 : 0.3,
+      macroSensitivity: "high",
+      kind: "commodity" as const,
+    }));
+  }, [satelliteMode, camera?.altitude]);
+
   const visibleMarkers = useMemo(
     () => {
       const base = overlayState.assets ? markers : [];
       const withHq = overlayState.locations ? [...base, HQ_MARKER as never] : base;
       const withSignals = signalMarkers.length ? [...withHq, ...(signalMarkers as never[])] : withHq;
-      return cityMarkers.length ? [...withSignals, ...(cityMarkers as never[])] : withSignals;
+      const withCities = cityMarkers.length ? [...withSignals, ...(cityMarkers as never[])] : withSignals;
+      return portMarkers.length ? [...withCities, ...(portMarkers as never[])] : withCities;
     },
-    [markers, overlayState.assets, overlayState.locations, HQ_MARKER, signalMarkers, cityMarkers],
+    [markers, overlayState.assets, overlayState.locations, HQ_MARKER, signalMarkers, cityMarkers, portMarkers],
   );
   const activeShipTracking = useMemo(
     () => (overlayState.shipTracking ? shipTracking : []),
@@ -2228,6 +2260,7 @@ export default function GlobeApp() {
     onCityMarkerClick,
     geoFocusTarget,
     onGeoFocusHandled: () => setGeoFocusTarget(null),
+    satelliteMode,
   };
 
   return (
@@ -2299,6 +2332,24 @@ export default function GlobeApp() {
                   aria-label="Fullscreen"
                 >
                   <Maximize2 size={14} strokeWidth={1.9} />
+                </button>
+                {/* Satellite mode toggle */}
+                <button
+                  type="button"
+                  onClick={() => setSatelliteMode((v) => !v)}
+                  className={`absolute right-12 top-3 z-30 flex h-7 w-7 items-center justify-center rounded-md border transition ${
+                    satelliteMode
+                      ? "border-[#4ea3d8]/80 text-[#4ea3d8] bg-[rgba(78,163,216,0.12)]"
+                      : "border-white/15 text-white/50 hover:border-white/40 hover:text-white"
+                  }`}
+                  title={satelliteMode ? "Dark globe" : "Satellite view"}
+                  aria-label="Toggle satellite"
+                >
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                    <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" strokeWidth="1.2"/>
+                    <ellipse cx="6.5" cy="6.5" rx="2" ry="4.5" stroke="currentColor" strokeWidth="1"/>
+                    <line x1="2" y1="6.5" x2="11" y2="6.5" stroke="currentColor" strokeWidth="1"/>
+                  </svg>
                 </button>
                 {/* Auto-rotate play/pause */}
                 <button
