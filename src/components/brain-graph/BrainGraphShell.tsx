@@ -261,13 +261,48 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
       }
     }
 
-    function loop() {
-      if (spinningRef.current) angleRef.current += 0.0004;
-      draw();
+    // A continuous rAF that redraws 1000 nodes every frame saturates the main
+    // thread and starves Next's low-priority route transition, so <Link>/router
+    // clicks appeared to "hang" on /brain. Fix: (1) briefly pause drawing the
+    // moment a nav click starts so the transition can commit, (2) cap at ~30fps,
+    // (3) skip the redraw entirely when idle (not spinning, nothing changed).
+    const FRAME_MS = 1000 / 30;
+    let lastFrame = 0;
+    let pausedUntil = 0;
+    let prevSelId: string | null = null;
+    let prevW = -1;
+    let prevH = -1;
+
+    const onPointerDownCapture = (e: Event) => {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest?.("a,button")) pausedUntil = performance.now() + 600;
+    };
+    document.addEventListener("pointerdown", onPointerDownCapture, true);
+
+    function loop(ts: number) {
       rafRef.current = requestAnimationFrame(loop);
+      if (typeof document !== "undefined" && document.hidden) return;
+      if (ts < pausedUntil) return;            // yield the thread during navigation
+      if (ts - lastFrame < FRAME_MS) return;   // cap at ~30fps
+      lastFrame = ts;
+
+      const spinning = spinningRef.current;
+      if (spinning) angleRef.current += 0.0008; // ~same visual speed at 30fps
+
+      // Idle: nothing spinning and nothing changed → no redraw needed.
+      const selId = selectedRef.current?.id ?? null;
+      if (!spinning && selId === prevSelId && canvas!.width === prevW && canvas!.height === prevH) return;
+      prevSelId = selId;
+      prevW = canvas!.width;
+      prevH = canvas!.height;
+
+      draw();
     }
     rafRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(rafRef.current);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      document.removeEventListener("pointerdown", onPointerDownCapture, true);
+    };
   }, []);
 
   const onClick = useCallback((e: React.MouseEvent<HTMLElement>) => {
