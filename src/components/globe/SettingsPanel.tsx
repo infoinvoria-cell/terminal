@@ -14,6 +14,7 @@ type Props = {
   goldThemeEnabled?: boolean;
   compactAssetLabels?: boolean;
   hideOverlayControls?: boolean;
+  highlightedAssetIds?: string[];
   onSelectAsset: (assetId: string) => void;
   onToggleAsset: (assetId: string) => void;
   onToggleCategory: (category: string) => void;
@@ -33,7 +34,7 @@ type OverlayOption = {
 };
 
 // Priority: markets/indices first, then Forex, then commodities, then rest, crypto last.
-const CATEGORY_ORDER = ["Equities", "White Swan Portfolio", "Core Invest", "Intraday MT", "Stocks", "Cross Pairs", "FX", "Major FX", "Commodities", "Metals", "Energy", "Agriculture", "Softs", "Livestock", "Macro", "Bonds", "Crypto"];
+const CATEGORY_ORDER = ["Equities", "White Swan Portfolio", "Core Invest", "Intraday MT", "Stocks", "Cross Pairs", "FX", "Major FX", "Forex", "Commodities", "Metals", "Energy", "Agriculture", "Softs", "Livestock", "Macro", "Bonds", "Crypto"];
 
 function formatFxSymbol(symbol: string): string {
   const raw = String(symbol || "").trim().toUpperCase();
@@ -156,6 +157,7 @@ export function SettingsPanel({
   goldThemeEnabled = false,
   compactAssetLabels = false,
   hideOverlayControls = false,
+  highlightedAssetIds,
   onSelectAsset,
   onToggleAsset,
   onToggleCategory,
@@ -529,11 +531,15 @@ export function SettingsPanel({
                     const markerSelectable = asset.category !== "Cross Pairs" && asset.showOnGlobe !== false;
                     const checked = markerSelectable && enabledSet.has(asset.id);
                     const selected = selectedAssetId === asset.id;
+                    const impactHi = !!highlightedAssetIds && highlightedAssetIds.includes(asset.id);
                     return (
                       <div
                         key={asset.id}
+                        style={impactHi ? { boxShadow: "0 0 0 1px rgba(212,175,55,0.7), 0 0 10px rgba(212,175,55,0.35)", background: "rgba(212,175,55,0.10)" } : undefined}
                         className={`ivq-settings-asset flex h-6 items-center gap-1 rounded-md px-1 text-[10px] ${performanceMode ? "" : "transition"} ${
-                          selected
+                          impactHi
+                            ? "text-[#f0d98c]"
+                            : selected
                             ? `${goldThemeEnabled ? "bg-[#c8c8c8]/16 text-[#ffffff]" : "bg-white/10 text-white"}`
                             : markerSelectable && checked
                               ? `${goldThemeEnabled ? "bg-[#c8c8c8]/08 text-[#c8c8c8]" : "bg-white/[0.04] text-white/70"}`

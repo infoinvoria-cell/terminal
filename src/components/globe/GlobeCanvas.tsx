@@ -67,6 +67,8 @@ type Props = {
   onFocusLocationHandled: () => void;
   onCountryClick?: (countryName: string, lat: number, lng: number) => void;
   onCityMarkerClick?: (markerId: string) => void;
+  onEventClick?: (event: { name: string; lat: number; lng: number; type: string }) => void;
+  highlightedAssetIds?: string[];
   geoFocusTarget?: { lat: number; lng: number; altitude: number } | null;
   onGeoFocusHandled?: () => void;
   satelliteMode?: boolean;
@@ -331,6 +333,8 @@ function GlobeCanvasComponent({
   onCityMarkerClick,
   geoFocusTarget,
   onGeoFocusHandled,
+  onEventClick,
+  highlightedAssetIds,
   satelliteMode = false,
 }: Props) {
   const globeRef = useRef<any>(null);
@@ -1341,6 +1345,12 @@ function GlobeCanvasComponent({
           confidence: Number(point.eventConfidence || 0),
           label: String(point.label || ""),
         });
+        onEventClick?.({
+          name: String(point.eventHeadline || point.label || point.locationLabel || "Event"),
+          lat: Number(point.lat),
+          lng: Number(point.lng),
+          type: String(point.eventType || "event"),
+        });
         return;
       }
       if (point.kind === "ship" || point.kind === "commodity") {
@@ -1780,6 +1790,11 @@ function GlobeCanvasComponent({
               tx.style.fontWeight = "700";
               el.appendChild(tx);
               return el;
+            }
+            // Event→Asset impact highlight: gold glow + pulse on affected markers.
+            if (highlightedAssetIds && d.assetId && highlightedAssetIds.includes(d.assetId)) {
+              el.style.filter = "drop-shadow(0 0 6px rgba(212,175,55,0.95)) drop-shadow(0 0 13px rgba(212,175,55,0.55))";
+              el.style.animation = "clfCityPulse 1.6s ease-in-out infinite";
             }
             if (d.iconUrl) {
               const img = document.createElement("img");

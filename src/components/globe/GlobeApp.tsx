@@ -15,6 +15,8 @@ import { MacroFundamentalsPanel } from "@/components/globe/MacroFundamentalsPane
 import { MiniWorldMap } from "@/components/globe/MiniWorldMap";
 import { NewsColumns } from "@/components/globe/NewsColumns";
 import { SettingsPanel } from "@/components/globe/SettingsPanel";
+import ImpactPanel, { type ImpactPanelData } from "@/components/globe/ImpactPanel";
+import { EVENT_IMPACT_MAP, REGION_LABELS, detectEventRegion, impactAssetIds } from "@/lib/globe/eventImpactMap";
 import { AssetHeatmapPanel } from "@/components/globe/AssetHeatmapPanel";
 import { GlobeAnalyticsPanel } from "@/components/globe/GlobeAnalyticsPanel";
 import { SignalDetailPanel } from "@/components/globe/SignalDetailPanel";
@@ -654,6 +656,8 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   const [satelliteMode, setSatelliteMode] = useState(false);
   const [mapMode, setMapMode] = useState<"globe" | "satellite">("globe");
   const [showContNav, setShowContNav] = useState(false);
+  const [impactPanel, setImpactPanel] = useState<ImpactPanelData | null>(null);
+  const [highlightedAssetIds, setHighlightedAssetIds] = useState<string[]>([]);
   const [dataSource, setDataSource] = useState<DataSource>(() => {
     if (typeof window === "undefined") return "tradingview";
     try {
@@ -2102,6 +2106,46 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
     setGeoFocusTarget({ lat, lng, altitude });
   }, []);
 
+  // ── Event → Asset Impact correlation ──
+  const impactTimerRef = useRef<number | null>(null);
+  const handleEventClick = useCallback((event: { name: string; lat: number; lng: number; type: string }) => {
+    const region = detectEventRegion(event.lat, event.lng);
+    if (!region || !EVENT_IMPACT_MAP[region]) {
+      setImpactPanel(null);
+      setHighlightedAssetIds([]);
+      return;
+    }
+    const impact = EVENT_IMPACT_MAP[region];
+    setHighlightedAssetIds(impactAssetIds(impact.assets));
+    setImpactPanel({
+      event: event.name,
+      region,
+      regionLabel: REGION_LABELS[region] ?? region,
+      assets: impact.assets,
+      direction: impact.direction,
+      reason: impact.reason,
+    });
+    if (impactTimerRef.current) window.clearTimeout(impactTimerRef.current);
+    impactTimerRef.current = window.setTimeout(() => {
+      setImpactPanel(null);
+      setHighlightedAssetIds([]);
+    }, 30000);
+  }, []);
+
+  const closeImpactPanel = useCallback(() => {
+    if (impactTimerRef.current) window.clearTimeout(impactTimerRef.current);
+    setImpactPanel(null);
+    setHighlightedAssetIds([]);
+  }, []);
+
+  const handleImpactOpenChart = useCallback((ticker: string) => {
+    const id = impactAssetIds([ticker])[0];
+    if (!id) return;
+    setSelectedAssetId(id);
+    setBottomPanelTab("chart");
+    setEnabledAssets((prev) => (prev.includes(id) ? prev : [...prev, id]));
+  }, []);
+
   const onToggleAsset = useCallback((assetId: string) => {
     setEnabledAssets((prev) => {
       const has = prev.includes(assetId);
@@ -2421,6 +2465,8 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
     onFocusLocationHandled,
     onCountryClick,
     onCityMarkerClick,
+    onEventClick: handleEventClick,
+    highlightedAssetIds,
     geoFocusTarget,
     onGeoFocusHandled: () => setGeoFocusTarget(null),
     satelliteMode,
@@ -2640,6 +2686,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
               categoryEnabled={categoryEnabled}
               selectedAssetId={selectedAssetId}
               goldThemeEnabled={goldThemeEnabled}
+              highlightedAssetIds={highlightedAssetIds}
               onSelectAsset={onSelectAssetFromWatchlist}
               onToggleAsset={onToggleAsset}
               onToggleCategory={onToggleCategory}
@@ -2772,6 +2819,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                 categoryEnabled={categoryEnabled}
                 selectedAssetId={selectedAssetId}
                 goldThemeEnabled={goldThemeEnabled}
+                highlightedAssetIds={highlightedAssetIds}
                 onSelectAsset={onSelectAssetFromWatchlist}
                 onToggleAsset={onToggleAsset}
                 onToggleCategory={onToggleCategory}
@@ -2938,6 +2986,13 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                 )}
                 {/* Globe canvas — Globe mode only */}
                 {mapMode === "globe" && <GlobeCanvas {...globeCanvasProps} />}
+                {impactPanel && (
+                  <ImpactPanel
+                    data={impactPanel}
+                    onClose={closeImpactPanel}
+                    onOpenChart={handleImpactOpenChart}
+                  />
+                )}
               </>
             )}
           </div>
