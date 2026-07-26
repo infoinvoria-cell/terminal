@@ -13,6 +13,15 @@ import _whiteSwanAnnualReturns from "../data/capitalife/white-swan-annual-return
 import _analyticsGenerated from "../data/capitalife/analytics-generated.json";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 import _fsportfolioConfigJson from "../data/capitalife/fsportfolio-live-core.config.json";
+// Committed WS F+10% equity curve (37KB). Import it so it is bundled and available
+// on Vercel — loadPublicJson can't fs-read public/ from the serverless function.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+import _wsPortfolioEquity from "../../public/data/whiteswan/portfolio_f10_equity.json";
+// Sanitized WS live KPIs (percentages + trade counts only; account numbers,
+// broker, balances and per-month P/L redacted). Committed so WS/Live KPIs
+// populate on Vercel, where the full gitignored evidence file is absent.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+import _wsOfficialKpis from "../data/capitalife/white-swan-official-kpis.json";
 
 export type MonthlyReturnRow = {
   month: string;
@@ -362,6 +371,7 @@ export const account2Trades: Account2Trades =
 
 export const whiteSwanCombinedEvidence: WhiteSwanCombinedEvidence =
   tryRequireJson<WhiteSwanCombinedEvidence>("../data/capitalife/white-swan-combined-evidence.json") ??
+  (_wsOfficialKpis as unknown as WhiteSwanCombinedEvidence) ??
   FALLBACK_COMBINED_EVIDENCE;
 
 export const whiteSwanAnnualReturns: WhiteSwanAnnualReturns = _whiteSwanAnnualReturns as WhiteSwanAnnualReturns;
@@ -389,6 +399,7 @@ function loadPublicJson<T>(relativePath: string): T | null {
 }
 
 export const wsPortfolioEquity: WsPortfolioEquityFile | null =
+  (_wsPortfolioEquity as unknown as WsPortfolioEquityFile | null) ??
   loadPublicJson<WsPortfolioEquityFile>("data/whiteswan/portfolio_f10_equity.json");
 
 // Typed bundle of all capitalife data — call server-side, pass as props to client components.

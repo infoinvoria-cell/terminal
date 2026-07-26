@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "title": "White Swan — official KPIs (sanitized)",
+    "period": "2024-04-11 – 2026-07-01",
+    "caveat": "Display KPIs only. Account numbers, broker, balances and per-month P/L are redacted; these aggregate percentages are already shown publicly on the dashboard.",
+    "sources": ["Performance Report"]
+  },
+  "official_kpis": {
+    "account1_return_pct": 73.19,
+    "account2_return_pct": 23.96,
+    "combined_return_pct": 97.2,
+    "compounded_return_pct": 114.6,
+    "max_drawdown_pct": -11.76,
+    "annualized_return_pct": 35.2,
+    "sharpe": 1.6,
+    "calmar": 3,
+    "profit_factor": 1.28,
+    "assets": 35,
+    "sleeves": 5,
+    "aum_eur": 0
+  },
+  "account1_partial": {
+    "broker": "redacted",
+    "account": "redacted",
+    "currency": "EUR",
+    "statement_period": "2024-04-11 – 2026-07-01",
+    "total_closed_trades": 89,
+    "closed_pl_eur": 0
+  },
+  "account2_visible": {
+    "source": "myfxbook (public)",
+    "total_visible_trades": 32,
+    "cum_pct_visible_only": 23.96,
+    "note": "visible trades only",
+    "symbols_traded": []
+  },
+  "monthly_summary_account1_partial": []
+}
