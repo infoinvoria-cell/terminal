@@ -1,219 +1,328 @@
 import type { Metadata } from "next";
+import { KpiCard } from "@/components/dashboard/kpi-card";
 
 export const metadata: Metadata = {
   title: "About — Capitalife Capital",
   description: "Systematisches, regelbasiertes Trading — unkorreliert zu klassischen Märkten.",
 };
 
-// Numbers sourced from verified files only — no estimates:
-// White Swan F+10  → public/data/whiteswan/portfolio_f10_equity.json
-//   cagr=4.608, maxDD=-4.419, sharpe=1.267 (OOS 2019-2026 backtest)
-// CFD live         → src/data/capitalife/performance-monthly.json +
-//                    04_Track_Record/Performance Source Register.md
-//   Ann.=35.2%, maxDD=-11.76%, sharpe=1.60 (statement-based, Apr 2024–Jul 2026)
-// Strategy count   → src/data/capitalife/white-swan-global-strategy.json
-//   active_entries=35, unique_assets=29
+// Verified number sources:
+// Live CFD         → src/data/capitalife/white-swan-official-kpis.json
+//   annualized_return_pct=35.2, max_drawdown_pct=-11.76, sharpe=1.6, calmar=3
+//   period: 2024-04-11 – 2026-07-01
+// White Swan OOS   → public/data/whiteswan/portfolio_f10_equity.json summary
+//   cagr=4.608, maxDD=-4.419, sharpe=1.267, calmar=1.043 (OOS 2019–2026)
+// WS Sleeve count  → src/data/capitalife/white-swan-global-strategy.json
+//   active_entries=35, 5 sleeves
+// Core Invest OOS  → src/data/capitalife/core-invest-paper.config.json validated_metrics.oos_period
+//   cagr_pct=17.11, sharpe=1.152, max_dd_pct=-21.73, calmar=0.787
 
 export default function AboutPage() {
   return (
-    <div className="h-full overflow-y-auto overflow-x-hidden">
-      <div className="mx-auto max-w-5xl px-6 pb-20 pt-10 lg:px-10">
+    // Outer wrapper: h-full but NO scroll — provides the relative context for the gradient overlay
+    <div className="relative flex h-full flex-col">
 
-        {/* ── HERO ──────────────────────────────────────────────────────────── */}
-        <section className="border-b border-white/[0.06] pb-16">
-          <div className="mb-7 flex items-center gap-2">
-            <div className="h-0.5 w-8 rounded-full bg-[#e2ca7a]" />
-            <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#e2ca7a]">
-              Capital Management
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        <div className="px-8 pb-24 pt-8">
+
+          {/* ── HEADER ──────────────────────────────────────────────────────── */}
+          <div className="mb-8 flex items-center gap-3">
+            <div className="h-[1px] w-6 bg-[color:var(--dash-accent)]" />
+            <span
+              className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--dash-accent)]"
+              style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+            >
+              Capital Management · Internes Infopanel
             </span>
           </div>
 
-          <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-white lg:text-6xl" style={{ letterSpacing: "-0.02em" }}>
-            CAPITALIFE CAPITAL
+          <h1
+            className="mb-2 text-[28px] font-bold leading-tight text-white"
+            style={{ fontFamily: "var(--font-nunito), sans-serif", letterSpacing: "-0.02em" }}
+          >
+            Capitalife Capital
           </h1>
-          <p className="mb-12 max-w-2xl text-lg text-zinc-400 leading-relaxed">
-            Systematisches, regelbasiertes Trading —<br />
-            unkorreliert zu klassischen Märkten.
+          <p
+            className="mb-10 text-sm text-[color:var(--dash-muted)]"
+            style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+          >
+            Systematisches, regelbasiertes Trading — unkorreliert zu klassischen Märkten.
           </p>
 
-          {/* Hero stats */}
-          <div className="flex flex-wrap gap-3">
-            {[
-              { label: "Rendite p.a. (Live)", value: "+35.2%", sub: "Apr 2024 – Jul 2026¹" },
-              { label: "Max. Drawdown (Live)", value: "−11.8%", sub: "Apr 2024 – Jul 2026¹" },
-              { label: "Sharpe Ratio (Live)",  value: "1.60",   sub: "Apr 2024 – Jul 2026¹" },
-            ].map(({ label, value, sub }) => (
-              <div
-                key={label}
-                className="flex-1 basis-44 rounded-xl border border-[#e2ca7a]/20 bg-[#e2ca7a]/10 px-6 py-5"
+          {/* ── KPI STRIP — LIVE STRATEGIE ────────────────────────────────── */}
+          <SectionLabel>Live-Strategie · Apr 2024 – Jul 2026¹</SectionLabel>
+          <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            <KpiCard label="Rendite p.a." value="+35.2%" subtitle="Ann., statement-basiert" />
+            <KpiCard label="Max. Drawdown" value="−11.8%" subtitle="Live-Konto" valueVariant="negative" />
+            <KpiCard label="Sharpe Ratio" value="1.60" subtitle="Live-Konto" />
+            <KpiCard label="Calmar Ratio" value="3.0" subtitle="Return / MaxDD p.a." />
+            <KpiCard label="Profit Factor" value="1.28" subtitle="Live-Konto" />
+          </div>
+
+          {/* ── ZWEI STRATEGIEN ───────────────────────────────────────────── */}
+          <SectionLabel>Strategien</SectionLabel>
+          <div className="mb-8 grid gap-4 lg:grid-cols-2">
+
+            {/* White Swan */}
+            <div className="rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] p-6 shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]">
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <div>
+                  <p
+                    className="text-[11px] font-semibold uppercase tracking-widest text-[color:var(--dash-muted)]"
+                    style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+                  >
+                    01 · Futures
+                  </p>
+                  <p
+                    className="mt-1 text-[20px] font-bold text-white"
+                    style={{ fontFamily: "var(--font-nunito), sans-serif" }}
+                  >
+                    White Swan Portfolio
+                  </p>
+                </div>
+                <span
+                  className="shrink-0 rounded-full border border-[color:var(--dash-accent)]/30 bg-[color:var(--dash-accent)]/10 px-3 py-1 text-[11px] font-semibold text-[color:var(--dash-accent)]"
+                  style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+                >
+                  Unkorreliert
+                </span>
+              </div>
+
+              <p
+                className="mb-5 text-sm leading-relaxed text-[color:var(--dash-muted)]"
+                style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
               >
-                <p className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-[#e2ca7a]">{label}</p>
-                <p className="text-4xl font-extrabold leading-none text-[#e2ca7a]" style={{ letterSpacing: "-0.03em" }}>{value}</p>
-                <p className="mt-2 text-xs text-zinc-500">{sub}</p>
+                35 aktive Komponentenstrategien über 5 Sleeves (Agrar, Metalle, Indizes, Energie, Forex).
+                Vollständig regelbasiert, keine Diskretionärentscheidungen.
+              </p>
+
+              {/* OOS stats grid */}
+              <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {[
+                  { label: "CAGR (OOS)", value: "+4.6%" },
+                  { label: "Max DD (OOS)", value: "−4.4%" },
+                  { label: "Sharpe (OOS)", value: "1.27" },
+                  { label: "Calmar (OOS)", value: "1.04" },
+                ].map(({ label, value }) => (
+                  <div key={label} className="rounded-[14px] border border-white/[0.04] bg-white/[0.03] px-4 py-3">
+                    <p
+                      className="text-[11px] text-[color:var(--dash-muted)]"
+                      style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+                    >
+                      {label}
+                    </p>
+                    <p
+                      className="mt-1 text-[18px] font-bold text-white"
+                      style={{ fontFamily: "var(--font-nunito), sans-serif" }}
+                    >
+                      {value}
+                    </p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <p className="mt-4 text-[11px] text-zinc-600">
-            ¹ Statement-basiert (RoboForex), nicht unabhängig geprüft. Backtest-Daten White Swan: Walk-Forward OOS 2019–2026.
-          </p>
-        </section>
 
-        {/* ── PHILOSOPHIE ───────────────────────────────────────────────────── */}
-        <section className="border-b border-white/[0.06] py-16">
-          <SectionLabel>Unsere Philosophie</SectionLabel>
-          <h2 className="mb-10 text-2xl font-bold tracking-tight text-white lg:text-3xl">Zwei Strategien. Ein System.</h2>
-
-          <div className="grid gap-4 lg:grid-cols-2">
-            <StrategyCard
-              tag="01"
-              title="WHITE SWAN PORTFOLIO"
-              badge="Unkorreliert"
-              badgeClass="border-[#e2ca7a]/30 bg-[#e2ca7a]/10 text-[#e2ca7a]"
-              desc="Vollständig regelbasiert über 35 aktive Strategien auf 29 Futures-Märkten. Diversifikation über Rohstoffe, Edelmetalle, Agrar, Indizes und Forex."
-              goal="Positive Rendite unabhängig von Marktphasen"
-              stats={[
-                { label: "CAGR (OOS Backtest 2019–2026)", value: "+4.6%" },
-                { label: "Max DD (OOS Backtest)",          value: "−4.4%" },
-                { label: "Sharpe (OOS Backtest)",          value: "1.27"  },
-                { label: "Aktive Strategien",              value: "35"    },
-                { label: "Unique Assets",                  value: "29"    },
-              ]}
-              caveat="Backtest-Daten (Walk-Forward OOS). Kein Live-Track-Record."
-            />
-            <StrategyCard
-              tag="02"
-              title="CORE INVEST"
-              badge="Leicht korreliert"
-              badgeClass="border-blue-400/30 bg-blue-400/10 text-blue-400"
-              desc="Langfristige, systematische Investments in ausgewählte Qualitäts-Assets. ETFs, Aktien und Rohstoffe mit klar definierten Ein- und Ausstiegsregeln."
-              goal="Markt schlagen bei kontrolliertem Drawdown"
-              stats={[
-                { label: "Ansatz",      value: "Aktiv / regelbasiert" },
-                { label: "Universum",   value: "ETFs · Aktien · Rohstoffe" },
-                { label: "Haltedauer", value: "Wochen – Monate" },
-                { label: "Status",      value: "Forschungsphase" },
-              ]}
-              caveat="Noch kein öffentlicher Track Record."
-            />
-          </div>
-        </section>
-
-        {/* ── WARUM CAPITALIFE ──────────────────────────────────────────────── */}
-        <section className="border-b border-white/[0.06] py-16">
-          <SectionLabel>Für Vertriebler</SectionLabel>
-          <h2 className="mb-10 text-2xl font-bold tracking-tight text-white lg:text-3xl">Warum Capitalife?</h2>
-
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              { icon: "⚙️", title: "100% regelbasiert",       text: "Kein Bauchgefühl, kein menschliches Ermessen. Jede Entscheidung folgt einem dokumentierten Algorithmus." },
-              { icon: "📈", title: "20+ Jahre Backtest",       text: "Walk-Forward-optimiert auf echten Marktdaten seit 2003. Keine Kurvenanpassung, keine In-Sample-Tricks." },
-              { icon: "🔗", title: "Unkorreliert",             text: "White Swan-Strategien zeigen keine signifikante Korrelation zu DAX, S&P 500 oder klassischen Fonds." },
-              { icon: "🔍", title: "Volle Transparenz",        text: "Jedes Signal nachvollziehbar, jede Regel dokumentiert. Live-Dashboard für alle Positionen." },
-              { icon: "📊", title: "Live-Monitoring 24/7",     text: "Capitalife Terminal überwacht alle Positionen in Echtzeit und liefert tägliche Signale." },
-              { icon: "🏦", title: "Reguliertes Konto",        text: "Execution über Interactive Brokers. Geregelt, transparent, vollständig eigenverantwortlich verwaltet." },
-            ].map(({ icon, title, text }) => (
-              <div key={title} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
-                <div className="mb-3 text-2xl">{icon}</div>
-                <p className="mb-2 text-sm font-bold text-white">{title}</p>
-                <p className="text-sm leading-relaxed text-zinc-400">{text}</p>
+              {/* Sleeves */}
+              <div className="mb-5 space-y-1.5">
+                {[
+                  { name: "Agrar Final",   active: 14, assets: "ZC1! ZW1! ZS1! CC1! KC1! OJ1! SB1! CT1!" },
+                  { name: "Metals5",       active: 5,  assets: "GC1! SI1! HG1! PL1! PA1!" },
+                  { name: "Indices Hybrid",active: 5,  assets: "ES1! NQ1! YM1! FDAX1! UKX" },
+                  { name: "Energy Robust3",active: 3,  assets: "CL1! NG1! RB1!" },
+                  { name: "Forex8",        active: 8,  assets: "EURGBP MXNUSD NOKUSD CLPUSD GBPJPY SEKUSD BRLUSD ZARUSD" },
+                ].map(({ name, active, assets }) => (
+                  <div key={name} className="flex items-center justify-between rounded-[10px] border border-white/[0.04] px-3 py-2">
+                    <div className="flex items-center gap-3">
+                      <span
+                        className="min-w-[20px] text-center text-[13px] font-bold text-[color:var(--dash-accent)]"
+                        style={{ fontFamily: "var(--font-nunito), sans-serif" }}
+                      >
+                        {active}
+                      </span>
+                      <span
+                        className="text-[12px] text-white"
+                        style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+                      >
+                        {name}
+                      </span>
+                    </div>
+                    <span
+                      className="hidden text-[11px] text-[color:var(--dash-muted)] sm:block"
+                      style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+                    >
+                      {assets}
+                    </span>
+                  </div>
+                ))}
               </div>
-            ))}
+
+              <p
+                className="text-[11px] leading-relaxed text-zinc-600"
+                style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+              >
+                ⚠️ Walk-Forward OOS Backtest 2019–2026. Forward Tracking only — keine Live-Execution.
+              </p>
+            </div>
+
+            {/* Core Invest */}
+            <div className="rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] p-6 shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]">
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <div>
+                  <p
+                    className="text-[11px] font-semibold uppercase tracking-widest text-[color:var(--dash-muted)]"
+                    style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+                  >
+                    02 · ETF / Aktien
+                  </p>
+                  <p
+                    className="mt-1 text-[20px] font-bold text-white"
+                    style={{ fontFamily: "var(--font-nunito), sans-serif" }}
+                  >
+                    Core Invest
+                  </p>
+                </div>
+                <span
+                  className="shrink-0 rounded-full border border-blue-400/30 bg-blue-400/10 px-3 py-1 text-[11px] font-semibold text-blue-400"
+                  style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+                >
+                  Leicht korreliert
+                </span>
+              </div>
+
+              <p
+                className="mb-5 text-sm leading-relaxed text-[color:var(--dash-muted)]"
+                style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+              >
+                Systematisch-regelbasiertes Langfrist-Portfolio über 8 Komponenten.
+                Vierteljährliches Rebalancing. Status: approved, frozen — noch kein Live-Konto.
+              </p>
+
+              <div className="mb-5 grid grid-cols-2 gap-3">
+                {[
+                  { label: "CAGR (OOS)", value: "+17.1%" },
+                  { label: "Max DD (OOS)", value: "−21.7%" },
+                  { label: "Sharpe (OOS)", value: "1.15" },
+                  { label: "Calmar (OOS)", value: "0.79" },
+                ].map(({ label, value }) => (
+                  <div key={label} className="rounded-[14px] border border-white/[0.04] bg-white/[0.03] px-4 py-3">
+                    <p
+                      className="text-[11px] text-[color:var(--dash-muted)]"
+                      style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+                    >
+                      {label}
+                    </p>
+                    <p
+                      className="mt-1 text-[18px] font-bold text-white"
+                      style={{ fontFamily: "var(--font-nunito), sans-serif" }}
+                    >
+                      {value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mb-5 space-y-1.5">
+                {[
+                  { symbol: "QQQ Passive",   weight: "45%", note: "ETF-Kern" },
+                  { symbol: "GLD",           weight: "25%", note: "Gold-Anker" },
+                  { symbol: "SPMO",          weight: "5%",  note: "Momentum-ETF" },
+                  { symbol: "QQQ Pine 1/2",  weight: "10%", note: "Strategie-Sleeve" },
+                  { symbol: "SPY",           weight: "5%",  note: "Benchmark-Sleeve" },
+                  { symbol: "HG / CHF (6S)", weight: "10%", note: "Rohstoff + Forex" },
+                ].map(({ symbol, weight, note }) => (
+                  <div key={symbol} className="flex items-center justify-between rounded-[10px] border border-white/[0.04] px-3 py-2">
+                    <span
+                      className="text-[12px] text-white"
+                      style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+                    >
+                      {symbol}
+                    </span>
+                    <div className="flex items-center gap-3">
+                      <span
+                        className="hidden text-[11px] text-[color:var(--dash-muted)] sm:block"
+                        style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+                      >
+                        {note}
+                      </span>
+                      <span
+                        className="w-10 text-right text-[12px] font-semibold text-[color:var(--dash-accent)]"
+                        style={{ fontFamily: "var(--font-nunito), sans-serif" }}
+                      >
+                        {weight}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <p
+                className="text-[11px] leading-relaxed text-zinc-600"
+                style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+              >
+                ⚠️ OOS 2019–2026 · 50.388 Kombinationen Grid-Sweep · Calmar-optimiert · SPMO-Proxy für 2000–2015.
+              </p>
+            </div>
           </div>
-        </section>
 
-        {/* ── VERGLEICH ─────────────────────────────────────────────────────── */}
-        <section className="border-b border-white/[0.06] py-16">
-          <SectionLabel>Vergleich</SectionLabel>
-          <h2 className="mb-2 text-2xl font-bold tracking-tight text-white lg:text-3xl">Capitalife vs. Klassische Anlageklassen</h2>
-          <p className="mb-8 text-sm text-zinc-500">
-            White Swan: Walk-Forward OOS Backtest 2019–2026 · CFD-Strategie: Live-Statement Apr 2024–Jul 2026 · Klassische Assets: historische Richtwerte
-          </p>
-
-          <div className="overflow-x-auto">
+          {/* ── VERGLEICHSTABELLE ─────────────────────────────────────────── */}
+          <SectionLabel>Vergleich · klassische Anlageklassen</SectionLabel>
+          <div className="mb-8 overflow-x-auto rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/[0.06]">
-                  {["Asset / Strategie", "CAGR", "Max DD", "Sharpe", "Korrelation zu WS", "Status"].map((h) => (
-                    <th key={h} className="pb-3 pr-6 text-left text-[11px] font-semibold uppercase tracking-widest text-zinc-600 first:pl-0">
+                  {["Asset / Strategie", "CAGR", "Max DD", "Sharpe", "Calmar", "Status"].map((h) => (
+                    <th
+                      key={h}
+                      className="px-5 py-4 text-left text-[11px] font-semibold uppercase tracking-widest text-[color:var(--dash-muted)]"
+                      style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+                    >
                       {h}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.04]">
-                <CompareRow name="White Swan Portfolio" tag="BT" cagr="+4.6%" dd="−4.4%" sharpe="1.27" corr="—"      status="OOS Backtest 2019–2026" highlight />
-                <CompareRow name="CFD-Strategie (Intraday)" tag="LV" cagr="+35.2%" dd="−11.8%" sharpe="1.60" corr="niedrig" status="Live Statement¹"       highlight />
-                <CompareRow name="S&P 500 (SPY)"       cagr="~10%" dd="−55%" sharpe="~0.5" corr="niedrig" status="Historisch" />
-                <CompareRow name="DAX"                  cagr="~8%"  dd="−60%" sharpe="~0.4" corr="niedrig" status="Historisch" />
-                <CompareRow name="Gold"                 cagr="~7%"  dd="−45%" sharpe="~0.4" corr="mittel"  status="Historisch" />
-                <CompareRow name="Anleihen (AGG)"       cagr="~3%"  dd="−20%" sharpe="~0.4" corr="niedrig" status="Historisch" />
-                <CompareRow name="60/40 Portfolio"      cagr="~7%"  dd="−35%" sharpe="~0.5" corr="mittel"  status="Historisch" />
+                <CRow name="CFD-Strategie (Live)" tag="LV" cagr="+35.2%" dd="−11.8%" sharpe="1.60" calmar="3.0" status="Live · Apr 2024–Jul 2026¹" accent />
+                <CRow name="White Swan Portfolio" tag="BT" cagr="+4.6%" dd="−4.4%" sharpe="1.27" calmar="1.04" status="OOS Backtest 2019–2026" accent />
+                <CRow name="Core Invest" tag="BT" cagr="+17.1%" dd="−21.7%" sharpe="1.15" calmar="0.79" status="OOS Backtest 2019–2026" />
+                <CRow name="S&P 500 (SPY)" cagr="~10%" dd="−55%" sharpe="~0.5" calmar="~0.2" status="Historisch" />
+                <CRow name="DAX" cagr="~8%" dd="−60%" sharpe="~0.4" calmar="~0.1" status="Historisch" />
+                <CRow name="Gold" cagr="~7%" dd="−45%" sharpe="~0.4" calmar="~0.2" status="Historisch" />
+                <CRow name="60/40 Portfolio" cagr="~7%" dd="−35%" sharpe="~0.5" calmar="~0.2" status="Historisch" />
               </tbody>
             </table>
           </div>
-          <p className="mt-4 text-[11px] text-zinc-600">
-            ¹ Statement-basiert, nicht unabhängig geprüft. BT = Backtest. LV = Live. Klassische Asset-Zahlen sind approximierte Richtwerte.
-          </p>
-        </section>
 
-        {/* ── TRACK RECORD & DATEN ──────────────────────────────────────────── */}
-        <section className="border-b border-white/[0.06] py-16">
-          <SectionLabel>Daten & Track Record</SectionLabel>
-          <h2 className="mb-10 text-2xl font-bold tracking-tight text-white lg:text-3xl">Zahlen mit Substanz</h2>
-
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              { value: "Apr 2024", label: "Live-Tracking seit",            sub: "CFD-Konto (Live)",                ok: true  },
-              { value: "29",       label: "Unique Assets im WS-Universum", sub: "White Swan Portfolio",            ok: true  },
-              { value: "35",       label: "Aktive Strategien",             sub: "White Swan Portfolio",            ok: true  },
-              { value: "2003",     label: "Backtest-Daten seit",           sub: "Walk-Forward IS + OOS",           ok: true  },
-              { value: "24/7",     label: "Live-Monitoring",               sub: "via Capitalife Terminal",         ok: true  },
-              { value: "0",        label: "Live-Execution White Swan",     sub: "Forward Tracking only — kein Broker", ok: false },
-            ].map(({ value, label, sub, ok }) => (
-              <div key={label} className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-5">
-                <p className={`text-3xl font-extrabold leading-none ${ok ? "text-[#e2ca7a]" : "text-red-400"}`} style={{ letterSpacing: "-0.02em" }}>{value}</p>
-                <p className="mt-3 text-sm font-semibold text-white">{label}</p>
-                <p className="mt-1 text-xs text-zinc-500">{sub}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── KONTAKT / CTA ─────────────────────────────────────────────────── */}
-        <section className="pt-16">
-          <SectionLabel>Kontakt</SectionLabel>
-          <h2 className="mb-3 text-2xl font-bold tracking-tight text-white lg:text-3xl">Sprechen Sie uns an.</h2>
-          <p className="mb-10 max-w-xl text-base leading-relaxed text-zinc-400">
-            Interesse an einer Zusammenarbeit oder Fragen zu unseren Strategien? Wir freuen uns auf Ihre Nachricht.
-          </p>
-
-          <div className="flex flex-wrap gap-3">
-            <a
-              href="mailto:jgfxtrading.business@gmail.com"
-              className="inline-flex items-center gap-2 rounded-lg bg-[#e2ca7a] px-6 py-3 text-sm font-bold text-[#0a0a0c] transition-opacity hover:opacity-90"
-            >
-              E-Mail senden
-            </a>
-            <a
-              href="https://calendly.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg border border-[#e2ca7a]/25 px-6 py-3 text-sm font-bold text-[#e2ca7a] transition-opacity hover:opacity-80"
-            >
-              Termin buchen
-            </a>
+          {/* ── QUICK STATS ───────────────────────────────────────────────── */}
+          <SectionLabel>Eckdaten</SectionLabel>
+          <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            <KpiCard label="Live-Tracking seit" value="Apr 2024" />
+            <KpiCard label="WS Komponenten" value="35" />
+            <KpiCard label="WS Sleeves" value="5" />
+            <KpiCard label="Backtest-Daten ab" value="2003" />
+            <KpiCard label="Core Invest Assets" value="8" />
+            <KpiCard label="Live-Monitoring" value="24/7" />
           </div>
 
-          <p className="mt-12 max-w-2xl text-[11px] leading-relaxed text-zinc-600">
-            <strong className="text-zinc-500">Rechtlicher Hinweis:</strong>{" "}
-            Diese Seite dient ausschließlich zu Informationszwecken und stellt keine Anlageberatung,
-            kein Angebot und keine Aufforderung zum Kauf oder Verkauf von Finanzinstrumenten dar.
-            Vergangene Performance ist kein verlässlicher Indikator für zukünftige Ergebnisse.
-            Alle Backtest-Daten sind hypothetisch und unterliegen inhärenten Einschränkungen.
+          {/* footnote */}
+          <p
+            className="text-[11px] leading-relaxed text-zinc-600"
+            style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+          >
+            ¹ Statement-basiert (Broker-Export), nicht unabhängig geprüft. BT = Walk-Forward OOS Backtest. LV = Live.
+            Klassische Asset-Zahlen sind approximierte Richtwerte.
+            White Swan: Forward Tracking only — keine Live-Execution, AuM EUR 0.
+            Core Invest: approved, frozen, noch kein Live-Konto.
           </p>
-        </section>
 
+        </div>
       </div>
+
+      {/* ── SCROLL FADE — indicates more content below ──────────────────── */}
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-28"
+        style={{ background: "linear-gradient(to top, #0a0a0c 0%, transparent 100%)" }}
+      />
     </div>
   );
 }
@@ -222,69 +331,47 @@ export default function AboutPage() {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mb-1 flex items-center gap-2">
-      <div className="h-0.5 w-5 rounded-full bg-[#e2ca7a]" />
-      <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#e2ca7a]">{children}</span>
+    <div className="mb-4 flex items-center gap-2">
+      <div className="h-[1px] w-4 rounded-full bg-[color:var(--dash-accent)]" />
+      <span
+        className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--dash-accent)]"
+        style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+      >
+        {children}
+      </span>
     </div>
   );
 }
 
-function StrategyCard({
-  tag, title, badge, badgeClass, desc, goal, stats, caveat,
+function CRow({
+  name, tag, cagr, dd, sharpe, calmar, status, accent = false,
 }: {
-  tag: string; title: string; badge: string; badgeClass: string;
-  desc: string; goal: string;
-  stats: { label: string; value: string }[];
-  caveat: string;
+  name: string; tag?: string; cagr: string; dd: string;
+  sharpe: string; calmar: string; status: string; accent?: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] p-6">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[11px] font-semibold text-zinc-600">{tag}</p>
-          <p className="mt-0.5 text-base font-bold text-white">{title}</p>
-        </div>
-        <span className={`shrink-0 rounded-full border px-3 py-1 text-[11px] font-bold ${badgeClass}`}>{badge}</span>
-      </div>
-      <p className="text-sm leading-relaxed text-zinc-400">{desc}</p>
-      <div className="rounded-lg border-l-2 border-[#e2ca7a] bg-[#e2ca7a]/[0.07] px-4 py-2.5">
-        <span className="text-xs font-semibold text-[#e2ca7a]">Ziel: </span>
-        <span className="text-xs text-zinc-400">{goal}</span>
-      </div>
-      <div className="divide-y divide-white/[0.05]">
-        {stats.map(({ label, value }) => (
-          <div key={label} className="flex items-center justify-between py-1.5">
-            <span className="text-xs text-zinc-500">{label}</span>
-            <span className="text-xs font-bold text-white">{value}</span>
-          </div>
-        ))}
-      </div>
-      <p className="border-t border-white/[0.05] pt-3 text-[11px] leading-relaxed text-zinc-600">⚠️ {caveat}</p>
-    </div>
-  );
-}
-
-function CompareRow({
-  name, tag, cagr, dd, sharpe, corr, status, highlight = false,
-}: {
-  name: string; tag?: string; cagr: string; dd: string; sharpe: string;
-  corr: string; status: string; highlight?: boolean;
-}) {
-  return (
-    <tr className={highlight ? "bg-[#e2ca7a]/[0.04]" : ""}>
-      <td className="py-3 pr-6 font-medium">
-        <span className={highlight ? "text-[#e2ca7a]" : "text-white"}>{name}</span>
+    <tr className={accent ? "bg-[color:var(--dash-accent)]/[0.04]" : ""}>
+      <td className="px-5 py-3">
+        <span
+          className={accent ? "font-medium text-[color:var(--dash-accent)]" : "font-medium text-white"}
+          style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+        >
+          {name}
+        </span>
         {tag && (
-          <span className={`ml-2 rounded px-1.5 py-0.5 text-[10px] font-bold ${highlight ? "bg-[#e2ca7a]/15 text-[#e2ca7a]" : "bg-white/[0.06] text-zinc-500"}`}>
+          <span
+            className={`ml-2 rounded px-1.5 py-0.5 text-[10px] font-semibold ${accent ? "bg-[color:var(--dash-accent)]/15 text-[color:var(--dash-accent)]" : "bg-white/[0.06] text-zinc-500"}`}
+            style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+          >
             {tag}
           </span>
         )}
       </td>
-      <td className="py-3 pr-6 font-semibold text-green-400">{cagr}</td>
-      <td className="py-3 pr-6 font-semibold text-red-400">{dd}</td>
-      <td className="py-3 pr-6 text-white">{sharpe}</td>
-      <td className="py-3 pr-6 text-zinc-400">{corr}</td>
-      <td className="py-3 text-xs text-zinc-600">{status}</td>
+      <td className="px-5 py-3 font-semibold text-green-400" style={{ fontFamily: "var(--font-nunito), sans-serif" }}>{cagr}</td>
+      <td className="px-5 py-3 font-semibold text-red-400" style={{ fontFamily: "var(--font-nunito), sans-serif" }}>{dd}</td>
+      <td className="px-5 py-3 text-white" style={{ fontFamily: "var(--font-nunito), sans-serif" }}>{sharpe}</td>
+      <td className="px-5 py-3 text-white" style={{ fontFamily: "var(--font-nunito), sans-serif" }}>{calmar}</td>
+      <td className="px-5 py-3 text-[11px] text-zinc-500" style={{ fontFamily: "var(--font-montserrat), sans-serif" }}>{status}</td>
     </tr>
   );
 }
