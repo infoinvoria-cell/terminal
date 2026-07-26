@@ -6,6 +6,7 @@ import { Color, MeshPhongMaterial } from "three";
 
 import { assetIconMap, effectivePublicUrl } from "@/lib/globe/assetIconStrict";
 import { countryNameOf, loadWorldFeatures, polygonColor, polygonStrokeColor, volatilityTint } from "@/lib/globe/overlay";
+import { WORLD_CITIES } from "@/data/globe/world-cities";
 import type {
   AssetRegionHighlightResponse,
   CommodityRegionItem,
@@ -347,6 +348,12 @@ function GlobeCanvasComponent({
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [hoveredPointId, setHoveredPointId] = useState("");
   const [activeEvent, setActiveEvent] = useState<GeoEventItem | null>(null);
+  // Connection routes drawn from a clicked marker to the nearest financial hubs.
+  const [connectionArcs, setConnectionArcs] = useState<Array<{
+    id: string; startLat: number; startLng: number; endLat: number; endLng: number;
+    color: string; altitude: number; label: string; kind: "overlay";
+    dashLength: number; dashGap: number; animateTime: number;
+  }>>([]);
   const internalCameraRef = useRef<GlobeCameraState | null>(null);
   // Globe visuals are forced to a pure neutral grey/white palette — no gold,
   // no blue — regardless of the app's gold theme. (Pure greys: r=g=b.)
@@ -921,8 +928,8 @@ function GlobeCanvasComponent({
     [crossPairPath],
   );
   const allArcs = useMemo(
-    () => [...crossArcs, ...overlayArcSegments],
-    [crossArcs, overlayArcSegments],
+    () => [...crossArcs, ...overlayArcSegments, ...connectionArcs],
+    [crossArcs, overlayArcSegments, connectionArcs],
   );
 
   useEffect(() => {
@@ -1180,6 +1187,7 @@ function GlobeCanvasComponent({
       const curLat = Number(from?.lat ?? DEFAULT_CAMERA.lat);
       const curLng = Number(from?.lng ?? DEFAULT_CAMERA.lng);
       tweenCamera({ lat: curLat, lng: curLng, altitude: 2.5 }, 1000);
+      setConnectionArcs([]); // clear click-connection routes on zoom-out
     };
     stage.addEventListener("dblclick", onDblClick);
     return () => stage.removeEventListener("dblclick", onDblClick);
@@ -1251,9 +1259,41 @@ function GlobeCanvasComponent({
     setActiveEvent(null);
   }, [selectedOverlay]);
 
+  // Build grey connection routes from a clicked point to the nearest major
+  // financial hubs (top world cities by weight). Shows the event's "reach".
+  const buildConnectionArcs = useCallback((lat: number, lng: number, label: string) => {
+    const hubs = WORLD_CITIES
+      .filter((c) => c.weight >= 0.6)
+      .map((c) => ({
+        c,
+        d: greatCircleDistanceDeg(lat, lng, c.lat, c.lng),
+      }))
+      .filter((h) => h.d > 2) // skip the origin itself
+      .sort((a, b) => a.d - b.d)
+      .slice(0, 4);
+    setConnectionArcs(hubs.map((h, i) => ({
+      id: `conn-arc:${label}:${i}`,
+      startLat: lat,
+      startLng: lng,
+      endLat: h.c.lat,
+      endLng: h.c.lng,
+      color: "rgba(200,200,200,0.7)",
+      altitude: Math.min(0.4, 0.12 + h.d / 360),
+      label: `${label} → ${h.c.name}`,
+      kind: "overlay" as const,
+      dashLength: 1,
+      dashGap: 0,
+      animateTime: 0,
+    })));
+  }, []);
+
   const onPointClick = useCallback(
     (point: any) => {
       if (!point?.id) return;
+      // Draw connection routes from any clicked marker to nearest hubs.
+      if (point.lat != null && point.lng != null && !point.isCluster) {
+        buildConnectionArcs(Number(point.lat), Number(point.lng), String(point.label || point.locationLabel || point.shortName || "Point"));
+      }
       if (point.kind === "event") {
         if (point.isCluster) {
           tweenCamera(
@@ -1353,7 +1393,7 @@ function GlobeCanvasComponent({
       setRings([{ lat: Number(point.lat), lng: Number(point.lng), color: point.color }]);
       window.setTimeout(() => setRings([]), 2000);
     },
-    [crossPairPath, detailLevel, onSelectAsset, themePrimaryHex, tweenCamera],
+    [crossPairPath, detailLevel, onSelectAsset, themePrimaryHex, tweenCamera, buildConnectionArcs],
   );
 
   const legend = useMemo(() => {
