@@ -68,9 +68,9 @@ export default function AboutPage() {
       </div>
 
       {/* ── ROW 1 · STRATEGIEN ──────────────────────────────── */}
-      <div className="grid min-h-0 flex-[1.15] grid-cols-2 gap-2.5">
+      <div className="grid min-h-0 flex-1 grid-cols-2 gap-2.5">
         {ABOUT_STRATEGIES.map((s) => (
-          <div key={s.id} className={`flex min-h-0 flex-col overflow-hidden p-5 ${CARD}`}>
+          <div key={s.id} className={`flex min-h-0 flex-col justify-between gap-3 overflow-hidden p-5 ${CARD}`}>
             {/* Eyebrow + badge */}
             <div className="flex items-start justify-between">
               <div>
@@ -81,7 +81,7 @@ export default function AboutPage() {
             </div>
 
             {/* Hero CAGR + 3 KPIs */}
-            <div className="mt-4 flex items-end gap-5">
+            <div className="flex items-end gap-5">
               <div>
                 <p className="text-[9px] uppercase tracking-widest text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{s.stats[0].label}</p>
                 <p className="text-[38px] font-bold leading-none text-[color:var(--dash-accent)]" style={{ fontFamily: N, letterSpacing: "-0.03em" }}>{s.stats[0].value}</p>
@@ -94,7 +94,7 @@ export default function AboutPage() {
             </div>
 
             {/* Allocation bar */}
-            <div className="mt-4">
+            <div>
               <p className="mb-1.5 text-[9px] font-semibold uppercase tracking-widest text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>
                 {s.id === "ws" ? "Sleeve-Verteilung · 35 Strategien" : "Gewichtung v2.0"}
               </p>
@@ -102,7 +102,7 @@ export default function AboutPage() {
             </div>
 
             {/* Details */}
-            <div className="mt-auto grid grid-cols-2 gap-x-6 gap-y-1.5 pt-4">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-2 border-t border-white/[0.05] pt-3.5">
               {s.details.map((d) => (
                 <Row key={d.key} icon={ICON_MAP[d.icon]} k={d.key} v={d.value} />
               ))}
@@ -147,22 +147,22 @@ export default function AboutPage() {
       </div>
 
       {/* ── ROW 3 · LIVE-RECORD / HORIZONT / ECKDATEN ───────── */}
-      <div className="grid min-h-0 flex-1 grid-cols-3 gap-2.5">
-        <div className={`flex min-h-0 flex-col overflow-hidden p-4 ${CARD}`}>
+      <div className="grid shrink-0 grid-cols-3 gap-2.5">
+        <div className={`flex flex-col overflow-hidden p-4 ${CARD}`}>
           <SectionHead icon={<TrendingUp size={12} />} label="White Swan · Live-Track-Record" />
-          <div className="mt-2.5 grid flex-1 grid-cols-2 gap-x-5 gap-y-1.5 content-start">
+          <div className="mt-3 grid grid-cols-2 gap-x-5 gap-y-2">
             {ABOUT_TRACK_RECORD.map(({ key, value }) => <KV key={key} k={key} v={value} />)}
           </div>
         </div>
-        <div className={`flex min-h-0 flex-col overflow-hidden p-4 ${CARD}`}>
+        <div className={`flex flex-col overflow-hidden p-4 ${CARD}`}>
           <SectionHead icon={<Clock size={12} />} label="Anlagehorizont & Konditionen" />
-          <div className="mt-2.5 grid flex-1 grid-cols-2 gap-x-5 gap-y-1.5 content-start">
+          <div className="mt-3 grid grid-cols-2 gap-x-5 gap-y-2">
             {HORIZON_ROWS.slice(0, 10).map(({ key, value }) => <KV key={key} k={key} v={value} />)}
           </div>
         </div>
-        <div className={`flex min-h-0 flex-col overflow-hidden p-4 ${CARD}`}>
+        <div className={`flex flex-col overflow-hidden p-4 ${CARD}`}>
           <SectionHead icon={<Shield size={12} />} label="Risiko & Aufbau" />
-          <div className="mt-2.5 flex-1 space-y-1.5">
+          <div className="mt-3 grid grid-cols-2 gap-x-5 gap-y-2">
             {ABOUT_RISK.map(({ key, value }) => <KV key={key} k={key} v={value} />)}
             {ABOUT_ECKDATEN.slice(4, 6).map(({ key, value }) => <KV key={key} k={key} v={value} />)}
           </div>
@@ -281,14 +281,14 @@ function TRow({ name, tag, cagr, dd, sharpe, calmar, corrSpy, accent }: {
 }) {
   return (
     <tr className={accent ? "bg-[color:var(--dash-accent)]/[0.03]" : ""}>
-      <td className="px-4 py-[7px]">
+      <td className="px-4 py-2.5">
         <span className={`text-[11px] font-medium ${accent ? "text-[color:var(--dash-accent)]" : "text-white"}`} style={{ fontFamily: M }}>{name}</span>
         {tag && <span className={`ml-1.5 rounded px-1 py-0.5 text-[8px] font-semibold ${accent ? "bg-[color:var(--dash-accent)]/15 text-[color:var(--dash-accent)]" : "bg-white/[0.06] text-zinc-500"}`}>{tag}</span>}
       </td>
-      <td className="px-4 py-[7px] text-[11px] font-semibold text-[color:var(--dash-accent)]" style={{ fontFamily: N }}>{cagr}</td>
-      <td className="px-4 py-[7px] text-[11px] font-semibold text-red-400" style={{ fontFamily: N }}>{dd}</td>
-      <td className="px-4 py-[7px] text-[11px] text-white" style={{ fontFamily: N }}>{sharpe}</td>
-      <td className="px-4 py-[7px] text-[11px] text-white" style={{ fontFamily: N }}>{calmar}</td>
+      <td className="px-4 py-2.5 text-[11px] font-semibold text-[color:var(--dash-accent)]" style={{ fontFamily: N }}>{cagr}</td>
+      <td className="px-4 py-2.5 text-[11px] font-semibold text-red-400" style={{ fontFamily: N }}>{dd}</td>
+      <td className="px-4 py-2.5 text-[11px] text-white" style={{ fontFamily: N }}>{sharpe}</td>
+      <td className="px-4 py-2.5 text-[11px] text-white" style={{ fontFamily: N }}>{calmar}</td>
       <td className="px-4 py-[7px] text-[10px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{corrSpy}</td>
     </tr>
   );
