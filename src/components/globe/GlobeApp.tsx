@@ -24,6 +24,7 @@ import EconomicCalendar from "@/components/globe/EconomicCalendar";
 import ScenarioStress from "@/components/globe/ScenarioStress";
 import ExposureGraph from "@/components/globe/ExposureGraph";
 import AlertsPanel, { type AlertRule } from "@/components/globe/AlertsPanel";
+import SessionBrief from "@/components/globe/SessionBrief";
 import type { GlobePattern } from "@/app/api/globe/pattern-detection/route";
 import CountryFlag from "@/components/globe/CountryFlag";
 import { EVENT_IMPACT_MAP, REGION_LABELS, IMPACT_SYMBOL_TO_ID, detectEventRegion, impactAssetIds } from "@/lib/globe/eventImpactMap";
@@ -706,6 +707,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   const [showScenario, setShowScenario] = useState(false);
   const [showExposure, setShowExposure] = useState(false);
   const [showAlerts, setShowAlerts] = useState(false);
+  const [showBrief, setShowBrief] = useState(false);
   const [alertRules, setAlertRules] = useState<AlertRule[]>(() => {
     if (typeof window === "undefined") return [];
     try {
@@ -2285,11 +2287,12 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   const removeAlert = useCallback((id: string) => setAlertRules((prev) => prev.filter((r) => r.id !== id)), []);
 
   // The left-side gear panels share one slot — opening one closes the others.
-  const toggleLeftPanel = useCallback((which: "calendar" | "scenario" | "exposure" | "alerts") => {
+  const toggleLeftPanel = useCallback((which: "calendar" | "scenario" | "exposure" | "alerts" | "brief") => {
     setShowCalendar((v) => (which === "calendar" ? !v : false));
     setShowScenario((v) => (which === "scenario" ? !v : false));
     setShowExposure((v) => (which === "exposure" ? !v : false));
     setShowAlerts((v) => (which === "alerts" ? !v : false));
+    setShowBrief((v) => (which === "brief" ? !v : false));
   }, []);
   const alertAssetOptions = useMemo(
     () => assets.filter((a) => enabledSet.has(a.id)).map((a) => ({ id: a.id, label: a.symbol || a.name })),
@@ -3134,6 +3137,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                     >
                       {([
                         { label: "🕐 Market Sessions", active: showSessions, onClick: () => setShowSessions((v) => !v) },
+                        { label: "📋 Session Brief", active: showBrief, onClick: () => toggleLeftPanel("brief") },
                         { label: "📅 Economic Calendar", active: showCalendar, onClick: () => toggleLeftPanel("calendar") },
                         { label: "⚗️ Scenario Stress", active: showScenario, onClick: () => toggleLeftPanel("scenario") },
                         { label: "🕸 Exposure Graph", active: showExposure, onClick: () => toggleLeftPanel("exposure") },
@@ -3269,6 +3273,16 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                     onAdd={addAlert}
                     onRemove={removeAlert}
                     onClose={() => setShowAlerts(false)}
+                  />
+                )}
+                {showBrief && (
+                  <SessionBrief
+                    geoEvents={geoEvents}
+                    changes={globeChanges}
+                    assets={assets}
+                    patternCount={visiblePatternAlerts.length}
+                    alertCount={triggeredAlertIds.size}
+                    onClose={() => setShowBrief(false)}
                   />
                 )}
               </>
