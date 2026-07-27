@@ -64,9 +64,20 @@ export function applyLiveCandle(
   const tickLow = Number.isFinite(tl) && tl > 0 ? tl : price;
 
   // A brand-new period started → open one new in-progress candle.
+  // Open at the PREVIOUS candle's close (continuous, TradingView-style) so the
+  // forming candle is a real, visible body from prior-close → live price — not a
+  // zero-height doji that makes the price line appear to float in empty space.
   if (Number.isFinite(tickMs) && tickMs >= lastMs + intervalMs) {
     const newTime = new Date(lastMs + intervalMs).toISOString().slice(0, 19) + "Z";
-    return [...bars, { time: newTime, open: price, high: Math.max(price, tickHigh), low: Math.min(price, tickLow), close: price, volume: null }];
+    const openPrice = Number.isFinite(Number(last.close)) && Number(last.close) > 0 ? Number(last.close) : price;
+    return [...bars, {
+      time: newTime,
+      open: openPrice,
+      high: Math.max(openPrice, price, tickHigh),
+      low: Math.min(openPrice, price, tickLow),
+      close: price,
+      volume: null,
+    }];
   }
 
   // Otherwise grow the current (last) candle.
