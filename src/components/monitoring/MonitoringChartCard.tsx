@@ -2,6 +2,7 @@
 
 import { memo, useMemo } from "react";
 import { useLiveQuotesContext } from "@/contexts/LiveQuotesContext";
+import { applyLiveCandle, liveQuoteKey } from "@/lib/monitoring/liveCandle";
 import MonitoringChart, { type MonitoringChartData } from "@/components/monitoring/MonitoringChart";
 import type { AgriAssetStatusSummary } from "@/lib/monitoring/agriFinalStatusTypes";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
@@ -352,7 +353,11 @@ function MonitoringChartCardInner({
   liveClose = null,
 }: MonitoringChartCardProps) {
   const liveQuotesCtx = useLiveQuotesContext();
-  const resolvedLiveClose = liveClose ?? (item?.code ? (liveQuotesCtx.get(item.code.toUpperCase())?.close ?? null) : null);
+  // live_quotes stores bare symbols (FDAX1!); chart codes may carry a TF suffix
+  // (FDAX1! 2H / 6E1! 30M), so normalize before lookup.
+  const liveQuote = item?.code ? (liveQuotesCtx.get(liveQuoteKey(item.code) ?? "") ?? null) : null;
+  const resolvedLiveClose = liveClose ?? liveQuote?.close ?? null;
+  const liveQuoteTs = liveQuote?.updated_at ?? liveQuote?.timestamp ?? null;
 
   const payload = item?.payload ?? null;
   const hasBars = !!payload?.bars?.length;
@@ -445,13 +450,14 @@ function MonitoringChartCardInner({
   const chartData = useMemo(() => {
     const chartTrades = strategyActive ? strategyTrades : [];
     const rawBars = payload?.bars ?? [];
-    const bars = resolvedLiveClose != null && rawBars.length > 0
-      ? [...rawBars.slice(0, -1), {
-          ...rawBars[rawBars.length - 1],
-          close: resolvedLiveClose,
-          high: Math.max(rawBars[rawBars.length - 1].high as number, resolvedLiveClose),
-          low: Math.min(rawBars[rawBars.length - 1].low as number, resolvedLiveClose),
-        }]
+    // Live 5s candle building: grow the current candle from the latest tick and
+    // roll over to a new candle at the timeframe boundary.
+    const bars = resolvedLiveClose != null
+      ? applyLiveCandle(
+          rawBars as never,
+          { close: resolvedLiveClose, high: liveQuote?.high ?? null, low: liveQuote?.low ?? null, timestamp: liveQuoteTs },
+          item?.timeframe,
+        )
       : rawBars;
     return {
       displaySymbol: item?.code ?? "-",
@@ -465,7 +471,7 @@ function MonitoringChartCardInner({
       variant,
       timeframe: item?.timeframe ?? "D",
     } satisfies MonitoringChartData;
-  }, [badge, item?.code, item?.name, item?.timeframe, item?.tv, resolvedLiveClose, payload?.bars, payload?.boxes, strategyActive, strategyTrades, variant]);
+  }, [badge, item?.code, item?.name, item?.timeframe, item?.tv, resolvedLiveClose, liveQuote?.high, liveQuote?.low, liveQuoteTs, payload?.bars, payload?.boxes, strategyActive, strategyTrades, variant]);
 
   const fallbackText = loadStatus === "loading"
     ? "LOADING"
