@@ -1259,14 +1259,14 @@ function MonitoringChartInner({
       crosshair: {
         mode: CrosshairMode.Normal,
         vertLine: {
-          color: "rgba(163, 180, 199, 0.42)",
+          color: "rgba(230, 235, 245, 0.75)",
           width: 1,
           labelVisible: true,
           labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
           visible: true,
         },
         horzLine: {
-          color: "rgba(163, 180, 199, 0.42)",
+          color: "rgba(230, 235, 245, 0.75)",
           width: 1,
           labelVisible: true,
           labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
@@ -1329,14 +1329,14 @@ function MonitoringChartInner({
       crosshair: {
         mode: CrosshairMode.Normal,
         vertLine: {
-          color: "rgba(163, 180, 199, 0.42)",
+          color: "rgba(230, 235, 245, 0.75)",
           width: 1,
           labelVisible: true,
           labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
           visible: true,
         },
         horzLine: {
-          color: "rgba(163, 180, 199, 0.42)",
+          color: "rgba(230, 235, 245, 0.75)",
           width: 1,
           labelVisible: true,
           labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
@@ -1374,21 +1374,21 @@ function MonitoringChartInner({
         ...(isIntraday ? { tickMarkFormatter: berlinIntradayTickMarkFormatter } : {}),
       },
       handleScroll: {
-        mouseWheel: false, // vertical wheel = zoom (see handleScale), not pan
-        pressedMouseMove: true,
-        horzTouchDrag: true,
-        vertTouchDrag: true,
+        mouseWheel: false,
+        pressedMouseMove: false, // charts are locked — no free drag-panning
+        horzTouchDrag: false,
+        vertTouchDrag: false,
       },
       kineticScroll: {
         touch: false,
         mouse: false,
       },
       handleScale: {
-        mouseWheel: true, // vertical wheel zooms the chart
-        pinch: true,
+        mouseWheel: false, // no wheel zoom — fixed view like before
+        pinch: false,
         axisPressedMouseMove: {
-          time: true,
-          price: true,
+          time: false,
+          price: false,
         },
         axisDoubleClickReset: {
           time: true,

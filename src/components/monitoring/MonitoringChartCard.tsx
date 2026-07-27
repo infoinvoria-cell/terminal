@@ -511,10 +511,14 @@ function MonitoringChartCardInner({
     <div
       className={`chartCard monitoring-card ${isActive ? "is-active" : ""} ${isSelected ? "is-selected" : ""} ${isAllStrategiesMini ? "monitoring-card--all-strategies" : ""}`}
       onClick={onCardClick}
-      style={isSelected && !isActive ? {
-        outline: "1px solid rgba(240,244,250,0.22)",
-        boxShadow: "0 0 0 1px rgba(240,244,250,0.08), inset 0 0 0 1px rgba(240,244,250,0.06)",
-      } : undefined}
+      style={{
+        ...(isSelected && !isActive ? {
+          outline: "1px solid rgba(240,244,250,0.22)",
+          boxShadow: "0 0 0 1px rgba(240,244,250,0.08), inset 0 0 0 1px rgba(240,244,250,0.06)",
+        } : {}),
+        // GBP (6B1!) not part of the portfolio yet — shown dimmed for now.
+        ...(String(item?.code ?? "").toUpperCase().includes("6B1") ? { opacity: 0.5 } : {}),
+      }}
       data-chart-symbol={item?.code ?? ""}
       data-strategy-id={item?.key ?? ""}
       data-chart-name={item?.name ?? ""}
