@@ -7,18 +7,12 @@
 // Env:  SUPABASE_URL (or NEXT_PUBLIC_SUPABASE_URL), SUPABASE_SERVICE_KEY (or
 //       SUPABASE_SERVICE_ROLE_KEY), plus provider keys (see providers.mjs).
 
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
-import { config as loadEnv } from "dotenv";
+import "./env.mjs"; // FIRST — loads .env before providers.mjs reads process.env
 import cron from "node-cron";
 import { createClient } from "@supabase/supabase-js";
 import { PROVIDERS, providerReady, fetchBars, fetchFredLatest } from "./providers.mjs";
 import { ASSETS, apiAssets, byProvider, SUMMARY } from "./signalAssets.mjs";
-
-// Load worker/.env (provider keys) and the repo .env.local (Supabase) if present.
-const HERE = dirname(fileURLToPath(import.meta.url));
-loadEnv({ path: join(HERE, ".env") });
-loadEnv({ path: join(HERE, "..", ".env.local") });
+import { runSignalTrigger, PORTFOLIO_ASSETS } from "./signalTrigger.mjs";
 
 const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim();
 const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
@@ -135,11 +129,16 @@ async function fetchGlobeApi() {
 // NOTE: TradingView assets (all exchange futures) are handled by tv_live_feed.py.
 // This worker only covers the finnhub/twelvedata/fred assets from signalAssets.
 function startScheduler() {
-  cron.schedule("*/10 8-22 * * 1-5", () => fetchGlobeApi()); // live prices every 10 min
+  // Signal-triggered: every minute during market hours, fetch only the ~14
+  // portfolio assets whose daily bar closes within 15 min.
+  cron.schedule("* 8-22 * * 1-5", async () => {
+    const { fetched } = await runSignalTrigger(supabase);
+    if (fetched.length) console.log(`[signal] ${fetched.join(", ")}`);
+  });
   cron.schedule("0 23 * * 1-5", () => fetchDailyApi());       // EOD after US close
   cron.schedule("0 20 * * 1-5", () => fetchFredData());       // macro
   cron.schedule("0 6 * * 1-5", () => fetchDailyApi());        // morning full sync
-  console.log("✅ Scheduler active — all API jobs registered");
+  console.log(`✅ Scheduler active — signal-trigger for ${PORTFOLIO_ASSETS.length} portfolio assets + daily/macro`);
 }
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
@@ -148,6 +147,11 @@ console.log(`Capitalife worker. Assets: ${SUMMARY.total} (tv:${SUMMARY.tradingvi
 console.log(`Providers ready: ${ready.length ? ready.join(", ") : "NONE (all keys placeholder — add to worker/.env)"}`);
 startScheduler();
 if (process.argv.includes("--once")) {
-  fetchDailyApi().then(() => fetchGlobeApi()).then(() => console.log("one-off done"));
+  console.log("\n── one-off signal-trigger run (all portfolio assets, forced) ──");
+  runSignalTrigger(supabase, { force: true }).then(({ fetched, skipped }) => {
+    console.log(`FETCHED (${fetched.length}): ${fetched.join(", ") || "—"}`);
+    console.log(`SKIPPED (${skipped.length}): ${skipped.join(", ") || "—"}`);
+    console.log("one-off done");
+  });
 }
-void ASSETS; void byProvider;
+void ASSETS; void byProvider; void fetchGlobeApi;
