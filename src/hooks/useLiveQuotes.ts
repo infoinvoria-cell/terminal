@@ -35,9 +35,15 @@ export function useLiveQuotes(intervalMs = 5000): Map<string, LiveQuote> {
 
   useEffect(() => {
     void fetch_();
-    timerRef.current = setInterval(() => void fetch_(), intervalMs);
+    // Align polling to wall-clock boundaries (…:00, :05, :10 for a 5s interval) so
+    // the live update lands on whole 5-second ticks instead of a random phase.
+    const alignTimer = setTimeout(() => {
+      void fetch_();
+      timerRef.current = setInterval(() => void fetch_(), intervalMs);
+    }, intervalMs - (Date.now() % intervalMs));
     document.addEventListener("visibilitychange", fetch_);
     return () => {
+      clearTimeout(alignTimer);
       if (timerRef.current) clearInterval(timerRef.current);
       document.removeEventListener("visibilitychange", fetch_);
     };
