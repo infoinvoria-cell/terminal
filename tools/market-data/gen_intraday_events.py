@@ -28,11 +28,12 @@ OUT_DIR = REPO / "public" / "generated" / "monitoring" / "strategies"
 BUNDLE_DIR = REPO / "src" / "data" / "capitalife" / "monitoring-events"
 
 # chart -> engine module + futures history file + output event file
+# kind "dax": module.run_engine(bars)   |   kind "fx": fx_common.run_engine(bars, module.CFG)
 TARGETS = [
-    {"engine": "dax_2h_engine.py",    "hist": "FDAX1!_2h.json",  "out": "EUREX_FDAX1_2H_events.json", "sym": "FDAX1!", "tv": "EUREX:FDAX1!", "tf": "2H",  "name": "Trend Momentum DAX 2H"},
-    {"engine": "dax_1h_engine.py",    "hist": "FDAX1!_1h.json",  "out": "EUREX_FDAX1_1H_events.json", "sym": "FDAX1!", "tv": "EUREX:FDAX1!", "tf": "1H",  "name": "Trend Momentum DAX 1H"},
-    {"engine": "eurusd_30m_engine.py","hist": "6E1!_30m.json",   "out": "CME_6E1_30M_events.json",   "sym": "6E1!",   "tv": "CME:6E1!",    "tf": "30M", "name": "MT Euro 30M"},
-    {"engine": "gbpusd_30m_engine.py","hist": "6B1!_30m.json",   "out": "CME_6B1_30M_events.json",   "sym": "6B1!",   "tv": "CME:6B1!",    "tf": "30M", "name": "MT GBP 30M"},
+    {"kind": "dax", "engine": "dax_2h_engine.py",    "hist": "FDAX1!_2h.json",  "out": "EUREX_FDAX1_2H_events.json", "sym": "FDAX1!", "tv": "EUREX:FDAX1!", "tf": "2H",  "name": "Trend Momentum DAX 2H"},
+    {"kind": "dax", "engine": "dax_1h_engine.py",    "hist": "FDAX1!_1h.json",  "out": "EUREX_FDAX1_1H_events.json", "sym": "FDAX1!", "tv": "EUREX:FDAX1!", "tf": "1H",  "name": "Trend Momentum DAX 1H"},
+    {"kind": "fx",  "engine": "eurusd_30m_engine.py","hist": "6E1!_30m.json",   "out": "CME_6E1_30M_events.json",   "sym": "6E1!",   "tv": "CME:6E1!",    "tf": "30M", "name": "MT Euro 30M"},
+    {"kind": "fx",  "engine": "gbpusd_30m_engine.py","hist": "6B1!_30m.json",   "out": "CME_6B1_30M_events.json",   "sym": "6B1!",   "tv": "CME:6B1!",    "tf": "30M", "name": "MT GBP 30M"},
 ]
 
 
@@ -56,12 +57,26 @@ def main() -> None:
         bars = json.loads(hist_file.read_text(encoding="utf-8")).get("bars", [])
         if not bars:
             print(f"  SKIP {t['out']}: empty bars"); continue
+        # Engines' _parse_bar_dt reads bar["time"] for the intraday hour and only
+        # falls back to bar["date"][:10] (day → hour 0), which the session filter
+        # would then reject. Our futures bars carry the full ISO in "date" only, so
+        # mirror it into "time" to preserve the intraday hour.
+        for b in bars:
+            if not b.get("time") and b.get("date"):
+                b["time"] = b["date"]
         try:
             mod = load_engine(eng_file)
-            run_engine = getattr(mod, "run_engine", None)
-            if run_engine is None:
-                print(f"  SKIP {t['out']}: engine has no run_engine()"); continue
-            trades = run_engine(bars)
+            if t["kind"] == "fx":
+                import fx_30m_engine_common as fxc  # noqa: WPS433 (ENGINES on sys.path)
+                cfg = getattr(mod, "CFG", None)
+                if cfg is None:
+                    print(f"  SKIP {t['out']}: fx engine has no CFG"); continue
+                trades = fxc.run_engine(bars, cfg)
+            else:
+                run_engine = getattr(mod, "run_engine", None)
+                if run_engine is None:
+                    print(f"  SKIP {t['out']}: engine has no run_engine()"); continue
+                trades = run_engine(bars)
         except Exception as e:
             print(f"  ERR  {t['out']}: {e}"); continue
         dates = [str(b.get("date", ""))[:19] for b in bars if b.get("date")]

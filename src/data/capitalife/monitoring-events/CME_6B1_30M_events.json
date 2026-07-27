@@ -1,0 +1,337 @@
+{
+  "symbol": "6B1!",
+  "tvSymbol": "CME:6B1!",
+  "strategyName": "MT GBP 30M",
+  "timeframe": "30M",
+  "source": "engine_futures",
+  "hasStrategy": true,
+  "generatedAt": "2026-07-27T10:25:41Z",
+  "dateRange": {
+    "first": "2026-04-24T21:30:00",
+    "last": "2026-07-27T11:00:00"
+  },
+  "tradeCounts": {
+    "total": 29
+  },
+  "trades": [
+    {
+      "direction": "long",
+      "entryTime": "2026-04-30T08:00:00Z",
+      "exitTime": "2026-04-30T10:30:00Z",
+      "entry": 1.3466,
+      "sl": 1.3456,
+      "tp": 1.3501,
+      "exit": 1.3484,
+      "exitReason": "signal_exit",
+      "pnl": 180.0
+    },
+    {
+      "direction": "short",
+      "entryTime": "2026-04-30T10:30:00Z",
+      "exitTime": "2026-04-30T11:30:00Z",
+      "entry": 1.3484,
+      "sl": 1.3494,
+      "tp": 1.3449,
+      "exit": 1.3494,
+      "exitReason": "sl",
+      "pnl": -100.0
+    },
+    {
+      "direction": "long",
+      "entryTime": "2026-05-13T10:00:00Z",
+      "exitTime": "2026-05-13T10:30:00Z",
+      "entry": 1.3532,
+      "sl": 1.3522,
+      "tp": 1.3567,
+      "exit": 1.3522,
+      "exitReason": "sl",
+      "pnl": -100.0
+    },
+    {
+      "direction": "short",
+      "entryTime": "2026-05-13T10:30:00Z",
+      "exitTime": "2026-05-13T11:00:00Z",
+      "entry": 1.3524,
+      "sl": 1.3534,
+      "tp": 1.3489,
+      "exit": 1.3524,
+      "exitReason": "sl",
+      "pnl": 0.0
+    },
+    {
+      "direction": "short",
+      "entryTime": "2026-05-20T08:30:00Z",
+      "exitTime": "2026-05-20T09:00:00Z",
+      "entry": 1.3385,
+      "sl": 1.3395,
+      "tp": 1.335,
+      "exit": 1.3395,
+      "exitReason": "sl",
+      "pnl": -100.0
+    },
+    {
+      "direction": "long",
+      "entryTime": "2026-05-20T09:00:00Z",
+      "exitTime": "2026-05-20T09:30:00Z",
+      "entry": 1.3395,
+      "sl": 1.3385,
+      "tp": 1.343,
+      "exit": 1.3385,
+      "exitReason": "sl",
+      "pnl": -100.0
+    },
+    {
+      "direction": "long",
+      "entryTime": "2026-05-21T09:30:00Z",
+      "exitTime": "2026-05-21T10:00:00Z",
+      "entry": 1.3429,
+      "sl": 1.3419,
+      "tp": 1.3464,
+      "exit": 1.3429,
+      "exitReason": "sl",
+      "pnl": 0.0
+    },
+    {
+      "direction": "short",
+      "entryTime": "2026-05-21T10:30:00Z",
+      "exitTime": "2026-05-21T11:00:00Z",
+      "entry": 1.3434,
+      "sl": 1.3444,
+      "tp": 1.3399,
+      "exit": 1.3444,
+      "exitReason": "sl",
+      "pnl": -100.0
+    },
+    {
+      "direction": "long",
+      "entryTime": "2026-05-22T08:00:00Z",
+      "exitTime": "2026-05-22T08:30:00Z",
+      "entry": 1.3426,
+      "sl": 1.3416,
+      "tp": 1.3461,
+      "exit": 1.3416,
+      "exitReason": "sl",
+      "pnl": -100.0
+    },
+    {
+      "direction": "short",
+      "entryTime": "2026-05-22T10:30:00Z",
+      "exitTime": "2026-05-22T14:30:00Z",
+      "entry": 1.3425,
+      "sl": 1.3435,
+      "tp": 1.339,
+      "exit": 1.3435,
+      "exitReason": "sl",
+      "pnl": -100.0
+    },
+    {
+      "direction": "long",
+      "entryTime": "2026-05-25T09:30:00Z",
+      "exitTime": "2026-05-26T03:30:00Z",
+      "entry": 1.3484,
+      "sl": 1.3474,
+      "tp": 1.3519,
+      "exit": 1.3484,
+      "exitReason": "sl",
+      "pnl": 0.0
+    },
+    {
+      "direction": "short",
+      "entryTime": "2026-05-29T09:00:00Z",
+      "exitTime": "2026-05-29T13:30:00Z",
+      "entry": 1.3424,
+      "sl": 1.3434,
+      "tp": 1.3389,
+      "exit": 1.3424,
+      "exitReason": "sl",
+      "pnl": 0.0
+    },
+    {
+      "direction": "long",
+      "entryTime": "2026-06-01T10:00:00Z",
+      "exitTime": "2026-06-01T11:00:00Z",
+      "entry": 1.3469,
+      "sl": 1.3459,
+      "tp": 1.3504,
+      "exit": 1.3459,
+      "exitReason": "sl",
+      "pnl": -100.0
+    },
+    {
+      "direction": "long",
+      "entryTime": "2026-06-05T08:00:00Z",
+      "exitTime": "2026-06-05T11:00:00Z",
+      "entry": 1.3428,
+      "sl": 1.3418,
+      "tp": 1.3463,
+      "exit": 1.3463,
+      "exitReason": "tp",
+      "pnl": 350.0
+    },
+    {
+      "direction": "long",
+      "entryTime": "2026-06-08T09:00:00Z",
+      "exitTime": "2026-06-08T09:30:00Z",
+      "entry": 1.334,
+      "sl": 1.333,
+      "tp": 1.3375,
+      "exit": 1.333,
+      "exitReason": "sl",
+      "pnl": -100.0
+    },
+    {
+      "direction": "short",
+      "entryTime": "2026-06-08T09:30:00Z",
+      "exitTime": "2026-06-08T11:00:00Z",
+      "entry": 1.3327,
+      "sl": 1.3337,
+      "tp": 1.3292,
+      "exit": 1.3327,
+      "exitReason": "sl",
+      "pnl": 0.0
+    },
+    {
+      "direction": "short",
+      "entryTime": "2026-06-11T09:30:00Z",
+      "exitTime": "2026-06-11T10:00:00Z",
+      "entry": 1.3383,
+      "sl": 1.3393,
+      "tp": 1.3348,
+      "exit": 1.3383,
+      "exitReason": "sl",
+      "pnl": 0.0
+    },
+    {
+      "direction": "long",
+      "entryTime": "2026-06-12T08:00:00Z",
+      "exitTime": "2026-06-12T08:30:00Z",
+      "entry": 1.3407,
+      "sl": 1.3397,
+      "tp": 1.3442,
+      "exit": 1.3397,
+      "exitReason": "sl",
+      "pnl": -100.0
+    },
+    {
+      "direction": "short",
+      "entryTime": "2026-06-23T09:30:00Z",
+      "exitTime": "2026-06-23T11:30:00Z",
+      "entry": 1.3226,
+      "sl": 1.3236,
+      "tp": 1.3191,
+      "exit": 1.3226,
+      "exitReason": "sl",
+      "pnl": 0.0
+    },
+    {
+      "direction": "long",
+      "entryTime": "2026-06-30T08:00:00Z",
+      "exitTime": "2026-06-30T10:00:00Z",
+      "entry": 1.3238,
+      "sl": 1.3228,
+      "tp": 1.3273,
+      "exit": 1.3228,
+      "exitReason": "sl",
+      "pnl": -100.0
+    },
+    {
+      "direction": "long",
+      "entryTime": "2026-07-01T09:30:00Z",
+      "exitTime": "2026-07-01T11:00:00Z",
+      "entry": 1.3244,
+      "sl": 1.3234,
+      "tp": 1.3279,
+      "exit": 1.3244,
+      "exitReason": "sl",
+      "pnl": 0.0
+    },
+    {
+      "direction": "short",
+      "entryTime": "2026-07-06T10:00:00Z",
+      "exitTime": "2026-07-06T14:00:00Z",
+      "entry": 1.334,
+      "sl": 1.335,
+      "tp": 1.3305,
+      "exit": 1.335,
+      "exitReason": "sl",
+      "pnl": -100.0
+    },
+    {
+      "direction": "long",
+      "entryTime": "2026-07-07T10:00:00Z",
+      "exitTime": "2026-07-07T12:00:00Z",
+      "entry": 1.3389,
+      "sl": 1.3379,
+      "tp": 1.3424,
+      "exit": 1.3379,
+      "exitReason": "sl",
+      "pnl": -100.0
+    },
+    {
+      "direction": "short",
+      "entryTime": "2026-07-13T08:30:00Z",
+      "exitTime": "2026-07-13T09:00:00Z",
+      "entry": 1.3378,
+      "sl": 1.3388,
+      "tp": 1.3343,
+      "exit": 1.3388,
+      "exitReason": "sl",
+      "pnl": -100.0
+    },
+    {
+      "direction": "long",
+      "entryTime": "2026-07-16T08:00:00Z",
+      "exitTime": "2026-07-16T09:00:00Z",
+      "entry": 1.3536,
+      "sl": 1.3526,
+      "tp": 1.3571,
+      "exit": 1.3532,
+      "exitReason": "signal_exit",
+      "pnl": -40.0
+    },
+    {
+      "direction": "short",
+      "entryTime": "2026-07-16T09:00:00Z",
+      "exitTime": "2026-07-16T10:00:00Z",
+      "entry": 1.3532,
+      "sl": 1.3542,
+      "tp": 1.3497,
+      "exit": 1.3533,
+      "exitReason": "sl",
+      "pnl": -10.0
+    },
+    {
+      "direction": "long",
+      "entryTime": "2026-07-22T08:30:00Z",
+      "exitTime": "2026-07-22T09:00:00Z",
+      "entry": 1.3379,
+      "sl": 1.3369,
+      "tp": 1.3414,
+      "exit": 1.3379,
+      "exitReason": "sl",
+      "pnl": 0.0
+    },
+    {
+      "direction": "long",
+      "entryTime": "2026-07-24T08:00:00Z",
+      "exitTime": "2026-07-24T10:30:00Z",
+      "entry": 1.3321,
+      "sl": 1.3311,
+      "tp": 1.3356,
+      "exit": 1.3321,
+      "exitReason": "sl",
+      "pnl": 0.0
+    },
+    {
+      "direction": "short",
+      "entryTime": "2026-07-27T08:30:00Z",
+      "exitTime": "2026-07-27T11:00:00Z",
+      "entry": 1.335,
+      "sl": 1.336,
+      "tp": 1.3315,
+      "exit": 1.3334,
+      "exitReason": "signal_exit",
+      "pnl": 160.0
+    }
+  ]
+}
