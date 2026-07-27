@@ -43,6 +43,10 @@ const ALLOC_ITEMS = [
 
 // ─── asset icons — from /public/asset-icons/
 const ASSET_ICON: Record<string, string> = {
+  qqq:      "/assets/invest/qqq.png",
+  gld:      "/assets/invest/gld.png",
+  spmo:     "/assets/invest/spmo.png",
+  spy:      "/assets/invest/spy.png",
   qqqPine1: "/asset-icons/nasdaq.png",
   qqqPine2: "/asset-icons/nasdaq.png",
   copper:   "/asset-icons/Kupfer.webp",
@@ -51,6 +55,10 @@ const ASSET_ICON: Record<string, string> = {
 
 // Strategy ID → card meta
 const ASSET_LABEL: Record<string, { sym: string; name: string; desc: string }> = {
+  qqq:      { sym: "QQQ",  name: "QQQ Passive",      desc: "ETF-Core" },
+  gld:      { sym: "GLD",  name: "Gold ETF",         desc: "ETF-Core" },
+  spmo:     { sym: "SPMO", name: "S&P Momentum",     desc: "ETF-Core" },
+  spy:      { sym: "SPY",  name: "S&P 500 ETF",      desc: "ETF-Core" },
   qqqPine1: { sym: "QQQ",  name: "QQQ Pine 1",     desc: "Nasdaq Strategy" },
   qqqPine2: { sym: "QQQ",  name: "QQQ Pine 2 EMA", desc: "Valuation / EMA" },
   copper:   { sym: "HG1!", name: "Copper",         desc: "COMEX" },
@@ -59,11 +67,17 @@ const ASSET_LABEL: Record<string, { sym: string; name: string; desc: string }> =
 
 // weightId → sleeve config ID (used to match props)
 const WEIGHT_TO_SLEEVE_ID: Record<string, string> = {
+  qqq:      "QQQ_PASSIVE",
+  gld:      "GLD",
+  spmo:     "SPMO",
+  spy:      "SPY",
   qqqPine1: "QQQ_PINE_1",
   qqqPine2: "QQQ_PINE_2_EMA",
   copper:   "COPPER_HG",
   chf:      "CHF_6S",
 };
+
+const STRATEGY_CARD_IDS = new Set(["qqqPine1", "qqqPine2", "copper", "chf"]);
 
 // ─── types ───���────────────────────────────────────────────────────────────────
 export type TradeRow = {
@@ -199,7 +213,12 @@ function CandleCard({ weightId, sleeve, strategyTrades, showEmas, isSelected, on
   }) ?? ASSET_ICON[weightId];
   const weight  = ALLOC_ITEMS.find(a => a.id === weightId)?.weight;
   const isValidated = sleeve.validationStatus === "validated";
+  const isRejected = sleeve.validationStatus === "rejected";
+  const isAsset = sleeve.config.kind === "asset";
   const isLong = isValidated && sleeve.currentSignal === "long";
+  const tv = sleeve.config.tvMetrics;
+  const badgeLabel = isRejected ? "Rejected" : isAsset ? "Asset OHLC" : "TV reference";
+  const badgeColor = isRejected ? "#F87171" : isAsset ? "#9CA3AF" : "#FBBF24";
 
   return (
     <div
@@ -281,11 +300,20 @@ function CandleCard({ weightId, sleeve, strategyTrades, showEmas, isSelected, on
         </div>
       )}
 
+      {tv && tv.status === "tv_reference" && (
+        <div style={{ position: "absolute", left: 10, bottom: 8, pointerEvents: "none", display: "grid", gridTemplateColumns: "repeat(2, auto)", gap: "3px 10px", padding: "6px 8px", borderRadius: 6, background: "rgba(4,4,6,0.72)", border: "1px solid rgba(255,255,255,0.08)", color: T_DIM, fontSize: 9, fontFamily: FONT_MONO }}>
+          <span>Ret {tv.totalReturnPct != null ? `+${tv.totalReturnPct.toFixed(2)}%` : "n/a"}</span>
+          <span>DD {tv.maxDrawdownPct != null ? `${tv.maxDrawdownPct.toFixed(2)}%` : "n/a"}</span>
+          <span>PF {tv.profitFactor != null ? tv.profitFactor.toFixed(3) : "n/a"}</span>
+          <span>{tv.trades ?? "n/a"} Trades</span>
+        </div>
+      )}
+
       {/* Never present approximate calculations as validated live signals. */}
       <div style={{ position: "absolute", bottom: 8, right: 8, pointerEvents: "none", display: "flex", alignItems: "center", gap: 5, background: "rgba(4,4,6,0.68)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 999, padding: "3px 8px" }}>
-        <span style={{ fontSize: 11, lineHeight: 1, color: isValidated && isLong ? "#4ADE80" : "#FBBF24" }}>{isValidated && isLong ? "▲" : "!"}</span>
-        <span style={{ fontSize: 9, color: isValidated && isLong ? "#E5E7EB" : "#FBBF24", letterSpacing: "0.05em", textTransform: "uppercase", fontWeight: 700 }}>
-          {isValidated ? (isLong ? "Long" : "Cash") : "Parity pending"}
+        <span style={{ fontSize: 11, lineHeight: 1, color: isValidated && isLong ? "#4ADE80" : badgeColor }}>{isValidated && isLong ? "▲" : isRejected ? "×" : "!"}</span>
+        <span style={{ fontSize: 9, color: isValidated && isLong ? "#E5E7EB" : badgeColor, letterSpacing: "0.05em", textTransform: "uppercase", fontWeight: 700 }}>
+          {isValidated && isLong ? "Long" : badgeLabel}
         </span>
       </div>
     </div>
@@ -720,16 +748,7 @@ type CoreInvestMonitoringGridProps = {
 };
 
 export default function CoreInvestMonitoringGrid({ onStrategySelect, selectedStrategyId }: CoreInvestMonitoringGridProps) {
-  const { sleeves, benchmarkCurve, qqqCurve, dataStatus, missingSymbols, loading, error } = useCoreInvestData();
-
-  const [gldBars,     setGldBars]     = useState<OhlcBar[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/core-invest/ohlc?symbol=GLD")
-      .then(r => r.json()).then(d => { if (!cancelled) setGldBars(d.bars ?? []); }).catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
+  const { sleeves, loading, error } = useCoreInvestData();
 
   const EMPTY: SleeveData = {
     config: { id: "", label: "", instrument: "", pineFile: "", weight: 0 },
@@ -740,11 +759,15 @@ export default function CoreInvestMonitoringGrid({ onStrategySelect, selectedStr
   const pine2  = sleeves.find(s => s.config.id === "QQQ_PINE_2_EMA") ?? EMPTY;
   const copper = sleeves.find(s => s.config.id === "COPPER_HG")      ?? EMPTY;
   const chf    = sleeves.find(s => s.config.id === "CHF_6S")         ?? EMPTY;
+  const qqq    = sleeves.find(s => s.config.id === "QQQ_PASSIVE")    ?? EMPTY;
+  const gld    = sleeves.find(s => s.config.id === "GLD")            ?? EMPTY;
+  const spmo   = sleeves.find(s => s.config.id === "SPMO")           ?? EMPTY;
+  const spy    = sleeves.find(s => s.config.id === "SPY")            ?? EMPTY;
 
   if (loading) return <div style={{ background: CHART_BG, height: "100%", display: "grid", placeItems: "center", color: T_MUTED, fontSize: 12 }}>Core Invest lädt…</div>;
   if (error)   return <div style={{ background: CHART_BG, height: "100%", display: "grid", placeItems: "center", color: "#F87171", fontSize: 12 }}>Fehler: {error}</div>;
 
-  const makeCardClick = (weightId: string) => onStrategySelect
+  const makeCardClick = (weightId: string) => onStrategySelect && STRATEGY_CARD_IDS.has(weightId)
     ? () => onStrategySelect(WEIGHT_TO_SLEEVE_ID[weightId] ?? weightId)
     : undefined;
 
@@ -760,7 +783,7 @@ export default function CoreInvestMonitoringGrid({ onStrategySelect, selectedStr
       background: CHART_BG,
       height: "100%",
       display: "grid",
-      gridTemplateColumns: "repeat(3, minmax(0,1fr))",
+      gridTemplateColumns: "repeat(4, minmax(0,1fr))",
       gridTemplateRows: "repeat(2, minmax(0,1fr))",
       gap: 8,
       padding: 8,
@@ -768,14 +791,16 @@ export default function CoreInvestMonitoringGrid({ onStrategySelect, selectedStr
     }}>
       <CandleCard weightId="qqqPine1" sleeve={pine1}
         isSelected={isCardSelected("qqqPine1")} onClick={makeCardClick("qqqPine1")} />
-      <CandleCard weightId="qqqPine2" sleeve={pine2} showEmas
+      <CandleCard weightId="qqqPine2" sleeve={pine2}
         isSelected={isCardSelected("qqqPine2")} onClick={makeCardClick("qqqPine2")} />
-      <InteractivePerformanceTile sleeves={sleeves} benchmarkCurve={benchmarkCurve} qqqCurve={qqqCurve} gldBars={gldBars} />
-      <CandleCard weightId="copper"   sleeve={copper} showEmas
+      <CandleCard weightId="copper"   sleeve={copper}
         isSelected={isCardSelected("copper")} onClick={makeCardClick("copper")} />
-      <CandleCard weightId="chf"      sleeve={chf} showEmas
+      <CandleCard weightId="chf"      sleeve={chf}
         isSelected={isCardSelected("chf")} onClick={makeCardClick("chf")} />
-      <InfoTile dataStatus={dataStatus} missingSymbols={missingSymbols} sleeves={sleeves} />
+      <CandleCard weightId="qqq"      sleeve={qqq} />
+      <CandleCard weightId="gld"      sleeve={gld} />
+      <CandleCard weightId="spmo"     sleeve={spmo} />
+      <CandleCard weightId="spy"      sleeve={spy} />
     </div>
   );
 }

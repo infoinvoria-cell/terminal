@@ -329,13 +329,13 @@ export const CI_STRATEGIES: CoreInvestRow[] = [
   {
     id: "qqq_pine1", ticker: "QQQ", label: "QQQ Pine 1", group: "Strategy Sleeve",
     engine: "SMA(400) + SMA(5) · Long/Cash · TP 2% · SL 25%", pillar: "ci_sleeve", weight: 5,
-    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "partial_validation",
+    pf: 1.602, maxDd: "8.71%", trades: 642, winRate: "69.31%", totalReturn: "+95.19%", status: "partial_validation",
     notes: "TradingView QQQ Daily: 642 Trades, PF 1.602, MaxDD 8.71%, +95.19%. Lokale Trade-Paritaet fehlt.",
   },
   {
     id: "qqq_pine2", ticker: "QQQ", label: "QQQ Pine 2 EMA", group: "Strategy Sleeve",
     engine: "EMA(20)/EMA(50) + Valuation · Long/Cash · TP 4% · SL 2%", pillar: "ci_sleeve", weight: 5,
-    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "partial_validation",
+    pf: 1.082, maxDd: "30.04%", trades: 201, winRate: "37.31%", totalReturn: "+14.12%", status: "partial_validation",
     notes: "TradingView QQQ Daily: 201 Trades, PF 1.082, MaxDD 30.04%, +14.12%. Lokale Trade-Paritaet fehlt.",
   },
   {

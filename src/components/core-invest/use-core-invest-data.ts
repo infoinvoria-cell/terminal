@@ -1,18 +1,37 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { CoreInvestPanelData, OhlcBar, SleeveData } from "./types";
+import type { CoreInvestPanelData, OhlcBar, SleeveConfig, SleeveData } from "./types";
 
-const SLEEVE_CONFIGS = [
-  { id: "QQQ_PINE_1", label: "QQQ Pine 1", instrument: "QQQ", pineFile: "QQQ_pine1.txt", weight: 0.05, sma1: 400, sma2: 5, stopPct: 25, tpPct: 2 },
-  { id: "QQQ_PINE_2_EMA", label: "QQQ Pine 2 EMA", instrument: "QQQ", pineFile: "pine2.txt", weight: 0.05, emaFast: 20, emaSlow: 50, stopPct: 2, tpPct: 4 },
-  { id: "COPPER_HG", label: "Copper/HG", instrument: "HG1!", pineFile: "pine2.txt", weight: 0.05, emaFast: 20, emaSlow: 50, stopPct: 2, tpPct: 4 },
-  { id: "CHF_6S", label: "CHF/6S", instrument: "6S1!", pineFile: "pine2.txt", weight: 0.05, emaFast: 20, emaSlow: 50, stopPct: 2, tpPct: 4 },
+const SLEEVE_CONFIGS: SleeveConfig[] = [
+  {
+    id: "QQQ_PINE_1", label: "QQQ Pine 1", instrument: "QQQ", pineFile: "08_core_invest_universal_presets.pine", weight: 0.05,
+    kind: "strategy", tvSymbol: "QQQ", tvPreset: "QQQ Pine 1", sma1: 400, sma2: 5, stopPct: 25, tpPct: 2,
+    tvMetrics: { source: "tradingview", preset: "QQQ Pine 1", status: "tv_reference", totalReturnPct: 95.19, maxDrawdownPct: 8.71, profitFactor: 1.602, trades: 642, winRatePct: 69.31, note: "TV Strategy Tester reference; lokale Trade-Paritaet noch nicht als validiert markiert." },
+  },
+  {
+    id: "QQQ_PINE_2_EMA", label: "QQQ Pine 2 EMA", instrument: "QQQ", pineFile: "08_core_invest_universal_presets.pine", weight: 0.05,
+    kind: "strategy", tvSymbol: "QQQ", tvPreset: "QQQ Pine 2", emaFast: 20, emaSlow: 50, stopPct: 2, tpPct: 4,
+    tvMetrics: { source: "tradingview", preset: "QQQ Pine 2", status: "tv_reference", totalReturnPct: 14.12, maxDrawdownPct: 30.04, profitFactor: 1.082, trades: 201, winRatePct: 37.31, note: "TV Strategy Tester reference; lokale Trade-Paritaet noch nicht als validiert markiert." },
+  },
+  {
+    id: "COPPER_HG", label: "Copper/HG", instrument: "HG1!", pineFile: "08_core_invest_universal_presets.pine", weight: 0.05,
+    kind: "strategy", tvSymbol: "HG1!", tvPreset: "Copper HG", emaFast: 20, emaSlow: 50, stopPct: 2, tpPct: 4,
+    tvMetrics: { source: "tradingview", preset: "Copper HG", status: "rejected", totalReturnPct: null, maxDrawdownPct: null, profitFactor: null, trades: null, winRatePct: null, note: "Rejected: 5%-Sleeve kann bei korrekter Futures-Pointvalue keinen HG1!-Kontrakt halten." },
+  },
+  {
+    id: "CHF_6S", label: "CHF/6S", instrument: "6S1!", pineFile: "08_core_invest_universal_presets.pine", weight: 0.05,
+    kind: "strategy", tvSymbol: "6S1!", tvPreset: "CHF 6S", emaFast: 20, emaSlow: 50, stopPct: 2, tpPct: 4,
+    tvMetrics: { source: "tradingview", preset: "CHF 6S", status: "rejected", totalReturnPct: null, maxDrawdownPct: null, profitFactor: null, trades: null, winRatePct: null, note: "Rejected: 5%-Sleeve kann bei korrekter Futures-Pointvalue keinen 6S1!-Kontrakt halten." },
+  },
+  { id: "QQQ_PASSIVE", label: "QQQ Passive", instrument: "QQQ", pineFile: "", weight: 0.45, kind: "asset", tvSymbol: "QQQ", tvPreset: "Asset Chart" },
+  { id: "GLD", label: "GLD", instrument: "GLD", pineFile: "", weight: 0.25, kind: "asset", tvSymbol: "GLD", tvPreset: "Asset Chart" },
+  { id: "SPMO", label: "SPMO", instrument: "SPMO", pineFile: "", weight: 0.05, kind: "asset", tvSymbol: "SPMO", tvPreset: "Asset Chart" },
+  { id: "SPY", label: "SPY", instrument: "SPY", pineFile: "", weight: 0.05, kind: "asset", tvSymbol: "SPY", tvPreset: "Asset Chart" },
 ];
 
-// module-level cache so data survives page navigations within session
 const CI_OHLC_CACHE = new Map<string, { data: OhlcApiResponse; ts: number }>();
-const CI_OHLC_TTL = 120_000; // 2 min
+const CI_OHLC_TTL = 120_000;
 
 type OhlcApiResponse = {
   symbol: string;
@@ -56,45 +75,42 @@ export function useCoreInvestData(): CoreInvestPanelData {
     let cancelled = false;
     async function load() {
       try {
-        const [configRes, qqqRes, spyRes] = await Promise.all([
+        const symbols = [...new Set(SLEEVE_CONFIGS.map((cfg) => cfg.instrument))];
+        const [configRes, ...ohlcResponses] = await Promise.all([
           fetch("/api/core-invest/config").then((r) => r.json()),
-          fetchOhlc("QQQ"),
-          fetchOhlc("SPY"),
+          ...symbols.map((symbol) => fetchOhlc(symbol)),
         ]);
 
         if (cancelled) return;
 
-        const qqqBars: OhlcBar[] = qqqRes.bars ?? [];
-        const spyBars: OhlcBar[] = spyRes.bars ?? [];
+        const ohlcBySymbol = new Map(ohlcResponses.map((res) => [res.symbol, res]));
+        const qqqBars: OhlcBar[] = ohlcBySymbol.get("QQQ")?.bars ?? [];
+        const spyBars: OhlcBar[] = ohlcBySymbol.get("SPY")?.bars ?? [];
 
-        // Build sleeve data
-        const sleeves: SleeveData[] = await Promise.all(
-          SLEEVE_CONFIGS.map(async (cfg) => {
-            const useQqq = cfg.instrument === "QQQ";
-            const bars: OhlcBar[] = useQqq ? qqqBars : (await fetchOhlc(cfg.instrument)).bars;
-            const hasBars = bars.length > 0;
+        const sleeves: SleeveData[] = SLEEVE_CONFIGS.map((cfg) => {
+          const bars: OhlcBar[] = ohlcBySymbol.get(cfg.instrument)?.bars ?? [];
+          const hasBars = bars.length > 0;
+          const isRejected = cfg.tvMetrics?.status === "rejected";
+          const isAsset = cfg.kind === "asset";
 
-            return {
-              config: cfg,
-              bars: bars.slice(-500),
-              signals: [],
-              status: hasBars ? "partial" : "missing_ohlc",
-              statusMessage: hasBars
-                ? `${bars.length} bars · last ${bars.at(-1)?.date ?? "n/a"} · engine disabled, exact Pine parity required`
+          return {
+            config: cfg,
+            bars: bars.slice(-500),
+            signals: [],
+            status: isRejected ? "rejected" : hasBars ? "ok" : "missing_ohlc",
+            statusMessage: isRejected
+              ? (cfg.tvMetrics?.note ?? "Rejected")
+              : hasBars
+                ? `${bars.length} bars · last ${bars.at(-1)?.date ?? "n/a"} · ${isAsset ? "asset OHLC reference" : "TV Strategy Tester reference"}`
                 : `No OHLC for ${cfg.instrument}`,
-              lastDate: bars.at(-1)?.date ?? null,
-              validationStatus: hasBars ? "partial_validation" as const : "missing_data" as const,
-              equityCurve: [],
-              // Approximate signals must not be exposed as validated live signals.
-              currentSignal: undefined,
-            } satisfies SleeveData;
-          }),
-        );
+            lastDate: bars.at(-1)?.date ?? null,
+            validationStatus: isRejected ? "rejected" : hasBars ? (isAsset ? "validated" : "partial_validation") : "missing_data",
+            equityCurve: [],
+            currentSignal: undefined,
+          } satisfies SleeveData;
+        });
 
         if (cancelled) return;
-
-        const benchmarkCurve = buildBuyholdCurve(spyBars);
-        const qqqCurve = buildBuyholdCurve(qqqBars);
 
         setState({
           loading: false,
@@ -102,8 +118,8 @@ export function useCoreInvestData(): CoreInvestPanelData {
           portfolioName: (configRes as { portfolioName?: string }).portfolioName ?? "Core Invest",
           sleeves,
           equityCurve: [],
-          benchmarkCurve,
-          qqqCurve,
+          benchmarkCurve: buildBuyholdCurve(spyBars),
+          qqqCurve: buildBuyholdCurve(qqqBars),
           dataStatus: (configRes as { dataStatus?: Record<string, { found: boolean; file: string | null }> }).dataStatus ?? {},
           missingSymbols: (configRes as { missingSymbols?: string[] }).missingSymbols ?? [],
           pineFiles: (configRes as { pineFiles?: Record<string, { found: boolean }> }).pineFiles ?? {},
