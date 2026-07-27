@@ -64,9 +64,10 @@ BACKOFF_STEPS      = [30, 60, 120, 300]
 # NOTE: intraday assets carry the plain requestSymbol (DE30EUR/EURUSD/GBPUSD),
 # the 1H/2H/30M distinction lives in `timeframe`, not the symbol key.
 FAST_SYMBOLS: set[str] = {
-    "DE30EUR", "EURUSD", "GBPUSD",   # intraday MT (1H/2H/30M)
+    "DE30EUR", "EURUSD", "GBPUSD",   # intraday MT FX/CFD proxies (1H/2H/30M)
+    "FDAX1!", "6E1!", "6B1!",        # intraday MT real futures (DAX / Euro FX / GBP FX)
     "NQ1!", "ES1!", "YM1!",          # index futures
-    "GC1!", "GLD", "FDAX1!",         # anomaly assets
+    "GC1!", "GLD",                   # anomaly assets
 }
 
 # Core-Invest + comparison symbols NOT present in the monitoring universe.
@@ -83,6 +84,12 @@ EXTRA_SYMBOLS: dict[str, str] = {
     "6S1!": "CME:6S1!",       # CHF futures (CHF_6S sleeve)
     "DXY":  "TVC:DXY",        # Pine2 comparison — dollar index
     "ZB1!": "CBOT:ZB1!",      # Pine2 comparison — 30Y T-Bond
+    # Intraday MT real futures — needed so live_quotes covers the actual futures
+    # the Monitoring "Intraday" charts display (not just the OANDA FX/CFD proxies).
+    # On Railway (no universe file) these sources come ONLY from here.
+    "FDAX1!": "EUREX:FDAX1!",  # DAX future (charts: FDAX1! 2H + 1H)
+    "6E1!":   "CME:6E1!",      # Euro FX future (chart: 6E1! 30M)
+    "6B1!":   "CME:6B1!",      # British Pound FX future (chart: 6B1! 30M)
 }
 
 TV_WS_URL = "wss://data.tradingview.com/socket.io/websocket"
@@ -100,6 +107,79 @@ USER_AGENTS = [
 fast_buffer: dict[str, dict] = {}
 slow_buffer: dict[str, dict] = {}
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# ── Intraday bar building ───────────────────────────────────────────────────────
+# Aggregate the live 5s ticks into OHLC bars and persist them to monitoring_ohlc,
+# so the Monitoring "Intraday" charts self-build and save candles with no manual
+# scrape. Stored under the composite key "<symbol>_<tf>" the dashboard reads.
+INTRADAY_BAR_TFS: dict[str, list[str]] = {
+    "FDAX1!": ["2H", "1H"],   # DAX future — charts DAX 2H + 1H
+    "6E1!":   ["30M"],        # Euro FX future — chart Euro 30M
+    "6B1!":   ["30M"],        # GBP FX future — chart GBP 30M
+}
+TF_SECONDS: dict[str, int] = {"30M": 1800, "1H": 3600, "2H": 7200}
+
+# (symbol, tf) -> current in-progress bar;  (symbol, tf, bucket) -> row pending upsert
+intraday_bars: dict[tuple[str, str], dict] = {}
+bar_buffer: dict[tuple[str, str, str], dict] = {}
+
+
+# GLOBAL BAR CONVENTION — Futures, UTC-midnight-anchored (Variante A).
+# 2H buckets fall on even UTC hours (…12/14/16/18Z) == even local hours in UTC+2
+# (…14/16/18), matching both TradingView's futures grid AND the frozen strategy
+# backtest, whose entry/exit times sit on 06/08/10/12/14/16Z (see
+# src/data/capitalife/monitoring-events/EUREX_FDAX1_2H_events.json).
+# DO NOT switch to EUREX-session anchoring: it would desync the 602 backtested
+# signals from the candles they were computed on. All timeframes share this
+# clock-anchored grid so signal and candle always agree.
+def _bucket_start(ts_epoch: float, tf_secs: int) -> str:
+    start = int(ts_epoch // tf_secs) * tf_secs
+    return datetime.fromtimestamp(start, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _update_intraday_bars(req_sym: str, close: float, high: float, low: float, vol: float) -> None:
+    tfs = INTRADAY_BAR_TFS.get(req_sym)
+    if not tfs or close <= 0:
+        return
+    now = time.time()
+    hi = high if high and high > 0 else close
+    lo = low if low and low > 0 else close
+    for tf in tfs:
+        secs = TF_SECONDS.get(tf)
+        if not secs:
+            continue
+        bucket = _bucket_start(now, secs)
+        key = (req_sym, tf)
+        bar = intraday_bars.get(key)
+        if bar is None or bar["bucket"] != bucket:
+            # New bar (also rolls the previous bucket, whose final state is already buffered)
+            bar = {"bucket": bucket, "open": close, "high": close, "low": close, "close": close, "volume": vol or 0.0}
+            intraday_bars[key] = bar
+        else:
+            bar["high"] = max(bar["high"], hi, close)
+            bar["low"] = min(bar["low"], lo, close)
+            bar["close"] = close
+            if vol:
+                bar["volume"] = vol
+        bar_buffer[(req_sym, tf, bucket)] = {
+            "asset": f"{req_sym}_{tf}",
+            "timeframe": tf,
+            "date": bucket,
+            "open": bar["open"], "high": bar["high"], "low": bar["low"], "close": bar["close"],
+            "volume": bar["volume"],
+        }
+
+
+def flush_bars() -> None:
+    if not bar_buffer:
+        return
+    rows = list(bar_buffer.values())
+    bar_buffer.clear()
+    try:
+        supabase.table("monitoring_ohlc").upsert(rows, on_conflict="asset,timeframe,date").execute()
+        log.info(f"[bars] upserted {len(rows)} intraday bars")
+    except Exception as e:
+        log.error(f"[bars] Supabase error: {e}")
 
 # ── Symbol loading ────────────────────────────────────────────────────────────
 
@@ -259,6 +339,9 @@ def _store_quote(req_sym: str, v: dict) -> None:
     if state["close"] <= 0:
         return
 
+    # Feed the live tick into the intraday bar builder (if this is an intraday symbol)
+    _update_intraday_bars(req_sym, state["close"], state["high"], state["low"], state["volume"])
+
     row = {
         "symbol":     req_sym,
         "open":       state["open"],
@@ -334,6 +417,7 @@ def run_session(
             now = time.time()
             if now - last_fast >= FAST_FLUSH_SECS:
                 flush_batch(fast_buffer, "fast")
+                flush_bars()
                 last_fast = now
             if now - last_slow >= SLOW_FLUSH_SECS:
                 flush_batch(slow_buffer, "slow")
@@ -393,6 +477,7 @@ def run_session(
         stop_evt.set()
         flush_batch(fast_buffer, "fast-final")
         flush_batch(slow_buffer, "slow-final")
+        flush_bars()
         try:
             ws.close()
         except Exception:
