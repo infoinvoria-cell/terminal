@@ -2858,25 +2858,33 @@ function MonitoringChartInner({
     const shell = shellRef.current;
     if (!shell) return;
     let raf: number | null = null;
+    let inside = false;
     const schedule = () => {
       if (raf != null) return;
       raf = requestAnimationFrame(() => { raf = null; redrawRef.current(); });
     };
+    // Document-level listener so it fires no matter how child elements handle the
+    // event. We hit-test the shell bounds ourselves to know if the cursor is over
+    // THIS chart, then draw the crosshair at shell-relative coordinates.
     const onMove = (e: MouseEvent) => {
       const rect = shell.getBoundingClientRect();
-      crosshairPosRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-      schedule();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const over = x >= 0 && x <= rect.width && y >= 0 && y <= rect.height;
+      if (over) {
+        inside = true;
+        crosshairPosRef.current = { x, y };
+        schedule();
+      } else if (inside) {
+        inside = false;
+        crosshairPosRef.current = null;
+        schedule();
+      }
     };
-    const onLeave = () => {
-      if (raf != null) { cancelAnimationFrame(raf); raf = null; }
-      if (crosshairPosRef.current) { crosshairPosRef.current = null; redrawRef.current(); }
-    };
-    shell.addEventListener("mousemove", onMove, { capture: true });
-    shell.addEventListener("mouseleave", onLeave, { capture: true });
+    document.addEventListener("mousemove", onMove, { capture: true, passive: true });
     return () => {
       if (raf != null) cancelAnimationFrame(raf);
-      shell.removeEventListener("mousemove", onMove, { capture: true } as EventListenerOptions);
-      shell.removeEventListener("mouseleave", onLeave, { capture: true } as EventListenerOptions);
+      document.removeEventListener("mousemove", onMove, { capture: true } as EventListenerOptions);
     };
   }, []);
 
