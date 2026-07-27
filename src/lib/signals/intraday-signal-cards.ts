@@ -8,38 +8,38 @@ import eur30m from "@/data/capitalife/monitoring-events/CME_6E1_30M_events.json"
 import type { SignalCardModel, SignalCardStatus, SignalCardDirection, SignalCardPreview } from "@/lib/signals/signal-types";
 import type { MonitoringPrimaryTabId } from "@/config/monitoringTabConfig";
 
-// KPIs per intraday MT component = the ACTUAL LIVE performance, computed from the
-// committed futures events that drive these signals (FDAX1!/6E1! futures, Oct-2024
-// onward). This deliberately shows current live reality rather than the older
-// 2007–2017 OANDA-CFD IS/walk-forward backtest in public/data/intraday-equity.json
-// (a different instrument + period — see the Komponenten page for that historical
-// view). The live futures picture is materially weaker: only DAX 2H is break-even
-// (after the validated breakeven-off defect fix — DAX2H_OPTIMIZATION_REPORT); DAX
-// 1H and GBP 30M lose; EUR 30M's n=14 sample is too small to mean anything.
+// KPIs per intraday MT component = the ACTUAL LIVE performance on the futures that
+// drive these signals (FDAX1!/6E1!), computed from the committed events. All three
+// now carry the validated breakeven-off defect correction (the BE-at-1R rule was
+// cutting the runners — see DAX2H_OPTIMIZATION_REPORT). After the fix: DAX 1H is
+// solidly positive (recent PF 2.25), EUR 30M is positive but its sample is tiny
+// (~3 months of 6E1! futures, n=14), and DAX 2H is break-even (long history, but
+// only 1/5 OOS walk-forward folds). Not the 2007–2017 OANDA-CFD backtest shown on
+// the Komponenten page (different instrument + period).
 const VALIDATED_KPIS: Record<string, SignalCardPreview["kpis"]> = {
   "intraday-dax-2h": [
     { label: "Profit Factor", value: "1.06", tone: "neutral" },
     { label: "Winrate", value: "30.9%", tone: "neutral" },
-    { label: "Net P&L", value: "+20.7R", tone: "neutral" },
-    { label: "Trades", value: "537", tone: "neutral" },
+    { label: "Net P&L", value: "+20.7R", tone: "positive" },
+    { label: "Trades", value: "537", tone: "positive" },
     { label: "Max Drawdown", value: "-30.6R", tone: "negative" },
     { label: "WF OOS Folds", value: "1/5", tone: "negative" },
   ],
   "intraday-dax-1h": [
-    { label: "Profit Factor", value: "0.90", tone: "negative" },
-    { label: "Winrate", value: "13.5%", tone: "neutral" },
-    { label: "Net P&L", value: "-2.0R", tone: "negative" },
+    { label: "Profit Factor", value: "1.33", tone: "positive" },
+    { label: "Winrate", value: "27.0%", tone: "neutral" },
+    { label: "Net P&L", value: "+9.0R", tone: "positive" },
     { label: "Trades", value: "37", tone: "neutral" },
-    { label: "Recent PF", value: "0.72", tone: "negative" },
-    { label: "Status", value: "verlustbringend", tone: "negative" },
+    { label: "Recent PF", value: "2.25", tone: "positive" },
+    { label: "Exit-Fix", value: "BE off", tone: "positive" },
   ],
   "intraday-eur-30m": [
-    { label: "Profit Factor", value: "3.00", tone: "neutral" },
-    { label: "Winrate", value: "28.6%", tone: "neutral" },
-    { label: "Net P&L", value: "+8.0R", tone: "neutral" },
+    { label: "Profit Factor", value: "1.67", tone: "positive" },
+    { label: "Winrate", value: "35.7%", tone: "positive" },
+    { label: "Net P&L", value: "+6.0R", tone: "neutral" },
     { label: "Trades", value: "14", tone: "negative" },
-    { label: "Recent PF", value: "0.00", tone: "negative" },
-    { label: "Status", value: "Stichprobe zu klein", tone: "negative" },
+    { label: "Daten", value: "~3 Monate", tone: "negative" },
+    { label: "Exit-Fix", value: "BE off", tone: "positive" },
   ],
 };
 
