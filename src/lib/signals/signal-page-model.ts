@@ -1,4 +1,5 @@
 import { CORE_INVEST_SOURCES, loadSignalSources, SIGNAL_SOURCE_FILTERS, WHITE_SWAN_SOURCES } from "@/lib/signals/signal-source-adapter";
+import { loadIntradaySignalCards } from "@/lib/signals/intraday-signal-cards";
 import type { SignalPageModel, SignalPageSectionGroup } from "@/lib/signals/signal-types";
 
 const WHITE_SWAN_GROUPS: SignalPageSectionGroup[] = [
@@ -10,6 +11,10 @@ const WHITE_SWAN_GROUPS: SignalPageSectionGroup[] = [
 const CORE_INVEST_GROUPS: SignalPageSectionGroup[] = [
   { id: "core_strategy", title: "Core Invest Strategies", cards: [] },
   { id: "research_validation", title: "Research / Validation", cards: [] },
+];
+
+const INTRADAY_GROUPS: SignalPageSectionGroup[] = [
+  { id: "intraday_mt", title: "Intraday MT (v1.2)", cards: [] },
 ];
 
 function groupCards(
@@ -29,10 +34,12 @@ function latestUpdate(dates: Array<string | undefined>): string | null {
 
 export async function getSignalPageModel(): Promise<SignalPageModel> {
   const rows = await loadSignalSources();
-  const cards = rows.map((row) => row.card);
+  const intradayCards = loadIntradaySignalCards();
+  const cards = [...rows.map((row) => row.card), ...intradayCards];
   const previews = Object.fromEntries(rows.map((row) => [row.card.id, row.preview]));
   const whiteSwanCards = cards.filter((card) => card.group === "white_swan");
   const coreInvestCards = cards.filter((card) => card.group === "core_invest");
+  const intradayGroupCards = cards.filter((card) => card.group === "intraday");
 
   return {
     pageMeta: {
@@ -57,6 +64,13 @@ export async function getSignalPageModel(): Promise<SignalPageModel> {
         subtitle: "QQQ Pine · Copper/HG · CHF/6S · Research",
         filters: [...SIGNAL_SOURCE_FILTERS],
         groups: groupCards(CORE_INVEST_GROUPS, coreInvestCards),
+      },
+      {
+        id: "intraday",
+        title: "Intraday MT",
+        subtitle: "DAX 2H · DAX 1H · Euro 30M · Futures · v1.2",
+        filters: [...SIGNAL_SOURCE_FILTERS],
+        groups: groupCards(INTRADAY_GROUPS, intradayGroupCards),
       },
     ],
     cards,
