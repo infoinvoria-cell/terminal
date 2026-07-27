@@ -1065,6 +1065,9 @@ function MonitoringChartInner({
   const tradeZonesRef = useRef<SvgTradeZone[]>([]);
   const tradeLineLabelsRef = useRef<SvgLineLabel[]>([]);
   const currentPriceGuideRef = useRef<CurrentPriceGuide | null>(null);
+  // Cursor position for the custom crosshair (CSS px, relative to the chart host).
+  const crosshairPosRef = useRef<{ x: number; y: number } | null>(null);
+  const crosshairRafRef = useRef<number | null>(null);
   const overlayRenderCountRef = useRef(0);
   const didSetInitialRangeRef = useRef(false);
   const didSetInitialPriceRangeRef = useRef(false);
@@ -1996,6 +1999,43 @@ function MonitoringChartInner({
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, width, height);
 
+      // Custom crosshair — drawn on the top overlay canvas so it is guaranteed to
+      // render above every layer. The native lightweight-charts crosshair proved
+      // unreliable in this stack, so we own it here: vertical + horizontal dashed
+      // lines following the cursor, plus a right-axis price label.
+      const cross = crosshairPosRef.current;
+      if (cross && cross.x >= 0 && cross.x <= width && cross.y >= 0 && cross.y <= height) {
+        ctx.save();
+        ctx.strokeStyle = "rgba(230, 235, 245, 0.75)";
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 3]);
+        const gx = Math.round(cross.x) + 0.5;
+        const gy = Math.round(cross.y) + 0.5;
+        ctx.beginPath();
+        ctx.moveTo(gx, 0);
+        ctx.lineTo(gx, height);
+        ctx.moveTo(0, gy);
+        ctx.lineTo(width, gy);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        const priceAtCursor = series.coordinateToPrice(cross.y as never);
+        if (priceAtCursor != null && Number.isFinite(Number(priceAtCursor))) {
+          const label = formatAxisPrice(Number(priceAtCursor));
+          ctx.font = `11px ${MONITORING_CHART_FONT_FAMILY}`;
+          const tw = ctx.measureText(label).width;
+          const boxH = 16;
+          const boxW = tw + 10;
+          const boxX = width - boxW;
+          const boxY = Math.min(height - boxH, Math.max(0, cross.y - boxH / 2));
+          ctx.fillStyle = "rgba(22, 26, 32, 0.95)";
+          ctx.fillRect(boxX, boxY, boxW, boxH);
+          ctx.fillStyle = "rgba(230, 235, 245, 0.95)";
+          ctx.textBaseline = "middle";
+          ctx.fillText(label, boxX + 5, boxY + boxH / 2);
+        }
+        ctx.restore();
+      }
+
       if (!overlayEnabled && !showManualLevels) {
         if (tradeSvgSegmentsRef.current.length) {
           tradeSvgSegmentsRef.current = [];
@@ -2858,6 +2898,27 @@ function MonitoringChartInner({
     const y = event.clientY - rect.top;
     const next = isPointerInFullscreenHoverZone(x, y, rect.width, rect.height);
     setFullscreenZoneActive((current) => (current === next ? current : next));
+    // Drive the custom crosshair. The overlay canvas matches the host bounds
+    // (both inset:0 in the shell), so shell-relative coords are canvas coords.
+    // Throttle the (potentially heavy) redraw to one per animation frame.
+    crosshairPosRef.current = { x, y };
+    if (crosshairRafRef.current == null) {
+      crosshairRafRef.current = requestAnimationFrame(() => {
+        crosshairRafRef.current = null;
+        redrawRef.current();
+      });
+    }
+  };
+
+  const clearCrosshair = () => {
+    if (crosshairRafRef.current != null) {
+      cancelAnimationFrame(crosshairRafRef.current);
+      crosshairRafRef.current = null;
+    }
+    if (crosshairPosRef.current) {
+      crosshairPosRef.current = null;
+      redrawRef.current();
+    }
   };
 
   return (
@@ -2879,6 +2940,7 @@ function MonitoringChartInner({
       onMouseLeave={() => {
         setHovered(false);
         setFullscreenZoneActive(false);
+        clearCrosshair();
       }}
     >
       <div
