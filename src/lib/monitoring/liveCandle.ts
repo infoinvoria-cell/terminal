@@ -55,13 +55,11 @@ export function applyLiveCandle(
   const intervalMs = timeframeMinutes(timeframe) * 60_000;
   const tickMs = tick.timestamp ? toEpochMs(tick.timestamp) : Date.now();
   const price = tick.close;
-  // The live feed sends partial ticks — high/low may arrive as 0/null. Treat any
-  // non-positive value as "absent" and fall back to the close, otherwise a 0 would
-  // crush the candle's low to zero and destroy the chart scale.
-  const th = Number(tick.high);
-  const tl = Number(tick.low);
-  const tickHigh = Number.isFinite(th) && th > 0 ? th : price;
-  const tickLow = Number.isFinite(tl) && tl > 0 ? tl : price;
+  // IMPORTANT: do NOT use tick.high / tick.low here. In live_quotes those are the
+  // TradingView DAY/session high & low, not the current candle's range. Feeding
+  // them into a 2H/1H/30M candle stretches a wick across the whole day (visibly
+  // broken candles). The forming candle's extent must come only from the live
+  // CLOSE price progression on top of the already-correct delayed TV bar.
 
   // A brand-new period started → open one new in-progress candle.
   // Open at the PREVIOUS candle's close (continuous, TradingView-style) so the
@@ -73,19 +71,19 @@ export function applyLiveCandle(
     return [...bars, {
       time: newTime,
       open: openPrice,
-      high: Math.max(openPrice, price, tickHigh),
-      low: Math.min(openPrice, price, tickLow),
+      high: Math.max(openPrice, price),
+      low: Math.min(openPrice, price),
       close: price,
       volume: null,
     }];
   }
 
-  // Otherwise grow the current (last) candle.
+  // Otherwise grow the current (last) candle — extent from the close price only.
   const updated: LiveBar = {
     ...last,
     close: price,
-    high: Math.max(Number(last.high), price, tickHigh),
-    low: Math.min(Number(last.low), price, tickLow),
+    high: Math.max(Number(last.high), price),
+    low: Math.min(Number(last.low), price),
   };
   return [...bars.slice(0, -1), updated];
 }
