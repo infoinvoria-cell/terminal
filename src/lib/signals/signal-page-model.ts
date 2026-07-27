@@ -1,5 +1,5 @@
 import { CORE_INVEST_SOURCES, loadSignalSources, SIGNAL_SOURCE_FILTERS, WHITE_SWAN_SOURCES } from "@/lib/signals/signal-source-adapter";
-import { loadIntradaySignalCards } from "@/lib/signals/intraday-signal-cards";
+import { loadIntradaySignalCards, loadIntradaySignalPreviews } from "@/lib/signals/intraday-signal-cards";
 import type { SignalPageModel, SignalPageSectionGroup } from "@/lib/signals/signal-types";
 
 const WHITE_SWAN_GROUPS: SignalPageSectionGroup[] = [
@@ -36,7 +36,7 @@ export async function getSignalPageModel(): Promise<SignalPageModel> {
   const rows = await loadSignalSources();
   const intradayCards = loadIntradaySignalCards();
   const cards = [...rows.map((row) => row.card), ...intradayCards];
-  const previews = Object.fromEntries(rows.map((row) => [row.card.id, row.preview]));
+  const previews = { ...Object.fromEntries(rows.map((row) => [row.card.id, row.preview])), ...loadIntradaySignalPreviews() };
   const whiteSwanCards = cards.filter((card) => card.group === "white_swan");
   const coreInvestCards = cards.filter((card) => card.group === "core_invest");
   const intradayGroupCards = cards.filter((card) => card.group === "intraday");
