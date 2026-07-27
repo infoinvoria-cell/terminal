@@ -55,8 +55,13 @@ export function applyLiveCandle(
   const intervalMs = timeframeMinutes(timeframe) * 60_000;
   const tickMs = tick.timestamp ? toEpochMs(tick.timestamp) : Date.now();
   const price = tick.close;
-  const tickHigh = Number.isFinite(tick.high as number) ? (tick.high as number) : price;
-  const tickLow = Number.isFinite(tick.low as number) ? (tick.low as number) : price;
+  // The live feed sends partial ticks — high/low may arrive as 0/null. Treat any
+  // non-positive value as "absent" and fall back to the close, otherwise a 0 would
+  // crush the candle's low to zero and destroy the chart scale.
+  const th = Number(tick.high);
+  const tl = Number(tick.low);
+  const tickHigh = Number.isFinite(th) && th > 0 ? th : price;
+  const tickLow = Number.isFinite(tl) && tl > 0 ? tl : price;
 
   // A brand-new period started → open one new in-progress candle.
   if (Number.isFinite(tickMs) && tickMs >= lastMs + intervalMs) {
