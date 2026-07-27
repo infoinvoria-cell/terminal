@@ -30,6 +30,7 @@ import {
   MONITORING_ACTIVE_AGRAR_SYMBOLS,
 } from "@/lib/monitoring/monitoringAssetIcons";
 import { applyMonitoringChartLabel } from "@/lib/monitoring/monitoringChartLabels";
+import { INTRADAY_MT_ASSETS, type IntradayMtAssetConfig } from "@/lib/monitoring/intradayMtAssets";
 import {
   clearMonitoringSignalJump,
   readMonitoringSignalJump,
@@ -568,17 +569,6 @@ type AgrarAssetConfig = {
   liveProvider: "tradingview";
 };
 
-type IntradayMtAssetConfig = {
-  slot: "top_left" | "top_right" | "bottom_left" | "bottom_right";
-  displaySymbol: string;
-  requestSymbol: string;
-  source: string;
-  name: string;
-  timeframe: "30M" | "1H" | "2H";
-  strategyId: string;
-  strategyScriptFile: string;
-};
-
 type AgrarLiveState = {
   symbol: string;
   short: string;
@@ -662,50 +652,8 @@ const ORDERED_ASSETS: AgrarAssetConfig[] = [
   { code: "OJ1!", short: "OJ1", name: "Orange Juice", tv: "ICEUS:OJ1!", source: "ICEUS:OJ1!", strategy: "Macro Valuation Alpha V1", file: "agrar_OJ1.json", assetId: "orange_juice", liveProvider: "tradingview" },
 ];
 
-const INTRADAY_MT_ASSETS: IntradayMtAssetConfig[] = [
-  {
-    slot: "top_left",
-    displaySymbol: "FDAX1! 2H",
-    // Real DAX future. OHLC comes from monitoring_ohlc under composite key FDAX1!_2H;
-    // live 5s ticks come from live_quotes under bare symbol FDAX1!.
-    requestSymbol: "FDAX1!",
-    source: "EUREX:FDAX1!",
-    name: "DAX Future (TM)",
-    timeframe: "2H",
-    strategyId: "dax_2h",
-    strategyScriptFile: "workspace/input/pine_strategies/01_dax_2h_intraday.pine",
-  },
-  {
-    slot: "top_right",
-    displaySymbol: "6B1! 30M",
-    requestSymbol: "6B1!",
-    source: "CME:6B1!",
-    name: "GBP Future (MT)",
-    timeframe: "30M",
-    strategyId: "gbpusd_30m",
-    strategyScriptFile: "workspace/input/pine_strategies/03_gbpusd_30m_intraday.pine",
-  },
-  {
-    slot: "bottom_left",
-    displaySymbol: "FDAX1! 1H",
-    requestSymbol: "FDAX1!",
-    source: "EUREX:FDAX1!",
-    name: "DAX Future (MT)",
-    timeframe: "1H",
-    strategyId: "dax_1h",
-    strategyScriptFile: "workspace/input/pine_strategies/02_dax_1h_intraday.pine",
-  },
-  {
-    slot: "bottom_right",
-    displaySymbol: "6E1! 30M",
-    requestSymbol: "6E1!",
-    source: "CME:6E1!",
-    name: "EUR Future (MT)",
-    timeframe: "30M",
-    strategyId: "eurusd_30m",
-    strategyScriptFile: "workspace/input/pine_strategies/04_eurusd_30m_intraday.pine",
-  },
-];
+// INTRADAY_MT_ASSETS + its type now live in the shared lib (single source of
+// truth) so the mobile Monitoring view renders the exact same 4 futures charts.
 
 type AnomalyMtAssetConfig = {
   slot: "top_left" | "top_right" | "bottom_left" | "bottom_right";

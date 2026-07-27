@@ -6,11 +6,22 @@ import dynamic from "next/dynamic";
 import { useClientMounted } from "@/hooks/use-client-mounted";
 import type { MonitoringChartData } from "@/components/monitoring/MonitoringChart";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
+import { INTRADAY_MT_ASSETS, intradayMtKey } from "@/lib/monitoring/intradayMtAssets";
 
 const MonitoringChart = dynamic(
   () => import("@/components/monitoring/MonitoringChart").then((m) => m.default ?? m),
   { ssr: false }
 );
+
+// Intraday-MT: derived from the shared desktop source of truth so the mobile
+// Intraday tab can never drift from the desktop Monitoring page.
+const INTRADAY_MT_KEYS = INTRADAY_MT_ASSETS.map(intradayMtKey); // e.g. "FDAX1!_2H"
+const INTRADAY_FUTURES: Record<string, { requestSymbol: string; timeframe: string }> =
+  Object.fromEntries(INTRADAY_MT_ASSETS.map((a) => [intradayMtKey(a), { requestSymbol: a.requestSymbol, timeframe: a.timeframe }]));
+const INTRADAY_LABELS: Record<string, string> =
+  Object.fromEntries(INTRADAY_MT_ASSETS.map((a) => [intradayMtKey(a), a.displaySymbol]));
+const INTRADAY_NAMES: Record<string, string> =
+  Object.fromEntries(INTRADAY_MT_ASSETS.map((a) => [intradayMtKey(a), a.name]));
 
 // ── Tab definitions ──────────────────────────────────────────────────────────
 
@@ -27,7 +38,10 @@ const SCROLL_TABS = [
   { id: "invest",          label: "Invest",   timeframe: "D",   assets: ["SPY", "QQQ", "SPMO", "GLD", "HG1!", "6S1!"] },
   { id: "fx",              label: "FX",       timeframe: "D",   assets: ["EURGBP", "GBPJPY", "MXNUSD", "NOKUSD", "CLPUSD", "SEKUSD", "BRLUSD", "ZARUSD"] },
   { id: "anomaly",         label: "Anomaly",  timeframe: "D",   assets: ["GC1!", "GLD", "YM1!", "FDAX1!"] },
-  { id: "intraday",        label: "Intraday", timeframe: "30m", assets: ["DE30EUR_2H", "DE30EUR_1H", "EURUSD_30M", "GBPUSD_30M"] },
+  // Intraday: SAME 4 futures charts as the desktop Monitoring page (FDAX1! 2H/1H,
+  // 6E1! 30M, 6B1! 30M), derived from the shared source, loaded live from the OHLC
+  // API — not the old CFD proxies.
+  { id: "intraday",        label: "Intraday", timeframe: "30m", assets: INTRADAY_MT_KEYS },
 ];
 
 const ALL_TABS = [...FIXED_TABS, ...SCROLL_TABS];
@@ -102,6 +116,7 @@ const SYMBOL_NAMES: Record<string, string> = {
   "SEKUSD": "SEK/USD", "BRLUSD": "BRL/USD", "ZARUSD": "ZAR/USD",
   "EURUSD_30M": "EUR/USD", "GBPUSD_30M": "GBP/USD",
   "DE30EUR_1H": "DAX 1H", "DE30EUR_2H": "DAX 2H",
+  // Intraday-MT futures names come from INTRADAY_NAMES (derived); ChartCard falls back to it.
 };
 
 // ── Fetch + parse bars from static TV-cache JSON ──────────────────────────────
@@ -137,6 +152,31 @@ function parseTvCacheBars(rawBars: TvRawBar[]): { bars: Bar[]; intraday: boolean
 
 // Returns bars + the actual timeframe detected from file content
 async function fetchBars(symbol: string): Promise<{ bars: Bar[]; detectedTf: string }> {
+  // Intraday-MT futures: load live from the OHLC API (same source as desktop),
+  // so mobile Intraday charts match desktop and stay current.
+  const fut = INTRADAY_FUTURES[symbol];
+  if (fut) {
+    try {
+      const r = await fetch(
+        `/api/monitoring/ohlc?symbol=${encodeURIComponent(fut.requestSymbol)}&timeframe=${encodeURIComponent(fut.timeframe)}&limit=400`,
+        { cache: "no-store" },
+      );
+      if (!r.ok) return { bars: [], detectedTf: fut.timeframe };
+      const j = (await r.json()) as { bars?: Array<{ time?: string; date?: string; open: number; high: number; low: number; close: number }> };
+      const bars: Bar[] = (j.bars ?? [])
+        .map((b) => {
+          const t = String(b.time ?? b.date ?? "");
+          const time = t.includes("T") ? (t.endsWith("Z") ? t : t + "Z") : t.slice(0, 10);
+          return { time, open: Number(b.open), high: Number(b.high), low: Number(b.low), close: Number(b.close) };
+        })
+        .filter((b) => b.time && Number.isFinite(b.close) && b.close > 0 && b.high >= b.low)
+        .sort((a, b) => a.time.localeCompare(b.time));
+      return { bars, detectedTf: fut.timeframe };
+    } catch {
+      return { bars: [], detectedTf: fut.timeframe };
+    }
+  }
+
   const path = STATIC_PATH[symbol];
   if (!path) return { bars: [], detectedTf: "D" };
   try {
@@ -155,6 +195,8 @@ function barsToCandleData(bars: Bar[]): MonitoringChartData["bars"] {
 }
 
 function displayLabel(code: string): string {
+  // Intraday-MT futures show the exact desktop label (e.g. "FDAX1! 2H").
+  if (INTRADAY_LABELS[code]) return INTRADAY_LABELS[code];
   return code.replace("1!", "").replace(/_\d+[MH]$/, "").replace(/_2H$|_1H$|_30M$/i, "");
 }
 
@@ -168,7 +210,7 @@ function ChartCard({ symbol, chartData, loading }: {
   const mounted = useClientMounted();
   const iconUrl = getMonitoringAssetIconUrl({ code: symbol });
   const label = displayLabel(symbol);
-  const name = SYMBOL_NAMES[symbol] ?? "";
+  const name = SYMBOL_NAMES[symbol] ?? INTRADAY_NAMES[symbol] ?? "";
 
   return (
     <div style={{ height: "100%", background: "#0c0d10", display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0 }}>
@@ -243,12 +285,14 @@ export function MobileMonitoringView() {
   const activeTab = ALL_TABS[activeIdx]!;
 
   // Load all assets for a tab
-  const loadTab = useCallback(async (tabId: string, assets: string[], _timeframe: string) => {
+  const loadTab = useCallback(async (tabId: string, assets: string[], _timeframe: string, force = false) => {
     if (loadingRef.current[tabId]) return;
-    if (doneRef.current[tabId]) return;
+    if (!force && doneRef.current[tabId]) return;
     loadingRef.current[tabId] = true;
-    cache.current[tabId] = {};
-    setTick(v => v + 1); // show loading state
+    if (!force) {
+      cache.current[tabId] = {};
+      setTick(v => v + 1); // show loading state (skip on live refresh to avoid flicker)
+    }
 
     await Promise.all(
       assets.map(async (symbol) => {
@@ -262,6 +306,7 @@ export function MobileMonitoringView() {
           variant: "compact",
           timeframe: detectedTf,
         };
+        if (!cache.current[tabId]) cache.current[tabId] = {};
         cache.current[tabId]![symbol] = bars.length > 0 ? cd : null;
         setTick(v => v + 1); // progressive reveal
       })
@@ -277,6 +322,16 @@ export function MobileMonitoringView() {
     if (activeTab.assets.length > 0) {
       void loadTab(activeTab.id, activeTab.assets, activeTab.timeframe);
     }
+  }, [activeTab.id, activeTab.assets, activeTab.timeframe, loadTab]);
+
+  // Intraday tab: refresh from the live OHLC API every 5s (delayed TV data), in
+  // sync with the desktop Monitoring page's intraday charts.
+  useEffect(() => {
+    if (activeTab.id !== "intraday") return;
+    const id = setInterval(() => {
+      void loadTab("intraday", activeTab.assets, activeTab.timeframe, true);
+    }, 5000);
+    return () => clearInterval(id);
   }, [activeTab.id, activeTab.assets, activeTab.timeframe, loadTab]);
 
   const goToTab = useCallback((idx: number) => {
