@@ -16,10 +16,13 @@ export async function GET(request: Request) {
 
   try {
     const db = createSupabaseServiceClient();
+    // Intraday bars are stored under a composite asset key "<symbol>_<tf>"
+    // (e.g. FDAX1!_2H, 6E1!_30M); daily uses the bare symbol. Match both.
+    const assetKeys = timeframe === "D" ? [symbol] : [symbol, `${symbol}_${timeframe}`];
     const { data, error } = await db
       .from("monitoring_ohlc")
       .select("date,open,high,low,close")
-      .eq("asset", symbol)
+      .in("asset", assetKeys)
       .eq("timeframe", timeframe)
       .gt("close", 0)
       .order("date", { ascending: false })
@@ -52,10 +55,13 @@ export async function GET(request: Request) {
       return NextResponse.json({ bars: [], symbol, timeframe, count: 0 });
     }
 
+    // Daily bars use a YYYY-MM-DD key; intraday must keep the full timestamp,
+    // otherwise every bar in a day collapses onto the same date and the chart breaks.
+    const isDaily = timeframe === "D";
     const bars = data
       .reverse()
       .map((row) => ({
-        time: String(row.date).slice(0, 10),
+        time: isDaily ? String(row.date).slice(0, 10) : String(row.date),
         open: Number(row.open),
         high: Number(row.high),
         low: Number(row.low),
