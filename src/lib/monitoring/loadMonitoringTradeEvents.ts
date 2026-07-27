@@ -111,10 +111,18 @@ export async function loadMonitoringTradeEvents(input: {
     const resolvedPath = `/generated/monitoring/${eventsFile}`;
     const signalsFile = eventsFile.replace(/^strategies\//, "signals/").replace(/_events\.json$/i, "_signals.json");
     const resolvedSignalsPath = `/generated/monitoring/${signalsFile}`;
-    const payload = await fetchMonitoringJson<StrategyEventsPayload>(resolvedPath, {
+    let payload = await fetchMonitoringJson<StrategyEventsPayload>(resolvedPath, {
       signal: input.signal,
       ttlMs: 5_000,
     });
+    // Fallback for Vercel: public/generated is gitignored, so the static event
+    // file 404s there. Committed intraday events are served by this API instead.
+    if (!payload) {
+      payload = await fetchMonitoringJson<StrategyEventsPayload>(
+        `/api/monitoring/strategy-events?file=${encodeURIComponent(eventsFile)}`,
+        { signal: input.signal, ttlMs: 5_000 },
+      );
+    }
     if (!payload) {
       return {
         ok: false,
