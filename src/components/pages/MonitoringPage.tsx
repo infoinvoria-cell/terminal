@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { Activity, BarChart3, Bell, RotateCw, Settings } from "lucide-react";
+import { Activity, BarChart3, Bell, Clock, RotateCw, Settings } from "lucide-react";
 import MonitoringChart, { type MonitoringChartData } from "@/components/monitoring/MonitoringChart";
 import LiveSignalsPanel from "@/components/monitoring/LiveSignalsPanel";
 import SentinelErrorBoundary from "@/components/monitoring/SentinelErrorBoundary";
@@ -109,30 +109,32 @@ const SecondaryPanelLoader = ({ label }: { label: string }) => (
   <div className="st-empty st-empty-loading">{label}</div>
 );
 
-// Live wall-clock (HH:MM:SS) shown in the monitoring header, updates every second.
+// Header: live wall-clock (HH:MM:SS) · clock icon · 5-second tick countdown, in
+// light gold. No border. The countdown aligns to the :00/:05 live-update rhythm.
 function MonitoringHeaderClock() {
   const [now, setNow] = useState<string>("--:--:--");
+  const [tick, setTick] = useState<number>(5);
   useEffect(() => {
-    const tick = () =>
-      setNow(new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }));
-    tick();
-    const id = setInterval(tick, 1000);
+    const update = () => {
+      const d = new Date();
+      setNow(d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }));
+      setTick(5 - (d.getSeconds() % 5));
+    };
+    update();
+    const id = setInterval(update, 1000);
     return () => clearInterval(id);
   }, []);
+  const GOLD = "#e9d18a";
   return (
     <span
       className="monitoring-header-clock"
-      title="Echtzeit (Sekunden)"
+      title="Echtzeit · 5-Sek-Update"
       style={{
         display: "inline-flex",
         alignItems: "center",
-        marginRight: 8,
-        padding: "0 8px",
-        height: 26,
-        borderRadius: 6,
-        border: "1px solid rgba(255,255,255,0.08)",
-        background: "rgba(255,255,255,0.03)",
-        color: "rgba(255,255,255,0.82)",
+        gap: 6,
+        marginRight: 10,
+        color: GOLD,
         fontSize: 12,
         fontWeight: 600,
         fontVariantNumeric: "tabular-nums",
@@ -140,7 +142,9 @@ function MonitoringHeaderClock() {
         whiteSpace: "nowrap",
       }}
     >
-      {now}
+      <span>{now}</span>
+      <Clock size={13} strokeWidth={2} />
+      <span style={{ minWidth: 16, textAlign: "right" }}>{tick}s</span>
     </span>
   );
 }
