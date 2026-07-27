@@ -1,3 +1,4 @@
+import "./env.mjs"; // load .env before reading process.env below (ESM hoisting-safe)
 // worker/providers.mjs
 // Provider config + fetch functions for the Railway master data worker.
 // Node 18+ global fetch, no axios. Missing/placeholder keys => provider skips
@@ -44,7 +45,7 @@ export const PROVIDERS = {
     name: "twelvedata",
     baseUrl: "https://api.twelvedata.com",
     key: env("TWELVE_DATA_KEY", "PLACEHOLDER"),
-    delay: 250,
+    delay: 8000, // free tier = 8 credits/min → ~1 call / 8s stays compliant
     symbolMap: { FDAX: "FDAX1!", FESX: "FESX1!", FGBL: "FGBL1!" },
   },
   FRED: {
