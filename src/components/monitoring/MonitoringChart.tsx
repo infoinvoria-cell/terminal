@@ -1686,12 +1686,14 @@ function MonitoringChartInner({
     };
   }, [allDashboardMode, data.displaySymbol, data.variant, initialVisibleBars, initialRightOffset, overlayEnabled, showManualLevels]);
 
-  // Live Auto: re-fit Y (always) and X (when liveChartAutoView) whenever data changes
+  // Live Auto: re-fit the Y (price) scale on data changes so the candles stay in
+  // view. Intentionally do NOT reset the X (time) range here: resetting it on every
+  // 5s data tick hard-snapped the chart back to the latest bars, so a user's
+  // pan/zoom was undone every few seconds ("can't move the chart"). Live-following
+  // of the X axis is handled by autoFollowRef — it only snaps to the latest when the
+  // user is already at the right edge, and leaves a scrolled-back view untouched.
   useEffect(() => {
     didSetInitialPriceRangeRef.current = false;
-    if (liveChartAutoView) {
-      didSetInitialRangeRef.current = false;
-    }
   }, [prepared, liveChartAutoView]);
 
   useEffect(() => {
