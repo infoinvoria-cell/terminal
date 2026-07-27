@@ -95,6 +95,11 @@ export function loadIntradaySignalCards(): SignalCardModel[] {
     // (paper) signal, otherwise it's a validated/closed one.
     const isRecent = age !== undefined && age <= 3;
     const status: SignalCardStatus = isRecent ? "OPEN" : "PAPER_ONLY";
+    // The card renders tp/sl as a percentage, so express them as distance-from-entry
+    // (not the absolute futures price, which would read as "TP: +25093%").
+    const entryPx = typeof last.entry === "number" ? last.entry : undefined;
+    const tpPct = entryPx && typeof last.tp === "number" ? ((last.tp - entryPx) / entryPx) * 100 : undefined;
+    const slPct = entryPx && typeof last.sl === "number" ? ((last.sl - entryPx) / entryPx) * 100 : undefined;
     cards.push({
       id: def.id,
       group: "intraday",
@@ -110,9 +115,9 @@ export function loadIntradaySignalCards(): SignalCardModel[] {
       status,
       signalDate,
       ageDays: age,
-      price: typeof last.entry === "number" ? last.entry : undefined,
-      tp: typeof last.tp === "number" ? last.tp : undefined,
-      sl: typeof last.sl === "number" ? last.sl : undefined,
+      price: entryPx,
+      tp: tpPct != null ? Number(tpPct.toFixed(2)) : undefined,
+      sl: slPct != null ? Number(slPct.toFixed(2)) : undefined,
       dataStatus: "ok",
       nextSignalLabel: "täglich prüfen",
       monitoringTarget: { tab: "intraday_mt" as MonitoringPrimaryTabId, asset: def.monitoringAsset, strategyId: def.strategyId },
