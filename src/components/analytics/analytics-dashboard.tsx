@@ -740,15 +740,15 @@ function buildOverviewRows(dataset: AnalyticsDataset): Array<[string, string]> {
   if (dataset.tab === "invest" && dataset.mode === "live") {
     return [
       ["Strategy", "Core Invest v2.0"],
-      ["Version", "v2.0 — frozen 2026-07-20 · APPROVED"],
+      ["Version", "v2.0 weights frozen 2026-07-20"],
       ["ETF Core", "QQQ 45% · GLD 25% · SPMO 5% · SPY 5% (80%)"],
       ["Sleeves", "Pine1 5% · Pine2 5% · HG1! 5% · 6S1! 5% (20%)"],
       ["OOS CAGR", `${CI_PORTFOLIO_KPIS.cagr} (2019–2026)`],
       ["OOS Sharpe", CI_PORTFOLIO_KPIS.sharpe],
       ["OOS MaxDD", CI_PORTFOLIO_KPIS.maxDd],
       ["OOS Calmar", CI_PORTFOLIO_KPIS.calmar],
-      ["WF Beat", "60% · PASS"],
-      ["Gate", "APPROVED v2.0 · Frozen 2026-07-20"],
+      ["WF Beat", "nicht belastbar · Engine-Paritaet fehlt"],
+      ["Gate", "NICHT FREIGEGEBEN · Pine-Paritaet fehlt"],
       ["Execution", "none · Paper Trading only"],
     ];
   }
@@ -760,13 +760,13 @@ function buildOverviewRows(dataset: AnalyticsDataset): Array<[string, string]> {
       ["Strategy", "Core Invest v2.0"],
       ["ETF Core", "QQQ 45% · GLD 25% · SPMO 5% · SPY 5% (80%)"],
       ["Sleeves", "Pine1 5% · Pine2 5% · HG1! 5% · 6S1! 5% (20%)"],
-      ["IS (2000-2018)", "CAGR 7.79% · Sh 0.669 · DD -34.5% · Cal 0.226"],
+      ["IS (2000-2018)", "nicht validiert · Approximation"],
       ["OOS (2019-2026)", `CAGR ${CI_PORTFOLIO_KPIS.cagr} · Sh ${CI_PORTFOLIO_KPIS.sharpe} · DD ${CI_PORTFOLIO_KPIS.maxDd} · Cal ${CI_PORTFOLIO_KPIS.calmar}`],
-      ["WF Beat", "60% · PASS"],
-      ["Gate", "APPROVED v2.0 · Frozen 2026-07-20"],
+      ["WF Beat", "nicht belastbar · Engine-Paritaet fehlt"],
+      ["Gate", "NICHT FREIGEGEBEN · Pine-Paritaet fehlt"],
       ["Adaptive Start", adaptiveStart],
       ["Full-Core Start", fullCoreStart],
-      ["Market Data", "OHLC + QQQ Pine + HG + CHF"],
+      ["Market Data", "OHLC vorhanden · Strategy parity pending"],
       ["Execution", "none · Paper Trading only"],
     ];
   }

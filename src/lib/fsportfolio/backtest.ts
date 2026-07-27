@@ -332,7 +332,7 @@ async function buildReadySnapshot(): Promise<FSPortfolioSnapshot> {
   );
   // Load extended sleeve returns for QQQ_PINE_2_EMA, COPPER_HG, CHF_6S
   const extraSleeveReturns = (() => {
-    try { return loadSleeveReturns(nasBars); } catch { return undefined; }
+    try { return loadSleeveReturns(); } catch { return undefined; }
   })();
 
   if (missingSymbols.length) {

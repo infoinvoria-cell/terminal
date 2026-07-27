@@ -302,7 +302,7 @@ export interface CoreInvestRow {
 }
 
 // v2.0 weights: ETF-Core 80% (QQQ 45%, GLD 25%, SPMO 5%, SPY 5%) + Sleeves 20% (4×5%)
-// Frozen 2026-07-20 · APPROVED · OOS 2019–2026: Sharpe 1.152, CAGR +17.11%, MaxDD −21.7%
+// Weights frozen 2026-07-20. Strategy engine and account-level validation failed.
 export const CI_STRATEGIES: CoreInvestRow[] = [
   // ETF-Core (80%)
   {
@@ -329,26 +329,26 @@ export const CI_STRATEGIES: CoreInvestRow[] = [
   {
     id: "qqq_pine1", ticker: "QQQ", label: "QQQ Pine 1", group: "Strategy Sleeve",
     engine: "SMA(400) + SMA(5) · Long/Cash · TP 2% · SL 25%", pillar: "ci_sleeve", weight: 5,
-    pf: 1.628, maxDd: "−16.65%", trades: 638, winRate: "73.35%", totalReturn: "+580.95%", status: "partial_validation",
-    notes: "Python approximation · TradingView execution parity on QQQ pending",
+    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "partial_validation",
+    notes: "Nicht freigegeben: QQQ TradingView trade export und exakte Engine-Paritaet fehlen",
   },
   {
     id: "qqq_pine2", ticker: "QQQ", label: "QQQ Pine 2 EMA", group: "Strategy Sleeve",
     engine: "EMA(20)/EMA(50) + Valuation · Long/Cash · TP 4% · SL 2%", pillar: "ci_sleeve", weight: 5,
-    pf: 2.158, maxDd: "−28.59%", trades: 68, winRate: "42.65%", totalReturn: "+358.27%", status: "partial_validation",
-    notes: "EMA-only approximation · DXY/GC1/ZB1 valuation parity pending",
+    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "partial_validation",
+    notes: "Nicht freigegeben: DXY/GC1/ZB1 und QQQ TradingView-Paritaet fehlen",
   },
   {
     id: "hg1_ci", ticker: "HG1!", label: "Copper / HG", group: "Strategy Sleeve",
     engine: "Pine 2 EMA · Long/Cash · TP 4% · SL 2%", pillar: "ci_sleeve", weight: 5,
-    pf: 2.082, maxDd: "−40.43%", trades: 88, winRate: "30.68%", totalReturn: "+483.82%", status: "partial_validation",
-    notes: "EMA-only approximation · DXY/GC1/ZB1 valuation parity pending",
+    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "partial_validation",
+    notes: "Nicht freigegeben: DXY/GC1/ZB1 und HG1! TradingView-Paritaet fehlen",
   },
   {
     id: "6s1_ci", ticker: "6S1!", label: "CHF / Swiss Franc", group: "Strategy Sleeve",
     engine: "Pine 2 EMA · Long/Cash · TP 4% · SL 2%", pillar: "ci_sleeve", weight: 5,
-    pf: 1.266, maxDd: "−23.66%", trades: 65, winRate: "32.31%", totalReturn: "+17.92%", status: "parity_pending",
-    notes: "Parity ausstehend · nur 6 historische Events · CME 6S1!",
+    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "parity_pending",
+    notes: "Nicht freigegeben: lokaler Engine-Output stimmt noch nicht auf Trade-Ebene mit TradingView ueberein",
   },
 ];
 

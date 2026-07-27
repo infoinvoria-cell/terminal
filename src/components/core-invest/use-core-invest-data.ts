@@ -80,7 +80,7 @@ export function useCoreInvestData(): CoreInvestPanelData {
               signals: [],
               status: hasBars ? "partial" : "missing_ohlc",
               statusMessage: hasBars
-                ? `${bars.length} bars · last ${bars.at(-1)?.date ?? "n/a"} · approximation, Pine parity pending`
+                ? `${bars.length} bars · last ${bars.at(-1)?.date ?? "n/a"} · engine disabled, exact Pine parity required`
                 : `No OHLC for ${cfg.instrument}`,
               lastDate: bars.at(-1)?.date ?? null,
               validationStatus: hasBars ? "partial_validation" as const : "missing_data" as const,
