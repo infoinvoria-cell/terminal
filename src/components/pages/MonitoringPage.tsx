@@ -626,9 +626,10 @@ const INTRADAY_MT_ASSETS: IntradayMtAssetConfig[] = [
   {
     slot: "top_left",
     displaySymbol: "FDAX1! 2H",
-    // source stays OANDA so existing candle cache files load; displaySymbol shows futures name
-    requestSymbol: "DE30EUR",
-    source: "OANDA:DE30EUR",
+    // Real DAX future. OHLC comes from monitoring_ohlc under composite key FDAX1!_2H;
+    // live 5s ticks come from live_quotes under bare symbol FDAX1!.
+    requestSymbol: "FDAX1!",
+    source: "EUREX:FDAX1!",
     name: "DAX Future (TM)",
     timeframe: "2H",
     strategyId: "dax_2h",
@@ -637,8 +638,8 @@ const INTRADAY_MT_ASSETS: IntradayMtAssetConfig[] = [
   {
     slot: "top_right",
     displaySymbol: "6B1! 30M",
-    requestSymbol: "GBPUSD",
-    source: "OANDA:GBPUSD",
+    requestSymbol: "6B1!",
+    source: "CME:6B1!",
     name: "GBP Future (MT)",
     timeframe: "30M",
     strategyId: "gbpusd_30m",
@@ -647,8 +648,8 @@ const INTRADAY_MT_ASSETS: IntradayMtAssetConfig[] = [
   {
     slot: "bottom_left",
     displaySymbol: "FDAX1! 1H",
-    requestSymbol: "DE30EUR",
-    source: "OANDA:DE30EUR",
+    requestSymbol: "FDAX1!",
+    source: "EUREX:FDAX1!",
     name: "DAX Future (MT)",
     timeframe: "1H",
     strategyId: "dax_1h",
@@ -657,8 +658,8 @@ const INTRADAY_MT_ASSETS: IntradayMtAssetConfig[] = [
   {
     slot: "bottom_right",
     displaySymbol: "6E1! 30M",
-    requestSymbol: "EURUSD",
-    source: "OANDA:EURUSD",
+    requestSymbol: "6E1!",
+    source: "CME:6E1!",
     name: "EUR Future (MT)",
     timeframe: "30M",
     strategyId: "eurusd_30m",
