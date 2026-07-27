@@ -108,8 +108,10 @@ def save_symbol_mappings(mappings: dict[str, SymbolMapping]) -> None:
 
 
 def build_client(no_login: bool) -> tuple[TvDatafeed, str]:
-    username = os.getenv("TRADINGVIEW_USERNAME", "").strip()
-    password = os.getenv("TRADINGVIEW_PASSWORD", "").strip()
+    # Accept both naming conventions: TRADINGVIEW_* (this tool's original) and
+    # TV_* (used by the live-feed worker / existing .env.local).
+    username = (os.getenv("TRADINGVIEW_USERNAME") or os.getenv("TV_USERNAME") or "").strip()
+    password = (os.getenv("TRADINGVIEW_PASSWORD") or os.getenv("TV_PASSWORD") or "").strip()
     if no_login or not username or not password:
         return TvDatafeed(), "nologin"
     return TvDatafeed(username, password), "login"
