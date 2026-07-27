@@ -13,6 +13,7 @@ import { config as loadEnv } from "dotenv";
 import cron from "node-cron";
 import { createClient } from "@supabase/supabase-js";
 import { PROVIDERS, providerReady, fetchBars, fetchFredLatest } from "./providers.mjs";
+import { ASSETS, apiAssets, byProvider, SUMMARY } from "./signalAssets.mjs";
 
 // Load worker/.env (provider keys) and the repo .env.local (Supabase) if present.
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -28,17 +29,17 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// ── Provider router (our symbol -> provider) ───────────────────────────────────
-const FUTURES_BARCHART = new Set(["CL1!","NG1!","HO1!","RB1!","BZ1!","GC1!","SI1!","HG1!","PA1!","PL1!","ZW1!","ZC1!","ZS1!","CC1!","CT1!","KC1!","SB1!","OJ1!","ES1!","NQ1!","YM1!"]);
-const FUTURES_FINNHUB = new Set(["6E1!","6B1!","6J1!","6S1!","6A1!","6C1!"]);
-const FUTURES_TWELVE = new Set(["FDAX1!","FESX1!","FGBL1!"]);
-
-function getProvider(symbol) {
-  if (FUTURES_FINNHUB.has(symbol)) return PROVIDERS.FINNHUB;
-  if (FUTURES_TWELVE.has(symbol)) return PROVIDERS.TWELVE_DATA;
-  if (FUTURES_BARCHART.has(symbol)) return PROVIDERS.BARCHART;
-  return PROVIDERS.ALPACA; // ETFs + stocks
-}
+// ── Provider router (asset.provider -> PROVIDERS) ──────────────────────────────
+// TradingView assets are handled by the separate tv_live_feed worker; this API
+// worker only fetches finnhub / twelvedata / fred assets from signalAssets.mjs.
+const PROVIDER_BY_NAME = {
+  finnhub: PROVIDERS.FINNHUB,
+  twelvedata: PROVIDERS.TWELVE_DATA,
+  fred: PROVIDERS.FRED,
+  barchart: PROVIDERS.BARCHART,
+  alpaca: PROVIDERS.ALPACA,
+};
+function providerFor(asset) { return PROVIDER_BY_NAME[asset.provider] ?? null; }
 
 // Daily uses YYYY-MM-DD; intraday keeps the full ISO timestamp (matches the app).
 function dbDate(isoTime, timeframe) {
@@ -88,33 +89,20 @@ async function checkSignalTrigger(symbol, bar) {
   } catch { /* columns may not exist — ignore */ }
 }
 
-// ── Fetch jobs ─────────────────────────────────────────────────────────────────
-async function fetchIntraday(symbols, timeframe, barType) {
-  console.log(`[${barType}] ${timeframe}: ${symbols.join(", ")}`);
-  for (const symbol of symbols) {
-    const provider = getProvider(symbol);
-    if (!providerReady(provider)) { console.log(`  skip ${symbol} (${provider.name} key missing)`); continue; }
-    const bars = await fetchBars(provider, symbol, timeframe, 60);
-    if (bars.length) {
-      await writeOhlc(symbol, timeframe, bars);
-      const last = bars[bars.length - 1];
-      await writeLiveQuote(symbol, last);
-      if (barType === "POST_CLOSE") await checkSignalTrigger(symbol, last);
-      console.log(`  ${symbol} ${timeframe}: ${bars.length} bars, last ${last.close}`);
-    }
-    await sleep(provider.delay);
-  }
-}
-
-async function fetchDaily(symbols, tag) {
-  console.log(`[daily/${tag}] ${symbols.join(", ")}`);
-  for (const symbol of symbols) {
-    const provider = getProvider(symbol);
-    if (!providerReady(provider)) continue;
-    const bars = await fetchBars(provider, symbol, "1D", 30);
-    if (bars.length) { await writeOhlc(symbol, "D", bars); await writeLiveQuote(symbol, bars[bars.length - 1]); }
-    await sleep(provider.delay);
-  }
+// ── Fetch jobs (asset-driven from signalAssets.mjs; API assets only) ───────────
+async function fetchApiAsset(asset, timeframe, limit) {
+  const provider = providerFor(asset);
+  if (!provider || !providerReady(provider)) return false;
+  const apiSym = asset.apiSymbol ?? asset.symbol;
+  const bars = await fetchBars(provider, apiSym, timeframe, limit);
+  await sleep(provider.delay);
+  if (!bars.length) return false;
+  const tf = timeframe === "1D" ? "D" : timeframe;
+  await writeOhlc(asset.symbol, tf, bars);
+  const last = bars[bars.length - 1];
+  await writeLiveQuote(asset.symbol, last);
+  await checkSignalTrigger(asset.symbol, last);
+  return true;
 }
 
 async function fetchFredData() {
@@ -126,52 +114,40 @@ async function fetchFredData() {
   if (rows.length) console.log(`[fred] ${rows.length} macro series updated`);
 }
 
-// Globe watchlist live prices — latest close per liquid asset, via each asset's provider.
-async function fetchGlobePrices() {
-  const all = [...FUTURES_BARCHART, ...FUTURES_FINNHUB, ...FUTURES_TWELVE, "QQQ","SPY","GLD","SPMO","AAPL","MSFT","NVDA","AMZN","GOOGL","META"];
+// Daily EOD for all finnhub/twelvedata assets + FRED macro.
+async function fetchDailyApi() {
+  const list = apiAssets().filter((a) => a.provider !== "fred");
   let n = 0;
-  for (const symbol of all) {
-    const provider = getProvider(symbol);
-    if (!providerReady(provider)) continue;
-    const bars = await fetchBars(provider, symbol, "1D", 2);
-    if (bars.length) { await writeLiveQuote(symbol, bars[bars.length - 1]); n++; }
-    await sleep(provider.delay);
-  }
-  if (n) console.log(`[globe] ${n} live prices refreshed`);
+  for (const a of list) if (await fetchApiAsset(a, "1D", 30)) n++;
+  await fetchFredData();
+  console.log(`[daily-api] ${n}/${list.length} assets refreshed + fred`);
 }
 
-async function fullDailySync() {
-  console.log("[full-sync] daily refresh of all mapped assets");
-  await fetchDaily([...FUTURES_BARCHART], "futures");
-  await fetchDaily(["QQQ","SPY","GLD","SPMO","AAPL","MSFT","NVDA","AMZN","GOOGL","META","TLT","IEF","HYG","LQD"], "etf");
-  await fetchDaily([...FUTURES_TWELVE], "eurex");
-  await fetchFredData();
+// Live prices (latest bars) for all finnhub/twelvedata assets — feeds the Globe.
+async function fetchGlobeApi() {
+  const list = apiAssets().filter((a) => a.provider !== "fred");
+  let n = 0;
+  for (const a of list) if (await fetchApiAsset(a, "1D", 2)) n++;
+  if (n) console.log(`[globe-api] ${n} live prices refreshed`);
 }
 
 // ── Scheduler ──────────────────────────────────────────────────────────────────
+// NOTE: TradingView assets (all exchange futures) are handled by tv_live_feed.py.
+// This worker only covers the finnhub/twelvedata/fred assets from signalAssets.
 function startScheduler() {
-  cron.schedule("28,58 * * * 1-5", () => fetchIntraday(["6E1!","6B1!"], "30min", "PRE_CLOSE"));
-  cron.schedule("1,31 * * * 1-5", () => fetchIntraday(["6E1!","6B1!"], "30min", "POST_CLOSE"));
-  cron.schedule("57 * * * 1-5", () => fetchIntraday(["FDAX1!"], "1H", "PRE_CLOSE"));
-  cron.schedule("2 * * * 1-5", () => fetchIntraday(["FDAX1!"], "1H", "POST_CLOSE"));
-  cron.schedule("57 0,2,4,6,8,10,12,14,16,18,20,22 * * 1-5", () => fetchIntraday(["FDAX1!"], "2H", "PRE_CLOSE"));
-  cron.schedule("2 1,3,5,7,9,11,13,15,17,19,21,23 * * 1-5", () => fetchIntraday(["FDAX1!"], "2H", "POST_CLOSE"));
-  cron.schedule("55 * * * 1-5", () => fetchIntraday(["GC1!"], "60min", "PRE_CLOSE"));
-  cron.schedule("3 * * * 1-5", () => fetchIntraday(["GC1!"], "60min", "POST_CLOSE"));
-  cron.schedule("0 22 * * 1-5", () => fetchDaily(["GLD","YM1!","FDAX1!","GC1!"], "ANOMALY_EOD"));
-  cron.schedule("0 8,22 * * 1-5", () => fetchDaily(["GC1!","GLD","YM1!","CT1!","NQ1!"], "WHITE_SWAN"));
-  cron.schedule("0 23 * * 1-5", () => fetchDaily(["QQQ","SPY","GLD","SPMO","HG1!","6S1!"], "CORE_INVEST"));
-  cron.schedule("*/5 8-22 * * 1-5", () => fetchGlobePrices());
-  cron.schedule("0 20 * * 1-5", () => fetchFredData());
-  cron.schedule("0 6 * * 1-5", () => fullDailySync());
-  console.log("✅ Scheduler active — all jobs registered");
+  cron.schedule("*/10 8-22 * * 1-5", () => fetchGlobeApi()); // live prices every 10 min
+  cron.schedule("0 23 * * 1-5", () => fetchDailyApi());       // EOD after US close
+  cron.schedule("0 20 * * 1-5", () => fetchFredData());       // macro
+  cron.schedule("0 6 * * 1-5", () => fetchDailyApi());        // morning full sync
+  console.log("✅ Scheduler active — all API jobs registered");
 }
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
 const ready = Object.values(PROVIDERS).filter(providerReady).map((p) => p.name);
-console.log(`Capitalife worker starting. Providers ready: ${ready.length ? ready.join(", ") : "NONE (all keys placeholder)"}`);
+console.log(`Capitalife worker. Assets: ${SUMMARY.total} (tv:${SUMMARY.tradingview} finnhub:${SUMMARY.finnhub} twelvedata:${SUMMARY.twelvedata} fred:${SUMMARY.fred}).`);
+console.log(`Providers ready: ${ready.length ? ready.join(", ") : "NONE (all keys placeholder — add to worker/.env)"}`);
 startScheduler();
 if (process.argv.includes("--once")) {
-  // One-off run for manual testing / first seed.
-  fullDailySync().then(() => fetchGlobePrices()).then(() => { console.log("one-off done"); });
+  fetchDailyApi().then(() => fetchGlobeApi()).then(() => console.log("one-off done"));
 }
+void ASSETS; void byProvider;
