@@ -1374,7 +1374,7 @@ function MonitoringChartInner({
         ...(isIntraday ? { tickMarkFormatter: berlinIntradayTickMarkFormatter } : {}),
       },
       handleScroll: {
-        mouseWheel: true,
+        mouseWheel: false, // wheel is reserved for zoom (handleScale) — TV-style
         pressedMouseMove: true, // TradingView-style: drag to pan
         horzTouchDrag: true,
         vertTouchDrag: true,
@@ -1714,6 +1714,9 @@ function MonitoringChartInner({
     const priceScaleMinWidth = monitoringRightPriceScaleMinWidth(isDashboard, isCompact, isIntradayTf, isForex);
 
     chart.applyOptions({
+      // TradingView-style interaction — re-asserted on every data update so the
+      // 5s refresh can't silently re-lock the chart. Wheel zooms (handleScale),
+      // drag pans (handleScroll.pressedMouseMove).
       handleScroll: {
         mouseWheel: false,
         pressedMouseMove: true,
@@ -1721,8 +1724,27 @@ function MonitoringChartInner({
         vertTouchDrag: true,
       },
       kineticScroll: {
-        touch: false,
+        touch: true,
         mouse: false,
+      },
+      // Keep the crosshair visible after every update (createChart sets it once,
+      // but a later applyOptions elsewhere could drop it — re-assert here).
+      crosshair: {
+        mode: CrosshairMode.Normal,
+        vertLine: {
+          color: "rgba(230, 235, 245, 0.75)",
+          width: 1,
+          labelVisible: true,
+          labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
+          visible: true,
+        },
+        horzLine: {
+          color: "rgba(230, 235, 245, 0.75)",
+          width: 1,
+          labelVisible: true,
+          labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
+          visible: true,
+        },
       },
       layout: {
         textColor: monitoringAxisTextColor(isDashboard, isCompact),
