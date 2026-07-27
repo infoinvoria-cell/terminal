@@ -2,15 +2,15 @@
   "strategies": [
     {
       "id": "EUR30m",
-      "title": "MT EUR 30m",
-      "subtitle": "SL 13pip \u00b7 TP 3.0R \u00b7 BE 1.0R \u00b7 EMA 5",
+      "title": "MT EUR 30m · v1.2",
+      "subtitle": "SL 13pip · TP 3.0R · BE 1.0R · EMA 5",
       "symbol": "CME:6E1!",
       "timeframe": "30M",
       "color": "#58a6ff",
       "wfFolds": "7/8",
-      "wfGate": "\u22655/8",
+      "wfGate": "≥5/8",
       "is": {
-        "period": "2007\u20132017",
+        "period": "2007–2017",
         "curve": [
           {
             "date": "2006-12",
@@ -556,7 +556,7 @@
         }
       },
       "oos": {
-        "period": "2018\u20132026",
+        "period": "2018–2026",
         "curve": [
           {
             "date": "2017-12",
@@ -984,19 +984,21 @@
           "pf": 1.325,
           "wr": 0.255
         }
-      }
+      },
+      "version": "1.2",
+      "validated": true
     },
     {
       "id": "DAX1H",
-      "title": "MT DAX 1H",
-      "subtitle": "SL 40pt \u00b7 TP 2.5R \u00b7 BE 1.5R \u00b7 EMA 2 \u00b7 Long-Only",
+      "title": "MT DAX 1H · v1.2",
+      "subtitle": "SL 40pt · TP 2.5R · BE 1.5R · EMA 2 · Long-Only",
       "symbol": "EUREX:FDAX1!",
       "timeframe": "1H",
       "color": "#3fb950",
       "wfFolds": "6/8",
-      "wfGate": "\u22655/8",
+      "wfGate": "≥5/8",
       "is": {
-        "period": "2007\u20132017",
+        "period": "2007–2017",
         "curve": [
           {
             "date": "2006-12",
@@ -1522,7 +1524,7 @@
         }
       },
       "oos": {
-        "period": "2018\u20132026",
+        "period": "2018–2026",
         "curve": [
           {
             "date": "2017-12",
@@ -1866,19 +1868,21 @@
           "pf": 1.484,
           "wr": 0.334
         }
-      }
+      },
+      "version": "1.2",
+      "validated": true
     },
     {
       "id": "GBP30m",
       "title": "MT GBP 30m",
-      "subtitle": "SL 10pip \u00b7 TP 3.5R \u00b7 BE 1.0R next-bar \u00b7 EMA 2",
+      "subtitle": "SL 10pip · TP 3.5R · BE 1.0R next-bar · EMA 2",
       "symbol": "CME:6B1!",
       "timeframe": "30M",
       "color": "#d29922",
       "wfFolds": "4/8",
-      "wfGate": "\u22655/8 (Gate-Fail \u2192 5% Diversifikation)",
+      "wfGate": "≥5/8 (Gate-Fail → 5% Diversifikation)",
       "is": {
-        "period": "2010\u20132017",
+        "period": "2010–2017",
         "curve": [
           {
             "date": "2009-12",
@@ -2280,7 +2284,7 @@
         }
       },
       "oos": {
-        "period": "2018\u20132026",
+        "period": "2018–2026",
         "curve": [
           {
             "date": "2017-12",
@@ -2712,15 +2716,15 @@
     },
     {
       "id": "DAX2H",
-      "title": "TM DAX 2H",
-      "subtitle": "SL ATR\u00d70.8 \u00b7 TP 3.0R \u00b7 BE 1.0R \u00b7 EMA 4 \u00b7 Long-Only",
+      "title": "TM DAX 2H · v1.2",
+      "subtitle": "SL ATR×0.8 · TP 3.0R · BE 1.0R · EMA 4 · Long-Only",
       "symbol": "EUREX:FDAX1!",
       "timeframe": "2H",
       "color": "#bc8cff",
       "wfFolds": "5/8",
-      "wfGate": "\u22655/8",
+      "wfGate": "≥5/8",
       "is": {
-        "period": "2007\u20132017",
+        "period": "2007–2017",
         "curve": [
           {
             "date": "2006-12",
@@ -3078,7 +3082,7 @@
         }
       },
       "oos": {
-        "period": "2018\u20132026",
+        "period": "2018–2026",
         "curve": [
           {
             "date": "2018-02",
@@ -3306,7 +3310,9 @@
           "pf": 1.478,
           "wr": 0.444
         }
-      }
+      },
+      "version": "1.2",
+      "validated": true
     }
   ],
   "generatedAt": "2026-07-19"
