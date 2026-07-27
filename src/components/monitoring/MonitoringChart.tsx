@@ -1067,7 +1067,6 @@ function MonitoringChartInner({
   const currentPriceGuideRef = useRef<CurrentPriceGuide | null>(null);
   // Cursor position for the custom crosshair (CSS px, relative to the chart host).
   const crosshairPosRef = useRef<{ x: number; y: number } | null>(null);
-  const crosshairRafRef = useRef<number | null>(null);
   const overlayRenderCountRef = useRef(0);
   const didSetInitialRangeRef = useRef(false);
   const didSetInitialPriceRangeRef = useRef(false);
@@ -2850,6 +2849,35 @@ function MonitoringChartInner({
     };
   }, [manualLevels, onManualLevelsChange, showManualLevels]);
 
+  // Bulletproof crosshair tracking: native listeners in the CAPTURE phase on the
+  // shell, so they fire regardless of what child elements (lightweight-charts)
+  // do with the events. Draws the custom crosshair via the overlay redraw.
+  useEffect(() => {
+    const shell = shellRef.current;
+    if (!shell) return;
+    let raf: number | null = null;
+    const schedule = () => {
+      if (raf != null) return;
+      raf = requestAnimationFrame(() => { raf = null; redrawRef.current(); });
+    };
+    const onMove = (e: MouseEvent) => {
+      const rect = shell.getBoundingClientRect();
+      crosshairPosRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      schedule();
+    };
+    const onLeave = () => {
+      if (raf != null) { cancelAnimationFrame(raf); raf = null; }
+      if (crosshairPosRef.current) { crosshairPosRef.current = null; redrawRef.current(); }
+    };
+    shell.addEventListener("mousemove", onMove, { capture: true });
+    shell.addEventListener("mouseleave", onLeave, { capture: true });
+    return () => {
+      if (raf != null) cancelAnimationFrame(raf);
+      shell.removeEventListener("mousemove", onMove, { capture: true } as EventListenerOptions);
+      shell.removeEventListener("mouseleave", onLeave, { capture: true } as EventListenerOptions);
+    };
+  }, []);
+
   useEffect(() => {
     if (!selectedTradeId) return;
     if (tradeHitTargets.some((target) => target.tradeId === selectedTradeId)) return;
@@ -2898,27 +2926,7 @@ function MonitoringChartInner({
     const y = event.clientY - rect.top;
     const next = isPointerInFullscreenHoverZone(x, y, rect.width, rect.height);
     setFullscreenZoneActive((current) => (current === next ? current : next));
-    // Drive the custom crosshair. The overlay canvas matches the host bounds
-    // (both inset:0 in the shell), so shell-relative coords are canvas coords.
-    // Throttle the (potentially heavy) redraw to one per animation frame.
-    crosshairPosRef.current = { x, y };
-    if (crosshairRafRef.current == null) {
-      crosshairRafRef.current = requestAnimationFrame(() => {
-        crosshairRafRef.current = null;
-        redrawRef.current();
-      });
-    }
-  };
-
-  const clearCrosshair = () => {
-    if (crosshairRafRef.current != null) {
-      cancelAnimationFrame(crosshairRafRef.current);
-      crosshairRafRef.current = null;
-    }
-    if (crosshairPosRef.current) {
-      crosshairPosRef.current = null;
-      redrawRef.current();
-    }
+    // Crosshair itself is driven by the capture-phase native listener effect.
   };
 
   return (
@@ -2940,7 +2948,6 @@ function MonitoringChartInner({
       onMouseLeave={() => {
         setHovered(false);
         setFullscreenZoneActive(false);
-        clearCrosshair();
       }}
     >
       <div
