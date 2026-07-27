@@ -5,8 +5,45 @@
 import dax2h from "@/data/capitalife/monitoring-events/EUREX_FDAX1_2H_events.json";
 import dax1h from "@/data/capitalife/monitoring-events/EUREX_FDAX1_1H_events.json";
 import eur30m from "@/data/capitalife/monitoring-events/CME_6E1_30M_events.json";
-import type { SignalCardModel, SignalCardStatus, SignalCardDirection } from "@/lib/signals/signal-types";
+import type { SignalCardModel, SignalCardStatus, SignalCardDirection, SignalCardPreview } from "@/lib/signals/signal-types";
 import type { MonitoringPrimaryTabId } from "@/config/monitoringTabConfig";
+
+// Validated walk-forward stats for the 3 intraday MT components (from
+// public/data/intraday-equity.json — full history 2017–2026, WF-gated, v1.2).
+const VALIDATED_KPIS: Record<string, SignalCardPreview["kpis"]> = {
+  "intraday-dax-2h": [
+    { label: "Sharpe OOS", value: "2.46", tone: "positive" },
+    { label: "CAGR OOS", value: "+5.38%", tone: "positive" },
+    { label: "Max Drawdown", value: "-19.9%", tone: "negative" },
+    { label: "Profit Factor", value: "1.48", tone: "positive" },
+    { label: "Winrate", value: "44.4%", tone: "neutral" },
+    { label: "WF Folds", value: "5/8", tone: "positive" },
+  ],
+  "intraday-dax-1h": [
+    { label: "Sharpe OOS", value: "2.68", tone: "positive" },
+    { label: "CAGR OOS", value: "+10.7%", tone: "positive" },
+    { label: "Max Drawdown", value: "-12.4%", tone: "negative" },
+    { label: "Profit Factor", value: "1.48", tone: "positive" },
+    { label: "Winrate", value: "33.4%", tone: "neutral" },
+    { label: "WF Folds", value: "6/8", tone: "positive" },
+  ],
+  "intraday-eur-30m": [
+    { label: "Sharpe OOS", value: "1.54", tone: "positive" },
+    { label: "CAGR OOS", value: "+21.4%", tone: "positive" },
+    { label: "Max Drawdown", value: "-18.7%", tone: "negative" },
+    { label: "Profit Factor", value: "1.33", tone: "positive" },
+    { label: "Winrate", value: "25.5%", tone: "neutral" },
+    { label: "WF Folds", value: "7/8", tone: "positive" },
+  ],
+};
+
+export function loadIntradaySignalPreviews(): Record<string, SignalCardPreview> {
+  const out: Record<string, SignalCardPreview> = {};
+  for (const [id, kpis] of Object.entries(VALIDATED_KPIS)) {
+    out[id] = { chart: null, performance: null, testerStatus: "validated", testerMessage: null, kpis };
+  }
+  return out;
+}
 
 type EvTrade = {
   direction?: string;
