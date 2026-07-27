@@ -7,9 +7,17 @@
 // Env:  SUPABASE_URL (or NEXT_PUBLIC_SUPABASE_URL), SUPABASE_SERVICE_KEY (or
 //       SUPABASE_SERVICE_ROLE_KEY), plus provider keys (see providers.mjs).
 
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+import { config as loadEnv } from "dotenv";
 import cron from "node-cron";
 import { createClient } from "@supabase/supabase-js";
 import { PROVIDERS, providerReady, fetchBars, fetchFredLatest } from "./providers.mjs";
+
+// Load worker/.env (provider keys) and the repo .env.local (Supabase) if present.
+const HERE = dirname(fileURLToPath(import.meta.url));
+loadEnv({ path: join(HERE, ".env") });
+loadEnv({ path: join(HERE, "..", ".env.local") });
 
 const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim();
 const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();

@@ -1,118 +1,71 @@
-export const runtime = "edge";
 import { NextResponse } from "next/server";
+import { createSupabaseServiceClient } from "@/lib/supabase-server";
 
-const ASSET_SYMBOL_MAP: Record<string, string> = {
-  // White Swan Portfolio
-  gld_etf: "GLD", gld_ci: "GLD", gc1: "GC=F", ym1: "YM=F", nq1: "NQ=F",
-  ct1: "CT=F", ukx: "^FTSE",
-  // Intraday MT
-  eurusd_30m: "EURUSD=X", gbpusd_30m: "GBPUSD=X", dax_1h: "^GDAXI", dax_2h: "^GDAXI",
-  // Core Invest
-  qqq: "QQQ", spmo: "SPMO", spy: "SPY", hg1: "HG=F", "6s1": "CHF=X",
-  glgg: "GLGG.L", fiw: "FIW",
-  // Forex (CME currency futures → mapped to FX spot symbols for pricing)
-  "6e1": "EURUSD=X", "6b1": "GBPUSD=X", "6j1": "JPY=X",
-  "6s1_fx": "CHF=X", "6a1": "AUDUSD=X", "6c1": "CAD=X",
-  // Macro
-  dxy: "DX-Y.NYB", vix: "^VIX", tnx: "^TNX", us2y: "^IRX",
-  // Major FX
-  usdjpy: "JPY=X", audusd: "AUDUSD=X", usdcad: "CAD=X",
-  nzdusd: "NZDUSD=X", usdchf_fx: "CHF=X",
-  // Cross Pairs
-  eurgbp_fx: "EURGBP=X", eurjpy_fx: "EURJPY=X", gbpjpy_fx: "GBPJPY=X",
-  audcad_fx: "AUDCAD=X", eurchf_fx: "EURCHF=X",
-  usdmxn_fx: "MXN=X", usdzar_fx: "ZAR=X", usdtry_fx: "TRY=X",
-  // Equities indices
-  sp500_idx: "^GSPC", nasdaq_idx: "^IXIC", dow_idx: "^DJI",
-  russell2k: "^RUT", dax_idx: "^GDAXI", cac40_idx: "^FCHI",
-  eurostoxx_idx: "^STOXX50E", nikkei_idx: "^N225", hsi_idx: "^HSI",
-  asx200_idx: "^AXJO", ibex_idx: "^IBEX", mib_idx: "FTSEMIB.MI",
-  // Stocks
-  aapl: "AAPL", msft: "MSFT", nvda: "NVDA", tsla: "TSLA",
-  meta_s: "META", amzn: "AMZN", googl: "GOOGL", jpm: "JPM",
-  bac: "BAC", gs: "GS", xom: "XOM", cvx: "CVX", tsm: "TSM", sap_de: "SAP",
+// Globe/watchlist live prices — now sourced from the Railway data worker via the
+// Supabase `live_quotes` table. No Yahoo Finance. Response shape unchanged
+// ({ prices, changes } keyed by asset id) so the Globe client needs no changes.
+// Assets without a worker symbol (or not yet populated) return null.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+// Globe asset id -> our live_quotes symbol (worker/monitoring format).
+const GLOBE_ID_TO_SYMBOL: Record<string, string> = {
+  // White Swan / core
+  gld_etf: "GLD", gld_ci: "GLD", gc1: "GC1!", ym1: "YM1!", nq1: "NQ1!", ct1: "CT1!",
+  qqq: "QQQ", spmo: "SPMO", spy: "SPY", hg1: "HG1!", "6s1": "6S1!",
+  // Intraday MT (futures)
+  eurusd_30m: "6E1!", gbpusd_30m: "6B1!", dax_1h: "FDAX1!", dax_2h: "FDAX1!",
+  // Forex (CME currency futures)
+  "6e1": "6E1!", "6b1": "6B1!", "6j1": "6J1!", "6s1_fx": "6S1!", "6a1": "6A1!", "6c1": "6C1!",
+  // Macro (FRED)
+  dxy: "DXY", vix: "VIX", tnx: "TNX", us2y: "DGS2",
+  // Index proxies via index futures
+  sp500_idx: "ES1!", nasdaq_idx: "NQ1!", dow_idx: "YM1!", dax_idx: "FDAX1!",
+  eurostoxx_idx: "FESX1!",
+  // Stocks (Alpaca)
+  aapl: "AAPL", msft: "MSFT", nvda: "NVDA", tsla: "TSLA", meta_s: "META",
+  amzn: "AMZN", googl: "GOOGL", jpm: "JPM", bac: "BAC",
   // Metals
-  silver: "SI=F", platinum: "PL=F", palladium: "PA=F", copper_spot: "HG=F",
+  silver: "SI1!", platinum: "PL1!", palladium: "PA1!", copper_spot: "HG1!",
   // Energy
-  crude: "CL=F", brent: "BZ=F", natgas: "NG=F",
-  heating_oil: "HO=F", gasoline: "RB=F", uranium: "URA",
+  crude: "CL1!", brent: "BZ1!", natgas: "NG1!", heating_oil: "HO1!", gasoline: "RB1!",
   // Agriculture
-  corn_f: "ZC=F", wheat_f: "ZW=F", soybean_f: "ZS=F",
-  coffee_f: "KC=F", cocoa_f: "CC=F", sugar_f: "SB=F",
-  oj_f: "OJ=F", cattle_f: "LE=F", hogs_f: "HE=F", lumber_f: "LBS=F",
-  // Bonds
-  zb1: "ZB=F", zn1: "ZN=F", bund_f: "FGBL=F",
-};
-
-export type GlobePriceEntry = {
-  price: number | null;
-  changePercent: number | null;
+  corn_f: "ZC1!", wheat_f: "ZW1!", soybean_f: "ZS1!", coffee_f: "KC1!",
+  cocoa_f: "CC1!", sugar_f: "SB1!", oj_f: "OJ1!",
+  // Bonds / macro spot
+  zb1: "ZB1!", crude_spot: "CL_SPOT", gold_spot: "GC_SPOT",
 };
 
 export async function GET() {
-  const symbolToIds: Record<string, string[]> = {};
-  for (const [id, sym] of Object.entries(ASSET_SYMBOL_MAP)) {
-    if (!symbolToIds[sym]) symbolToIds[sym] = [];
-    symbolToIds[sym].push(id);
-  }
-  const symbols = Object.keys(symbolToIds);
-
-  // Yahoo v8 chart per symbol — spark & v7/quote are blocked from shared edge IPs
-  async function fetchOne(sym: string): Promise<{ sym: string; price: number | null; prevClose: number | null }> {
-    try {
-      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=1d&interval=1d`;
-      const res = await fetch(url, {
-        headers: { "User-Agent": "Mozilla/5.0", Accept: "application/json" },
-        signal: AbortSignal.timeout ? AbortSignal.timeout(7000) : undefined,
-      });
-      if (!res.ok) return { sym, price: null, prevClose: null };
-      const data = await res.json() as {
-        chart?: { result?: Array<{ meta?: { regularMarketPrice?: number; chartPreviousClose?: number; previousClose?: number } }> };
-      };
-      const meta = data?.chart?.result?.[0]?.meta;
-      const price = typeof meta?.regularMarketPrice === "number" ? meta.regularMarketPrice : null;
-      const prevClose = typeof meta?.chartPreviousClose === "number" ? meta.chartPreviousClose
-        : typeof meta?.previousClose === "number" ? meta.previousClose : null;
-      return { sym, price, prevClose };
-    } catch {
-      return { sym, price: null, prevClose: null };
-    }
-  }
+  const prices: Record<string, number | null> = {};
+  const changes: Record<string, number | null> = {};
+  for (const id of Object.keys(GLOBE_ID_TO_SYMBOL)) { prices[id] = null; changes[id] = null; }
 
   try {
-    const settled = await Promise.allSettled(symbols.map(fetchOne));
+    const symbols = [...new Set(Object.values(GLOBE_ID_TO_SYMBOL))];
+    const db = createSupabaseServiceClient();
+    const { data } = await db
+      .from("live_quotes")
+      .select("symbol,open,close,updated_at")
+      .in("symbol", symbols)
+      .order("updated_at", { ascending: false })
+      .limit(3000);
 
-    const prices: Record<string, number | null> = {};
-    const changes: Record<string, number | null> = {};
-    for (const s of settled) {
-      if (s.status !== "fulfilled") continue;
-      const { sym, price, prevClose } = s.value;
-      const changePct = price != null && prevClose != null && prevClose !== 0
-        ? ((price - prevClose) / prevClose) * 100 : null;
-      for (const id of symbolToIds[sym] ?? []) {
-        prices[id] = price;
-        changes[id] = changePct;
-      }
-    }
-    for (const id of Object.keys(ASSET_SYMBOL_MAP)) {
-      if (!(id in prices)) prices[id] = null;
-      if (!(id in changes)) changes[id] = null;
+    const bySymbol = new Map<string, { open: number; close: number }>();
+    for (const r of data ?? []) {
+      const sym = String(r.symbol);
+      if (!bySymbol.has(sym)) bySymbol.set(sym, { open: Number(r.open ?? 0), close: Number(r.close ?? 0) });
     }
 
-    return NextResponse.json(
-      { updatedAt: new Date().toISOString(), prices, changes },
-      { headers: { "Cache-Control": "public, max-age=60, stale-while-revalidate=120" } },
-    );
+    for (const [id, sym] of Object.entries(GLOBE_ID_TO_SYMBOL)) {
+      const q = bySymbol.get(sym);
+      if (!q || !(q.close > 0)) continue;
+      prices[id] = q.close;
+      changes[id] = q.open > 0 ? ((q.close - q.open) / q.open) * 100 : null;
+    }
   } catch {
-    const prices: Record<string, null> = {};
-    const changes: Record<string, null> = {};
-    for (const id of Object.keys(ASSET_SYMBOL_MAP)) {
-      prices[id] = null;
-      changes[id] = null;
-    }
-    return NextResponse.json(
-      { updatedAt: new Date().toISOString(), prices, changes },
-      { headers: { "Cache-Control": "public, max-age=30" } },
-    );
+    // leave nulls
   }
+
+  return NextResponse.json({ updatedAt: new Date().toISOString(), prices, changes });
 }
