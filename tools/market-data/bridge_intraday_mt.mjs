@@ -36,10 +36,12 @@ if (!SUPABASE_URL || !SERVICE_KEY) {
 }
 const db = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 
-// Collector default cache dir: .capitalife-cache/market-data/tradingview next to repo
+// Collector default cache dir. tv_datafeed_collector.py uses parents[2] of the
+// tool file = the repo root, so the cache lives at <repo>/.capitalife-cache/...
+// (TRADINGVIEW_CACHE_DIR overrides). Must match the collector or the bridge finds nothing.
 const COLLECTOR_CACHE =
   process.env.TRADINGVIEW_CACHE_DIR ||
-  resolve(REPO_ROOT, "..", ".capitalife-cache", "market-data", "tradingview");
+  resolve(REPO_ROOT, ".capitalife-cache", "market-data", "tradingview");
 
 const cfg = JSON.parse(readFileSync(join(__dirname, "intraday_mt.targets.json"), "utf-8"));
 const PUBLIC_CACHE_DIR = join(REPO_ROOT, cfg.publicCacheDir);
