@@ -251,6 +251,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
 
   const whiteSwan = data.sections.find((s) => s.id === "white_swan");
   const coreInvest = data.sections.find((s) => s.id === "core_invest");
+  const intraday = data.sections.find((s) => s.id === "intraday");
 
   const firstCard = data.cards[0] ?? null;
   const [selectedCardId, setSelectedCardId] = useState<string | null>(firstCard?.id ?? null);
@@ -418,6 +419,23 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
             selectedCardId={selectedCardId}
             onSelect={(c) => setSelectedCardId(c.id)}
           />
+        )}
+
+        {intraday && intraday.groups.some((g) => g.cards.length > 0) && (
+          <>
+            <div style={{ flexShrink: 0, height: 24, position: "relative", pointerEvents: "none" }}>
+              <div style={{
+                position: "absolute", top: 0, left: -20, right: -20, height: "100%",
+                background: "linear-gradient(to bottom, rgba(9,9,11,0) 0%, rgba(9,9,11,0.85) 50%, rgba(9,9,11,0) 100%)",
+              }} />
+            </div>
+            <SectionPanel
+              section={intraday}
+              logo="/branding/capitalife-favicon.png"
+              selectedCardId={selectedCardId}
+              onSelect={(c) => setSelectedCardId(c.id)}
+            />
+          </>
         )}
       </div>
 
