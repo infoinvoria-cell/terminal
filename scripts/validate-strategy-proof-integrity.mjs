@@ -48,20 +48,22 @@ if (intradayStart < 0 || intradayEnd < 0) fail("cannot locate INTRADAY");
 wsRows.push(...activeRows(strategySource.slice(intradayStart, intradayEnd)));
 
 const wsWeight = wsRows.reduce((sum, row) => sum + rowWeight(row), 0);
-if (wsRows.length !== 29) fail(`expected 29 active White Swan components, found ${wsRows.length}`);
+if (wsRows.length !== 28) fail(`expected 28 active White Swan components, found ${wsRows.length}`);
 if (Math.abs(wsWeight - 100) > 1e-9) fail(`White Swan weights sum to ${wsWeight}, expected 100`);
 
 const expectedIntradayWeights = {
-  eurusd_30m: 12.8,
-  dax_1h: 12.8,
-  dax_2h: 4.8,
-  gbpusd_30m: 1.6,
+  eurusd_30m: 14,
+  dax_1h: 14,
+  dax_2h: 4,
 };
 const intradayBody = strategySource.slice(intradayStart, intradayEnd);
 for (const [id, weight] of Object.entries(expectedIntradayWeights)) {
   const row = activeRows(intradayBody).find((candidate) => candidate.includes(`id: "${id}"`));
   if (!row) fail(`missing active intraday component ${id}`);
-  if (rowWeight(row) !== weight) fail(`${id} weight differs from validated v3-F allocation`);
+  if (rowWeight(row) !== weight) fail(`${id} weight differs from the White Swan allocation`);
+}
+if (intradayBody.includes('id: "gbpusd_30m"')) {
+  fail("rejected GBP intraday component is still present in White Swan");
 }
 
 const ciWeightsMatch = strategySource.match(/export const CI_WEIGHTS = \{([\s\S]*?)\} as const;/);

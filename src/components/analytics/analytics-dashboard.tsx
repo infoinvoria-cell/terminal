@@ -107,7 +107,7 @@ const WS_FROZEN_WEIGHTS: Record<string, number> = {
   "UKX Valuation":     2,   // Valuation
   "CT1 Macro A":       9,   // Macro
   "NQ1 Trend LO":      3,   // Trend
-  "Intraday MT v3-F":  32,  // internally 40/40/5/15: EUR/DAX1H/GBP/DAX2H
+  "Intraday MT v3-F":  32,  // three White Swan components: EUR 14 / DAX1H 14 / DAX2H 4
   "NVDA Valuation":    3,   // Valuation
   "ZARUSD Valuation":  3,   // Valuation
   "GC1 Valuation":     3,   // Valuation
@@ -138,7 +138,7 @@ const WS_STRATEGY_SHORT: Record<string, string> = {
   "UKX Valuation":     "UKX Val",
   "CT1 Macro A":       "CT1 Macro",
   "NQ1 Trend LO":      "NQ1 Trend",
-  "Intraday MT v3-F":  "Intraday v3-F",
+  "Intraday MT v3-F":  "Intraday",
   "NVDA Valuation":    "NVDA Val",
   "ZARUSD Valuation":  "ZAR Val",
   "GC1 Valuation":     "GC1 Val",
@@ -811,15 +811,15 @@ function buildOverviewRows(dataset: AnalyticsDataset): Array<[string, string]> {
 
   if (dataset.mode === "backtest" && dataset.tab === "whiteSwan") {
     return [
-      ["Portfolio", "White Swan v1.1"],
-      ["Strategien", "7 (6 WS + Intraday)"],
+      ["Portfolio", "White Swan"],
+      ["Auswahl", "7 Komponentengruppen"],
       ["GC1 Friday Long", "13.86%"],
       ["GLD Thursday Long", "13.86%"],
       ["YM1 TAT", "13.86%"],
       ["UKX Valuation", "13.86%"],
       ["CT1 Macro A", "7.56%"],
       ["NQ1 Trend LO", "7.00%"],
-      ["Intraday MT v3-F", "30.00%"],
+      ["Intraday-Komponenten", "30.00%"],
       ["__sep__", ""],
       ["OOS ab", "2019-01-01"],
       ["Status", "PAPER_ONLY · Frozen 2026-07-20"],
@@ -1868,7 +1868,7 @@ function WsLiveControlPanel({
             "text-[7px] [font-family:var(--font-montserrat),sans-serif]",
             isIntraday ? "text-amber-700" : "text-zinc-700",
           )}>
-            {isIntraday ? "v3-F · EUR/DAX/GBP/DAX2H" : isOn ? "on" : "off"}
+            {isIntraday ? "White Swan · EUR/DAX1H/DAX2H" : isOn ? "on" : "off"}
           </span>
         </button>
         <input
