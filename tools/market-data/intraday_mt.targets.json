@@ -1,0 +1,11 @@
+{
+  "_comment": "Intraday MT futures scrape+seed targets for the Monitoring 'Intraday' tab (2x DAX, Euro, GBP). Consumed by start_intraday_mt.bat (collector) and bridge_intraday_mt.mjs (public cache + manifest + monitoring_ohlc upsert). Asset key = <symbol>_<tf> to match the existing DE30EUR_2H/EURUSD_30M naming.",
+  "publicCacheDir": "public/generated/monitoring/tradingview_data_cache",
+  "manifestPath": "public/generated/monitoring/tradingview_data_cache/cache_manifest_full.json",
+  "targets": [
+    { "symbol": "FDAX1!", "interval": "2h", "tf": "2H", "exchange": "EUREX", "tvSource": "EUREX:FDAX1!", "publicCacheRel": "2H/EUREX_FDAX1_2H.json", "asset": "FDAX1!_2H", "tab": "Intraday MT", "chart": "DAX 2H (top-left)" },
+    { "symbol": "FDAX1!", "interval": "1h", "tf": "1H", "exchange": "EUREX", "tvSource": "EUREX:FDAX1!", "publicCacheRel": "1H/EUREX_FDAX1_1H.json", "asset": "FDAX1!_1H", "tab": "Intraday MT", "chart": "DAX 1H (bottom-left)" },
+    { "symbol": "6E1!", "interval": "30m", "tf": "30M", "exchange": "CME", "tvSource": "CME:6E1!", "publicCacheRel": "30M/CME_6E1_30M.json", "asset": "6E1!_30M", "tab": "Intraday MT", "chart": "Euro 30M (bottom-right)" },
+    { "symbol": "6B1!", "interval": "30m", "tf": "30M", "exchange": "CME", "tvSource": "CME:6B1!", "publicCacheRel": "30M/CME_6B1_30M.json", "asset": "6B1!_30M", "tab": "Intraday MT", "chart": "GBP 30M (top-right)" }
+  ]
+}
