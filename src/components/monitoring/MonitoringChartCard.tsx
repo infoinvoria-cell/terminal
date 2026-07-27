@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState, useEffect } from "react";
 import { useLiveQuotesContext } from "@/contexts/LiveQuotesContext";
 import { applyLiveCandle, liveQuoteKey } from "@/lib/monitoring/liveCandle";
 import MonitoringChart, { type MonitoringChartData } from "@/components/monitoring/MonitoringChart";
@@ -359,6 +359,30 @@ function MonitoringChartCardInner({
   const resolvedLiveClose = liveClose ?? liveQuote?.close ?? null;
   const liveQuoteTs = liveQuote?.updated_at ?? liveQuote?.timestamp ?? null;
 
+  // Intraday charts refresh their OHLC every 5s (delayed TV data via Supabase) so
+  // newly-closed 30M/1H/2H bars appear without a page reload. The current bar keeps
+  // growing from the live_quotes tick (applyLiveCandle below).
+  const cardTf = String(item?.timeframe ?? "").toUpperCase();
+  const isIntradayCard = cardTf === "30M" || cardTf === "1H" || cardTf === "2H" || cardTf === "60M";
+  const [liveOhlcBars, setLiveOhlcBars] = useState<MonitoringChartData["bars"] | null>(null);
+  useEffect(() => {
+    if (!isIntradayCard) { setLiveOhlcBars(null); return; }
+    const sym = liveQuoteKey(item?.code);
+    if (!sym || !cardTf) return;
+    const ctrl = new AbortController();
+    const load = async () => {
+      try {
+        const r = await fetch(`/api/monitoring/ohlc?symbol=${encodeURIComponent(sym)}&timeframe=${encodeURIComponent(cardTf)}&limit=400`, { signal: ctrl.signal });
+        if (!r.ok) return;
+        const d = (await r.json()) as { bars?: MonitoringChartData["bars"] };
+        if (Array.isArray(d.bars) && d.bars.length > 0) setLiveOhlcBars(d.bars);
+      } catch { /* aborted / network */ }
+    };
+    void load();
+    const id = setInterval(load, 5000);
+    return () => { clearInterval(id); ctrl.abort(); };
+  }, [isIntradayCard, item?.code, cardTf]);
+
   const payload = item?.payload ?? null;
   const hasBars = !!payload?.bars?.length;
   const badge = item?.dataMismatch ? "DATA MISMATCH" : getBadge(payload);
@@ -449,7 +473,8 @@ function MonitoringChartCardInner({
 
   const chartData = useMemo(() => {
     const chartTrades = strategyActive ? strategyTrades : [];
-    const rawBars = payload?.bars ?? [];
+    // Intraday: prefer the 5s-refreshed OHLC; else the payload bars.
+    const rawBars = liveOhlcBars ?? payload?.bars ?? [];
     // Live 5s candle building: grow the current candle from the latest tick and
     // roll over to a new candle at the timeframe boundary.
     const bars = resolvedLiveClose != null
@@ -471,7 +496,7 @@ function MonitoringChartCardInner({
       variant,
       timeframe: item?.timeframe ?? "D",
     } satisfies MonitoringChartData;
-  }, [badge, item?.code, item?.name, item?.timeframe, item?.tv, resolvedLiveClose, liveQuote?.high, liveQuote?.low, liveQuoteTs, payload?.bars, payload?.boxes, strategyActive, strategyTrades, variant]);
+  }, [badge, item?.code, item?.name, item?.timeframe, item?.tv, resolvedLiveClose, liveQuote?.high, liveQuote?.low, liveQuoteTs, liveOhlcBars, payload?.bars, payload?.boxes, strategyActive, strategyTrades, variant]);
 
   const fallbackText = loadStatus === "loading"
     ? "LOADING"
