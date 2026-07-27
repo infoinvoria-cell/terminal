@@ -109,6 +109,42 @@ const SecondaryPanelLoader = ({ label }: { label: string }) => (
   <div className="st-empty st-empty-loading">{label}</div>
 );
 
+// Live wall-clock (HH:MM:SS) shown in the monitoring header, updates every second.
+function MonitoringHeaderClock() {
+  const [now, setNow] = useState<string>("--:--:--");
+  useEffect(() => {
+    const tick = () =>
+      setNow(new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <span
+      className="monitoring-header-clock"
+      title="Echtzeit (Sekunden)"
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        marginRight: 8,
+        padding: "0 8px",
+        height: 26,
+        borderRadius: 6,
+        border: "1px solid rgba(255,255,255,0.08)",
+        background: "rgba(255,255,255,0.03)",
+        color: "rgba(255,255,255,0.82)",
+        fontSize: 12,
+        fontWeight: 600,
+        fontVariantNumeric: "tabular-nums",
+        letterSpacing: "0.04em",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {now}
+    </span>
+  );
+}
+
 // Live-signal column: user-resizable + persisted width.
 const LIVE_PANEL_WIDTH_KEY = "invoria:monitoring:live-panel-width:v1";
 const LIVE_PANEL_WIDTH_MIN = 320;
@@ -6312,6 +6348,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
 
         <div className="monitoringTabBarActions">
           {parityDebugWarning ? <div className="parity-debug-warning">{parityDebugWarning}</div> : null}
+          <MonitoringHeaderClock />
           <button
             type="button"
             aria-pressed={strategyTesterOpen}
