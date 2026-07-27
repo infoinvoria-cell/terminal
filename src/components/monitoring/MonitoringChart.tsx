@@ -411,7 +411,10 @@ function monitoringAxisTextColor(isDashboard: boolean, isCompact: boolean): stri
 
 function isForexDisplaySymbol(displaySymbol: string | null | undefined): boolean {
   const key = String(displaySymbol || "").toUpperCase();
-  return key.includes("GBPUSD") || key.includes("EURUSD");
+  if (key.includes("GBPUSD") || key.includes("EURUSD")) return true;
+  // CME FX futures priced ~1.x need 4-decimal axis ticks too: 6E (EUR), 6B (GBP),
+  // 6S (CHF), 6A (AUD), 6C (CAD), 6J (JPY), 6N (NZD). Match "6E1!" / "6E1! 30M" etc.
+  return /(^|\s)6[EBSACJN]\d*!/.test(key);
 }
 
 /** Europe/Berlin display formatters for intraday charts. The candle data stays in

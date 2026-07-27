@@ -162,6 +162,7 @@ type MonitoringHeaderTabItem =
     };
 
 const MONITORING_HEADER_TABS: MonitoringHeaderTabItem[] = [
+  { key: "intraday", kind: "tab", tabId: "intraday_mt", title: "Intraday" },
   { key: "agrar", kind: "tab", tabId: "agrar", title: "Agrar" },
   { key: "metals", kind: "tab", tabId: "metalle_energie", title: "Metals/En" },
   { key: "indices", kind: "tab", tabId: "indizes", title: "Indices" },
@@ -169,7 +170,6 @@ const MONITORING_HEADER_TABS: MonitoringHeaderTabItem[] = [
   { key: "invest", kind: "tab", tabId: "invest", title: "Invest" },
   { key: "forex", kind: "tab", tabId: "fx", title: "Forex" },
   { key: "anomaly", kind: "tab", tabId: "anomaly", title: "Anomaly" },
-  { key: "intraday", kind: "tab", tabId: "intraday_mt", title: "Intraday" },
   { key: "live", kind: "tab", tabId: "live", title: "Live" },
   { key: "all", kind: "tab", tabId: "all", title: "All" },
 ];
