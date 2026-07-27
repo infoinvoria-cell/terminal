@@ -23,6 +23,9 @@ if str(ENGINES) not in sys.path:
     sys.path.insert(0, str(ENGINES))
 HISTORY = REPO / ".capitalife-cache" / "market-data" / "tradingview" / "history"
 OUT_DIR = REPO / "public" / "generated" / "monitoring" / "strategies"
+# Committed, bundled copy so the events also reach Vercel (public/generated is
+# gitignored). Served by /api/monitoring/strategy-events.
+BUNDLE_DIR = REPO / "src" / "data" / "capitalife" / "monitoring-events"
 
 # chart -> engine module + futures history file + output event file
 TARGETS = [
@@ -42,6 +45,7 @@ def load_engine(path: Path):
 
 def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    BUNDLE_DIR.mkdir(parents=True, exist_ok=True)
     for t in TARGETS:
         hist_file = HISTORY / t["hist"]
         eng_file = ENGINES / t["engine"]
@@ -69,7 +73,9 @@ def main() -> None:
             "tradeCounts": {"total": len(trades)},
             "trades": trades,
         }
-        (OUT_DIR / t["out"]).write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        blob = json.dumps(payload, indent=2)
+        (OUT_DIR / t["out"]).write_text(blob, encoding="utf-8")
+        (BUNDLE_DIR / t["out"]).write_text(blob, encoding="utf-8")
         n_sl = sum(1 for tr in trades if tr.get("sl") is not None)
         n_tp = sum(1 for tr in trades if tr.get("tp") is not None)
         print(f"  OK   {t['out']}: {len(trades)} trades (sl={n_sl}, tp={n_tp}) [{payload['dateRange']['first']} -> {payload['dateRange']['last']}]")
