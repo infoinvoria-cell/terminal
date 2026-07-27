@@ -282,7 +282,7 @@ export const PILLAR_META: Record<Pillar, { label: string; weight: string; color:
 
 // ── Core Invest (Research / Pre-Fund) ────────────────────────────────────────
 export type CIPillar = "etf_core" | "ci_sleeve";
-export type CIStatus = "research" | "partial_validation" | "parity_pending";
+export type CIStatus = "research" | "partial_validation" | "parity_pending" | "rejected";
 
 export interface CoreInvestRow {
   id: string;
@@ -330,25 +330,25 @@ export const CI_STRATEGIES: CoreInvestRow[] = [
     id: "qqq_pine1", ticker: "QQQ", label: "QQQ Pine 1", group: "Strategy Sleeve",
     engine: "SMA(400) + SMA(5) · Long/Cash · TP 2% · SL 25%", pillar: "ci_sleeve", weight: 5,
     pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "partial_validation",
-    notes: "Nicht freigegeben: QQQ TradingView trade export und exakte Engine-Paritaet fehlen",
+    notes: "TradingView QQQ Daily: 642 Trades, PF 1.602, MaxDD 8.71%, +95.19%. Lokale Trade-Paritaet fehlt.",
   },
   {
     id: "qqq_pine2", ticker: "QQQ", label: "QQQ Pine 2 EMA", group: "Strategy Sleeve",
     engine: "EMA(20)/EMA(50) + Valuation · Long/Cash · TP 4% · SL 2%", pillar: "ci_sleeve", weight: 5,
     pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "partial_validation",
-    notes: "Nicht freigegeben: DXY/GC1/ZB1 und QQQ TradingView-Paritaet fehlen",
+    notes: "TradingView QQQ Daily: 201 Trades, PF 1.082, MaxDD 30.04%, +14.12%. Lokale Trade-Paritaet fehlt.",
   },
   {
     id: "hg1_ci", ticker: "HG1!", label: "Copper / HG", group: "Strategy Sleeve",
     engine: "Pine 2 EMA · Long/Cash · TP 4% · SL 2%", pillar: "ci_sleeve", weight: 5,
-    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "partial_validation",
-    notes: "Nicht freigegeben: DXY/GC1/ZB1 und HG1! TradingView-Paritaet fehlen",
+    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "rejected",
+    notes: "Abgelehnt: alte Engine ignorierte Futures-Pointvalue; korrekte 5%-Sleeve-Groesse kann keinen HG1!-Kontrakt halten.",
   },
   {
     id: "6s1_ci", ticker: "6S1!", label: "CHF / Swiss Franc", group: "Strategy Sleeve",
     engine: "Pine 2 EMA · Long/Cash · TP 4% · SL 2%", pillar: "ci_sleeve", weight: 5,
-    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "parity_pending",
-    notes: "Nicht freigegeben: lokaler Engine-Output stimmt noch nicht auf Trade-Ebene mit TradingView ueberein",
+    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "rejected",
+    notes: "Abgelehnt: alte Engine ignorierte Futures-Pointvalue; korrekte 5%-Sleeve-Groesse kann keinen 6S1!-Kontrakt halten.",
   },
 ];
 
