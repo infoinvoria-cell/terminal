@@ -284,30 +284,6 @@ const INTRADAY_MT: AssetComponent[] = [
         { detailNames: ["Gewicht: 40% · Anker-Strategie · WF 7/8", "SL 13 Pip · TP 3.0R · BE 1R next-bar · EMA 5", "IB 1 pip RT · require_engulfing · 08–12:30 UTC"] }),
     ],
   },
-  {
-    symbol: "GBPUSD_30M", symbolDisplay: "GBPUSD 30M", label: "GBP 30m",
-    assetId: "gbpusd_30m", exchange: "OANDA", iconFile: "/asset-icons/gbpusd.png",
-    version: "IT-1.0", dataCoverage: "IS 2007–2017",
-    modes: [
-      itMode("Intraday", "intraday",
-        { wfOos: "8/8 IS", profitFactor: "1.743 IS", trades: "763 IS",
-          cagr: "+35.5% IS", maxDrawdown: "-14.7% IS", calmar: "2.414 IS", winrate: "24.4%" },
-        { detailNames: ["Gewicht: 5% · IS-Edge 8/8 · OOS Gate-Fail", "SL 10 Pip · TP 3.5R · BE 1R next-bar · 09–10:30", "IB 2 pip RT / 10 pip SL · Korr EUR −0.17"] }),
-    ],
-  },
-];
-
-const INTRADAY_PORTFOLIO: AssetComponent[] = [
-  {
-    symbol: "IT_PORTFOLIO", symbolDisplay: "IT Portfolio", label: "v3-F · 4 Strategien",
-    assetId: "it_portfolio", exchange: "OANDA", iconFile: "/asset-icons/eurusd.png",
-    version: "IT-1.0", dataCoverage: "OOS 2018–2026",
-    modes: [
-      itMode("Portfolio", "portfolio",
-        { cagr: "+14.1%", maxDrawdown: "-8.1%", calmar: "1.732", trades: "2 520", sharpe: "1.526" },
-        { detailNames: ["EUR 40% · DAX1H 40% · GBP 5% · DAX2H 15%", "MAR 1.732 · MaxDD −8.1% · n=2 520", "v3-F eingefroren 2026-07-18 · Grid-Sweep 49 Kombi"] }),
-    ],
-  },
 ];
 
 // ── exported groups ──────────────────────────────────────────────────────────
@@ -319,8 +295,7 @@ export const COMPONENT_GROUPS: ComponentGroup[] = [
   { id: "fx",              title: "FX — Forex8",       sourceTab: "fx",              meta: "Spot FX · offen",           assets: FX },
   { id: "indizes",         title: "Indizes",           sourceTab: "indizes",         meta: "EUREX/CME/LSE · offen",     assets: INDIZES },
   { id: "invest",          title: "Invest",            sourceTab: "invest",          meta: "OANDA · offen",             assets: INVEST },
-  { id: "intraday_mt",        title: "Intraday MT",           sourceTab: "intraday_mt",        meta: "OANDA · vIT-1.0 · PAPER_ONLY · v3-F", assets: INTRADAY_MT },
-  { id: "intraday_portfolio", title: "Intraday Portfolio MT", sourceTab: "intraday_portfolio", meta: "4 Strategien · OOS 2018–2026 · v3-F", assets: INTRADAY_PORTFOLIO },
+  { id: "intraday_mt", title: "White Swan · Intraday", sourceTab: "intraday_mt", meta: "3 Komponenten · 32% White Swan", assets: INTRADAY_MT },
 ];
 
 // ── layout: left/right bento arrangement ─────────────────────────────────────
@@ -332,8 +307,7 @@ export const GROUP_LAYOUT: Record<string, GroupLayout> = {
   indizes:         { colStart: 9,  colSpan: 5, row: 2 },
   invest:          { colStart: 14, colSpan: 3, row: 2 },
   fx:              { colStart: 1,  colSpan: 8, row: 3 },
-  intraday_mt:        { colStart: 9,  colSpan: 4, row: 3 },
-  intraday_portfolio: { colStart: 13, colSpan: 4, row: 3 },
+  intraday_mt:        { colStart: 9,  colSpan: 8, row: 3 },
 };
 
 export function buildComponentsCache() {

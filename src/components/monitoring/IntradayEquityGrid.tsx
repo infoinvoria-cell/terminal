@@ -284,8 +284,7 @@ export default function IntradayEquityGrid() {
     );
   }
 
-  // Ordered layout: DAX2H, DAX1H, EUR30m, GBP30m
-  const ORDER = ["DAX2H", "DAX1H", "EUR30m", "GBP30m"];
+  const ORDER = ["DAX2H", "DAX1H", "EUR30m"];
   const ordered = ORDER.map((id) => strategies.find((s) => s.id === id)).filter(Boolean) as StrategyData[];
 
   return (
@@ -296,13 +295,13 @@ export default function IntradayEquityGrid() {
       gap: 0,
       overflow: "hidden",
     }}>
-      {/* 2×2 grid */}
+      {/* Individual White Swan components, not a separate portfolio. */}
       <div style={{
         flex: 1,
         minHeight: 0,
         display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        gridTemplateRows: "1fr 1fr",
+        gridTemplateColumns: "repeat(3, 1fr)",
+        gridTemplateRows: "1fr",
         gap: 6,
         padding: "6px 6px 0",
       }}>
@@ -311,7 +310,6 @@ export default function IntradayEquityGrid() {
         ))}
       </div>
 
-      {/* Footer: v3-F portfolio stats */}
       <div style={{
         padding: "6px 10px 8px",
         fontSize: 10,
@@ -321,7 +319,7 @@ export default function IntradayEquityGrid() {
         alignItems: "center",
       }}>
         <span>
-          Portfolio v3-F · EUR 40% / DAX1H 40% / DAX2H 15% · OOS MAR 1.732 · MaxDD 8.1% · Sharpe 1.526
+          White Swan Intraday-Komponenten · EUR 14% / DAX1H 14% / DAX2H 4%
         </span>
         {generatedAt && <span>Stand: {generatedAt}</span>}
       </div>

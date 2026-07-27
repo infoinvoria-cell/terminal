@@ -235,34 +235,27 @@ const ANOMALY: StrategyRow[] = [
   },
 ];
 
-// ── Intraday MT (v3-F, frozen 2026-07-18) ───────────────────────────────────
-// Sleeve = 32% of total portfolio. Preserve validated v3-F ratios
-// (EUR 40% / DAX1H 40% / GBP 5% / DAX2H 15%) inside the sleeve.
+// ── Intraday components within White Swan ───────────────────────────────────
+// These are individual White Swan components, not a separate portfolio.
+// GBP was removed after failing the standalone OOS gate.
 const INTRADAY: StrategyRow[] = [
   {
     id: "eurusd_30m", ticker: "6E1!", label: "EUR/USD Futures · 6E", group: "Intraday",
-    engine: "SL 13pip · TP 3.0R · BE 1R · 08–12:30 UTC", pillar: "intraday", weight: 12.8,
+    engine: "SL 13pip · TP 3.0R · BE 1R · 08–12:30 UTC", pillar: "intraday", weight: 14,
     sharpeOos: 1.535, cagr: "+21.4%", maxDd: "−18.7%", calmar: 1.145, pf: 1.325, trades: 1358, wfOos: "7/8",
     status: "active", exchange: "CME", intradayId: "EUR30m", codexGroup: "intraday", codexSymbol: "EURUSD_30M",
   },
   {
     id: "dax_1h", ticker: "DAX 1H / MT", label: "DAX 1H", group: "Intraday",
-    engine: "SL 40pt · TP 2.5R · BE 1.5R · 07–12 UTC", pillar: "intraday", weight: 12.8,
+    engine: "SL 40pt · TP 2.5R · BE 1.5R · 07–12 UTC", pillar: "intraday", weight: 14,
     sharpeOos: 2.683, cagr: "+10.7%", maxDd: "−12.4%", calmar: 0.865, pf: 1.484, trades: 335, wfOos: "5/8",
     status: "active", exchange: "OANDA", intradayId: "DAX1H", codexGroup: "intraday", codexSymbol: "DAX_1H",
   },
   {
     id: "dax_2h", ticker: "DAX 2H", label: "DAX 2H", group: "Intraday",
-    engine: "SL ATR×0.8 · TP 3R · V4 Long-Only · 09–11 UTC", pillar: "intraday", weight: 4.8,
+    engine: "SL ATR×0.8 · TP 3R · V4 Long-Only · 09–11 UTC", pillar: "intraday", weight: 4,
     sharpeOos: 2.459, cagr: "+5.4%", maxDd: "−19.9%", calmar: 0.270, pf: 1.478, trades: 81, wfOos: "5/8",
     status: "active", exchange: "OANDA", intradayId: "DAX2H", codexGroup: "intraday", codexSymbol: "DAX_2H",
-  },
-  {
-    id: "gbpusd_30m", ticker: "GBPUSD 30M", label: "GBP/USD", group: "Intraday",
-    engine: "SL 10pip · TP 3.5R · BE 1R · 09–10:30 UTC", pillar: "intraday", weight: 1.6,
-    sharpeOos: null, cagr: "+0.4%", maxDd: "−33.2%", calmar: 0.011, pf: 1.029, trades: 746, wfOos: "6/18",
-    status: "active", exchange: "OANDA", intradayId: "GBP30m", codexGroup: "intraday", codexSymbol: "GBPUSD_30M",
-    isNotes: "OOS gate-fail standalone · retained at validated v3-F 5% sleeve weight for diversification",
   },
 ];
 
@@ -284,7 +277,7 @@ export const PILLAR_META: Record<Pillar, { label: string; weight: string; color:
   trend:     { label: "Trend",     weight: "15%", color: "#00c8a0", count: 3 },
   seasonal:  { label: "Seasonal",  weight: "15%", color: "#a78bfa", count: 7 },
   anomaly:   { label: "Anomaly",   weight: "v1.2", color: "#f472b6", count: 3 },
-  intraday:  { label: "Intraday",  weight: "32% · v3-F", color: "#94a3b8", count: 4 },
+  intraday:  { label: "Intraday",  weight: "32%", color: "#94a3b8", count: 3 },
 };
 
 // ── Core Invest (Research / Pre-Fund) ────────────────────────────────────────
@@ -372,7 +365,7 @@ export const WS_PORTFOLIO_KPIS = {
   cagr:       "nicht validiert",
   maxDd:      "nicht validiert",
   calmar:     "nicht validiert",
-  strategies: "29",
+  strategies: "28",
 } as const;
 
 // The current aggregate includes strategy sleeves without exact Pine execution
