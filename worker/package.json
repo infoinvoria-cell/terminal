@@ -1,0 +1,16 @@
+{
+  "name": "capitalife-data-worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Railway master data worker: provider APIs -> Supabase (monitoring_ohlc + live_quotes). No Yahoo.",
+  "scripts": {
+    "start": "node index.mjs",
+    "once": "node index.mjs --once"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "node-cron": "^3.0.3"
+  },
+  "engines": { "node": ">=18" }
+}
