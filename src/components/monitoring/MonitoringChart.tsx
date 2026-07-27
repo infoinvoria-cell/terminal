@@ -1374,21 +1374,21 @@ function MonitoringChartInner({
         ...(isIntraday ? { tickMarkFormatter: berlinIntradayTickMarkFormatter } : {}),
       },
       handleScroll: {
-        mouseWheel: false,
-        pressedMouseMove: false, // charts are locked — no free drag-panning
-        horzTouchDrag: false,
-        vertTouchDrag: false,
+        mouseWheel: true,
+        pressedMouseMove: true, // TradingView-style: drag to pan
+        horzTouchDrag: true,
+        vertTouchDrag: true,
       },
       kineticScroll: {
-        touch: false,
+        touch: true,
         mouse: false,
       },
       handleScale: {
-        mouseWheel: false, // no wheel zoom — fixed view like before
-        pinch: false,
+        mouseWheel: true, // wheel zoom on the time axis
+        pinch: true,
         axisPressedMouseMove: {
-          time: false,
-          price: false,
+          time: true,
+          price: true,
         },
         axisDoubleClickReset: {
           time: true,
