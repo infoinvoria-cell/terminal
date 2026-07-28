@@ -24,11 +24,12 @@ export interface AgentPattern {
   entry_rule: string;
   exit_rule: string;
   rationale_class: string;
+  rationale_text?: string;
   side: string;
 }
 
 export const AGENT_PORTFOLIO_GENERATED = "2026-07-28";
-export const AGENT_PORTFOLIO_N = 20;
+export const AGENT_PORTFOLIO_N = 19;
 
 export const AGENT_PATTERNS: AgentPattern[] = [
   {
@@ -39,7 +40,9 @@ export const AGENT_PATTERNS: AgentPattern[] = [
     next_entry: "2026-07-30", next_exit: "2026-07-30",
     entry_rule: "Exposure NUR an: Donnerstag (Open) — Excess vs. Durchschnittstag",
     exit_rule: "Glattstellen am Close des jeweiligen Donnerstag",
-    rationale_class: "sentiment_weekday", side: "LONG",
+    rationale_class: "sentiment_weekday",
+    rationale_text: "Holz-Futures: Baufirmen und Händler ordern Materialien typischerweise donnerstags für die Wochenplanung. Lieferketten-Logistik und Kaufmuster im Baugewerbe erzeugen einen konsistenten Wochentag-Excess-Return. 23 Jahre, OOS 100%.",
+    side: "LONG",
   },
   {
     rank: 2, asset: "HYG", category: "calendar", hypothesis: "Nov letzte 5 HT",
