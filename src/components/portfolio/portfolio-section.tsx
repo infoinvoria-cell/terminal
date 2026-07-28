@@ -125,7 +125,7 @@ export function PortfolioSection({ trades, kpis, capalifeData }: PortfolioSectio
         style={{
           position: "relative",
           flex: "1 1 0",
-          minHeight: 0,
+          minHeight: 520,
           overflow: "hidden",
           borderRadius: 14,
           border: "1px solid rgba(255,255,255,0.06)",
