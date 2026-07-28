@@ -12,7 +12,7 @@ const SLEEVE_CONFIGS: SleeveConfig[] = [
   {
     id: "QQQ_PINE_2_EMA", label: "QQQ Pine 2 EMA", instrument: "QQQ", pineFile: "08_core_invest_universal_presets.pine", weight: 0.05,
     kind: "strategy", tvSymbol: "QQQ", tvPreset: "QQQ Pine 2", emaFast: 20, emaSlow: 50, stopPct: 2, tpPct: 4,
-    tvMetrics: { source: "tradingview", preset: "QQQ Pine 2", status: "tv_reference", totalReturnPct: 14.12, maxDrawdownPct: 30.04, profitFactor: 1.082, trades: 201, winRatePct: 37.31, note: "TV Strategy Tester reference; lokale Trade-Paritaet noch nicht als validiert markiert." },
+    tvMetrics: { source: "tradingview", preset: "QQQ Pine 2", status: "rejected", totalReturnPct: null, maxDrawdownPct: null, profitFactor: null, trades: null, winRatePct: null, note: "Rejected: schwache TV-Referenz (+14.12%, PF 1.082, MaxDD 30.04%) und keine Python/TV Trade-Paritaet." },
   },
   {
     id: "COPPER_HG", label: "Copper/HG", instrument: "HG1!", pineFile: "08_core_invest_universal_presets.pine", weight: 0.05,

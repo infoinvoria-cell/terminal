@@ -8,7 +8,7 @@ const outFile = path.join(outDir, "parity-report.json");
 
 const components = [
   { id: "QQQ_PINE_1", symbol: "QQQ", kind: "strategy", weight: 0.05, tv: { totalReturnPct: 95.19, maxDrawdownPct: 8.71, profitFactor: 1.602, trades: 642, winRatePct: 69.31 } },
-  { id: "QQQ_PINE_2_EMA", symbol: "QQQ", kind: "strategy", weight: 0.05, tv: { totalReturnPct: 14.12, maxDrawdownPct: 30.04, profitFactor: 1.082, trades: 201, winRatePct: 37.31 } },
+  { id: "QQQ_PINE_2_EMA", symbol: "QQQ", kind: "strategy", weight: 0.05, rejected: "Weak TradingView reference (+14.12%, PF 1.082, MaxDD 30.04%) and no Python/TV trade parity." },
   { id: "COPPER_HG", symbol: "HG1!", kind: "strategy", weight: 0.05, rejected: "5% sleeve cannot hold one HG1! contract with correct futures pointvalue." },
   { id: "CHF_6S", symbol: "6S1!", kind: "strategy", weight: 0.05, rejected: "5% sleeve cannot hold one 6S1! contract with correct futures pointvalue." },
   { id: "QQQ_PASSIVE", symbol: "QQQ", kind: "asset", weight: 0.45 },
@@ -99,7 +99,7 @@ const summary = {
   rejected: rows.filter((r) => r.status === "rejected").length,
   missing: rows.filter((r) => r.status === "missing_ohlc").length,
   liveReady: rows.every((r) => r.status === "ready"),
-  conclusion: "Core Invest is not live-ready until QQQ_PINE_1 and QQQ_PINE_2_EMA have TradingView trade-export parity against Python.",
+  conclusion: "Core Invest is not live-ready: only QQQ_PINE_1 remains a candidate strategy, while QQQ_PINE_2_EMA, COPPER_HG and CHF_6S are rejected.",
 };
 
 const report = { summary, rows };

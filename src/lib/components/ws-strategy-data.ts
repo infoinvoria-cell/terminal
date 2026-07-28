@@ -335,8 +335,8 @@ export const CI_STRATEGIES: CoreInvestRow[] = [
   {
     id: "qqq_pine2", ticker: "QQQ", label: "QQQ Pine 2 EMA", group: "Strategy Sleeve",
     engine: "EMA(20)/EMA(50) + Valuation · Long/Cash · TP 4% · SL 2%", pillar: "ci_sleeve", weight: 5,
-    pf: 1.082, maxDd: "30.04%", trades: 201, winRate: "37.31%", totalReturn: "+14.12%", status: "partial_validation",
-    notes: "TradingView QQQ Daily: 201 Trades, PF 1.082, MaxDD 30.04%, +14.12%. Lokale Trade-Paritaet fehlt.",
+    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "rejected",
+    notes: "Abgelehnt: schwache TradingView-Referenz (+14.12%, PF 1.082, MaxDD 30.04%) und keine Python/TV Trade-Paritaet.",
   },
   {
     id: "hg1_ci", ticker: "HG1!", label: "Copper / HG", group: "Strategy Sleeve",
