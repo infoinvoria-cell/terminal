@@ -1442,25 +1442,6 @@ function filterTradesByFromDate(trades: MonitoringTrade[], from: string | null):
   return trades.filter((trade) => String(trade.entryTime || "").slice(0, 10) >= from);
 }
 
-function buildSyntheticCalendarCandles(trades: MonitoringTrade[]): MonitoringCandle[] {
-  const daySet = new Set<string>();
-  for (const trade of trades) {
-    const entryDay = String(trade.entryTime || "").slice(0, 10);
-    const exitDay = String(trade.exitTime || "").slice(0, 10);
-    if (entryDay) daySet.add(entryDay);
-    if (exitDay) daySet.add(exitDay);
-  }
-  const days = Array.from(daySet.values()).sort((a, b) => a.localeCompare(b));
-  return days.map((day) => ({
-    time: `${day}T00:00:00.000Z`,
-    open: 1,
-    high: 1,
-    low: 1,
-    close: 1,
-    volume: null,
-  }));
-}
-
 function buildChartSignalsFromEvents(payload: StrategyEventsPayload | undefined): MonitoringChartData["signals"] {
   const visualTypes = new Set([
     "long_entry",
@@ -3877,61 +3858,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
             },
             ctrl.signal,
           );
-
-          // Optimizer-mt fallback: only use when the primary load returned an unknown
-          // error (not "missing_candles" — that status means we attempted the fresh-file
-          // path and the file was empty or unparseable, so stale March-2026 data from
-          // the optimizer-mt package must NOT silently replace it). Assets with known
-          // fresh files (DAX 2H, DAX 1H, GBPUSD 30M, EURUSD 30M) will always get
-          // status "missing_candles" on failure — so the fallback is effectively disabled
-          // for those assets and will only ever activate for unknown error conditions
-          // on assets that have no fresh-file path at all.
-          const isMissingCandlesStatus = result.status === "missing_candles";
-          if (
-            shouldUseIntradayMtFallback(item, activeTab) &&
-            (!result.ok || !result.bars.length) &&
-            !isMissingCandlesStatus
-          ) {
-            const mtAssetId = readOptimizerMtAssetId(source);
-            if (mtAssetId) {
-              try {
-                const mtPath = `/data/optimizer-mt/cache/${mtAssetId}_30m.json`;
-                const mtRes = await fetch(mtPath, { cache: "no-store", signal: ctrl.signal });
-                if (mtRes.ok) {
-                  const mtJson = await mtRes.json();
-                  const mt30 = parseOptimizerMtCandles(mtJson);
-                  const tfNorm = normalizeIntradayTf(requestedTimeframe);
-                  const intradayTf: "30M" | "1H" | "2H" = tfNorm === "D" ? "30M" : tfNorm;
-                  const mtBars = resampleCandlesFrom30M(mt30, intradayTf);
-                  if (mtBars.length) {
-                    const clipped = mtBars.slice(-120);
-                    // Always mark optimizer-mt data as stale — it is a legacy fallback
-                    // and should never be presented as current data.
-                    result = {
-                      ok: true,
-                      status: "loaded",
-                      bars: clipped,
-                      resolvedPath: mtPath,
-                      staleData: true,
-                      manifestGeneratedAt: null,
-                      barCount: clipped.length,
-                      firstDate: clipped[0]?.time ? String(clipped[0].time).slice(0, 10) : null,
-                      lastDate: clipped[clipped.length - 1]?.time ? String(clipped[clipped.length - 1].time).slice(0, 10) : null,
-                      payload: null,
-                      mergeStatus: "no_snapshot",
-                      mergeWarning: null,
-                      snapshotDate: null,
-                      historyLastDateBeforeMerge: null,
-                      historyCloseBeforeMerge: null,
-                      snapshotClose: null,
-                    };
-                  }
-                }
-              } catch {
-                // keep existing cache result fallback
-              }
-            }
-          }
+          // Legacy optimizer-mt candle fallback disabled: Intraday charts must render only real OHLC.
           const route = resolveStrategyRuntimeRoute(strategyRuntimeRoutes, item);
           const routeCandidates = strategyEventsCandidatesForItem(strategyRuntimeRoutes, item);
           const primaryEventsFile = routeCandidates[0] ?? strategyEventsFileFromSourceTf(source, requestedTimeframe);
@@ -4068,9 +3995,11 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           if (!payloadKey || !result.ok) {
             const staleKey = monitoringPayloadKeyForItem(item, activeTab);
             const isIntradayMtItem = item.tab === "Intraday MT" || activeTab === "intraday_mt";
-            // Never wipe intraday payload if we already have valid bars — keep existing and skip
-            if (isIntradayMtItem && next[staleKey]?.bars?.length) {
-              continue; // preserve existing valid candles; failed fetch is ignored
+            // Intraday must never keep stale/fallback candles after a failed fresh OHLC load.
+            // Showing no candles is safer than rendering stale bars against live signals.
+            if (isIntradayMtItem) {
+              delete next[staleKey];
+              continue;
             }
             if (!(findOrderedAgrarAsset(item.symbol) && next[staleKey]?.bars?.length)) {
               delete next[staleKey];
@@ -4106,13 +4035,6 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
         for (const row of loaded) {
           const { item, result } = row;
           const isIntradayMtItem = item.tab === "Intraday MT" || activeTab === "intraday_mt";
-          // If we kept previous candles (intraday failed fetch), don't overwrite status with error
-          if (isIntradayMtItem && !result.ok) {
-            const existingState = next[item.symbol];
-            if (existingState?.barCount && existingState.barCount > 0) {
-              continue; // keep previous load state metadata
-            }
-          }
           next[item.symbol] = {
             status: result.status,
             resolvedPath: result.resolvedPath ?? null,
@@ -5252,7 +5174,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
       if (full?.length && !isIntradayTimeframe(item?.timeframe)) return full;
       return historyCandlesForTimeframe(item?.timeframe, item?.payload?.bars ?? []);
     }
-    return buildSyntheticCalendarCandles([]);
+    return [] as MonitoringCandle[];
   }, [fullHistoryBySymbol, strategyTesterScopeItems]);
 
   const activeStrategyParams = useMemo(() => {
@@ -5581,7 +5503,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     if (strategyTesterScopeItems.length === 1) {
       return strategyTesterHistoryCandles;
     }
-    return buildSyntheticCalendarCandles(strategyTesterActiveTrades);
+    return [] as MonitoringCandle[];
   }, [strategyTesterActiveTrades, strategyTesterHistoryCandles, strategyTesterScopeItems.length]);
 
   useEffect(() => {
