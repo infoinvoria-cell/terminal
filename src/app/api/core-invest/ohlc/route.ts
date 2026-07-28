@@ -20,6 +20,10 @@ const LOCAL_CSV: Record<string, string> = {
   GLD: "src/data/capitalife/fsportfolio/ohlc/GLD.csv",
   SPY: "src/data/capitalife/fsportfolio/ohlc/SPY.csv",
 };
+const LOCAL_TV_JSON: Record<string, string> = {
+  "HG1!": "public/generated/monitoring/tradingview_data_cache/D/COMEX_HG1_D.json",
+  "6S1!": "public/generated/monitoring/tradingview_data_cache/D/CME_6S1_D.json",
+};
 
 function normalizeSymbol(raw: string | null): string | null {
   if (!raw) return null;
@@ -99,6 +103,25 @@ async function loadFromLocalCsv(symbol: string, limit: number): Promise<OhlcBar[
     .slice(-limit);
 }
 
+async function loadFromLocalTvJson(symbol: string, limit: number): Promise<OhlcBar[]> {
+  const rel = LOCAL_TV_JSON[symbol];
+  if (!rel) return [];
+  const raw = await readFile(path.join(process.cwd(), rel), "utf8").catch(() => "");
+  if (!raw) return [];
+  const parsed = JSON.parse(raw) as { bars?: Array<Partial<OhlcBar> & { time?: string | number | null }> };
+  return (parsed.bars ?? [])
+    .map((bar) => ({
+      date: String(bar.date ?? bar.time ?? "").slice(0, 10),
+      open: Number(bar.open),
+      high: Number(bar.high),
+      low: Number(bar.low),
+      close: Number(bar.close),
+      volume: bar.volume == null ? null : Number(bar.volume),
+    }))
+    .filter(validBar)
+    .slice(-limit);
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const symbol = normalizeSymbol(searchParams.get("symbol"));
@@ -109,13 +132,15 @@ export async function GET(request: Request) {
   }
 
   const supabaseBars = await loadFromSupabase(symbol, limit).catch(() => []);
-  const bars = supabaseBars.length ? supabaseBars : await loadFromLocalCsv(symbol, limit);
+  const csvBars = supabaseBars.length ? [] : await loadFromLocalCsv(symbol, limit);
+  const jsonBars = supabaseBars.length || csvBars.length ? [] : await loadFromLocalTvJson(symbol, limit);
+  const bars = supabaseBars.length ? supabaseBars : csvBars.length ? csvBars : jsonBars;
   const status = bars.length ? "ok" : "missing";
 
   return NextResponse.json({
     symbol,
     status,
-    source: supabaseBars.length ? "supabase:invest_ohlc" : bars.length ? "repo:fsportfolio_ohlc" : "missing",
+    source: supabaseBars.length ? "supabase:invest_ohlc" : csvBars.length ? "repo:fsportfolio_ohlc" : jsonBars.length ? "repo:tradingview_json" : "missing",
     bars,
     count: bars.length,
     firstDate: bars.at(0)?.date ?? null,

@@ -8,9 +8,9 @@ const outFile = path.join(outDir, "parity-report.json");
 
 const components = [
   { id: "QQQ_PINE_1", symbol: "QQQ", kind: "strategy", weight: 0.05, tv: { totalReturnPct: 95.19, maxDrawdownPct: 8.71, profitFactor: 1.602, trades: 642, winRatePct: 69.31 } },
-  { id: "QQQ_PINE_2_EMA", symbol: "QQQ", kind: "strategy", weight: 0.05, rejected: "Weak TradingView reference (+14.12%, PF 1.082, MaxDD 30.04%) and no Python/TV trade parity." },
-  { id: "COPPER_HG", symbol: "HG1!", kind: "strategy", weight: 0.05, rejected: "5% sleeve cannot hold one HG1! contract with correct futures pointvalue." },
-  { id: "CHF_6S", symbol: "6S1!", kind: "strategy", weight: 0.05, rejected: "5% sleeve cannot hold one 6S1! contract with correct futures pointvalue." },
+  { id: "QQQ_PINE_2_EMA", symbol: "QQQ", kind: "strategy", weight: 0.05, tv: { totalReturnPct: 358.27, maxDrawdownPct: 28.59, profitFactor: 2.158, trades: 68, winRatePct: 42.65 } },
+  { id: "COPPER_HG", symbol: "HG1!", kind: "strategy", weight: 0.05, tv: { totalReturnPct: 483.82, maxDrawdownPct: 40.43, profitFactor: 2.082, trades: 88, winRatePct: 30.68 } },
+  { id: "CHF_6S", symbol: "6S1!", kind: "strategy", weight: 0.05, tv: { totalReturnPct: 17.92, maxDrawdownPct: 23.66, profitFactor: 1.266, trades: 65, winRatePct: 32.31 } },
   { id: "QQQ_PASSIVE", symbol: "QQQ", kind: "asset", weight: 0.45 },
   { id: "GLD", symbol: "GLD", kind: "asset", weight: 0.25 },
   { id: "SPMO", symbol: "SPMO", kind: "asset", weight: 0.05 },
@@ -22,6 +22,8 @@ const cacheFileBySymbol = {
   GLD: ".capitalife-cache/market-data/tradingview/history/GLD_1D.json",
   SPMO: ".capitalife-cache/market-data/tradingview/history/SPMO_1D.json",
   SPY: ".capitalife-cache/market-data/tradingview/history/SPY_1D.json",
+  "HG1!": "public/generated/monitoring/tradingview_data_cache/D/COMEX_HG1_D.json",
+  "6S1!": "public/generated/monitoring/tradingview_data_cache/D/CME_6S1_D.json",
 };
 
 async function loadTvBars(symbol) {
@@ -99,7 +101,7 @@ const summary = {
   rejected: rows.filter((r) => r.status === "rejected").length,
   missing: rows.filter((r) => r.status === "missing_ohlc").length,
   liveReady: rows.every((r) => r.status === "ready"),
-  conclusion: "Core Invest is not live-ready: only QQQ_PINE_1 remains a candidate strategy, while QQQ_PINE_2_EMA, COPPER_HG and CHF_6S are rejected.",
+  conclusion: "Core Invest has 4 passive ready components and 4 active TradingView-reference strategy sleeves. It is not exact-parity live-ready until trade-by-trade TV exports are matched against Python.",
 };
 
 const report = { summary, rows };
