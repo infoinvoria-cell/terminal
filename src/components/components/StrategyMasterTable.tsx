@@ -100,7 +100,7 @@ function ciRow(r: CoreInvestRow): DisplayRow {
     ticker: r.ticker, label: r.label, group: r.group, engine: r.engine,
     pillarKey: r.pillar, pillarLabel: CI_META[r.pillar as CIPillar].label,
     weight: r.weight, sharpeOos: null,
-    cagr: r.totalReturn ?? null, maxDd: r.maxDd, pf: r.pf, trades: r.trades,
+    cagr: r.cagr ?? null, maxDd: r.maxDd, pf: r.pf, trades: r.trades,
     wfWin: r.winRate, calmar: null, status: r.status, isNotes: r.notes,
   };
 }

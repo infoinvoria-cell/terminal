@@ -293,6 +293,7 @@ export interface CoreInvestRow {
   pillar: CIPillar;
   weight: number;
   pf: number | null;
+  cagr: string | null;
   maxDd: string | null;
   trades: number | null;
   winRate: string | null;
@@ -308,46 +309,50 @@ export const CI_STRATEGIES: CoreInvestRow[] = [
   {
     id: "qqq_etf_ci", ticker: "QQQ", label: "Nasdaq 100 ETF (passiv)", group: "ETF-Core",
     engine: "Buy & Hold", pillar: "etf_core", weight: 45,
-    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "research",
+    pf: null, cagr: "+15.74%", maxDd: "−53.55%", trades: null, winRate: null, totalReturn: "+1728.90%", status: "research",
+    notes: "TradingView OHLC cache 2006-08-18 bis 2026-07-07; Buy-&-Hold Referenz, keine Strategy Engine.",
   },
   {
     id: "gld_ci", ticker: "GLD", label: "Gold ETF", group: "ETF-Core",
     engine: "Crisis Protection / Portfolio Hedge", pillar: "etf_core", weight: 25,
-    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "research",
+    pf: null, cagr: "+9.60%", maxDd: "−45.56%", trades: null, winRate: null, totalReturn: "+518.43%", status: "research",
+    notes: "TradingView OHLC cache 2006-08-18 bis 2026-07-07; Buy-&-Hold Referenz, keine Strategy Engine.",
   },
   {
     id: "spmo_ci", ticker: "SPMO", label: "Invesco S&P 500 Momentum", group: "ETF-Core",
     engine: "Momentum / Alpha", pillar: "etf_core", weight: 5,
-    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "research",
+    pf: null, cagr: "+18.04%", maxDd: "−31.31%", trades: null, winRate: null, totalReturn: "+493.17%", status: "research",
+    notes: "TradingView OHLC cache 2015-10-12 bis 2026-07-07; Buy-&-Hold Referenz, keine Strategy Engine.",
   },
   {
     id: "spy_ci", ticker: "SPY", label: "S&P 500 ETF", group: "ETF-Core",
     engine: "Buy & Hold / Benchmark", pillar: "etf_core", weight: 5,
-    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "research",
+    pf: null, cagr: "+9.17%", maxDd: "−56.47%", trades: null, winRate: null, totalReturn: "+472.12%", status: "research",
+    notes: "TradingView OHLC cache 2006-08-18 bis 2026-07-07; Buy-&-Hold Benchmark.",
   },
   // Strategy Sleeves (20% · 4×5%)
   {
     id: "qqq_pine1", ticker: "QQQ", label: "QQQ Pine 1", group: "Strategy Sleeve",
     engine: "SMA(400) + SMA(5) · Long/Cash · TP 2% · SL 25%", pillar: "ci_sleeve", weight: 5,
-    pf: 1.602, maxDd: "8.71%", trades: 642, winRate: "69.31%", totalReturn: "+95.19%", status: "partial_validation",
+    pf: 1.602, cagr: null, maxDd: "−8.71%", trades: 642, winRate: "69.31%", totalReturn: "+95.19%", status: "partial_validation",
     notes: "TradingView QQQ Daily: 642 Trades, PF 1.602, MaxDD 8.71%, +95.19%. Lokale Trade-Paritaet fehlt.",
   },
   {
     id: "qqq_pine2", ticker: "QQQ", label: "QQQ Pine 2 EMA", group: "Strategy Sleeve",
     engine: "EMA(20)/EMA(50) + Valuation · Long/Cash · TP 4% · SL 2%", pillar: "ci_sleeve", weight: 5,
-    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "rejected",
+    pf: null, cagr: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "rejected",
     notes: "Abgelehnt: schwache TradingView-Referenz (+14.12%, PF 1.082, MaxDD 30.04%) und keine Python/TV Trade-Paritaet.",
   },
   {
     id: "hg1_ci", ticker: "HG1!", label: "Copper / HG", group: "Strategy Sleeve",
     engine: "Pine 2 EMA · Long/Cash · TP 4% · SL 2%", pillar: "ci_sleeve", weight: 5,
-    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "rejected",
+    pf: null, cagr: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "rejected",
     notes: "Abgelehnt: alte Engine ignorierte Futures-Pointvalue; korrekte 5%-Sleeve-Groesse kann keinen HG1!-Kontrakt halten.",
   },
   {
     id: "6s1_ci", ticker: "6S1!", label: "CHF / Swiss Franc", group: "Strategy Sleeve",
     engine: "Pine 2 EMA · Long/Cash · TP 4% · SL 2%", pillar: "ci_sleeve", weight: 5,
-    pf: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "rejected",
+    pf: null, cagr: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "rejected",
     notes: "Abgelehnt: alte Engine ignorierte Futures-Pointvalue; korrekte 5%-Sleeve-Groesse kann keinen 6S1!-Kontrakt halten.",
   },
 ];
@@ -371,10 +376,10 @@ export const WS_PORTFOLIO_KPIS = {
 // The current aggregate includes strategy sleeves without exact Pine execution
 // parity. Historical approximation metrics must not be shown as validated OOS.
 export const CI_PORTFOLIO_KPIS = {
-  sharpe:     "nicht validiert",
-  cagr:       "nicht validiert",
-  maxDd:      "nicht validiert",
-  calmar:     "nicht validiert",
+  sharpe:     "ETF-Core 1.18",
+  cagr:       "ETF-Core +13.89%",
+  maxDd:      "ETF-Core −21.32%",
+  calmar:     "ETF-Core 0.65",
   positions:  "8",
 } as const;
 
