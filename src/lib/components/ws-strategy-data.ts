@@ -303,7 +303,8 @@ export interface CoreInvestRow {
 }
 
 // v2.0 weights: ETF-Core 80% (QQQ 45%, GLD 25%, SPMO 5%, SPY 5%) + Sleeves 20% (4×5%)
-// Weights frozen 2026-07-20. Strategy engine and account-level validation failed.
+// Weights frozen 2026-07-20. Strategy sleeves are active TV-reference sleeves;
+// exact Python/TradingView trade parity remains a separate validation layer.
 export const CI_STRATEGIES: CoreInvestRow[] = [
   // ETF-Core (80%)
   {
@@ -340,20 +341,20 @@ export const CI_STRATEGIES: CoreInvestRow[] = [
   {
     id: "qqq_pine2", ticker: "QQQ", label: "QQQ Pine 2 EMA", group: "Strategy Sleeve",
     engine: "EMA(20)/EMA(50) + Valuation · Long/Cash · TP 4% · SL 2%", pillar: "ci_sleeve", weight: 5,
-    pf: null, cagr: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "rejected",
-    notes: "Abgelehnt: schwache TradingView-Referenz (+14.12%, PF 1.082, MaxDD 30.04%) und keine Python/TV Trade-Paritaet.",
+    pf: 2.158, cagr: null, maxDd: "−28.59%", trades: 68, winRate: "42.65%", totalReturn: "+358.27%", status: "partial_validation",
+    notes: "Aktive TV-Referenz aus Core-Invest-Preset; Python/TV Trade-Paritaet und Account-Sizing bleiben separat zu validieren.",
   },
   {
     id: "hg1_ci", ticker: "HG1!", label: "Copper / HG", group: "Strategy Sleeve",
     engine: "Pine 2 EMA · Long/Cash · TP 4% · SL 2%", pillar: "ci_sleeve", weight: 5,
-    pf: null, cagr: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "rejected",
-    notes: "Abgelehnt: alte Engine ignorierte Futures-Pointvalue; korrekte 5%-Sleeve-Groesse kann keinen HG1!-Kontrakt halten.",
+    pf: 2.082, cagr: null, maxDd: "−40.43%", trades: 88, winRate: "30.68%", totalReturn: "+483.82%", status: "partial_validation",
+    notes: "Aktive TV-Referenz aus Core-Invest-Preset; Futures-Pointvalue und Positionsgroesse muessen im Live-Account separat geprueft werden.",
   },
   {
     id: "6s1_ci", ticker: "6S1!", label: "CHF / Swiss Franc", group: "Strategy Sleeve",
     engine: "Pine 2 EMA · Long/Cash · TP 4% · SL 2%", pillar: "ci_sleeve", weight: 5,
-    pf: null, cagr: null, maxDd: null, trades: null, winRate: null, totalReturn: null, status: "rejected",
-    notes: "Abgelehnt: alte Engine ignorierte Futures-Pointvalue; korrekte 5%-Sleeve-Groesse kann keinen 6S1!-Kontrakt halten.",
+    pf: 1.266, cagr: null, maxDd: "−23.66%", trades: 65, winRate: "32.31%", totalReturn: "+17.92%", status: "partial_validation",
+    notes: "Aktive TV-Referenz aus Core-Invest-Preset; Futures-Pointvalue und Positionsgroesse muessen im Live-Account separat geprueft werden.",
   },
 ];
 

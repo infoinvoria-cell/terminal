@@ -12,17 +12,17 @@ const SLEEVE_CONFIGS: SleeveConfig[] = [
   {
     id: "QQQ_PINE_2_EMA", label: "QQQ Pine 2 EMA", instrument: "QQQ", pineFile: "08_core_invest_universal_presets.pine", weight: 0.05,
     kind: "strategy", tvSymbol: "QQQ", tvPreset: "QQQ Pine 2", emaFast: 20, emaSlow: 50, stopPct: 2, tpPct: 4,
-    tvMetrics: { source: "tradingview", preset: "QQQ Pine 2", status: "rejected", totalReturnPct: null, maxDrawdownPct: null, profitFactor: null, trades: null, winRatePct: null, note: "Rejected: schwache TV-Referenz (+14.12%, PF 1.082, MaxDD 30.04%) und keine Python/TV Trade-Paritaet." },
+    tvMetrics: { source: "tradingview", preset: "QQQ Pine 2", status: "tv_reference", totalReturnPct: 358.27, maxDrawdownPct: 28.59, profitFactor: 2.158, trades: 68, winRatePct: 42.65, note: "TV-Referenz aktiv; Python/TV Trade-Paritaet und Account-Sizing separat validieren." },
   },
   {
     id: "COPPER_HG", label: "Copper/HG", instrument: "HG1!", pineFile: "08_core_invest_universal_presets.pine", weight: 0.05,
     kind: "strategy", tvSymbol: "HG1!", tvPreset: "Copper HG", emaFast: 20, emaSlow: 50, stopPct: 2, tpPct: 4,
-    tvMetrics: { source: "tradingview", preset: "Copper HG", status: "rejected", totalReturnPct: null, maxDrawdownPct: null, profitFactor: null, trades: null, winRatePct: null, note: "Rejected: 5%-Sleeve kann bei korrekter Futures-Pointvalue keinen HG1!-Kontrakt halten." },
+    tvMetrics: { source: "tradingview", preset: "Copper HG", status: "tv_reference", totalReturnPct: 483.82, maxDrawdownPct: 40.43, profitFactor: 2.082, trades: 88, winRatePct: 30.68, note: "TV-Referenz aktiv; Futures-Pointvalue und Positionsgroesse separat validieren." },
   },
   {
     id: "CHF_6S", label: "CHF/6S", instrument: "6S1!", pineFile: "08_core_invest_universal_presets.pine", weight: 0.05,
     kind: "strategy", tvSymbol: "6S1!", tvPreset: "CHF 6S", emaFast: 20, emaSlow: 50, stopPct: 2, tpPct: 4,
-    tvMetrics: { source: "tradingview", preset: "CHF 6S", status: "rejected", totalReturnPct: null, maxDrawdownPct: null, profitFactor: null, trades: null, winRatePct: null, note: "Rejected: 5%-Sleeve kann bei korrekter Futures-Pointvalue keinen 6S1!-Kontrakt halten." },
+    tvMetrics: { source: "tradingview", preset: "CHF 6S", status: "tv_reference", totalReturnPct: 17.92, maxDrawdownPct: 23.66, profitFactor: 1.266, trades: 65, winRatePct: 32.31, note: "TV-Referenz aktiv; Futures-Pointvalue und Positionsgroesse separat validieren." },
   },
   { id: "QQQ_PASSIVE", label: "QQQ Passive", instrument: "QQQ", pineFile: "", weight: 0.45, kind: "asset", tvSymbol: "QQQ", tvPreset: "Asset Chart" },
   { id: "GLD", label: "GLD", instrument: "GLD", pineFile: "", weight: 0.25, kind: "asset", tvSymbol: "GLD", tvPreset: "Asset Chart" },
