@@ -22,8 +22,8 @@ const cacheFileBySymbol = {
   GLD: ".capitalife-cache/market-data/tradingview/history/GLD_1D.json",
   SPMO: ".capitalife-cache/market-data/tradingview/history/SPMO_1D.json",
   SPY: ".capitalife-cache/market-data/tradingview/history/SPY_1D.json",
-  "HG1!": "public/generated/monitoring/tradingview_data_cache/D/COMEX_HG1_D.json",
-  "6S1!": "public/generated/monitoring/tradingview_data_cache/D/CME_6S1_D.json",
+  "HG1!": "public/generated/monitoring/mobile/HG1.json",
+  "6S1!": "public/generated/monitoring/mobile/6S1.json",
 };
 
 async function loadTvBars(symbol) {

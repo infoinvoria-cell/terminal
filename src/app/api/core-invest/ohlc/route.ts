@@ -21,8 +21,8 @@ const LOCAL_CSV: Record<string, string> = {
   SPY: "src/data/capitalife/fsportfolio/ohlc/SPY.csv",
 };
 const LOCAL_TV_JSON: Record<string, string> = {
-  "HG1!": "public/generated/monitoring/tradingview_data_cache/D/COMEX_HG1_D.json",
-  "6S1!": "public/generated/monitoring/tradingview_data_cache/D/CME_6S1_D.json",
+  "HG1!": "public/generated/monitoring/mobile/HG1.json",
+  "6S1!": "public/generated/monitoring/mobile/6S1.json",
 };
 
 function normalizeSymbol(raw: string | null): string | null {
