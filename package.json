@@ -26,7 +26,9 @@
     "invest:generate-events": "python tools/core-invest/generate-core-invest-events.py",
     "invest:parity": "node scripts/core-invest-parity-report.mjs",
     "invest:validate-futures": "node tools/monitoring/validate-continuous-contracts.mjs --report",
-    "analyze": "cross-env ANALYZE=true npm run build"
+    "analyze": "cross-env ANALYZE=true npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",
@@ -61,11 +63,13 @@
     "@types/node": "20.19.43",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/ui": "^4.1.10",
     "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }

@@ -133,6 +133,76 @@ export function calcActiveVolume(ownVolume: number, teamVolume: number): ActiveV
   };
 }
 
+// ── Management fee distribution ───────────────────────────────────────────────
+
+export interface MgmtFeeDistribution {
+  investmentEur: number;
+  years: number;
+  ratePerAnnum: number;
+  grossMgmtFeeEur: number;
+  innoInvestShareEur: number;
+  clBaseEur: number;
+  partnerShareEur: number;
+  clNetEur: number;
+  partnerRate: number | null;
+}
+
+export function calcMgmtFeeDistribution(
+  investmentEur: number,
+  years: number,
+  partnerRate: number | null = null,
+  ratePerAnnum: number = PARTNER_PROGRAM_CONFIG.managementFeeRate,
+): MgmtFeeDistribution {
+  const invCents = eurToCents(investmentEur);
+  const grossCents = Math.round(invCents * ratePerAnnum * years);
+  const innoCents = Math.round(grossCents * PARTNER_PROGRAM_CONFIG.innoInvestMgmtRate);
+  const clBaseCents = grossCents - innoCents;
+  const partnerCents = partnerRate !== null ? Math.round(clBaseCents * partnerRate) : 0;
+  const clNetCents = clBaseCents - partnerCents;
+  return {
+    investmentEur,
+    years,
+    ratePerAnnum,
+    grossMgmtFeeEur: centsToEur(grossCents),
+    innoInvestShareEur: centsToEur(innoCents),
+    clBaseEur: centsToEur(clBaseCents),
+    partnerShareEur: centsToEur(partnerCents),
+    clNetEur: centsToEur(clNetCents),
+    partnerRate,
+  };
+}
+
+// ── Grand total ───────────────────────────────────────────────────────────────
+
+export interface GrandTotal {
+  investorProfit: number;
+  innoInvestTotal: number;
+  partnerTotal: number;
+  clTotal: number;
+  checksum: number;
+  investorGross: number;
+}
+
+export function calcGrandTotal(
+  pf: PerformanceFeeDistribution,
+  mf: MgmtFeeDistribution,
+  ap: APResult,
+): GrandTotal {
+  const investorProfit = pf.investorProfit - pf.performanceFee;
+  const innoInvestTotal = pf.innoInvestShare + mf.innoInvestShareEur;
+  const partnerTotal = pf.partnerShare + mf.partnerShareEur + ap.apAmount;
+  const clTotal = pf.clRemainder + mf.clNetEur - ap.apAmount;
+  const checksum = investorProfit + pf.innoInvestShare + pf.partnerShare + pf.clRemainder;
+  return {
+    investorProfit,
+    innoInvestTotal,
+    partnerTotal,
+    clTotal,
+    checksum,
+    investorGross: pf.investorProfit,
+  };
+}
+
 // ── Formatting ────────────────────────────────────────────────────────────────
 
 /** Format as German currency: 1.130.000 € */
