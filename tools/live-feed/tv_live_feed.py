@@ -134,16 +134,20 @@ bar_buffer: dict[tuple[str, str, str], dict] = {}
 # clock-anchored grid so signal and candle always agree.
 def _bucket_start(ts_epoch: float, tf_secs: int) -> str:
     start = int(ts_epoch // tf_secs) * tf_secs
-    return datetime.fromtimestamp(start, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    # No trailing Z — matches TradingView-history row format so Supabase upserts
+    # on (asset, timeframe, date) collide correctly and don't create duplicate rows.
+    return datetime.fromtimestamp(start, timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
 
 
-def _update_intraday_bars(req_sym: str, close: float, high: float, low: float, vol: float) -> None:
+def _update_intraday_bars(req_sym: str, close: float, vol: float) -> None:
     tfs = INTRADAY_BAR_TFS.get(req_sym)
     if not tfs or close <= 0:
         return
     now = time.time()
-    hi = high if high and high > 0 else close
-    lo = low if low and low > 0 else close
+    # IMPORTANT: do NOT use state["high"]/state["low"] here. Those are the TradingView
+    # DAY/session high & low (quote fields high_price/low_price), not the current
+    # candle's range. Feeding them in stretches every tick-built bar with a full-session
+    # wick. Bar extent must come only from the close price progression.
     for tf in tfs:
         secs = TF_SECONDS.get(tf)
         if not secs:
@@ -156,8 +160,8 @@ def _update_intraday_bars(req_sym: str, close: float, high: float, low: float, v
             bar = {"bucket": bucket, "open": close, "high": close, "low": close, "close": close, "volume": vol or 0.0}
             intraday_bars[key] = bar
         else:
-            bar["high"] = max(bar["high"], hi, close)
-            bar["low"] = min(bar["low"], lo, close)
+            bar["high"] = max(bar["high"], close)
+            bar["low"] = min(bar["low"], close)
             bar["close"] = close
             if vol:
                 bar["volume"] = vol
@@ -340,7 +344,7 @@ def _store_quote(req_sym: str, v: dict) -> None:
         return
 
     # Feed the live tick into the intraday bar builder (if this is an intraday symbol)
-    _update_intraday_bars(req_sym, state["close"], state["high"], state["low"], state["volume"])
+    _update_intraday_bars(req_sym, state["close"], state["volume"])
 
     row = {
         "symbol":     req_sym,

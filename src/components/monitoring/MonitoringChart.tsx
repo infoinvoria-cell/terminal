@@ -2007,7 +2007,7 @@ function MonitoringChartInner({
       const cross = crosshairPosRef.current;
       if (cross && cross.x >= 0 && cross.x <= width && cross.y >= 0 && cross.y <= height) {
         ctx.save();
-        ctx.strokeStyle = "rgba(230, 235, 245, 0.75)";
+        ctx.strokeStyle = "rgba(196, 162, 74, 0.88)";
         ctx.lineWidth = 1;
         ctx.setLineDash([4, 3]);
         const gx = Math.round(cross.x) + 0.5;

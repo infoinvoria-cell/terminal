@@ -610,6 +610,30 @@ function MonitoringChartCardInner({
         </div>
       </div>
 
+      {String(item?.code ?? "").toUpperCase().includes("6B1") ? (
+        <div
+          style={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            zIndex: 20,
+            background: "rgba(22, 26, 32, 0.82)",
+            border: "1px solid rgba(255, 255, 255, 0.13)",
+            borderRadius: 4,
+            padding: "2px 6px",
+            fontSize: 9,
+            fontWeight: 600,
+            color: "rgba(230, 235, 245, 0.55)",
+            letterSpacing: "0.04em",
+            textTransform: "uppercase",
+            pointerEvents: "none",
+            userSelect: "none",
+          }}
+        >
+          Nicht im Portfolio
+        </div>
+      ) : null}
+
       {(signalLabel || healthLabel || readinessLabel || parityLabel || pricingLine || barLine) ? (
         <div
           style={{
