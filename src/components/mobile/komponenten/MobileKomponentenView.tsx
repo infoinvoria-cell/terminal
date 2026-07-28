@@ -40,7 +40,7 @@ const TICKER_ICON: Record<string, string> = {
 
 // ── types ─────────────────────────────────────────────────────────────────────
 type Portfolio = "ws" | "ci";
-type SortKey = "weight" | "sharpeOos" | "cagr" | "maxDd" | "pf" | "trades";
+type SortKey = "weight" | "sharpeOos" | "cagr" | "maxDd" | "calmar" | "pf" | "trades";
 type SortDir = "desc" | "asc";
 
 interface DisplayRow {
@@ -75,9 +75,9 @@ function ciRow(r: CoreInvestRow): DisplayRow {
     id: r.id, section: "ci",
     ticker: r.ticker, label: r.label, group: r.group, engine: r.engine,
     pillarKey: r.pillar, pillarLabel: CI_META[r.pillar as CIPillar].label,
-    weight: r.weight, sharpeOos: null,
+    weight: r.weight, sharpeOos: r.sharpe,
     cagr: r.cagr ?? null, maxDd: r.maxDd, pf: r.pf, trades: r.trades,
-    wfWin: r.winRate, calmar: null, status: r.status, isNotes: r.notes,
+    wfWin: r.winRate, calmar: r.calmar, status: r.status, isNotes: r.notes,
   };
 }
 
@@ -96,7 +96,7 @@ const CI_KPIS = [
   { label: "CAGR OOS",   value: CI_PORTFOLIO_KPIS.cagr      },
   { label: "Max DD",     value: CI_PORTFOLIO_KPIS.maxDd     },
   { label: "Calmar",     value: CI_PORTFOLIO_KPIS.calmar     },
-  { label: "Positionen", value: CI_PORTFOLIO_KPIS.positions  },
+  { label: "Komponenten", value: CI_PORTFOLIO_KPIS.components },
 ];
 
 // ── OHLC cache ─────────────────────────────────────────────────────────────────
@@ -220,6 +220,7 @@ function Chip({ status }: { status: string }) {
     active: { label: "Aktiv", c: "rgba(255,255,255,0.5)" },
     watch: { label: "Watch", c: GOLD },
     archived: { label: "Archiviert", c: "rgba(255,255,255,0.15)" },
+    live_validated: { label: "Live", c: "#22c55e" },
     research: { label: "Research", c: "rgba(255,255,255,0.3)" },
     validation: { label: "Validation", c: "rgba(255,255,255,0.45)" },
     parity_pending: { label: "Pending", c: GOLD },
@@ -541,12 +542,13 @@ function StrategyRow({ row, num, liveData, liveOn }: {
         </div>
         {/* metric columns */}
         <div style={{ display: "flex", alignItems: "flex-end", paddingLeft: 20 }}>
-          <MCol label="Pillar"  value={row.pillarLabel} w="22%" dim />
-          <MCol label="Gew."   value={row.weight != null ? `${row.weight}%` : "—"} w="11%" />
-          <MCol label="Sharpe" value={row.sharpeOos != null ? row.sharpeOos.toFixed(2) : "—"} w="14%" />
-          <MCol label="CAGR"   value={row.cagr ?? "—"} w="15%" color={strNumColor(row.cagr)} />
-          <MCol label="Max DD" value={row.maxDd ?? "—"} w="17%" color={strNumColor(row.maxDd)} />
-          <MCol label="PF"     value={row.pf != null ? row.pf.toFixed(2) : "—"} w="12%" />
+          <MCol label="Pillar"  value={row.pillarLabel} w="18%" dim />
+          <MCol label="Gew."   value={row.weight != null ? `${row.weight}%` : "—"} w="10%" />
+          <MCol label="Sharpe" value={row.sharpeOos != null ? row.sharpeOos.toFixed(2) : "—"} w="12%" />
+          <MCol label="CAGR"   value={row.cagr ?? "—"} w="14%" color={strNumColor(row.cagr)} />
+          <MCol label="Max DD" value={row.maxDd ?? "—"} w="15%" color={strNumColor(row.maxDd)} />
+          <MCol label="Calmar" value={row.calmar != null ? row.calmar.toFixed(2) : "—"} w="12%" />
+          <MCol label="PF"     value={row.pf != null ? row.pf.toFixed(2) : "—"} w="10%" />
           <MCol label="Trades" value={row.trades != null ? String(row.trades) : "—"} w="9%" />
         </div>
         {/* live row */}
@@ -656,6 +658,7 @@ export function MobileKomponentenView() {
   const aggSharpe  = avg(nums(r => r.sharpeOos));
   const aggCagr    = avg(nums(r => parseNum(r.cagr)));
   const aggMaxDd   = avg(nums(r => parseNum(r.maxDd)));
+  const aggCalmar  = avg(nums(r => r.calmar));
   const aggPf      = avg(nums(r => r.pf));
   const aggTrades  = sum(nums(r => r.trades));
 
@@ -810,12 +813,13 @@ export function MobileKomponentenView() {
 
         {/* Column headers — more gap above table */}
         <div style={{ display: "flex", alignItems: "flex-end", padding: "2px 12px 7px", paddingLeft: 44, borderBottom: `1px solid ${RBORD}` }}>
-          <ColHeader label="Pillar"  agg={`${filtered.length}`}              k="weight"   sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="22%" />
-          <ColHeader label="Gew."   agg={aggWeight ? `${aggWeight}%` : "—"}  k="weight"   sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="11%" />
-          <ColHeader label="Sharpe" agg={aggSharpe}                          k="sharpeOos" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="14%" />
-          <ColHeader label="CAGR"   agg={aggCagr ? `${aggCagr}%` : "—"}     k="cagr"      sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="15%" />
-          <ColHeader label="Max DD" agg={aggMaxDd ? `${aggMaxDd}%` : "—"}   k="maxDd"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="17%" />
-          <ColHeader label="PF"     agg={aggPf}                              k="pf"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="12%" />
+          <ColHeader label="Pillar"  agg={`${filtered.length}`}              k="weight"   sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="18%" />
+          <ColHeader label="Gew."   agg={aggWeight ? `${aggWeight}%` : "—"}  k="weight"   sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="10%" />
+          <ColHeader label="Sharpe" agg={aggSharpe}                          k="sharpeOos" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="12%" />
+          <ColHeader label="CAGR"   agg={aggCagr ? `${aggCagr}%` : "—"}     k="cagr"      sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="14%" />
+          <ColHeader label="Max DD" agg={aggMaxDd ? `${aggMaxDd}%` : "—"}   k="maxDd"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="15%" />
+          <ColHeader label="Calmar" agg={aggCalmar}                          k="calmar"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="12%" />
+          <ColHeader label="PF"     agg={aggPf}                              k="pf"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="10%" />
           <ColHeader label="Trades" agg={aggTrades}                          k="trades"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="9%" />
         </div>
 

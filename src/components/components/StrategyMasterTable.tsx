@@ -53,7 +53,7 @@ function TickerIcon({ ticker }: { ticker: string }) {
 
 // ── types ─────────────────────────────────────────────────────────────────────
 type Portfolio = "ws" | "ci";
-type SortKey   = "ticker"|"label"|"pillar"|"weight"|"sharpeOos"|"cagr"|"maxDd"|"pf"|"trades"|"wfWin"|"status";
+type SortKey   = "ticker"|"label"|"pillar"|"weight"|"sharpeOos"|"cagr"|"maxDd"|"calmar"|"pf"|"trades"|"wfWin"|"status";
 type SortDir   = "desc"|"asc";
 
 const WS_KPIS = [
@@ -68,7 +68,7 @@ const CI_KPIS = [
   { label: "CAGR OOS",   value: CI_PORTFOLIO_KPIS.cagr      },
   { label: "Max DD",     value: CI_PORTFOLIO_KPIS.maxDd     },
   { label: "Calmar",     value: CI_PORTFOLIO_KPIS.calmar     },
-  { label: "Positionen", value: CI_PORTFOLIO_KPIS.positions  },
+  { label: "Komponenten", value: CI_PORTFOLIO_KPIS.components },
 ];
 
 // ── unified display row ───────────────────────────────────────────────────────
@@ -99,9 +99,9 @@ function ciRow(r: CoreInvestRow): DisplayRow {
     id: r.id, section: "ci",
     ticker: r.ticker, label: r.label, group: r.group, engine: r.engine,
     pillarKey: r.pillar, pillarLabel: CI_META[r.pillar as CIPillar].label,
-    weight: r.weight, sharpeOos: null,
+    weight: r.weight, sharpeOos: r.sharpe,
     cagr: r.cagr ?? null, maxDd: r.maxDd, pf: r.pf, trades: r.trades,
-    wfWin: r.winRate, calmar: null, status: r.status, isNotes: r.notes,
+    wfWin: r.winRate, calmar: r.calmar, status: r.status, isNotes: r.notes,
   };
 }
 
@@ -285,6 +285,7 @@ function Chip({ status }: { status: string }) {
     active:         { label: "Aktiv",      c: "rgba(255,255,255,0.5)" },
     watch:          { label: "Watch",      c: GOLD },
     archived:       { label: "Archiviert", c: "rgba(255,255,255,0.15)" },
+    live_validated: { label: "Live",       c: "#22c55e" },
     research:       { label: "Research",   c: "rgba(255,255,255,0.3)" },
     validation:     { label: "Validation", c: "rgba(255,255,255,0.45)" },
     parity_pending: { label: "Pending",    c: GOLD },
@@ -1060,6 +1061,7 @@ export default function StrategyMasterTable() {
         case "pillar":    va = a.pillarLabel; vb = b.pillarLabel; break;
         case "status":    va = a.status;      vb = b.status;      break;
         case "sharpeOos": va = a.sharpeOos ?? -Infinity; vb = b.sharpeOos ?? -Infinity; break;
+        case "calmar":    va = a.calmar    ?? -Infinity; vb = b.calmar    ?? -Infinity; break;
         case "pf":        va = a.pf       ?? -Infinity; vb = b.pf       ?? -Infinity; break;
         case "trades":    va = a.trades   ?? -Infinity; vb = b.trades   ?? -Infinity; break;
         case "cagr":      va = parseFloat((a.cagr  ?? "").replace(/[^0-9.-]/g, "")) || -Infinity; vb = parseFloat((b.cagr  ?? "").replace(/[^0-9.-]/g, "")) || -Infinity; break;
@@ -1180,6 +1182,7 @@ export default function StrategyMasterTable() {
                     <Th label="Sharpe"  k="sharpeOos" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgSharpe ? `∅ ${avgSharpe}` : undefined} />
                     <Th label="CAGR"    k="cagr"      sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgCagr ? `∅ ${avgCagr}` : undefined} />
                     <Th label="Max DD"  k="maxDd"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgDd ? `∅ ${avgDd}` : undefined} />
+                    <Th label="Calmar"  k="calmar"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
                     <Th label="PF"      k="pf"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgPf ? `∅ ${avgPf}` : undefined} />
                     <Th label="Trades"  k="trades"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={tradesSum > 0 ? `Σ ${tradesSum}` : undefined} />
                     <Th label="WF/Win%" k="wfWin"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgWf ? `∅ ${avgWf}` : undefined} />
@@ -1241,6 +1244,7 @@ export default function StrategyMasterTable() {
                     </td>
                     <td style={{ padding: "5px 8px", textAlign: "left", color: strNumColor(row.cagr), fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{row.cagr ?? "—"}</td>
                     <td style={{ padding: "5px 8px", textAlign: "left", color: strNumColor(row.maxDd), fontVariantNumeric: "tabular-nums" }}>{row.maxDd ?? "—"}</td>
+                    <td style={{ padding: "5px 8px", textAlign: "left", color: numColor(row.calmar), fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{row.calmar != null ? fmtN(row.calmar) : "—"}</td>
                     <td style={{ padding: "5px 8px", textAlign: "left", color: (row.pf ?? 0) >= 1.3 ? "rgba(255,255,255,0.75)" : row.pf ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.15)", fontVariantNumeric: "tabular-nums" }}>
                       {row.pf != null ? fmtN(row.pf) : "—"}
                     </td>
@@ -1276,7 +1280,7 @@ export default function StrategyMasterTable() {
 
                 const expRow = (
                   <tr key={`${row.id}_x`}>
-                    <td colSpan={13 + (liveCols ? LIVE_EXTRA : 0)} style={{ padding: 0, border: "none" }}>
+                    <td colSpan={14 + (liveCols ? LIVE_EXTRA : 0)} style={{ padding: 0, border: "none" }}>
                       <div style={{ maxHeight: isExp ? "900px" : "0", overflow: "hidden", transition: "max-height 0.38s cubic-bezier(0.4,0,0.2,1)" }}>
                         {isExp && <ExpandedRow row={row} />}
                       </div>
