@@ -80,20 +80,29 @@ function dedupeByPeriod(rows: OhlcRow[], isDaily: boolean): Array<{ key: string;
  * close progression actually proves.
  */
 function repairStuckSessionExtremes(bars: ShapedBar[]): void {
-  const highCounts = new Map<number, number>();
-  const lowCounts = new Map<number, number>();
-  for (const bar of bars) {
-    if (!bar.tick) continue;
-    highCounts.set(bar.high, (highCounts.get(bar.high) ?? 0) + 1);
-    lowCounts.set(bar.low, (lowCounts.get(bar.low) ?? 0) + 1);
-  }
   for (const bar of bars) {
     if (!bar.tick) continue;
     const bodyHigh = Math.max(bar.open, bar.close);
     const bodyLow = Math.min(bar.open, bar.close);
-    if (bar.high > bodyHigh && (highCounts.get(bar.high) ?? 0) >= 2) bar.high = bodyHigh;
-    if (bar.low < bodyLow && (lowCounts.get(bar.low) ?? 0) >= 2) bar.low = bodyLow;
+    // Tick-built rows only prove the close progression. The live worker's high/low
+    // fields are session extremes, so using them as candle wicks corrupts charts
+    // and any signal checks that read the API output.
+    bar.high = bodyHigh;
+    bar.low = bodyLow;
   }
+}
+
+function pruneStaleTickBars(bars: ShapedBar[], isDaily: boolean): ShapedBar[] {
+  if (isDaily) return bars;
+  const lastHistoryIndex = bars.reduce((last, bar, index) => (bar.tick ? last : index), -1);
+  if (lastHistoryIndex < 0) return bars.slice(-1);
+  const lastHistoryMs = Date.parse(bars[lastHistoryIndex]!.time);
+  return bars.filter((bar, index) => {
+    if (!bar.tick) return true;
+    if (index <= lastHistoryIndex) return false;
+    const barMs = Date.parse(bar.time);
+    return Number.isFinite(lastHistoryMs) && Number.isFinite(barMs) && barMs > lastHistoryMs;
+  });
 }
 
 export async function GET(request: Request) {
@@ -172,7 +181,7 @@ export async function GET(request: Request) {
 
     if (!isDaily) repairStuckSessionExtremes(shaped);
 
-    const bars = shaped
+    const bars = pruneStaleTickBars(shaped, isDaily)
       .filter(
         (bar) =>
           Boolean(bar.time) &&

@@ -132,12 +132,10 @@ export function loadIntradaySignalCards(): SignalCardModel[] {
     if (!trades.length) continue;
     const last = trades[trades.length - 1]!;
     const direction: SignalCardDirection = last.direction === "short" ? "SHORT" : last.direction === "long" ? "LONG" : "CASH";
-    const signalDate = dayIso(last.exitTime ?? last.entryTime);
+    const isActuallyOpen = !last.exitTime && last.exit == null;
+    const signalDate = dayIso(isActuallyOpen ? last.entryTime : last.exitTime ?? last.entryTime);
     const age = ageDays(signalDate);
-    // The engine emits backtest trades; treat a very recent trade as an active
-    // (paper) signal, otherwise it's a validated/closed one.
-    const isRecent = age !== undefined && age <= 3;
-    const status: SignalCardStatus = isRecent ? "OPEN" : "PAPER_ONLY";
+    const status: SignalCardStatus = isActuallyOpen ? "OPEN" : "PAPER_ONLY";
     // The card renders tp/sl as a percentage, so express them as distance-from-entry
     // (not the absolute futures price, which would read as "TP: +25093%").
     const entryPx = typeof last.entry === "number" ? last.entry : undefined;
@@ -154,7 +152,7 @@ export function loadIntradaySignalCards(): SignalCardModel[] {
       strategyName: def.strategyName,
       strategyId: def.strategyId,
       version: "1.2",
-      direction,
+      direction: isActuallyOpen ? direction : "CASH",
       status,
       signalDate,
       ageDays: age,
