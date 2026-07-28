@@ -204,13 +204,13 @@ type MonitoringHeaderTabItem =
 
 const MONITORING_HEADER_TABS: MonitoringHeaderTabItem[] = [
   { key: "intraday", kind: "tab", tabId: "intraday_mt", title: "Intraday" },
+  { key: "anomaly", kind: "tab", tabId: "anomaly", title: "Anomaly" },
   { key: "agrar", kind: "tab", tabId: "agrar", title: "Agrar" },
   { key: "metals", kind: "tab", tabId: "metalle_energie", title: "Metals/En" },
   { key: "indices", kind: "tab", tabId: "indizes", title: "Indices" },
   { key: "aktien", kind: "tab", tabId: "aktien", title: "Aktien" },
   { key: "invest", kind: "tab", tabId: "invest", title: "Invest" },
   { key: "forex", kind: "tab", tabId: "fx", title: "Forex" },
-  { key: "anomaly", kind: "tab", tabId: "anomaly", title: "Anomaly" },
   { key: "live", kind: "tab", tabId: "live", title: "Live" },
   { key: "all", kind: "tab", tabId: "all", title: "All" },
 ];
@@ -232,18 +232,15 @@ const FALLBACK_INVEST_UNIVERSE_ITEMS: UniverseAssetItem[] = [
   { tab: "Invest", symbol: "GLD",           requestSymbol: "GLD",   source: "AMEX:GLD",    name: "Gold ETF (GLD)",         timeframe: "D", hasData: false, hasStrategy: false, strategyStatus: "passive",  buildable: false },
   // CI v2.0 — Active Sleeves
   { tab: "Invest", symbol: "QQQ_PINE_1",    requestSymbol: "QQQ",   source: "NASDAQ:QQQ",  name: "QQQ Pine 1",             timeframe: "D", hasData: false, hasStrategy: true,  strategyStatus: "mapped",   buildable: true,  strategyId: "QQQ_PINE_1" },
-  { tab: "Invest", symbol: "QQQ_PINE_2_EMA",requestSymbol: "QQQ",   source: "NASDAQ:QQQ",  name: "QQQ Pine 2 EMA",         timeframe: "D", hasData: false, hasStrategy: true,  strategyStatus: "mapped",   buildable: true,  strategyId: "QQQ_PINE_2_EMA" },
-  { tab: "Invest", symbol: "HG1!",          requestSymbol: "HG1!",  source: "COMEX:HG1!",  name: "Copper Sleeve (HG1!)",   timeframe: "D", hasData: true,  hasStrategy: true,  strategyStatus: "mapped",   buildable: true,  strategyId: "COPPER_HG" },
-  { tab: "Invest", symbol: "6S1!",          requestSymbol: "6S1!",  source: "CME:6S1!",    name: "CHF Sleeve (6S1!)",      timeframe: "D", hasData: true,  hasStrategy: true,  strategyStatus: "mapped",   buildable: true,  strategyId: "CHF_6S" },
+  { tab: "Invest", symbol: "QQQ_PINE_2_EMA",requestSymbol: "QQQ",   source: "NASDAQ:QQQ",  name: "QQQ Pine 2 EMA",         timeframe: "D", hasData: false, hasStrategy: true,  strategyStatus: "rejected", buildable: false, strategyId: "QQQ_PINE_2_EMA" },
+  { tab: "Invest", symbol: "HG1!",          requestSymbol: "HG1!",  source: "COMEX:HG1!",  name: "Copper Sleeve (HG1!)",   timeframe: "D", hasData: false, hasStrategy: true,  strategyStatus: "rejected", buildable: false, strategyId: "COPPER_HG" },
+  { tab: "Invest", symbol: "6S1!",          requestSymbol: "6S1!",  source: "CME:6S1!",    name: "CHF Sleeve (6S1!)",      timeframe: "D", hasData: false, hasStrategy: true,  strategyStatus: "rejected", buildable: false, strategyId: "CHF_6S" },
 ];
 
 const INVEST_WORKSPACE_ASSETS = [
   { symbol: "QQQ_PINE_1", name: "QQQ Pine 1" },
-  { symbol: "QQQ_PINE_2_EMA", name: "QQQ Pine 2 EMA" },
-  { symbol: "COPPER_HG", name: "Copper / HG" },
-  { symbol: "CHF_6S", name: "CHF / 6S" },
 ] as const;
-const INVEST_STRATEGY_IDS = ["QQQ_PINE_1", "QQQ_PINE_2_EMA", "COPPER_HG", "CHF_6S"] as const;
+const INVEST_STRATEGY_IDS = ["QQQ_PINE_1"] as const;
 const isInvestStrategyId = (value: string): value is (typeof INVEST_STRATEGY_IDS)[number] =>
   (INVEST_STRATEGY_IDS as readonly string[]).includes(value);
 
