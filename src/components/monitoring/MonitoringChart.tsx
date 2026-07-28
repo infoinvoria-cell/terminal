@@ -63,6 +63,16 @@ type BarRow = {
   close: number | null;
 };
 
+function isCandleDatum(row: CandlestickData<Time> | WhitespaceData<Time> | undefined): row is CandlestickData<Time> {
+  return Boolean(
+    row &&
+    typeof (row as CandlestickData<Time>).open === "number" &&
+    typeof (row as CandlestickData<Time>).high === "number" &&
+    typeof (row as CandlestickData<Time>).low === "number" &&
+    typeof (row as CandlestickData<Time>).close === "number",
+  );
+}
+
 type RawSignalRow = {
   time: string | null;
   type?: string;
@@ -441,6 +451,11 @@ function berlinIntradayTickMarkFormatter(time: Time, tickMarkType: number): stri
 function berlinIntradayTimeFormatter(time: Time): string {
   if (typeof time !== "number") return String(time);
   return berlinCrosshairFmt.format(new Date(time * 1000));
+}
+
+function formatCrosshairTimeLabel(time: Time | null, intraday: boolean): string | null {
+  if (time == null) return null;
+  return intraday ? berlinIntradayTimeFormatter(time) : String(time);
 }
 
 /** Returns true if the date falls in Central European Summer Time (UTC+2).
@@ -1801,8 +1816,8 @@ function MonitoringChartInner({
       const tailUnchanged = newData.length === prev.length
         ? lastNew && lastPrev && String(lastNew.time) === String(lastPrev.time)
         : true; // new bar appended — always safe to update
-      if (tailUnchanged && lastNew) {
-        candle.update(lastNew as CandlestickData<Time>);
+      if (tailUnchanged && isCandleDatum(lastNew)) {
+        candle.update(lastNew);
         usedUpdate = true;
       }
     }
@@ -2033,6 +2048,21 @@ function MonitoringChartInner({
           ctx.fillStyle = "rgba(230, 235, 245, 0.95)";
           ctx.textBaseline = "middle";
           ctx.fillText(label, boxX + 5, boxY + boxH / 2);
+        }
+        const timeAtCursor = chartNow.timeScale().coordinateToTime(cross.x);
+        const timeLabel = formatCrosshairTimeLabel(timeAtCursor, isIntradayChartTf(data.timeframe));
+        if (timeLabel) {
+          ctx.font = `11px ${MONITORING_CHART_FONT_FAMILY}`;
+          const tw = ctx.measureText(timeLabel).width;
+          const boxH = 18;
+          const boxW = tw + 12;
+          const boxX = Math.min(width - boxW - 4, Math.max(4, cross.x - boxW / 2));
+          const boxY = height - boxH - 2;
+          ctx.fillStyle = "rgba(22, 26, 32, 0.95)";
+          ctx.fillRect(boxX, boxY, boxW, boxH);
+          ctx.fillStyle = "rgba(230, 235, 245, 0.95)";
+          ctx.textBaseline = "middle";
+          ctx.fillText(timeLabel, boxX + 6, boxY + boxH / 2);
         }
         ctx.restore();
       }

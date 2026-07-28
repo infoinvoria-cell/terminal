@@ -76,19 +76,17 @@ function dedupeByPeriod(rows: OhlcRow[], isDaily: boolean): Array<{ key: string;
  * Genuine bars practically never do that, and tick bars are only ever the
  * forming candle, so the check is scoped to them and cannot damage TV history.
  *
- * Repair, not deletion: fall back to the body extent — the only range the tick
- * close progression actually proves.
+ * Repair, not deletion: keep valid live wicks, but cap impossible session-sized
+ * extremes to a small intraday range around the candle body.
  */
 function repairStuckSessionExtremes(bars: ShapedBar[]): void {
   for (const bar of bars) {
     if (!bar.tick) continue;
     const bodyHigh = Math.max(bar.open, bar.close);
     const bodyLow = Math.min(bar.open, bar.close);
-    // Tick-built rows only prove the close progression. The live worker's high/low
-    // fields are session extremes, so using them as candle wicks corrupts charts
-    // and any signal checks that read the API output.
-    bar.high = bodyHigh;
-    bar.low = bodyLow;
+    const maxExtra = Math.max(Math.abs(bar.close) * 0.0035, 1e-6);
+    bar.high = Math.max(bodyHigh, Math.min(bar.high, bodyHigh + maxExtra));
+    bar.low = Math.min(bodyLow, Math.max(bar.low, bodyLow - maxExtra));
   }
 }
 
