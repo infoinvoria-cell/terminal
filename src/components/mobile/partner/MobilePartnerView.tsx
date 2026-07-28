@@ -1,34 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { useUser } from "@/context/user-context";
-import { getPartnerProfile } from "@/lib/partner/partnerMockData";
-import {
-  calcPerformanceFeeDistribution,
-  calcAP,
-  tierProgress,
-  formatEur,
-  formatPct,
-} from "@/lib/partner/partnerCalculations";
+import { calcAP, formatEur, formatPct } from "@/lib/partner/partnerCalculations";
 import { PARTNER_PROGRAM_CONFIG } from "@/lib/partner/partnerProgramConfig";
+import { PartnerWhiteboardModal } from "@/components/partner/PartnerWhiteboardModal";
 
 // ── Design tokens (inline only — no Tailwind) ─────────────────────────────────
 
 const C = {
-  bg:       "#0c0d10",
-  card:     "linear-gradient(180deg, #1c1d20 0%, #141517 100%)",
-  border:   "rgba(255,255,255,0.06)",
-  gold:     "#e2ca7a",
-  text:     "#f4f5f7",
-  muted:    "rgba(255,255,255,0.4)",
-  dimmed:   "rgba(255,255,255,0.18)",
-  green:    "#4ade80",
-  red:      "#f87171",
-  font:     "var(--font-montserrat, sans-serif)",
+  bg:     "#0c0d10",
+  card:   "linear-gradient(180deg, #1c1d20 0%, #141517 100%)",
+  border: "rgba(255,255,255,0.06)",
+  gold:   "#e2ca7a",
+  text:   "#f4f5f7",
+  muted:  "rgba(255,255,255,0.4)",
+  dimmed: "rgba(255,255,255,0.18)",
+  green:  "#4ade80",
+  red:    "#f87171",
+  font:   "var(--font-montserrat, sans-serif)",
 } as const;
-
-// Tiers that get the gold pill background (dark text on gold)
-const GOLD_TIERS = new Set(["gold", "platin", "black"]);
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -36,8 +26,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <p style={{
       margin: "0 0 10px",
-      fontSize: 10,
-      fontWeight: 700,
+      fontSize: 10, fontWeight: 700,
       color: C.muted,
       textTransform: "uppercase" as const,
       letterSpacing: "0.07em",
@@ -62,298 +51,287 @@ function Card({ children, style }: { children: React.ReactNode; style?: React.CS
   );
 }
 
-function KpiRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-      <span style={{ fontSize: 11, color: C.muted, fontFamily: C.font }}>{label}</span>
-      <span style={{ fontSize: 13, fontWeight: 600, color: C.text, fontFamily: C.font }}>{value}</span>
-    </div>
-  );
-}
+// ── Fee flow (generic example) ─────────────────────────────────────────────────
+
+const EXAMPLE_PROFIT = 100_000;
+const PF_RATE  = PARTNER_PROGRAM_CONFIG.performanceFeeRate;   // 0.25
+const IN_RATE  = PARTNER_PROGRAM_CONFIG.innoInvestRate;       // 0.125
+const PF       = Math.round(EXAMPLE_PROFIT * PF_RATE);        // 25 000
+const INNO     = Math.round(PF * IN_RATE);                    // 3 125
+const CL_BASE  = PF - INNO;                                   // 21 875
 
 // ── Main view ─────────────────────────────────────────────────────────────────
 
 export function MobilePartnerView() {
-  const { user } = useUser();
-  const [apInput, setApInput]   = useState("");
-  const [lockup, setLockup]     = useState<1 | 3 | 5>(1);
+  const [showWhiteboard, setShowWhiteboard] = useState(false);
+  const [apInput, setApInput]               = useState("");
+  const [lockup, setLockup]                 = useState<1 | 3 | 5>(1);
 
-  if (!user) {
-    return (
-      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: C.bg }}>
-        <span style={{ fontSize: 12, color: C.muted, fontFamily: C.font }}>Kein Nutzer aktiv</span>
-      </div>
-    );
-  }
-
-  const profile     = getPartnerProfile(user.id);
-  const totalVol    = profile.totalActiveVolume;
-  const isFounder   = profile.founderStatus;
-
-  // Resolve live tier from volume (ignores stored partnerTier to stay consistent)
-  const { current: tier, next, progress } = tierProgress(totalVol, isFounder);
-
-  // Example fee distribution: 100 000 € investor profit
-  const EXAMPLE_PROFIT = 100_000;
-  const dist = calcPerformanceFeeDistribution(EXAMPLE_PROFIT, tier.id);
-
-  // AP calculator
   const apEur    = parseFloat(apInput) || 0;
   const apResult = apEur > 0 ? calcAP(apEur, lockup) : null;
 
-  // Tier pill style
-  const tierPillStyle: React.CSSProperties = {
-    fontSize: 10,
-    fontWeight: 700,
-    letterSpacing: "0.06em",
-    borderRadius: 99,
-    padding: "2px 9px",
-    fontFamily: C.font,
-    background: GOLD_TIERS.has(tier.id) ? C.gold : "rgba(255,255,255,0.12)",
-    color:      GOLD_TIERS.has(tier.id) ? "#0c0d10" : C.text,
-  };
-
   return (
-    <div style={{ height: "100%", overflowY: "auto", overflowX: "hidden", background: C.bg }}>
-      <div style={{ padding: "12px 16px 120px", display: "flex", flexDirection: "column", gap: 12 }}>
+    <>
+      {showWhiteboard && (
+        <PartnerWhiteboardModal onClose={() => setShowWhiteboard(false)} />
+      )}
 
-        {/* ── Section A: Status Card ─────────────────────────────────────── */}
-        <Card>
-          {/* Name + badges */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-            <span style={{ fontSize: 15, fontWeight: 700, color: C.text, fontFamily: C.font }}>
-              {profile.userName}
-            </span>
-            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-              {isFounder && (
-                <span style={{
-                  fontSize: 9, fontWeight: 700,
-                  color: "#0c0d10", background: C.gold,
-                  borderRadius: 99, padding: "2px 7px",
-                  letterSpacing: "0.06em",
-                  fontFamily: C.font,
-                }}>
-                  FOUNDER
-                </span>
-              )}
-              <span style={tierPillStyle}>{tier.label.toUpperCase()}</span>
+      <div style={{ height: "100%", overflowY: "auto", overflowX: "hidden", background: C.bg }}>
+        <div style={{ padding: "12px 16px 120px", display: "flex", flexDirection: "column", gap: 12 }}>
+
+          {/* ── Header + Whiteboard Button ────────────────────────────────── */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 2 }}>
+            <div>
+              <p style={{ margin: 0, fontSize: 9.5, fontWeight: 700, color: `${C.gold}99`, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: C.font }}>
+                Capitalife
+              </p>
+              <p style={{ margin: 0, fontSize: 18, fontWeight: 700, color: C.text, fontFamily: C.font }}>
+                Partnerprogramm
+              </p>
             </div>
+            <button
+              onClick={() => setShowWhiteboard(true)}
+              style={{
+                background: `rgba(226,202,122,0.1)`,
+                border: `1px solid rgba(226,202,122,0.3)`,
+                borderRadius: 8,
+                padding: "8px 12px",
+                display: "flex", alignItems: "center", gap: 6,
+                color: C.gold,
+                fontSize: 11, fontWeight: 700,
+                cursor: "pointer",
+                fontFamily: C.font,
+                WebkitTapHighlightColor: "transparent",
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+                <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+              </svg>
+              Whiteboard
+            </button>
           </div>
 
-          {/* KPI rows */}
-          <KpiRow label="Eigenes Volumen"  value={formatEur(profile.ownActiveVolume)} />
-          <KpiRow label="Team-Volumen"     value={formatEur(profile.teamActiveVolume)} />
-          <KpiRow label="Gesamt-Volumen"   value={formatEur(totalVol)} />
-
-          {/* Progress bar to next tier */}
-          {next ? (
-            <div style={{ marginTop: 6 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                <span style={{ fontSize: 10, color: C.muted, fontFamily: C.font }}>
-                  Nächste Stufe: {next.label}
-                </span>
-                <span style={{ fontSize: 10, color: C.muted, fontFamily: C.font }}>
-                  {Math.round(progress * 100)} %
-                </span>
-              </div>
-              <div style={{ height: 4, borderRadius: 99, background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
-                <div style={{
-                  height: "100%",
-                  width: `${Math.max(Math.round(progress * 100), 2)}%`,
-                  background: C.gold,
-                  borderRadius: 99,
-                  transition: "width 600ms ease",
-                }} />
-              </div>
-            </div>
-          ) : (
-            <p style={{ margin: "6px 0 0", fontSize: 10, color: C.gold, textAlign: "center", fontFamily: C.font }}>
-              Hochste Stufe erreicht
+          {/* ── Section: Performance-Fee Ablauf ───────────────────────────── */}
+          <Card>
+            <SectionTitle>Performance-Fee Ablauf (Beispiel)</SectionTitle>
+            <p style={{ margin: "0 0 10px", fontSize: 10, color: C.dimmed, fontFamily: C.font }}>
+              Basis: {formatEur(EXAMPLE_PROFIT)} Investor-Gewinn
             </p>
-          )}
-        </Card>
 
-        {/* ── Section B: Fee Flow ────────────────────────────────────────── */}
-        <Card>
-          <SectionTitle>Geldfluss</SectionTitle>
-          <p style={{ margin: "0 0 10px", fontSize: 10, color: C.dimmed, fontFamily: C.font }}>
-            Beispiel: {formatEur(EXAMPLE_PROFIT)} Investor-Gewinn
-          </p>
-
-          {[
-            { label: "Investor-Gewinn",                                        value: formatEur(dist.investorProfit),    indent: false, highlight: false },
-            { label: `Perf.-Fee (${formatPct(PARTNER_PROGRAM_CONFIG.performanceFeeRate)})`, value: `−${formatEur(dist.performanceFee)}`,   indent: true,  highlight: false },
-            { label: `InnoInvest (${formatPct(PARTNER_PROGRAM_CONFIG.innoInvestRate)})`,    value: `−${formatEur(dist.innoInvestShare)}`, indent: true,  highlight: false },
-            { label: "CL-Basis",                                               value: formatEur(dist.clBase),            indent: true,  highlight: false },
-            { label: `Partner ${tier.label} (${formatPct(tier.clShareRate)})`, value: formatEur(dist.partnerShare),      indent: true,  highlight: true  },
-            { label: "CL Rest",                                                value: formatEur(dist.clRemainder),       indent: true,  highlight: false },
-          ].map(({ label, value, indent, highlight }, i) => (
-            <div key={i} style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: 7,
-              paddingLeft: indent ? 10 : 0,
-              borderLeft: highlight ? `2px solid ${C.gold}` : indent ? "2px solid rgba(255,255,255,0.07)" : "none",
-            }}>
-              <span style={{ flex: 1, fontSize: 11, color: highlight ? C.gold : C.muted, fontFamily: C.font }}>
-                {label}
-              </span>
-              <span style={{
-                fontSize: 12,
-                fontWeight: highlight ? 700 : 500,
-                color: highlight ? C.gold : C.text,
-                fontFamily: C.font,
+            {[
+              { label: "Investorengewinn",          value: formatEur(EXAMPLE_PROFIT), indent: false, hi: false },
+              { label: `Performance Fee ${(PF_RATE * 100).toFixed(0)} %`, value: `−${formatEur(PF)}`, indent: true, hi: false },
+              { label: `InnoInvest ${(IN_RATE * 100).toFixed(1)} %`,      value: `−${formatEur(INNO)}`, indent: true, hi: false },
+              { label: "CL-Basis",                  value: formatEur(CL_BASE), indent: true, hi: false },
+              { label: "Partneranteil (nach Stufe)", value: "40 % Gold → 8.750 €", indent: true, hi: true },
+            ].map(({ label, value, indent, hi }, i) => (
+              <div key={i} style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: 7,
+                paddingLeft: indent ? 10 : 0,
+                borderLeft: hi ? `2px solid ${C.gold}` : indent ? "2px solid rgba(255,255,255,0.07)" : "none",
               }}>
-                {value}
-              </span>
-            </div>
-          ))}
-        </Card>
+                <span style={{ flex: 1, fontSize: 11, color: hi ? C.gold : C.muted, fontFamily: C.font }}>{label}</span>
+                <span style={{ fontSize: 12, fontWeight: hi ? 700 : 500, color: hi ? C.gold : C.text, fontFamily: C.font }}>{value}</span>
+              </div>
+            ))}
 
-        {/* ── Section C: Tier Table ─────────────────────────────────────── */}
-        <Card>
-          <SectionTitle>Partnerstufen</SectionTitle>
-          {PARTNER_PROGRAM_CONFIG.tiers.map((t) => {
-            const isActive  = t.id === tier.id;
-            const threshold = isFounder ? t.founderThreshold : t.volThreshold;
-            return (
+            <p style={{ margin: "8px 0 0", fontSize: 9.5, color: C.dimmed, fontFamily: C.font, textAlign: "center" }}>
+              ≈ 8,75 % des Investorengewinns · 35 % der Performance Fee
+            </p>
+          </Card>
+
+          {/* ── Section: Partnerstufen ────────────────────────────────────── */}
+          <Card>
+            <SectionTitle>Partnerstufen</SectionTitle>
+
+            {/* Column headers */}
+            <div style={{ display: "flex", gap: 4, marginBottom: 6 }}>
+              <span style={{ flex: 1, fontSize: 9, color: C.dimmed, fontFamily: C.font }}>Stufe</span>
+              <span style={{ fontSize: 9, color: C.dimmed, fontFamily: C.font, width: 46, textAlign: "right" }}>CL-Ant.</span>
+              <span style={{ fontSize: 9, color: C.dimmed, fontFamily: C.font, width: 72, textAlign: "right" }}>Vol. regulär</span>
+              <span style={{ fontSize: 9, color: C.dimmed, fontFamily: C.font, width: 72, textAlign: "right" }}>Vol. Founder</span>
+            </div>
+
+            {PARTNER_PROGRAM_CONFIG.tiers.map((t) => (
               <div key={t.id} style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 6,
-                padding: "7px 8px",
-                marginBottom: 2,
-                borderRadius: 6,
-                borderLeft: isActive ? `3px solid ${C.gold}` : "3px solid transparent",
-                background: isActive ? "rgba(226,202,122,0.06)" : "transparent",
+                gap: 4,
+                padding: "6px 4px",
+                marginBottom: 1,
+                borderBottom: "1px solid rgba(255,255,255,0.04)",
               }}>
-                <span style={{
-                  flex: 1,
-                  fontSize: 12,
-                  fontWeight: isActive ? 700 : 500,
-                  color: isActive ? C.gold : C.text,
-                  fontFamily: C.font,
-                }}>
+                <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: C.text, fontFamily: C.font }}>
                   {t.label}
                 </span>
-                <span style={{
-                  fontSize: 11,
-                  color: isActive ? C.gold : C.muted,
-                  fontFamily: C.font,
-                  minWidth: 40,
-                  textAlign: "right" as const,
-                }}>
-                  {formatPct(t.clShareRate)}
+                <span style={{ fontSize: 12, fontWeight: 700, color: C.gold, fontFamily: C.font, width: 46, textAlign: "right" }}>
+                  {(t.clShareRate * 100).toFixed(0)} %
                 </span>
-                <span style={{
-                  fontSize: 10,
-                  color: C.muted,
-                  fontFamily: C.font,
-                  minWidth: 84,
-                  textAlign: "right" as const,
-                }}>
-                  {threshold === 0 ? "ab 0 €" : formatEur(threshold)}
+                <span style={{ fontSize: 10, color: C.muted, fontFamily: C.font, width: 72, textAlign: "right" }}>
+                  {t.volThreshold === 0 ? "–" : formatEur(t.volThreshold)}
+                </span>
+                <span style={{ fontSize: 10, color: `${C.gold}88`, fontFamily: C.font, width: 72, textAlign: "right" }}>
+                  {t.founderThreshold === 0 ? "–" : formatEur(t.founderThreshold)}
                 </span>
               </div>
-            );
-          })}
-          {isFounder && (
-            <p style={{ margin: "8px 0 0", fontSize: 9, color: C.dimmed, fontFamily: C.font, textAlign: "center" }}>
-              Schwellenwerte als Founder (50 % Rabatt)
+            ))}
+
+            <p style={{ margin: "8px 0 0", fontSize: 9, color: C.dimmed, fontFamily: C.font }}>
+              ★ Founder-Schwellen: 50 % reduziert · Mgmt. Fee ab Platin (TBD)
             </p>
-          )}
-        </Card>
+          </Card>
 
-        {/* ── Section G: AP Rechner ─────────────────────────────────────── */}
-        <Card>
-          <SectionTitle>AP Rechner</SectionTitle>
+          {/* ── Section: AP-Sätze ─────────────────────────────────────────── */}
+          <Card>
+            <SectionTitle>Abschlussprovision (AP)</SectionTitle>
+            <p style={{ margin: "0 0 10px", fontSize: 10, color: C.dimmed, fontFamily: C.font }}>
+              Direkt auf den Investitionsbetrag · sofort bei Abschluss
+            </p>
 
-          <input
-            type="number"
-            inputMode="numeric"
-            value={apInput}
-            onChange={(e) => setApInput(e.target.value)}
-            placeholder="Anlagebetrag in €"
-            style={{
-              width: "100%",
-              padding: "10px 12px",
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.10)",
-              borderRadius: 8,
-              color: C.text,
-              fontSize: 14,
-              fontFamily: C.font,
-              outline: "none",
-              boxSizing: "border-box" as const,
-              marginBottom: 10,
-            }}
-          />
+            <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+              {PARTNER_PROGRAM_CONFIG.apRates.map((ap) => (
+                <div key={ap.lockupYears} style={{
+                  flex: 1,
+                  background: "rgba(226,202,122,0.07)",
+                  border: `1px solid rgba(226,202,122,0.2)`,
+                  borderRadius: 8,
+                  padding: "10px 4px",
+                  textAlign: "center",
+                }}>
+                  <p style={{ margin: "0 0 2px", fontSize: 9, color: C.muted, fontFamily: C.font }}>{ap.lockupYears}J Bindung</p>
+                  <p style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.gold, fontFamily: C.font }}>
+                    {(ap.rate * 100).toFixed(1)} %
+                  </p>
+                </div>
+              ))}
+            </div>
+          </Card>
 
-          {/* Lock-up toggle */}
-          <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-            {([1, 3, 5] as const).map((y) => (
-              <button
-                key={y}
-                onClick={() => setLockup(y)}
-                style={{
+          {/* ── Section: AP Rechner ───────────────────────────────────────── */}
+          <Card>
+            <SectionTitle>AP Rechner</SectionTitle>
+
+            <input
+              type="number"
+              inputMode="numeric"
+              value={apInput}
+              onChange={(e) => setApInput(e.target.value)}
+              placeholder="Anlagebetrag in €"
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.10)",
+                borderRadius: 8,
+                color: C.text,
+                fontSize: 14,
+                fontFamily: C.font,
+                outline: "none",
+                boxSizing: "border-box" as const,
+                marginBottom: 10,
+              }}
+            />
+
+            <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+              {([1, 3, 5] as const).map((y) => (
+                <button key={y} onClick={() => setLockup(y)} style={{
                   flex: 1,
                   padding: "8px 0",
                   background: lockup === y ? C.gold : "rgba(255,255,255,0.06)",
                   border: "none",
                   borderRadius: 8,
                   color: lockup === y ? "#0c0d10" : C.muted,
-                  fontSize: 12,
-                  fontWeight: 700,
+                  fontSize: 12, fontWeight: 700,
                   cursor: "pointer",
                   fontFamily: C.font,
                   WebkitTapHighlightColor: "transparent",
                   transition: "background 150ms, color 150ms",
-                }}
-              >
-                {y}J
-              </button>
+                }}>
+                  {y}J
+                </button>
+              ))}
+            </div>
+
+            {apResult ? (
+              <div style={{
+                background: "rgba(226,202,122,0.06)",
+                border: `1px solid rgba(226,202,122,0.15)`,
+                borderRadius: 8,
+                padding: "10px 12px",
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+                  <span style={{ fontSize: 11, color: C.muted, fontFamily: C.font }}>Satz</span>
+                  <span style={{ fontSize: 11, color: C.gold, fontWeight: 600, fontFamily: C.font }}>
+                    {formatPct(apResult.rate)}
+                  </span>
+                </div>
+                <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "4px 0" }} />
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: C.text, fontFamily: C.font }}>AP</span>
+                  <span style={{ fontSize: 18, fontWeight: 700, color: C.gold, fontFamily: C.font }}>
+                    {formatEur(apResult.apAmount)}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div style={{ textAlign: "center", padding: "12px 0" }}>
+                <span style={{ fontSize: 11, color: C.dimmed, fontFamily: C.font }}>Anlagebetrag eingeben</span>
+              </div>
+            )}
+          </Card>
+
+          {/* ── Section: Volumenberechnung ────────────────────────────────── */}
+          <Card>
+            <SectionTitle>Aktives Volumen — Was zählt?</SectionTitle>
+            {[
+              { label: "Eigenes aktiv investiertes Kapital", ok: true  },
+              { label: "Aktives Kapital direkter Teampartner", ok: true  },
+              { label: "Gekündigte Investments",               ok: false },
+              { label: "Vollständig ausgezahlte Investments",  ok: false },
+              { label: "Nicht eingezahlte Zeichnungen",        ok: false },
+            ].map(({ label, ok }) => (
+              <div key={label} style={{
+                display: "flex", alignItems: "center", gap: 8,
+                marginBottom: 7,
+              }}>
+                <span style={{ fontSize: 13, color: ok ? C.green : C.red, flexShrink: 0 }}>
+                  {ok ? "✓" : "✗"}
+                </span>
+                <span style={{ fontSize: 11, color: ok ? C.text : C.muted, fontFamily: C.font }}>{label}</span>
+              </div>
             ))}
-          </div>
+            <p style={{ margin: "6px 0 0", fontSize: 9, color: C.dimmed, fontFamily: C.font }}>
+              Teamstruktur: aktuell nur direkte Ebene (Tiefe 1)
+            </p>
+          </Card>
 
-          {/* Result */}
-          {apResult ? (
-            <div style={{
-              background: "rgba(226,202,122,0.06)",
-              border: `1px solid rgba(226,202,122,0.15)`,
-              borderRadius: 8,
-              padding: "10px 12px",
-            }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                <span style={{ fontSize: 11, color: C.muted, fontFamily: C.font }}>Lock-up</span>
-                <span style={{ fontSize: 11, color: C.text, fontFamily: C.font }}>{apResult.lockupYears} Jahre</span>
+          {/* ── Section: Verwaltungsgebühr ────────────────────────────────── */}
+          <Card>
+            <SectionTitle>Verwaltungsgebühr (Mgmt. Fee)</SectionTitle>
+            {[
+              { label: "Gesamt p.a.", value: `${(PARTNER_PROGRAM_CONFIG.managementFeeRate * 100).toFixed(1)} %` },
+              { label: "InnoInvest",  value: `${(PARTNER_PROGRAM_CONFIG.innoInvestMgmtRate * 100).toFixed(1)} % des Anteils` },
+              { label: "Platin / Black", value: "Beteiligung TBD" },
+            ].map(({ label, value }) => (
+              <div key={label} style={{
+                display: "flex", justifyContent: "space-between",
+                alignItems: "center", marginBottom: 8,
+              }}>
+                <span style={{ fontSize: 11, color: C.muted, fontFamily: C.font }}>{label}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: C.text, fontFamily: C.font }}>{value}</span>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                <span style={{ fontSize: 11, color: C.muted, fontFamily: C.font }}>AP-Rate</span>
-                <span style={{ fontSize: 11, color: C.gold, fontFamily: C.font, fontWeight: 600 }}>
-                  {formatPct(apResult.rate)}
-                </span>
-              </div>
-              <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "6px 0" }} />
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: 12, fontWeight: 600, color: C.text, fontFamily: C.font }}>
-                  Abschlussprovision
-                </span>
-                <span style={{ fontSize: 16, fontWeight: 700, color: C.gold, fontFamily: C.font }}>
-                  {formatEur(apResult.apAmount)}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div style={{ textAlign: "center", padding: "12px 0" }}>
-              <span style={{ fontSize: 11, color: C.dimmed, fontFamily: C.font }}>
-                Anlagebetrag eingeben
-              </span>
-            </div>
-          )}
-        </Card>
+            ))}
+            <p style={{ margin: "6px 0 0", fontSize: 9, color: C.dimmed, fontFamily: C.font }}>
+              Finanziert Betrieb und Abschlussprovisionen
+            </p>
+          </Card>
 
+        </div>
       </div>
-    </div>
+    </>
   );
 }
