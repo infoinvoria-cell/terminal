@@ -252,39 +252,40 @@ function ToolTip({
 function MatrixTable({ data }: { data: CapalifeData }) {
   const kpis = getHomeTrackRecordKpis(data);
   const matrix = buildTableMatrix(data);
+  const terminalGold = "#e2ca7a";
   return (
     <div style={{ height: "100%", overflow: "auto" }}>
       <table
         style={{
           width: "100%",
-          minWidth: 720,
+          minWidth: 920,
           borderCollapse: "collapse",
-          fontSize: 13,
+          fontSize: 19,
           fontFamily: "var(--font-montserrat,sans-serif)",
           color: "#e2e6ed",
         }}
       >
         <thead>
           <tr style={{ background: "rgba(255,255,255,0.03)" }}>
-            <th style={{ padding: "12px 12px", textAlign: "left", color: "#7d8390", fontWeight: 700, fontSize: 11 }}>Year</th>
+            <th style={{ padding: "18px 14px", textAlign: "left", color: "#7d8390", fontWeight: 800, fontSize: 15 }}>Year</th>
             {MONTH_ABBR.map((month) => (
-              <th key={month} style={{ padding: "12px 8px", textAlign: "right", color: "#7d8390", fontWeight: 700, fontSize: 11 }}>
+              <th key={month} style={{ padding: "18px 10px", textAlign: "right", color: "#7d8390", fontWeight: 800, fontSize: 15 }}>
                 {month}
               </th>
             ))}
-            <th style={{ padding: "12px 10px", textAlign: "right", color: "#e2e6ed", fontWeight: 700, fontSize: 11 }}>Total</th>
+            <th style={{ padding: "18px 12px", textAlign: "right", color: terminalGold, fontWeight: 800, fontSize: 15 }}>Total</th>
           </tr>
         </thead>
         <tbody>
           {matrix.map((row) => (
             <tr key={row.year}>
-              <td style={{ padding: "13px 12px", borderTop: "1px solid rgba(255,255,255,0.05)", color: "#aeb5c2", fontWeight: 700 }}>{row.year}</td>
+              <td style={{ padding: "20px 14px", borderTop: "1px solid rgba(255,255,255,0.05)", color: "#aeb5c2", fontWeight: 800 }}>{row.year}</td>
               {row.months.map((value, index) => (
-                <td key={index} style={{ padding: "13px 8px", textAlign: "right", borderTop: "1px solid rgba(255,255,255,0.05)", color: value === null ? "#4b5563" : value >= 0 ? "#eef2f7" : "#d98f8f", fontWeight: 700 }}>
+                <td key={index} style={{ padding: "20px 10px", textAlign: "right", borderTop: "1px solid rgba(255,255,255,0.05)", color: value === null ? "#4b5563" : value >= 0 ? "#eef2f7" : "#d98f8f", fontWeight: 800 }}>
                   {value === null ? "—" : formatSignedPercent(value)}
                 </td>
               ))}
-              <td style={{ padding: "13px 10px", textAlign: "right", borderTop: "1px solid rgba(255,255,255,0.05)", color: "#fff36f", fontWeight: 800 }}>
+              <td style={{ padding: "20px 12px", textAlign: "right", borderTop: "1px solid rgba(255,255,255,0.05)", color: terminalGold, fontWeight: 900 }}>
                 {formatSignedPercent(row.total)}
               </td>
             </tr>
@@ -292,13 +293,13 @@ function MatrixTable({ data }: { data: CapalifeData }) {
         </tbody>
         <tfoot>
           <tr style={{ background: "rgba(255,255,255,0.03)" }}>
-            <td style={{ padding: "13px 12px", borderTop: "1px solid rgba(255,255,255,0.08)", color: "#e2e6ed", fontWeight: 800 }}>
+            <td style={{ padding: "20px 14px", borderTop: "1px solid rgba(255,255,255,0.08)", color: "#e2e6ed", fontWeight: 900 }}>
               Combined
             </td>
-            <td colSpan={12} style={{ padding: "13px 12px", borderTop: "1px solid rgba(255,255,255,0.08)", textAlign: "right", color: "#aeb5c2", fontWeight: 600 }}>
+            <td colSpan={12} style={{ padding: "20px 14px", borderTop: "1px solid rgba(255,255,255,0.08)", textAlign: "right", color: "#aeb5c2", fontWeight: 700, fontSize: 17 }}>
               Account 1 {formatSignedPercent(kpis.account1End, 2)} · Account 2 {formatSignedPercent(kpis.account2End, 2)}
             </td>
-            <td style={{ padding: "13px 10px", textAlign: "right", borderTop: "1px solid rgba(255,255,255,0.08)", color: "#fff36f", fontWeight: 800 }}>
+            <td style={{ padding: "20px 12px", textAlign: "right", borderTop: "1px solid rgba(255,255,255,0.08)", color: terminalGold, fontWeight: 900 }}>
               {formatSignedPercent(kpis.expectedEnd, 1)}
             </td>
           </tr>
@@ -310,6 +311,7 @@ function MatrixTable({ data }: { data: CapalifeData }) {
 
 function ListTable({ rows, data }: { rows: Array<{ label: string; periodReturnPct: number }>; data: CapalifeData }) {
   const kpis = getHomeTrackRecordKpis(data);
+  const terminalGold = "#e2ca7a";
   return (
     <div style={{ height: "100%", overflow: "auto" }}>
       <table
@@ -323,15 +325,15 @@ function ListTable({ rows, data }: { rows: Array<{ label: string; periodReturnPc
       >
         <thead>
           <tr style={{ background: "rgba(255,255,255,0.03)" }}>
-            <th style={{ padding: "12px 12px", textAlign: "left", color: "#7d8390", fontWeight: 700, fontSize: 11 }}>Period</th>
-            <th style={{ padding: "12px 12px", textAlign: "right", color: "#7d8390", fontWeight: 700, fontSize: 11 }}>Return</th>
+            <th style={{ padding: "18px 14px", textAlign: "left", color: "#7d8390", fontWeight: 800, fontSize: 15 }}>Period</th>
+            <th style={{ padding: "18px 14px", textAlign: "right", color: "#7d8390", fontWeight: 800, fontSize: 15 }}>Return</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => (
             <tr key={row.label}>
-              <td style={{ padding: "13px 12px", borderTop: "1px solid rgba(255,255,255,0.05)", fontWeight: 700 }}>{row.label}</td>
-              <td style={{ padding: "13px 12px", textAlign: "right", borderTop: "1px solid rgba(255,255,255,0.05)", color: row.periodReturnPct >= 0 ? "#eef2f7" : "#d98f8f", fontWeight: 700 }}>
+              <td style={{ padding: "20px 14px", borderTop: "1px solid rgba(255,255,255,0.05)", fontWeight: 700 }}>{row.label}</td>
+              <td style={{ padding: "20px 14px", textAlign: "right", borderTop: "1px solid rgba(255,255,255,0.05)", color: row.periodReturnPct >= 0 ? "#eef2f7" : "#d98f8f", fontWeight: 700 }}>
                 {formatSignedPercent(row.periodReturnPct)}
               </td>
             </tr>
@@ -339,8 +341,8 @@ function ListTable({ rows, data }: { rows: Array<{ label: string; periodReturnPc
         </tbody>
         <tfoot>
           <tr style={{ background: "rgba(255,255,255,0.03)" }}>
-            <td style={{ padding: "13px 12px", borderTop: "1px solid rgba(255,255,255,0.08)", color: "#e2e6ed", fontWeight: 800 }}>Combined Total</td>
-            <td style={{ padding: "13px 12px", textAlign: "right", borderTop: "1px solid rgba(255,255,255,0.08)", color: "#fff36f", fontWeight: 800 }}>
+            <td style={{ padding: "20px 14px", borderTop: "1px solid rgba(255,255,255,0.08)", color: "#e2e6ed", fontWeight: 800 }}>Combined Total</td>
+            <td style={{ padding: "20px 14px", textAlign: "right", borderTop: "1px solid rgba(255,255,255,0.08)", color: terminalGold, fontWeight: 900 }}>
               {formatSignedPercent(kpis.expectedEnd, 1)}
             </td>
           </tr>

@@ -181,7 +181,7 @@ export function PortfolioSection({ trades, kpis, capalifeData }: PortfolioSectio
           style={{
             position: "absolute",
             inset: 0,
-            paddingTop: 54,
+            paddingTop: 74,
             paddingLeft: 20,
             paddingRight: 14,
             paddingBottom: 12,
