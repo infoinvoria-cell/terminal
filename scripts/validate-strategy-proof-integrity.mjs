@@ -78,8 +78,8 @@ for (const forbidden of ["deriveSignals_Pine1", "deriveSignals_Pine2", "buildEqu
     fail(`approximation helper ${forbidden} is exposed in the monitoring hook`);
   }
 }
-if (!coreHookSource.includes('validationStatus: hasBars ? "partial_validation"')) {
-  fail("Core Invest sleeves are not marked partial_validation");
+if (!coreHookSource.includes('"partial_validation"') || !coreHookSource.includes('"rejected"')) {
+  fail("Core Invest sleeves must explicitly distinguish partial validation from rejected components");
 }
 
 console.log(`Strategy proof OK: White Swan ${wsRows.length} components / ${wsWeight.toFixed(0)}%`);

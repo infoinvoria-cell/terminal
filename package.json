@@ -24,6 +24,7 @@
     "monitoring:build-ohlc-dry": "python tools/monitoring/build-ohlc-cache.py --dry-run",
     "monitoring:build-ohlc-csv": "python tools/monitoring/build-ohlc-cache.py --no-live",
     "invest:generate-events": "python tools/core-invest/generate-core-invest-events.py",
+    "invest:parity": "node scripts/core-invest-parity-report.mjs",
     "invest:validate-futures": "node tools/monitoring/validate-continuous-contracts.mjs --report",
     "analyze": "cross-env ANALYZE=true npm run build"
   },
