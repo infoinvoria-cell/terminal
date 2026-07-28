@@ -2,6 +2,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useUser } from "@/context/user-context";
+import { hasPermission } from "@/lib/auth/userPermissions";
 
 
 function IconHome() {
@@ -147,43 +149,47 @@ function IconInfo() {
   );
 }
 
-const SIDEBAR_GROUPS = [
+function IconHandshake() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 7.65l.77.78 7.65 7.65 7.65-7.65.78-.78a5.4 5.4 0 0 0 0-7.65z"/>
+    </svg>
+  );
+}
+
+type NavItemDef = { href: string; label: string; Icon: () => React.ReactElement; permission?: string };
+type NavGroupDef = { label: string; items: NavItemDef[] };
+
+const ALL_SIDEBAR_GROUPS: NavGroupDef[] = [
   {
     label: "Navigation",
     items: [
-      { href: "/m/home",       label: "Home",        Icon: IconHome },
-      { href: "/m/sentinel",   label: "Sentinel",    Icon: IconMessageSquare },
-      { href: "/m/brain",      label: "Brain",       Icon: IconGitFork },
-      { href: "/m/globe",      label: "Globe",       Icon: IconGlobe },
+      { href: "/m/home",     label: "Home",     Icon: IconHome           },
+      { href: "/m/sentinel", label: "Sentinel", Icon: IconMessageSquare  },
+      { href: "/m/brain",    label: "Brain",    Icon: IconGitFork,        permission: "view:brain"  },
+      { href: "/m/globe",    label: "Globe",    Icon: IconGlobe,          permission: "view:globe"  },
     ],
   },
   {
     label: "Tools",
     items: [
-      { href: "/m/signale",       label: "Signale",       Icon: IconBellRing },
-      { href: "/m/monitoring",    label: "Monitoring",    Icon: IconActivity },
-      { href: "/m/analytics",     label: "Analytics",     Icon: IconChartColumn },
-      { href: "/m/komponenten",   label: "Komponenten",   Icon: IconPackage },
+      { href: "/m/signale",       label: "Signale",     Icon: IconBellRing   },
+      { href: "/m/monitoring",    label: "Monitoring",  Icon: IconActivity,   permission: "view:monitoring"   },
+      { href: "/m/analytics",     label: "Analytics",   Icon: IconChartColumn, permission: "view:analytics"   },
+      { href: "/m/komponenten",   label: "Komponenten", Icon: IconPackage,    permission: "view:komponenten"  },
     ],
   },
   {
     label: "Manager",
     items: [
-      { href: "/m/about",          label: "Info Panel", Icon: IconInfo },
-      { href: "/m/manager",        label: "Manager",    Icon: IconBriefcase },
-      { href: "/m/investors-crm",  label: "Investoren", Icon: IconPieChart },
-      { href: "/m/onboarding",     label: "Onboarding", Icon: IconUsers },
-      { href: "/m/vermittler",     label: "Vermittler", Icon: IconNetwork },
+      { href: "/m/about",         label: "Info Panel",   Icon: IconInfo       },
+      { href: "/m/manager",       label: "Manager",      Icon: IconBriefcase  },
+      { href: "/m/investors-crm", label: "Investoren",   Icon: IconPieChart   },
+      { href: "/m/onboarding",    label: "Onboarding",   Icon: IconUsers      },
+      { href: "/m/vermittler",    label: "Vermittler",   Icon: IconNetwork    },
+      { href: "/m/partner",       label: "Partnerprogramm", Icon: IconHandshake, permission: "view:partner_program" },
     ],
   },
-];
-
-const NAV_ITEMS = [
-  { href: "/m/home",      label: "Home",       Icon: IconHome          },
-  { href: "/m/monitoring", label: "Monitoring", Icon: IconActivity      },
-  null, // center layers button
-  { href: "/m/signale",   label: "Signale",    Icon: IconBellRing      },
-  { href: "/m/sentinel",  label: "Sentinel",   Icon: IconMessageSquare },
 ];
 
 type Props = {
@@ -194,7 +200,37 @@ type Props = {
 export function MobileBottomNav({ headerHidden, onToggleHeader }: Props) {
   const pathname = usePathname();
   const [layersOpen, setLayersOpen] = useState(false);
+  const { user } = useUser();
+  const uid = user?.id ?? "";
   const active = (href: string) => pathname === href || pathname.startsWith(href + "/");
+
+  // Filter groups by permission
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const SIDEBAR_GROUPS = ALL_SIDEBAR_GROUPS.map((group) => ({
+    ...group,
+    items: group.items.filter((item) =>
+      !item.permission || hasPermission(uid, item.permission as Parameters<typeof hasPermission>[1]),
+    ),
+  })).filter((g) => g.items.length > 0);
+
+  // Bottom bar: for partner_manager show partner link instead of monitoring
+  const canViewMonitoring = hasPermission(uid, "view:monitoring");
+  const canViewPartner    = hasPermission(uid, "view:partner_program");
+  const NAV_ITEMS = canViewPartner && !canViewMonitoring
+    ? [
+        { href: "/m/home",    label: "Home",           Icon: IconHome },
+        { href: "/m/partner", label: "Partner",        Icon: IconHandshake },
+        null as null,
+        { href: "/m/signale", label: "Signale",        Icon: IconBellRing },
+        { href: "/m/sentinel", label: "Sentinel",      Icon: IconMessageSquare },
+      ]
+    : [
+        { href: "/m/home",      label: "Home",       Icon: IconHome          },
+        { href: "/m/monitoring", label: "Monitoring", Icon: IconActivity      },
+        null as null,
+        { href: "/m/signale",   label: "Signale",    Icon: IconBellRing      },
+        { href: "/m/sentinel",  label: "Sentinel",   Icon: IconMessageSquare },
+      ];
 
   return (
     <>

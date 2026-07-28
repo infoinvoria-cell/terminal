@@ -22,6 +22,7 @@ import {
   Settings,
   Smartphone,
   Users,
+  Handshake,
 } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
@@ -31,6 +32,8 @@ import {
   type DashboardPage,
 } from "@/context/home-dashboard-context";
 import { useHeaderState } from "@/context/header-state-context";
+import { useUser } from "@/context/user-context";
+import { hasPermission } from "@/lib/auth/userPermissions";
 
 const COLLAPSED_W = 72;
 const EXPANDED_W  = 200;
@@ -341,8 +344,17 @@ export function Sidebar() {
   const { page, setPage } = useHomeDashboard();
   const pathname = usePathname();
   const router = useRouter();
-
+  const { user } = useUser();
   const { headerHidden, toggleHeader } = useHeaderState();
+
+  // Permission helpers — all nav decisions go through hasPermission()
+  const uid = user?.id ?? "";
+  const canViewMonitoring    = hasPermission(uid, "view:monitoring");
+  const canViewAnalytics     = hasPermission(uid, "view:analytics");
+  const canViewKomponenten   = hasPermission(uid, "view:komponenten");
+  const canViewBrain         = hasPermission(uid, "view:brain");
+  const canViewGlobe         = hasPermission(uid, "view:globe");
+  const canViewPartner       = hasPermission(uid, "view:partner_program");
 
   const [expanded, setExpanded] = useState(false);
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -471,38 +483,47 @@ export function Sidebar() {
         </button>
       </div>
 
-      {/* Group 1: Home · Sentinel · Graph */}
+      {/* Group 1: Home · Sentinel · Graph · Globe */}
       <nav className={cn("mt-9", navClass)} aria-label="Primary">
         <SidebarIconButton page="home"  activePage={sidebarPageState} label="Home"     icon={Home}         onSelect={onSelectPage} expanded={expanded} />
         <SidebarIconButton page="chat"  activePage={sidebarPageState} label="Sentinel" icon={MessageSquare} onSelect={onSelectPage} expanded={expanded} />
-        <SidebarLink href="/brain" active={brainActive} label="Brain Graph" icon={GitFork} expanded={expanded} />
-        <SidebarLink href="/globe" active={globeActive} label="Globe" icon={Globe} expanded={expanded} />
+        {canViewBrain  && <SidebarLink href="/brain" active={brainActive} label="Brain Graph" icon={GitFork} expanded={expanded} />}
+        {canViewGlobe  && <SidebarLink href="/globe" active={globeActive} label="Globe" icon={Globe} expanded={expanded} />}
       </nav>
 
       <div className="mt-5 flex w-full flex-col items-center gap-3 px-2">
         <SidebarSep expanded={expanded} />
       </div>
 
-      {/* Group 2: Signale · Monitoring · Analytics · Komponenten */}
+      {/* Group 2: Signale · Monitoring · Analytics · Komponenten (hidden for partner_manager) */}
       <nav className={cn("mt-2", navClass)} aria-label="Tools">
-        <SidebarLink href="/signal"      active={signalActive}     label="Signale"     icon={BellRing}    expanded={expanded} />
-        <SidebarLink href="/monitoring"  active={monitoringActive} label="Monitoring"  icon={Activity}    expanded={expanded} />
-        <SidebarIconButton page="analytics" activePage={sidebarPageState} label="Analytics"  icon={ChartColumn}  onSelect={onSelectPage} expanded={expanded} />
-<SidebarLink href="/komponenten" active={componentsActive && !seasonalityActive} label="Komponenten" icon={Layers}      expanded={expanded} />
-        <SidebarLink href="/komponenten/seasonality" active={seasonalityActive} label="Seasonality" icon={BarChart2} expanded={expanded} />
+        <SidebarLink href="/signal" active={signalActive} label="Signale" icon={BellRing} expanded={expanded} />
+        {canViewMonitoring  && <SidebarLink href="/monitoring" active={monitoringActive} label="Monitoring" icon={Activity} expanded={expanded} />}
+        {canViewAnalytics   && <SidebarIconButton page="analytics" activePage={sidebarPageState} label="Analytics" icon={ChartColumn} onSelect={onSelectPage} expanded={expanded} />}
+        {canViewKomponenten && <SidebarLink href="/komponenten" active={componentsActive && !seasonalityActive} label="Komponenten" icon={Layers} expanded={expanded} />}
+        {canViewKomponenten && <SidebarLink href="/komponenten/seasonality" active={seasonalityActive} label="Seasonality" icon={BarChart2} expanded={expanded} />}
       </nav>
 
       <div className="mt-5 flex w-full flex-col items-center gap-3 px-2">
         <SidebarSep expanded={expanded} />
       </div>
 
-      {/* Group 3: About · Manager Overview · Investors · CRM · Vermittler */}
+      {/* Group 3: Manager items + Partnerprogramm for partner_manager */}
       <nav className={cn("mt-2", navClass)} aria-label="Manager">
         <SidebarLink href="/about" active={aboutActive} label="Bibel" icon={BookOpen} expanded={expanded} />
-        <SidebarIconButton page="manager-overview"  activePage={sidebarPageState} label="Manager"   icon={BriefcaseBusiness} onSelect={onSelectPage} expanded={expanded} />
-        <SidebarIconButton page="investor-analytics" activePage={sidebarPageState} label="Investors" icon={PieChart}          onSelect={onSelectPage} expanded={expanded} />
+        <SidebarIconButton page="manager-overview"   activePage={sidebarPageState} label="Manager"   icon={BriefcaseBusiness} onSelect={onSelectPage} expanded={expanded} />
+        <SidebarIconButton page="investor-analytics" activePage={sidebarPageState} label="Investors" icon={PieChart}           onSelect={onSelectPage} expanded={expanded} />
         <SidebarLink href="/onboarding" active={investorsCRMActive} label="Onboarding" icon={Users} expanded={expanded} />
-        <SidebarIconButton page="sub-ib-system"     activePage={sidebarPageState} label="Vermittler" icon={Network}          onSelect={onSelectPage} expanded={expanded} />
+        <SidebarIconButton page="sub-ib-system"      activePage={sidebarPageState} label="Vermittler" icon={Network}          onSelect={onSelectPage} expanded={expanded} />
+        {canViewPartner && (
+          <SidebarLink
+            href="/partner"
+            active={pathname?.startsWith("/partner") ?? false}
+            label="Partnerprogramm"
+            icon={Handshake}
+            expanded={expanded}
+          />
+        )}
       </nav>
 
       {/* Bottom: sep · header toggle · Settings · N */}

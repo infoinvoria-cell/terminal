@@ -1,18 +1,22 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback } from "react";
+import { getRoleForUserId, hasPermission, type UserRole, type UserPermission } from "@/lib/auth/userPermissions";
 
 export type AppUser = {
   id: "joris" | "jeroen" | "janluca";
   name: string;
   avatar: string | null;
+  role: UserRole;
 };
 
 export const APP_USERS: AppUser[] = [
-  { id: "joris",   name: "Joris G.",    avatar: "/profile.png"         },
-  { id: "jeroen",  name: "Jeroen G.",   avatar: "/profile_jeroen.png"  },
-  { id: "janluca", name: "Jan Luca M.", avatar: "/profile_jeroen.png"  },
+  { id: "joris",   name: "Joris G.",    avatar: "/profile.png",         role: getRoleForUserId("joris")   },
+  { id: "jeroen",  name: "Jeroen G.",   avatar: "/profile_jeroen.png",  role: getRoleForUserId("jeroen")  },
+  { id: "janluca", name: "Jan Luca M.", avatar: "/profile_jeroen.png",  role: getRoleForUserId("janluca") },
 ];
+
+export { hasPermission, type UserPermission };
 
 export const CL_USER_KEY = "cl_user";
 
