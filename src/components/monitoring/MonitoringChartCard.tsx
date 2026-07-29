@@ -392,7 +392,14 @@ function MonitoringChartCardInner({
   }, [shouldLoadOhlc, isDailyNoPayload, item?.code, cardTf]);
 
   const hasBars = !!payload?.bars?.length || !!liveOhlcBars?.length;
-  const badge = item?.dataMismatch ? "DATA MISMATCH" : getBadge(payload);
+  const badge = item?.dataMismatch
+    ? "DATA MISMATCH"
+    // When there is no strategy payload but OHLC loaded fine (e.g. anomaly price-only
+    // charts), suppress the orange DATA WARN — use "NO STRAT" which is excluded from
+    // showWarningBadge. getBadge(null) would otherwise always return "DATA WARN".
+    : (payload === null && liveOhlcBars !== null && liveOhlcBars.length > 0)
+      ? "NO STRAT"
+      : getBadge(payload);
   const badgeTooltip = String(payload?.metadata?.badgeTooltip || "").trim();
   const strategyActive = hasStrategy(payload, badge);
   const showWarningBadge = loadStatus === "loaded"

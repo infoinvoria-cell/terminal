@@ -91,7 +91,15 @@ function repairStuckSessionExtremes(bars: ShapedBar[]): void {
 }
 
 function pruneStaleTickBars(bars: ShapedBar[], isDaily: boolean): ShapedBar[] {
-  if (isDaily) return bars;
+  if (isDaily) {
+    // Daily tick-built bars carry the full session high/low from the live-feed
+    // (high_price / low_price quote fields), which creates massive corrupt wicks
+    // on daily candles. TV history rows are authoritative for closed daily bars.
+    // If any history rows exist, drop ALL tick-built rows — the 15-min TV delay
+    // is acceptable for daily monitoring (anomaly tab, etc.).
+    const hasHistory = bars.some(b => !b.tick);
+    return hasHistory ? bars.filter(b => !b.tick) : bars;
+  }
   const lastHistoryIndex = bars.reduce((last, bar, index) => (bar.tick ? last : index), -1);
   if (lastHistoryIndex < 0) return bars.slice(-1);
   const lastHistoryMs = Date.parse(bars[lastHistoryIndex]!.time);
@@ -101,6 +109,23 @@ function pruneStaleTickBars(bars: ShapedBar[], isDaily: boolean): ShapedBar[] {
     const barMs = Date.parse(bar.time);
     return Number.isFinite(lastHistoryMs) && Number.isFinite(barMs) && barMs > lastHistoryMs;
   });
+}
+
+/**
+ * Median-based outlier filter.
+ *
+ * Tick-built daily bars sometimes carry price=0 (failed quote) or a price
+ * 10–100× the real value (wrong asset/unit in the live feed). Filter any bar
+ * whose close is outside [median × 0.05, median × 20]. This is conservative
+ * enough to never touch legitimate intraday noise (futures rolls move ~0.5%)
+ * but catches the zeros and order-of-magnitude errors we see in GC1!/GLD/YM1!.
+ */
+function filterPriceOutliers(bars: ShapedBar[]): ShapedBar[] {
+  if (bars.length < 5) return bars;
+  const sorted = [...bars.map(b => b.close)].sort((a, b) => a - b);
+  const median = sorted[Math.floor(sorted.length / 2)]!;
+  if (!median || median <= 0) return bars;
+  return bars.filter(b => b.close >= median * 0.05 && b.close <= median * 20);
 }
 
 export async function GET(request: Request) {
@@ -179,7 +204,7 @@ export async function GET(request: Request) {
 
     if (!isDaily) repairStuckSessionExtremes(shaped);
 
-    const bars = pruneStaleTickBars(shaped, isDaily)
+    const bars = filterPriceOutliers(pruneStaleTickBars(shaped, isDaily))
       .filter(
         (bar) =>
           Boolean(bar.time) &&
