@@ -684,27 +684,6 @@ export const SeasonalRightPanel = memo(function SeasonalRightPanel({
         <div style={{ flexShrink: 0, padding: "6px 12px 4px" }}>
           <PatternReturnsBars returns={returnsForBars} coveredYears={coveredYearsForBars} />
         </div>
-        {sectionGap}
-
-        {/* Next Pattern: two-column — LONG left, SHORT right */}
-        <PanelTitle>Next Pattern</PanelTitle>
-        <div style={{ flexShrink: 0, display: "flex", overflow: "hidden", padding: "5px 6px 6px", gap: 0, minHeight: 0 }}>
-          <NextPatternColumn
-            pattern={nextPatternLong ?? null}
-            quality={nextLongQuality ?? null}
-            direction="LONG"
-            searching={nextLongSearching ?? false}
-            onActivate={onActivatePattern}
-          />
-          <div style={{ width: 1, background: "rgba(255,255,255,0.06)", alignSelf: "stretch", flexShrink: 0, margin: "0 5px" }} />
-          <NextPatternColumn
-            pattern={nextPatternShort ?? null}
-            quality={nextShortQuality ?? null}
-            direction="SHORT"
-            searching={nextShortSearching ?? false}
-            onActivate={onActivatePattern}
-          />
-        </div>
       </>)}
     </div>
   );
