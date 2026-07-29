@@ -364,27 +364,34 @@ function MonitoringChartCardInner({
   // growing from the live_quotes tick (applyLiveCandle below).
   const cardTf = String(item?.timeframe ?? "").toUpperCase();
   const isIntradayCard = cardTf === "30M" || cardTf === "1H" || cardTf === "2H" || cardTf === "60M";
+  const payload = item?.payload ?? null;
+  // Also fetch OHLC for daily anomaly/daily charts that have no pre-built payload bars.
+  // The /api/monitoring/ohlc endpoint normalises "1D"→"D" and has invest_ohlc fallback for GLD.
+  const isDailyNoPayload = (cardTf === "D" || cardTf === "1D") && !payload?.bars?.length;
+  const shouldLoadOhlc = isIntradayCard || isDailyNoPayload;
   const [liveOhlcBars, setLiveOhlcBars] = useState<MonitoringChartData["bars"] | null>(null);
   useEffect(() => {
-    if (!isIntradayCard) { setLiveOhlcBars(null); return; }
+    if (!shouldLoadOhlc) { setLiveOhlcBars(null); return; }
     const sym = liveQuoteKey(item?.code);
     if (!sym || !cardTf) return;
     const ctrl = new AbortController();
+    const ohlcLimit = isDailyNoPayload ? 1000 : 400;
     const load = async () => {
       try {
-        const r = await fetch(`/api/monitoring/ohlc?symbol=${encodeURIComponent(sym)}&timeframe=${encodeURIComponent(cardTf)}&limit=400`, { signal: ctrl.signal });
+        const r = await fetch(`/api/monitoring/ohlc?symbol=${encodeURIComponent(sym)}&timeframe=${encodeURIComponent(cardTf)}&limit=${ohlcLimit}`, { signal: ctrl.signal });
         if (!r.ok) return;
         const d = (await r.json()) as { bars?: MonitoringChartData["bars"] };
         if (Array.isArray(d.bars) && d.bars.length > 0) setLiveOhlcBars(d.bars);
       } catch { /* aborted / network */ }
     };
     void load();
-    const id = setInterval(load, 5000);
+    // Daily charts: poll every 60s (data changes once per day); intraday every 5s.
+    const intervalMs = isDailyNoPayload ? 60_000 : 5_000;
+    const id = setInterval(load, intervalMs);
     return () => { clearInterval(id); ctrl.abort(); };
-  }, [isIntradayCard, item?.code, cardTf]);
+  }, [shouldLoadOhlc, isDailyNoPayload, item?.code, cardTf]);
 
-  const payload = item?.payload ?? null;
-  const hasBars = !!payload?.bars?.length;
+  const hasBars = !!payload?.bars?.length || !!liveOhlcBars?.length;
   const badge = item?.dataMismatch ? "DATA MISMATCH" : getBadge(payload);
   const badgeTooltip = String(payload?.metadata?.badgeTooltip || "").trim();
   const strategyActive = hasStrategy(payload, badge);
