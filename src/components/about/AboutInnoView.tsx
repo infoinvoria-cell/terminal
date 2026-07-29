@@ -11,6 +11,7 @@ import {
   CircleAlert,
   CircleDashed,
   Database,
+  FileBadge2,
   FileSearch,
   FileText,
   Link2,
@@ -58,12 +59,12 @@ type OverviewMetricCard = {
 };
 
 const SECTION_TABS: { id: InnoSection; label: string }[] = [
-  { id: "overview", label: "Uebersicht" },
+  { id: "overview", label: "Übersicht" },
   { id: "portfolios", label: "Portfolios" },
   { id: "track", label: "Track Record" },
   { id: "risk", label: "Risiko & Kosten" },
   { id: "ibkr", label: "IBKR & Technik" },
-  { id: "cto", label: "CTO-Gespraech" },
+  { id: "cto", label: "CTO-Gespräch" },
   { id: "sources", label: "Quellen" },
 ];
 
@@ -83,19 +84,19 @@ export function AboutInnoView() {
       },
       {
         label: "Tradingfrequenz",
-        value: "5-10 Trades/Woche",
-        sub: "Intraday bis 2-3 Wochen",
+        value: "5–10 Trades/Woche",
+        sub: "Intraday bis 2–3 Wochen",
         source: "17_Haftungsdach_QA/Formales Strategiedokument Institut.md",
       },
       {
         label: "Mindestanlagesumme",
-        value: "20.000-25.000 EUR",
-        sub: "10.000 EUR wird geprueft",
+        value: "20.000–25.000 EUR",
+        sub: "10.000 EUR wird geprüft",
         source: "Auftragsvorgabe",
       },
       {
-        label: "Strategic Status",
-        value: "Kein vollstaendiger Live-Track-Record",
+        label: "Status White Swan Strategic",
+        value: "Kein vollständiger Live-Track-Record",
         sub: "Backtest und Forward Tracking vorhanden",
         source: INNO_OVERVIEW_METRICS[1]?.source ?? "",
       },
@@ -117,10 +118,10 @@ export function AboutInnoView() {
       { label: "Track Record vorhanden", done: true, tone: "confirmed" as VisualTone },
       { label: "Kosten dokumentiert", done: false, tone: "open" as VisualTone },
       { label: "Risiken dokumentiert", done: false, tone: "open" as VisualTone },
-      { label: "Instrumentenuniversum vorlaeufig definiert - CTO-/INNO-Pruefung offen", done: false, tone: "planned" as VisualTone },
-      { label: "IBKR-Konfiguration geklaert", done: false, tone: "open" as VisualTone },
-      { label: "Mindestanlage vollstaendig geklaert", done: false, tone: "open" as VisualTone },
-      { label: "Technische Anbindung geklaert", done: false, tone: "open" as VisualTone },
+      { label: "Instrumentenuniversum vorläufig definiert – CTO-/INNO-Prüfung offen", done: false, tone: "planned" as VisualTone },
+      { label: "IBKR-Konfiguration geklärt", done: false, tone: "open" as VisualTone },
+      { label: "Mindestanlage vollständig geklärt", done: false, tone: "open" as VisualTone },
+      { label: "Technische Anbindung geklärt", done: false, tone: "open" as VisualTone },
     ],
     [],
   );
@@ -133,7 +134,7 @@ export function AboutInnoView() {
       { label: "Testdaten", value: 2, tone: "test" as VisualTone },
       { label: "Geplant", value: 4, tone: "planned" as VisualTone },
       { label: "Offen", value: 5, tone: "open" as VisualTone },
-      { label: "Widerspruechlich", value: 1, tone: "critical" as VisualTone },
+      { label: "Widersprüchlich", value: 1, tone: "critical" as VisualTone },
     ],
     [],
   );
@@ -141,25 +142,25 @@ export function AboutInnoView() {
   const topOpenPoints = useMemo(
     () => [
       {
-        title: "Maschinenlesbare vollstaendige Broker-Statements",
+        title: "Maschinenlesbare vollständige Broker-Statements",
         owner: "Joris",
         status: "Nicht gefunden",
         source: "17_Haftungsdach_QA/Haftungsdach Missing Evidence List.md",
-        nextAction: "Fuer CTO-Gespraech intern vorbereiten",
-        priority: "Vor Gespraech",
+        nextAction: "Für CTO-Gespräch intern vorbereiten",
+        priority: "Vor Gespräch",
       },
       {
-        title: "Vollstaendige Trade-Liste",
+        title: "Vollständige Trade-Liste",
         owner: "Joris",
         status: "Nicht gefunden",
         source: "17_Haftungsdach_QA/Haftungsdach Missing Evidence List.md",
-        nextAction: "Fuer CTO-Gespraech intern vorbereiten",
-        priority: "Vor Gespraech",
+        nextAction: "Für CTO-Gespräch intern vorbereiten",
+        priority: "Vor Gespräch",
       },
       {
-        title: "Widerspruechliche Tactical-Annualisierung klaeren",
+        title: "Widersprüchliche Tactical-Annualisierung klären",
         owner: "Methodik abstimmen",
-        status: "Widerspruechlich",
+        status: "Widersprüchlich",
         source: "04_Track_Record/Performance Metrics Summary.md",
         nextAction: "Methodik abstimmen und Hinweistext finalisieren",
         priority: "Kritisch",
@@ -171,42 +172,42 @@ export function AboutInnoView() {
   const ctoSections = useMemo(
     () => [
       {
-        label: "Bereits bestaetigt",
+        label: "Bereits bestätigt",
         items: [
-          "Empfohlene Mindestanlage etwa 20.000-25.000 EUR",
-          "10.000 EUR wird im Rahmen der Strategiepruefung bewertet",
+          "Empfohlene Mindestanlage etwa 20.000–25.000 EUR",
+          "10.000 EUR wird im Rahmen der Strategieprüfung bewertet",
           "Tradingfrequenz wird detailliert besprochen",
           "Kosten im Track Record werden besprochen",
-          "Risiko- und Performancekennzahlen werden geprueft",
-          "Technische Anbindung und moegliches IT-Projekt werden eroertert",
-          "Early Access grundsaetzlich moeglich, sofern keine Gelder, Garantien oder konkreten Performancezusagen erfolgen",
+          "Risiko- und Performancekennzahlen werden geprüft",
+          "Technische Anbindung und mögliches IT-Projekt werden erörtert",
+          "Early Access grundsätzlich möglich, sofern keine Gelder, Garantien oder konkreten Performancezusagen erfolgen",
         ],
         tone: "confirmed" as VisualTone,
       },
       {
-        label: "Vor dem Gespraech intern vorzubereiten",
+        label: "Vor dem Gespräch intern vorzubereiten",
         items: [
           "Maschinenlesbare Broker-Statements",
-          "Vollstaendige Trade-Liste",
+          "Vollständige Trade-Liste",
           "Konsistente Annualisierungslogik",
         ],
         tone: "planned" as VisualTone,
       },
       {
-        label: "Mit CTO zu klaeren",
+        label: "Mit CTO zu klären",
         items: [
           "IBKR-Setup und technische Anbindung",
           "Instrumentenuniversum inklusive QQQ, DAX-Kontrakt, 6E und 6B",
-          "Gebuehren- und Kostenparitaet im Zielmodell",
+          "Gebühren- und Kostenparität im Zielmodell",
         ],
         tone: "planned" as VisualTone,
       },
       {
-        label: "Nach dem Gespraech zu entscheiden",
+        label: "Nach dem Gespräch zu entscheiden",
         items: [
           "Finale Mindestanlageschwelle",
-          "Zeitplan fuer IT-Projekt und Freigaben",
-          "Naechste operative Due-Diligence-Schritte",
+          "Zeitplan für IT-Projekt und Freigaben",
+          "Nächste operative Due-Diligence-Schritte",
         ],
         tone: "open" as VisualTone,
       },
@@ -231,6 +232,10 @@ export function AboutInnoView() {
 
   const sourceTypes = useMemo(() => ["Alle Datenarten", ...Array.from(new Set(INNO_SOURCE_REGISTER.map(inferSourceType)))], []);
   const sourcePortfolios = useMemo(() => ["Alle Portfolios", ...Array.from(new Set(INNO_SOURCE_REGISTER.map(inferSourcePortfolio)))], []);
+  const openSource = (query: string) => {
+    setSourceQuery(query);
+    setActiveSection("sources");
+  };
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden" style={{ color: TOKENS.text }}>
@@ -267,15 +272,15 @@ export function AboutInnoView() {
                       <p className="mt-1 text-[19px] font-bold" style={{ color: TOKENS.text, fontFamily: N }}>{metric.value}</p>
                       <p className="mt-1 text-[11px]" style={{ color: TOKENS.goldLight, fontFamily: M }}>{metric.sub}</p>
                     </div>
-                    <SourceIcon source={metric.source} />
+                    <SourceIcon source={metric.source} onOpen={() => openSource(sourceLabel(metric.source))} />
                   </div>
                 </div>
               ))}
             </section>
 
-            <section className="grid grid-cols-1 gap-3 xl:grid-cols-[1.05fr_0.95fr]">
+            <section className="grid grid-cols-1 items-start gap-3 xl:grid-cols-[1.05fr_0.95fr]">
               <div className={`${CARD} min-w-0 p-4`} style={surfaceStyle()}>
-                <SectionTitle icon={<Database size={14} />} title="Datenvollstaendigkeit" />
+                <SectionTitle icon={<Database size={14} />} title="Datenvollständigkeit" />
                 <div className="mt-4 flex items-center gap-4">
                   <Donut
                     segments={[
@@ -286,9 +291,9 @@ export function AboutInnoView() {
                     label="1/6"
                   />
                   <div className="grid min-w-0 flex-1 grid-cols-1 gap-2">
-                    <LegendRow label="Vollstaendige Datenkategorien: 1 von 6" value={categoryStats.completeCategories} tone="confirmed" />
+                    <LegendRow label="Vollständige Datenkategorien: 1 von 6" value={categoryStats.completeCategories} tone="confirmed" />
                     <LegendRow label="Offene Evidenzpunkte: 20" value={categoryStats.openEvidencePoints} tone="open" />
-                    <LegendRow label="Widerspruechliche Angaben: 1" value={categoryStats.conflictingPoints} tone="critical" />
+                    <LegendRow label="Widersprüchliche Angaben: 1" value={categoryStats.conflictingPoints} tone="critical" />
                   </div>
                 </div>
               </div>
@@ -322,13 +327,13 @@ export function AboutInnoView() {
                       </div>
                     ))}
                   </div>
-                  <p className="text-[11px]" style={{ color: TOKENS.muted, fontFamily: M }}>Nur eindeutig abgeschlossene Punkte gelten als erfuellt. Das Instrumentenuniversum ist derzeit noch nicht abgeschlossen und zaehlt deshalb nicht als erledigt.</p>
+                  <p className="text-[11px]" style={{ color: TOKENS.muted, fontFamily: M }}>Nur eindeutig abgeschlossene Punkte gelten als erfüllt. Das Instrumentenuniversum ist derzeit noch nicht abgeschlossen und zählt deshalb nicht als erledigt.</p>
                 </div>
               </div>
             </section>
 
-            <section className="grid grid-cols-1 gap-3 xl:grid-cols-[0.9fr_1.1fr]">
-              <div className={`${CARD} min-w-0 p-4`} style={surfaceStyle()}>
+            <section className="grid grid-cols-1 items-start gap-3 xl:grid-cols-[0.9fr_1.1fr]">
+              <div className={`${CARD} min-w-0 self-start p-4`} style={surfaceStyle()}>
                 <SectionTitle icon={<Waypoints size={14} />} title="Statusverteilung" />
                 <div className="mt-3 space-y-2">
                   <div className="flex h-2.5 overflow-hidden rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
@@ -350,7 +355,7 @@ export function AboutInnoView() {
                 </div>
               </div>
 
-              <div className={`${CARD} min-w-0 p-4`} style={surfaceStyle()}>
+              <div className={`${CARD} min-w-0 self-start p-4`} style={surfaceStyle()}>
                 <SectionTitle icon={<AlertTriangle size={14} />} title="Offene Punkte" />
                 <div className="mt-3 grid grid-cols-2 gap-3">
                   <MiniStat label="Offene Evidenzpunkte" value="20" />
@@ -363,11 +368,11 @@ export function AboutInnoView() {
                         <p className="text-[12px] font-semibold" style={{ color: TOKENS.text, fontFamily: M }}>{item.title}</p>
                         <StatusBadge tone={item.priority === "Kritisch" ? "critical" : "planned"}>{item.priority}</StatusBadge>
                       </div>
-                      <div className="mt-2 grid grid-cols-1 gap-1 text-[10px] md:grid-cols-2" style={{ color: TOKENS.muted, fontFamily: M }}>
-                        <span>Verantwortlich: {item.owner}</span>
-                        <span>Status: {item.status}</span>
-                        <span className="min-w-0 [overflow-wrap:anywhere]">Quelle: {item.source}</span>
-                        <span>Naechste Aktion: {item.nextAction}</span>
+                      <div className="mt-2 grid grid-cols-1 gap-x-4 gap-y-2 text-[10px] md:grid-cols-3" style={{ color: TOKENS.muted, fontFamily: M }}>
+                        <MetaPair label="Verantwortlich" value={item.owner} />
+                        <MetaPair label="Status" value={item.status} />
+                        <MetaPair label="Nächste Aktion" value={item.nextAction} />
+                        <MetaPair label="Quelle" value={sourceLabel(item.source)} title={item.source} className="md:col-span-3" />
                       </div>
                     </div>
                   ))}
@@ -379,7 +384,7 @@ export function AboutInnoView() {
                     className="rounded-full border px-3 py-1.5 text-[11px] font-semibold"
                     style={{ borderColor: TOKENS.goldDark, background: "rgba(199,166,81,0.08)", color: TOKENS.goldLight, fontFamily: M }}
                   >
-                    Alle offenen Punkte im CTO-Gespraech
+                    Alle offenen Punkte im CTO-Gespräch
                   </button>
                 </div>
               </div>
@@ -415,14 +420,14 @@ export function AboutInnoView() {
                     <TrackMetric label="Max. Drawdown" value={row.drawdown} />
                     <TrackMetric label="Sharpe" value={row.sharpe} />
                     <TrackMetric label="Calmar" value={row.calmar} />
-                    <TrackMetric label="Volatilitaet" value={row.volatilitaet} warn={row.volatilitaet === "Nicht gefunden"} />
+                    <TrackMetric label="Volatilität" value={row.volatilitaet} warn={row.volatilitaet === "Nicht gefunden"} />
                     <TrackMetric label="Profit Factor" value={row.profitFactor} />
                     <TrackMetric label="Trefferquote" value={row.trefferquote} warn={row.trefferquote === "Nicht gefunden"} />
                   </div>
                   {row.portfolio.includes("Tactical") ? (
                     <div className="mt-4 rounded-[14px] border px-3 py-2" style={panelStyle()}>
                       <p className="text-[11px]" style={{ color: TOKENS.text, fontFamily: M }}>
-                        Brokerseitig verbuchte Handelskosten wie Spreads, Kommissionen und Swaps sind beruecksichtigt, soweit sie auf den zugrunde liegenden Echtgeldkonten verbucht wurden.
+                        Brokerseitig verbuchte Handelskosten wie Spreads, Kommissionen und Swaps sind berücksichtigt, soweit sie auf den zugrunde liegenden Echtgeldkonten verbucht wurden.
                       </p>
                     </div>
                   ) : null}
@@ -431,10 +436,10 @@ export function AboutInnoView() {
             </section>
 
             <section className="grid grid-cols-1 gap-3 xl:grid-cols-3">
-              {["Equity-Kurve", "Drawdown-Verlauf", "Monatliche Renditeuebersicht"].map((label) => (
+              {["Equity-Kurve", "Drawdown-Verlauf", "Monatliche Renditeübersicht"].map((label) => (
                 <div key={label} className={`${CARD} min-w-0 p-4`} style={surfaceStyle()}>
                   <SectionTitle icon={<FileSearch size={14} />} title={label} />
-                  <EmptyState text="Fuer diese Auswertung fehlen derzeit die erforderlichen Rohdaten." />
+                  <EmptyState text="Für diese Auswertung fehlen derzeit die erforderlichen Rohdaten." />
                 </div>
               ))}
             </section>
@@ -464,12 +469,12 @@ export function AboutInnoView() {
         {activeSection === "ibkr" ? (
           <div className="flex flex-col gap-3">
             <div className={`${CARD} min-w-0 p-4`} style={surfaceStyle()}>
-              <SectionTitle icon={<Boxes size={14} />} title="Instrumentenmatrix" />
-              <div className="mt-4 overflow-x-auto">
-                <table className="w-full min-w-[920px] table-fixed">
-                  <thead>
-                    <tr className="border-b text-left text-[10px]" style={{ borderColor: TOKENS.border, color: TOKENS.muted, fontFamily: M }}>
-                      {["Instrument", "Typ", "Boerse", "Status", "Kontraktgroesse", "Mindestdepot", "Marktdaten", "CTO-Pruefung"].map((label) => (
+                <SectionTitle icon={<Boxes size={14} />} title="Instrumentenmatrix" />
+                <div className="mt-4 overflow-x-auto">
+                  <table className="w-full min-w-[920px] table-fixed">
+                    <thead>
+                      <tr className="border-b text-left text-[10px]" style={{ borderColor: TOKENS.border, color: TOKENS.muted, fontFamily: M }}>
+                      {["Instrument", "Typ", "Börse", "Status", "Kontraktgröße", "Mindestdepot", "Marktdaten", "CTO-Prüfung"].map((label) => (
                         <th key={label} className="px-3 py-2 font-semibold">{label}</th>
                       ))}
                     </tr>
@@ -480,11 +485,11 @@ export function AboutInnoView() {
                         <Cell>{row.instrument}</Cell>
                         <Cell>{row.product}</Cell>
                         <Cell>Noch festzulegen</Cell>
-                        <Cell><StatusBadge tone="planned">Vorlaeufig definiert - CTO-/INNO-Pruefung offen</StatusBadge></Cell>
+                        <Cell><StatusBadge tone="planned">Vorläufig definiert – CTO-/INNO-Prüfung offen</StatusBadge></Cell>
                         <Cell>Nicht belegt</Cell>
                         <Cell>Nicht belegt</Cell>
                         <Cell>Noch festzulegen</Cell>
-                        <Cell>Pruefung offen</Cell>
+                        <Cell>Prüfung offen</Cell>
                       </tr>
                     ))}
                   </tbody>
@@ -527,9 +532,9 @@ export function AboutInnoView() {
                 {ctoSections.map((section) => (
                   <div key={section.label} className="rounded-[14px] border p-3" style={panelStyle()}>
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-[12px] font-semibold" style={{ color: TOKENS.text, fontFamily: M }}>{section.label}</p>
-                      <StatusBadge tone={section.tone}>{section.label}</StatusBadge>
-                    </div>
+                        <p className="text-[12px] font-semibold" style={{ color: TOKENS.text, fontFamily: M }}>{section.label}</p>
+                        <StatusBadge tone={section.tone}>{section.label}</StatusBadge>
+                      </div>
                     <div className="mt-3 space-y-2">
                       {section.items.map((item) => (
                         <div key={item} className="flex items-start gap-2 text-[11px]" style={{ color: section.tone === "open" ? TOKENS.muted : TOKENS.text, fontFamily: M }}>
@@ -593,7 +598,7 @@ export function AboutInnoView() {
                           </summary>
                           <div className="mt-2 space-y-1 text-[10px]" style={{ color: TOKENS.muted }}>
                             <div className="[overflow-wrap:anywhere]">{source.path}</div>
-                            {source.quality ? <p>Qualitaet: {source.quality}</p> : null}
+                            {source.quality ? <p>Qualität: {source.quality}</p> : null}
                           </div>
                         </details>
                       </Cell>
@@ -627,13 +632,13 @@ function PortfolioCard({ card }: { card: (typeof INNO_STRATEGY_CARDS)[number] })
   const noteRows = card.id === "tactical"
     ? [
       { label: "Track Record", text: "Historischer Live-Track-Record; bisher teilweise CFD-basiert", tone: "confirmed" as VisualTone },
-      { label: "Zukunft", text: "Zukuenftige Umsetzung ohne CFDs geplant", tone: "planned" as VisualTone },
+      { label: "Zukunft", text: "Zukünftige Umsetzung ohne CFDs geplant", tone: "planned" as VisualTone },
       { label: "Abgrenzung", text: "Neue Paper-, Backtest- oder Forward-Strategien werden separat gekennzeichnet", tone: "open" as VisualTone },
     ]
     : [
-      { label: "Status", text: "Kein vollstaendiger Live-Track-Record", tone: "planned" as VisualTone },
-      { label: "Struktur", text: "Etwa 6-8 Assets und etwa 4 aktive Positionen plus ETF-Allokationen", tone: "planned" as VisualTone },
-      { label: "Pruefung", text: "Separate Pruefung durch INNO erforderlich", tone: "open" as VisualTone },
+      { label: "Status", text: "Kein vollständiger Live-Track-Record", tone: "planned" as VisualTone },
+      { label: "Struktur", text: "Etwa 6–8 Assets und etwa 4 aktive Positionen plus ETF-Allokationen", tone: "planned" as VisualTone },
+      { label: "Prüfung", text: "Separate Prüfung durch INNO erforderlich", tone: "open" as VisualTone },
     ];
 
   return (
@@ -693,7 +698,7 @@ function FactCard({
               <StatusBadge tone={visualToneFromStatus(row.status)}>{normalizeStatusLabel(row.status)}</StatusBadge>
             </div>
             <p className="mt-2 text-[11px] [overflow-wrap:anywhere]" style={{ color: TOKENS.text, fontFamily: M }}>{row.value}</p>
-            <p className="mt-1 text-[10px] [overflow-wrap:anywhere]" style={{ color: TOKENS.muted, fontFamily: M }}>{row.source}</p>
+            <p className="mt-1 text-[10px]" title={row.source} style={{ color: TOKENS.muted, fontFamily: M }}>{sourceLabel(row.source)}</p>
           </div>
         ))}
       </div>
@@ -786,15 +791,37 @@ function LegendRow({ label, value, tone }: { label: string; value: number; tone:
   );
 }
 
-function SourceIcon({ source }: { source: string }) {
+function SourceIcon({ source, onOpen }: { source: string; onOpen?: () => void }) {
   return (
-    <span
-      title={source}
-      className="inline-flex shrink-0 items-center rounded-full border px-2 py-1 text-[9px]"
-      style={{ borderColor: TOKENS.border, background: "rgba(255,255,255,0.03)", color: TOKENS.muted, fontFamily: M }}
+    <button
+      type="button"
+      onClick={onOpen}
+      title={`Quelle anzeigen: ${sourceLabel(source)}`}
+      aria-label={`Quelle anzeigen: ${sourceLabel(source)}`}
+      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-colors"
+      style={{ borderColor: TOKENS.border, background: "rgba(255,255,255,0.03)", color: TOKENS.muted }}
     >
-      Src
-    </span>
+      <FileBadge2 size={15} />
+    </button>
+  );
+}
+
+function MetaPair({
+  label,
+  value,
+  title,
+  className = "",
+}: {
+  label: string;
+  value: string;
+  title?: string;
+  className?: string;
+}) {
+  return (
+    <div className={`grid min-w-0 grid-cols-[92px_minmax(0,1fr)] gap-2 ${className}`}>
+      <span style={{ color: TOKENS.muted, fontFamily: M }}>{label}</span>
+      <span title={title} className="min-w-0 [overflow-wrap:anywhere]" style={{ color: TOKENS.text, fontFamily: M }}>{value}</span>
+    </div>
   );
 }
 
@@ -825,7 +852,7 @@ function normalizeCostRows(rows: typeof INNO_COST_ROWS) {
   return [
     {
       label: "Spread / Kommission / Swap historisch",
-      value: "Brokerseitig verbuchte Handelskosten wie Spreads, Kommissionen und Swaps sind beruecksichtigt, soweit sie auf den zugrunde liegenden Echtgeldkonten verbucht wurden.",
+      value: "Brokerseitig verbuchte Handelskosten wie Spreads, Kommissionen und Swaps sind berücksichtigt, soweit sie auf den zugrunde liegenden Echtgeldkonten verbucht wurden.",
       status: "Teilweise belegt",
       source: rows[0]?.source ?? "Nicht gefunden",
     },
@@ -836,13 +863,13 @@ function normalizeCostRows(rows: typeof INNO_COST_ROWS) {
       source: rows[1]?.source ?? "Nicht gefunden",
     },
     {
-      label: "Historisch enthaltene Gebuehren",
+      label: "Historisch enthaltene Gebühren",
       value: rows[2]?.detail ?? "Nicht gefunden",
       status: rows[2]?.status ?? "Nicht gefunden",
       source: rows[2]?.source ?? "Nicht gefunden",
     },
     {
-      label: "Zukuenftige Gebuehren im IBKR-/Institutsmodell",
+      label: "Zukünftige Gebühren im IBKR-/Institutsmodell",
       value: rows[3]?.detail ?? "Nicht gefunden",
       status: "Noch festzulegen",
       source: rows[3]?.source ?? "Nicht gefunden",
@@ -857,6 +884,15 @@ function inferSourceType(source: InnoSourceRef) {
   if (key.includes("meeting") || key.includes("fragen")) return "Meeting";
   if (key.includes("strategie")) return "Strategie";
   return "Governance";
+}
+
+function sourceLabel(source: string) {
+  const parts = source.split(/[\\/]/);
+  return parts[parts.length - 1] || source;
+}
+
+function openSource(label: string) {
+  return;
 }
 
 function inferSourcePortfolio(source: InnoSourceRef) {

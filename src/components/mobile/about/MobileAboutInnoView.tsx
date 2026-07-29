@@ -12,6 +12,7 @@ import {
   CircleAlert,
   CircleDashed,
   Database,
+  FileBadge2,
   FileSearch,
   FileText,
   Link2,
@@ -50,12 +51,12 @@ type InnoSection = "overview" | "portfolios" | "track" | "risk" | "ibkr" | "cto"
 type VisualTone = "confirmed" | "test" | "planned" | "open" | "critical";
 
 const TABS: { id: InnoSection; label: string }[] = [
-  { id: "overview", label: "Uebersicht" },
+  { id: "overview", label: "Übersicht" },
   { id: "portfolios", label: "Portfolios" },
   { id: "track", label: "Track Record" },
   { id: "risk", label: "Risiko & Kosten" },
   { id: "ibkr", label: "IBKR & Technik" },
-  { id: "cto", label: "CTO-Gespraech" },
+  { id: "cto", label: "CTO-Gespräch" },
   { id: "sources", label: "Quellen" },
 ];
 
@@ -65,9 +66,9 @@ export function MobileAboutInnoView() {
 
   const overviewMetrics = [
     { label: "Tactical Track Record", value: "11.04.2024 bis 01.07.2026", sub: "Statement-basiert", source: "04_Track_Record/Performance Report.pdf" },
-    { label: "Tradingfrequenz", value: "5-10 Trades/Woche", sub: "Intraday bis 2-3 Wochen", source: "17_Haftungsdach_QA/Formales Strategiedokument Institut.md" },
-    { label: "Mindestanlagesumme", value: "20.000-25.000 EUR", sub: "10.000 EUR wird geprueft", source: "Auftragsvorgabe" },
-    { label: "Strategic Status", value: "Kein vollstaendiger Live-Track-Record", sub: "Backtest und Forward Tracking vorhanden", source: "17_Haftungsdach_QA/Formales Strategiedokument Institut.md" },
+    { label: "Tradingfrequenz", value: "5–10 Trades/Woche", sub: "Intraday bis 2–3 Wochen", source: "17_Haftungsdach_QA/Formales Strategiedokument Institut.md" },
+    { label: "Mindestanlagesumme", value: "20.000–25.000 EUR", sub: "10.000 EUR wird geprüft", source: "Auftragsvorgabe" },
+    { label: "Status White Swan Strategic", value: "Kein vollständiger Live-Track-Record", sub: "Backtest und Forward Tracking vorhanden", source: "17_Haftungsdach_QA/Formales Strategiedokument Institut.md" },
   ];
 
   const readinessChecklist = useMemo(
@@ -76,18 +77,18 @@ export function MobileAboutInnoView() {
       { label: "Track Record vorhanden", done: true, tone: "confirmed" as VisualTone },
       { label: "Kosten dokumentiert", done: false, tone: "open" as VisualTone },
       { label: "Risiken dokumentiert", done: false, tone: "open" as VisualTone },
-      { label: "Instrumentenuniversum vorlaeufig definiert - CTO-/INNO-Pruefung offen", done: false, tone: "planned" as VisualTone },
-      { label: "IBKR-Konfiguration geklaert", done: false, tone: "open" as VisualTone },
-      { label: "Mindestanlage vollstaendig geklaert", done: false, tone: "open" as VisualTone },
-      { label: "Technische Anbindung geklaert", done: false, tone: "open" as VisualTone },
+      { label: "Instrumentenuniversum vorläufig definiert – CTO-/INNO-Prüfung offen", done: false, tone: "planned" as VisualTone },
+      { label: "IBKR-Konfiguration geklärt", done: false, tone: "open" as VisualTone },
+      { label: "Mindestanlage vollständig geklärt", done: false, tone: "open" as VisualTone },
+      { label: "Technische Anbindung geklärt", done: false, tone: "open" as VisualTone },
     ],
     [],
   );
 
   const topOpenPoints = [
-    { title: "Maschinenlesbare vollstaendige Broker-Statements", priority: "Vor Gespraech", tone: "planned" as VisualTone },
-    { title: "Vollstaendige Trade-Liste", priority: "Vor Gespraech", tone: "planned" as VisualTone },
-    { title: "Widerspruechliche Tactical-Annualisierung klaeren", priority: "Kritisch", tone: "critical" as VisualTone },
+    { title: "Maschinenlesbare vollständige Broker-Statements", priority: "Vor Gespräch", tone: "planned" as VisualTone },
+    { title: "Vollständige Trade-Liste", priority: "Vor Gespräch", tone: "planned" as VisualTone },
+    { title: "Widersprüchliche Tactical-Annualisierung klären", priority: "Kritisch", tone: "critical" as VisualTone },
   ];
 
   const sourceRows = useMemo(
@@ -97,6 +98,10 @@ export function MobileAboutInnoView() {
     }),
     [sourceQuery],
   );
+  const openSource = (query: string) => {
+    setSourceQuery(query);
+    setActiveSection("sources");
+  };
 
   return (
     <div style={{ background: TOKENS.bg, minHeight: "100%", padding: "12px 12px 28px" }}>
@@ -138,14 +143,14 @@ export function MobileAboutInnoView() {
                     <p style={{ margin: "4px 0 0", fontSize: 14, fontWeight: 700, color: TOKENS.text, fontFamily: N, lineHeight: 1.2 }}>{metric.value}</p>
                     <p style={{ margin: "3px 0 0", fontSize: 9, color: TOKENS.goldLight, fontFamily: M, lineHeight: 1.35 }}>{metric.sub}</p>
                   </div>
-                  <SourcePill source={metric.source} />
+                  <SourcePill source={metric.source} onOpen={() => openSource(sourceLabel(metric.source))} />
                 </div>
               </Card>
             ))}
           </div>
 
           <Card>
-            <SHead icon={<Database size={13} />} label="Datenvollstaendigkeit" />
+            <SHead icon={<Database size={13} />} label="Datenvollständigkeit" />
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 12 }}>
               <Donut
                 segments={[
@@ -156,9 +161,9 @@ export function MobileAboutInnoView() {
                 label="1/6"
               />
               <div style={{ display: "grid", gap: 8, flex: 1, minWidth: 0 }}>
-                <LegendRow label="Vollstaendige Datenkategorien: 1 von 6" value={1} tone="confirmed" />
+                <LegendRow label="Vollständige Datenkategorien: 1 von 6" value={1} tone="confirmed" />
                 <LegendRow label="Offene Evidenzpunkte: 20" value={20} tone="open" />
-                <LegendRow label="Widerspruechliche Angaben: 1" value={1} tone="critical" />
+                <LegendRow label="Widersprüchliche Angaben: 1" value={1} tone="critical" />
               </div>
             </div>
           </Card>
@@ -232,7 +237,7 @@ export function MobileAboutInnoView() {
               ))}
             </div>
             <button type="button" onClick={() => setActiveSection("cto")} style={{ marginTop: 12, borderRadius: 999, border: `1px solid ${TOKENS.goldDark}`, background: "rgba(199,166,81,0.08)", color: TOKENS.goldLight, padding: "8px 12px", fontSize: 11, fontWeight: 700, fontFamily: M }}>
-              Alle offenen Punkte im CTO-Gespraech
+              Alle offenen Punkte im CTO-Gespräch
             </button>
           </Card>
         </div>
@@ -301,7 +306,7 @@ function SectionTrack() {
             <TrackMetric label="Max DD" value={row.drawdown} />
             <TrackMetric label="Sharpe" value={row.sharpe} />
             <TrackMetric label="Calmar" value={row.calmar} />
-            <TrackMetric label="Volatilitaet" value={row.volatilitaet} warn={row.volatilitaet === "Nicht gefunden"} />
+            <TrackMetric label="Volatilität" value={row.volatilitaet} warn={row.volatilitaet === "Nicht gefunden"} />
             <TrackMetric label="Profit Factor" value={row.profitFactor} />
             <TrackMetric label="Trefferquote" value={row.trefferquote} warn={row.trefferquote === "Nicht gefunden"} />
           </div>
@@ -313,11 +318,11 @@ function SectionTrack() {
         </Card>
       ))}
 
-      {["Equity-Kurve", "Drawdown-Verlauf", "Monatliche Renditeuebersicht"].map((label) => (
+      {["Equity-Kurve", "Drawdown-Verlauf", "Monatliche Renditeübersicht"].map((label) => (
         <Card key={label}>
           <SHead icon={<FileSearch size={13} />} label={label} />
           <div style={{ marginTop: 12, minHeight: 160, borderRadius: 14, border: "1px dashed rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)", display: "flex", alignItems: "center", justifyContent: "center", padding: 18, textAlign: "center", fontSize: 11, color: TOKENS.muted, fontFamily: M }}>
-            Fuer diese Auswertung fehlen derzeit die erforderlichen Rohdaten.
+            Für diese Auswertung fehlen derzeit die erforderlichen Rohdaten.
           </div>
         </Card>
       ))}
@@ -343,7 +348,7 @@ function SectionIbkr() {
           <table style={{ width: "100%", minWidth: 760, tableLayout: "fixed", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                {["Instrument", "Typ", "Boerse", "Status", "Kontraktgroesse", "Mindestdepot", "Marktdaten", "CTO-Pruefung"].map((label) => (
+                {["Instrument", "Typ", "Börse", "Status", "Kontraktgröße", "Mindestdepot", "Marktdaten", "CTO-Prüfung"].map((label) => (
                   <th key={label} style={{ padding: "8px 10px", textAlign: "left", fontSize: 9, color: TOKENS.muted, fontFamily: M }}>{label}</th>
                 ))}
               </tr>
@@ -354,11 +359,11 @@ function SectionIbkr() {
                   <Cell>{row.instrument}</Cell>
                   <Cell>{row.product}</Cell>
                   <Cell>Noch festzulegen</Cell>
-                  <Cell><Badge tone="planned">Vorlaeufig definiert - CTO-/INNO-Pruefung offen</Badge></Cell>
+                  <Cell><Badge tone="planned">Vorläufig definiert – CTO-/INNO-Prüfung offen</Badge></Cell>
                   <Cell>Nicht belegt</Cell>
                   <Cell>Nicht belegt</Cell>
                   <Cell>Noch festzulegen</Cell>
-                  <Cell>Pruefung offen</Cell>
+                  <Cell>Prüfung offen</Cell>
                 </tr>
               ))}
             </tbody>
@@ -387,10 +392,10 @@ function SectionIbkr() {
 
 function SectionCto() {
   const sections = [
-    { label: "Bereits bestaetigt", tone: "confirmed" as VisualTone, items: ["Empfohlene Mindestanlage etwa 20.000-25.000 EUR", "10.000 EUR wird im Rahmen der Strategiepruefung bewertet", "Tradingfrequenz wird detailliert besprochen", "Kosten im Track Record werden besprochen", "Risiko- und Performancekennzahlen werden geprueft", "Technische Anbindung und moegliches IT-Projekt werden eroertert", "Early Access grundsaetzlich moeglich, sofern keine Gelder, Garantien oder konkreten Performancezusagen erfolgen"] },
-    { label: "Vor dem Gespraech intern vorzubereiten", tone: "planned" as VisualTone, items: ["Maschinenlesbare Broker-Statements", "Vollstaendige Trade-Liste", "Konsistente Annualisierungslogik"] },
-    { label: "Mit CTO zu klaeren", tone: "planned" as VisualTone, items: ["IBKR-Setup und technische Anbindung", "Instrumentenuniversum inklusive QQQ, DAX-Kontrakt, 6E und 6B", "Gebuehren- und Kostenparitaet im Zielmodell"] },
-    { label: "Nach dem Gespraech zu entscheiden", tone: "open" as VisualTone, items: ["Finale Mindestanlageschwelle", "Zeitplan fuer IT-Projekt und Freigaben", "Naechste operative Due-Diligence-Schritte"] },
+    { label: "Bereits bestätigt", tone: "confirmed" as VisualTone, items: ["Empfohlene Mindestanlage etwa 20.000–25.000 EUR", "10.000 EUR wird im Rahmen der Strategieprüfung bewertet", "Tradingfrequenz wird detailliert besprochen", "Kosten im Track Record werden besprochen", "Risiko- und Performancekennzahlen werden geprüft", "Technische Anbindung und mögliches IT-Projekt werden erörtert", "Early Access grundsätzlich möglich, sofern keine Gelder, Garantien oder konkreten Performancezusagen erfolgen"] },
+    { label: "Vor dem Gespräch intern vorzubereiten", tone: "planned" as VisualTone, items: ["Maschinenlesbare Broker-Statements", "Vollständige Trade-Liste", "Konsistente Annualisierungslogik"] },
+    { label: "Mit CTO zu klären", tone: "planned" as VisualTone, items: ["IBKR-Setup und technische Anbindung", "Instrumentenuniversum inklusive QQQ, DAX-Kontrakt, 6E und 6B", "Gebühren- und Kostenparität im Zielmodell"] },
+    { label: "Nach dem Gespräch zu entscheiden", tone: "open" as VisualTone, items: ["Finale Mindestanlageschwelle", "Zeitplan für IT-Projekt und Freigaben", "Nächste operative Due-Diligence-Schritte"] },
   ];
 
   return (
@@ -449,7 +454,7 @@ function PortfolioCard({ card }: { card: (typeof INNO_STRATEGY_CARDS)[number] })
       { label: "Abgrenzung", text: "Neue Paper-, Backtest- oder Forward-Strategien werden separat gekennzeichnet", tone: "open" as VisualTone },
     ]
     : [
-      { label: "Status", text: "Kein vollstaendiger Live-Track-Record", tone: "planned" as VisualTone },
+      { label: "Status", text: "Kein vollständiger Live-Track-Record", tone: "planned" as VisualTone },
       { label: "Struktur", text: "Etwa 6-8 Assets und etwa 4 aktive Positionen plus ETF-Allokationen", tone: "planned" as VisualTone },
       { label: "Pruefung", text: "Separate Pruefung durch INNO erforderlich", tone: "open" as VisualTone },
     ];
@@ -532,8 +537,18 @@ function SHead({ icon, label }: { icon: React.ReactNode; label: string }) {
   );
 }
 
-function SourcePill({ source }: { source: string }) {
-  return <span title={source} style={{ borderRadius: 999, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)", color: TOKENS.muted, padding: "3px 7px", fontSize: 8, fontFamily: M, flexShrink: 0 }}>Src</span>;
+function SourcePill({ source, onOpen }: { source: string; onOpen?: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      title={`Quelle anzeigen: ${sourceLabel(source)}`}
+      aria-label={`Quelle anzeigen: ${sourceLabel(source)}`}
+      style={{ borderRadius: 999, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)", color: TOKENS.muted, width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+    >
+      <FileBadge2 size={15} />
+    </button>
+  );
 }
 
 function Badge({ children, tone }: { children: React.ReactNode; tone: VisualTone }) {
@@ -590,8 +605,8 @@ function normalizeCostRows(rows: typeof INNO_COST_ROWS) {
   return [
     { label: "Spread / Kommission / Swap historisch", value: "Brokerseitig verbuchte Handelskosten wie Spreads, Kommissionen und Swaps sind beruecksichtigt, soweit sie auf den zugrunde liegenden Echtgeldkonten verbucht wurden.", status: "Teilweise belegt", source: rows[0]?.source ?? "Nicht gefunden" },
     { label: "Management Fee / Performance Fee", value: "Noch festzulegen", status: "Nicht dokumentiert", source: rows[1]?.source ?? "Nicht gefunden" },
-    { label: "Historisch enthaltene Gebuehren", value: rows[2]?.detail ?? "Nicht gefunden", status: rows[2]?.status ?? "Nicht gefunden", source: rows[2]?.source ?? "Nicht gefunden" },
-    { label: "Zukuenftige Gebuehren im IBKR-/Institutsmodell", value: rows[3]?.detail ?? "Nicht gefunden", status: "Noch festzulegen", source: rows[3]?.source ?? "Nicht gefunden" },
+    { label: "Historisch enthaltene Gebühren", value: rows[2]?.detail ?? "Nicht gefunden", status: rows[2]?.status ?? "Nicht gefunden", source: rows[2]?.source ?? "Nicht gefunden" },
+    { label: "Zukünftige Gebühren im IBKR-/Institutsmodell", value: rows[3]?.detail ?? "Nicht gefunden", status: "Noch festzulegen", source: rows[3]?.source ?? "Nicht gefunden" },
   ];
 }
 
@@ -609,6 +624,11 @@ function inferSourcePortfolio(source: InnoSourceRef) {
   if (key.includes("strategic")) return "Strategic";
   if (key.includes("performance") || key.includes("track")) return "Tactical";
   return "Beide";
+}
+
+function sourceLabel(source: string) {
+  const parts = source.split(/[\\/]/);
+  return parts[parts.length - 1] || source;
 }
 
 function visualToneFromStatus(status: string): VisualTone {
