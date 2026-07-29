@@ -223,7 +223,7 @@ const ANOMALY: StrategyRow[] = [
     id: "gld_thursday", ticker: "GLD", label: "Gold ETF", group: "Anomaly",
     engine: "Thursday Long", pillar: "anomaly", weight: 2,
     sharpeOos: 0.506, cagr: "+3.38%", maxDd: "−7.29%", calmar: null, pf: 1.21, trades: 379, wfOos: null,
-    status: "active", dataFile: "anomaly/gld_thursday_long.json", exchange: "NYSE",
+    status: "active", dataFile: "anomaly/gld_thursday_long.json", exchange: "ARCA",
     isNotes: "OOS 2019–2026 · Walk-Forward approved · IS 2004–2018 (717 trades) · v1.2 config weight 10%",
   },
   {
@@ -249,13 +249,13 @@ const INTRADAY: StrategyRow[] = [
     id: "dax_1h", ticker: "DAX 1H / MT", label: "DAX 1H", group: "Intraday",
     engine: "SL 40pt · TP 2.5R · BE 1.5R · 07–12 UTC", pillar: "intraday", weight: 14,
     sharpeOos: 2.683, cagr: "+10.7%", maxDd: "−12.4%", calmar: 0.865, pf: 1.484, trades: 335, wfOos: "5/8",
-    status: "active", exchange: "OANDA", intradayId: "DAX1H", codexGroup: "intraday", codexSymbol: "DAX_1H",
+    status: "active", exchange: "EUREX", intradayId: "DAX1H", codexGroup: "intraday", codexSymbol: "DAX_1H",
   },
   {
     id: "dax_2h", ticker: "DAX 2H", label: "DAX 2H", group: "Intraday",
     engine: "SL ATR×0.8 · TP 3R · V4 Long-Only · 09–11 UTC", pillar: "intraday", weight: 4,
     sharpeOos: 2.459, cagr: "+5.4%", maxDd: "−19.9%", calmar: 0.270, pf: 1.478, trades: 81, wfOos: "5/8",
-    status: "active", exchange: "OANDA", intradayId: "DAX2H", codexGroup: "intraday", codexSymbol: "DAX_2H",
+    status: "active", exchange: "EUREX", intradayId: "DAX2H", codexGroup: "intraday", codexSymbol: "DAX_2H",
   },
 ];
 
