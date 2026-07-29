@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { INNO_MODES, type AboutMode } from "@/lib/about/about-inno-data";
 
 const M = "var(--font-montserrat), sans-serif";
@@ -15,23 +14,26 @@ export function AboutModeTabs({
   hrefs?: Partial<Record<AboutMode, string>>;
 }) {
   return (
-    <div className={`flex flex-wrap items-center ${mobile ? "gap-1.5" : "gap-2"}`}>
+    <div className={`relative z-20 flex flex-wrap items-center ${mobile ? "gap-1.5" : "gap-2"}`}>
       {INNO_MODES.map((mode) => {
         const active = activeMode === mode.id;
         const href = hrefs?.[mode.id] ?? (mode.id === "overview" ? basePath : `${basePath}?mode=${mode.id}`);
+
         return (
-          <Link
-            key={mode.id}
-            href={href}
-            className={
-              active
-                ? "rounded-full border border-[#e2ca7a]/45 bg-gradient-to-b from-[#1c1d20] to-[#141517] px-3.5 py-1.5 text-white shadow-[inset_0_-1px_0_0_rgba(226,202,122,0.45)]"
-                : "rounded-full px-2.5 py-1.5 text-zinc-500 transition-colors hover:text-zinc-300"
-            }
-            style={{ fontFamily: M, fontSize: mobile ? 11 : 12, fontWeight: active ? 700 : 500 }}
-          >
-            {mode.label}
-          </Link>
+          <form key={mode.id} action={href} method="get" className="inline-flex">
+            <button
+              type="submit"
+              aria-pressed={active}
+              className={
+                active
+                  ? "pointer-events-auto rounded-full border border-[#e2ca7a]/45 bg-gradient-to-b from-[#1c1d20] to-[#141517] px-3.5 py-1.5 text-white shadow-[inset_0_-1px_0_0_rgba(226,202,122,0.45)]"
+                  : "pointer-events-auto rounded-full px-2.5 py-1.5 text-zinc-500 transition-colors hover:text-zinc-300"
+              }
+              style={{ fontFamily: M, fontSize: mobile ? 11 : 12, fontWeight: active ? 700 : 500 }}
+            >
+              {mode.label}
+            </button>
+          </form>
         );
       })}
     </div>
