@@ -319,7 +319,7 @@ export default function IntradayEquityGrid() {
         alignItems: "center",
       }}>
         <span>
-          White Swan Intraday-Komponenten · EUR 14% / DAX1H 14% / DAX2H 4%
+          White Swan v1.3 Intraday · EUR 20% / DAX1H 20% / DAX2H 15%
         </span>
         {generatedAt && <span>Stand: {generatedAt}</span>}
       </div>

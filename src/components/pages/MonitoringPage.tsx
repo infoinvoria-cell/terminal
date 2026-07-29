@@ -656,7 +656,7 @@ const ORDERED_ASSETS: AgrarAssetConfig[] = [
 // truth) so the mobile Monitoring view renders the exact same 4 futures charts.
 
 type AnomalyMtAssetConfig = {
-  slot: "top_left" | "top_right" | "bottom_left" | "bottom_right";
+  slot: "left" | "center" | "right";
   displaySymbol: string;
   requestSymbol: string;
   source: string;
@@ -664,11 +664,11 @@ type AnomalyMtAssetConfig = {
   timeframe: string;
 };
 
+// WS v1.3 active anomaly components (3×15% = 45% portfolio weight)
 const ANOMALY_MT_ASSETS: AnomalyMtAssetConfig[] = [
-  { slot: "top_left",     displaySymbol: "GC1! 1D",   requestSymbol: "GC1!",   source: "COMEX:GC1!",     name: "Gold Freitag Long (GC1!)",    timeframe: "1D" },
-  { slot: "top_right",    displaySymbol: "GLD 1D",    requestSymbol: "GLD",    source: "AMEX:GLD",       name: "Gold Donnerstag Long (GLD)",  timeframe: "1D" },
-  { slot: "bottom_left",  displaySymbol: "YM1! 1D",   requestSymbol: "YM1!",   source: "CBOT_MINI:YM1!", name: "Dow Jones TAT (YM1!)",        timeframe: "1D" },
-  { slot: "bottom_right", displaySymbol: "FDAX1! 1D", requestSymbol: "FDAX1!", source: "EUREX:FDAX1!",   name: "DAX Futures TAT (FDAX1!)",    timeframe: "1D" },
+  { slot: "left",   displaySymbol: "GC1! 1D",  requestSymbol: "GC1!", source: "COMEX:GC1!", name: "Gold Freitag Long (GC1!)",   timeframe: "1D" },
+  { slot: "center", displaySymbol: "GLD 1D",   requestSymbol: "GLD",  source: "AMEX:GLD",   name: "Gold Donnerstag Long (GLD)", timeframe: "1D" },
+  { slot: "right",  displaySymbol: "YM1! 1D",  requestSymbol: "YM1!", source: "CBOT:YM1!",  name: "Dow Jones TAT (YM1!)",       timeframe: "1D" },
 ];
 
 const WAVE1_GROUP_BY_TAB: Partial<Record<TabId, Wave1GroupId>> = {
@@ -4217,7 +4217,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
 
   const allItems = useMemo(() => {
     if (activeTab === "intraday_mt") {
-      const slotOrder: Array<IntradayMtAssetConfig["slot"]> = ["top_left", "top_right", "bottom_left", "bottom_right"];
+      const slotOrder: Array<IntradayMtAssetConfig["slot"]> = ["left", "center", "right"];
       const bySlot = new Map<IntradayMtAssetConfig["slot"], UniverseAssetItem>();
       for (const item of filteredUniverseItems) {
         // Match by source + timeframe (not displaySymbol) to handle shared-source assets like DE30EUR
@@ -4258,7 +4258,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     }
 
     if (activeTab === "anomaly") {
-      const slotOrder: Array<AnomalyMtAssetConfig["slot"]> = ["top_left", "top_right", "bottom_left", "bottom_right"];
+      const slotOrder: Array<AnomalyMtAssetConfig["slot"]> = ["left", "center", "right"];
       const bySlot = new Map<AnomalyMtAssetConfig["slot"], UniverseAssetItem>();
       for (const item of filteredUniverseItems) {
         const spec = ANOMALY_MT_ASSETS.find((row) => row.displaySymbol === item.symbol);
