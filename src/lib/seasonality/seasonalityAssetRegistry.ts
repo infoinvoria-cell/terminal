@@ -69,6 +69,7 @@ const MONITORING_BINDINGS: MonitoringBinding[] = [
   { monitoringSymbol: "ZC1!", tvSymbol: "CBOT:ZC1!", group: "agrar", legacyAssetId: "corn" },
   { monitoringSymbol: "ZS1!", tvSymbol: "CBOT:ZS1!", group: "agrar", legacyAssetId: "soybeans" },
   { monitoringSymbol: "ZW1!", tvSymbol: "CBOT:ZW1!", group: "agrar", legacyAssetId: "wheat" },
+  { monitoringSymbol: "ZM1!", tvSymbol: "CBOT:ZM1!", group: "agrar", legacyAssetId: "soymeal" },
   // Energie
   { monitoringSymbol: "NG1!", tvSymbol: "NYMEX:NG1!", group: "energie", legacyAssetId: "ng1", historyPartsCsv: "NGAS.csv" },
   { monitoringSymbol: "CL1!", tvSymbol: "NYMEX:CL1!", group: "energie", legacyAssetId: "cl1", historyPartsCsv: "WTI.csv" },
@@ -133,6 +134,7 @@ const SEASONALITY_YAHOO_ALIASES: Record<string, string> = {
   "ZW1!": "ZW=F",
   "ZC1!": "ZC=F",
   "ZS1!": "ZS=F",
+  "ZM1!": "ZM=F",
   "KC1!": "KC=F",
   "SB1!": "SB=F",
   "CC1!": "CC=F",

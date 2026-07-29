@@ -17,7 +17,7 @@ import type { OhlcBar, SleeveData, SignalMarker } from "./types";
 import { CORE_INVEST_COLORS, getCoreInvestColor } from "@/lib/core-invest/coreInvestColors";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
 
-// ─── design tokens ────���───────────────────────────────────────────────────────
+// Design tokens
 const CHART_BG   = "#0A0A0A";
 const BORDER     = "rgba(255,255,255,0.08)";
 const BORDER_ACT = "#1F2127";
@@ -79,7 +79,7 @@ const WEIGHT_TO_SLEEVE_ID: Record<string, string> = {
 
 const STRATEGY_CARD_IDS = new Set(["qqqPine1", "qqqPine2", "copper", "chf"]);
 
-// ─── types ───���────────────────────────────────────────────────────────────────
+// Types
 export type TradeRow = {
   direction: "long" | "short";
   entryTime: string;
@@ -92,7 +92,7 @@ export type TradeRow = {
   isOpen?: boolean | null;
 };
 
-// ─── helpers ────���────────────────────────────────��────────────────────────────
+// Helpers
 function toBarRows(bars: OhlcBar[]) {
   return bars.map(b => ({ time: b.date, open: b.open, high: b.high, low: b.low, close: b.close }));
 }
@@ -615,7 +615,7 @@ function InteractivePerformanceTile({ benchmarkCurve, qqqCurve, sleeves, gldBars
   );
 }
 
-// ─── donut ring ────���──────────────────────────────────────────────────────────
+// Donut ring
 function DonutRing({ value, color, label, icon }: { value: number; color: string; label: string; icon?: string }) {
   const SIZE = 74, R = 28, circ = 2 * Math.PI * R;
   const fill = (value / 100) * circ;
@@ -739,7 +739,7 @@ function InfoTile({ dataStatus, missingSymbols, sleeves }: InfoTileProps) {
   );
 }
 
-// ─── main grid ──────────���────────────────────────────��────────────────────────
+// Main grid
 type CoreInvestMonitoringGridProps = {
   /** Called when user selects a strategy card for the Tester */
   onStrategySelect?: (sleeveId: string) => void;

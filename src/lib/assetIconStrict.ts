@@ -1,6 +1,6 @@
 ﻿/**
  * Strict file-based asset icons under /public/asset-icons/.
- * Primary: local png/jpg/webp; then domain emoji where configured; generic fallback is neutral (not ðŸ’°).
+ * Primary: local png/jpg/webp; then domain emoji where configured; generic fallback is neutral (not 💰).
  */
 
 // Stub: screener asset definitions are not available in Capitalife Terminal.
@@ -51,7 +51,7 @@ export const assetIconMap: Record<string, string> = {
   DOLLAR: p("Dollar.png"),
 };
 
-/** ISO FX legs only â€” excludes XAU/XAG etc. so "XAGUSD" is not treated as a currency cross. */
+/** ISO FX legs only — excludes XAU/XAG etc. so "XAGUSD" is not treated as a currency cross. */
 const FX_LEG_CODES = new Set(["EUR", "USD", "GBP", "JPY", "CHF", "AUD", "NZD", "CAD"]);
 
 function isFxLeg(code: string): boolean {
@@ -64,7 +64,7 @@ export type StrictResolvedAssetIcon =
   | { type: "glyph"; char: string }
   | { type: "fallback"; icon: string };
 
-/** Generic unknown asset â€” avoid ðŸ’° (commodities / indices). */
+/** Generic unknown asset — avoid 💰 (commodities / indices). */
 export const NEUTRAL_ASSET_FALLBACK = "\uD83C\uDF10";
 
 const OIL_EMOJI = "\uD83D\uDEE2";
@@ -95,7 +95,7 @@ export function effectivePublicUrl(absolutePath: string): string {
 }
 
 /**
- * Pull a 6-letter AABBCC segment from broker symbols (e.g. OANDA:GBPCAD â†’ GBPCAD).
+ * Pull a 6-letter AABBCC segment from broker symbols (e.g. OANDA:GBPCAD -> GBPCAD).
  * Only accepts segments where both triplets are FX legs (see FX_LEG_CODES).
  */
 export function extractSixLetterForex(raw: string): string | null {
@@ -147,7 +147,7 @@ export function getSingleIcon(asset: string): StrictResolvedAssetIcon | null {
   return null;
 }
 
-/** Known dashboard asset ids â†’ ASSET_ICON_MAP key */
+/** Known dashboard asset ids -> ASSET_ICON_MAP key */
 const ASSET_ID_TO_KEY: Record<string, string> = {
   usd_index: "DOLLAR",
   dxy: "DOLLAR",
@@ -166,7 +166,7 @@ const ASSET_ID_TO_KEY: Record<string, string> = {
   russell2000: "USD",
 };
 
-/** Normalized token â†’ strict map key (from iconKey / id fragments) */
+/** Normalized token -> strict map key (from iconKey / id fragments) */
 const TOKEN_TO_KEY: Record<string, string> = {
   spx: "SP500",
   sp500: "SP500",

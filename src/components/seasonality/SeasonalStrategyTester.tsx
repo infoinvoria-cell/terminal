@@ -14,6 +14,8 @@ import type { ScannerTimeScope, ScannerAssetScope } from "./PatternScannerPanel"
 import { StrategyEnginePanel } from "./strategyEngine/StrategyEnginePanel";
 import { SeasonalFilterLabPanel } from "./filterLab/SeasonalFilterLabPanel";
 import { readWorkspaceState, patchWorkspaceState } from "@/lib/seasonality/useSeasonalityWorkspace";
+import { AgentPortfolioPanel } from "./AgentPortfolioPanel";
+import { SleevePortfolioPanel } from "./SleevePortfolioPanel";
 
 const C_WHITE = "#F0F3F7";
 const C_GOLD = "#DCC476";
@@ -48,7 +50,7 @@ interface Props {
   onScannerPatternSelect?: (assetId: string, pattern: PatternCandidate) => void;
 }
 
-export type WfView = "tester" | "scanner" | "strategy_engine" | "filter_lab";
+export type WfView = "tester" | "scanner" | "strategy_engine" | "filter_lab" | "agent_portfolio" | "sleeve_portfolio";
 type Tab = "results" | "folds" | "config" | "audit";
 
 function pct(value: number, decimals = 2): string {
@@ -192,7 +194,8 @@ export const SeasonalStrategyTester = memo(function SeasonalStrategyTester({
   const [wfView, setWfViewRaw] = useState<WfView>(() =>
     initialWs.wfView === "scanner" ? "scanner" :
     initialWs.wfView === "strategy_engine" ? "strategy_engine" :
-    initialWs.wfView === "filter_lab" ? "filter_lab" : "tester");
+    initialWs.wfView === "filter_lab" ? "filter_lab" :
+    initialWs.wfView === "agent_portfolio" ? "agent_portfolio" : "tester");
   const [scanTimeScope, setScanTimeScopeRaw] = useState<ScannerTimeScope>(() =>
     (["month", "quarter", "year"] as ScannerTimeScope[]).includes(initialWs.scannerTimeScope as ScannerTimeScope)
       ? initialWs.scannerTimeScope
@@ -463,10 +466,12 @@ export const SeasonalStrategyTester = memo(function SeasonalStrategyTester({
   ) : null;
 
   const VIEW_OPTS: Array<{ key: WfView; label: string }> = [
-    { key: "tester",          label: "Walk-Forward Tester" },
-    { key: "scanner",         label: "Pattern Scanner" },
-    { key: "strategy_engine", label: "Strategy Engine" },
-    { key: "filter_lab",      label: "Seasonal Filter Lab" },
+    { key: "tester",           label: "Walk-Forward Tester" },
+    { key: "scanner",          label: "Pattern Scanner" },
+    { key: "strategy_engine",  label: "Strategy Engine" },
+    { key: "filter_lab",       label: "Seasonal Filter Lab" },
+    { key: "agent_portfolio",  label: "Agent Portfolio" },
+    { key: "sleeve_portfolio", label: "Komponenten" },
   ];
 
   const viewDropdown = (
@@ -488,7 +493,7 @@ export const SeasonalStrategyTester = memo(function SeasonalStrategyTester({
           lineHeight: 1,
         }}
       >
-        <span>{wfView === "tester" ? "Walk-Forward Tester" : wfView === "scanner" ? "Pattern Scanner" : wfView === "filter_lab" ? "Seasonal Filter Lab" : "Strategy Engine"}</span>
+        <span>{wfView === "tester" ? "Walk-Forward Tester" : wfView === "scanner" ? "Pattern Scanner" : wfView === "filter_lab" ? "Seasonal Filter Lab" : wfView === "agent_portfolio" ? "Agent Portfolio" : wfView === "sleeve_portfolio" ? "Komponenten" : "Strategy Engine"}</span>
         <span style={{ fontSize: 10, color: "rgba(168,180,196,0.7)", padding: "0 2px" }}>▾</span>
       </button>
       {dropdownOpen && (
@@ -611,6 +616,24 @@ export const SeasonalStrategyTester = memo(function SeasonalStrategyTester({
       {wfView === "strategy_engine" && <StrategyEnginePanel assetId={assetId} />}
 
       {wfView === "filter_lab" && <SeasonalFilterLabPanel assetId={assetId} />}
+
+      {wfView === "agent_portfolio" && <AgentPortfolioPanel />}
+
+      {wfView === "sleeve_portfolio" && (
+        <SleevePortfolioPanel
+          onSelectPattern={(selectAssetId, startSlot, direction) => {
+            if (!onScannerPatternSelect) return;
+            const fake: PatternCandidate = {
+              startSlot, endSlot: startSlot + 10, approxMonthLabel: "",
+              direction: direction === "LONG" ? "LONG" : "SHORT",
+              holdingDays: 10, winRate: 0.5, avgPerformance: 0, maxDrawdown: 0,
+              sharpe: null, calmar: null, sortino: null, profitFactor: null,
+              avgDrawdown: null, observationCount: 0, strategyReturns: [],
+            };
+            onScannerPatternSelect(selectAssetId, fake);
+          }}
+        />
+      )}
 
       {wfView === "tester" && (
         <div className={compact ? styles.wfMain : undefined}>

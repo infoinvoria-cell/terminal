@@ -18,7 +18,7 @@ export type WorkspaceLockedPatternContext = {
 export type WorkspaceState = {
   selectedAssetId:    string;
   lookbackYears:      number;
-  wfView:             "tester" | "scanner" | "strategy_engine" | "filter_lab";
+  wfView:             "tester" | "scanner" | "strategy_engine" | "filter_lab" | "agent_portfolio" | "sleeve_portfolio";
   scannerTimeScope:   "month" | "quarter" | "year";
   scannerAssetScope:  "global" | "group" | "asset";
   testerTab:          "results" | "folds" | "config" | "audit";

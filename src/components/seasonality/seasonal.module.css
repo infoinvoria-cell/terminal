@@ -30,6 +30,11 @@
   --layout-gap: 6px;
   --layout-pad: 4px 6px;
 
+  /* Force full width inside the AppShell flex container */
+  width: 100%;
+  flex: 1;
+  min-width: 0;
+
   height: 100dvh;
   max-height: 100dvh;
   min-height: 0;
