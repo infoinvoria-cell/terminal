@@ -705,19 +705,6 @@ export const SeasonalRightPanel = memo(function SeasonalRightPanel({
             onActivate={onActivatePattern}
           />
         </div>
-        {sectionGap}
-
-        <PanelTitle>Saved Patterns</PanelTitle>
-        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", padding: "0 10px 8px", overflow: "hidden" }}>
-          <div style={{ flex: 1, overflow: "hidden" }}>
-            <SavedPatternsSection
-              assetId={assetId}
-              onSelect={onSelectSaved}
-              activeId={activePatternId}
-              refreshKey={savedPatternsRefreshKey}
-            />
-          </div>
-        </div>
       </>)}
     </div>
   );
