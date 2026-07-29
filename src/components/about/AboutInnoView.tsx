@@ -294,7 +294,20 @@ export function AboutInnoView() {
               </div>
 
               <div className={`${CARD} min-w-0 p-4`} style={surfaceStyle()}>
-                <SectionTitle icon={<Check size={14} />} title="CTO-Bereitschaft" />
+                <div className="flex items-center justify-between gap-3">
+                  <SectionTitle icon={<Check size={14} />} title="CTO-Bereitschaft" />
+                  <div
+                    className="rounded-full border px-2.5 py-1 text-[10px] font-semibold"
+                    style={{
+                      fontFamily: M,
+                      borderColor: TOKENS.goldDark,
+                      background: "rgba(199,166,81,0.12)",
+                      color: TOKENS.goldLight,
+                    }}
+                  >
+                    {readinessDone}/{readinessChecklist.length}
+                  </div>
+                </div>
                 <div className="mt-4 space-y-3">
                   <ProgressBar value={readinessDone} total={readinessChecklist.length} />
                   <div className="grid grid-cols-1 gap-2 md:grid-cols-2">

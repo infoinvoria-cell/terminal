@@ -164,7 +164,24 @@ export function MobileAboutInnoView() {
           </Card>
 
           <Card>
-            <SHead icon={<Check size={13} />} label="CTO-Bereitschaft" />
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+              <SHead icon={<Check size={13} />} label="CTO-Bereitschaft" />
+              <div
+                style={{
+                  borderRadius: 999,
+                  border: `1px solid ${TOKENS.goldDark}`,
+                  background: "rgba(199,166,81,0.12)",
+                  color: TOKENS.goldLight,
+                  padding: "5px 9px",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  fontFamily: M,
+                  flexShrink: 0,
+                }}
+              >
+                2/8
+              </div>
+            </div>
             <div style={{ marginTop: 12 }}>
               <div style={{ height: 8, borderRadius: 999, background: "#222327", overflow: "hidden" }}>
                 <div style={{ width: "25%", height: "100%", background: TOKENS.gold }} />
