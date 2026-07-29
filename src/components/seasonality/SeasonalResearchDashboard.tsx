@@ -951,9 +951,10 @@ export function SeasonalResearchDashboard({ onSwitchToLegacy: _unused }: Props) 
   });
   // Both strategy_engine and filter_lab use the same full-width engineZone layout
   const isStrategyEngine = activeWfView === "strategy_engine" || activeWfView === "filter_lab";
+  const isSleeve = activeWfView === "sleeve_portfolio";
 
   return (
-    <div className={`${styles.app} seasonal-dashboard-root${isStrategyEngine ? " " + styles.appStrategyEngine + " se-engine-active" : ""}`}>
+    <div className={`${styles.app} seasonal-dashboard-root${isStrategyEngine ? " " + styles.appStrategyEngine + " se-engine-active" : ""}${isSleeve ? " " + styles.appSleeve : ""}`}>
       <div className={styles.content}>
         <SeasonalCombinedChartPanel
           chartResult={chartResult}
