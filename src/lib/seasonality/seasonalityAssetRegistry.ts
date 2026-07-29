@@ -131,6 +131,7 @@ const SEASONALITY_YAHOO_ALIASES: Record<string, string> = {
   "CL1!": "CL=F",
   "ES1!": "^GSPC",
   "FDAX1!": "^GDAXI",
+  "US30USD": "^DJI",
   "ZW1!": "ZW=F",
   "ZC1!": "ZC=F",
   "ZS1!": "ZS=F",
@@ -140,6 +141,13 @@ const SEASONALITY_YAHOO_ALIASES: Record<string, string> = {
   "CC1!": "CC=F",
   "CT1!": "CT=F",
   "OJ1!": "OJ=F",
+  // Stocks — Yahoo direct ticker
+  "AAPL": "AAPL",
+  "MSFT": "MSFT",
+  "NVDA": "NVDA",
+  "GOOGL": "GOOGL",
+  "META": "META",
+  "AMZN": "AMZN",
 };
 
 function hasExistingYahooMapping(symbol: string): boolean {
