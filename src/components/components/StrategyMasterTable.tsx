@@ -1039,11 +1039,11 @@ export default function StrategyMasterTable() {
   // filter
   const baseRows: DisplayRow[] = portfolio === "ws" ? WS_ROWS : CI_ROWS;
   let rows = baseRows;
-  if (section === "active") rows = rows.filter(r => r.status !== "archived");
+  if (section === "active") rows = rows.filter(r => r.status !== "archived" && r.status !== "research");
   else if (section !== "all") rows = rows.filter(r => r.pillarKey === section);
 
-  // sort — archived always pinned at bottom
-  const archOrder = (s: string) => s === "archived" ? 1 : 0;
+  // sort — archived and research pinned at bottom
+  const archOrder = (s: string) => s === "archived" ? 2 : s === "research" ? 1 : 0;
 
   if (sortKey) {
     rows = [...rows].sort((a, b) => {
@@ -1152,10 +1152,10 @@ export default function StrategyMasterTable() {
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
             <thead style={{ position: "sticky", top: 0, zIndex: 2 }}>
               {(() => {
-                const activeRows = rows.filter(r => r.status !== "archived");
+                const activeRows = rows.filter(r => r.status !== "archived" && r.status !== "research");
                 const totalRows = rows.length;
                 const pillars = new Set(rows.map(r => r.pillarKey)).size;
-                const weightSum = rows.map(r => r.weight ?? 0).reduce((s, v) => s + v, 0);
+                const weightSum = rows.filter(r => r.status !== "research").map(r => r.weight ?? 0).reduce((s, v) => s + v, 0);
                 const sharpes = rows.map(r => r.sharpeOos).filter((v): v is number => v != null);
                 const avgSharpe = sharpes.length ? (sharpes.reduce((s, v) => s + v, 0) / sharpes.length).toFixed(2) : null;
                 const cagrs = rows.map(r => parseFloat((r.cagr ?? "").replace(/[^0-9.-]/g, ""))).filter(v => !isNaN(v));
@@ -1199,8 +1199,9 @@ export default function StrategyMasterTable() {
             <tbody>
               {rows.map(row => {
                 const isArch = row.status === "archived";
+                const isResearch = row.status === "research";
                 const isExp  = expandedId === row.id;
-                if (!isArch) rowNum++;
+                if (!isArch && !isResearch) rowNum++;
                 const live = liveCols ? matchLive(row.ticker, liveData) : null;
 
                 // price color: positive day = bright white, negative = gold
@@ -1219,9 +1220,9 @@ export default function StrategyMasterTable() {
 
                 const dataRow = (
                   <tr key={row.id}
-                    onClick={() => !isArch && toggle(row.id)}
-                    style={{ opacity: isArch ? 0.18 : 1, cursor: isArch ? "default" : "pointer", borderBottom: `1px solid ${RBORD}`, background: isExp ? "rgba(255,255,255,0.02)" : "transparent", transition: "background .1s" }}
-                    onMouseEnter={e => { if (!isArch && !isExp) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.012)"; }}
+                    onClick={() => !isArch && !isResearch && toggle(row.id)}
+                    style={{ opacity: isArch ? 0.18 : isResearch ? 0.38 : 1, cursor: (isArch || isResearch) ? "default" : "pointer", borderBottom: `1px solid ${RBORD}`, background: isExp ? "rgba(255,255,255,0.02)" : "transparent", transition: "background .1s" }}
+                    onMouseEnter={e => { if (!isArch && !isResearch && !isExp) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.012)"; }}
                     onMouseLeave={e => { if (!isExp) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                   >
                     <td style={{ padding: "5px 6px", textAlign: "left", fontSize: 9, color: "rgba(255,255,255,0.65)", fontWeight: 600, width: 26, fontVariantNumeric: "tabular-nums" }}>{isArch ? "" : rowNum}</td>
