@@ -8,8 +8,10 @@ import {
   LineSeries,
   createChart,
   type CandlestickData,
+  type BarData,
   type IChartApi,
   type ISeriesApi,
+  type MouseEventParams,
   type Time,
   type UTCTimestamp,
   type WhitespaceData,
@@ -1106,6 +1108,7 @@ function MonitoringChartInner({
   const [fullscreenZoneActive, setFullscreenZoneActive] = useState(false);
   const [currentPriceGuide, setCurrentPriceGuide] = useState<CurrentPriceGuide | null>(null);
   const [priceAxisLabel, setPriceAxisLabel] = useState<PriceAxisLabelState | null>(null);
+  const ohlcHoverDivRef = useRef<HTMLDivElement | null>(null);
   const [overlayScaleWidth, setOverlayScaleWidth] = useState(0);
   const overlayScaleWidthRef = useRef(0);
   const syncPriceAxisLabelRef = useRef<() => void>(() => undefined);
@@ -1658,7 +1661,28 @@ function MonitoringChartInner({
       chart.unsubscribeClick(onChartClick);
     });
 
+    const onCrosshairMove = (param: MouseEventParams<Time>) => {
+      const div = ohlcHoverDivRef.current;
+      if (!div) return;
+      if (!param.point || !param.time) {
+        div.style.display = "none";
+        return;
+      }
+      const bar = param.seriesData.get(candle) as BarData<Time> | undefined;
+      if (!bar || !("open" in bar)) {
+        div.style.display = "none";
+        return;
+      }
+      div.style.display = "block";
+      div.textContent = `O ${formatAxisPrice(bar.open)}  H ${formatAxisPrice(bar.high)}  L ${formatAxisPrice(bar.low)}  C ${formatAxisPrice(bar.close)}`;
+    };
+    chart.subscribeCrosshairMove(onCrosshairMove);
+    const unregisterCrosshairMove = registerMonitoringSubscription(() => {
+      chart.unsubscribeCrosshairMove(onCrosshairMove);
+    });
+
     return () => {
+      unregisterCrosshairMove();
       unregisterChartClick();
       unregisterWheel();
       unregisterPanSync();
@@ -3096,6 +3120,29 @@ function MonitoringChartInner({
           ) : null}
         </div>
       ) : null}
+      {/* TV-style OHLC hover readout — updated directly via DOM ref, no React re-renders */}
+      <div
+        ref={ohlcHoverDivRef}
+        style={{
+          display: "none",
+          position: "absolute",
+          left: 8,
+          top: 6,
+          zIndex: 25,
+          pointerEvents: "none",
+          fontFamily: MONITORING_CHART_FONT_FAMILY,
+          fontSize: isDashboardChart ? 10 : isCompactChart ? 11 : 12,
+          fontWeight: 600,
+          color: "rgba(210, 215, 230, 0.85)",
+          letterSpacing: 0.3,
+          fontVariantNumeric: "tabular-nums",
+          whiteSpace: "nowrap",
+          background: "rgba(10, 10, 14, 0.72)",
+          borderRadius: 4,
+          padding: isDashboardChart ? "1px 5px" : "2px 7px",
+          lineHeight: 1.4,
+        }}
+      />
       {overlayEnabled || showManualLevels ? (
         <TradeSvgOverlay
           segments={tradeSvgSegments}
