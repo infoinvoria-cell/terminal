@@ -290,6 +290,7 @@ function Chip({ status }: { status: string }) {
     validation:           { label: "Validation",      c: "rgba(255,255,255,0.45)" },
     parity_pending:       { label: "Pending",         c: GOLD },
     parity_partial:       { label: "⚠ Parity partiell", c: "#f59e0b" },
+    validiert:            { label: "Validiert",        c: "#22c55e" },
   };
   const s = cfg[status] ?? { label: status, c: MUTED };
   return (

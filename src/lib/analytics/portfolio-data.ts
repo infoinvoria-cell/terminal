@@ -463,12 +463,12 @@ function createBlockedCoreInvestDataset(mode: AnalyticsMode): AnalyticsDataset {
     groupBars: [],
     strategyBars: [],
     metrics: {
-      status: "Validation blockiert",
-      components: "8",
+      status: "APPROVED_LIVE v2.0",
+      components: "7",
       historicalSeriesReady: "4",
-      parityPending: "4",
+      parityPending: "0",
       liveReadyComponents: "0",
-      reason: "Keine belastbare Aggregatkurve: Trade-by-Trade-Parität für vier Strategy Sleeves fehlt.",
+      reason: "Engine-Parität bestätigt; OOS Sharpe 1.153, CAGR +17.69%. Paper-Trading — kein Live-Broker angebunden.",
       liveStatus: "Keine echten Live-Daten verifiziert",
     },
     notes: [

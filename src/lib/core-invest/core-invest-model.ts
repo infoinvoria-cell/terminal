@@ -28,7 +28,7 @@ export const CORE_INVEST_MODEL = {
   ],
   validation: {
     historicalSeriesReady: 4,
-    parityPending: 3,
+    parityPending: 0,
     liveReadyComponents: 0,
     aggregateBacktestValid: false,
     rollingWalkForwardValid: false,

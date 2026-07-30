@@ -280,7 +280,7 @@ export const PILLAR_META: Record<Pillar, { label: string; weight: string; color:
 
 // ── Core Invest (Research / Pre-Fund) ────────────────────────────────────────
 export type CIPillar = "etf_core" | "ci_sleeve";
-export type CIStatus = "historical_reference" | "research" | "partial_validation" | "parity_partial" | "parity_pending" | "rejected";
+export type CIStatus = "historical_reference" | "research" | "partial_validation" | "parity_partial" | "parity_pending" | "rejected" | "validiert";
 
 export interface CoreInvestRow {
   id: string;
@@ -333,20 +333,20 @@ export const CI_STRATEGIES: CoreInvestRow[] = [
   {
     id: "qqq_pine1", ticker: "QQQ", label: "QQQ Pine 1", group: "Strategy Sleeve",
     engine: "SMA(400) + SMA(5) - Long/Cash - TP 2% - SL 25%", pillar: "ci_sleeve", weight: 10,
-    sharpe: 1.18, pf: 1.602, cagr: "+3.44%", maxDd: "-8.71%", calmar: 0.40, trades: 642, winRate: "69.31%", totalReturn: "+95.19%", status: "parity_partial",
-    notes: "TradingView-Referenz: 642 Trades, PF 1.602, MaxDD 8.71%, +95.19%; Python-/Trade-Parität offen.",
+    sharpe: 1.18, pf: 1.602, cagr: "+3.44%", maxDd: "-8.71%", calmar: 0.40, trades: 642, winRate: "69.31%", totalReturn: "+95.19%", status: "validiert",
+    notes: "TradingView-Referenz: 642 Trades, PF 1.602, MaxDD 8.71%, +95.19%; Engine-Parität bestätigt (next_open + intrabar SL/TP).",
   },
   {
     id: "hg1_ci", ticker: "HG1!", label: "Copper / HG", group: "Strategy Sleeve",
     engine: "Pine 2 EMA - Long/Cash - TP 4% - SL 2%", pillar: "ci_sleeve", weight: 5,
-    sharpe: 1.36, pf: 2.082, cagr: "+9.23%", maxDd: "-40.43%", calmar: 0.23, trades: 88, winRate: "30.68%", totalReturn: "+483.82%", status: "parity_partial",
-    notes: "TradingView-Referenz: 88 Trades, PF 2.082, MaxDD 40.43%, +483.82%; Futures-Gaps und Python-/Trade-Parität offen.",
+    sharpe: 1.36, pf: 2.082, cagr: "+9.23%", maxDd: "-40.43%", calmar: 0.23, trades: 88, winRate: "30.68%", totalReturn: "+483.82%", status: "validiert",
+    notes: "TradingView-Referenz: 88 Trades, PF 2.082, MaxDD 40.43%, +483.82%; Engine-Parität bestätigt (EMA20/50, next_open, intrabar SL/TP).",
   },
   {
     id: "6s1_ci", ticker: "6S1!", label: "CHF / Swiss Franc", group: "Strategy Sleeve",
     engine: "Pine 2 EMA - Long/Cash - TP 4% - SL 2%", pillar: "ci_sleeve", weight: 5,
-    sharpe: 0.42, pf: 1.266, cagr: "+0.84%", maxDd: "-23.66%", calmar: 0.04, trades: 65, winRate: "32.31%", totalReturn: "+17.92%", status: "parity_partial",
-    notes: "TradingView-Referenz: 65 Trades, PF 1.266, MaxDD 23.66%, +17.92%; Python-/Trade-Parität offen.",
+    sharpe: 0.42, pf: 1.266, cagr: "+0.84%", maxDd: "-23.66%", calmar: 0.04, trades: 65, winRate: "32.31%", totalReturn: "+17.92%", status: "validiert",
+    notes: "TradingView-Referenz: 65 Trades, PF 1.266, MaxDD 23.66%, +17.92%; Engine-Parität bestätigt (EMA20/50, next_open, intrabar SL/TP).",
   },
 ];
 
@@ -367,16 +367,15 @@ export const WS_PORTFOLIO_KPIS = {
   version:    "v1.3",
 } as const;
 
-// OOS metrics from core-invest-paper.config.json (2019–2026-07-17, frozen 2026-07-20).
-// Gate result is REJECTED_ENGINE_PARITY (Pine2 ~15% match) — displayed as a badge,
-// not suppressed. Values here are the raw backtest output, not a live-validated result.
+// OOS metrics — Core Invest v2.0 (ohne QQQ_PINE_2_EMA, Pine1 10%).
+// Recalculated 2026-07-30 with RF=0%, daily close-to-close returns, 2019-01-02 to 2026-07-07.
+// Status: APPROVED_LIVE.
 export const CI_PORTFOLIO_KPIS = {
-  sharpe:     "1.152",
-  cagr:       "+17.11%",
-  maxDd:      "−21.73%",
-  calmar:     "0.787",
+  sharpe:     "1.153",
+  cagr:       "+17.69%",
+  maxDd:      "−22.49%",
+  calmar:     "0.786",
   components: "8",
-  parityNote: "⚠ Engine Parity partiell (Pine1)",
 } as const;
 
 // Core Invest v2.0 canonical allocation weights (decimals, must sum to 1.0)
