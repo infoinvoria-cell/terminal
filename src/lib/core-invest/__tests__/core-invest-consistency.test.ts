@@ -17,7 +17,7 @@ describe("Core Invest source-of-truth consistency", () => {
     expect(CORE_INVEST_MODEL.components.map((row) => row.id).sort()).toEqual(Object.keys(CI_WEIGHTS).sort());
     for (const component of CORE_INVEST_MODEL.components) {
       expect(component.weight).toBe(config.weights[component.id as keyof typeof config.weights]);
-      expect(component.weight).toBe(CI_WEIGHTS[component.id]);
+      expect(component.weight).toBe(CI_WEIGHTS[component.id as keyof typeof CI_WEIGHTS]);
     }
   });
 
