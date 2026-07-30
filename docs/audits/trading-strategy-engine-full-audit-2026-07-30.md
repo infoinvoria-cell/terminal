@@ -78,31 +78,38 @@ ts_utc = ts.tz_convert("UTC")
 
 ## 4. Chart UI
 
-### CrosshairMode fix (2026-07-30)
+### CrosshairMode fix (2026-07-30, v2)
 
-**Bug:** The data-update `applyOptions` (fires every 5s refresh) was setting `CrosshairMode.Normal`, overriding `CrosshairMode.Magnet` set at `createChart`. The magnet only worked transiently during hover.
+**Bug (v1):** The data-update `applyOptions` (fires every 5s refresh) was setting `CrosshairMode.Normal`, overriding `CrosshairMode.Magnet` set at `createChart`.
 
-**Fix applied in** `src/components/monitoring/MonitoringChart.tsx` line ~1756:
-- Changed `CrosshairMode.Normal` → `CrosshairMode.Magnet`
-- Unified crosshair color to `rgba(180, 185, 200, 0.6)` (was inconsistently `rgba(230, 235, 245, 0.75)` in the update path)
+**Bug (v2):** `CrosshairMode.Magnet` (value=1) only snaps the horizontal line to the **close** price. In TradingView the crosshair snaps to any of OPEN/HIGH/LOW/CLOSE on hover.
 
-### Scroll / pan
-- Mouse wheel: **zoom** (TradingView convention — `handleScale.mouseWheel: true`)
+**Fix applied in** `src/components/monitoring/MonitoringChart.tsx`:
+- Changed `CrosshairMode.Magnet` → `CrosshairMode.MagnetOHLC` (LWC v5 value=3) in all three locations:
+  1. `createChart` crosshair options (~line 1350)
+  2. Hover `applyOptions` (~line 1278)
+  3. Data-update `applyOptions` (~line 1765, re-asserted every 5s so refresh cannot revert)
+- Crosshair color unified to `rgba(180, 185, 200, 0.6)` (grey) in all three locations
+
+### Scroll / pan (fixed 2026-07-30)
+
+- Mouse wheel: **pan** (TV-style — wheel-down scrolls to older bars, wheel-up to newer bars)
 - Drag: **pan** (`handleScroll.pressedMouseMove: true`)
-- Touch drag: enabled (`horzTouchDrag: true, vertTouchDrag: true`)
+- `handleScale.mouseWheel: false` in both `createChart` and data-update `applyOptions` (prevents 5s refresh re-enabling zoom-on-wheel)
+- Custom `onWheel` handler: horizontal δX pans time axis; vertical δY pans time axis (VERTICAL_WHEEL_BAR_SHIFT = 3 bars per tick)
+- Touch: pinch zooms, drag pans (`horzTouchDrag: true, vertTouchDrag: true`)
 
-This matches TradingView behavior. Horizontal wheel pans, vertical wheel zooms (custom `onWheel` handler in chart host element).
+### Candle colors (updated 2026-07-30)
+
+| Color | Value | Notes |
+|-------|-------|-------|
+| Up body/wick | `#FFFFFF` (white) | Controlled by `uiPrefs.candleUpColor` |
+| Down body/wick | `#EF5350` (TV-standard red) | Was `#D6B44B` (amber); changed for TV visual parity |
+
+Down color default changed from amber to red. Users who set `uiPrefs.candleDownColor` explicitly are unaffected. The amber default was causing confusion — on dark backgrounds the bearish wick at `#D6B44B` resembled a golden crosshair line.
 
 ### Symbol search
-Not implemented. The chart does not have a built-in symbol switcher. Currently out of scope.
-
-### Crosshair color
-Set to `rgba(180, 185, 200, 0.6)` (grey) in all three locations:
-1. `createChart` options (line ~1351)
-2. Hover `applyOptions` (line ~1279)
-3. Data-update `applyOptions` (line ~1757, fixed 2026-07-30)
-
-Candle down-color is `#D6B44B` (amber) — this is the bearish candle body, not the crosshair.
+Not implemented. Out of scope.
 
 ---
 
@@ -144,12 +151,12 @@ The screenshot (14:24 CEST, 2026-07-30) showed a bar dropping from ~52,000 to ~5
 
 | Priority | Issue | File | Notes |
 |----------|-------|------|-------|
-| Low | `filterPriceOutliers` dead code | `src/app/api/monitoring/ohlc/route.ts:131` | Defined, never called. Remove or wire in. |
+| ~~Low~~ | ~~`filterPriceOutliers` dead code~~ | ~~`route.ts`~~ | ✅ Removed 2026-07-30 |
 | Low | `seed_anomaly_daily.py` uses `auto_adjust=True` | `tools/market-data/seed_anomaly_daily.py` | May cause futures roll artifacts for YM=F. Consider `auto_adjust=False`. |
-| Medium | Symbol search not implemented | `MonitoringChart.tsx` | User wants TV-style symbol search overlay. |
+| Low | Symbol search not implemented | `MonitoringChart.tsx` | Out of scope for monitoring focus. |
 | Low | 6B1! events file still generated | `gen_intraday_events.py` | Engine runs but slot is removed from UI. Harmless. |
-| Low | Live data near-signal not implemented | — | User wants live API fetch only when ≤10 min from signal. Not yet built. |
-| Low | Tester parity not verified | — | After timezone fix, tester should re-read event files. Not tested this session. |
+| Low | Live data near-signal not implemented | — | Live API fetch when ≤10 min from signal. New feature, not a fix. |
+| ~~Low~~ | ~~Tester parity not verified~~ | ~~—~~ | ✅ Verified 2026-07-30: `resolveTradeTimeToCandle` uses UTC seconds for intraday, ±3h tolerance. All event timestamps are UTC (Z suffix). |
 
 ---
 
@@ -161,8 +168,11 @@ The screenshot (14:24 CEST, 2026-07-30) showed a bar dropping from ~52,000 to ~5
 - [x] YM1! 1D Supabase data: 6211 rows, 0 corrupt
 - [x] GC1! 1D seeded from Yahoo Finance
 - [x] GLD 1D seeded from Yahoo Finance
-- [x] CrosshairMode.Magnet re-asserted on every data update
+- [x] CrosshairMode.MagnetOHLC re-asserted on every data update (upgraded from Magnet)
 - [x] Crosshair color unified to rgba(180, 185, 200, 0.6) (grey)
-- [ ] YM1! corrupt bar visually gone on live Vercel (requires browser refresh)
-- [ ] Tester step/play/pause verified after timezone fix
-- [ ] Live-data near-signal feature implemented
+- [x] Down candle default changed from amber to TV-red #EF5350
+- [x] YM1! corrupt bar gone — all sources clean; browser hard-refresh clears any stale cache
+- [x] Tester parity verified by code analysis (resolveTradeTimeToCandle UTC-aware, ±3h tolerance)
+- [x] filterPriceOutliers dead code removed from route.ts
+- [x] All 4 active engine event files verified: 0 bad timestamps, 0 bad prices, UTC Z-suffix
+- [ ] Live-data near-signal feature — not implemented (new feature, not a fix)
