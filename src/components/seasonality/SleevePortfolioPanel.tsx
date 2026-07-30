@@ -17,11 +17,13 @@ const FONT     = "Montserrat, Segoe UI, sans-serif";
 export interface SleevePattern {
   id: number;
   assetId: string;
+  iconAssetId?: string; // override icon lookup (e.g. ZM → ZS icon)
   symbol: string;
   name: string;
   direction: "LONG" | "SHORT";
   window: string;
   startSlot: number;
+  calStart: number; // calendar day-of-year (1-365) for accurate countdown
   tier: "bonferroni" | "fdr";
   winRate: number;
   oosWinRate: number;
@@ -68,56 +70,54 @@ function buildPortfolioEquity(): number[] {
 }
 
 export const SLEEVE_PATTERNS: SleevePattern[] = [
-  { id: 1,  assetId: "rb1",     symbol: "RB1!",  name: "RBOB Gasoline",   direction: "LONG", window: "Feb 8–16",        startSlot: 29,  tier: "bonferroni", winRate: 0.86, oosWinRate: 1.00, avgReturn: 0.024, sortino: 3.2, nObs: 29, maxDrawdown: -0.08, profitFactor: 5.1, robustness: 0.72, decadeConsistent: true,  category: "Energie", rationale: "Pre-summer driving season baut RFG-Nachfrage auf. Raffinerie-Wartung + Spec-Positioning treiben die Feb-Rally.", fakeReturns: makeFakeReturns(0.86, 0.024) },
-  { id: 2,  assetId: "wheat",   symbol: "ZW1!",  name: "Chicago Wheat",   direction: "LONG", window: "Aug 10–20",       startSlot: 152, tier: "bonferroni", winRate: 0.84, oosWinRate: 0.75, avgReturn: 0.018, sortino: 2.8, nObs: 32, maxDrawdown: -0.06, profitFactor: 4.3, robustness: 0.68, decadeConsistent: true,  category: "Agrar",   rationale: "Northern-hemisphere Erntedruck lässt nach. Southern-hemisphere Pflanzungsunsicherheit fügt Risikoprämie hinzu.", fakeReturns: makeFakeReturns(0.84, 0.018) },
-  { id: 3,  assetId: "gc1",     symbol: "GC1!",  name: "Gold",            direction: "LONG", window: "Jul letzt. 5 HT", startSlot: 128, tier: "fdr",        winRate: 0.78, oosWinRate: 0.72, avgReturn: 0.012, sortino: 2.1, nObs: 35, maxDrawdown: -0.05, profitFactor: 3.1, robustness: 0.58, decadeConsistent: true,  category: "Metalle", rationale: "Pre-India wedding season demand ramp. Physische Käufer akkumulieren vor der August-Bewegung.", fakeReturns: makeFakeReturns(0.78, 0.012) },
-  { id: 4,  assetId: "ng1",     symbol: "NG1!",  name: "Natural Gas",     direction: "LONG", window: "Sep H2",          startSlot: 170, tier: "fdr",        winRate: 0.76, oosWinRate: 0.71, avgReturn: 0.021, sortino: 2.4, nObs: 28, maxDrawdown: -0.10, profitFactor: 3.6, robustness: 0.55, decadeConsistent: true,  category: "Energie", rationale: "Pre-winter storage injection season. Heating-demand Spec-Positioning beschleunigt sich spät-September.", fakeReturns: makeFakeReturns(0.76, 0.021) },
-  { id: 5,  assetId: "sugar",   symbol: "SB1!",  name: "Sugar #11",       direction: "LONG", window: "Sep H2",          startSlot: 172, tier: "fdr",        winRate: 0.75, oosWinRate: 0.70, avgReturn: 0.016, sortino: 1.9, nObs: 30, maxDrawdown: -0.07, profitFactor: 2.8, robustness: 0.52, decadeConsistent: true,  category: "Agrar",   rationale: "Northern-hemisphere Crushing-Season endet. Brasilianische Export-Logistik eingeschränkt.", fakeReturns: makeFakeReturns(0.75, 0.016) },
-  { id: 6,  assetId: "cocoa",   symbol: "CC1!",  name: "Cocoa",           direction: "LONG", window: "Nov 5–15",        startSlot: 210, tier: "fdr",        winRate: 0.74, oosWinRate: 0.70, avgReturn: 0.019, sortino: 2.2, nObs: 27, maxDrawdown: -0.09, profitFactor: 3.0, robustness: 0.53, decadeConsistent: true,  category: "Agrar",   rationale: "West African main crop arrival delays + pre-holiday chocolate demand surge.", fakeReturns: makeFakeReturns(0.74, 0.019) },
-  { id: 7,  assetId: "pa1",     symbol: "PA1!",  name: "Palladium",       direction: "LONG", window: "Jan OpEx",        startSlot: 10,  tier: "fdr",        winRate: 0.77, oosWinRate: 0.71, avgReturn: 0.022, sortino: 2.3, nObs: 24, maxDrawdown: -0.08, profitFactor: 3.4, robustness: 0.60, decadeConsistent: true,  category: "Metalle", rationale: "Auto-catalyst restocking nach Jahresende. Russische Supply-Unsicherheit + dünne Liquidität.", fakeReturns: makeFakeReturns(0.77, 0.022) },
-  { id: 8,  assetId: "soymeal", symbol: "ZM1!",  name: "Soybean Meal",   direction: "LONG", window: "Apr 15–25",       startSlot: 73,  tier: "fdr",        winRate: 0.73, oosWinRate: 0.69, avgReturn: 0.014, sortino: 1.8, nObs: 31, maxDrawdown: -0.06, profitFactor: 2.5, robustness: 0.51, decadeConsistent: true,  category: "Agrar",   rationale: "US spring crush margin rally + South American export competition lässt nach.", fakeReturns: makeFakeReturns(0.73, 0.014) },
-  { id: 9,  assetId: "cotton",  symbol: "CT1!",  name: "Cotton #2",       direction: "LONG", window: "Feb 8–16",        startSlot: 29,  tier: "fdr",        winRate: 0.72, oosWinRate: 0.68, avgReturn: 0.013, sortino: 1.7, nObs: 28, maxDrawdown: -0.07, profitFactor: 2.4, robustness: 0.49, decadeConsistent: true,  category: "Agrar",   rationale: "Export sales pace beschleunigt nach USDA Feb Supply/Demand Report.", fakeReturns: makeFakeReturns(0.72, 0.013) },
-  { id: 10, assetId: "es1",     symbol: "ES1!",  name: "S&P 500 E-mini",  direction: "LONG", window: "Dez 15–25",       startSlot: 240, tier: "fdr",        winRate: 0.80, oosWinRate: 0.75, avgReturn: 0.015, sortino: 2.5, nObs: 36, maxDrawdown: -0.04, profitFactor: 3.8, robustness: 0.65, decadeConsistent: true,  category: "Indizes", rationale: "Santa Claus Rally: Pension fund rebalancing, tax-loss selling exhaustion.", fakeReturns: makeFakeReturns(0.80, 0.015) },
+  { id: 1,  assetId: "rb1",     symbol: "RB1!",  name: "RBOB Gasoline",  direction: "LONG", window: "Feb 8 – 16",  startSlot: 29,  calStart: 39,  tier: "bonferroni", winRate: 0.86, oosWinRate: 1.00, avgReturn: 0.024, sortino: 3.2, nObs: 29, maxDrawdown: -0.08, profitFactor: 5.1, robustness: 0.72, decadeConsistent: true,  category: "Energie", rationale: "Pre-summer driving season baut RFG-Nachfrage auf.",       fakeReturns: makeFakeReturns(0.86, 0.024) },
+  { id: 2,  assetId: "wheat",   symbol: "ZW1!",  name: "Chicago Wheat",  direction: "LONG", window: "Aug 10 – 20", startSlot: 152, calStart: 222, tier: "bonferroni", winRate: 0.84, oosWinRate: 0.75, avgReturn: 0.018, sortino: 2.8, nObs: 32, maxDrawdown: -0.06, profitFactor: 4.3, robustness: 0.68, decadeConsistent: true,  category: "Agrar",   rationale: "Northern-hemisphere Erntedruck lässt nach.",               fakeReturns: makeFakeReturns(0.84, 0.018) },
+  { id: 3,  assetId: "gc1",     symbol: "GC1!",  name: "Gold",           direction: "LONG", window: "Jul 25 – 31", startSlot: 128, calStart: 206, tier: "fdr",        winRate: 0.78, oosWinRate: 0.72, avgReturn: 0.012, sortino: 2.1, nObs: 35, maxDrawdown: -0.05, profitFactor: 3.1, robustness: 0.58, decadeConsistent: true,  category: "Metalle", rationale: "Pre-India wedding season demand ramp.",                    fakeReturns: makeFakeReturns(0.78, 0.012) },
+  { id: 4,  assetId: "ng1",     symbol: "NG1!",  name: "Natural Gas",    direction: "LONG", window: "Sep 16 – 30", startSlot: 170, calStart: 259, tier: "fdr",        winRate: 0.76, oosWinRate: 0.71, avgReturn: 0.021, sortino: 2.4, nObs: 28, maxDrawdown: -0.10, profitFactor: 3.6, robustness: 0.55, decadeConsistent: true,  category: "Energie", rationale: "Pre-winter storage injection season.",                     fakeReturns: makeFakeReturns(0.76, 0.021) },
+  { id: 5,  assetId: "sugar",   symbol: "SB1!",  name: "Sugar #11",      direction: "LONG", window: "Sep 18 – 30", startSlot: 172, calStart: 261, tier: "fdr",        winRate: 0.75, oosWinRate: 0.70, avgReturn: 0.016, sortino: 1.9, nObs: 30, maxDrawdown: -0.07, profitFactor: 2.8, robustness: 0.52, decadeConsistent: true,  category: "Agrar",   rationale: "Northern-hemisphere Crushing-Season endet.",               fakeReturns: makeFakeReturns(0.75, 0.016) },
+  { id: 6,  assetId: "cocoa",   symbol: "CC1!",  name: "Cocoa",          direction: "LONG", window: "Nov 5 – 15",  startSlot: 210, calStart: 309, tier: "fdr",        winRate: 0.74, oosWinRate: 0.70, avgReturn: 0.019, sortino: 2.2, nObs: 27, maxDrawdown: -0.09, profitFactor: 3.0, robustness: 0.53, decadeConsistent: true,  category: "Agrar",   rationale: "West African main crop arrival delays.",                   fakeReturns: makeFakeReturns(0.74, 0.019) },
+  { id: 7,  assetId: "pa1",     symbol: "PA1!",  name: "Palladium",      direction: "LONG", window: "Jan 10 – 20", startSlot: 10,  calStart: 10,  tier: "fdr",        winRate: 0.77, oosWinRate: 0.71, avgReturn: 0.022, sortino: 2.3, nObs: 24, maxDrawdown: -0.08, profitFactor: 3.4, robustness: 0.60, decadeConsistent: true,  category: "Metalle", rationale: "Auto-catalyst restocking nach Jahresende.",                fakeReturns: makeFakeReturns(0.77, 0.022) },
+  { id: 8,  assetId: "soymeal", iconAssetId: "zs1", symbol: "ZM1!", name: "Soybean Meal", direction: "LONG", window: "Apr 15 – 25", startSlot: 73, calStart: 105, tier: "fdr", winRate: 0.73, oosWinRate: 0.69, avgReturn: 0.014, sortino: 1.8, nObs: 31, maxDrawdown: -0.06, profitFactor: 2.5, robustness: 0.51, decadeConsistent: true,  category: "Agrar",   rationale: "US spring crush margin rally.",                            fakeReturns: makeFakeReturns(0.73, 0.014) },
+  { id: 9,  assetId: "cotton",  symbol: "CT1!",  name: "Cotton #2",      direction: "LONG", window: "Feb 8 – 16",  startSlot: 29,  calStart: 39,  tier: "fdr",        winRate: 0.72, oosWinRate: 0.68, avgReturn: 0.013, sortino: 1.7, nObs: 28, maxDrawdown: -0.07, profitFactor: 2.4, robustness: 0.49, decadeConsistent: true,  category: "Agrar",   rationale: "Export sales pace beschleunigt nach USDA Feb Report.",      fakeReturns: makeFakeReturns(0.72, 0.013) },
+  { id: 10, assetId: "es1",     symbol: "ES1!",  name: "S&P 500 E-mini", direction: "LONG", window: "Dez 15 – 25", startSlot: 240, calStart: 349, tier: "fdr",        winRate: 0.80, oosWinRate: 0.75, avgReturn: 0.015, sortino: 2.5, nObs: 36, maxDrawdown: -0.04, profitFactor: 3.8, robustness: 0.65, decadeConsistent: true,  category: "Indizes", rationale: "Santa Claus Rally: Pension fund rebalancing.",             fakeReturns: makeFakeReturns(0.80, 0.015) },
 ];
 
-/* ─── Countdown hook ────────────────────────────────────────────────── */
-function todayTradingSlot(): number {
+/* ─── Countdown hook — uses calStart (calendar day 1-365) ──────────── */
+function todayCalendarDay(): number {
   const now = new Date();
-  return Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86_400_000);
+  const start = new Date(now.getFullYear(), 0, 1);
+  return Math.floor((now.getTime() - start.getTime()) / 86_400_000) + 1;
 }
 
-function usePatternCountdown(startSlot: number): string {
+function usePatternCountdown(calStart: number): string {
   const [display, setDisplay] = useState("");
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
   useEffect(() => {
     const tick = () => {
-      const todaySlot = todayTradingSlot();
-      let daysAway = startSlot - todaySlot;
-      if (daysAway < 0) daysAway += 365;
+      const today = todayCalendarDay();
+      let daysAway = calStart - today;
+      if (daysAway < -14) daysAway += 365; // wrap to next year if >2 weeks past
+      if (daysAway < 0) { setDisplay("Aktiv"); return; }
+      if (daysAway === 0) { setDisplay("Heute"); return; }
       const now = new Date();
-      const totalSec = daysAway * 86400 + (18 - now.getHours()) * 3600 - now.getMinutes() * 60;
-      if (totalSec <= 0) { setDisplay("Heute"); return; }
-      const d = Math.floor(totalSec / 86400);
-      const h = Math.floor((totalSec % 86400) / 3600);
-      const m = Math.floor((totalSec % 3600) / 60);
-      if (d > 0) setDisplay(`${d} Tage : ${h} Std : ${m} min`);
-      else if (h > 0) setDisplay(`${h} Std : ${m} min`);
-      else setDisplay(`${m} min`);
+      const h = Math.max(0, 18 - now.getHours());
+      const m = now.getMinutes();
+      if (daysAway > 0) setDisplay(`${daysAway} Tage : ${h} Std : ${m} min`);
     };
     tick();
     timer.current = setInterval(tick, 60_000);
     return () => { if (timer.current) clearInterval(timer.current); };
-  }, [startSlot]);
+  }, [calStart]);
   return display;
 }
 
 /* ─── Asset icon — real commodity icon via monitoring registry ───────── */
-function AssetIcon({ assetId, symbol, name, size = 48 }: {
-  assetId: string; symbol: string; name: string; size?: number;
+function AssetIcon({ assetId, iconAssetId, symbol, name, size = 48 }: {
+  assetId: string; iconAssetId?: string; symbol: string; name: string; size?: number;
 }) {
   const url = getMonitoringAssetIconUrl({
     code: symbol,
-    assetId,
+    assetId: iconAssetId ?? assetId,
     name,
     displaySymbol: symbol.replace("1!", ""),
   });
@@ -168,39 +168,40 @@ function CardEquityLine({ returns: rets, id, avgReturn }: {
 }) {
   const eq: number[] = [0];
   for (const r of rets) eq.push(eq[eq.length - 1] + r * 100);
-  const W = 300; const H = 70;
-  const pad = 6;
+  const W = 300; const H = 60;
+  const padTop = 18; const padBot = 4; // top pad leaves room for the fixed label
   const min = Math.min(...eq); const max = Math.max(...eq);
   const rng = max - min || 0.1;
   const pts = eq.map((v, i) => {
     const x = (i / (eq.length - 1)) * W;
-    const y = H - pad - ((v - min) / rng) * (H - pad * 2);
+    const y = padTop + (1 - (v - min) / rng) * (H - padTop - padBot);
     return `${x.toFixed(1)},${y.toFixed(1)}`;
   }).join(" ");
   const last = eq[eq.length - 1];
   const lineC = last >= 0 ? "#e8edf3" : "#d6b867";
   const fillId = `cf-${id}`;
   const lastX = W;
-  const lastY = H - pad - ((last - min) / rng) * (H - pad * 2);
-  const base  = H - pad - ((0 - min) / rng) * (H - pad * 2);
-  const clampedBase = Math.min(H - pad, Math.max(pad, base));
+  const lastY = padTop + (1 - (last - min) / rng) * (H - padTop - padBot);
+  const base  = padTop + (1 - (0 - min) / rng) * (H - padTop - padBot);
+  const clampedBase = Math.min(H - padBot, Math.max(padTop, base));
   const avgLabel = `${avgReturn >= 0 ? "+" : ""}${(avgReturn * 100).toFixed(1)}% avg`;
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{ display: "block" }}>
       <defs>
         <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={lineC} stopOpacity="0.20" />
+          <stop offset="0%" stopColor={lineC} stopOpacity="0.18" />
           <stop offset="100%" stopColor={lineC} stopOpacity="0.00" />
         </linearGradient>
       </defs>
+      {/* avg label — fixed top-right, always visible */}
+      <text x={W - 2} y={12} textAnchor="end" fill={lineC}
+        fontSize={11} fontWeight="700" fontFamily={FONT}>{avgLabel}</text>
       <line x1={0} y1={clampedBase} x2={W} y2={clampedBase}
-        stroke="rgba(255,255,255,0.08)" strokeWidth={0.5} strokeDasharray="3 5" />
+        stroke="rgba(255,255,255,0.07)" strokeWidth={0.5} strokeDasharray="3 5" />
       <polygon points={`0,${clampedBase} ${pts} ${W},${clampedBase}`} fill={`url(#${fillId})`} />
       <polyline points={pts} fill="none" stroke={lineC} strokeWidth={2} strokeLinejoin="round" />
-      <circle cx={lastX} cy={lastY} r={3.5} fill={lineC} />
-      <text x={W - 2} y={lastY - 7} textAnchor="end" fill={lineC}
-        fontSize={11} fontWeight="700" fontFamily={FONT}>{avgLabel}</text>
+      <circle cx={lastX} cy={lastY} r={3} fill={lineC} />
     </svg>
   );
 }
@@ -375,12 +376,11 @@ function KpiCell({ label, value, valueColor = "#eef2f7" }: { label: string; valu
   );
 }
 
-/* ─── Grid card — 1:1 Referenz-Layout ───────────────────────────────── */
+/* ─── Grid card — 1:1 Referenz-Layout, kompakt ──────────────────────── */
 function SleeveCard({ p, selected, onSelect }: { p: SleevePattern; selected: boolean; onSelect: () => void }) {
   const isLong    = p.direction === "LONG";
-  // positive = white, negative = gold — kein Grün, selten Rot
   const dirColor  = isLong ? "#e8edf3" : C_GOLD;
-  const countdown = usePatternCountdown(p.startSlot);
+  const countdown = usePatternCountdown(p.calStart);
 
   const cardBg = selected
     ? `radial-gradient(ellipse 120% 90% at 115% 120%, rgba(216,188,103,0.14) 0%, transparent 55%), ${C_CARD}`
@@ -394,8 +394,8 @@ function SleeveCard({ p, selected, onSelect }: { p: SleevePattern; selected: boo
       style={{
         background: cardBg,
         border: selected ? "1px solid rgba(216,188,103,0.32)" : `1px solid ${C_BORDER}`,
-        borderRadius: 20,
-        padding: "18px 18px 16px",
+        borderRadius: 16,
+        padding: "12px 14px 10px",
         display: "flex", flexDirection: "column", gap: 0,
         cursor: "pointer", outline: "none",
         transition: "border-color 120ms",
@@ -404,43 +404,43 @@ function SleeveCard({ p, selected, onSelect }: { p: SleevePattern; selected: boo
       }}
     >
       {/* ── Row 1: Asset icon · Symbol + Name · OOS-WR-Donut ── */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-        <AssetIcon assetId={p.assetId} symbol={p.symbol} name={p.name} size={48} />
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+        <AssetIcon assetId={p.assetId} iconAssetId={p.iconAssetId} symbol={p.symbol} name={p.name} size={36} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", lineHeight: 1, letterSpacing: "0.01em" }}>
+          <div style={{ fontSize: 16, fontWeight: 900, color: "#fff", lineHeight: 1, letterSpacing: "0.01em" }}>
             {p.symbol.replace("1!", "!")}
           </div>
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.40)", lineHeight: 1, marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.38)", lineHeight: 1, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             {p.name}
           </div>
         </div>
-        {/* OOS Win Rate Donut — top right */}
-        <WrDonut pct={p.oosWinRate * 100} size={64} />
+        {/* OOS Win Rate Donut — top right, kompakt */}
+        <WrDonut pct={p.oosWinRate * 100} size={48} />
       </div>
 
-      {/* ── Row 2: Muster-Datum (groß) ── */}
-      <div style={{ fontSize: 20, fontWeight: 600, color: "rgba(255,255,255,0.85)", lineHeight: 1, marginBottom: 8, letterSpacing: "-0.2px" }}>
-        {p.window.replace("–", " - ")}
+      {/* ── Row 2: Muster-Datum ── */}
+      <div style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.82)", lineHeight: 1, marginBottom: 4, letterSpacing: "-0.1px" }}>
+        {p.window}
       </div>
 
       {/* ── Row 3: Countdown Timer (gold) ── */}
-      <div style={{ fontSize: 15, fontWeight: 600, color: C_GOLD, lineHeight: 1, marginBottom: 16, letterSpacing: "0.01em" }}>
+      <div style={{ fontSize: 11, fontWeight: 600, color: C_GOLD, lineHeight: 1, marginBottom: 8, letterSpacing: "0.01em" }}>
         {countdown || "—"}
       </div>
 
-      {/* ── Row 4: Performance-Chart (flex, füllt verbleibenden Platz) ── */}
-      <div style={{ flex: 1, minHeight: 64 }}>
+      {/* ── Row 4: Performance-Chart ── */}
+      <div style={{ flex: 1, minHeight: 50 }}>
         <CardEquityLine returns={p.fakeReturns} id={`p${p.id}`} avgReturn={p.avgReturn} />
       </div>
 
-      {/* ── Row 5: Richtung (groß, unten) ── */}
-      <div style={{ marginTop: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      {/* ── Row 5: Richtung (unten) ── */}
+      <div style={{ marginTop: 8, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <span style={{
-          display: "inline-flex", alignItems: "center", gap: 6,
-          fontSize: 16, fontWeight: 900, letterSpacing: "0.06em",
+          display: "inline-flex", alignItems: "center", gap: 5,
+          fontSize: 13, fontWeight: 900, letterSpacing: "0.06em",
           color: dirColor, lineHeight: 1,
         }}>
-          <span style={{ fontSize: 13 }}>{isLong ? "▲" : "▼"}</span>
+          <span style={{ fontSize: 10 }}>{isLong ? "▲" : "▼"}</span>
           {p.direction}
         </span>
         <TierBadge tier={p.tier} />
