@@ -649,10 +649,12 @@ export const SeasonalStrategyTester = memo(function SeasonalStrategyTester({
           onModeChange={setSleeveMode}
           onSelectPattern={(selectAssetId, startSlot, direction) => {
             if (!onScannerPatternSelect) return;
+            // winRate must be on 0–100 scale to match PatternCandidate convention.
+            // 50 = neutral placeholder shown while real patternData loads.
             const fake: PatternCandidate = {
               startSlot, endSlot: startSlot + 10, approxMonthLabel: "",
               direction: direction === "LONG" ? "LONG" : "SHORT",
-              holdingDays: 10, winRate: 0.5, avgPerformance: 0, maxDrawdown: 0,
+              holdingDays: 10, winRate: 50, avgPerformance: 0, maxDrawdown: 0,
               sharpe: null, calmar: null, sortino: null, profitFactor: null,
               avgDrawdown: null, observationCount: 0, strategyReturns: [],
             };
