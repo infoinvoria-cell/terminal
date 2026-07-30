@@ -113,41 +113,6 @@ function pruneStaleTickBars(bars: ShapedBar[], isDaily: boolean): ShapedBar[] {
   });
 }
 
-/**
- * Outlier + OHLC sanity filter.
- *
- * Two classes of corrupt bars appear in monitoring_ohlc:
- *
- * Class A — wrong close (price=0, wrong unit, wrong asset):
- *   Caught by median-close gate: close must be within [median×0.05, median×20].
- *
- * Class B — correct close but corrupt high/low from live-feed session extremes:
- *   tv_live_feed.py stores the full-session high_price/low_price (e.g. the
- *   all-time Dow session low of ~515) as the bar's low. The close is real
- *   (~52 000) but the low is orders-of-magnitude wrong.
- *   Caught by OHLC sanity gate: low must be ≥ close×0.20, high must be ≤ close×5.
- *   A 80%-below-close or 5×-above-close wick is impossible on a real daily bar.
- */
-function filterPriceOutliers(bars: ShapedBar[]): ShapedBar[] {
-  if (bars.length < 3) return bars;
-  const closes = [...bars.map(b => b.close)].sort((a, b) => a - b);
-  // Use p90 as reference so a majority of corrupt bars can't drag the median down.
-  const p90idx = Math.max(0, Math.floor(closes.length * 0.9) - 1);
-  const p90 = closes[p90idx]!;
-  const maxClose = closes[closes.length - 1]!;
-  if (!p90 || p90 <= 0) return bars;
-  // minAllowed: at least 10% of p90 OR 2% of max — whichever is higher.
-  const minAllowed = Math.max(p90 * 0.10, maxClose * 0.02);
-  return bars.filter(b => {
-    // Class A: close outlier
-    if (b.close < minAllowed || b.close > p90 * 20) return false;
-    // Class B: corrupt wicks (session extreme baked into tick-built bar)
-    if (b.low  < b.close * 0.20) return false;
-    if (b.high > b.close * 5.00) return false;
-    return true;
-  });
-}
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const symbol = searchParams.get("symbol");

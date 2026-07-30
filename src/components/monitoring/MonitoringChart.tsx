@@ -1275,7 +1275,7 @@ function MonitoringChartInner({
     if (!chart) return;
     chart.applyOptions({
       crosshair: {
-        mode: CrosshairMode.Magnet,
+        mode: CrosshairMode.MagnetOHLC,
         vertLine: {
           color: "rgba(180, 185, 200, 0.6)",
           width: 1,
@@ -1302,7 +1302,7 @@ function MonitoringChartInner({
     if (!chart || !candle) return;
     const backgroundColor = uiPrefs?.backgroundColor ?? MONITORING_CHART_BACKGROUND;
     const candleUpColor = uiPrefs?.candleUpColor ?? "#FFFFFF";
-    const candleDownColor = uiPrefs?.candleDownColor ?? "#D6B44B";
+    const candleDownColor = uiPrefs?.candleDownColor ?? "#EF5350";
     chart.applyOptions({
       layout: {
         background: { type: ColorType.Solid, color: backgroundColor },
@@ -1347,7 +1347,7 @@ function MonitoringChartInner({
         horzLines: { visible: false },
       },
       crosshair: {
-        mode: CrosshairMode.Magnet,
+        mode: CrosshairMode.MagnetOHLC,
         vertLine: {
           color: "rgba(180, 185, 200, 0.6)",
           width: 1,
@@ -1420,7 +1420,7 @@ function MonitoringChartInner({
     });
 
     const candleUpColor = uiPrefs?.candleUpColor ?? "#FFFFFF";
-    const candleDownColor = uiPrefs?.candleDownColor ?? "#D6B44B";
+    const candleDownColor = uiPrefs?.candleDownColor ?? "#EF5350";
     const candle = chart.addSeries(CandlestickSeries, {
       upColor: candleUpColor,
       downColor: candleDownColor,
@@ -1762,7 +1762,7 @@ function MonitoringChartInner({
       // Re-assert crosshair settings on every data update so the 5s refresh
       // cannot silently revert mode or color.
       crosshair: {
-        mode: CrosshairMode.Magnet,
+        mode: CrosshairMode.MagnetOHLC,
         vertLine: {
           color: "rgba(180, 185, 200, 0.6)",
           width: 1,

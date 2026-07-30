@@ -5,10 +5,10 @@
   "timeframe": "1H",
   "source": "engine_futures",
   "hasStrategy": true,
-  "generatedAt": "2026-07-30T12:00:57Z",
+  "generatedAt": "2026-07-30T13:30:18Z",
   "dateRange": {
-    "first": "2025-08-27T08:00:00",
-    "last": "2026-07-30T11:00:00"
+    "first": "2025-08-27T10:00:00",
+    "last": "2026-07-30T13:00:00"
   },
   "barPolicy": {
     "excludeFormingIntradayBar": true,
