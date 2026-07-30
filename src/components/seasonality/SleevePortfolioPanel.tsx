@@ -46,13 +46,12 @@ function toDisplayItems(results: Record<string, TenPatternResult> | null): Displ
 /* ─── Status label helpers ──────────────────────────────────────────────── */
 function statusLabel(status: TenPatternResult["status"] | undefined): string {
   switch (status) {
-    case "historical_computed": return "Historisch berechnet";
-    case "wf_completed":        return "Walk Forward geprüft";
-    case "wf_failed":           return "WF nicht bestanden";
-    case "no_data_source":      return "Keine Datenquelle";
-    case "data_error":          return "Datenfehler";
+    case "calculated":           return "Berechnet";
+    case "insufficient_history": return "Unzureichende Historie";
+    case "no_data_source":       return "Keine Datenquelle";
+    case "calculation_failed":   return "Berechnungsfehler";
     case "not_tested":
-    default:                    return "Nicht getestet";
+    default:                     return "Nicht getestet";
   }
 }
 
