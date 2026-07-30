@@ -4,9 +4,11 @@ import { MYFXBOOK_MOCK } from "@/lib/track-record/mock-data";
 import type {
   AccountRow,
   ClosedTradeRow,
+  CashflowRow,
   DailyEquityRow,
   DailyReturnRow,
   OpenPositionRow,
+  OpenOrderRow,
   RawSnapshotRow,
   SourceSyncStatusRow,
   SyncMode,
@@ -47,7 +49,11 @@ export async function collectMyfxbookSnapshotBundle(options: MyfxbookRunOptions)
     : createMockClient();
 
   const login = await client.login();
-  rawSnapshots.push(snapshot("myfxbook", "myfxbook", "session", runAt, API_VERSION, login));
+  rawSnapshots.push(snapshot("myfxbook", "myfxbook", "session", runAt, API_VERSION, {
+    error: login.error ?? false,
+    message: login.message ?? null,
+    sessionEstablished: Boolean(asString(login.session)),
+  }));
 
   const accountsPayload = await client.getMyAccounts();
   rawSnapshots.push(snapshot("myfxbook", "myfxbook", requestedAccountId ?? "accounts", runAt, API_VERSION, accountsPayload));
@@ -64,6 +70,7 @@ export async function collectMyfxbookSnapshotBundle(options: MyfxbookRunOptions)
       dailyReturns: [],
       monthlyReturns: [],
       openPositions: [],
+      openOrders: [],
       closedTrades: [],
       cashflows: [],
       metrics: [],
@@ -95,17 +102,22 @@ export async function collectMyfxbookSnapshotBundle(options: MyfxbookRunOptions)
 
   const accounts = [normalizeAccount(accountCandidate, runAt, brokerTimezone)];
   const openPositions = normalizeOpenTrades(openTradesPayload, accountId, brokerTimezone);
+  const openOrders = normalizeOpenOrders(openOrdersPayload, accountId, brokerTimezone);
   const closedTrades = normalizeHistory(historyPayload, accountId, brokerTimezone);
+  const cashflows = normalizeCashflows(historyPayload, accountId, brokerTimezone, asString(accountCandidate.currency));
   const dailyReturns = normalizeDailyGain(dailyGainPayload, accountId, brokerTimezone);
   const dailyEquity = normalizeDataDaily(dataDailyPayload, accountId, brokerTimezone);
-  const metrics = computeMetricsFromDailySeries({
-    source: "myfxbook",
-    provider: "myfxbook",
-    providerAccountId: accountId,
-    equityRows: dailyEquity,
-    returnRows: dailyReturns,
-    calculationSource: "myfxbook daily endpoints",
-  });
+  const metrics = [
+    ...normalizeAccountMetrics(accountCandidate, accountId, runAt),
+    ...computeMetricsFromDailySeries({
+      source: "myfxbook",
+      provider: "myfxbook",
+      providerAccountId: accountId,
+      equityRows: dailyEquity,
+      returnRows: dailyReturns,
+      calculationSource: "myfxbook daily endpoints",
+    }),
+  ];
 
   return {
     rawSnapshots,
@@ -114,8 +126,9 @@ export async function collectMyfxbookSnapshotBundle(options: MyfxbookRunOptions)
     dailyReturns,
     monthlyReturns: [],
     openPositions,
+    openOrders,
     closedTrades,
-    cashflows: [],
+    cashflows,
     metrics,
     syncStatus: [buildStatus(runAt, "ok", options.mode, `Fetched account ${accountId}`)],
     unavailable,
@@ -165,8 +178,33 @@ function normalizeOpenTrades(payload: Record<string, unknown>, accountId: string
   });
 }
 
+function normalizeOpenOrders(payload: Record<string, unknown>, accountId: string, brokerTimezone: string | null): OpenOrderRow[] {
+  return asArray<Record<string, unknown>>(payload.openOrders).map((order) => {
+    const created = parseBrokerLocalTimestamp(asString(order.openTime) ?? asString(order.createdAt), brokerTimezone);
+    return {
+      source: "myfxbook",
+      provider: "myfxbook",
+      providerAccountId: accountId,
+      providerOrderId: String(order.ticket ?? order.id ?? stableId([accountId, asString(order.symbol), asString(order.openTime), asString(order.action)])),
+      symbol: asString(order.symbol),
+      direction: asString(order.action),
+      createdAtUtc: created.utc,
+      createdAtLocal: created.local,
+      brokerTimezone,
+      size: asNumber((order.sizing as { value?: unknown } | undefined)?.value),
+      sizeUnit: asString((order.sizing as { type?: unknown } | undefined)?.type),
+      orderPrice: asNumber(order.openPrice),
+      takeProfit: asNumber(order.tp),
+      stopLoss: asNumber(order.sl),
+      status: "pending",
+    };
+  });
+}
+
 function normalizeHistory(payload: Record<string, unknown>, accountId: string, brokerTimezone: string | null): ClosedTradeRow[] {
-  return asArray<Record<string, unknown>>(payload.history).map((trade) => {
+  return asArray<Record<string, unknown>>(payload.history)
+    .filter((trade) => /^(buy|sell)$/i.test(asString(trade.action) ?? asString(trade.type) ?? ""))
+    .map((trade) => {
     const opened = parseBrokerLocalTimestamp(asString(trade.openTime), brokerTimezone);
     const closed = parseBrokerLocalTimestamp(asString(trade.closeTime), brokerTimezone);
     const providerTradeId = asString(trade.id) ?? asString(trade.ticket);
@@ -207,6 +245,73 @@ function normalizeHistory(payload: Record<string, unknown>, accountId: string, b
       pips: asNumber(trade.pips),
       rawPayloadHash: sha256Json(trade),
     };
+    });
+}
+
+function normalizeCashflows(
+  payload: Record<string, unknown>,
+  accountId: string,
+  brokerTimezone: string | null,
+  currency: string | null,
+): CashflowRow[] {
+  return asArray<Record<string, unknown>>(payload.history)
+    .filter((row) => /(deposit|withdraw|balance|credit|fee|dividend)/i.test(asString(row.action) ?? asString(row.type) ?? ""))
+    .map((row) => {
+      const occurred = parseBrokerLocalTimestamp(asString(row.closeTime) ?? asString(row.openTime), brokerTimezone);
+      const action = (asString(row.action) ?? asString(row.type) ?? "").toLowerCase();
+      const flowType = action.includes("deposit") || action.includes("credit")
+        ? "deposit" as const
+        : action.includes("withdraw")
+          ? "withdrawal" as const
+          : action.includes("fee")
+            ? "fee" as const
+            : action.includes("dividend")
+              ? "dividend" as const
+              : "unknown" as const;
+      return {
+        source: "myfxbook",
+        provider: "myfxbook",
+        providerAccountId: accountId,
+        stableCashflowId: stableId([accountId, asString(row.id), action, occurred.local, String(row.profit ?? row.amount ?? "")]),
+        flowType,
+        amount: asNumber(row.profit) ?? asNumber(row.amount),
+        currency,
+        occurredAtUtc: occurred.utc,
+        occurredAtLocal: occurred.local,
+        brokerTimezone,
+        note: action || null,
+      };
+    });
+}
+
+function normalizeAccountMetrics(
+  account: Record<string, unknown>,
+  accountId: string,
+  asOfUtc: string,
+) {
+  const values: Array<[string, unknown]> = [
+    ["balance", account.balance],
+    ["equity", account.equity],
+    ["profit", account.profit],
+    ["gain_pct", account.gain],
+    ["drawdown_pct", account.drawdown],
+    ["deposits", account.deposits],
+    ["withdrawals", account.withdrawals],
+  ];
+  return values.flatMap(([metricName, raw]) => {
+    const metricValue = asNumber(raw);
+    return metricValue === null ? [] : [{
+      source: "myfxbook" as const,
+      provider: "myfxbook" as const,
+      providerAccountId: accountId,
+      metricScope: "account" as const,
+      metricName,
+      metricValue,
+      metricDateUtc: null,
+      asOfUtc,
+      isVerified: true,
+      calculationSource: "myfxbook get-my-accounts",
+    }];
   });
 }
 
@@ -254,8 +359,7 @@ function brokerLocalDateToUtcDate(localDate: string | null, brokerTimezone: stri
   if (!localDate) return null;
   const isoLike = localDate.replace(/^(\d{2})\/(\d{2})\/(\d{4})$/, "$3-$1-$2");
   if (!brokerTimezone) return isoLike;
-  const parsed = new Date(`${isoLike}T00:00:00Z`);
-  return Number.isNaN(parsed.getTime()) ? isoLike : parsed.toISOString().slice(0, 10);
+  return parseBrokerLocalTimestamp(`${isoLike}T00:00:00`, brokerTimezone).utc?.slice(0, 10) ?? null;
 }
 
 function snapshot(
@@ -302,12 +406,16 @@ async function createLiveClient() {
   const fetchJson = async (pathname: string, params: Record<string, string>) => {
     const url = new URL(`${BASE_URL}/${pathname}`);
     for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
-    return fetchJsonWithRetry(url.toString(), {
+    const payload = await fetchJsonWithRetry(url.toString(), {
       method: "GET",
       timeoutMs: 15000,
       retries: 2,
       backoffMs: 900,
     });
+    if (payload.error === true) {
+      throw new Error(`Myfxbook ${pathname} failed: ${asString(payload.message) ?? "provider error"}`);
+    }
+    return payload;
   };
 
   return {

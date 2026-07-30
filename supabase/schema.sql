@@ -278,3 +278,284 @@ create policy "live_quotes_service_upsert" on public.live_quotes
 
 create index if not exists live_quotes_updated_at_idx
   on public.live_quotes (updated_at desc);
+
+-- OHLC quality events retain the original and corrected values for every repair.
+create table if not exists public.ohlc_quality_events (
+  id            bigint generated always as identity primary key,
+  event_hash    text not null unique,
+  asset         text not null,
+  timeframe     text not null,
+  period_utc    text not null,
+  severity      text not null,
+  quality_flag  text not null,
+  repair_method text not null,
+  original_bar  jsonb not null,
+  corrected_bar jsonb,
+  detected_at   timestamptz not null default now()
+);
+alter table public.ohlc_quality_events enable row level security;
+create policy "Service role access on ohlc_quality_events" on public.ohlc_quality_events
+  using (true) with check (true);
+GRANT ALL ON public.ohlc_quality_events TO service_role;
+create index if not exists ohlc_quality_events_asset_period_idx
+  on public.ohlc_quality_events (asset, timeframe, period_utc desc);
+
+-- Track Record Raw Snapshots
+create table if not exists public.track_record_raw_snapshots (
+  id                   bigint generated always as identity primary key,
+  source               text not null,
+  provider             text not null,
+  account_or_darwin_id text not null,
+  fetched_at_utc       timestamptz not null,
+  api_version          text,
+  payload_hash         text not null,
+  payload              jsonb not null,
+  inserted_at          timestamptz not null default now(),
+  unique (source, provider, account_or_darwin_id, payload_hash)
+);
+alter table public.track_record_raw_snapshots enable row level security;
+create policy "Service role write on track_record_raw_snapshots" on public.track_record_raw_snapshots
+  to service_role using (true) with check (true);
+GRANT ALL ON public.track_record_raw_snapshots TO service_role;
+
+-- Track Record Accounts
+create table if not exists public.accounts (
+  id                    bigint generated always as identity primary key,
+  source                text not null,
+  provider              text not null,
+  provider_account_id   text not null,
+  account_label         text,
+  broker                text,
+  broker_timezone       text,
+  currency              text,
+  account_number_masked text,
+  darwin_ticker         text,
+  is_demo               boolean,
+  first_seen_at_utc     timestamptz not null,
+  last_seen_at_utc      timestamptz not null,
+  unique (source, provider, provider_account_id)
+);
+alter table public.accounts enable row level security;
+create policy "Service role write on accounts" on public.accounts
+  to service_role using (true) with check (true);
+GRANT ALL ON public.accounts TO service_role;
+
+-- Track Record Daily Equity
+create table if not exists public.daily_equity (
+  id                  bigint generated always as identity primary key,
+  source              text not null,
+  provider            text not null,
+  provider_account_id text not null,
+  date_utc            date not null,
+  equity              numeric(18, 6),
+  balance             numeric(18, 6),
+  floating_pl         numeric(18, 6),
+  broker_local_date   text,
+  broker_timezone     text,
+  inserted_at         timestamptz not null default now(),
+  unique (source, provider, provider_account_id, date_utc)
+);
+alter table public.daily_equity enable row level security;
+create policy "Service role write on daily_equity" on public.daily_equity
+  to service_role using (true) with check (true);
+GRANT ALL ON public.daily_equity TO service_role;
+
+-- Track Record Daily Returns
+create table if not exists public.daily_returns (
+  id                  bigint generated always as identity primary key,
+  source              text not null,
+  provider            text not null,
+  provider_account_id text not null,
+  date_utc            date not null,
+  return_pct          numeric(12, 6),
+  profit              numeric(18, 6),
+  broker_local_date   text,
+  broker_timezone     text,
+  inserted_at         timestamptz not null default now(),
+  unique (source, provider, provider_account_id, date_utc)
+);
+alter table public.daily_returns enable row level security;
+create policy "Service role write on daily_returns" on public.daily_returns
+  to service_role using (true) with check (true);
+GRANT ALL ON public.daily_returns TO service_role;
+
+-- Track Record Monthly Returns
+create table if not exists public.monthly_returns (
+  id                  bigint generated always as identity primary key,
+  source              text not null,
+  provider            text not null,
+  provider_account_id text not null,
+  month_utc           text not null check (month_utc ~ '^\d{4}-\d{2}$'),
+  return_pct          numeric(12, 6) not null,
+  source_document     text not null,
+  calculation_version text not null,
+  inserted_at         timestamptz not null default now(),
+  unique (source, provider, provider_account_id, month_utc)
+);
+alter table public.monthly_returns enable row level security;
+create policy "Service role write on monthly_returns" on public.monthly_returns
+  to service_role using (true) with check (true);
+GRANT ALL ON public.monthly_returns TO service_role;
+
+-- Track Record Open Positions
+create table if not exists public.open_positions (
+  id                   bigint generated always as identity primary key,
+  source               text not null,
+  provider             text not null,
+  provider_account_id  text not null,
+  provider_position_id text not null,
+  symbol               text,
+  direction            text,
+  opened_at_utc        timestamptz,
+  opened_at_local      text,
+  broker_timezone      text,
+  size                 numeric(18, 6),
+  size_unit            text,
+  open_price           numeric(18, 8),
+  current_price        numeric(18, 8),
+  take_profit          numeric(18, 8),
+  stop_loss            numeric(18, 8),
+  profit               numeric(18, 6),
+  pips                 numeric(18, 6),
+  status               text not null default 'open',
+  updated_at           timestamptz not null default now(),
+  unique (source, provider, provider_account_id, provider_position_id)
+);
+alter table public.open_positions enable row level security;
+create policy "Service role write on open_positions" on public.open_positions
+  to service_role using (true) with check (true);
+GRANT ALL ON public.open_positions TO service_role;
+
+-- Track Record Open Orders (internal only)
+create table if not exists public.open_orders (
+  id                   bigint generated always as identity primary key,
+  source               text not null,
+  provider             text not null,
+  provider_account_id  text not null,
+  provider_order_id    text not null,
+  symbol               text,
+  direction            text,
+  created_at_utc       timestamptz,
+  created_at_local     text,
+  broker_timezone      text,
+  size                 numeric(18, 6),
+  size_unit            text,
+  order_price          numeric(18, 8),
+  take_profit          numeric(18, 8),
+  stop_loss            numeric(18, 8),
+  status               text not null default 'pending',
+  updated_at           timestamptz not null default now(),
+  unique (source, provider, provider_account_id, provider_order_id)
+);
+alter table public.open_orders enable row level security;
+create policy "Service role write on open_orders" on public.open_orders
+  to service_role using (true) with check (true);
+GRANT ALL ON public.open_orders TO service_role;
+
+-- Track Record Closed Trades
+create table if not exists public.closed_trades (
+  id                  bigint generated always as identity primary key,
+  source              text not null,
+  provider            text not null,
+  provider_account_id text not null,
+  stable_trade_id     text not null,
+  provider_trade_id   text,
+  symbol              text,
+  direction           text,
+  opened_at_utc       timestamptz,
+  opened_at_local     text,
+  closed_at_utc       timestamptz,
+  closed_at_local     text,
+  broker_timezone     text,
+  size                numeric(18, 6),
+  size_unit           text,
+  open_price          numeric(18, 8),
+  close_price         numeric(18, 8),
+  take_profit         numeric(18, 8),
+  stop_loss           numeric(18, 8),
+  profit              numeric(18, 6),
+  commission          numeric(18, 6),
+  interest            numeric(18, 6),
+  pips                numeric(18, 6),
+  raw_payload_hash    text not null,
+  inserted_at         timestamptz not null default now(),
+  unique (source, provider, provider_account_id, stable_trade_id)
+);
+alter table public.closed_trades enable row level security;
+create policy "Service role write on closed_trades" on public.closed_trades
+  to service_role using (true) with check (true);
+GRANT ALL ON public.closed_trades TO service_role;
+
+-- Track Record Cashflows
+create table if not exists public.cashflows (
+  id                  bigint generated always as identity primary key,
+  source              text not null,
+  provider            text not null,
+  provider_account_id text not null,
+  stable_cashflow_id  text not null,
+  flow_type           text not null,
+  amount              numeric(18, 6),
+  currency            text,
+  occurred_at_utc     timestamptz,
+  occurred_at_local   text,
+  broker_timezone     text,
+  note                text,
+  inserted_at         timestamptz not null default now(),
+  unique (source, provider, provider_account_id, stable_cashflow_id)
+);
+alter table public.cashflows enable row level security;
+create policy "Service role write on cashflows" on public.cashflows
+  to service_role using (true) with check (true);
+GRANT ALL ON public.cashflows TO service_role;
+
+-- Track Record Metrics
+create table if not exists public.track_record_metrics (
+  id                  bigint generated always as identity primary key,
+  source              text not null,
+  provider            text not null,
+  provider_account_id text not null,
+  metric_scope        text not null,
+  metric_name         text not null,
+  metric_value        jsonb,
+  metric_date_utc     timestamptz,
+  as_of_utc           timestamptz not null,
+  is_verified         boolean not null default false,
+  calculation_source  text not null,
+  inserted_at         timestamptz not null default now(),
+  unique (source, provider, provider_account_id, metric_scope, metric_name, as_of_utc)
+);
+alter table public.track_record_metrics enable row level security;
+create policy "Service role write on track_record_metrics" on public.track_record_metrics
+  to service_role using (true) with check (true);
+GRANT ALL ON public.track_record_metrics TO service_role;
+
+-- Track Record Source Sync Status
+create table if not exists public.source_sync_status (
+  source               text not null,
+  provider             text not null,
+  provider_account_id  text not null,
+  last_attempt_at_utc  timestamptz,
+  last_success_at_utc  timestamptz,
+  stale_after_utc      timestamptz,
+  health               text not null,
+  message              text,
+  requests_used        int not null default 0,
+  mode                 text not null default 'mock',
+  updated_at           timestamptz not null default now(),
+  primary key (source, provider, provider_account_id)
+);
+alter table public.source_sync_status enable row level security;
+create policy "Service role write on source_sync_status" on public.source_sync_status
+  to service_role using (true) with check (true);
+GRANT ALL ON public.source_sync_status TO service_role;
+
+create index if not exists track_record_raw_snapshots_fetched_idx
+  on public.track_record_raw_snapshots (fetched_at_utc desc);
+create index if not exists daily_equity_account_date_idx
+  on public.daily_equity (provider_account_id, date_utc desc);
+create index if not exists daily_returns_account_date_idx
+  on public.daily_returns (provider_account_id, date_utc desc);
+create index if not exists monthly_returns_account_month_idx
+  on public.monthly_returns (provider_account_id, month_utc desc);
+create index if not exists track_record_metrics_asof_idx
+  on public.track_record_metrics (provider_account_id, as_of_utc desc);

@@ -21,6 +21,7 @@ export default async function MobileHomePage() {
       kpis={data.portfolioKpisBaseline}
       trades={data.serialized}
       capalifeData={data.capalifeData}
+      trackRecordOverview={data.trackRecordOverview}
     />
   );
 }

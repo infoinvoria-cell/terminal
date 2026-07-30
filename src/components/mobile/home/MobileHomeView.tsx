@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
+import { TrackRecordStatusStrip } from "@/components/dashboard/track-record-status-strip";
 import { deserializeTrades, compoundGains } from "@/lib/trades-analytics";
 import type { DashboardKpis, SerializedTrade } from "@/lib/trades-analytics";
 import type { CapalifeData } from "@/lib/capitalife-data";
 import type { TimeFrame, ViewMode } from "@/components/dashboard/performance-report-chart";
+import type { TrackRecordOverview } from "@/lib/track-record/types";
 
 const PerformanceReportChart = dynamic(
   () => import("@/components/dashboard/performance-report-chart").then(m => m.PerformanceReportChart),
@@ -216,11 +218,13 @@ export function MobileHomeView({
   kpis: _kpis,
   trades,
   capalifeData,
+  trackRecordOverview,
 }: {
   topKpis: TopKpiItem[];
   kpis: DashboardKpis;
   trades: SerializedTrade[];
   capalifeData: CapalifeData;
+  trackRecordOverview: TrackRecordOverview | null;
 }) {
   const [tab,      setTab]      = useState<HomeTab>("portfolio");
   const [view,     setView]     = useState<ViewMode>("Bar");
@@ -286,6 +290,10 @@ export function MobileHomeView({
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 5 }}>
               {secCards.map(c => <SecKpi key={c.label} {...c} />)}
             </div>
+          </div>
+
+          <div style={{ flexShrink: 0, padding: "0 14px 12px" }}>
+            <TrackRecordStatusStrip overview={trackRecordOverview} compact />
           </div>
 
           {/* ── Performance Overview ───────────────────────── */}

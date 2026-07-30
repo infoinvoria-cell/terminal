@@ -285,7 +285,7 @@ function Chip({ status }: { status: string }) {
     active:         { label: "Aktiv",      c: "rgba(255,255,255,0.5)" },
     watch:          { label: "Watch",      c: GOLD },
     archived:       { label: "Archiviert", c: "rgba(255,255,255,0.15)" },
-    live_validated: { label: "Live",       c: "#22c55e" },
+    historical_reference: { label: "Historisch", c: "#60a5fa" },
     research:       { label: "Research",   c: "rgba(255,255,255,0.3)" },
     validation:     { label: "Validation", c: "rgba(255,255,255,0.45)" },
     parity_pending: { label: "Pending",    c: GOLD },
@@ -1141,7 +1141,7 @@ export default function StrategyMasterTable() {
             color: liveCols ? "#fff" : MUTED, transition: "all .15s",
           }}>
           <LayoutGrid size={11} />
-          Live
+          {portfolio === "ci" ? "Daten" : "Live"}
           {liveCols && <LiveTimer secs={liveTimer} max={LIVE_INTERVAL} />}
         </button>
       </div>
@@ -1161,7 +1161,8 @@ export default function StrategyMasterTable() {
                 const cagrs = rows.map(r => parseFloat((r.cagr ?? "").replace(/[^0-9.-]/g, ""))).filter(v => !isNaN(v));
                 const avgCagr = cagrs.length ? (cagrs.reduce((s, v) => s + v, 0) / cagrs.length).toFixed(1) + "%" : null;
                 const dds = rows.map(r => parseFloat((r.maxDd ?? "").replace(/[^0-9.-]/g, ""))).filter(v => !isNaN(v) && v !== 0);
-                const avgDd = dds.length ? "−" + (dds.reduce((s, v) => s + v, 0) / dds.length).toFixed(1) + "%" : null;
+                const avgDd = dds.length ? "−" + Math.abs(dds.reduce((s, v) => s + v, 0) / dds.length).toFixed(1) + "%" : null;
+                const showComponentAggregates = portfolio !== "ci";
                 const pfs = rows.map(r => r.pf).filter((v): v is number => v != null);
                 const avgPf = pfs.length ? (pfs.reduce((s, v) => s + v, 0) / pfs.length).toFixed(2) : null;
                 const tradesSum = rows.map(r => r.trades).filter((v): v is number => v != null).reduce((s, v) => s + v, 0);
@@ -1179,13 +1180,13 @@ export default function StrategyMasterTable() {
                     <Th label="Asset"   k="label"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
                     <Th label="Pillar"  k="pillar"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={`n ${pillars}`} />
                     <Th label="Gew."    k="weight"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={weightSum > 0 ? `Σ ${weightSum}%` : undefined} />
-                    <Th label="Sharpe"  k="sharpeOos" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgSharpe ? `∅ ${avgSharpe}` : undefined} />
-                    <Th label="CAGR"    k="cagr"      sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgCagr ? `∅ ${avgCagr}` : undefined} />
-                    <Th label="Max DD"  k="maxDd"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgDd ? `∅ ${avgDd}` : undefined} />
+                    <Th label="Sharpe"  k="sharpeOos" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={showComponentAggregates && avgSharpe ? `∅ ${avgSharpe}` : undefined} />
+                    <Th label="CAGR"    k="cagr"      sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={showComponentAggregates && avgCagr ? `∅ ${avgCagr}` : undefined} />
+                    <Th label="Max DD"  k="maxDd"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={showComponentAggregates && avgDd ? `∅ ${avgDd}` : undefined} />
                     <Th label="Calmar"  k="calmar"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
-                    <Th label="PF"      k="pf"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgPf ? `∅ ${avgPf}` : undefined} />
-                    <Th label="Trades"  k="trades"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={tradesSum > 0 ? `Σ ${tradesSum}` : undefined} />
-                    <Th label="WF/Win%" k="wfWin"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgWf ? `∅ ${avgWf}` : undefined} />
+                    <Th label="PF"      k="pf"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={showComponentAggregates && avgPf ? `∅ ${avgPf}` : undefined} />
+                    <Th label="Trades"  k="trades"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={showComponentAggregates && tradesSum > 0 ? `Σ ${tradesSum}` : undefined} />
+                    <Th label="WF/Win%" k="wfWin"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={showComponentAggregates && avgWf ? `∅ ${avgWf}` : undefined} />
                     <Th label="Status"  k="status"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={activeRows.length > 0 ? `n ${activeRows.length}` : undefined} />
                     {liveCols && <>
                       <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, borderLeft: "1px solid rgba(255,255,255,0.05)" }}>Preis</th>

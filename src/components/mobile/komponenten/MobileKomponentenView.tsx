@@ -220,7 +220,7 @@ function Chip({ status }: { status: string }) {
     active: { label: "Aktiv", c: "rgba(255,255,255,0.5)" },
     watch: { label: "Watch", c: GOLD },
     archived: { label: "Archiviert", c: "rgba(255,255,255,0.15)" },
-    live_validated: { label: "Live", c: "#22c55e" },
+    historical_reference: { label: "Historisch", c: "#60a5fa" },
     research: { label: "Research", c: "rgba(255,255,255,0.3)" },
     validation: { label: "Validation", c: "rgba(255,255,255,0.45)" },
     parity_pending: { label: "Pending", c: GOLD },
@@ -712,7 +712,7 @@ export function MobileKomponentenView() {
 
         {/* live toggle */}
         <ToggleBtn active={liveOn} onClick={() => setLiveOn(v => !v)}>
-          {liveOn ? "● Live" : "Live"}
+          {portfolio === "ci" ? (liveOn ? "● Daten" : "Daten") : (liveOn ? "● Live" : "Live")}
         </ToggleBtn>
       </div>
     </div>

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServiceClient } from "@/lib/supabase-server";
+import { validateAndRepairOhlc } from "@/lib/market-data/ohlc-quality";
+import { sha256Json } from "@/lib/track-record/utils";
 
 type OhlcRow = { date: unknown; open: unknown; high: unknown; low: unknown; close: unknown };
 type ShapedBar = { time: string; open: number; high: number; low: number; close: number; tick: boolean };
@@ -211,29 +213,35 @@ export async function GET(request: Request) {
     const shaped: ShapedBar[] = dedupeByPeriod(data as OhlcRow[], isDaily).map(({ key, row, tick }) => {
       const open = Number(row.open);
       const close = Number(row.close);
-      // Hard OHLC invariant: a body must never poke outside its own wick.
-      const high = Math.max(Number(row.high), open, close);
-      const low = Math.min(Number(row.low), open, close);
+      const high = Number(row.high);
+      const low = Number(row.low);
       // Emit ONE canonical timestamp shape so desktop and mobile parse the same
       // instant and lightweight-charts never sees two rows with equal `time`.
       const time = isDaily ? key : `${key}Z`;
       return { time, open, high, low, close, tick };
     });
 
-    if (!isDaily) repairStuckSessionExtremes(shaped);
-
-    const bars = filterPriceOutliers(pruneStaleTickBars(shaped, isDaily))
-      .filter(
-        (bar) =>
-          Boolean(bar.time) &&
-          Number.isFinite(bar.open) && bar.open > 0 &&
-          Number.isFinite(bar.high) && bar.high > 0 &&
-          Number.isFinite(bar.low) && bar.low > 0 &&
-          Number.isFinite(bar.close) && bar.close > 0 &&
-          bar.low <= bar.high &&
-          // Clock-skew / bad-bucket guard: never emit a period that hasn't started.
-          Date.parse(isDaily ? `${bar.time}T00:00:00Z` : bar.time) <= nowMs + 60_000,
-      )
+    const quality = validateAndRepairOhlc(pruneStaleTickBars(shaped, isDaily), {
+      intraday: !isDaily,
+      nowMs,
+    });
+    if (quality.events.length) {
+      await db.from("ohlc_quality_events").upsert(
+        quality.events.map((event) => ({
+          event_hash: sha256Json([symbol, timeframe, event.time, event.flag, event.original, event.corrected]),
+          asset: symbol,
+          timeframe,
+          period_utc: event.time,
+          severity: event.severity,
+          quality_flag: event.flag,
+          repair_method: event.method,
+          original_bar: event.original,
+          corrected_bar: event.corrected,
+        })),
+        { onConflict: "event_hash", ignoreDuplicates: true },
+      );
+    }
+    const bars = quality.accepted
       .slice(-limit)
       .map(({ time, open, high, low, close }) => ({ time, open, high, low, close }));
 
@@ -244,6 +252,13 @@ export async function GET(request: Request) {
       timeframe,
       count: bars.length,
       lastDate: lastBar?.time ?? null,
+      quality: {
+        status: quality.events.length ? "warning" : "ok",
+        flags: quality.flags,
+        repaired: quality.events.filter((event) => event.severity === "repair").length,
+        quarantined: quality.quarantined.length,
+        events: quality.events.slice(-100),
+      },
     });
   } catch (err) {
     return NextResponse.json(

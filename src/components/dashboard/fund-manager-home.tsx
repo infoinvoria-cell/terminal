@@ -17,6 +17,7 @@ import dynamic from "next/dynamic";
 import { SentinelFloatingWindow } from "@/components/sentinel/SentinelFloatingWindow";
 import type { CapalifeData } from "@/lib/capitalife-data";
 import type { FSPortfolioSnapshot } from "@/lib/fsportfolio/types";
+import type { TrackRecordOverview } from "@/lib/track-record/types";
 import {
   applyRrReportingMode,
   deserializeTrades,
@@ -70,6 +71,7 @@ type FundManagerHomeProps = {
   universal: UniversalKpiStrings;
   fsportfolio: FSPortfolioSnapshot | undefined;
   capalifeData: CapalifeData;
+  trackRecordOverview: TrackRecordOverview | null;
   initialPage?: DashboardPage;
 };
 
@@ -79,6 +81,7 @@ type HomeShellProps = {
   universal: UniversalKpiStrings;
   fsportfolio: FSPortfolioSnapshot | undefined;
   capalifeData: CapalifeData;
+  trackRecordOverview: TrackRecordOverview | null;
 };
 
 export function FundManagerHome({
@@ -89,6 +92,7 @@ export function FundManagerHome({
   universal,
   fsportfolio,
   capalifeData,
+  trackRecordOverview,
   initialPage,
 }: FundManagerHomeProps) {
   return (
@@ -103,6 +107,7 @@ export function FundManagerHome({
         universal={universal}
         fsportfolio={fsportfolio}
         capalifeData={capalifeData}
+        trackRecordOverview={trackRecordOverview}
       />
     </HomeDashboardProvider>
   );
@@ -119,6 +124,7 @@ function HomeShell({
   universal,
   fsportfolio,
   capalifeData,
+  trackRecordOverview,
 }: HomeShellProps) {
   const { page, homeTab, rrReportingMode, setPage } = useHomeDashboard();
   const { setCurrentPage } = useGlobalPage();
@@ -175,6 +181,7 @@ function HomeShell({
                     trades={effectiveSerialized}
                     kpis={portfolioKpisBaseline}
                     capalifeData={capalifeData}
+                    trackRecordOverview={trackRecordOverview}
                   />
                 ) : null}
                 {homeTab === "risk" ? (

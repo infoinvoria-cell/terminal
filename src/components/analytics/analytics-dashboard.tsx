@@ -2036,11 +2036,7 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
       // recomputation.
       // Only scope when the snapshot has full history (adaptiveStartDate ≤ 2005).
       // Sparse Supabase data (post-2005 start) produces misleading metrics — fall back to baseDataset (Pine).
-      const adaptiveStart = fsportfolio?.backtest?.adaptiveStartDate ?? null;
-      const hasFullHistory = Boolean(adaptiveStart && adaptiveStart <= "2005-01-01");
-      const canScope = mode === "backtest" ? Boolean(fsportfolio?.backtest?.ready) && hasFullHistory : Boolean(fsportfolio);
-      if (!canScope) return baseDataset;
-      return buildScopedInvestDataset(fsportfolio!, mode, investWeights, investEnabled, startFilter, baseDataset);
+      return baseDataset;
     }
     if (tab === "whiteSwan" && mode === "backtest") {
       return buildScopedWsDataset(baseDatasetWithTrades, wsWeights, wsEnabled, wsRiskMultiplier);
@@ -2154,16 +2150,17 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
                 onReset={() => setCombinedWsWeight(50)}
               />
             ) : tab === "invest" ? (
-              <LiveControlPanel
-                weights={investWeights}
-                enabled={investEnabled}
-                onWeightChange={(sym, val) => setInvestWeights((prev) => ({ ...prev, [sym]: val }))}
-                onToggle={(sym) => setInvestEnabled((prev) => ({ ...prev, [sym]: !(prev[sym] !== false) }))}
-                onReset={() => {
-                  setInvestWeights({ ...LIVE_DEFAULT_WEIGHTS });
-                  setInvestEnabled(Object.fromEntries(LIVE_ASSET_SYMBOLS.map((s) => [s, true])));
-                }}
-              />
+              <Card>
+                <CardHeader title="Core Invest" />
+                <div className="flex flex-1 flex-col justify-center gap-2 px-4 py-3">
+                  <p className="text-[12px] font-semibold text-zinc-200 [font-family:var(--font-montserrat),sans-serif]">
+                    Validation blockiert
+                  </p>
+                  <p className="text-[10px] leading-relaxed text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">
+                    Vier Strategy-Sleeves besitzen keine exakte Trade-by-Trade-Parität. Deshalb werden weder eine Aggregatkurve noch Live-Kennzahlen oder Rebalancing-Empfehlungen berechnet.
+                  </p>
+                </div>
+              </Card>
             ) : tab === "whiteSwan" && mode === "backtest" ? (
               <WsLiveControlPanel
                 weights={wsWeights}

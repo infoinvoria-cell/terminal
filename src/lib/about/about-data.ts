@@ -4,12 +4,12 @@
 //   white-swan-official-kpis.json   → WS LIVE-Konto (Futures/FX, KEIN CFD)
 //   portfolio_f10_equity.json       → WS Backtest f10 (.summary)
 //   white-swan-global-strategy.json → Sleeves, 35 Strategien / 29 Instrumente
-//   core-invest-paper.config.json   → CI OOS-Backtest (validated_metrics)
+//   core-invest-paper.config.json   → rejected CI aggregate reference (engine parity failed)
 //
 //   WS Live  : 2024-04-11 – 2026-07-01 · +97.2% komb. · 35.2% p.a. · DD −11.76%
 //              Sharpe 1.6 · Calmar 3.0 · PF 1.28 · 121 Trades (89+32 sichtbar)
 //   WS BT f10: CAGR 4.608% · Vol 3.613% · Sharpe 1.267 · DD −4.419% · Calmar 1.043
-//   CI OOS   : CAGR 17.11% · Sharpe 1.152 · DD −21.73% · Calmar 0.787 (2019–2026)
+//   CI       : frozen 8-component allocation; aggregate metrics rejected until engine parity
 //
 //   Korr. zu SPY: geschätzt, keine Live-Regression (WS ~0.05 · CI ~0.75)
 
@@ -44,19 +44,17 @@ export const WS_BACKTEST_F10 = {
   source: 'backtest' as Source,
 } as const;
 
-/** Core Invest Out-of-Sample-Backtest (2019–2026) */
+/** Core Invest v2.0 target allocation; aggregate validation remains blocked. */
 export const CI = {
-  cagr:           0.171,
-  maxDD:         -0.217,
-  sharpe:         1.15,
-  corrSPY:        0.75,
-  corrSPYSource: 'estimated' as Source,
-  sleeves:        6,
+  aggregateMetricsValid: false,
+  corrSPY:        null,
+  corrSPYSource: 'reference' as Source,
+  sleeves:        4,
   allocQQQ:       45,   // QQQ Passiv %
   allocGLD:       25,   // Gold (GLD) %
-  allocBeta:      20,   // Beta + Divers. %
-  allocQT:        10,   // QQQ Tactical %
-  source:        'backtest' as Source,
+  allocBeta:      10,   // SPMO + SPY %
+  allocQT:        20,   // four strategy sleeves %
+  source:        'reference' as Source,
 } as const;
 
 // ─── Derived metrics ──────────────────────────────────────────────────────────
@@ -76,7 +74,7 @@ const periodStr = (iso: string) => {
 export const wsYears  = yearsBetween(WS_LIVE.periodStart, WS_LIVE.periodEnd); // 2.25
 export const wsCAGR   = Math.pow(1 + WS_LIVE.totalReturn, 1 / wsYears) - 1;  // ≈ 0.35229 → "+35.2%"
 export const wsCalmar = wsCAGR / Math.abs(WS_LIVE.maxDD);                     // ≈ 2.9855
-export const ciCalmar = CI.cagr / Math.abs(CI.maxDD);                         // ≈ 0.78802 → "0.79"
+export const ciCalmar = null;
 
 // ─── Format helpers ───────────────────────────────────────────────────────────
 
@@ -99,11 +97,11 @@ const D = {
   wsCorr:        corrS(WS_LIVE.corrSPY),       // "~0.05"
   wsPeriod:      `${periodStr(WS_LIVE.periodStart)} – ${periodStr(WS_LIVE.periodEnd)}`,  // "Apr 2024 – Jul 2026"
   // Core Invest
-  ciCAGR:        pct(CI.cagr),                 // "+17.1%"
-  ciDD:          pct(CI.maxDD),                // "−21.7%"
-  ciSharpe:      rat(CI.sharpe),               // "1.15"
-  ciCalmar:      rat(ciCalmar),                // "0.79" (abgeleitet 0.78802, Δ 0.002 ✓)
-  ciCorr:        corrS(CI.corrSPY),            // "~0.75"
+  ciCAGR:        "nicht validiert",
+  ciDD:          "nicht validiert",
+  ciSharpe:      "nicht validiert",
+  ciCalmar:      "nicht validiert",
+  ciCorr:        "nicht belegt",
   // WS Referenz-Backtest f10
   f10CAGR:       pct(WS_BACKTEST_F10.cagr),    // "+4.6%"
   f10DD:         pct(WS_BACKTEST_F10.maxDD),   // "−4.4%"
@@ -140,10 +138,10 @@ export const ABOUT_STRATEGIES = [
     number: "02",
     type: "ETF · Aktien · Rohstoffe · Backtest",
     name: "Core Invest",
-    badge: "Backtest · Paper",
+    badge: "Validation blockiert",
     badgeColor: "blue" as const,
     stats: [
-      { label: "CAGR OOS", value: D.ciCAGR,   color: "gold"  as const },
+      { label: "CAGR OOS", value: D.ciCAGR,   color: "white" as const },
       { label: "Max DD",   value: D.ciDD,      color: "red"   as const },
       { label: "Sharpe",   value: D.ciSharpe,  color: "white" as const },
       { label: "Calmar",   value: D.ciCalmar,  color: "white" as const },
@@ -152,9 +150,9 @@ export const ABOUT_STRATEGIES = [
       { icon: "Layers",      key: "Komponenten",  value: `8 · QQQ ${CI.allocQQQ}% · GLD ${CI.allocGLD}% · ${CI.sleeves} Sleeves` },
       { icon: "Globe",       key: "Kern",         value: `QQQ ${CI.allocQQQ}% · GLD ${CI.allocGLD}%` },
       { icon: "RefreshCw",   key: "Rebalancing",  value: "Quartalsweise (Mär/Jun/Sep/Dez)" },
-      { icon: "Calendar",    key: "OOS-Backtest", value: "2019–2026 · IS ab 2000" },
-      { icon: "CheckCircle", key: "Status",       value: "Approved v2.0 · kein Live-Konto" },
-      { icon: "Target",      key: "Korr. zu SPY", value: `${D.ciCorr} · marktnah (geschätzt)` },
+      { icon: "Calendar",    key: "OOS-Backtest", value: "abgelehnt · Engine-Parität fehlt" },
+      { icon: "CheckCircle", key: "Status",       value: "v2.0 eingefroren · nicht live-ready" },
+      { icon: "Target",      key: "Korr. zu SPY", value: D.ciCorr },
     ],
   },
 ];
@@ -164,7 +162,7 @@ export const ABOUT_STRATEGIES = [
 
 export const ABOUT_COMPARISON = [
   { name: "White Swan",     tag: "LIVE", cagr: D.wsCAGR,  dd: D.wsDD,  sharpe: D.wsSharpe, calmar: D.wsCalmar, corrSpy: D.wsCorr,   accent: true  },
-  { name: "Core Invest",    tag: "BT",   cagr: D.ciCAGR,  dd: D.ciDD,  sharpe: D.ciSharpe, calmar: D.ciCalmar, corrSpy: D.ciCorr,   accent: true  },
+  { name: "Core Invest",    tag: "BLOCK", cagr: D.ciCAGR, dd: D.ciDD, sharpe: D.ciSharpe, calmar: D.ciCalmar, corrSpy: D.ciCorr, accent: true },
   { name: "S&P 500",        tag: "",     cagr: "~10%",    dd: "−55%",  sharpe: "~0.5",     calmar: "~0.2",     corrSpy: "1.00",     accent: false },
   { name: "Nasdaq 100",     tag: "",     cagr: "~13%",    dd: "−53%",  sharpe: "~0.6",     calmar: "~0.2",     corrSpy: "~0.90",    accent: false },
   { name: "DAX",            tag: "",     cagr: "~8%",     dd: "−60%",  sharpe: "~0.4",     calmar: "~0.1",     corrSpy: "~0.80",    accent: false },
@@ -186,9 +184,9 @@ export const ABOUT_INVESTOR = [
 // ─── Risk profile ─────────────────────────────────────────────────────────────
 export const ABOUT_RISK = [
   { key: "White Swan",      value: `Niedrig–Mittel · DD ${roughDD(WS_LIVE.maxDD)}` },          // "Niedrig–Mittel · DD ~12%"
-  { key: "Core Invest",     value: `Mittel · DD ${roughDD(CI.maxDD)}` },                       // "Mittel · DD ~22%"
+  { key: "Core Invest",     value: "Risikokennzahlen nicht aggregiert validiert" },
   { key: "WS Korr. SPY",    value: `${D.wsCorr} · unkorreliert` },                            // "~0.05 · unkorreliert"
-  { key: "CI Korr. SPY",    value: `${D.ciCorr} · marktnah` },                                // "~0.75 · marktnah"
+  { key: "CI Korr. SPY",    value: D.ciCorr },
   { key: "Diversifikation", value: `${WS_LIVE.instruments} Märkte · ${WS_LIVE.sleeves} Sleeves` }, // "29 Märkte · 5 Sleeves"
 ];
 
@@ -235,7 +233,6 @@ export const ABOUT_CI_ALLOC = [
 // ─── SPY-Korrelation (numerisch, für Balkenbreite) ────────────────────────────
 export const ABOUT_CORRELATION = [
   { name: "White Swan",     corr: WS_LIVE.corrSPY,  accent: true  },  // 0.05
-  { name: "Core Invest",    corr: CI.corrSPY,        accent: true  },  // 0.75
   { name: "S&P 500",        corr: 1.00,              accent: false },
   { name: "Nasdaq 100",     corr: 0.90,              accent: false },
   { name: "DAX",            corr: 0.80,              accent: false },
@@ -250,6 +247,6 @@ export const ABOUT_ECKDATEN = [
   { key: "WS Aufbau",  value: `${WS_LIVE.instruments} Instrumente · ${WS_LIVE.strategies} Strategien` },
   { key: "WS Sleeves", value: "Agrar · Metalle · Indizes · Energie · FX" },
   { key: "CI Kern",    value: `QQQ ${CI.allocQQQ}% · GLD ${CI.allocGLD}% · ${CI.sleeves} Sleeves` },
-  { key: "Backtests",  value: "WS f10 · CI OOS 2019–2026" },
+  { key: "Backtests",  value: "WS f10 · CI Aggregat blockiert" },
   { key: "Signale",    value: "Vollautomatisch · regelbasiert" },
 ];

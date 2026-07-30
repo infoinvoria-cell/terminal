@@ -1,5 +1,6 @@
 import { getCapalifeData } from "@/lib/capitalife-data";
 import type { UniversalKpiStrings } from "@/components/dashboard/universal-kpi-strip";
+import { buildTrackRecordOverview } from "@/lib/track-record/service";
 import type { DashboardKpis } from "@/lib/trades-analytics";
 
 const EMPTY_KPI: DashboardKpis = {
@@ -26,6 +27,7 @@ const UNIVERSAL: UniversalKpiStrings = {
 
 export async function getDashboardPageData() {
   const capalifeData = getCapalifeData();
+  const trackRecordOverview = await buildTrackRecordOverview().catch(() => null);
   return {
     serialized: [],
     reportTrades: [],
@@ -34,5 +36,6 @@ export async function getDashboardPageData() {
     universal: UNIVERSAL,
     fsportfolio: undefined,
     capalifeData,
+    trackRecordOverview,
   };
 }

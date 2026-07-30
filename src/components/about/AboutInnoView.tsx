@@ -25,12 +25,15 @@ import {
   INNO_MEETING_BRIEF,
   INNO_OVERVIEW_METRICS,
   INNO_RISK_ROWS,
+  INNO_SEASONAL_PATTERNS,
   INNO_SOURCE_REGISTER,
   INNO_STRATEGY_CARDS,
   INNO_TRACK_RECORD_ROWS,
   type InnoSourceRef,
   type InnoStatusTone,
 } from "@/lib/about/about-inno-data";
+import { buildInnoTrackRecordRuntimeModel } from "@/lib/about/inno-track-record-model";
+import type { TrackRecordOverview } from "@/lib/track-record/types";
 
 const M = "var(--font-montserrat), sans-serif";
 const N = "var(--font-nunito), sans-serif";
@@ -68,62 +71,33 @@ const SECTION_TABS: { id: InnoSection; label: string }[] = [
   { id: "sources", label: "Quellen" },
 ];
 
-export function AboutInnoView() {
+export function AboutInnoView({ trackRecordOverview }: { trackRecordOverview: TrackRecordOverview }) {
   const [activeSection, setActiveSection] = useState<InnoSection>("overview");
   const [sourceQuery, setSourceQuery] = useState("");
   const [sourceType, setSourceType] = useState("Alle Datenarten");
   const [sourcePortfolio, setSourcePortfolio] = useState("Alle Portfolios");
 
-  const overviewMetrics = useMemo<OverviewMetricCard[]>(
-    () => [
-      {
-        label: "Tactical Track Record",
-        value: "11.04.2024 bis 01.07.2026",
-        sub: "Statement-basiert",
-        source: INNO_OVERVIEW_METRICS[0]?.source ?? "",
-      },
-      {
-        label: "Tradingfrequenz",
-        value: "5–10 Trades/Woche",
-        sub: "Intraday bis 2–3 Wochen",
-        source: "17_Haftungsdach_QA/Formales Strategiedokument Institut.md",
-      },
-      {
-        label: "Mindestanlagesumme",
-        value: "20.000–25.000 EUR",
-        sub: "10.000 EUR wird geprüft",
-        source: "Auftragsvorgabe",
-      },
-      {
-        label: "Status White Swan Strategic",
-        value: "Kein vollständiger Live-Track-Record",
-        sub: "Backtest und Forward Tracking vorhanden",
-        source: INNO_OVERVIEW_METRICS[1]?.source ?? "",
-      },
-    ],
-    [],
+  const runtime = useMemo(
+    () => buildInnoTrackRecordRuntimeModel(trackRecordOverview),
+    [trackRecordOverview],
   );
+  const overviewMetrics = runtime.heroMetrics as OverviewMetricCard[];
 
   const categoryStats = useMemo(() => {
     const totalCategories = 6;
-    const completeCategories = 1;
-    const openEvidencePoints = 20;
+    const completeCategories = trackRecordOverview.historical.historicalDataQuality === "complete" ? 2 : 1;
+    const openEvidencePoints = trackRecordOverview.readiness.blockers.length;
     const conflictingPoints = INNO_DATA_GAPS_ROWS.filter((row) => row.status.toLowerCase().includes("widers")).length;
     return { totalCategories, completeCategories, openEvidencePoints, conflictingPoints };
-  }, []);
+  }, [trackRecordOverview]);
 
   const readinessChecklist = useMemo(
-    () => [
-      { label: "Strategie beschrieben", done: true, tone: "confirmed" as VisualTone },
-      { label: "Track Record vorhanden", done: true, tone: "confirmed" as VisualTone },
-      { label: "Kosten dokumentiert", done: false, tone: "open" as VisualTone },
-      { label: "Risiken dokumentiert", done: false, tone: "open" as VisualTone },
-      { label: "Instrumentenuniversum vorläufig definiert – CTO-/INNO-Prüfung offen", done: false, tone: "planned" as VisualTone },
-      { label: "IBKR-Konfiguration geklärt", done: false, tone: "open" as VisualTone },
-      { label: "Mindestanlage vollständig geklärt", done: false, tone: "open" as VisualTone },
-      { label: "Technische Anbindung geklärt", done: false, tone: "open" as VisualTone },
-    ],
-    [],
+    () => runtime.readiness.map((item) => ({
+      label: `${item.label} · ${item.status}`,
+      done: item.done,
+      tone: item.done ? "confirmed" as VisualTone : "open" as VisualTone,
+    })),
+    [runtime],
   );
 
   const readinessDone = readinessChecklist.filter((item) => item.done).length;
@@ -413,10 +387,13 @@ export function AboutInnoView() {
         ) : null}
 
         {activeSection === "portfolios" ? (
-          <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
-            {INNO_STRATEGY_CARDS.map((card) => (
-              <PortfolioCard key={card.id} card={card} />
-            ))}
+          <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+              {INNO_STRATEGY_CARDS.map((card) => (
+                <PortfolioCard key={card.id} card={card} />
+              ))}
+            </div>
+            <SeasonalEvidenceTable />
           </div>
         ) : null}
 
@@ -436,7 +413,19 @@ export function AboutInnoView() {
                   </div>
                   <div className="mt-4 grid grid-cols-2 gap-3 2xl:grid-cols-4">
                     <TrackMetric label="Gesamtperformance" value={row.performance} />
-                    <TrackMetric label="Annualisierte Rendite" value={row.annualisierung} warn={row.annualisierung.includes("nachgerechnet")} />
+                    <TrackMetric
+                      label={row.portfolio.includes("Tactical") ? "Berichtswert p.a." : "Annualisierte Rendite"}
+                      value={row.portfolio.includes("Tactical")
+                        ? runtime.annualization.reported
+                        : row.annualisierung}
+                      warn={row.portfolio.includes("Tactical")}
+                    />
+                    {row.portfolio.includes("Tactical") ? (
+                      <>
+                        <TrackMetric label="Aus Berichtsreturn neu berechnet" value={runtime.annualization.recalculated} warn />
+                        <TrackMetric label="Monats-CAGR, nicht vergleichbar" value={runtime.annualization.alternative} warn />
+                      </>
+                    ) : null}
                     <TrackMetric label="Max. Drawdown" value={row.drawdown} />
                     <TrackMetric label="Sharpe" value={row.sharpe} />
                     <TrackMetric label="Calmar" value={row.calmar} />
@@ -445,9 +434,10 @@ export function AboutInnoView() {
                     <TrackMetric label="Trefferquote" value={row.trefferquote} warn={row.trefferquote === "Nicht gefunden"} />
                   </div>
                   {row.portfolio.includes("Tactical") ? (
-                    <div className="mt-4 rounded-[14px] border px-3 py-2" style={panelStyle()}>
-                      <p className="text-[11px]" style={{ color: TOKENS.text, fontFamily: M }}>
-                      Brokerseitig verbuchte Handelskosten wie Spreads, Kommissionen und Swaps sind berücksichtigt, soweit sie auf den zugrunde liegenden Echtgeldkonten verbucht wurden.
+                    <div className="mt-4 space-y-2 rounded-[14px] border px-3 py-2" style={panelStyle()}>
+                      <p className="text-[11px]" style={{ color: TOKENS.text, fontFamily: M }}>{runtime.annualization.explanation}</p>
+                      <p className="text-[10px]" style={{ color: TOKENS.muted, fontFamily: M }}>
+                        Myfxbook: {runtime.myfxbookStatus} · Darwinex: {runtime.darwinexStatus} · Datenalter: {runtime.dataAgeStatus} · Datenbank: {runtime.databaseStatus}
                       </p>
                     </div>
                   ) : null}
@@ -456,12 +446,26 @@ export function AboutInnoView() {
             </section>
 
             <section className="grid grid-cols-1 gap-3 xl:grid-cols-3">
-              {["Equity-Kurve", "Drawdown-Verlauf", "Monatliche Renditeübersicht"].map((label) => (
+              {["Equity-Kurve", "Drawdown-Verlauf"].map((label) => (
                 <div key={label} className={`${CARD} min-w-0 p-4`} style={surfaceStyle()}>
                   <SectionTitle icon={<FileSearch size={14} />} title={label} />
-                    <EmptyState text="Für diese Auswertung fehlen derzeit die erforderlichen Rohdaten." />
+                  <EmptyState text="Für diese Auswertung fehlen weiterhin vollständige Rohdaten." />
                 </div>
               ))}
+              <div className={`${CARD} min-w-0 p-4`} style={surfaceStyle()}>
+                <SectionTitle icon={<FileSearch size={14} />} title="Monatliche Renditen" />
+                <div className="mt-4 grid grid-cols-4 gap-1.5">
+                  {trackRecordOverview.historical.monthlyReturns.map((row) => (
+                    <div key={row.month} className="rounded-[10px] border px-2 py-1.5 text-center" style={{
+                      borderColor: TOKENS.border,
+                      background: row.returnPct > 0 ? "rgba(199,166,81,0.12)" : row.returnPct < 0 ? "rgba(212,91,99,0.12)" : "rgba(255,255,255,0.03)",
+                    }}>
+                      <p className="text-[8px]" style={{ color: TOKENS.muted }}>{row.month}</p>
+                      <p className="text-[10px] font-semibold" style={{ color: row.returnPct < 0 ? TOKENS.red : TOKENS.text }}>{row.returnPct.toFixed(1)}%</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </section>
           </div>
         ) : null}
@@ -491,25 +495,30 @@ export function AboutInnoView() {
             <div className={`${CARD} min-w-0 p-4`} style={surfaceStyle()}>
                 <SectionTitle icon={<Boxes size={14} />} title="Instrumentenmatrix" />
                 <div className="mt-4 overflow-x-auto">
-                  <table className="w-full min-w-[920px] table-fixed">
+                  <table className="w-full min-w-[1800px] table-fixed">
                     <thead>
                       <tr className="border-b text-left text-[10px]" style={{ borderColor: TOKENS.border, color: TOKENS.muted, fontFamily: M }}>
-                    {["Instrument", "Typ", "Börse", "Status", "Kontraktgröße", "Mindestdepot", "Marktdaten", "CTO-Prüfung"].map((label) => (
+                    {["Strategie", "Instrument", "Produkttyp", "Symbol", "ConId", "Börse", "Währung", "Stückelung", "Fractional", "Marktdaten", "Ordertyp", "Status", "Offene Prüfung"].map((label) => (
                         <th key={label} className="px-3 py-2 font-semibold">{label}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {INNO_IBKR_ROWS.map((row) => (
-                      <tr key={row.instrument} className="border-b align-top" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                      <tr key={`${row.strategy}-${row.symbol}`} className="border-b align-top" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                        <Cell>{row.strategy}</Cell>
                         <Cell>{row.instrument}</Cell>
-                        <Cell>{row.product}</Cell>
-                        <Cell>Noch festzulegen</Cell>
-                      <Cell><StatusBadge tone="planned">Vorläufig definiert – CTO-/INNO-Prüfung offen</StatusBadge></Cell>
-                        <Cell>Nicht belegt</Cell>
-                        <Cell>Nicht belegt</Cell>
-                        <Cell>Noch festzulegen</Cell>
-                      <Cell>Prüfung offen</Cell>
+                        <Cell>{row.productType}</Cell>
+                        <Cell>{row.symbol}</Cell>
+                        <Cell>{row.conId}</Cell>
+                        <Cell>{row.exchange}</Cell>
+                        <Cell>{row.currency}</Cell>
+                        <Cell>{row.lotSize}</Cell>
+                        <Cell>{row.fractional}</Cell>
+                        <Cell>{row.marketData}</Cell>
+                        <Cell>{row.orderType}</Cell>
+                        <Cell><StatusBadge tone="planned">{row.status}</StatusBadge></Cell>
+                        <Cell>{row.openReview}</Cell>
                       </tr>
                     ))}
                   </tbody>
@@ -639,6 +648,42 @@ export function AboutInnoView() {
   );
 }
 
+function SeasonalEvidenceTable() {
+  const found = INNO_SEASONAL_PATTERNS.filter((row) => row.found).length;
+  return (
+    <div className={`${CARD} min-w-0 p-4`} style={surfaceStyle()}>
+      <div className="flex items-center justify-between gap-3">
+        <SectionTitle icon={<Waypoints size={14} />} title="White-Swan-Saisonmuster" />
+        <StatusBadge tone="planned">{found}/10 nachweisbar</StatusBadge>
+      </div>
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full min-w-[1100px] table-fixed">
+          <thead>
+            <tr className="border-b text-left text-[10px]" style={{ borderColor: TOKENS.border, color: TOKENS.muted, fontFamily: M }}>
+              {["Muster", "Gefunden", "Status", "Datenquelle", "Berechnung", "Walk Forward", "Produktionsgeeignet"].map((label) => (
+                <th key={label} className="px-3 py-2 font-semibold">{label}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {INNO_SEASONAL_PATTERNS.map((row) => (
+              <tr key={row.id} className="border-b align-top" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                <Cell>{row.pattern}</Cell>
+                <Cell>{row.found ? "Ja" : "Nein"}</Cell>
+                <Cell>{row.status}</Cell>
+                <Cell>{row.source}</Cell>
+                <Cell>{row.calculationAvailable ? "Vorhanden" : "Fehlt"}</Cell>
+                <Cell>{row.walkForwardAvailable ? "Vorhanden" : "Fehlt"}</Cell>
+                <Cell>{row.productionReady ? "Ja" : "Nein"}</Cell>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 function PortfolioCard({ card }: { card: (typeof INNO_STRATEGY_CARDS)[number] }) {
   const objective = card.rows.find((row) => row.key === "Ziel")?.value ?? "Nicht gefunden";
   const rows = ["Datenart", "Track-Record-Status", "Tradingfrequenz", "Haltedauer", "Anzahl Assets", "Parallele Positionen", "Geplante Gewichtung", "Instrumententypen"].map((key) => {
@@ -655,7 +700,13 @@ function PortfolioCard({ card }: { card: (typeof INNO_STRATEGY_CARDS)[number] })
       { label: "Zukunft", text: "Zukünftige Umsetzung ohne CFDs geplant", tone: "planned" as VisualTone },
       { label: "Abgrenzung", text: "Neue Paper-, Backtest- oder Forward-Strategien werden separat gekennzeichnet", tone: "open" as VisualTone },
     ]
-    : [
+    : card.id === "core-invest"
+      ? [
+        { label: "Allokation", text: "8 Komponenten und 100% Zielgewicht zentral belegt", tone: "confirmed" as VisualTone },
+        { label: "Validierung", text: "4 Strategy-Sleeves ohne exakte Trade-Parität", tone: "open" as VisualTone },
+        { label: "Live", text: "Keine echten Live-Daten oder IBKR-Ausführung verifiziert", tone: "planned" as VisualTone },
+      ]
+      : [
       { label: "Status", text: "Kein vollständiger Live-Track-Record", tone: "planned" as VisualTone },
       { label: "Struktur", text: "Etwa 6–8 Assets und etwa 4 aktive Positionen plus ETF-Allokationen", tone: "planned" as VisualTone },
       { label: "Prüfung", text: "Separate Prüfung durch INNO erforderlich", tone: "open" as VisualTone },
@@ -668,7 +719,7 @@ function PortfolioCard({ card }: { card: (typeof INNO_STRATEGY_CARDS)[number] })
           <h3 className="text-[22px] font-bold" style={{ color: TOKENS.text, fontFamily: N }}>{card.title}</h3>
           <p className="mt-1 text-[12px]" style={{ color: TOKENS.muted, fontFamily: M }}>{objective}</p>
         </div>
-        <StatusBadge tone={card.id === "tactical" ? "confirmed" : "planned"}>{card.badge}</StatusBadge>
+        <StatusBadge tone={card.id === "tactical" ? "confirmed" : card.id === "core-invest" ? "open" : "planned"}>{card.badge}</StatusBadge>
       </div>
 
       <div className="mt-4 grid min-w-0 gap-3 md:grid-cols-2">

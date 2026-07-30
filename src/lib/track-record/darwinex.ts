@@ -27,7 +27,7 @@ export async function collectDarwinexSnapshotBundle(options: DarwinexRunOptions)
   const rawSnapshots: RawSnapshotRow[] = [];
 
   const client = options.mode === "live"
-    ? createLiveDarwinexClient()
+    ? await createLiveDarwinexClient()
     : createMockDarwinexClient();
 
   const info = await client.fetchInfo();
@@ -73,6 +73,9 @@ export async function collectDarwinexSnapshotBundle(options: DarwinexRunOptions)
 
   const unavailable: string[] = [];
   const openPositions = normalizeInvestorOpenPositions(productId, investor);
+  if ((investor as Record<string, unknown>).capabilityAvailable === false) {
+    unavailable.push(String((investor as Record<string, unknown>).reason ?? "Darwinex investor capability unavailable."));
+  }
   if (!openPositions.length) {
     unavailable.push("Investor-account open positions were not returned by the configured Darwinex endpoint.");
   }
@@ -84,6 +87,7 @@ export async function collectDarwinexSnapshotBundle(options: DarwinexRunOptions)
     dailyReturns,
     monthlyReturns: [],
     openPositions,
+    openOrders: [],
     closedTrades: [],
     cashflows: [],
     metrics,
@@ -218,15 +222,17 @@ function createMockDarwinexClient() {
   };
 }
 
-function createLiveDarwinexClient() {
+async function createLiveDarwinexClient() {
   const env = getTrackRecordEnv();
-  const token = env.darwinexAccessToken;
-  if (!token) throw new Error("Darwinex access token missing");
   if (!env.darwinexProductId) throw new Error("DARWINEX_PRODUCT_ID missing");
+  if (!env.darwinexInfoUrl || !env.darwinexHistoryUrl) {
+    throw new Error("Official Darwinex API Store URLs missing: DARWINEX_INFO_URL and DARWINEX_HISTORY_URL are required");
+  }
 
-  const infoUrl = env.darwinexInfoUrl || `https://api.darwinex.com/darwininfo/${env.darwinexProductId}`;
-  const historyUrl = env.darwinexHistoryUrl || `https://api.darwinex.com/darwininfo/${env.darwinexProductId}/history`;
-  const investorUrl = env.darwinexInvestorUrl || `https://api.darwinex.com/investoraccount/${env.darwinexProductId}`;
+  const token = await resolveDarwinexAccessToken(env);
+  const infoUrl = env.darwinexInfoUrl;
+  const historyUrl = env.darwinexHistoryUrl;
+  const investorUrl = env.darwinexInvestorUrl;
 
   const fetchJson = async (url: string) => {
     return fetchJsonWithRetry(url, {
@@ -240,6 +246,45 @@ function createLiveDarwinexClient() {
   return {
     async fetchInfo() { return fetchJson(infoUrl); },
     async fetchHistory() { return fetchJson(historyUrl); },
-    async fetchInvestor() { return fetchJson(investorUrl); },
+    async fetchInvestor() {
+      if (!investorUrl) {
+        return {
+          capabilityAvailable: false,
+          reason: "DARWINEX_INVESTOR_URL is not configured or the product is not entitled.",
+        };
+      }
+      try {
+        return await fetchJson(investorUrl);
+      } catch (error) {
+        return {
+          capabilityAvailable: false,
+          reason: error instanceof Error ? error.message : "Darwinex investor endpoint unavailable",
+        };
+      }
+    },
   };
+}
+
+async function resolveDarwinexAccessToken(env: ReturnType<typeof getTrackRecordEnv>) {
+  if (env.darwinexAccessToken) return env.darwinexAccessToken;
+  if (!env.darwinexTokenUrl || !env.darwinexClientId || !env.darwinexClientSecret || !env.darwinexRefreshToken) {
+    throw new Error("Darwinex access token missing and OAuth refresh configuration is incomplete");
+  }
+  const body = new URLSearchParams({
+    grant_type: "refresh_token",
+    refresh_token: env.darwinexRefreshToken,
+    client_id: env.darwinexClientId,
+    client_secret: env.darwinexClientSecret,
+  });
+  const payload = await fetchJsonWithRetry(env.darwinexTokenUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+    timeoutMs: 15000,
+    retries: 2,
+    backoffMs: 900,
+  });
+  const token = asString(payload.access_token);
+  if (!token) throw new Error("Darwinex token refresh returned no access token");
+  return token;
 }

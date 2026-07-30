@@ -48,13 +48,16 @@ if (intradayStart < 0 || intradayEnd < 0) fail("cannot locate INTRADAY");
 wsRows.push(...activeRows(strategySource.slice(intradayStart, intradayEnd)));
 
 const wsWeight = wsRows.reduce((sum, row) => sum + rowWeight(row), 0);
-if (wsRows.length !== 28) fail(`expected 28 active White Swan components, found ${wsRows.length}`);
+const wsKpiCountMatch = strategySource.match(/\bstrategies:\s*"(\d+)"/);
+if (!wsKpiCountMatch) fail("cannot locate canonical White Swan strategy count");
+const expectedWsCount = Number(wsKpiCountMatch[1]);
+if (wsRows.length !== expectedWsCount) fail(`expected ${expectedWsCount} active White Swan components, found ${wsRows.length}`);
 if (Math.abs(wsWeight - 100) > 1e-9) fail(`White Swan weights sum to ${wsWeight}, expected 100`);
 
 const expectedIntradayWeights = {
-  eurusd_30m: 14,
-  dax_1h: 14,
-  dax_2h: 4,
+  eurusd_30m: 20,
+  dax_1h: 20,
+  dax_2h: 15,
 };
 const intradayBody = strategySource.slice(intradayStart, intradayEnd);
 for (const [id, weight] of Object.entries(expectedIntradayWeights)) {

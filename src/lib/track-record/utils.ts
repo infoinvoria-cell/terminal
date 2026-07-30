@@ -41,11 +41,27 @@ export function parseBrokerLocalTimestamp(input: string | null, brokerTimezone: 
   if (!brokerTimezone) {
     return { local: input, utc: null };
   }
-  const assumed = new Date(`${isoLike}${isoLike.endsWith("Z") ? "" : "Z"}`);
-  if (Number.isNaN(assumed.getTime())) {
+  const parts = isoLike.match(/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2}))?)?/);
+  if (!parts) {
     return { local: input, utc: null };
   }
-  return { local: input, utc: assumed.toISOString() };
+  try {
+    const localAsUtc = Date.UTC(
+      Number(parts[1]),
+      Number(parts[2]) - 1,
+      Number(parts[3]),
+      Number(parts[4] ?? 0),
+      Number(parts[5] ?? 0),
+      Number(parts[6] ?? 0),
+    );
+    let utcMs = localAsUtc;
+    for (let iteration = 0; iteration < 2; iteration += 1) {
+      utcMs = localAsUtc - timezoneOffsetMs(new Date(utcMs), brokerTimezone);
+    }
+    return { local: input, utc: new Date(utcMs).toISOString() };
+  } catch {
+    return { local: input, utc: null };
+  }
 }
 
 export function isoDateOnly(value: string | null) {
@@ -79,7 +95,7 @@ export async function fetchJsonWithRetry(
         signal: controller.signal,
       });
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status} for ${url}`);
+        throw new Error(`HTTP ${response.status} for ${safeEndpointLabel(url)}`);
       }
       return response.json() as Promise<Record<string, unknown>>;
     } catch (error) {
@@ -92,4 +108,36 @@ export async function fetchJsonWithRetry(
   }
 
   throw lastError instanceof Error ? lastError : new Error(String(lastError ?? "Unknown fetch error"));
+}
+
+function safeEndpointLabel(value: string) {
+  try {
+    const parsed = new URL(value);
+    return `${parsed.origin}${parsed.pathname}`;
+  } catch {
+    return "configured provider endpoint";
+  }
+}
+
+function timezoneOffsetMs(instant: Date, timezone: string) {
+  const formatted = new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(instant);
+  const value = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(formatted.find((part) => part.type === type)?.value ?? 0);
+  return Date.UTC(
+    value("year"),
+    value("month") - 1,
+    value("day"),
+    value("hour"),
+    value("minute"),
+    value("second"),
+  ) - instant.getTime();
 }

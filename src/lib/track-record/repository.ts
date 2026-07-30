@@ -26,6 +26,7 @@ export async function persistTrackRecordBundle(
   await persistSeries(db, "daily_returns", mapDailyReturns(bundle.dailyReturns), "source,provider,provider_account_id,date_utc", options.appendOnly);
   await persistSeries(db, "monthly_returns", mapMonthlyReturns(bundle.monthlyReturns), "source,provider,provider_account_id,month_utc", options.appendOnly);
   await upsert(db, "open_positions", mapOpenPositions(bundle.openPositions), "source,provider,provider_account_id,provider_position_id");
+  await upsert(db, "open_orders", mapOpenOrders(bundle.openOrders), "source,provider,provider_account_id,provider_order_id");
   await persistSeries(db, "closed_trades", mapClosedTrades(bundle.closedTrades), "source,provider,provider_account_id,stable_trade_id", true);
   await persistSeries(db, "cashflows", mapCashflows(bundle.cashflows), "source,provider,provider_account_id,stable_cashflow_id", true);
   await insertImmutable(db, "track_record_metrics", mapMetrics(bundle.metrics));
@@ -37,7 +38,13 @@ export async function persistTrackRecordBundle(
 export async function loadTrackRecordOverviewRows() {
   const env = getTrackRecordEnv();
   if (!env.hasSupabase) {
-    return { syncRows: [] as SourceSyncStatusRow[], accountRows: [] as AccountRow[], metrics: [] as TrackRecordMetricRow[] };
+    return {
+      syncRows: [] as SourceSyncStatusRow[],
+      accountRows: [] as AccountRow[],
+      metrics: [] as TrackRecordMetricRow[],
+      productiveDatabaseSchemaAvailable: false,
+      historicalPersistenceVerified: false,
+    };
   }
 
   const db = createSupabaseServiceClient();
@@ -46,11 +53,20 @@ export async function loadTrackRecordOverviewRows() {
     db.from("accounts").select("*").order("last_seen_at_utc", { ascending: false }).limit(20),
     db.from("track_record_metrics").select("*").order("as_of_utc", { ascending: false }).limit(80),
   ]);
+  const firstError = syncRes.error ?? accountRes.error ?? metricsRes.error;
+  if (firstError) throw firstError;
 
   return {
     syncRows: (syncRes.data ?? []).map(fromSyncRow),
     accountRows: (accountRes.data ?? []).map(fromAccountRow),
     metrics: (metricsRes.data ?? []).map(fromMetricRow),
+    productiveDatabaseSchemaAvailable: true,
+    historicalPersistenceVerified: (syncRes.data ?? []).some((row) =>
+      row.provider === "historical"
+      && row.mode === "live"
+      && row.health === "ok"
+      && Boolean(row.last_success_at_utc),
+    ),
   };
 }
 
@@ -169,6 +185,26 @@ function mapOpenPositions(rows: TrackRecordSnapshotBundle["openPositions"]) {
     stop_loss: row.stopLoss,
     profit: row.profit,
     pips: row.pips,
+    status: row.status,
+  }));
+}
+
+function mapOpenOrders(rows: TrackRecordSnapshotBundle["openOrders"]) {
+  return rows.map((row) => ({
+    source: row.source,
+    provider: row.provider,
+    provider_account_id: row.providerAccountId,
+    provider_order_id: row.providerOrderId,
+    symbol: row.symbol,
+    direction: row.direction,
+    created_at_utc: row.createdAtUtc,
+    created_at_local: row.createdAtLocal,
+    broker_timezone: row.brokerTimezone,
+    size: row.size,
+    size_unit: row.sizeUnit,
+    order_price: row.orderPrice,
+    take_profit: row.takeProfit,
+    stop_loss: row.stopLoss,
     status: row.status,
   }));
 }

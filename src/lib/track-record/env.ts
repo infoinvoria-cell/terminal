@@ -22,6 +22,7 @@ export function getTrackRecordEnv() {
     darwinexHistoryUrl: process.env.DARWINEX_HISTORY_URL ?? "",
     darwinexQuotesUrl: process.env.DARWINEX_QUOTES_URL ?? "",
     darwinexInvestorUrl: process.env.DARWINEX_INVESTOR_URL ?? "",
+    darwinexTokenUrl: process.env.DARWINEX_TOKEN_URL ?? "",
     cronSecret: process.env.CRON_SECRET ?? process.env.TRACK_RECORD_SYNC_TOKEN ?? "",
     vercelStaticIpConfigured: vercelStaticIpFlag === "1" || vercelStaticIpFlag.toLowerCase() === "true",
     hasSupabase: hasEnv("NEXT_PUBLIC_SUPABASE_URL") && hasEnv("SUPABASE_SERVICE_ROLE_KEY"),

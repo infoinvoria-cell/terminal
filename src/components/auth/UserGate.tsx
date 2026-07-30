@@ -5,7 +5,6 @@ import { APP_USERS, AppUser, CL_USER_KEY, UserProvider } from "@/context/user-co
 import Image from "next/image";
 import IntroAnimation from "@/components/intro/IntroAnimation";
 
-const GATE_PASSWORD = process.env.NEXT_PUBLIC_GATE_PASSWORD ?? "inno";
 const CL_GATE_KEY = "cl_gate_ok";
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_MS = 60 * 60 * 1000;
@@ -62,12 +61,24 @@ function PasswordScreen({ onSuccess }: { onSuccess: () => void }) {
     return () => clearInterval(id);
   }, [lockedUntil]);
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const locked = Boolean(lockedUntil && lockedUntil > tick);
     if (loading || !password.trim() || locked) return;
     setLoading(true);
-    if (password === GATE_PASSWORD) {
+    let accepted = false;
+    try {
+      const response = await fetch("/api/auth/simple-gate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+        cache: "no-store",
+      });
+      accepted = response.ok;
+    } catch {
+      accepted = false;
+    }
+    if (accepted) {
       clearLockout();
       try { localStorage.setItem(CL_GATE_KEY, "1"); } catch { /* ignore */ }
       onSuccess();

@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { NextResponse } from "next/server";
+import { validateAndRepairOhlc } from "@/lib/market-data/ohlc-quality";
 import { createSupabaseServiceClient } from "@/lib/supabase-server";
 
 export const runtime = "nodejs";
@@ -31,28 +32,12 @@ function normalizeSymbol(raw: string | null): string | null {
   return INVEST_SYMBOLS.has(symbol) ? symbol : null;
 }
 
-function validBar(bar: OhlcBar): boolean {
-  return Boolean(
-    bar.date &&
-    Number.isFinite(bar.open) &&
-    Number.isFinite(bar.high) &&
-    Number.isFinite(bar.low) &&
-    Number.isFinite(bar.close) &&
-    bar.open > 0 &&
-    bar.high > 0 &&
-    bar.low > 0 &&
-    bar.close > 0 &&
-    bar.low <= bar.high,
-  );
-}
-
 async function loadFromSupabase(symbol: string, limit: number): Promise<OhlcBar[]> {
   const db = createSupabaseServiceClient();
   const { data, error } = await db
     .from("invest_ohlc")
     .select("date,open,high,low,close,volume")
     .eq("symbol", symbol)
-    .gt("close", 0)
     .order("date", { ascending: false })
     .limit(limit);
 
@@ -67,8 +52,7 @@ async function loadFromSupabase(symbol: string, limit: number): Promise<OhlcBar[
       low: Number(row.low),
       close: Number(row.close),
       volume: row.volume == null ? null : Number(row.volume),
-    }))
-    .filter(validBar);
+    }));
 }
 
 async function loadFromLocalCsv(symbol: string, limit: number): Promise<OhlcBar[]> {
@@ -99,7 +83,6 @@ async function loadFromLocalCsv(symbol: string, limit: number): Promise<OhlcBar[
       close: Number(cols[closeIdx]),
       volume: volumeIdx >= 0 ? Number(cols[volumeIdx]) : null,
     }))
-    .filter(validBar)
     .slice(-limit);
 }
 
@@ -118,7 +101,6 @@ async function loadFromLocalTvJson(symbol: string, limit: number): Promise<OhlcB
       close: Number(bar.close),
       volume: bar.volume == null ? null : Number(bar.volume),
     }))
-    .filter(validBar)
     .slice(-limit);
 }
 
@@ -134,7 +116,24 @@ export async function GET(request: Request) {
   const supabaseBars = await loadFromSupabase(symbol, limit).catch(() => []);
   const csvBars = supabaseBars.length ? [] : await loadFromLocalCsv(symbol, limit);
   const jsonBars = supabaseBars.length || csvBars.length ? [] : await loadFromLocalTvJson(symbol, limit);
-  const bars = supabaseBars.length ? supabaseBars : csvBars.length ? csvBars : jsonBars;
+  const rawBars = supabaseBars.length ? supabaseBars : csvBars.length ? csvBars : jsonBars;
+  const quality = validateAndRepairOhlc(
+    rawBars.map((bar) => ({
+      time: bar.date,
+      open: bar.open,
+      high: bar.high,
+      low: bar.low,
+      close: bar.close,
+    })),
+    { intraday: false },
+  );
+  const bars = quality.accepted.map((bar) => ({
+    date: bar.time.slice(0, 10),
+    open: bar.open,
+    high: bar.high,
+    low: bar.low,
+    close: bar.close,
+  }));
   const status = bars.length ? "ok" : "missing";
 
   return NextResponse.json({
@@ -145,6 +144,15 @@ export async function GET(request: Request) {
     count: bars.length,
     firstDate: bars.at(0)?.date ?? null,
     lastDate: bars.at(-1)?.date ?? null,
+    quality: {
+      input: rawBars.length,
+      accepted: bars.length,
+      quarantined: quality.quarantined.length,
+      repaired: quality.events.filter((event) => event.severity === "repair").length,
+      warnings: quality.events.filter((event) => event.severity === "warning").length,
+      flags: quality.flags,
+      events: quality.events.slice(-100),
+    },
   });
 }
 
