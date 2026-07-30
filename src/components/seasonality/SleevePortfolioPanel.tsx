@@ -46,12 +46,13 @@ function toDisplayItems(results: Record<string, TenPatternResult> | null): Displ
 /* ─── Status label helpers ──────────────────────────────────────────────── */
 function statusLabel(status: TenPatternResult["status"] | undefined): string {
   switch (status) {
-    case "calculated":           return "Berechnet";
-    case "insufficient_history": return "Unzureichende Historie";
-    case "no_data_source":       return "Keine Datenquelle";
-    case "calculation_failed":   return "Berechnungsfehler";
+    case "historical_computed": return "Historisch berechnet";
+    case "wf_completed":        return "Walk Forward geprüft";
+    case "wf_failed":           return "WF nicht bestanden";
+    case "no_data_source":      return "Keine Datenquelle";
+    case "data_error":          return "Datenfehler";
     case "not_tested":
-    default:                     return "Nicht getestet";
+    default:                    return "Nicht getestet";
   }
 }
 
@@ -441,11 +442,16 @@ function SleeveCard({ item, selected, onActivate, onDetail }: {
 
   const hist        = result?.historical ?? null;
   const wf          = result?.wf ?? null;
+  const statusDetail = result?.statusDetail ?? null;
   const oosWinRate  = wf?.oosWinRatePct ?? null;
-  const isWinRate   = hist?.winRatePct ?? null;
+  // isWinRatePct is the canonical field; winRatePct is the legacy alias
+  const isWinRate   = (hist as Record<string, unknown>)?.isWinRatePct as number ?? hist?.winRatePct ?? null;
   const displayWr   = oosWinRate ?? isWinRate;
-  const avgReturnPct = hist?.avgReturnPct ?? null;
+  const displayWrSource: "OOS" | "IS" | null = oosWinRate != null ? "OOS" : isWinRate != null ? "IS" : null;
+  // isAvgReturnMeanPct is canonical; avgReturnPct / avgReturnMeanPct are legacy aliases
+  const avgReturnPct = (hist as Record<string, unknown>)?.isAvgReturnMeanPct as number ?? hist?.avgReturnPct ?? null;
   const yearReturns  = hist?.yearReturns ?? [];
+  const negativeOosExpectancy = statusDetail?.profitabilityStatus === "negative_oos_expectancy";
   const displaySym   = def.monitoringSymbol.replace("1!", "!");
 
   const cardBg = selected
@@ -480,7 +486,14 @@ function SleeveCard({ item, selected, onActivate, onDetail }: {
             {def.displayName}
           </div>
         </div>
-        <WrDonut pct={displayWr} size={48} />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, flexShrink: 0 }}>
+          <WrDonut pct={displayWr} size={48} />
+          {displayWrSource && (
+            <span style={{ fontSize: 6, fontWeight: 700, color: "rgba(255,255,255,0.28)", letterSpacing: "0.08em", textTransform: "uppercase" as const, lineHeight: 1 }}>
+              {displayWrSource} WR
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Row 2: window */}
@@ -499,7 +512,11 @@ function SleeveCard({ item, selected, onActivate, onDetail }: {
           </span>
         ) : result.status === "no_data_source" ? (
           <span style={{ fontSize: 9, color: C_GOLD, lineHeight: 1 }}>
-            Keine Daten
+            Keine Datenquelle
+          </span>
+        ) : negativeOosExpectancy ? (
+          <span style={{ fontSize: 9, color: "rgba(172,96,104,0.90)", lineHeight: 1 }}>
+            ↓ Neg. OOS-Erwartung
           </span>
         ) : null}
       </div>
@@ -599,9 +616,10 @@ function DetailPanel({ item, onGoToChart }: { item: DisplayItem; onGoToChart: ()
   const wf   = result?.wf ?? null;
   const status = result?.status ?? "not_tested";
 
-  const isWr   = hist?.winRatePct;
+  const isWr   = (hist as Record<string, unknown>)?.isWinRatePct as number ?? hist?.winRatePct;
   const oosWr  = wf?.oosWinRatePct;
-  const avg    = hist?.avgReturnPct;
+  const isAvg  = (hist as Record<string, unknown>)?.isAvgReturnMeanPct as number ?? hist?.avgReturnPct;
+  const oosAvg = wf?.oosAvgReturnPct;
   const nObs   = hist?.nObs;
   const maxDd  = hist?.maxDrawdownPct;
   const sort   = hist?.sortinoRatio;
@@ -609,6 +627,8 @@ function DetailPanel({ item, onGoToChart }: { item: DisplayItem; onGoToChart: ()
   const robust = wf?.robustnessPct;
   const decade = hist?.decadeConsistent;
   const yearReturns = hist?.yearReturns ?? [];
+  const profStatus = result?.statusDetail?.profitabilityStatus ?? "not_assessed";
+  const negOos = profStatus === "negative_oos_expectancy";
 
   const fmt = (v: number | null | undefined, suf = "", pos = false): string => {
     if (v == null) return "—";
@@ -655,19 +675,34 @@ function DetailPanel({ item, onGoToChart }: { item: DisplayItem; onGoToChart: ()
         </div>
       </div>
 
+      {/* Negative OOS expectancy warning banner */}
+      {negOos && (
+        <div style={{ background: "rgba(172,96,104,0.12)", border: "1px solid rgba(172,96,104,0.30)", borderRadius: 6, padding: "6px 10px", flexShrink: 0 }}>
+          <span style={{ fontSize: 9, fontWeight: 700, color: "rgba(172,96,104,0.90)", letterSpacing: "0.04em" }}>
+            ↓ OOS-Erwartung negativ — dieses Muster ist nicht für Signale oder Portfolios geeignet
+          </span>
+        </div>
+      )}
+
       {/* KPI grids */}
       {[
         [
-          { label: "IS Win Rate",  value: isWr  != null ? `${isWr.toFixed(0)}%`                 : "—",  color: C_WHITE },
-          { label: "OOS Win Rate", value: oosWr != null ? `${oosWr.toFixed(0)}%`                : "—",  color: oosWr != null && oosWr >= 70 ? C_WHITE : C_TEXT2 },
-          { label: "Ø Return",     value: avg   != null ? `${avg >= 0 ? "+" : ""}${avg.toFixed(2)}%` : "—", color: avg != null && avg >= 0 ? C_WHITE : C_GOLD },
-          { label: "Beobacht.",    value: nObs  != null ? String(nObs)                           : "—",  color: C_TEXT2 },
+          { label: "IS Winrate",   value: isWr   != null ? `${isWr.toFixed(0)}%`                        : "—",  color: C_WHITE },
+          { label: "OOS Winrate",  value: oosWr  != null ? `${oosWr.toFixed(0)}%`                        : "—",  color: oosWr != null && oosWr >= 70 ? C_WHITE : C_TEXT2 },
+          { label: "IS Avg Return", value: isAvg != null ? `${isAvg >= 0 ? "+" : ""}${isAvg.toFixed(2)}%` : "—", color: isAvg != null && isAvg >= 0 ? C_WHITE : C_GOLD },
+          { label: "OOS Avg Return", value: oosAvg != null ? `${oosAvg >= 0 ? "+" : ""}${oosAvg.toFixed(2)}%` : "—", color: oosAvg == null ? C_TEXT3 : oosAvg >= 0 ? C_WHITE : "rgba(172,96,104,0.90)" },
         ],
         [
-          { label: "Robustheit",    value: robust != null ? `${robust.toFixed(0)}%`              : "—", color: C_TEXT2 },
-          { label: "Profit Factor", value: pf     != null ? pf.toFixed(1)                        : "—", color: C_WHITE },
-          { label: "Max DD",        value: maxDd  != null ? `${maxDd.toFixed(0)}%`               : "—", color: C_TEXT2 },
-          { label: "Dekaden",       value: decade != null ? (decade ? "✓ stabil" : "—")          : "—", color: decade ? C_TEXT2 : C_TEXT3 },
+          { label: "IS Beobacht.", value: nObs   != null ? String(nObs)                                  : "—",  color: C_TEXT2 },
+          { label: "Robustheit",   value: robust != null ? `${robust.toFixed(0)}%`                       : "—",  color: C_TEXT2 },
+          { label: "IS Profit Fkt", value: pf    != null ? pf.toFixed(1)                                 : "—",  color: C_WHITE },
+          { label: "IS Max DD",    value: maxDd  != null ? `${maxDd.toFixed(0)}%`                        : "—",  color: C_TEXT2 },
+        ],
+        [
+          { label: "Dekaden",      value: decade != null ? (decade ? "✓ stabil" : "—")                  : "—",  color: decade ? C_TEXT2 : C_TEXT3 },
+          { label: "OOS Status",   value: profStatus === "not_assessed" ? "—" : profStatus === "positive_oos_expectancy" ? "Pos." : profStatus === "negative_oos_expectancy" ? "Neg." : "~Null", color: profStatus === "positive_oos_expectancy" ? C_WHITE : profStatus === "negative_oos_expectancy" ? "rgba(172,96,104,0.90)" : C_TEXT2 },
+          { label: "Produktion",   value: "Nicht freigeg.", color: C_TEXT3 },
+          { label: "Sortino (IS)", value: sort  != null ? sort.toFixed(2)                                 : "—",  color: C_TEXT2 },
         ],
       ].map((row, ri) => (
         <div key={ri} style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, background: "rgba(255,255,255,0.025)", borderRadius: 8, padding: "10px 12px", border: `1px solid ${C_BORDER}`, flexShrink: 0 }}>

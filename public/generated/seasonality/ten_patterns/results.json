@@ -217,7 +217,10 @@
             "entryDate": "2025-02-12",
             "exitDate": "2025-02-27"
           }
-        ]
+        ],
+        "isWinRatePct": 70,
+        "isAvgReturnMeanPct": 3.203,
+        "isAvgReturnMedianPct": 3.131
       },
       "wf": {
         "oosWinRatePct": 84.4,
@@ -552,8 +555,18 @@
             "oosReturnPct": 6.539,
             "oosWin": true
           }
-        ]
-      }
+        ],
+        "oosMedianReturnPct": 9.916
+      },
+      "statusDetail": {
+        "calculationStatus": "calculated",
+        "dataStatus": "complete",
+        "profitabilityStatus": "positive_oos_expectancy",
+        "walkForwardStatus": "completed",
+        "robustnessStatus": "moderate",
+        "productionStatus": "not_approved"
+      },
+      "wfAudit": null
     },
     "zw1_long_slot152_v1": {
       "patternId": "zw1_long_slot152_v1",
@@ -770,7 +783,10 @@
             "entryDate": "2025-08-11",
             "exitDate": "2025-08-25"
           }
-        ]
+        ],
+        "isWinRatePct": 60,
+        "isAvgReturnMeanPct": 2.026,
+        "isAvgReturnMedianPct": 1.35
       },
       "wf": {
         "oosWinRatePct": 73.9,
@@ -1245,8 +1261,18 @@
             "oosReturnPct": 3.351,
             "oosWin": true
           }
-        ]
-      }
+        ],
+        "oosMedianReturnPct": 2.774
+      },
+      "statusDetail": {
+        "calculationStatus": "calculated",
+        "dataStatus": "complete",
+        "profitabilityStatus": "positive_oos_expectancy",
+        "walkForwardStatus": "completed",
+        "robustnessStatus": "moderate",
+        "productionStatus": "not_approved"
+      },
+      "wfAudit": null
     },
     "gc1_long_slot128_v1": {
       "patternId": "gc1_long_slot128_v1",
@@ -1463,7 +1489,10 @@
             "entryDate": "2025-07-08",
             "exitDate": "2025-07-22"
           }
-        ]
+        ],
+        "isWinRatePct": 60,
+        "isAvgReturnMeanPct": 0.504,
+        "isAvgReturnMedianPct": 0.703
       },
       "wf": {
         "oosWinRatePct": 56.1,
@@ -1888,8 +1917,18 @@
             "oosReturnPct": 0.461,
             "oosWin": true
           }
-        ]
-      }
+        ],
+        "oosMedianReturnPct": 0.26
+      },
+      "statusDetail": {
+        "calculationStatus": "calculated",
+        "dataStatus": "complete",
+        "profitabilityStatus": "near_zero_expectancy",
+        "walkForwardStatus": "completed",
+        "robustnessStatus": "moderate",
+        "productionStatus": "not_approved"
+      },
+      "wfAudit": null
     },
     "ng1_short_slot170_v1": {
       "patternId": "ng1_short_slot170_v1",
@@ -2106,7 +2145,10 @@
             "entryDate": "2025-09-05",
             "exitDate": "2025-09-19"
           }
-        ]
+        ],
+        "isWinRatePct": 40,
+        "isAvgReturnMeanPct": -3.701,
+        "isAvgReturnMedianPct": -3.14
       },
       "wf": {
         "oosWinRatePct": 34.6,
@@ -2381,8 +2423,18 @@
             "oosReturnPct": 6.886,
             "oosWin": false
           }
-        ]
-      }
+        ],
+        "oosMedianReturnPct": -3.4375
+      },
+      "statusDetail": {
+        "calculationStatus": "calculated",
+        "dataStatus": "complete",
+        "profitabilityStatus": "negative_oos_expectancy",
+        "walkForwardStatus": "completed",
+        "robustnessStatus": "moderate",
+        "productionStatus": "not_approved"
+      },
+      "wfAudit": null
     },
     "sb1_short_slot172_v1": {
       "patternId": "sb1_short_slot172_v1",
@@ -2599,7 +2651,10 @@
             "entryDate": "2025-09-09",
             "exitDate": "2025-09-23"
           }
-        ]
+        ],
+        "isWinRatePct": 35,
+        "isAvgReturnMeanPct": -2.058,
+        "isAvgReturnMedianPct": -1.219
       },
       "wf": {
         "oosWinRatePct": 42.2,
@@ -3064,8 +3119,18 @@
             "oosReturnPct": -0.064,
             "oosWin": true
           }
-        ]
-      }
+        ],
+        "oosMedianReturnPct": -0.831
+      },
+      "statusDetail": {
+        "calculationStatus": "calculated",
+        "dataStatus": "complete",
+        "profitabilityStatus": "near_zero_expectancy",
+        "walkForwardStatus": "completed",
+        "robustnessStatus": "weak",
+        "productionStatus": "not_approved"
+      },
+      "wfAudit": null
     },
     "cc1_long_slot210_v1": {
       "patternId": "cc1_long_slot210_v1",
@@ -3282,7 +3347,10 @@
             "entryDate": "2025-10-31",
             "exitDate": "2025-11-14"
           }
-        ]
+        ],
+        "isWinRatePct": 55,
+        "isAvgReturnMeanPct": -0.283,
+        "isAvgReturnMedianPct": 0.458
       },
       "wf": {
         "oosWinRatePct": 62.2,
@@ -3667,8 +3735,18 @@
             "oosReturnPct": -19.34,
             "oosWin": false
           }
-        ]
-      }
+        ],
+        "oosMedianReturnPct": 1.922
+      },
+      "statusDetail": {
+        "calculationStatus": "calculated",
+        "dataStatus": "complete",
+        "profitabilityStatus": "positive_oos_expectancy",
+        "walkForwardStatus": "completed",
+        "robustnessStatus": "weak",
+        "productionStatus": "not_approved"
+      },
+      "wfAudit": null
     },
     "pa1_short_slot10_v1": {
       "patternId": "pa1_short_slot10_v1",
@@ -3885,7 +3963,10 @@
             "entryDate": "2025-01-15",
             "exitDate": "2025-01-30"
           }
-        ]
+        ],
+        "isWinRatePct": 25,
+        "isAvgReturnMeanPct": -2.393,
+        "isAvgReturnMedianPct": -2.707
       },
       "wf": {
         "oosWinRatePct": 38.7,
@@ -4210,8 +4291,18 @@
             "oosReturnPct": -0.743,
             "oosWin": true
           }
-        ]
-      }
+        ],
+        "oosMedianReturnPct": -0.85
+      },
+      "statusDetail": {
+        "calculationStatus": "calculated",
+        "dataStatus": "complete",
+        "profitabilityStatus": "negative_oos_expectancy",
+        "walkForwardStatus": "completed",
+        "robustnessStatus": "strong",
+        "productionStatus": "not_approved"
+      },
+      "wfAudit": null
     },
     "zm1_long_slot73_v1": {
       "patternId": "zm1_long_slot73_v1",
@@ -4222,7 +4313,16 @@
       "csvPath": null,
       "dataValidation": null,
       "historical": null,
-      "wf": null
+      "wf": null,
+      "statusDetail": {
+        "calculationStatus": "not_calculated",
+        "dataStatus": "no_data_source",
+        "profitabilityStatus": "not_assessed",
+        "walkForwardStatus": "not_run",
+        "robustnessStatus": "not_assessed",
+        "productionStatus": "not_approved"
+      },
+      "wfAudit": null
     },
     "ct1_long_slot29_v1": {
       "patternId": "ct1_long_slot29_v1",
@@ -4439,7 +4539,10 @@
             "entryDate": "2025-02-12",
             "exitDate": "2025-02-27"
           }
-        ]
+        ],
+        "isWinRatePct": 55,
+        "isAvgReturnMeanPct": 1.632,
+        "isAvgReturnMedianPct": 1.407
       },
       "wf": {
         "oosWinRatePct": 70.5,
@@ -4894,8 +4997,18 @@
             "oosReturnPct": -1.548,
             "oosWin": false
           }
-        ]
-      }
+        ],
+        "oosMedianReturnPct": 2.0455
+      },
+      "statusDetail": {
+        "calculationStatus": "calculated",
+        "dataStatus": "complete",
+        "profitabilityStatus": "positive_oos_expectancy",
+        "walkForwardStatus": "completed",
+        "robustnessStatus": "strong",
+        "productionStatus": "not_approved"
+      },
+      "wfAudit": null
     },
     "es1_long_slot240_v1": {
       "patternId": "es1_long_slot240_v1",
@@ -5112,7 +5225,10 @@
             "entryDate": "2025-12-15",
             "exitDate": "2025-12-30"
           }
-        ]
+        ],
+        "isWinRatePct": 70,
+        "isAvgReturnMeanPct": 0.56,
+        "isAvgReturnMedianPct": 1.439
       },
       "wf": {
         "oosWinRatePct": 68.4,
@@ -5317,8 +5433,18 @@
             "oosReturnPct": 1.042,
             "oosWin": true
           }
-        ]
-      }
+        ],
+        "oosMedianReturnPct": 1.042
+      },
+      "statusDetail": {
+        "calculationStatus": "calculated",
+        "dataStatus": "complete",
+        "profitabilityStatus": "near_zero_expectancy",
+        "walkForwardStatus": "completed",
+        "robustnessStatus": "weak",
+        "productionStatus": "not_approved"
+      },
+      "wfAudit": null
     }
   }
 }
