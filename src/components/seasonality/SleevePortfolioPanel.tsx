@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
 
 /* ─── Design tokens — SignalCard / terminal exact ───────────────────── */
 const C_WHITE  = "#ffffff";
@@ -81,12 +82,96 @@ export const SLEEVE_PATTERNS: SleevePattern[] = [
   { id: 10, assetId: "es1",     symbol: "ES1!",  name: "S&P 500 E-mini",  direction: "LONG", window: "Dez 15–25",       startSlot: 240, tier: "fdr",        winRate: 0.80, oosWinRate: 0.75, avgReturn: 0.015, sortino: 2.5, nObs: 36, maxDrawdown: -0.04, profitFactor: 3.8, robustness: 0.65, decadeConsistent: true,  category: "Indizes", rationale: "Santa Claus Rally: Pension fund rebalancing, tax-loss selling exhaustion.", fakeReturns: makeFakeReturns(0.80, 0.015) },
 ];
 
-/* ─── Cumulative equity card-line — positive=white, negative=gold ────── */
-function CardEquityLine({ returns: rets, id }: { returns: number[]; id: string }) {
+/* ─── Countdown hook ────────────────────────────────────────────────── */
+function todayTradingSlot(): number {
+  const now = new Date();
+  return Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86_400_000);
+}
+
+function usePatternCountdown(startSlot: number): string {
+  const [display, setDisplay] = useState("");
+  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  useEffect(() => {
+    const tick = () => {
+      const todaySlot = todayTradingSlot();
+      let daysAway = startSlot - todaySlot;
+      if (daysAway < 0) daysAway += 365;
+      const now = new Date();
+      const totalSec = daysAway * 86400 + (18 - now.getHours()) * 3600 - now.getMinutes() * 60;
+      if (totalSec <= 0) { setDisplay("Heute"); return; }
+      const d = Math.floor(totalSec / 86400);
+      const h = Math.floor((totalSec % 86400) / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      if (d > 0) setDisplay(`${d} Tage : ${h} Std : ${m} min`);
+      else if (h > 0) setDisplay(`${h} Std : ${m} min`);
+      else setDisplay(`${m} min`);
+    };
+    tick();
+    timer.current = setInterval(tick, 60_000);
+    return () => { if (timer.current) clearInterval(timer.current); };
+  }, [startSlot]);
+  return display;
+}
+
+/* ─── Asset icon — real commodity icon via monitoring registry ───────── */
+function AssetIcon({ assetId, symbol, name, size = 48 }: {
+  assetId: string; symbol: string; name: string; size?: number;
+}) {
+  const url = getMonitoringAssetIconUrl({
+    code: symbol,
+    assetId,
+    name,
+    displaySymbol: symbol.replace("1!", ""),
+  });
+  if (!url) {
+    const letter = symbol.replace("1!", "").charAt(0);
+    return (
+      <div style={{
+        width: size, height: size, borderRadius: 12, flexShrink: 0,
+        background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}>
+        <span style={{ fontSize: size * 0.40, fontWeight: 800, color: "rgba(255,255,255,0.60)" }}>{letter}</span>
+      </div>
+    );
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={url} alt={symbol} width={size} height={size} style={{
+      objectFit: "contain", borderRadius: 12, flexShrink: 0,
+      border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)",
+    }} />
+  );
+}
+
+/* ─── OOS Win Rate donut — top-right of card ────────────────────────── */
+function WrDonut({ pct, size = 64 }: { pct: number; size?: number }) {
+  const thick = size * 0.095;
+  const r = (size - thick) / 2;
+  const circ = 2 * Math.PI * r;
+  const arc = Math.min(1, Math.max(0, pct / 100)) * circ;
+  const cx = size / 2; const cy = size / 2;
+  return (
+    <svg width={size} height={size} style={{ display: "block", flexShrink: 0 }}>
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.10)" strokeWidth={thick} />
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(232,237,243,0.90)" strokeWidth={thick}
+        strokeDasharray={`${arc} ${circ}`} strokeDashoffset={circ * 0.25} strokeLinecap="round" />
+      <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central"
+        fill="#ffffff" fontSize={size * 0.225} fontWeight="800" fontFamily={FONT}>
+        {pct.toFixed(0)}%
+      </text>
+    </svg>
+  );
+}
+
+/* ─── Cumulative equity card-line — with avg label ───────────────────── */
+function CardEquityLine({ returns: rets, id, avgReturn }: {
+  returns: number[]; id: string; avgReturn: number;
+}) {
   const eq: number[] = [0];
   for (const r of rets) eq.push(eq[eq.length - 1] + r * 100);
-  const W = 300; const H = 56;
-  const pad = 4;
+  const W = 300; const H = 70;
+  const pad = 6;
   const min = Math.min(...eq); const max = Math.max(...eq);
   const rng = max - min || 0.1;
   const pts = eq.map((v, i) => {
@@ -95,40 +180,29 @@ function CardEquityLine({ returns: rets, id }: { returns: number[]; id: string }
     return `${x.toFixed(1)},${y.toFixed(1)}`;
   }).join(" ");
   const last = eq[eq.length - 1];
-  // positive = white, negative = gold — never red
   const lineC = last >= 0 ? "#e8edf3" : "#d6b867";
-  const fillC = last >= 0 ? "rgba(232,237,243,0.13)" : "rgba(214,184,103,0.12)";
   const fillId = `cf-${id}`;
   const lastX = W;
   const lastY = H - pad - ((last - min) / rng) * (H - pad * 2);
   const base  = H - pad - ((0 - min) / rng) * (H - pad * 2);
   const clampedBase = Math.min(H - pad, Math.max(pad, base));
-  const pctLabel = `${last >= 0 ? "+" : ""}${last.toFixed(1)}%`;
+  const avgLabel = `${avgReturn >= 0 ? "+" : ""}${(avgReturn * 100).toFixed(1)}% avg`;
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{ display: "block" }}>
       <defs>
         <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={lineC} stopOpacity="0.18" />
+          <stop offset="0%" stopColor={lineC} stopOpacity="0.20" />
           <stop offset="100%" stopColor={lineC} stopOpacity="0.00" />
         </linearGradient>
       </defs>
-      {/* Grid lines */}
-      {[0.25, 0.5, 0.75].map(f => (
-        <line key={f} x1={0} y1={H - pad - f * (H - pad * 2)} x2={W} y2={H - pad - f * (H - pad * 2)}
-          stroke="rgba(255,255,255,0.04)" strokeWidth={0.5} />
-      ))}
-      {/* Zero baseline */}
-      <line x1={0} y1={clampedBase} x2={W} y2={clampedBase} stroke="rgba(255,255,255,0.10)" strokeWidth={0.5} strokeDasharray="3 4" />
-      {/* Area fill */}
+      <line x1={0} y1={clampedBase} x2={W} y2={clampedBase}
+        stroke="rgba(255,255,255,0.08)" strokeWidth={0.5} strokeDasharray="3 5" />
       <polygon points={`0,${clampedBase} ${pts} ${W},${clampedBase}`} fill={`url(#${fillId})`} />
-      {/* Line */}
-      <polyline points={pts} fill="none" stroke={lineC} strokeWidth={1.6} strokeLinejoin="round" />
-      {/* Endpoint dot */}
-      <circle cx={lastX} cy={lastY} r={3} fill={lineC} />
-      {/* P&L label */}
-      <text x={W - 2} y={lastY - 5} textAnchor="end" fill={lineC}
-        fontSize={10} fontWeight="700" fontFamily={FONT}>{pctLabel}</text>
+      <polyline points={pts} fill="none" stroke={lineC} strokeWidth={2} strokeLinejoin="round" />
+      <circle cx={lastX} cy={lastY} r={3.5} fill={lineC} />
+      <text x={W - 2} y={lastY - 7} textAnchor="end" fill={lineC}
+        fontSize={11} fontWeight="700" fontFamily={FONT}>{avgLabel}</text>
     </svg>
   );
 }
@@ -303,10 +377,12 @@ function KpiCell({ label, value, valueColor = "#eef2f7" }: { label: string; valu
   );
 }
 
-/* ─── Grid card — SignalCard structure, Monitoring Tester stats ──────── */
+/* ─── Grid card — 1:1 Referenz-Layout ───────────────────────────────── */
 function SleeveCard({ p, selected, onSelect }: { p: SleevePattern; selected: boolean; onSelect: () => void }) {
-  const isLong   = p.direction === "LONG";
-  const dirColor = isLong ? "#e8edf3" : C_GOLD; // positive=white, negative=gold
+  const isLong    = p.direction === "LONG";
+  // positive = white, negative = gold — kein Grün, selten Rot
+  const dirColor  = isLong ? "#e8edf3" : C_GOLD;
+  const countdown = usePatternCountdown(p.startSlot);
 
   const cardBg = selected
     ? `radial-gradient(ellipse 120% 90% at 115% 120%, rgba(216,188,103,0.14) 0%, transparent 55%), ${C_CARD}`
@@ -320,77 +396,56 @@ function SleeveCard({ p, selected, onSelect }: { p: SleevePattern; selected: boo
       style={{
         background: cardBg,
         border: selected ? "1px solid rgba(216,188,103,0.32)" : `1px solid ${C_BORDER}`,
-        borderRadius: 12,
-        padding: "14px 14px 12px",
+        borderRadius: 20,
+        padding: "18px 18px 16px",
         display: "flex", flexDirection: "column", gap: 0,
         cursor: "pointer", outline: "none",
         transition: "border-color 120ms",
         height: "100%", boxSizing: "border-box" as const,
         fontFamily: FONT, overflow: "hidden",
-        boxShadow: `inset 3px 0 0 ${dirColor}`,
       }}
     >
-      {/* ── Row 1: Icon · Symbol/Name · Win-Rate chip (= SignalCard Row 1) ── */}
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 10 }}>
-        <SymbolIcon symbol={p.symbol} dir={p.direction} size={40} />
-        <div style={{ flex: 1, minWidth: 0, paddingTop: 2 }}>
-          <div style={{ fontSize: 16, fontWeight: 900, color: "#fff", letterSpacing: "0.01em", lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-            {p.symbol.replace("1!", "")}
+      {/* ── Row 1: Asset icon · Symbol + Name · OOS-WR-Donut ── */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+        <AssetIcon assetId={p.assetId} symbol={p.symbol} name={p.name} size={48} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", lineHeight: 1, letterSpacing: "0.01em" }}>
+            {p.symbol.replace("1!", "!")}
           </div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.30)", lineHeight: 1, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.40)", lineHeight: 1, marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             {p.name}
           </div>
         </div>
-        {/* IS Win Rate chip — bold top-right, white or gold */}
-        <div style={{ flexShrink: 0, textAlign: "right", paddingTop: 1 }}>
-          <div style={{ fontSize: 14, fontWeight: 800, color: dirColor, letterSpacing: "-0.02em", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>
-            {(p.winRate * 100).toFixed(0)}%
-          </div>
-          <div style={{ fontSize: 8, color: "rgba(255,255,255,0.28)", marginTop: 2 }}>IS WR</div>
-        </div>
+        {/* OOS Win Rate Donut — top right */}
+        <WrDonut pct={p.oosWinRate * 100} size={64} />
       </div>
 
-      {/* ── Row 2: Window · Tier (= SignalCard strategy/date row) ── */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6, marginBottom: 10 }}>
-        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.28)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>
-          {p.window}
-        </span>
-        <TierBadge tier={p.tier} />
+      {/* ── Row 2: Muster-Datum (groß) ── */}
+      <div style={{ fontSize: 20, fontWeight: 600, color: "rgba(255,255,255,0.85)", lineHeight: 1, marginBottom: 8, letterSpacing: "-0.2px" }}>
+        {p.window.replace("–", " - ")}
       </div>
 
-      {/* ── Row 3: Equity line chart — taller, Monitoring Tester style ── */}
-      <div style={{ flex: 1, minHeight: 0, marginBottom: 10 }}>
-        <CardEquityLine returns={p.fakeReturns} id={`p${p.id}`} />
+      {/* ── Row 3: Countdown Timer (gold) ── */}
+      <div style={{ fontSize: 15, fontWeight: 600, color: C_GOLD, lineHeight: 1, marginBottom: 16, letterSpacing: "0.01em" }}>
+        {countdown || "—"}
       </div>
 
-      {/* ── Row 4: OOS WR · Sortino · Robust · n — KPI micro-grid ── */}
-      <div style={{
-        display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 4,
-        marginBottom: 10, borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 8,
-      }}>
-        {[
-          { label: "OOS WR",  value: `${(p.oosWinRate * 100).toFixed(0)}%` },
-          { label: "Sortino", value: p.sortino.toFixed(1) },
-          { label: "Robust",  value: `${(p.robustness * 100).toFixed(0)}%` },
-          { label: "n",       value: String(p.nObs) },
-        ].map(s => (
-          <div key={s.label} style={{
-            background: "rgba(255,255,255,0.03)", borderRadius: 6,
-            border: "1px solid rgba(255,255,255,0.06)", padding: "4px 6px",
-          }}>
-            <div style={{ fontSize: 7, color: "#7c8798", textTransform: "uppercase" as const, letterSpacing: "0.08em", marginBottom: 2 }}>{s.label}</div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#eef2f7", fontVariantNumeric: "tabular-nums" }}>{s.value}</div>
-          </div>
-        ))}
+      {/* ── Row 4: Performance-Chart (flex, füllt verbleibenden Platz) ── */}
+      <div style={{ flex: 1, minHeight: 64 }}>
+        <CardEquityLine returns={p.fakeReturns} id={`p${p.id}`} avgReturn={p.avgReturn} />
       </div>
 
-      {/* ── Row 5: Direction chip (= SignalCard Row 4) ── */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 900, letterSpacing: "0.06em", color: dirColor, lineHeight: 1 }}>
-          <span style={{ fontSize: 10 }}>{isLong ? "▲" : "▼"}</span>
+      {/* ── Row 5: Richtung (groß, unten) ── */}
+      <div style={{ marginTop: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span style={{
+          display: "inline-flex", alignItems: "center", gap: 6,
+          fontSize: 16, fontWeight: 900, letterSpacing: "0.06em",
+          color: dirColor, lineHeight: 1,
+        }}>
+          <span style={{ fontSize: 13 }}>{isLong ? "▲" : "▼"}</span>
           {p.direction}
         </span>
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.18)" }}>{p.category}</span>
+        <TierBadge tier={p.tier} />
       </div>
     </div>
   );
