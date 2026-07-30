@@ -1,0 +1,434 @@
+//@version=5
+// ============================================================================
+// Core Invest Viewer — alle 7 Komponenten als Presets
+// Capitalife Terminal | tools/core-invest/core-invest-viewer.pine
+//
+// Presets & Gewichte (v2.0):
+//   QQQ_PASSIVE  45% — Buy & Hold (QQQ Chart)
+//   GLD          25% — Buy & Hold (GLD Chart)
+//   SPMO          5% — Buy & Hold (SPMO Chart)
+//   SPY           5% — Buy & Hold (SPY Chart)
+//   QQQ_PINE_1   10% — White Swan NAS EMA: SMA(400)/SMA(5), SL=25%, TP=2%
+//   COPPER_HG     5% — EMA + Valuation PRO: EMA(20)/EMA(50), SL=2%,  TP=4%
+//   CHF_6S        5% — EMA + Valuation PRO: EMA(20)/EMA(50), SL=2%,  TP=4%
+//
+// Execution: process_orders_on_close=false → NextOpen (TradingView Default)
+//
+// Erwartete Trade-Counts (Referenz):
+//   QQQ_PINE_1  : ~638 Trades (QQQ Chart)
+//   COPPER_HG   : ~853 Trades (HG1! Chart, inkl. Valuation-Filter)
+//   CHF_6S      : ~158 Trades (6S1! Chart, inkl. Valuation-Filter)
+//
+// Quelldateien:
+//   QQQ_pine1.txt — White Swan - Capitalife | NAS EMA
+//   pine2.txt     — EMA + Valuation Strategy PRO MTF + Regime
+// ============================================================================
+
+strategy("Core Invest Viewer",
+     overlay                  = true,
+     initial_capital          = 10000,
+     default_qty_type         = strategy.percent_of_equity,
+     default_qty_value        = 100,
+     process_orders_on_close  = false,
+     calc_on_order_fills      = false,
+     pyramiding               = 0,
+     commission_type          = strategy.commission.cash_per_contract,
+     commission_value         = 0.005)
+
+// ============================================================================
+// PRESET AUSWAHL
+// ============================================================================
+var string OPT_QQQ_BH  = "QQQ_PASSIVE (45%) — Buy & Hold"
+var string OPT_GLD_BH  = "GLD (25%) — Buy & Hold"
+var string OPT_SPMO_BH = "SPMO (5%) — Buy & Hold"
+var string OPT_SPY_BH  = "SPY (5%) — Buy & Hold"
+var string OPT_PINE1   = "QQQ_PINE_1 (10%) — White Swan EMA"
+var string OPT_COPPER  = "COPPER_HG (5%) — EMA + Valuation PRO"
+var string OPT_CHF     = "CHF_6S (5%) — EMA + Valuation PRO"
+
+preset = input.string(OPT_PINE1, "Komponente",
+     options = [OPT_QQQ_BH, OPT_GLD_BH, OPT_SPMO_BH, OPT_SPY_BH,
+                OPT_PINE1, OPT_COPPER, OPT_CHF],
+     tooltip = "Preset wählen — Chart-Symbol entsprechend laden:\n" +
+               "QQQ_PASSIVE → QQQ | GLD → GLD | SPMO → SPMO | SPY → SPY\n" +
+               "QQQ_PINE_1 → QQQ | COPPER_HG → HG1! | CHF_6S → 6S1!")
+
+isPassive = preset == OPT_QQQ_BH or preset == OPT_GLD_BH or
+            preset == OPT_SPMO_BH or preset == OPT_SPY_BH
+isPine1   = preset == OPT_PINE1
+isEMA     = preset == OPT_COPPER or preset == OPT_CHF
+
+// ============================================================================
+// ZEITFILTER
+// ============================================================================
+startTime = input.time(timestamp("01 Jan 1995 00:00 +0000"), "Start Filter", group="Zeit")
+endTime   = input.time(timestamp("01 Jan 2099 00:00 +0000"), "End Filter",   group="Zeit")
+inDate    = time >= startTime and time <= endTime
+
+// ============================================================================
+// QQQ_PINE_1 PARAMETER
+// Quelle: QQQ_pine1.txt — White Swan - Capitalife | NAS EMA
+// ============================================================================
+p1_ma1Len = input.int(400, "SMA Trend Length (MA1)", minval=1,  group="QQQ_PINE_1 — White Swan EMA",
+     tooltip="SMA(400) — langer Trendfilter. Default aus QQQ_pine1.txt: 400")
+p1_ma2Len = input.int(5,   "SMA Dip Length (MA2)",   minval=1,  group="QQQ_PINE_1 — White Swan EMA",
+     tooltip="SMA(5) — kurzfristiger Dip-Filter. Default aus QQQ_pine1.txt: 5")
+p1_sl     = input.float(25.0, "Stop Loss %",   minval=0.1, step=1.0, group="QQQ_PINE_1 — White Swan EMA",
+     tooltip="Safety Stop. Default aus QQQ_pine1.txt: 25%")
+p1_tp     = input.float(2.0,  "Take Profit %", minval=0.1, step=0.5, group="QQQ_PINE_1 — White Swan EMA",
+     tooltip="Safety Profit. Default aus QQQ_pine1.txt: 2%")
+
+// Entry: close > SMA400 AND close < SMA5 (Dip im Bull-Trend)
+// Exit:  close > SMA5 (Dip beendet) OR SL OR TP
+// Execution: process_orders_on_close=false → NextOpen
+
+// ============================================================================
+// EMA SLEEVE PARAMETER (COPPER_HG + CHF_6S)
+// Quelle: pine2.txt — EMA + Valuation Strategy PRO MTF + Regime
+// ============================================================================
+e_fastLen     = input.int(20,  "EMA Fast Length", minval=1,   group="EMA Sleeve — Copper/CHF",
+     tooltip="EMA(20). Default aus pine2.txt: 20")
+e_slowLen     = input.int(50,  "EMA Slow Length", minval=1,   group="EMA Sleeve — Copper/CHF",
+     tooltip="EMA(50). Default aus pine2.txt: 50")
+e_sl          = input.float(2.0, "Stop Loss %",   minval=0.1, step=0.1, group="EMA Sleeve — Copper/CHF",
+     tooltip="Default aus pine2.txt: 2.0%")
+e_tp          = input.float(4.0, "Take Profit %", minval=0.1, step=0.1, group="EMA Sleeve — Copper/CHF",
+     tooltip="Default aus pine2.txt: 4.0%")
+exitOnOppVal  = input.bool(true,  "Exit auf gegenteiliges Valuation-Signal", group="EMA Sleeve — Copper/CHF",
+     tooltip="Default aus pine2.txt: exitOnOppositeVal=true")
+exitOnEMAFlip = input.bool(false, "Exit auf EMA Flip (EMA20 < EMA50)",       group="EMA Sleeve — Copper/CHF",
+     tooltip="Default aus pine2.txt: exitOnEMAFlip=false")
+onePerDay     = input.bool(true,  "Max 1 Entry pro Tag",                      group="EMA Sleeve — Copper/CHF",
+     tooltip="Default aus pine2.txt: oneEntryPerDay=true")
+minHoldBars   = input.int(0, "Min Hold Bars vor Signal-Exit", minval=0,       group="EMA Sleeve — Copper/CHF",
+     tooltip="Default aus pine2.txt: minHoldBars=0")
+
+// ============================================================================
+// VALUATION FILTER (nur für EMA Sleeves)
+// Quelle: pine2.txt — Sections VALUATION + COMPARISON SYMBOLS
+// ============================================================================
+useVal      = input.bool(true,   "Valuation Filter aktiv",    group="Valuation",
+     tooltip="Default aus pine2.txt: useEMAFilter=true, Valuation separates Signal")
+valFastLen  = input.int(10,  "Valuation Fast",               group="Valuation",
+     tooltip="valFast=10 in pine2.txt")
+valSlowLen  = input.int(20,  "Valuation Slow",               group="Valuation",
+     tooltip="valSlow=20 in pine2.txt")
+rescaleLB   = input.int(100, "Rescale Lookback",             group="Valuation",
+     tooltip="rescaleLookback=100 in pine2.txt")
+valUpper    = input.float(75,  "Upper Threshold (Short Val)", group="Valuation",
+     tooltip="valUpper=75 in pine2.txt")
+valLower    = input.float(-75, "Lower Threshold (Long Val)",  group="Valuation",
+     tooltip="valLower=-75 in pine2.txt")
+valMode     = input.string("1 von 3", "Symbol Requirement",
+     options=["1 von 3", "2 von 3", "3 von 3"],              group="Valuation",
+     tooltip="mode='1 von 3' in pine2.txt")
+valEntryBars= input.int(3, "Entry Window Bars",              group="Valuation",
+     tooltip="entryBars=3 in pine2.txt")
+
+// Vergleichssymbole — exakt wie pine2.txt
+sym1 = input.symbol("TVC:DXY",    "Comparison Symbol 1 (DXY)",  group="Valuation",
+     tooltip="sym1='TVC:DXY' in pine2.txt")
+sym2 = input.symbol("COMEX:GC1!", "Comparison Symbol 2 (Gold)",  group="Valuation",
+     tooltip="sym2='COMEX:GC1!' in pine2.txt")
+sym3 = input.symbol("CBOT:ZB1!",  "Comparison Symbol 3 (T-Bond)",group="Valuation",
+     tooltip="sym3='CBOT:ZB1!' in pine2.txt")
+
+// ============================================================================
+// FUNKTIONEN
+// ============================================================================
+f_perf(src, len) =>
+    base = nz(src[len])
+    base != 0 ? (src - base) / base * 100.0 : na
+
+f_rescale(v, l) =>
+    maxV = ta.highest(v, l)
+    minV = ta.lowest(v, l)
+    vRange = math.max(maxV - minV, 0.0001)
+    ((v - minV) / vRange) * 200.0 - 100.0
+
+// ============================================================================
+// INDIKATOREN — PINE 1
+// ============================================================================
+ma1 = ta.sma(close, p1_ma1Len)
+ma2 = ta.sma(close, p1_ma2Len)
+
+// ============================================================================
+// INDIKATOREN — EMA SLEEVE
+// ============================================================================
+emaFast = ta.ema(close, e_fastLen)
+emaSlow = ta.ema(close, e_slowLen)
+
+emaLongFilter = emaFast > emaSlow and close > emaFast
+
+// ============================================================================
+// VALUATION — externe Daten
+// Nur berechnen wenn EMA Sleeve aktiv (spart Security-Calls für Passive/Pine1)
+// ============================================================================
+s1Close = request.security(sym1, timeframe.period, close, lookahead=barmerge.lookahead_off)
+s2Close = request.security(sym2, timeframe.period, close, lookahead=barmerge.lookahead_off)
+s3Close = request.security(sym3, timeframe.period, close, lookahead=barmerge.lookahead_off)
+
+baseFast = f_perf(close, valFastLen)
+baseSlow = f_perf(close, valSlowLen)
+s1Fast = f_perf(s1Close, valFastLen); s1Slow = f_perf(s1Close, valSlowLen)
+s2Fast = f_perf(s2Close, valFastLen); s2Slow = f_perf(s2Close, valSlowLen)
+s3Fast = f_perf(s3Close, valFastLen); s3Slow = f_perf(s3Close, valSlowLen)
+
+r1Fast = f_rescale(baseFast - s1Fast, rescaleLB)
+r2Fast = f_rescale(baseFast - s2Fast, rescaleLB)
+r3Fast = f_rescale(baseFast - s3Fast, rescaleLB)
+r1Slow = f_rescale(baseSlow - s1Slow, rescaleLB)
+r2Slow = f_rescale(baseSlow - s2Slow, rescaleLB)
+r3Slow = f_rescale(baseSlow - s3Slow, rescaleLB)
+
+required = valMode == "1 von 3" ? 1 : valMode == "2 von 3" ? 2 : 3
+
+cntUpFast   = (r1Fast > valUpper ? 1 : 0) + (r2Fast > valUpper ? 1 : 0) + (r3Fast > valUpper ? 1 : 0)
+cntDownFast = (r1Fast < valLower ? 1 : 0) + (r2Fast < valLower ? 1 : 0) + (r3Fast < valLower ? 1 : 0)
+cntUpSlow   = (r1Slow > valUpper ? 1 : 0) + (r2Slow > valUpper ? 1 : 0) + (r3Slow > valUpper ? 1 : 0)
+cntDownSlow = (r1Slow < valLower ? 1 : 0) + (r2Slow < valLower ? 1 : 0) + (r3Slow < valLower ? 1 : 0)
+
+fastDown = cntDownFast >= required
+slowDown = cntDownSlow >= required
+fastUp   = cntUpFast   >= required
+slowUp   = cntUpSlow   >= required
+
+// Valuation-Long-Signal: mindestens einer der Fast/Slow ist unten (valSignalMode="All")
+valLongRaw  = fastDown or slowDown
+valShortRaw = fastUp   or slowUp
+
+// Entry-Window-Tracking
+var int lastValLongBar  = na
+var int lastValShortBar = na
+
+if valLongRaw
+    lastValLongBar := bar_index
+if valShortRaw
+    lastValShortBar := bar_index
+
+barsSinceValLong  = na(lastValLongBar)  ? 100000 : bar_index - lastValLongBar
+barsSinceValShort = na(lastValShortBar) ? 100000 : bar_index - lastValShortBar
+
+longEntryWindow  = barsSinceValLong  <= valEntryBars
+shortEntryWindow = barsSinceValShort <= valEntryBars
+
+valEntryOk   = not useVal or longEntryWindow
+valExitOk    = useVal and exitOnOppVal and shortEntryWindow
+
+// ============================================================================
+// DAILY ENTRY LOCK (pine2.txt: oneEntryPerDay=true)
+// ============================================================================
+var bool tradedToday = false
+if ta.change(time("D")) != 0
+    tradedToday := false
+dailyOk = not onePerDay or not tradedToday
+
+// ============================================================================
+// TRADE-STATE
+// ============================================================================
+inTrade       = strategy.position_size > 0
+var int entryBarIdx = na
+barsInTrade   = inTrade and not na(entryBarIdx) ? bar_index - entryBarIdx : 0
+holdOk        = barsInTrade >= minHoldBars
+
+// ============================================================================
+// PASSIVE — BUY & HOLD
+// Einfaches Market-Entry beim ersten Bar im Zeitfenster, danach gehalten.
+// ============================================================================
+if isPassive and inDate and barstate.isconfirmed and strategy.position_size == 0
+    strategy.entry("BuyHold", strategy.long)
+
+// ============================================================================
+// QQQ_PINE_1 — White Swan NAS EMA
+// Quelle: QQQ_pine1.txt
+//
+// Entry : close > SMA(400) AND close < SMA(5)  → Dip im Bull-Trend
+//         position_size == 0 (kein Pyramiding)
+// Exit  : close > SMA(5)  → Dip aufgelöst (Signal-Exit)
+//         Stop Loss bei entry * (1 - SL%)
+//         Take Profit bei entry * (1 + TP%)
+//
+// Execution: process_orders_on_close=false → Order filled at NEXT bar's OPEN
+//
+// Hinweis: Original pine1.txt prüft SL/TP am Schluss-Kurs (close), nicht
+// intrabar. Dieser Viewer nutzt strategy.exit mit stop/limit (intrabar-Fills
+// möglich). Für exakte Replikation: SL/TP via close-Preis-Check.
+// ============================================================================
+pine1Entry = isPine1 and inDate and barstate.isconfirmed and not inTrade and
+             not na(ma1) and not na(ma2) and
+             close > ma1 and close < ma2
+
+pine1SignalExit = isPine1 and inTrade and barstate.isconfirmed and
+                  not na(ma2) and close > ma2
+
+if pine1Entry
+    strategy.entry("Pine1", strategy.long)
+
+if pine1SignalExit
+    strategy.close("Pine1", comment="Signal Exit (close > SMA5)")
+
+if isPine1 and inTrade
+    strategy.exit("Pine1 SL/TP",
+         from_entry = "Pine1",
+         stop       = strategy.position_avg_price * (1.0 - p1_sl / 100.0),
+         limit      = strategy.position_avg_price * (1.0 + p1_tp / 100.0),
+         comment    = "SL/TP")
+
+// ============================================================================
+// EMA SLEEVE — COPPER_HG + CHF_6S
+// Quelle: pine2.txt — EMA + Valuation Strategy PRO MTF + Regime
+//
+// Entry : EMA(20) > EMA(50) AND close > EMA(20)   ← emaLongFilter
+//         AND Valuation Long-Window aktiv           ← valEntryOk
+//         AND Max 1 Entry pro Tag                  ← dailyOk
+//         AND barstate.isconfirmed                 ← useConfirmedBarOnly=true
+//
+// Exit  : strategy.exit: stop=entry*(1-SL%), limit=entry*(1+TP%)
+//         Valuation Short-Window                   ← exitOnOppositeVal=true
+//         EMA Flip (EMA20 < EMA50) optional        ← exitOnEMAFlip=false
+//
+// Execution: process_orders_on_close=false → NextOpen
+//            (pine2.txt: calc_on_order_fills=true, process_orders_on_close=false default)
+// ============================================================================
+emaEntry = isEMA and inDate and barstate.isconfirmed and not inTrade and
+           emaLongFilter and valEntryOk and dailyOk
+
+emaValExit  = isEMA and inTrade and holdOk and valExitOk and barstate.isconfirmed
+emaFlipExit = isEMA and inTrade and holdOk and exitOnEMAFlip and
+              emaFast < emaSlow and barstate.isconfirmed
+
+if emaEntry
+    strategy.entry("EMA", strategy.long)
+    tradedToday   := true
+    entryBarIdx   := bar_index
+
+if emaValExit
+    strategy.close("EMA", comment="Opposite Valuation")
+
+if emaFlipExit
+    strategy.close("EMA", comment="EMA Flip")
+
+if isEMA and inTrade
+    strategy.exit("EMA SL/TP",
+         from_entry = "EMA",
+         stop       = strategy.position_avg_price * (1.0 - e_sl / 100.0),
+         limit      = strategy.position_avg_price * (1.0 + e_tp / 100.0),
+         comment    = "SL/TP")
+
+// ============================================================================
+// VISUALISIERUNG
+// ============================================================================
+
+// ── EMA-Linien (nur bei aktiven Sleeves) ────────────────────────────────────
+plot(isPine1 ? ma1 : na, "SMA 400 (Trend)",   color=color.new(color.blue,   0), linewidth=2)
+plot(isPine1 ? ma2 : na, "SMA 5 (Dip)",       color=color.new(color.orange, 0), linewidth=1)
+plot(isEMA   ? emaFast : na, "EMA 20 (Fast)", color=color.new(color.orange, 0), linewidth=2)
+plot(isEMA   ? emaSlow : na, "EMA 50 (Slow)", color=color.new(color.blue,   0), linewidth=2)
+
+// ── Entry / Exit Shapes ──────────────────────────────────────────────────────
+plotshape(pine1Entry,
+     title    = "Pine1 Entry",
+     style    = shape.triangleup,
+     location = location.belowbar,
+     color    = color.new(color.lime, 0),
+     size     = size.small,
+     text     = "E")
+
+plotshape(pine1SignalExit,
+     title    = "Pine1 Exit",
+     style    = shape.triangledown,
+     location = location.abovebar,
+     color    = color.new(color.red, 0),
+     size     = size.small,
+     text     = "X")
+
+plotshape(emaEntry,
+     title    = "EMA Entry",
+     style    = shape.triangleup,
+     location = location.belowbar,
+     color    = color.new(color.lime, 0),
+     size     = size.small,
+     text     = "E")
+
+plotshape(emaValExit or emaFlipExit,
+     title    = "EMA Exit",
+     style    = shape.triangledown,
+     location = location.abovebar,
+     color    = color.new(color.orange, 0),
+     size     = size.small,
+     text     = "X")
+
+// ── Position Background ──────────────────────────────────────────────────────
+bgcolor(inTrade and not isPassive ? color.new(color.green, 90) : na,
+     title = "In Position")
+
+// ── Info-Tabelle (top-right) ─────────────────────────────────────────────────
+var table tbl = table.new(position.top_right, 2, 6,
+     border_width = 1,
+     border_color = color.new(color.gray, 50))
+
+if barstate.islast
+    bg0  = color.rgb(20, 20, 35)
+    bg1  = color.rgb(30, 30, 50)
+    fg   = color.white
+    fgGr = color.new(color.lime, 0)
+    fgYe = color.new(color.yellow, 0)
+
+    // Gewicht ermitteln
+    weightStr =
+         preset == OPT_QQQ_BH  ? "45%" :
+         preset == OPT_GLD_BH  ? "25%" :
+         preset == OPT_SPMO_BH ? "5%"  :
+         preset == OPT_SPY_BH  ? "5%"  :
+         preset == OPT_PINE1   ? "10%" : "5%"
+
+    typStr  = isPassive ? "Buy & Hold" : "Long/Cash"
+    modeStr = isPassive ? "Passiv" : isPine1 ? "SMA(400)/SMA(5)" : "EMA(20)/EMA(50)"
+
+    table.cell(tbl, 0, 0, "Core Invest v2.0", text_color=fgGr, bgcolor=bg0,
+         text_halign=text.align_left, text_size=size.small)
+    table.cell(tbl, 1, 0, preset, text_color=fgGr, bgcolor=bg0,
+         text_halign=text.align_right, text_size=size.small)
+
+    table.cell(tbl, 0, 1, "Gewicht", text_color=fg, bgcolor=bg1,
+         text_halign=text.align_left, text_size=size.tiny)
+    table.cell(tbl, 1, 1, weightStr, text_color=fgYe, bgcolor=bg1,
+         text_halign=text.align_right, text_size=size.tiny)
+
+    table.cell(tbl, 0, 2, "Typ", text_color=fg, bgcolor=bg1,
+         text_halign=text.align_left, text_size=size.tiny)
+    table.cell(tbl, 1, 2, typStr, text_color=fg, bgcolor=bg1,
+         text_halign=text.align_right, text_size=size.tiny)
+
+    table.cell(tbl, 0, 3, "Logik", text_color=fg, bgcolor=bg1,
+         text_halign=text.align_left, text_size=size.tiny)
+    table.cell(tbl, 1, 3, modeStr, text_color=fg, bgcolor=bg1,
+         text_halign=text.align_right, text_size=size.tiny)
+
+    table.cell(tbl, 0, 4, "Closed Trades", text_color=fg, bgcolor=bg1,
+         text_halign=text.align_left, text_size=size.tiny)
+    table.cell(tbl, 1, 4, str.tostring(strategy.closedtrades), text_color=fgGr, bgcolor=bg1,
+         text_halign=text.align_right, text_size=size.tiny)
+
+    slTpStr = isPassive ? "—" : isPine1 ?
+         "SL " + str.tostring(p1_sl) + "% / TP " + str.tostring(p1_tp) + "%" :
+         "SL " + str.tostring(e_sl)  + "% / TP " + str.tostring(e_tp)  + "%"
+    table.cell(tbl, 0, 5, "SL / TP", text_color=fg, bgcolor=bg1,
+         text_halign=text.align_left, text_size=size.tiny)
+    table.cell(tbl, 1, 5, slTpStr, text_color=fg, bgcolor=bg1,
+         text_halign=text.align_right, text_size=size.tiny)
+
+// ============================================================================
+// HINWEIS: Chart-Symbol pro Preset
+// ─────────────────────────────────
+// QQQ_PASSIVE  → BATS:QQQ  (oder NASDAQ:QQQ)
+// GLD          → AMEX:GLD
+// SPMO         → AMEX:SPMO
+// SPY          → AMEX:SPY
+// QQQ_PINE_1   → BATS:QQQ
+// COPPER_HG    → COMEX:HG1!
+// CHF_6S       → CME:6S1!
+//
+// Valuation-Vergleichssymbole (nur EMA Sleeves, via request.security):
+//   TVC:DXY | COMEX:GC1! | CBOT:ZB1!
+// ============================================================================
