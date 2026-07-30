@@ -6,13 +6,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
 .app {
-  --c-bg:      #000000;
-  --c-bg2:     #0A0A0A;
-  --c-panel:   #0A0A0A;
-  --c-panel2:  #0A0A0A;
-  --c-hi:      #121214;
+  --c-bg:      #06080c;
+  --c-bg2:     #06080c;
+  --c-panel:   rgba(255,255,255,0.035);
+  --c-panel2:  rgba(255,255,255,0.025);
+  --c-hi:      rgba(255,255,255,0.05);
   --c-soft:    rgba(255,255,255,0.10);
-  --c-line:    rgba(255,255,255,0.12);
+  --c-line:    rgba(255,255,255,0.10);
   --c-text:    #F4F7FA;
   --c-text2:   #CDD6E0;
   --c-text3:   #8E9DAD;
@@ -25,7 +25,7 @@
   --c-zero:    rgba(255,255,255,0.15);
   --c-hover:   rgba(255,255,255,0.18);
   --c-today:   rgba(180,200,220,0.65);
-  --r:         16px;
+  --r:         24px;
   --rs:        6px;
   --layout-gap: 6px;
   --layout-pad: 4px 6px;
@@ -625,10 +625,10 @@
   flex-direction: column;
   align-items: center;
   gap: 3px;
-  padding: 6px 3px 5px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--c-soft);
-  border-radius: 8px;
+  padding: 8px 3px 7px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
 }
 
 .donuts svg {
@@ -690,30 +690,32 @@
 }
 
 .kpiBigCard {
-  background: linear-gradient(to bottom, #1c1d20, #141517);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 16px;
-  padding: 14px 14px 16px;
+  background: linear-gradient(to bottom, #1c1d21, #141517);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px;
+  padding: 16px 16px 18px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   min-height: 0;
-  box-shadow: 0 12px 28px -10px rgba(0,0,0,0.55);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.45);
 }
 
 .kpiBigLabel {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--c-text3);
   line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .kpiBigValue {
-  margin-top: 8px;
-  font-size: clamp(22px, 3vh, 30px);
-  font-weight: 700;
+  margin-top: 10px;
+  font-size: clamp(24px, 3.2vh, 32px);
+  font-weight: 800;
   line-height: 1.0;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.8px;
   color: var(--c-text);
   font-variant-numeric: tabular-nums;
 }
