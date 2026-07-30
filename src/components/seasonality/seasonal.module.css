@@ -6,10 +6,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
 .app {
-  --c-bg:      #06080c;
-  --c-bg2:     #06080c;
-  --c-panel:   rgba(255,255,255,0.035);
-  --c-panel2:  rgba(255,255,255,0.025);
+  --c-bg:      #040608;
+  --c-bg2:     #040608;
+  --c-panel:   #06080c;
+  --c-panel2:  #06080c;
   --c-hi:      rgba(255,255,255,0.05);
   --c-soft:    rgba(255,255,255,0.10);
   --c-line:    rgba(255,255,255,0.10);
@@ -569,8 +569,8 @@
 
 /* ── Walk-forward tester slot ── */
 .wfPanel {
-  border: none;
-  background: transparent;
+  border: 1px solid var(--c-soft);
+  background: var(--c-panel);
   padding: 0;
 }
 

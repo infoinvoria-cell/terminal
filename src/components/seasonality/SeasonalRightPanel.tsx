@@ -245,22 +245,32 @@ function KpiCard({ label, value, color, delta, subLabel }: {
   subLabel?: string | null;
 }) {
   return (
-    <div style={{ padding: "9px 11px 11px", background: C_BG, border: `1px solid ${C_SOFT}`, borderRadius: 9 }}>
-      <div style={{ fontSize: 9.5, fontWeight: 500, color: C_TEXT_2, lineHeight: 1.2, marginBottom: 5 }}>
+    <div style={{
+      padding: "10px 12px 12px",
+      background: "linear-gradient(to bottom, #1a1c20, #131416)",
+      border: "1px solid rgba(255,255,255,0.07)",
+      borderRadius: 14,
+      boxShadow: "0 4px 16px rgba(0,0,0,0.40)",
+      display: "flex", flexDirection: "column", justifyContent: "space-between",
+    }}>
+      <div style={{
+        fontSize: 9, fontWeight: 600, color: C_TEXT_3, lineHeight: 1.2,
+        textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6,
+      }}>
         {label}
       </div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 5, flexWrap: "nowrap" }}>
-        <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.3px", lineHeight: 1, color: color ?? C_WHITE }}>
+        <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.4px", lineHeight: 1, color: color ?? C_WHITE, fontVariantNumeric: "tabular-nums" }}>
           {value}
         </div>
         {delta && (
-          <div style={{ fontSize: 10, fontWeight: 500, color: C_TEXT_3, lineHeight: 1, whiteSpace: "nowrap" }}>
+          <div style={{ fontSize: 9.5, fontWeight: 500, color: C_TEXT_3, lineHeight: 1, whiteSpace: "nowrap" }}>
             {delta}
           </div>
         )}
       </div>
       {subLabel && (
-        <div style={{ fontSize: 8.5, color: C_TEXT_3, marginTop: 3, lineHeight: 1.2 }}>
+        <div style={{ fontSize: 8, color: C_TEXT_3, marginTop: 3, lineHeight: 1.2 }}>
           {subLabel}
         </div>
       )}
@@ -640,7 +650,7 @@ export const SeasonalRightPanel = memo(function SeasonalRightPanel({
   void nextPattern; // kept in Props for legacy compat but two-column layout uses nextPatternLong/Short
 
   return (
-    <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#0A0A0A", overflow: "hidden", fontFamily: FONT }}>
+    <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#06080c", overflow: "hidden", fontFamily: FONT }}>
       <PanelTitle>Pattern KPIs</PanelTitle>
       <div style={{ padding: "12px 10px 10px", display: "flex", alignItems: "flex-start", justifyContent: "space-around", flexShrink: 0, gap: 6 }}>
         <Donut pct={winratePctDisplay} label={hasCompletedWf ? "OOS Winrate" : "Winrate"} empty={!kpiSource} size={96} activeColor={activeDirectionColor} />
@@ -661,7 +671,7 @@ export const SeasonalRightPanel = memo(function SeasonalRightPanel({
         {statusLabel}
       </div>
 
-      <div style={{ padding: "8px 10px 6px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5, flexShrink: 0 }}>
+      <div style={{ padding: "6px 10px 8px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, flexShrink: 0 }}>
         <KpiCard label="Window" value={kpiWindow} color={activeDirectionColor} subLabel={kpiWindowSub} />
         <KpiCard label="Trading Days" value={kpiHolding} color={activeDirectionColor} subLabel={kpiHoldingSub} />
         <KpiCard label={hasCompletedWf ? "OOS Avg Performance" : "Avg. Performance"} value={kpiAvgPerf} color={activeDirectionColor}
