@@ -1,3 +1,70 @@
+-- ════════════════════════════════════════════════════════════════════════════
+-- DBA RUNBOOK — read before executing
+-- ════════════════════════════════════════════════════════════════════════════
+--
+-- STEP 1 — Preflight: count corrupt rows (expected ~150–300, all close < 5000)
+--
+--   SELECT COUNT(*), MIN(close), MAX(close), MIN(date), MAX(date)
+--   FROM public.monitoring_ohlc
+--   WHERE asset = 'YM1!' AND timeframe = 'D' AND close < 5000;
+--
+--   Expected: rows > 0, close range ≈ 100–499 (Yahoo auto_adjust artifacts)
+--   If rows = 0: corrupt data was already purged; skip steps 3 and verify step 4.
+--
+-- STEP 2 — Backup (run BEFORE this migration):
+--
+--   CREATE TABLE monitoring_ohlc_ym1_backup_20260730 AS
+--   SELECT * FROM public.monitoring_ohlc
+--   WHERE asset = 'YM1!' AND timeframe = 'D';
+--   -- Keep this backup table for ≥30 days before dropping.
+--
+-- STEP 3 — Apply this migration (idempotent, re-runnable):
+--
+--   psql $DATABASE_URL -f supabase/migrations/20260730_quarantine_ym1_corrupt_ohlc.sql
+--   -- or via Supabase dashboard > SQL Editor
+--
+-- STEP 4 — Validation queries (run AFTER migration):
+--
+--   -- No corrupt rows should remain:
+--   SELECT COUNT(*) FROM public.monitoring_ohlc
+--   WHERE asset = 'YM1!' AND timeframe = 'D' AND close < 5000;
+--   -- Expected: 0
+--
+--   -- Quarantine table should contain the removed rows:
+--   SELECT COUNT(*), MIN(close), MAX(close) FROM public.monitoring_ohlc_quarantine
+--   WHERE asset = 'YM1!' AND quarantine_reason LIKE 'ym1_scale_error%';
+--   -- Expected: same count as preflight step
+--
+--   -- Correct YM1! rows must still be present:
+--   SELECT COUNT(*), MIN(close), MAX(close), MAX(date) FROM public.monitoring_ohlc
+--   WHERE asset = 'YM1!' AND timeframe = 'D' AND close >= 5000;
+--   -- Expected: 150+ rows, close ≥ 5000, max date = most recent seeded date
+--
+--   -- Trigger guard must be active:
+--   SELECT tgname FROM pg_trigger
+--   WHERE tgrelid = 'public.monitoring_ohlc'::regclass
+--     AND tgname = 'monitoring_ohlc_ym1_scale_guard_trigger';
+--   -- Expected: 1 row
+--
+-- STEP 5 — Rollback (only if validation fails):
+--
+--   BEGIN;
+--   -- Restore from backup
+--   INSERT INTO public.monitoring_ohlc
+--     SELECT * FROM monitoring_ohlc_ym1_backup_20260730
+--     ON CONFLICT (asset, timeframe, date) DO NOTHING;
+--   -- Drop the trigger guard
+--   DROP TRIGGER IF EXISTS monitoring_ohlc_ym1_scale_guard_trigger
+--     ON public.monitoring_ohlc;
+--   DROP FUNCTION IF EXISTS public.monitoring_ohlc_ym1_scale_guard();
+--   -- Empty the quarantine table (the backup is the source of truth)
+--   DELETE FROM public.monitoring_ohlc_quarantine
+--   WHERE asset = 'YM1!' AND quarantine_reason LIKE 'ym1_scale_error%';
+--   COMMIT;
+--
+-- Root cause documented below.
+-- ════════════════════════════════════════════════════════════════════════════
+
 -- ── Quarantine corrupt YM1! daily bars ──────────────────────────────────────
 --
 -- Root cause: seed_anomaly_daily.py fetched YM=F from Yahoo Finance with

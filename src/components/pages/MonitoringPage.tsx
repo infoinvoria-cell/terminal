@@ -14,6 +14,7 @@ const SentinelPanel = dynamic(() => import("@/components/monitoring/SentinelPane
 });
 import MonitoringChartCard, { type MonitoringChartCardItem } from "@/components/monitoring/MonitoringChartCard";
 import MonitoringFlexibleGrid from "@/components/monitoring/MonitoringFlexibleGrid";
+import SignalGateStatusBand from "@/components/monitoring/SignalGateStatusBand";
 import CoreInvestMonitoringGrid from "@/components/core-invest/CoreInvestMonitoringGrid";
 import MonitoringSettingsModal from "@/components/monitoring/MonitoringSettingsModal";
 import MonitoringStrategyWorkspace from "@/components/monitoring/MonitoringStrategyWorkspace";
@@ -7013,6 +7014,23 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
                 />
               ) : (
                 <>
+                  {(activeTab === "intraday_mt" || activeTab === "anomaly") && (
+                    <SignalGateStatusBand
+                      assets={
+                        activeTab === "intraday_mt"
+                          ? [
+                              { asset: "FDAX1!", timeframe: "2H", source: "EUREX:FDAX1!", strategyId: "DAX_2H",      label: "FDAX1! 2H" },
+                              { asset: "FDAX1!", timeframe: "1H", source: "EUREX:FDAX1!", strategyId: "DAX_1H",      label: "FDAX1! 1H" },
+                              { asset: "6E1!",   timeframe: "30M", source: "CME:6E1!",   strategyId: "EURUSD_30M",  label: "6E1! 30M" },
+                            ]
+                          : [
+                              { asset: "GC1!", timeframe: "D", source: "COMEX:GC1!", label: "GC1! 1D" },
+                              { asset: "GLD",  timeframe: "D", source: "AMEX:GLD",   label: "GLD 1D" },
+                              { asset: "YM1!", timeframe: "D", source: "CBOT_MINI:YM1!", label: "YM1! 1D" },
+                            ]
+                      }
+                    />
+                  )}
                   {showGrid ? (
                     <MonitoringFlexibleGrid
                       tabId={activeTab}
