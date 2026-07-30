@@ -41,7 +41,7 @@ export interface SleevePattern {
 
 function makeFakeReturns(wr: number, avg: number, n = 32): number[] {
   const out: number[] = [];
-  let seed = Math.floor(wr * 1000 + avg * 10000) | 0;
+  let seed = Math.floor(wr * 1000 + Math.abs(avg) * 10000) | 0;
   for (let i = 0; i < n; i++) {
     seed = (seed * 1664525 + 1013904223) & 0x7fffffff;
     const r1 = seed / 0x7fffffff;
@@ -49,7 +49,13 @@ function makeFakeReturns(wr: number, avg: number, n = 32): number[] {
     const r2 = seed / 0x7fffffff;
     const hit = r1 < wr;
     const mag = 0.4 + r2 * 1.2;
-    out.push(hit ? avg * mag : -avg * (0.9 + r2 * 1.8));
+    out.push(hit ? Math.abs(avg) * mag : -Math.abs(avg) * (0.9 + r2 * 1.8));
+  }
+  // Normalize so mean matches the stated avg (ensures equity line matches avgReturn sign)
+  const mean = out.reduce((s, v) => s + v, 0) / out.length;
+  if (Math.abs(mean) > 1e-9) {
+    const scale = avg / mean;
+    return out.map(v => v * scale);
   }
   return out;
 }
@@ -70,16 +76,16 @@ function buildPortfolioEquity(): number[] {
 }
 
 export const SLEEVE_PATTERNS: SleevePattern[] = [
-  { id: 1,  assetId: "rb1",     symbol: "RB1!",  name: "RBOB Gasoline",  direction: "LONG", window: "Feb 8 – 16",  startSlot: 29,  calStart: 39,  tier: "bonferroni", winRate: 0.86, oosWinRate: 1.00, avgReturn: 0.024, sortino: 3.2, nObs: 29, maxDrawdown: -0.08, profitFactor: 5.1, robustness: 0.72, decadeConsistent: true,  category: "Energie", rationale: "Pre-summer driving season baut RFG-Nachfrage auf.",       fakeReturns: makeFakeReturns(0.86, 0.024) },
-  { id: 2,  assetId: "wheat",   symbol: "ZW1!",  name: "Chicago Wheat",  direction: "LONG", window: "Aug 10 – 20", startSlot: 152, calStart: 222, tier: "bonferroni", winRate: 0.84, oosWinRate: 0.75, avgReturn: 0.018, sortino: 2.8, nObs: 32, maxDrawdown: -0.06, profitFactor: 4.3, robustness: 0.68, decadeConsistent: true,  category: "Agrar",   rationale: "Northern-hemisphere Erntedruck lässt nach.",               fakeReturns: makeFakeReturns(0.84, 0.018) },
-  { id: 3,  assetId: "gc1",     symbol: "GC1!",  name: "Gold",           direction: "LONG", window: "Jul 25 – 31", startSlot: 128, calStart: 206, tier: "fdr",        winRate: 0.78, oosWinRate: 0.72, avgReturn: 0.012, sortino: 2.1, nObs: 35, maxDrawdown: -0.05, profitFactor: 3.1, robustness: 0.58, decadeConsistent: true,  category: "Metalle", rationale: "Pre-India wedding season demand ramp.",                    fakeReturns: makeFakeReturns(0.78, 0.012) },
-  { id: 4,  assetId: "ng1",     symbol: "NG1!",  name: "Natural Gas",    direction: "LONG", window: "Sep 16 – 30", startSlot: 170, calStart: 259, tier: "fdr",        winRate: 0.76, oosWinRate: 0.71, avgReturn: 0.021, sortino: 2.4, nObs: 28, maxDrawdown: -0.10, profitFactor: 3.6, robustness: 0.55, decadeConsistent: true,  category: "Energie", rationale: "Pre-winter storage injection season.",                     fakeReturns: makeFakeReturns(0.76, 0.021) },
-  { id: 5,  assetId: "sugar",   symbol: "SB1!",  name: "Sugar #11",      direction: "LONG", window: "Sep 18 – 30", startSlot: 172, calStart: 261, tier: "fdr",        winRate: 0.75, oosWinRate: 0.70, avgReturn: 0.016, sortino: 1.9, nObs: 30, maxDrawdown: -0.07, profitFactor: 2.8, robustness: 0.52, decadeConsistent: true,  category: "Agrar",   rationale: "Northern-hemisphere Crushing-Season endet.",               fakeReturns: makeFakeReturns(0.75, 0.016) },
-  { id: 6,  assetId: "cocoa",   symbol: "CC1!",  name: "Cocoa",          direction: "LONG", window: "Nov 5 – 15",  startSlot: 210, calStart: 309, tier: "fdr",        winRate: 0.74, oosWinRate: 0.70, avgReturn: 0.019, sortino: 2.2, nObs: 27, maxDrawdown: -0.09, profitFactor: 3.0, robustness: 0.53, decadeConsistent: true,  category: "Agrar",   rationale: "West African main crop arrival delays.",                   fakeReturns: makeFakeReturns(0.74, 0.019) },
-  { id: 7,  assetId: "pa1",     symbol: "PA1!",  name: "Palladium",      direction: "LONG", window: "Jan 10 – 20", startSlot: 10,  calStart: 10,  tier: "fdr",        winRate: 0.77, oosWinRate: 0.71, avgReturn: 0.022, sortino: 2.3, nObs: 24, maxDrawdown: -0.08, profitFactor: 3.4, robustness: 0.60, decadeConsistent: true,  category: "Metalle", rationale: "Auto-catalyst restocking nach Jahresende.",                fakeReturns: makeFakeReturns(0.77, 0.022) },
-  { id: 8,  assetId: "soymeal", iconAssetId: "zs1", symbol: "ZM1!", name: "Soybean Meal", direction: "LONG", window: "Apr 15 – 25", startSlot: 73, calStart: 105, tier: "fdr", winRate: 0.73, oosWinRate: 0.69, avgReturn: 0.014, sortino: 1.8, nObs: 31, maxDrawdown: -0.06, profitFactor: 2.5, robustness: 0.51, decadeConsistent: true,  category: "Agrar",   rationale: "US spring crush margin rally.",                            fakeReturns: makeFakeReturns(0.73, 0.014) },
-  { id: 9,  assetId: "cotton",  symbol: "CT1!",  name: "Cotton #2",      direction: "LONG", window: "Feb 8 – 16",  startSlot: 29,  calStart: 39,  tier: "fdr",        winRate: 0.72, oosWinRate: 0.68, avgReturn: 0.013, sortino: 1.7, nObs: 28, maxDrawdown: -0.07, profitFactor: 2.4, robustness: 0.49, decadeConsistent: true,  category: "Agrar",   rationale: "Export sales pace beschleunigt nach USDA Feb Report.",      fakeReturns: makeFakeReturns(0.72, 0.013) },
-  { id: 10, assetId: "es1",     symbol: "ES1!",  name: "S&P 500 E-mini", direction: "LONG", window: "Dez 15 – 25", startSlot: 240, calStart: 349, tier: "fdr",        winRate: 0.80, oosWinRate: 0.75, avgReturn: 0.015, sortino: 2.5, nObs: 36, maxDrawdown: -0.04, profitFactor: 3.8, robustness: 0.65, decadeConsistent: true,  category: "Indizes", rationale: "Santa Claus Rally: Pension fund rebalancing.",             fakeReturns: makeFakeReturns(0.80, 0.015) },
+  { id: 1,  assetId: "rb1",     symbol: "RB1!",  name: "RBOB Gasoline",  direction: "LONG",  window: "Feb 8 – 16",  startSlot: 29,  calStart: 39,  tier: "bonferroni", winRate: 0.86, oosWinRate: 0.86, avgReturn:  0.024, sortino: 3.2, nObs: 29, maxDrawdown: -0.08, profitFactor: 5.1, robustness: 0.72, decadeConsistent: true,  category: "Energie", rationale: "Pre-summer driving season baut RFG-Nachfrage auf.",        fakeReturns: makeFakeReturns(0.86,  0.024) },
+  { id: 2,  assetId: "wheat",   symbol: "ZW1!",  name: "Chicago Wheat",  direction: "LONG",  window: "Aug 10 – 20", startSlot: 152, calStart: 222, tier: "bonferroni", winRate: 0.84, oosWinRate: 0.75, avgReturn:  0.018, sortino: 2.8, nObs: 32, maxDrawdown: -0.06, profitFactor: 4.3, robustness: 0.68, decadeConsistent: true,  category: "Agrar",   rationale: "Northern-hemisphere Erntedruck lässt nach.",                fakeReturns: makeFakeReturns(0.84,  0.018) },
+  { id: 3,  assetId: "gc1",     symbol: "GC1!",  name: "Gold",           direction: "LONG",  window: "Jul 25 – 31", startSlot: 128, calStart: 206, tier: "fdr",        winRate: 0.78, oosWinRate: 0.72, avgReturn:  0.012, sortino: 2.1, nObs: 35, maxDrawdown: -0.05, profitFactor: 3.1, robustness: 0.58, decadeConsistent: true,  category: "Metalle", rationale: "Pre-India wedding season demand ramp.",                     fakeReturns: makeFakeReturns(0.78,  0.012) },
+  { id: 4,  assetId: "ng1",     symbol: "NG1!",  name: "Natural Gas",    direction: "SHORT", window: "Sep 16 – 30", startSlot: 170, calStart: 259, tier: "fdr",        winRate: 0.74, oosWinRate: 0.71, avgReturn: -0.021, sortino: 2.4, nObs: 28, maxDrawdown: -0.10, profitFactor: 3.6, robustness: 0.55, decadeConsistent: true,  category: "Energie", rationale: "Post-Injection-Season Überangebot drückt Nov-Kontrakt.",    fakeReturns: makeFakeReturns(0.74, -0.021) },
+  { id: 5,  assetId: "sugar",   symbol: "SB1!",  name: "Sugar #11",      direction: "SHORT", window: "Sep 18 – 30", startSlot: 172, calStart: 261, tier: "fdr",        winRate: 0.73, oosWinRate: 0.70, avgReturn: -0.016, sortino: 1.9, nObs: 30, maxDrawdown: -0.07, profitFactor: 2.8, robustness: 0.52, decadeConsistent: true,  category: "Agrar",   rationale: "Brasilianische Ernte drückt Exportpreise in Q4.",           fakeReturns: makeFakeReturns(0.73, -0.016) },
+  { id: 6,  assetId: "cocoa",   symbol: "CC1!",  name: "Cocoa",          direction: "LONG",  window: "Nov 5 – 15",  startSlot: 210, calStart: 309, tier: "fdr",        winRate: 0.74, oosWinRate: 0.70, avgReturn:  0.019, sortino: 2.2, nObs: 27, maxDrawdown: -0.09, profitFactor: 3.0, robustness: 0.53, decadeConsistent: true,  category: "Agrar",   rationale: "West African main crop arrival delays.",                    fakeReturns: makeFakeReturns(0.74,  0.019) },
+  { id: 7,  assetId: "pa1",     symbol: "PA1!",  name: "Palladium",      direction: "SHORT", window: "Jan 10 – 20", startSlot: 10,  calStart: 10,  tier: "fdr",        winRate: 0.72, oosWinRate: 0.68, avgReturn: -0.022, sortino: 2.3, nObs: 24, maxDrawdown: -0.08, profitFactor: 3.4, robustness: 0.60, decadeConsistent: true,  category: "Metalle", rationale: "Jan-Liquidation nach Jahres-Rally drückt Palladium.",       fakeReturns: makeFakeReturns(0.72, -0.022) },
+  { id: 8,  assetId: "soymeal", iconAssetId: "zs1", symbol: "ZM1!", name: "Soybean Meal", direction: "LONG", window: "Apr 15 – 25", startSlot: 73, calStart: 105, tier: "fdr", winRate: 0.73, oosWinRate: 0.69, avgReturn: 0.014, sortino: 1.8, nObs: 31, maxDrawdown: -0.06, profitFactor: 2.5, robustness: 0.51, decadeConsistent: true,  category: "Agrar",   rationale: "US spring crush margin rally.",                             fakeReturns: makeFakeReturns(0.73,  0.014) },
+  { id: 9,  assetId: "cotton",  symbol: "CT1!",  name: "Cotton #2",      direction: "LONG",  window: "Feb 8 – 16",  startSlot: 29,  calStart: 39,  tier: "fdr",        winRate: 0.72, oosWinRate: 0.68, avgReturn:  0.013, sortino: 1.7, nObs: 28, maxDrawdown: -0.07, profitFactor: 2.4, robustness: 0.49, decadeConsistent: true,  category: "Agrar",   rationale: "Export sales pace beschleunigt nach USDA Feb Report.",       fakeReturns: makeFakeReturns(0.72,  0.013) },
+  { id: 10, assetId: "es1",     symbol: "ES1!",  name: "S&P 500 E-mini", direction: "LONG",  window: "Dez 15 – 25", startSlot: 240, calStart: 349, tier: "fdr",        winRate: 0.80, oosWinRate: 0.75, avgReturn:  0.015, sortino: 2.5, nObs: 36, maxDrawdown: -0.04, profitFactor: 3.8, robustness: 0.65, decadeConsistent: true,  category: "Indizes", rationale: "Santa Claus Rally: Pension fund rebalancing.",              fakeReturns: makeFakeReturns(0.80,  0.015) },
 ];
 
 /* ─── Countdown hook — uses calStart (calendar day 1-365) ──────────── */
@@ -147,13 +153,18 @@ function WrDonut({ pct, size = 64 }: { pct: number; size?: number }) {
   const thick = size * 0.095;
   const r = (size - thick) / 2;
   const circ = 2 * Math.PI * r;
-  const arc = Math.min(1, Math.max(0, pct / 100)) * circ;
+  const ratio = Math.min(1, Math.max(0, pct / 100));
+  // At 100% use full circle stroke (no dasharray needed); otherwise partial arc
   const cx = size / 2; const cy = size / 2;
   return (
     <svg width={size} height={size} style={{ display: "block", flexShrink: 0 }}>
       <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.10)" strokeWidth={thick} />
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(232,237,243,0.90)" strokeWidth={thick}
-        strokeDasharray={`${arc} ${circ}`} strokeDashoffset={circ * 0.25} strokeLinecap="round" />
+      {ratio >= 0.999
+        ? <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(232,237,243,0.90)" strokeWidth={thick} />
+        : <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(232,237,243,0.90)" strokeWidth={thick}
+            strokeDasharray={`${ratio * circ} ${(1 - ratio) * circ}`}
+            strokeDashoffset={circ * 0.25} strokeLinecap="round" />
+      }
       <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central"
         fill="#ffffff" fontSize={size * 0.225} fontWeight="800" fontFamily={FONT}>
         {pct.toFixed(0)}%
@@ -177,11 +188,11 @@ function CardEquityLine({ returns: rets, id, avgReturn }: {
     const y = padTop + (1 - (v - min) / rng) * (H - padTop - padBot);
     return `${x.toFixed(1)},${y.toFixed(1)}`;
   }).join(" ");
-  const last = eq[eq.length - 1];
-  const lineC = last >= 0 ? "#e8edf3" : "#d6b867";
+  const lineC = avgReturn >= 0 ? "#e8edf3" : "#d6b867";
   const fillId = `cf-${id}`;
+  const lastVal = eq[eq.length - 1];
   const lastX = W;
-  const lastY = padTop + (1 - (last - min) / rng) * (H - padTop - padBot);
+  const lastY = padTop + (1 - (lastVal - min) / rng) * (H - padTop - padBot);
   const base  = padTop + (1 - (0 - min) / rng) * (H - padTop - padBot);
   const clampedBase = Math.min(H - padBot, Math.max(padTop, base));
   const avgLabel = `${avgReturn >= 0 ? "+" : ""}${(avgReturn * 100).toFixed(1)}% avg`;
@@ -376,11 +387,28 @@ function KpiCell({ label, value, valueColor = "#eef2f7" }: { label: string; valu
   );
 }
 
+/* ─── Detail icon (list/chart) ───────────────────────────────────────── */
+function DetailIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ display: "block" }}>
+      <rect x="1" y="2" width="12" height="1.5" rx="0.75" fill="currentColor" />
+      <rect x="1" y="6" width="8"  height="1.5" rx="0.75" fill="currentColor" />
+      <rect x="1" y="10" width="10" height="1.5" rx="0.75" fill="currentColor" />
+    </svg>
+  );
+}
+
 /* ─── Grid card — 1:1 Referenz-Layout, kompakt ──────────────────────── */
-function SleeveCard({ p, selected, onSelect }: { p: SleevePattern; selected: boolean; onSelect: () => void }) {
+function SleeveCard({ p, selected, onActivate, onDetail }: {
+  p: SleevePattern;
+  selected: boolean;
+  onActivate: () => void;   // karte klicken = im chart aktivieren
+  onDetail: () => void;     // detail-icon klicken = detail-panel öffnen
+}) {
   const isLong    = p.direction === "LONG";
   const dirColor  = isLong ? "#e8edf3" : C_GOLD;
   const countdown = usePatternCountdown(p.calStart);
+  const [detailHov, setDetailHov] = useState(false);
 
   const cardBg = selected
     ? `radial-gradient(ellipse 120% 90% at 115% 120%, rgba(216,188,103,0.14) 0%, transparent 55%), ${C_CARD}`
@@ -389,8 +417,8 @@ function SleeveCard({ p, selected, onSelect }: { p: SleevePattern; selected: boo
   return (
     <div
       role="button" tabIndex={0}
-      onClick={onSelect}
-      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onSelect(); }}
+      onClick={onActivate}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onActivate(); }}
       style={{
         background: cardBg,
         border: selected ? "1px solid rgba(216,188,103,0.32)" : `1px solid ${C_BORDER}`,
@@ -414,26 +442,25 @@ function SleeveCard({ p, selected, onSelect }: { p: SleevePattern; selected: boo
             {p.name}
           </div>
         </div>
-        {/* OOS Win Rate Donut — top right, kompakt */}
         <WrDonut pct={p.oosWinRate * 100} size={48} />
       </div>
 
       {/* ── Row 2: Muster-Datum ── */}
-      <div style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.82)", lineHeight: 1, marginBottom: 4, letterSpacing: "-0.1px" }}>
+      <div style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.82)", lineHeight: 1, marginBottom: 7, letterSpacing: "-0.1px" }}>
         {p.window}
       </div>
 
-      {/* ── Row 3: Countdown Timer (gold) ── */}
-      <div style={{ fontSize: 11, fontWeight: 600, color: C_GOLD, lineHeight: 1, marginBottom: 8, letterSpacing: "0.01em" }}>
+      {/* ── Row 3: Countdown Timer (gold) — mit Abstand oben ── */}
+      <div style={{ fontSize: 11, fontWeight: 600, color: countdown === "Aktiv" ? "#e8edf3" : C_GOLD, lineHeight: 1, marginBottom: 8, letterSpacing: "0.01em" }}>
         {countdown || "—"}
       </div>
 
-      {/* ── Row 4: Performance-Chart ── */}
-      <div style={{ flex: 1, minHeight: 50 }}>
+      {/* ── Row 4: Performance-Chart — kein eigener Border ── */}
+      <div style={{ flex: 1, minHeight: 50, overflow: "hidden" }}>
         <CardEquityLine returns={p.fakeReturns} id={`p${p.id}`} avgReturn={p.avgReturn} />
       </div>
 
-      {/* ── Row 5: Richtung (unten) ── */}
+      {/* ── Row 5: Richtung links · Detail-Icon rechts ── */}
       <div style={{ marginTop: 8, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <span style={{
           display: "inline-flex", alignItems: "center", gap: 5,
@@ -443,7 +470,22 @@ function SleeveCard({ p, selected, onSelect }: { p: SleevePattern; selected: boo
           <span style={{ fontSize: 10 }}>{isLong ? "▲" : "▼"}</span>
           {p.direction}
         </span>
-        <TierBadge tier={p.tier} />
+        {/* Detail-Button — stopPropagation verhindert Karten-Click */}
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onDetail(); }}
+          onMouseEnter={() => setDetailHov(true)}
+          onMouseLeave={() => setDetailHov(false)}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            width: 24, height: 24, borderRadius: 6, border: "none",
+            background: detailHov ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.05)",
+            color: detailHov ? "#e8edf3" : "rgba(255,255,255,0.40)",
+            cursor: "pointer", flexShrink: 0, transition: "background 120ms, color 120ms",
+          }}
+        >
+          <DetailIcon />
+        </button>
       </div>
     </div>
   );
@@ -662,7 +704,13 @@ export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Pr
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const selected = useMemo(() => SLEEVE_PATTERNS.find(p => p.id === selectedId) ?? null, [selectedId]);
 
-  function selectPattern(p: SleevePattern) {
+  function activatePattern(p: SleevePattern) {
+    setSelectedId(p.id);
+    onSelectPattern?.(p.assetId, p.startSlot, p.direction);
+    // no mode change — card stays in grid, just activates in main chart
+  }
+
+  function openDetail(p: SleevePattern) {
     setSelectedId(p.id);
     onModeChange("detail");
     onSelectPattern?.(p.assetId, p.startSlot, p.direction);
@@ -674,7 +722,10 @@ export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Pr
       {mode === "grid" && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gap: 7, flex: 1, minHeight: 0, overflow: "hidden" }}>
           {SLEEVE_PATTERNS.map(p => (
-            <SleeveCard key={p.id} p={p} selected={selectedId === p.id} onSelect={() => selectPattern(p)} />
+            <SleeveCard key={p.id} p={p} selected={selectedId === p.id}
+              onActivate={() => activatePattern(p)}
+              onDetail={() => openDetail(p)}
+            />
           ))}
         </div>
       )}
@@ -683,7 +734,7 @@ export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Pr
         <div style={{ display: "flex", flex: 1, minHeight: 0, gap: 0, overflow: "hidden" }}>
           <div style={{ width: 185, flexShrink: 0, borderRight: `1px solid rgba(255,255,255,0.05)`, display: "flex", flexDirection: "column", overflowY: "auto" }}>
             {SLEEVE_PATTERNS.map(p => (
-              <PatternListRow key={p.id} p={p} selected={selectedId === p.id} onSelect={() => selectPattern(p)} />
+              <PatternListRow key={p.id} p={p} selected={selectedId === p.id} onSelect={() => openDetail(p)} />
             ))}
           </div>
           <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
