@@ -1274,17 +1274,19 @@ function MonitoringChartInner({
     if (!chart) return;
     chart.applyOptions({
       crosshair: {
-        mode: CrosshairMode.Normal,
+        mode: CrosshairMode.Magnet,
         vertLine: {
-          color: "rgba(230, 235, 245, 0.75)",
+          color: "rgba(180, 185, 200, 0.6)",
           width: 1,
+          style: 0,
           labelVisible: true,
           labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
           visible: true,
         },
         horzLine: {
-          color: "rgba(230, 235, 245, 0.75)",
+          color: "rgba(180, 185, 200, 0.6)",
           width: 1,
+          style: 0,
           labelVisible: true,
           labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
           visible: true,
@@ -1344,17 +1346,19 @@ function MonitoringChartInner({
         horzLines: { visible: false },
       },
       crosshair: {
-        mode: CrosshairMode.Normal,
+        mode: CrosshairMode.Magnet,
         vertLine: {
-          color: "rgba(230, 235, 245, 0.75)",
+          color: "rgba(180, 185, 200, 0.6)",
           width: 1,
+          style: 0,
           labelVisible: true,
           labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
           visible: true,
         },
         horzLine: {
-          color: "rgba(230, 235, 245, 0.75)",
+          color: "rgba(180, 185, 200, 0.6)",
           width: 1,
+          style: 0,
           labelVisible: true,
           labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
           visible: true,
