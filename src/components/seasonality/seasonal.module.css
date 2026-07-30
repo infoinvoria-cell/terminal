@@ -92,9 +92,15 @@
   display: none !important;
 }
 
-/* ── Sleeve Portfolio: taller bottom panel, right panel stays ── */
+/* ── Sleeve Portfolio: taller bottom panel, Komponenten full width ── */
 .appSleeve .content {
   grid-template-rows: 42fr 14fr 44fr !important;
+}
+.appSleeve .wfPanel {
+  grid-column: 1 / 3 !important;
+}
+.appSleeve .rightPanel {
+  grid-row: 1 / 3 !important;
 }
 
 /* ── Strategy Engine: compact 2-row chart area, engine below in document flow ── */
