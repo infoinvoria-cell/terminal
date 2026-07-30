@@ -5,7 +5,7 @@
   "timeframe": "30M",
   "source": "engine_futures",
   "hasStrategy": true,
-  "generatedAt": "2026-07-28T09:40:15Z",
+  "generatedAt": "2026-07-30T08:52:07Z",
   "dateRange": {
     "first": "2026-04-24T21:30:00",
     "last": "2026-07-27T11:00:00"
