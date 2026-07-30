@@ -438,19 +438,44 @@ function createInvestDatasetFromSnapshot(mode: AnalyticsMode, fsportfolio: FSPor
 
 export function getAnalyticsDataset(tab: AnalyticsTab, mode: AnalyticsMode, fsportfolio: FSPortfolioSnapshot | undefined, data: CapalifeData) {
   if (tab === "invest") {
-    // Full multi-asset snapshot (local, with OHLC) is richest — use it when ready.
-    // Otherwise (e.g. Vercel, no OHLC) fall back to the committed Pine backtest so
-    // Core Invest / Backtest still shows a real curve instead of an empty state.
-    // Also fall back to Pine when Supabase data is sparse (adaptiveStartDate after 2005),
-    // because a few years of data produces misleading low-volatility/n-a metrics.
-    const snapshotReady = Boolean(fsportfolio?.backtest?.ready);
-    const adaptiveStart = fsportfolio?.backtest?.adaptiveStartDate ?? null;
-    const hasFullHistory = Boolean(adaptiveStart && adaptiveStart <= "2005-01-01");
-    if (mode === "backtest" && (!snapshotReady || !hasFullHistory) && data.coreInvestPineBacktest) {
-      return data.coreInvestPineBacktest;
-    }
-    if (fsportfolio) return createInvestDatasetFromSnapshot(mode, fsportfolio);
+    // The legacy five-component snapshot and the single QQQ Pine series do not
+    // represent the frozen eight-component v2.0 portfolio.
+    return createBlockedCoreInvestDataset(mode);
   }
   if (mode === "backtest") return createBacktestDataset(tab, data);
   return createLiveDataset(tab, data);
+}
+
+function createBlockedCoreInvestDataset(mode: AnalyticsMode): AnalyticsDataset {
+  return {
+    tab: "invest",
+    mode,
+    title: mode === "backtest" ? "Core Invest Backtest" : "Core Invest Live",
+    sourceLabel: "Core Invest v2.0 canonical allocation",
+    sourceFiles: ["src/data/capitalife/core-invest.config.json", "public/generated/core-invest/parity-report.json"],
+    period: {},
+    groups: [{ id: "Core Invest", label: "Core Invest v2.0", active: true, weight: 1 }],
+    performanceSeries: [],
+    drawdownSeries: [],
+    benchmarkSeries: [],
+    groupSeries: {},
+    annualReturns: [],
+    monthlyReturns: [],
+    groupBars: [],
+    strategyBars: [],
+    metrics: {
+      status: "Validation blockiert",
+      components: "8",
+      historicalSeriesReady: "4",
+      parityPending: "4",
+      liveReadyComponents: "0",
+      reason: "Keine belastbare Aggregatkurve: Trade-by-Trade-Parität für vier Strategy Sleeves fehlt.",
+      liveStatus: "Keine echten Live-Daten verifiziert",
+    },
+    notes: [
+      "Die einzelne QQQ-Pine-Reihe ist kein Core-Invest-Portfolio-Backtest.",
+      "Das ältere FSPortfolio-5-Komponenten-Modell ist nicht die kanonische v2.0-Allokation.",
+      "Backtest, Walk-Forward und Live bleiben gesperrt, bis dieselbe 8-Komponenten-Engine reproduzierbar läuft.",
+    ],
+  };
 }

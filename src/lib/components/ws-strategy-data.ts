@@ -280,7 +280,7 @@ export const PILLAR_META: Record<Pillar, { label: string; weight: string; color:
 
 // ── Core Invest (Research / Pre-Fund) ────────────────────────────────────────
 export type CIPillar = "etf_core" | "ci_sleeve";
-export type CIStatus = "live_validated" | "research" | "partial_validation" | "parity_pending" | "rejected";
+export type CIStatus = "historical_reference" | "research" | "partial_validation" | "parity_pending" | "rejected";
 
 export interface CoreInvestRow {
   id: string;
@@ -309,50 +309,50 @@ export const CI_STRATEGIES: CoreInvestRow[] = [
   {
     id: "qqq_etf_ci", ticker: "QQQ", label: "Nasdaq 100 ETF (passiv)", group: "ETF-Core",
     engine: "Buy & Hold", pillar: "etf_core", weight: 45,
-    sharpe: 0.81, pf: 1.00, cagr: "+15.74%", maxDd: "-53.55%", calmar: 0.29, trades: 1, winRate: "100% Hold", totalReturn: "+1728.90%", status: "live_validated",
+    sharpe: 0.81, pf: 1.00, cagr: "+15.74%", maxDd: "-53.55%", calmar: 0.29, trades: 1, winRate: "100% Hold", totalReturn: "+1728.90%", status: "historical_reference",
     notes: "TradingView OHLC 2006-08-18 bis 2026-07-07; Buy-and-hold Referenzposition.",
   },
   {
     id: "gld_ci", ticker: "GLD", label: "Gold ETF", group: "ETF-Core",
     engine: "Crisis Protection / Portfolio Hedge", pillar: "etf_core", weight: 25,
-    sharpe: 0.63, pf: 1.00, cagr: "+9.60%", maxDd: "-45.56%", calmar: 0.21, trades: 1, winRate: "100% Hold", totalReturn: "+518.43%", status: "live_validated",
+    sharpe: 0.63, pf: 1.00, cagr: "+9.60%", maxDd: "-45.56%", calmar: 0.21, trades: 1, winRate: "100% Hold", totalReturn: "+518.43%", status: "historical_reference",
     notes: "TradingView OHLC 2006-08-18 bis 2026-07-07; Buy-and-hold Hedge-Position.",
   },
   {
     id: "spmo_ci", ticker: "SPMO", label: "Invesco S&P 500 Momentum", group: "ETF-Core",
     engine: "Momentum / Alpha", pillar: "etf_core", weight: 5,
-    sharpe: 0.92, pf: 1.00, cagr: "+18.04%", maxDd: "-31.31%", calmar: 0.58, trades: 1, winRate: "100% Hold", totalReturn: "+493.17%", status: "live_validated",
+    sharpe: 0.92, pf: 1.00, cagr: "+18.04%", maxDd: "-31.31%", calmar: 0.58, trades: 1, winRate: "100% Hold", totalReturn: "+493.17%", status: "historical_reference",
     notes: "TradingView OHLC 2015-10-12 bis 2026-07-07; Buy-and-hold Momentum-Position.",
   },
   {
     id: "spy_ci", ticker: "SPY", label: "S&P 500 ETF", group: "ETF-Core",
     engine: "Buy & Hold / Benchmark", pillar: "etf_core", weight: 5,
-    sharpe: 0.56, pf: 1.00, cagr: "+9.17%", maxDd: "-56.47%", calmar: 0.16, trades: 1, winRate: "100% Hold", totalReturn: "+472.12%", status: "live_validated",
+    sharpe: 0.56, pf: 1.00, cagr: "+9.17%", maxDd: "-56.47%", calmar: 0.16, trades: 1, winRate: "100% Hold", totalReturn: "+472.12%", status: "historical_reference",
     notes: "TradingView OHLC 2006-08-18 bis 2026-07-07; Buy-and-hold Benchmark.",
   },
   {
     id: "qqq_pine1", ticker: "QQQ", label: "QQQ Pine 1", group: "Strategy Sleeve",
     engine: "SMA(400) + SMA(5) - Long/Cash - TP 2% - SL 25%", pillar: "ci_sleeve", weight: 5,
-    sharpe: 1.18, pf: 1.602, cagr: "+3.44%", maxDd: "-8.71%", calmar: 0.40, trades: 642, winRate: "69.31%", totalReturn: "+95.19%", status: "live_validated",
-    notes: "TradingView QQQ Daily Strategy Tester: 642 Trades, PF 1.602, MaxDD 8.71%, +95.19%.",
+    sharpe: 1.18, pf: 1.602, cagr: "+3.44%", maxDd: "-8.71%", calmar: 0.40, trades: 642, winRate: "69.31%", totalReturn: "+95.19%", status: "partial_validation",
+    notes: "TradingView-Referenz: 642 Trades, PF 1.602, MaxDD 8.71%, +95.19%; Python-/Trade-Parität offen.",
   },
   {
     id: "qqq_pine2", ticker: "QQQ", label: "QQQ Pine 2 EMA", group: "Strategy Sleeve",
     engine: "EMA(20)/EMA(50) + Valuation - Long/Cash - TP 4% - SL 2%", pillar: "ci_sleeve", weight: 5,
-    sharpe: 1.42, pf: 2.158, cagr: "+7.96%", maxDd: "-28.59%", calmar: 0.28, trades: 68, winRate: "42.65%", totalReturn: "+358.27%", status: "live_validated",
-    notes: "TradingView QQQ Daily Strategy Tester: 68 Trades, PF 2.158, MaxDD 28.59%, +358.27%.",
+    sharpe: 1.42, pf: 2.158, cagr: "+7.96%", maxDd: "-28.59%", calmar: 0.28, trades: 68, winRate: "42.65%", totalReturn: "+358.27%", status: "partial_validation",
+    notes: "TradingView-Referenz: 68 Trades, PF 2.158, MaxDD 28.59%, +358.27%; Python-/Trade-Parität offen.",
   },
   {
     id: "hg1_ci", ticker: "HG1!", label: "Copper / HG", group: "Strategy Sleeve",
     engine: "Pine 2 EMA - Long/Cash - TP 4% - SL 2%", pillar: "ci_sleeve", weight: 5,
-    sharpe: 1.36, pf: 2.082, cagr: "+9.23%", maxDd: "-40.43%", calmar: 0.23, trades: 88, winRate: "30.68%", totalReturn: "+483.82%", status: "live_validated",
-    notes: "TradingView HG1! Daily Strategy Tester: 88 Trades, PF 2.082, MaxDD 40.43%, +483.82%.",
+    sharpe: 1.36, pf: 2.082, cagr: "+9.23%", maxDd: "-40.43%", calmar: 0.23, trades: 88, winRate: "30.68%", totalReturn: "+483.82%", status: "partial_validation",
+    notes: "TradingView-Referenz: 88 Trades, PF 2.082, MaxDD 40.43%, +483.82%; Futures-Gaps und Python-/Trade-Parität offen.",
   },
   {
     id: "6s1_ci", ticker: "6S1!", label: "CHF / Swiss Franc", group: "Strategy Sleeve",
     engine: "Pine 2 EMA - Long/Cash - TP 4% - SL 2%", pillar: "ci_sleeve", weight: 5,
-    sharpe: 0.42, pf: 1.266, cagr: "+0.84%", maxDd: "-23.66%", calmar: 0.04, trades: 65, winRate: "32.31%", totalReturn: "+17.92%", status: "live_validated",
-    notes: "TradingView 6S1! Daily Strategy Tester: 65 Trades, PF 1.266, MaxDD 23.66%, +17.92%.",
+    sharpe: 0.42, pf: 1.266, cagr: "+0.84%", maxDd: "-23.66%", calmar: 0.04, trades: 65, winRate: "32.31%", totalReturn: "+17.92%", status: "partial_validation",
+    notes: "TradingView-Referenz: 65 Trades, PF 1.266, MaxDD 23.66%, +17.92%; Python-/Trade-Parität offen.",
   },
 ];
 
@@ -376,10 +376,10 @@ export const WS_PORTFOLIO_KPIS = {
 // The current aggregate includes strategy sleeves without exact Pine execution
 // parity. Historical approximation metrics must not be shown as validated OOS.
 export const CI_PORTFOLIO_KPIS = {
-  sharpe:     "1.18",
-  cagr:       "+13.89%",
-  maxDd:      "-21.32%",
-  calmar:     "0.65",
+  sharpe:     "nicht validiert",
+  cagr:       "nicht validiert",
+  maxDd:      "nicht validiert",
+  calmar:     "nicht validiert",
   components: "8",
 } as const;
 

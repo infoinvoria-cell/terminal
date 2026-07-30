@@ -97,6 +97,24 @@ export type OpenPositionRow = {
   status: "open";
 };
 
+export type OpenOrderRow = {
+  source: TrackRecordSourceKind;
+  provider: TrackRecordProvider;
+  providerAccountId: string;
+  providerOrderId: string;
+  symbol: string | null;
+  direction: string | null;
+  createdAtUtc: string | null;
+  createdAtLocal: string | null;
+  brokerTimezone: string | null;
+  size: number | null;
+  sizeUnit: string | null;
+  orderPrice: number | null;
+  takeProfit: number | null;
+  stopLoss: number | null;
+  status: "pending";
+};
+
 export type ClosedTradeRow = {
   source: TrackRecordSourceKind;
   provider: TrackRecordProvider;
@@ -170,6 +188,7 @@ export type TrackRecordSnapshotBundle = {
   dailyReturns: DailyReturnRow[];
   monthlyReturns: MonthlyReturnRow[];
   openPositions: OpenPositionRow[];
+  openOrders: OpenOrderRow[];
   closedTrades: ClosedTradeRow[];
   cashflows: CashflowRow[];
   metrics: TrackRecordMetricRow[];
@@ -190,10 +209,37 @@ export type TrackRecordOverview = {
     monthlyReturnCount: number;
     monthlyReturns: Array<{ month: string; returnPct: number }>;
     normalizedClosedTradeCount: number;
+    visibleAccount2TradeCount: number;
     historicalDataQuality: "complete" | "partial" | "insufficient";
+    importAudit: {
+      monthly: {
+        count: number;
+        duplicateCount: number;
+        sorted: boolean;
+        finitePercentValues: boolean;
+        firstMonth: string | null;
+        lastMonth: string | null;
+        hash: string;
+      };
+      partialTrades: {
+        count: number;
+        duplicateCount: number;
+        sorted: boolean;
+        invalidCount: number;
+        firstCloseLocal: string | null;
+        lastCloseLocal: string | null;
+        symbols: string[];
+        costRows: number;
+        accountCount: number;
+        hash: string;
+        classification: string;
+      };
+    };
   };
   capabilities: {
     supabaseConfigured: boolean;
+    productiveDatabaseSchemaAvailable: boolean;
+    historicalPersistenceVerified: boolean;
     myfxbookCredentialsPresent: boolean;
     darwinexCredentialsPresent: boolean;
     myfxbookAccountIdPresent: boolean;

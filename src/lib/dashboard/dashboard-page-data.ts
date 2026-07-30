@@ -5,6 +5,7 @@ import { computeDashboardKpis, type SerializedTrade } from "@/lib/trades-analyti
 import type { ParsedReportTrade, ParsedBalanceRow } from "@/lib/mt-report-parser";
 import { loadDashboardSnapshotAsync } from "@/lib/brain/dashboard-snapshot-loader";
 import type { UniversalKpiStrings } from "@/components/dashboard/universal-kpi-strip";
+import { buildTrackRecordOverview } from "@/lib/track-record/service";
 
 const EMPTY_TRADES = {
   rows: [] as Parameters<typeof computeDashboardKpis>[0],
@@ -14,9 +15,10 @@ const EMPTY_TRADES = {
 };
 
 export async function getDashboardPageData() {
-  const [tradesResult, snap] = await Promise.all([
+  const [tradesResult, snap, trackRecordOverview] = await Promise.all([
     getTradesData().catch(() => EMPTY_TRADES),
     loadDashboardSnapshotAsync().catch(() => null),
+    buildTrackRecordOverview().catch(() => null),
   ]);
   const { rows, serialized, reportTrades, balanceRows } = tradesResult;
   const fsportfolio = await getFSPortfolioSnapshot().catch(() => undefined);
@@ -50,5 +52,6 @@ export async function getDashboardPageData() {
     universal,
     fsportfolio,
     capalifeData,
+    trackRecordOverview,
   };
 }

@@ -13,12 +13,14 @@ export async function buildTrackRecordOverview(): Promise<TrackRecordOverview> {
     syncRows: [],
     accountRows: [],
     metrics: [],
+    productiveDatabaseSchemaAvailable: false,
+    historicalPersistenceVerified: false,
   }));
   const publicSyncRows = live.syncRows.map(sanitizeSyncRow);
   const publicAccounts = live.accountRows.map(sanitizeAccountRow);
   const publicMetrics = [...historicalBundle.metrics, ...live.metrics].map(sanitizeMetricRow);
-  const blockers = deriveReadinessBlockers(env, historical);
-  const readinessTotal = 8;
+  const blockers = deriveReadinessBlockers(env, historical, live.historicalPersistenceVerified);
+  const readinessTotal = 9;
   const readinessCompleted = readinessTotal - blockers.length;
   return {
     generatedAtUtc: new Date().toISOString(),
@@ -33,10 +35,14 @@ export async function buildTrackRecordOverview(): Promise<TrackRecordOverview> {
       monthlyReturnCount: historical.monthlyReturnCount,
       monthlyReturns: historical.monthlyReturns,
       normalizedClosedTradeCount: historical.normalizedClosedTradeCount,
+      visibleAccount2TradeCount: historical.visibleAccount2TradeCount,
       historicalDataQuality: historical.historicalDataQuality,
+      importAudit: historical.importAudit,
     },
     capabilities: {
       supabaseConfigured: env.hasSupabase,
+      productiveDatabaseSchemaAvailable: live.productiveDatabaseSchemaAvailable,
+      historicalPersistenceVerified: live.historicalPersistenceVerified,
       myfxbookCredentialsPresent: env.hasMyfxbookCredentials,
       darwinexCredentialsPresent: env.hasDarwinexCredentials,
       myfxbookAccountIdPresent: env.hasMyfxbookAccountId,
@@ -63,6 +69,9 @@ export async function buildTrackRecordOverview(): Promise<TrackRecordOverview> {
         ? "A fixed egress IP is not evidenced by configuration; production Myfxbook sync remains blocked until Vercel Static IPs or a fixed-egress worker is verified."
         : "Fixed egress IP is marked as configured; deployment-level verification remains required.",
       "Darwinex data is kept distinct from broker/Myfxbook/internal-calculated rows to prevent silent source mixing.",
+      live.historicalPersistenceVerified
+        ? "Historical import is evidenced in the configured database."
+        : "Productive DB migration/import is not evidenced; the UI must keep the migration-pending status.",
     ],
   };
 }
@@ -147,9 +156,11 @@ function publicProviderId(provider: string, value: string) {
 function deriveReadinessBlockers(
   env: ReturnType<typeof getTrackRecordEnv>,
   historical: ReturnType<typeof getHistoricalTrackRecordSummary>,
+  historicalPersistenceVerified: boolean,
 ) {
   const blockers: string[] = [];
   if (historical.historicalDataQuality !== ("complete" as string)) blockers.push("Vollständige Broker-Rohhistorie fehlt");
+  if (!historicalPersistenceVerified) blockers.push("Produktive DB-Migration und historischer Import sind nicht verifiziert");
   if (!env.hasMyfxbookCredentials || !env.hasMyfxbookAccountId) blockers.push("Myfxbook-Credentials oder Account-ID fehlen");
   if (!env.vercelStaticIpConfigured) blockers.push("Feste Egress-IP für Myfxbook ist nicht nachgewiesen");
   if (!env.hasDarwinexCredentials || !env.hasDarwinexProductId) blockers.push("Darwinex-Credentials oder Product-ID fehlen");

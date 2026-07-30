@@ -8,12 +8,15 @@ import {
   type ViewMode,
 } from "@/components/dashboard/performance-report-chart";
 import type { CapalifeData } from "@/lib/capitalife-data";
+import { TrackRecordStatusStrip } from "@/components/dashboard/track-record-status-strip";
+import type { TrackRecordOverview } from "@/lib/track-record/types";
 import type { DashboardKpis, SerializedTrade } from "@/lib/trades-analytics";
 
 type PortfolioSectionProps = {
   trades: SerializedTrade[];
   kpis: DashboardKpis;
   capalifeData: CapalifeData;
+  trackRecordOverview: TrackRecordOverview | null;
 };
 
 function Btn({
@@ -50,7 +53,7 @@ function Btn({
   );
 }
 
-export function PortfolioSection({ trades, kpis, capalifeData }: PortfolioSectionProps) {
+export function PortfolioSection({ trades, kpis, capalifeData, trackRecordOverview }: PortfolioSectionProps) {
   const defaultTf: TimeFrame = trades.length > 0 ? "1D" : "1M";
   const defaultView: ViewMode = trades.length > 0 ? "Line" : "Bar";
   const [view, setView] = useState<ViewMode>(defaultView);
@@ -121,6 +124,10 @@ export function PortfolioSection({ trades, kpis, capalifeData }: PortfolioSectio
       </div>
 
       {/* Chart card — NO separator line inside, buttons top-right */}
+      <div style={{ flexShrink: 0, paddingBottom: 12 }}>
+        <TrackRecordStatusStrip overview={trackRecordOverview} />
+      </div>
+
       <div
         style={{
           position: "relative",

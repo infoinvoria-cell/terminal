@@ -81,7 +81,42 @@ export const SLEEVE_PATTERNS: SleevePattern[] = [
   { id: 10, assetId: "es1",     symbol: "ES1!",  name: "S&P 500 E-mini",  direction: "LONG", window: "Dez 15–25",       startSlot: 240, tier: "fdr",        winRate: 0.80, oosWinRate: 0.75, avgReturn: 0.015, sortino: 2.5, nObs: 36, maxDrawdown: -0.04, profitFactor: 3.8, robustness: 0.65, decadeConsistent: true,  category: "Indizes", rationale: "Santa Claus Rally: Pension fund rebalancing, tax-loss selling exhaustion.", fakeReturns: makeFakeReturns(0.80, 0.015) },
 ];
 
-/* ─── Equity bar chart (returns) ─────────────────────────────────────── */
+/* ─── Cumulative equity mini-line (for card) ────────────────────────── */
+function CardEquityLine({ returns: rets, id }: { returns: number[]; id: string }) {
+  const eq: number[] = [0];
+  for (const r of rets) eq.push(eq[eq.length - 1] + r * 100);
+  const W = 200; const H = 38;
+  const min = Math.min(...eq); const max = Math.max(...eq);
+  const rng = max - min || 0.1;
+  const pts = eq.map((v, i) => {
+    const x = (i / (eq.length - 1)) * W;
+    const y = H - 4 - ((v - min) / rng) * (H - 8);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+  const last = eq[eq.length - 1];
+  const lineC = last >= 0 ? "rgba(232,234,239,0.90)" : "rgba(172,96,104,0.86)";
+  const fillId = `cf-${id}`;
+  const lastX = W;
+  const lastY = H - 4 - ((last - min) / rng) * (H - 8);
+  const base  = H - 4 - ((0 - min) / rng) * (H - 8);
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{ display: "block", overflow: "visible" }}>
+      <defs>
+        <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={lineC} stopOpacity={last >= 0 ? "0.14" : "0.10"} />
+          <stop offset="100%" stopColor={lineC} stopOpacity="0.00" />
+        </linearGradient>
+      </defs>
+      <line x1={0} y1={base} x2={W} y2={base} stroke="rgba(255,255,255,0.08)" strokeWidth={0.5} />
+      <polygon points={`0,${base} ${pts} ${W},${base}`} fill={`url(#${fillId})`} />
+      <polyline points={pts} fill="none" stroke={lineC} strokeWidth={1.4} strokeLinejoin="round" />
+      <circle cx={lastX} cy={lastY} r={2.5} fill={lineC} />
+    </svg>
+  );
+}
+
+/* ─── Raw trade bars (for detail panel / portfolio list) ────────────── */
 function ReturnBars({ returns: rets, width = 80, height = 36 }: {
   returns: number[]; width?: number; height?: number;
 }) {
@@ -98,7 +133,7 @@ function ReturnBars({ returns: rets, width = 80, height = 36 }: {
           <rect key={i}
             x={i * (bw + 1)} y={pos ? mid - h : mid}
             width={bw} height={h}
-            fill={pos ? "rgba(255,255,255,0.55)" : "rgba(239,68,68,0.65)"}
+            fill={pos ? "rgba(232,234,239,0.82)" : "rgba(138,78,78,0.82)"}
             rx={0.5}
           />
         );
@@ -179,110 +214,147 @@ function DrawdownLine({ equity, width, height }: { equity: number[]; width: numb
   );
 }
 
-/* ─── Tier badge ────────────────────────────────────────────────────── */
-function TierBadge({ tier }: { tier: SleevePattern["tier"] }) {
-  return (
-    <span style={{
-      fontSize: 7, fontWeight: 700, padding: "1px 4px", borderRadius: 3,
-      background: tier === "bonferroni" ? "rgba(216,188,103,0.15)" : "rgba(255,255,255,0.07)",
-      color: tier === "bonferroni" ? C_GOLD : "rgba(255,255,255,0.45)",
-      letterSpacing: "0.05em",
-    }}>
-      {tier === "bonferroni" ? "T1" : "T2"}
-    </span>
-  );
-}
-
-/* ─── Symbol icon (letter-based, like SignalCard fallback) ──────────── */
-function SymbolIcon({ symbol, dir }: { symbol: string; dir: "LONG" | "SHORT" }) {
+/* ─── Symbol icon — matches SignalCard AssetIcon ────────────────────── */
+function SymbolIcon({ symbol, dir, size = 40 }: { symbol: string; dir: "LONG" | "SHORT"; size?: number }) {
   const letter = symbol.replace("1!", "").charAt(0);
-  const accent = dir === "LONG" ? "rgba(255,255,255,0.10)" : "rgba(239,68,68,0.10)";
+  const isL = dir === "LONG";
   return (
     <div style={{
-      width: 36, height: 36, borderRadius: 8, flexShrink: 0,
-      background: accent,
-      border: `1px solid ${C_BORDER}`,
+      width: size, height: size, borderRadius: 10, flexShrink: 0,
+      background: "rgba(255,255,255,0.06)",
+      border: "1px solid rgba(255,255,255,0.08)",
       display: "flex", alignItems: "center", justifyContent: "center",
     }}>
-      <span style={{ fontSize: 14, fontWeight: 900, color: dir === "LONG" ? "rgba(255,255,255,0.75)" : "rgba(239,68,68,0.80)" }}>
+      <span style={{ fontSize: size * 0.38, fontWeight: 800, color: isL ? "rgba(232,234,239,0.80)" : C_GOLD }}>
         {letter}
       </span>
     </div>
   );
 }
 
+/* ─── Monitoring-Tester MiniDonut ───────────────────────────────────── */
+function MiniDonut({ pct, color, bg = "rgba(255,255,255,0.06)", size = 52, thick = 5 }: {
+  pct: number; color: string; bg?: string; size?: number; thick?: number;
+}) {
+  const r = (size - thick) / 2;
+  const circ = 2 * Math.PI * r;
+  const dash = Math.min(1, Math.max(0, pct / 100)) * circ;
+  const cx = size / 2; const cy = size / 2;
+  return (
+    <svg width={size} height={size} style={{ display: "block", flexShrink: 0 }}>
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke={bg} strokeWidth={thick} />
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke={color} strokeWidth={thick}
+        strokeDasharray={`${dash} ${circ}`} strokeDashoffset={circ * 0.25} strokeLinecap="round" />
+      <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central"
+        fill={color} fontSize={size * 0.24} fontWeight="700" fontFamily={FONT}>
+        {pct.toFixed(0)}%
+      </text>
+    </svg>
+  );
+}
+
+/* ─── Tier badge ────────────────────────────────────────────────────── */
+function TierBadge({ tier }: { tier: SleevePattern["tier"] }) {
+  return (
+    <span style={{
+      fontSize: 7, fontWeight: 700, padding: "1px 5px", borderRadius: 3,
+      background: tier === "bonferroni" ? "rgba(216,188,103,0.14)" : "rgba(255,255,255,0.06)",
+      color: tier === "bonferroni" ? C_GOLD : "rgba(255,255,255,0.40)",
+      letterSpacing: "0.06em", textTransform: "uppercase" as const,
+    }}>
+      {tier === "bonferroni" ? "T1" : "T2"}
+    </span>
+  );
+}
+
+/* ─── Monitoring-Tester KPI mini-cell ───────────────────────────────── */
+function KpiCell({ label, value, valueColor = "#eef2f7" }: { label: string; value: string; valueColor?: string }) {
+  return (
+    <div style={{
+      padding: "5px 7px", borderRadius: 8,
+      border: "1px solid rgba(232,237,244,0.12)",
+      background: "rgba(12,14,18,0.85)",
+      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+    }}>
+      <div style={{ fontSize: 7, fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase" as const, color: "#7c8798", lineHeight: 1, marginBottom: 3 }}>
+        {label}
+      </div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: valueColor, lineHeight: 1, fontFamily: FONT }}>
+        {value}
+      </div>
+    </div>
+  );
+}
+
 /* ─── Grid card — SignalCard style ──────────────────────────────────── */
 function SleeveCard({ p, selected, onSelect }: { p: SleevePattern; selected: boolean; onSelect: () => void }) {
-  const [hov, setHov] = useState(false);
-  const dirColor = p.direction === "LONG" ? C_GREEN : C_RED;
-  const accentBar = `inset 3px 0 0 ${dirColor}`;
+  const isLong   = p.direction === "LONG";
+  // positive = white, negative = gold — no green
+  const dirColor = isLong ? "rgba(232,234,239,0.90)" : C_GOLD;
+
+  const cardBg = selected
+    ? `radial-gradient(ellipse 100% 80% at 110% 115%, rgba(216,188,103,0.12) 0%, transparent 60%), ${C_CARD}`
+    : C_CARD;
 
   return (
     <div
       role="button" tabIndex={0}
       onClick={onSelect}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onSelect(); }}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
       style={{
-        background: selected
-          ? `radial-gradient(ellipse 100% 80% at 110% 115%, rgba(216,188,103,0.12) 0%, transparent 60%), ${C_CARD}`
-          : hov ? `rgba(255,255,255,0.04) linear-gradient(${C_CARD}, ${C_CARD})` : C_CARD,
+        background: cardBg,
         border: selected ? "1px solid rgba(216,188,103,0.32)" : `1px solid ${C_BORDER}`,
-        borderRadius: 12, padding: "12px 12px 10px",
-        boxShadow: accentBar,
+        borderRadius: 12,
+        padding: "14px 14px 13px",
+        display: "flex", flexDirection: "column", gap: 0,
         cursor: "pointer", outline: "none",
         transition: "border-color 120ms",
         height: "100%", boxSizing: "border-box" as const,
         fontFamily: FONT, overflow: "hidden",
-        display: "flex", flexDirection: "column", gap: 0,
         position: "relative" as const,
+        // SignalCard-style left accent bar
+        boxShadow: `inset 3px 0 0 ${dirColor}`,
       }}
     >
-      {/* Row 1: icon + symbol + tier + wr */}
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 8 }}>
-        <SymbolIcon symbol={p.symbol} dir={p.direction} />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 2 }}>
-            <span style={{ fontSize: 13, fontWeight: 900, color: C_WHITE, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", letterSpacing: "0.01em" }}>
-              {p.symbol}
-            </span>
-            <TierBadge tier={p.tier} />
-          </div>
-          <span style={{ fontSize: 9, color: C_TEXT3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block" }}>
+      {/* Row 1: [Icon] [Symbol / Name] [Win Rate chip] — exactly like SignalCard */}
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 10 }}>
+        <SymbolIcon symbol={p.symbol} dir={p.direction} size={40} />
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 3, paddingTop: 1 }}>
+          <span style={{ fontSize: 16, fontWeight: 900, color: "#ffffff", letterSpacing: "0.01em", lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {p.symbol.replace("1!", "")}
+          </span>
+          <span style={{ fontSize: 10, fontWeight: 400, color: "rgba(255,255,255,0.30)", lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             {p.name}
           </span>
         </div>
-        {/* Win rate — top right like P&L chip in SignalCard */}
-        <span style={{ fontSize: 15, fontWeight: 800, color: C_WHITE, flexShrink: 0, letterSpacing: "-0.02em", lineHeight: 1 }}>
+        {/* Win rate chip — top-right like P&L chip in SignalCard */}
+        <span style={{ fontSize: 13, fontWeight: 800, color: dirColor, letterSpacing: "-0.02em", lineHeight: 1, flexShrink: 0, paddingTop: 2, fontVariantNumeric: "tabular-nums" }}>
           {(p.winRate * 100).toFixed(0)}%
         </span>
       </div>
 
-      {/* Window label */}
-      <div style={{ fontSize: 11, fontWeight: 700, color: C_GOLD, marginBottom: 8, letterSpacing: "-0.1px" }}>
-        {p.window}
+      {/* Row 2: Window · Tier — like strategy/date row in SignalCard */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6, marginBottom: 10 }}>
+        <span style={{ fontSize: 10, fontWeight: 400, color: "rgba(255,255,255,0.26)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
+          {p.window}
+        </span>
+        <TierBadge tier={p.tier} />
       </div>
 
-      {/* Trade returns bar chart */}
-      <div style={{ marginBottom: 6 }}>
-        <ReturnBars returns={p.fakeReturns.slice(0, 20)} width={140} height={40} />
-        <div style={{ fontSize: 7.5, color: C_TEXT3, marginTop: 3 }}>Trade Returns</div>
+      {/* Row 3: Cumulative equity line */}
+      <div style={{ marginBottom: 10 }}>
+        <CardEquityLine returns={p.fakeReturns} id={`p${p.id}`} />
       </div>
 
-      {/* Stats footer */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 4, borderTop: `1px solid rgba(255,255,255,0.06)`, paddingTop: 7, marginTop: "auto" }}>
-        {[
-          { label: "OOS WR", value: `${(p.oosWinRate * 100).toFixed(0)}%`, color: p.oosWinRate >= 0.70 ? C_WHITE : "rgba(255,255,255,0.40)" },
-          { label: "Sortino", value: p.sortino.toFixed(1), color: C_WHITE },
-          { label: "Robust",  value: `${(p.robustness * 100).toFixed(0)}%`, color: "rgba(255,255,255,0.60)" },
-          { label: "n",       value: String(p.nObs), color: C_TEXT2 },
-        ].map(s => (
-          <div key={s.label}>
-            <div style={{ fontSize: 6, color: "rgba(255,255,255,0.28)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 2 }}>{s.label}</div>
-            <div style={{ fontSize: 10, fontWeight: 700, color: s.color }}>{s.value}</div>
-          </div>
-        ))}
+      {/* Row 4: Direction chip + Sortino — like direction/chart row in SignalCard */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto" }}>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 900, letterSpacing: "0.08em", color: dirColor, lineHeight: 1 }}>
+          <span style={{ fontSize: 10 }}>{isLong ? "▲" : "▼"}</span>
+          {p.direction}
+        </span>
+        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.22)", lineHeight: 1 }}>
+          S {p.sortino.toFixed(1)}
+        </span>
       </div>
     </div>
   );
@@ -291,7 +363,7 @@ function SleeveCard({ p, selected, onSelect }: { p: SleevePattern; selected: boo
 /* ─── Left list row (detail view) ───────────────────────────────────── */
 function PatternListRow({ p, selected, onSelect }: { p: SleevePattern; selected: boolean; onSelect: () => void }) {
   const [hov, setHov] = useState(false);
-  const dirColor = p.direction === "LONG" ? C_GREEN : C_RED;
+  const dirColor = p.direction === "LONG" ? "rgba(232,234,239,0.70)" : C_GOLD;
   return (
     <button type="button" onClick={onSelect}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
@@ -322,7 +394,8 @@ function PatternListRow({ p, selected, onSelect }: { p: SleevePattern; selected:
 
 /* ─── Detail panel ──────────────────────────────────────────────────── */
 function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => void }) {
-  const dirColor = p.direction === "LONG" ? C_GREEN : C_RED;
+  const isLong   = p.direction === "LONG";
+  const dirColor = isLong ? "rgba(232,234,239,0.80)" : C_GOLD;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "14px 16px", flex: 1, minHeight: 0, overflow: "hidden", fontFamily: FONT }}>
@@ -360,7 +433,7 @@ function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => 
         [
           { label: "IS Win Rate",  value: `${(p.winRate * 100).toFixed(0)}%`,    color: C_WHITE },
           { label: "OOS Win Rate", value: `${(p.oosWinRate * 100).toFixed(0)}%`, color: p.oosWinRate >= 0.70 ? C_WHITE : C_TEXT2 },
-          { label: "Ø Return",     value: `${p.avgReturn >= 0 ? "+" : ""}${(p.avgReturn * 100).toFixed(2)}%`, color: p.avgReturn >= 0 ? C_WHITE : C_RED },
+          { label: "Ø Return",     value: `${p.avgReturn >= 0 ? "+" : ""}${(p.avgReturn * 100).toFixed(2)}%`, color: p.avgReturn >= 0 ? C_WHITE : C_GOLD },
           { label: "Beobacht.",    value: String(p.nObs), color: C_TEXT2 },
         ],
         [
@@ -401,18 +474,22 @@ function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => 
   );
 }
 
-/* ─── Portfolio KPI strip ────────────────────────────────────────────── */
-function KpiBox({ label, value, sub, valueColor = C_WHITE }: { label: string; value: string; sub: string; valueColor?: string }) {
+/* ─── Portfolio KPI strip — Monitoring Tester glass-card style ──────── */
+function KpiBox({ label, value, sub, valueColor = "#eef2f7" }: { label: string; value: string; sub: string; valueColor?: string }) {
   return (
     <div style={{
-      background: C_CARD, border: `1px solid ${C_BORDER}`, borderRadius: 10,
-      padding: "10px 12px", display: "flex", flexDirection: "column", justifyContent: "space-between",
+      background: "rgba(12,14,18,0.92)",
+      border: "1px solid rgba(232,237,244,0.12)",
+      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
+      backdropFilter: "blur(8px)",
+      borderRadius: 10, padding: "10px 14px",
+      display: "flex", flexDirection: "column", justifyContent: "space-between",
       fontFamily: FONT,
     }}>
-      <div style={{ fontSize: 9, color: C_TEXT3, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 8, fontWeight: 700, color: "#7c8798", textTransform: "uppercase" as const, letterSpacing: "0.10em", marginBottom: 6 }}>{label}</div>
       <div>
-        <div style={{ fontSize: 20, fontWeight: 800, color: valueColor, lineHeight: 1, letterSpacing: "-0.3px" }}>{value}</div>
-        <div style={{ fontSize: 8, color: C_TEXT3, marginTop: 4 }}>{sub}</div>
+        <div style={{ fontSize: 20, fontWeight: 800, color: valueColor, lineHeight: 1, letterSpacing: "-0.3px", fontVariantNumeric: "tabular-nums" }}>{value}</div>
+        <div style={{ fontSize: 8, color: "rgba(255,255,255,0.28)", marginTop: 4 }}>{sub}</div>
       </div>
     </div>
   );
@@ -440,7 +517,7 @@ function PortfolioView() {
         <KpiBox label="Ø OOS Win Rate" value={`${(avgOos * 100).toFixed(1)}%`}                  sub="Out-of-Sample" />
         <KpiBox label="Ø Sortino"      value={avgSort.toFixed(2)}                               sub="Risikoadjustiert" />
         <KpiBox label="Gesamt n"       value={`${total}`}                                        sub="Hist. Trades" />
-        <KpiBox label="Portfolio Ret." value={`${finalRet >= 0 ? "+" : ""}${finalRet.toFixed(1)}%`} sub="Illustrativ" valueColor={finalRet >= 0 ? C_WHITE : C_RED} />
+        <KpiBox label="Portfolio Ret." value={`${finalRet >= 0 ? "+" : ""}${finalRet.toFixed(1)}%`} sub="Illustrativ" valueColor={finalRet >= 0 ? "#eef2f7" : C_GOLD} />
         <KpiBox label="Max Drawdown"   value={`${(maxDd * 100).toFixed(1)}%`}                   sub="Portfolio" valueColor={C_GOLD} />
       </div>
 
@@ -464,7 +541,7 @@ function PortfolioView() {
           <div style={{ fontSize: 7.5, color: C_TEXT3, textTransform: "uppercase" as const, letterSpacing: "0.07em", marginBottom: 8, flexShrink: 0 }}>Muster-Übersicht</div>
           <div style={{ flex: 1, overflowY: "auto" }}>
             {patterns.map(p => {
-              const dirC = p.direction === "LONG" ? C_GREEN : C_RED;
+              const dirC = p.direction === "LONG" ? "rgba(232,234,239,0.55)" : C_GOLD;
               return (
                 <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 6, paddingBottom: 5, borderBottom: `1px solid rgba(255,255,255,0.04)` }}>
                   <div style={{ width: 5, height: 5, borderRadius: "50%", background: dirC, flexShrink: 0 }} />

@@ -6,7 +6,9 @@ const MOBILE_MAX = 767;
 
 const isMobilePath = (p: string) => p === "/m" || p.startsWith("/m/");
 
-function desktopToMobile(p: string): string {
+export function desktopToMobile(p: string): string {
+  if (p.startsWith("/about/inno")) return "/m/about/inno";
+  if (p.startsWith("/about")) return "/m/about";
   if (p.startsWith("/sentinel")) return "/m/sentinel";
   if (p.startsWith("/signal")) return "/m/signale";
   if (p.startsWith("/brain")) return "/m/brain";
@@ -14,7 +16,9 @@ function desktopToMobile(p: string): string {
   return "/m/home";
 }
 
-function mobileToDesktop(p: string): string {
+export function mobileToDesktop(p: string): string {
+  if (p.startsWith("/m/about/inno")) return "/about/inno";
+  if (p.startsWith("/m/about")) return "/about";
   if (p.startsWith("/m/sentinel")) return "/sentinel";
   if (p.startsWith("/m/signale")) return "/signal";
   if (p.startsWith("/m/brain")) return "/brain";

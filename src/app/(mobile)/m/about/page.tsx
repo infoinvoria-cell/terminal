@@ -1,9 +1,10 @@
-import { MobileAboutInnoView } from "@/components/mobile/about/MobileAboutInnoView";
+import { redirect } from "next/navigation";
 import { MobileAboutView } from "@/components/mobile/about/MobileAboutView";
 
 export const metadata = { title: "Bibel - Capitalife" };
 
 export default async function MobileAboutPage(props: PageProps<"/m/about">) {
   const searchParams = await props.searchParams;
-  return searchParams?.mode === "inno" ? <MobileAboutInnoView /> : <MobileAboutView />;
+  if (searchParams?.mode === "inno") redirect("/m/about/inno");
+  return <MobileAboutView />;
 }

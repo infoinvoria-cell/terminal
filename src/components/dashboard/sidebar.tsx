@@ -167,9 +167,14 @@ const P_OUTER_W = P_W + P_FP * 2;   // 421
 const P_OUTER_H = P_H + P_FP * 2;   // 880
 
 
-function toMobileUrl(path: string | null): string {
+export function toMobileUrl(path: string | null): string {
   if (!path) return "/m/home";
-  if (path.startsWith("/signal") || path.startsWith("/signals") || path.startsWith("/monitoring")) return "/m/signale";
+  if (path.startsWith("/about/inno")) return "/m/about/inno";
+  if (path.startsWith("/about")) return "/m/about";
+  if (path.startsWith("/analytics")) return "/m/analytics";
+  if (path.startsWith("/komponenten")) return "/m/komponenten";
+  if (path.startsWith("/monitoring")) return "/m/monitoring";
+  if (path.startsWith("/signal") || path.startsWith("/signals")) return "/m/signale";
   if (path.startsWith("/brain")) return "/m/brain";
   if (path.startsWith("/settings")) return "/m/settings";
   if (path.startsWith("/onboarding") || path.startsWith("/investors-crm")) return "/m/investors-crm";

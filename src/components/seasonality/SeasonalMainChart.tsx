@@ -23,8 +23,8 @@ const C_GRID = "rgba(255,255,255,0.04)";
 const C_ZERO = "rgba(255,255,255,0.18)";
 const C_MARKER = "rgba(236,242,250,0.90)";
 const C_TODAY_STROKE = "rgba(200,215,232,0.34)";
-const C_LONG = "#20D85E";
-const C_SHORT = "#E14B4B";
+const C_LONG = "#E8EDF3";   // positive = white
+const C_SHORT = "#D6B867";  // negative = gold
 const FONT = "Montserrat, Segoe UI, sans-serif";
 
 interface SplitPoint {
