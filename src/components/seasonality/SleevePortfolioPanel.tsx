@@ -81,37 +81,54 @@ export const SLEEVE_PATTERNS: SleevePattern[] = [
   { id: 10, assetId: "es1",     symbol: "ES1!",  name: "S&P 500 E-mini",  direction: "LONG", window: "Dez 15–25",       startSlot: 240, tier: "fdr",        winRate: 0.80, oosWinRate: 0.75, avgReturn: 0.015, sortino: 2.5, nObs: 36, maxDrawdown: -0.04, profitFactor: 3.8, robustness: 0.65, decadeConsistent: true,  category: "Indizes", rationale: "Santa Claus Rally: Pension fund rebalancing, tax-loss selling exhaustion.", fakeReturns: makeFakeReturns(0.80, 0.015) },
 ];
 
-/* ─── Cumulative equity mini-line (for card) ────────────────────────── */
+/* ─── Cumulative equity card-line — positive=white, negative=gold ────── */
 function CardEquityLine({ returns: rets, id }: { returns: number[]; id: string }) {
   const eq: number[] = [0];
   for (const r of rets) eq.push(eq[eq.length - 1] + r * 100);
-  const W = 200; const H = 38;
+  const W = 300; const H = 56;
+  const pad = 4;
   const min = Math.min(...eq); const max = Math.max(...eq);
   const rng = max - min || 0.1;
   const pts = eq.map((v, i) => {
     const x = (i / (eq.length - 1)) * W;
-    const y = H - 4 - ((v - min) / rng) * (H - 8);
+    const y = H - pad - ((v - min) / rng) * (H - pad * 2);
     return `${x.toFixed(1)},${y.toFixed(1)}`;
   }).join(" ");
   const last = eq[eq.length - 1];
-  const lineC = last >= 0 ? "rgba(232,234,239,0.90)" : "rgba(172,96,104,0.86)";
+  // positive = white, negative = gold — never red
+  const lineC = last >= 0 ? "#e8edf3" : "#d6b867";
+  const fillC = last >= 0 ? "rgba(232,237,243,0.13)" : "rgba(214,184,103,0.12)";
   const fillId = `cf-${id}`;
   const lastX = W;
-  const lastY = H - 4 - ((last - min) / rng) * (H - 8);
-  const base  = H - 4 - ((0 - min) / rng) * (H - 8);
+  const lastY = H - pad - ((last - min) / rng) * (H - pad * 2);
+  const base  = H - pad - ((0 - min) / rng) * (H - pad * 2);
+  const clampedBase = Math.min(H - pad, Math.max(pad, base));
+  const pctLabel = `${last >= 0 ? "+" : ""}${last.toFixed(1)}%`;
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{ display: "block", overflow: "visible" }}>
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{ display: "block" }}>
       <defs>
         <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={lineC} stopOpacity={last >= 0 ? "0.14" : "0.10"} />
+          <stop offset="0%" stopColor={lineC} stopOpacity="0.18" />
           <stop offset="100%" stopColor={lineC} stopOpacity="0.00" />
         </linearGradient>
       </defs>
-      <line x1={0} y1={base} x2={W} y2={base} stroke="rgba(255,255,255,0.08)" strokeWidth={0.5} />
-      <polygon points={`0,${base} ${pts} ${W},${base}`} fill={`url(#${fillId})`} />
-      <polyline points={pts} fill="none" stroke={lineC} strokeWidth={1.4} strokeLinejoin="round" />
-      <circle cx={lastX} cy={lastY} r={2.5} fill={lineC} />
+      {/* Grid lines */}
+      {[0.25, 0.5, 0.75].map(f => (
+        <line key={f} x1={0} y1={H - pad - f * (H - pad * 2)} x2={W} y2={H - pad - f * (H - pad * 2)}
+          stroke="rgba(255,255,255,0.04)" strokeWidth={0.5} />
+      ))}
+      {/* Zero baseline */}
+      <line x1={0} y1={clampedBase} x2={W} y2={clampedBase} stroke="rgba(255,255,255,0.10)" strokeWidth={0.5} strokeDasharray="3 4" />
+      {/* Area fill */}
+      <polygon points={`0,${clampedBase} ${pts} ${W},${clampedBase}`} fill={`url(#${fillId})`} />
+      {/* Line */}
+      <polyline points={pts} fill="none" stroke={lineC} strokeWidth={1.6} strokeLinejoin="round" />
+      {/* Endpoint dot */}
+      <circle cx={lastX} cy={lastY} r={3} fill={lineC} />
+      {/* P&L label */}
+      <text x={W - 2} y={lastY - 5} textAnchor="end" fill={lineC}
+        fontSize={10} fontWeight="700" fontFamily={FONT}>{pctLabel}</text>
     </svg>
   );
 }
@@ -133,7 +150,7 @@ function ReturnBars({ returns: rets, width = 80, height = 36 }: {
           <rect key={i}
             x={i * (bw + 1)} y={pos ? mid - h : mid}
             width={bw} height={h}
-            fill={pos ? "rgba(232,234,239,0.82)" : "rgba(138,78,78,0.82)"}
+            fill={pos ? "rgba(232,234,239,0.82)" : "rgba(214,184,103,0.72)"}
             rx={0.5}
           />
         );
@@ -286,14 +303,13 @@ function KpiCell({ label, value, valueColor = "#eef2f7" }: { label: string; valu
   );
 }
 
-/* ─── Grid card — SignalCard style ──────────────────────────────────── */
+/* ─── Grid card — SignalCard structure, Monitoring Tester stats ──────── */
 function SleeveCard({ p, selected, onSelect }: { p: SleevePattern; selected: boolean; onSelect: () => void }) {
   const isLong   = p.direction === "LONG";
-  // positive = white, negative = gold — no green
-  const dirColor = isLong ? "rgba(232,234,239,0.90)" : C_GOLD;
+  const dirColor = isLong ? "#e8edf3" : C_GOLD; // positive=white, negative=gold
 
   const cardBg = selected
-    ? `radial-gradient(ellipse 100% 80% at 110% 115%, rgba(216,188,103,0.12) 0%, transparent 60%), ${C_CARD}`
+    ? `radial-gradient(ellipse 120% 90% at 115% 120%, rgba(216,188,103,0.14) 0%, transparent 55%), ${C_CARD}`
     : C_CARD;
 
   return (
@@ -305,56 +321,76 @@ function SleeveCard({ p, selected, onSelect }: { p: SleevePattern; selected: boo
         background: cardBg,
         border: selected ? "1px solid rgba(216,188,103,0.32)" : `1px solid ${C_BORDER}`,
         borderRadius: 12,
-        padding: "14px 14px 13px",
+        padding: "14px 14px 12px",
         display: "flex", flexDirection: "column", gap: 0,
         cursor: "pointer", outline: "none",
         transition: "border-color 120ms",
         height: "100%", boxSizing: "border-box" as const,
         fontFamily: FONT, overflow: "hidden",
-        position: "relative" as const,
-        // SignalCard-style left accent bar
         boxShadow: `inset 3px 0 0 ${dirColor}`,
       }}
     >
-      {/* Row 1: [Icon] [Symbol / Name] [Win Rate chip] — exactly like SignalCard */}
+      {/* ── Row 1: Icon · Symbol/Name · Win-Rate chip (= SignalCard Row 1) ── */}
       <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 10 }}>
         <SymbolIcon symbol={p.symbol} dir={p.direction} size={40} />
-        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 3, paddingTop: 1 }}>
-          <span style={{ fontSize: 16, fontWeight: 900, color: "#ffffff", letterSpacing: "0.01em", lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        <div style={{ flex: 1, minWidth: 0, paddingTop: 2 }}>
+          <div style={{ fontSize: 16, fontWeight: 900, color: "#fff", letterSpacing: "0.01em", lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             {p.symbol.replace("1!", "")}
-          </span>
-          <span style={{ fontSize: 10, fontWeight: 400, color: "rgba(255,255,255,0.30)", lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          </div>
+          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.30)", lineHeight: 1, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             {p.name}
-          </span>
+          </div>
         </div>
-        {/* Win rate chip — top-right like P&L chip in SignalCard */}
-        <span style={{ fontSize: 13, fontWeight: 800, color: dirColor, letterSpacing: "-0.02em", lineHeight: 1, flexShrink: 0, paddingTop: 2, fontVariantNumeric: "tabular-nums" }}>
-          {(p.winRate * 100).toFixed(0)}%
-        </span>
+        {/* IS Win Rate chip — bold top-right, white or gold */}
+        <div style={{ flexShrink: 0, textAlign: "right", paddingTop: 1 }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: dirColor, letterSpacing: "-0.02em", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>
+            {(p.winRate * 100).toFixed(0)}%
+          </div>
+          <div style={{ fontSize: 8, color: "rgba(255,255,255,0.28)", marginTop: 2 }}>IS WR</div>
+        </div>
       </div>
 
-      {/* Row 2: Window · Tier — like strategy/date row in SignalCard */}
+      {/* ── Row 2: Window · Tier (= SignalCard strategy/date row) ── */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6, marginBottom: 10 }}>
-        <span style={{ fontSize: 10, fontWeight: 400, color: "rgba(255,255,255,0.26)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
+        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.28)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>
           {p.window}
         </span>
         <TierBadge tier={p.tier} />
       </div>
 
-      {/* Row 3: Cumulative equity line */}
-      <div style={{ marginBottom: 10 }}>
+      {/* ── Row 3: Equity line chart — taller, Monitoring Tester style ── */}
+      <div style={{ flex: 1, minHeight: 0, marginBottom: 10 }}>
         <CardEquityLine returns={p.fakeReturns} id={`p${p.id}`} />
       </div>
 
-      {/* Row 4: Direction chip + Sortino — like direction/chart row in SignalCard */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto" }}>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 900, letterSpacing: "0.08em", color: dirColor, lineHeight: 1 }}>
+      {/* ── Row 4: OOS WR · Sortino · Robust · n — KPI micro-grid ── */}
+      <div style={{
+        display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 4,
+        marginBottom: 10, borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 8,
+      }}>
+        {[
+          { label: "OOS WR",  value: `${(p.oosWinRate * 100).toFixed(0)}%` },
+          { label: "Sortino", value: p.sortino.toFixed(1) },
+          { label: "Robust",  value: `${(p.robustness * 100).toFixed(0)}%` },
+          { label: "n",       value: String(p.nObs) },
+        ].map(s => (
+          <div key={s.label} style={{
+            background: "rgba(255,255,255,0.03)", borderRadius: 6,
+            border: "1px solid rgba(255,255,255,0.06)", padding: "4px 6px",
+          }}>
+            <div style={{ fontSize: 7, color: "#7c8798", textTransform: "uppercase" as const, letterSpacing: "0.08em", marginBottom: 2 }}>{s.label}</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#eef2f7", fontVariantNumeric: "tabular-nums" }}>{s.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Row 5: Direction chip (= SignalCard Row 4) ── */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 900, letterSpacing: "0.06em", color: dirColor, lineHeight: 1 }}>
           <span style={{ fontSize: 10 }}>{isLong ? "▲" : "▼"}</span>
           {p.direction}
         </span>
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.22)", lineHeight: 1 }}>
-          S {p.sortino.toFixed(1)}
-        </span>
+        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.18)" }}>{p.category}</span>
       </div>
     </div>
   );
