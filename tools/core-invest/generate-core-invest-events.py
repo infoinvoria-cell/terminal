@@ -173,9 +173,11 @@ def run_ema2050(bars: list[dict], sl_pct: float = 0.02, tp_pct: float = 0.04) ->
     """
     EMA + Valuation Strategy PRO (simplified: EMA filter only, no valuation).
 
-    Entry : EMA(20) > EMA(50) AND close > EMA(20)
-    Exit  : price <= SL  OR  price >= TP
-            OR  (EMA(20) < EMA(50) AND close < EMA(20))  [opposite signal]
+    Entry : EMA(20) > EMA(50) AND close > EMA(20)  — signal on bar close
+            Execution: NEXT bar's open  (TradingView default: process_orders_on_close=false)
+    Exit  : intrabar low  <= SL  (SL hit using low, not close)
+            intrabar high >= TP  (TP hit using high, not close)
+            OR (EMA(20) < EMA(50) AND close < EMA(20)) — signal exit at close
     SL    : entry * (1 - sl_pct)   default −2%
     TP    : entry * (1 + tp_pct)   default +4%
     """
@@ -189,31 +191,39 @@ def run_ema2050(bars: list[dict], sl_pct: float = 0.02, tp_pct: float = 0.04) ->
     entry_date  = ""
     sl = 0.0
     tp = 0.0
+    entry_pending = False  # signal fired this bar, execute at NEXT bar's open
 
     for i, bar in enumerate(bars):
         e20 = ema20[i]
         e50 = ema50[i]
+        o   = bar["open"]
+        h   = bar["high"]
+        lo  = bar["low"]
         c   = bar["close"]
         date = bar["date"]
 
         if e20 is None or e50 is None:
             continue
 
-        if not in_trade:
-            if e20 > e50 and c > e20:
-                in_trade    = True
-                entry_price = c
-                entry_date  = date
-                sl = entry_price * (1 - sl_pct)
-                tp = entry_price * (1 + tp_pct)
-        else:
+        # Step 1: Execute pending entry at THIS bar's open (next_open mode)
+        if entry_pending and not in_trade:
+            in_trade    = True
+            entry_price = o
+            entry_date  = date
+            sl = entry_price * (1 - sl_pct)
+            tp = entry_price * (1 + tp_pct)
+            entry_pending = False
+
+        # Step 2: Check exit conditions for open trade
+        if in_trade:
             exit_reason = None
             exit_price  = None
 
-            if c <= sl:
+            # Intrabar SL/TP: use low/high, not close (matches TradingView bar-fill logic)
+            if lo <= sl:
                 exit_reason = "stop_loss"
                 exit_price  = sl
-            elif c >= tp:
+            elif h >= tp:
                 exit_reason = "take_profit"
                 exit_price  = tp
             elif e20 < e50 and c < e20:
@@ -232,6 +242,11 @@ def run_ema2050(bars: list[dict], sl_pct: float = 0.02, tp_pct: float = 0.04) ->
                     "exitReason": exit_reason,
                 })
                 in_trade = False
+
+        # Step 3: Check new entry signal at close (executes next bar's open)
+        if not in_trade and not entry_pending:
+            if e20 > e50 and c > e20:
+                entry_pending = True
 
     if in_trade:
         trades.append({

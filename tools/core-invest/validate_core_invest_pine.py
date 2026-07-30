@@ -118,6 +118,8 @@ class Trade:
         self.exit_date = None
         self.exit_price = None
         self.return_pct = None
+        self.sl: float | None = None
+        self.tp: float | None = None
 
     def close(self, exit_date, exit_price):
         self.exit_date = exit_date
@@ -260,15 +262,18 @@ def validate_pine1_on_qqq(bars: list[dict]) -> dict:
 def validate_pine2_on_instrument(symbol: str, bars: list[dict]) -> dict:
     """
     EMA + Valuation Strategy PRO MTF + Regime
-    Default logic:
+    Default logic (aligned with generate-core-invest-events.py / TradingView next_open mode):
       EMA Fast = EMA(close, 20)
       EMA Slow = EMA(close, 50)
-      LONG when emaFast > emaSlow (EMA crossover)
-      EXIT when emaFast < emaSlow
+      ENTRY when emaFast > emaSlow AND close > emaFast — signal at close, fill at NEXT bar open
+      EXIT  intrabar low <= SL (-2%)  OR  intrabar high >= TP (+4%)
+            OR emaFast < emaSlow AND close < emaFast (opposite signal, fill at close)
     Valuation and regime filter not replicated without DXY/GC1!/ZB1! data.
     """
     EMA_FAST = 20
     EMA_SLOW = 50
+    SL_PCT   = 0.02
+    TP_PCT   = 0.04
 
     if len(bars) < EMA_SLOW + 10:
         return {
@@ -284,23 +289,54 @@ def validate_pine2_on_instrument(symbol: str, bars: list[dict]) -> dict:
     trades: list[Trade] = []
     current: Trade | None = None
     in_long = False
+    entry_pending = False  # signal fired, awaiting next bar open
 
-    for i in range(1, len(bars)):
-        bar = bars[i]
+    for i, bar in enumerate(bars):
         f = ef[i]
         s = es[i]
         if f is None or s is None:
             continue
-        c = bar["close"]
-        if not in_long and f > s:
-            current = Trade(bar["date"], c)
-            in_long = True
-        elif in_long and current and f < s:
-            current.close(bar["date"], c)
-            trades.append(current)
-            current = None
-            in_long = False
 
+        o  = bar.get("open", bar["close"])
+        h  = bar.get("high", bar["close"])
+        lo = bar.get("low",  bar["close"])
+        c  = bar["close"]
+        date = bar["date"]
+
+        # Step 1: execute pending entry at this bar's open (next_open mode)
+        if entry_pending and not in_long:
+            current = Trade(date, o)
+            current.sl = o * (1 - SL_PCT)
+            current.tp = o * (1 + TP_PCT)
+            in_long = True
+            entry_pending = False
+
+        # Step 2: check exit for open trade
+        if in_long and current:
+            exit_price = None
+            exit_date  = None
+            if lo <= current.sl:
+                exit_price = current.sl
+                exit_date  = date
+            elif h >= current.tp:
+                exit_price = current.tp
+                exit_date  = date
+            elif f < s and c < f:
+                exit_price = c
+                exit_date  = date
+
+            if exit_price is not None:
+                current.close(exit_date, exit_price)
+                trades.append(current)
+                current = None
+                in_long = False
+
+        # Step 3: new entry signal at close
+        if not in_long and not entry_pending:
+            if f > s and c > f:
+                entry_pending = True
+
+    # close open position at last bar
     if in_long and current and bars:
         current.close(bars[-1]["date"], bars[-1]["close"])
         trades.append(current)
@@ -310,13 +346,17 @@ def validate_pine2_on_instrument(symbol: str, bars: list[dict]) -> dict:
 
     return {
         "status": "partial_validation",
-        "reason": "EMA-crossover approximation only. Valuation/Regime filter requires DXY/GC1!/ZB1! data. Validate against TradingView export.",
+        "reason": (
+            "EMA-crossover approximation (next_open execution, intrabar SL/TP). "
+            "Valuation/Regime filter requires DXY/GC1!/ZB1! data. Validate against TradingView export."
+        ),
         "instrument": symbol,
         "pine_file": "pine2.txt",
         "bars_used": len(bars),
         "first_date": bars[0]["date"],
         "last_date": bars[-1]["date"],
-        "params": {"ema_fast": EMA_FAST, "ema_slow": EMA_SLOW},
+        "params": {"ema_fast": EMA_FAST, "ema_slow": EMA_SLOW, "sl_pct": SL_PCT, "tp_pct": TP_PCT,
+                   "execution": "next_open", "sl_tp_check": "intrabar_high_low"},
         "trades": [t.to_dict() for t in trades[-50:]],
         "total_trades": len(trades),
         "metrics": metrics,
