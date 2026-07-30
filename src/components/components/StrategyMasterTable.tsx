@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { TrendingUp, LayoutGrid } from "lucide-react";
@@ -10,7 +10,7 @@ import {
   WS_PORTFOLIO_KPIS, CI_PORTFOLIO_KPIS,
 } from "@/lib/components/ws-strategy-data";
 
-// ── design tokens ─────────────────────────────────────────────────────────────
+// â”€â”€ design tokens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const GOLD     = "#e2ca7a";
 const MUTED    = "#737373";
 const BG       = "#0c0d10";
@@ -18,7 +18,7 @@ const CARD     = "linear-gradient(180deg,#1c1d20 0%,#141517 100%)";
 const CBORD    = "rgba(255,255,255,0.06)";
 const RBORD    = "rgba(255,255,255,0.04)";
 
-// ── asset icon map ────────────────────────────────────────────────────────────
+// â”€â”€ asset icon map â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const AI = "/asset-icons/";
 const TICKER_ICON: Record<string, string> = {
   "ES1!": AI + "es_s&p.png", "NQ1!": AI + "nasdaq.png", "YM1!": AI + "dow_jones.png",
@@ -51,7 +51,7 @@ function TickerIcon({ ticker }: { ticker: string }) {
   );
 }
 
-// ── types ─────────────────────────────────────────────────────────────────────
+// â”€â”€ types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type Portfolio = "ws" | "ci";
 type SortKey   = "ticker"|"label"|"pillar"|"weight"|"sharpeOos"|"cagr"|"maxDd"|"pf"|"trades"|"wfWin"|"status";
 type SortDir   = "desc"|"asc";
@@ -68,10 +68,10 @@ const CI_KPIS = [
   { label: "CAGR OOS",   value: CI_PORTFOLIO_KPIS.cagr      },
   { label: "Max DD",     value: CI_PORTFOLIO_KPIS.maxDd     },
   { label: "Calmar",     value: CI_PORTFOLIO_KPIS.calmar     },
-  { label: "Positionen", value: CI_PORTFOLIO_KPIS.positions  },
+  { label: "Komponenten", value: CI_PORTFOLIO_KPIS.components },
 ];
 
-// ── unified display row ───────────────────────────────────────────────────────
+// â”€â”€ unified display row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 interface DisplayRow {
   id: string; section: Portfolio;
   ticker: string; label: string; group: string; engine: string;
@@ -108,7 +108,7 @@ function ciRow(r: CoreInvestRow): DisplayRow {
 const WS_ROWS = WS_STRATEGIES.map(wsRow);
 const CI_ROWS = CI_STRATEGIES.map(ciRow);
 
-// ── OHLC in-memory cache (persists for session, avoids re-fetch on every expand) ─
+// â”€â”€ OHLC in-memory cache (persists for session, avoids re-fetch on every expand) â”€
 type OhlcCacheEntry = { bars: OhlcBar[]; ts: number };
 const OHLC_CACHE = new Map<string, OhlcCacheEntry>();
 const OHLC_CACHE_TTL = 60_000; // 60s before background refresh
@@ -128,7 +128,7 @@ const TICKER_VON: Record<string, string> = {
   "ZARUSD": "01.01.2003", "SEKUSD": "01.01.2003", "BRLUSD": "01.01.2003",
 };
 
-// ── live feed ─────────────────────────────────────────────────────────────────
+// â”€â”€ live feed â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 interface LiveFeedItem {
   symbol: string; tab: string; source: string;
   lastClose: number | null; changePct: number | null;
@@ -136,7 +136,7 @@ interface LiveFeedItem {
   barCount: number | null; dataStatus: "live"|"daily"|"missing"; liveRefreshSeconds: number | null;
 }
 
-// ── live state (open trades) ──────────────────────────────────────────────────
+// â”€â”€ live state (open trades) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 interface LiveTrade {
   symbol: string; direction: string; entry_price: number;
   entry_date: string; strategy_id: string; pnl: number | null; notes: string | null;
@@ -156,7 +156,7 @@ const LIVE_SYMBOL_MAP: Record<string, string[]> = {
   "GOOGL":       ["GOOGL", "GOOGLE"],
 };
 
-// maps display ticker → OHLC API symbol
+// maps display ticker â†’ OHLC API symbol
 const OHLC_SYMBOL: Record<string, string> = {
   "DAX 1H / MT": "FDAX1!",
   "DAX 2H":      "FDAX1!",
@@ -189,9 +189,9 @@ function fmtPrice(v: number, ticker: string): string {
 }
 
 function fmtDate(iso: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return "â€”";
   const d = new Date(iso);
-  if (!isFinite(d.getTime())) return "—";
+  if (!isFinite(d.getTime())) return "â€”";
   return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
 }
 
@@ -218,10 +218,10 @@ function estimateVon(item: LiveFeedItem, ticker?: string): string {
     last.setDate(last.getDate() - Math.round(item.barCount * 1.4));
     return fmtDate(last.toISOString());
   }
-  return "—";
+  return "â€”";
 }
 
-// ── data types ────────────────────────────────────────────────────────────────
+// â”€â”€ data types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 interface EP { time: string; value: number; }
 interface OhlcBar { time: string; open: number; high: number; low: number; close: number; }
 interface StrategyData {
@@ -229,16 +229,16 @@ interface StrategyData {
   equityCurve: { oos: EP[]; full?: EP[]; is_?: EP[] }; drawdownCurve: { oos: EP[] };
 }
 
-// ── helpers ───────────────────────────────────────────────────────────────────
-const fmtN = (v: number | null, d = 2) => v === null ? "—" : v.toFixed(d);
+// â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const fmtN = (v: number | null, d = 2) => v === null ? "â€”" : v.toFixed(d);
 
 function numColor(v: number | null): string {
   if (v === null) return "rgba(255,255,255,0.2)";
   return v < 0 ? GOLD : "rgba(255,255,255,0.85)";
 }
 function strNumColor(s: string | null): string {
-  if (!s || s === "—") return "rgba(255,255,255,0.2)";
-  if (s.startsWith("−") || s.startsWith("-")) return GOLD;
+  if (!s || s === "â€”") return "rgba(255,255,255,0.2)";
+  if (s.startsWith("âˆ’") || s.startsWith("-")) return GOLD;
   return "rgba(255,255,255,0.8)";
 }
 
@@ -246,7 +246,7 @@ function SwanIcon({ size = 13 }: { size?: number }) {
   return <img src="/branding/white-swan-logo.png" alt="WS" width={size} height={size} style={{ width: size, height: size, objectFit: "contain" }} />;
 }
 
-// ── KPI cards ─────────────────────────────────────────────────────────────────
+// â”€â”€ KPI cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function HKpi({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ background: CARD, border: `1px solid ${CBORD}`, borderRadius: 12, padding: "8px 14px", boxShadow: "0 6px 18px -8px rgba(0,0,0,0.6)", minWidth: 78 }}>
@@ -265,7 +265,7 @@ function EKpi({ label, value }: { label: string; value: string }) {
   );
 }
 
-// ── filter pill ───────────────────────────────────────────────────────────────
+// â”€â”€ filter pill â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function Pill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
     <button onClick={onClick} style={{
@@ -279,7 +279,7 @@ function Pill({ label, active, onClick }: { label: string; active: boolean; onCl
   );
 }
 
-// ── status chip ───────────────────────────────────────────────────────────────
+// â”€â”€ status chip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function Chip({ status }: { status: string }) {
   const cfg: Record<string, { label: string; c: string }> = {
     active:         { label: "Aktiv",      c: "rgba(255,255,255,0.5)" },
@@ -298,10 +298,10 @@ function Chip({ status }: { status: string }) {
   );
 }
 
-// ── signal cell — gray checkmark for pending, dash for no signal ──────────────
+// â”€â”€ signal cell â€” gray checkmark for pending, dash for no signal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function SignalCell({ hasTrade }: { hasTrade: boolean }) {
   if (!hasTrade) {
-    return <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)" }}>—</span>;
+    return <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)" }}>â€”</span>;
   }
   // gray checkmark (pending_valid style matching signals page)
   return (
@@ -312,7 +312,7 @@ function SignalCell({ hasTrade }: { hasTrade: boolean }) {
   );
 }
 
-// ── sortable th ───────────────────────────────────────────────────────────────
+// â”€â”€ sortable th â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function Th({ label, k, sortKey, sortDir, onSort, align = "left", agg }: {
   label: string; k: SortKey; sortKey: SortKey | null; sortDir: SortDir;
   onSort: (k: SortKey) => void; align?: "left"|"right"; agg?: string;
@@ -328,12 +328,12 @@ function Th({ label, k, sortKey, sortDir, onSort, align = "left", agg }: {
       userSelect: "none" as const, cursor: "pointer", transition: "color .1s",
     }}>
       {agg && <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: ".03em", color: "rgba(255,255,255,0.50)", marginBottom: 2, textTransform: "none" as const }}>{agg}</div>}
-      {label}{active && <span style={{ marginLeft: 3, fontSize: 9, opacity: 0.65 }}>{sortDir === "desc" ? "↓" : "↑"}</span>}
+      {label}{active && <span style={{ marginLeft: 3, fontSize: 9, opacity: 0.65 }}>{sortDir === "desc" ? "â†“" : "â†‘"}</span>}
     </th>
   );
 }
 
-// ── live countdown ring ───────────────────────────────────────────────────────
+// â”€â”€ live countdown ring â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function LiveTimer({ secs, max }: { secs: number; max: number }) {
   const r = 6, circ = 2 * Math.PI * r;
   return (
@@ -348,7 +348,7 @@ function LiveTimer({ secs, max }: { secs: number; max: number }) {
   );
 }
 
-// ── intraday equity data shape ────────────────────────────────────────────────
+// â”€â”€ intraday equity data shape â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 interface IntradayCurvePoint { date: string; equity: number; }
 interface IntradayPeriodStats { cagr: number; maxDD: number; mar?: number; sharpe: number; pf: number; n: number; wr: number; }
 interface IntradayStrategy {
@@ -357,7 +357,7 @@ interface IntradayStrategy {
   oos: { curve: IntradayCurvePoint[]; stats: IntradayPeriodStats };
 }
 
-// ticker → correct OHLC timeframe for intraday strategies
+// ticker â†’ correct OHLC timeframe for intraday strategies
 const TICKER_TF: Record<string, string> = {
   "6E1!":        "30M",
   "GBPUSD 30M":  "30M",
@@ -365,7 +365,7 @@ const TICKER_TF: Record<string, string> = {
   "DAX 2H":      "2H",
 };
 
-// ── candle chart — price line, auto-refresh, signal overlay ──────────────────
+// â”€â”€ candle chart â€” price line, auto-refresh, signal overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // NOTE: OHLC API only stocks daily (1D) bars. timeframe prop is display-only (shown in header).
 function CandleChart({ ticker, timeframe = "1D", refreshSecs = 30 }: { ticker: string; timeframe?: string; refreshSecs?: number }) {
   const ref  = useRef<HTMLDivElement>(null);
@@ -490,7 +490,7 @@ function CandleChart({ ticker, timeframe = "1D", refreshSecs = 30 }: { ticker: s
           lineWidth: 1,
           lineStyle: LineStyle.Dashed,
           axisLabelVisible: true,
-          title: `Einstieg ${isLong ? "▲" : "▼"}`,
+          title: `Einstieg ${isLong ? "â–²" : "â–¼"}`,
         });
       }
 
@@ -510,7 +510,7 @@ function CandleChart({ ticker, timeframe = "1D", refreshSecs = 30 }: { ticker: s
 
   if (bars === null) return (
     <div style={{ height: 280, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-montserrat),sans-serif", background: BG, borderRadius: 6 }}>
-      Lade OHLC…
+      Lade OHLCâ€¦
     </div>
   );
   if (!bars.length) return (
@@ -521,7 +521,7 @@ function CandleChart({ ticker, timeframe = "1D", refreshSecs = 30 }: { ticker: s
   return <div ref={ref} style={{ width: "100%", height: 280, borderRadius: 6, overflow: "hidden", background: BG }} />;
 }
 
-// ── equity / drawdown charts — synchronized crosshair via syncId ──────────────
+// â”€â”€ equity / drawdown charts â€” synchronized crosshair via syncId â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const SYNC_ID_PREFIX = "eq-dd-";
 
 // Identical margins ensure pixel-perfect X-axis alignment between the two stacked charts
@@ -587,7 +587,7 @@ function DdChart({ pts, syncId, oosStart }: { pts: EP[]; syncId: string; oosStar
   );
 }
 
-// ── synthetic equity/drawdown curve from CAGR + MaxDD ────────────────────────
+// â”€â”€ synthetic equity/drawdown curve from CAGR + MaxDD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function syntheticCurves(cagrStr: string | null, maxDdStr: string | null): { eq: EP[]; dd: EP[] } | null {
   const cagrPct = parseFloat((cagrStr ?? "").replace(/[^0-9.-]/g, ""));
   const ddPct   = Math.abs(parseFloat((maxDdStr ?? "").replace(/[^0-9.-]/g, "")));
@@ -616,7 +616,7 @@ function syntheticCurves(cagrStr: string | null, maxDdStr: string | null): { eq:
   return { eq, dd };
 }
 
-// ── strategy info helpers ─────────────────────────────────────────────────────
+// â”€â”€ strategy info helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function inferDirection(engine: string): string {
   const e = engine.toLowerCase();
   if (e.includes("long-only") || e.includes("long only")) return "Long Only";
@@ -629,23 +629,23 @@ function inferDirection(engine: string): string {
 
 function pillarDescription(pillar: string): string {
   switch (pillar) {
-    case "valuation": return "Fundamentale Überbewertung / Unterbewertung als Einstiegssignal. Modell-basiert, kein Pattern.";
-    case "macro":     return "Makroökonomischer Filter (z.B. Trend-Regime, saisonale Makrostruktur). Hält Positionen über Wochen.";
+    case "valuation": return "Fundamentale Ãœberbewertung / Unterbewertung als Einstiegssignal. Modell-basiert, kein Pattern.";
+    case "macro":     return "MakroÃ¶konomischer Filter (z.B. Trend-Regime, saisonale Makrostruktur). HÃ¤lt Positionen Ã¼ber Wochen.";
     case "trend":     return "EMA-basierter Trendfolge-Ansatz. Einstieg bei Crossover, Ausstieg bei Gegentrend.";
-    case "seasonal":  return "Kalender-basiertes Muster (festes Datum Ein-/Ausstieg). Historisch replizierbares Saisonal-Phänomen.";
+    case "seasonal":  return "Kalender-basiertes Muster (festes Datum Ein-/Ausstieg). Historisch replizierbares Saisonal-PhÃ¤nomen.";
     case "anomaly":   return "Wochentagsanomalie (z.B. Freitag-Long, Dienstag-Reversal). Marktstruktur-basiert.";
-    case "intraday":  return "Intraday Mean-Reversion / Momentum. Hält keine Positionen über Nacht. Session-gebunden.";
+    case "intraday":  return "Intraday Mean-Reversion / Momentum. HÃ¤lt keine Positionen Ã¼ber Nacht. Session-gebunden.";
     default:          return "Multi-Asset Strategie.";
   }
 }
 
 function dataRangeLabel(pillar: string, intradayId?: string): string {
-  if (intradayId) return "IS: 2006 – 2017 · OOS: Dez 2017 – laufend (live)";
-  if (pillar === "anomaly") return "IS+OOS: Jan 2003 – laufend (live)";
-  return "OOS: Jan 2019 – Jun 2026";
+  if (intradayId) return "IS: 2006 â€“ 2017 Â· OOS: Dez 2017 â€“ laufend (live)";
+  if (pillar === "anomaly") return "IS+OOS: Jan 2003 â€“ laufend (live)";
+  return "OOS: Jan 2019 â€“ Jun 2026";
 }
 
-// ── expanded row — candle chart left, equity/drawdown/KPIs right ──────────────
+// â”€â”€ expanded row â€” candle chart left, equity/drawdown/KPIs right â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ExpandedRow({ row }: { row: DisplayRow }) {
   const [data, setData]         = useState<StrategyData | null>(null);
   const [intraday, setIntraday] = useState<IntradayStrategy | null>(null);
@@ -657,13 +657,13 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
   const isRealtime = row.pillarKey === "anomaly" || row.pillarKey === "intraday";
   const refreshSecs = isRealtime ? 5 : 30;
 
-  // Priority 1: dataFile → full anomaly JSON (equity + drawdown)
+  // Priority 1: dataFile â†’ full anomaly JSON (equity + drawdown)
   useEffect(() => {
     if (!row.dataFile) return;
     fetch(`/data/${row.dataFile}`).then(r => r.json()).then(setData).catch(() => {});
   }, [row.dataFile]);
 
-  // Priority 2: codex API → equity + drawdown (seasonal/macro)
+  // Priority 2: codex API â†’ equity + drawdown (seasonal/macro)
   useEffect(() => {
     if (!row.codexGroup || !row.codexSymbol || row.dataFile || row.intradayId) return;
     const g = row.codexGroup, s = row.codexSymbol;
@@ -683,7 +683,7 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
       .catch(() => {});
   }, [row.codexGroup, row.codexSymbol, row.dataFile, row.intradayId]);
 
-  // Priority 3b: brainPath → /api/monitoring/brain-equity (valuation daily curves)
+  // Priority 3b: brainPath â†’ /api/monitoring/brain-equity (valuation daily curves)
   useEffect(() => {
     if (!row.brainPath || row.dataFile || row.intradayId || row.codexGroup) return;
     fetch(`/api/monitoring/brain-equity?key=${encodeURIComponent(row.brainPath)}`)
@@ -695,7 +695,7 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
       .catch(() => {});
   }, [row.brainPath, row.dataFile, row.intradayId, row.codexGroup]);
 
-  // Priority 3: intradayId → intraday-equity.json (always — real OOS equity)
+  // Priority 3: intradayId â†’ intraday-equity.json (always â€” real OOS equity)
   useEffect(() => {
     if (!row.intradayId || row.dataFile) return;
     fetch("/data/intraday-equity.json")
@@ -712,7 +712,7 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
   const ddOos = data?.drawdownCurve?.oos;
   const oos   = data?.summary?.oos;
 
-  // intraday: combine IS + OOS for full history — chain OOS to continue from IS end value
+  // intraday: combine IS + OOS for full history â€” chain OOS to continue from IS end value
   const intradayFull: EP[] | null = (() => {
     if (!intraday) return null;
     const isC  = (intraday.is?.curve  ?? []).map(p => ({ time: p.date + "-01", value: p.equity }));
@@ -745,7 +745,7 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
   // priority: anomaly full > intraday full > OOS only > brain daily > codex > synthetic
   const activeEq: EP[] = eqFull?.length ? eqFull : intradayFull?.length ? intradayFull : eqOos?.length ? eqOos : brainEq?.length ? brainEq : codexEq?.length ? codexEq : synthAll?.eq ?? [];
 
-  // drawdown always computed FROM activeEq — guarantees same point count & X alignment
+  // drawdown always computed FROM activeEq â€” guarantees same point count & X alignment
   const activeDd: EP[] = (() => {
     if (!activeEq.length) return synthAll?.dd ?? [];
     let peak = activeEq[0]?.value ?? 0;
@@ -760,15 +760,15 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
 
   const eqLabel = isSynthetic ? "Equity (Sim)" : "Equity";
 
-  // KPI cards — Sharpe, CAGR, MaxDD, PF, Trades, Calmar, WinRate + "Mehr" button
+  // KPI cards â€” Sharpe, CAGR, MaxDD, PF, Trades, Calmar, WinRate + "Mehr" button
   const kpis: Array<{ label: string; value: string }> = [];
   if (row.sharpeOos !== null)          kpis.push({ label: "Sharpe OOS",    value: fmtN(row.sharpeOos) });
   else if (ist?.sharpe != null)        kpis.push({ label: "Sharpe OOS",    value: fmtN(ist.sharpe) });
   if (oos?.cagr != null)               kpis.push({ label: "CAGR OOS",      value: `${oos.cagr > 0 ? "+" : ""}${oos.cagr.toFixed(2)}%` });
   else if (ist?.cagr != null)          kpis.push({ label: "CAGR OOS",      value: `+${fmtN(ist.cagr)}%` });
   else if (row.cagr)                   kpis.push({ label: "CAGR",          value: row.cagr });
-  if (oos?.maxDrawdownPercent != null) kpis.push({ label: "Max DD",        value: `−${Math.abs(oos.maxDrawdownPercent).toFixed(2)}%` });
-  else if (ist?.maxDD != null)         kpis.push({ label: "Max DD",        value: `−${fmtN(ist.maxDD)}%` });
+  if (oos?.maxDrawdownPercent != null) kpis.push({ label: "Max DD",        value: `âˆ’${Math.abs(oos.maxDrawdownPercent).toFixed(2)}%` });
+  else if (ist?.maxDD != null)         kpis.push({ label: "Max DD",        value: `âˆ’${fmtN(ist.maxDD)}%` });
   else if (row.maxDd)                  kpis.push({ label: "Max DD",        value: row.maxDd });
   if (row.pf != null)                  kpis.push({ label: "Profit Factor", value: fmtN(row.pf) });
   else if (ist?.pf != null)            kpis.push({ label: "Profit Factor", value: fmtN(ist.pf) });
@@ -779,7 +779,7 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
   if (ist?.wr != null)                 kpis.push({ label: "Win Rate",      value: `${(ist.wr * 100).toFixed(1)}%` });
   else if (oos?.winRate != null)       kpis.push({ label: "Win Rate",      value: `${oos.winRate.toFixed(1)}%` });
 
-  // Info panel — 4 thematic boxes
+  // Info panel â€” 4 thematic boxes
   const dir   = inferDirection(row.engine);
   const sharpeV  = row.sharpeOos ?? ist?.sharpe ?? null;
   const calmarV  = ist?.mar ?? row.calmar ?? null;
@@ -790,10 +790,10 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
   const tickerIcon = TICKER_ICON[row.ticker];
 
   function val(v: string | number | null, suffix = ""): string {
-    return v != null ? `${v}${suffix}` : "—";
+    return v != null ? `${v}${suffix}` : "â€”";
   }
   function signed(v: number | null, d = 2): string {
-    if (v == null) return "—";
+    if (v == null) return "â€”";
     return `${v >= 0 ? "+" : ""}${v.toFixed(d)}%`;
   }
 
@@ -803,7 +803,7 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
       items: [
         { k: "Asset",     v: row.label, icon: tickerIcon },
         { k: "Ticker",    v: row.ticker },
-        { k: "Exchange",  v: row.exchange ?? "—" },
+        { k: "Exchange",  v: row.exchange ?? "â€”" },
         { k: "Pillar",    v: row.pillarLabel },
         { k: "Engine",    v: row.engine },
         { k: "Richtung",  v: dir, arrow: dir === "Long Only" || dir === "Long" ? "up" : dir === "Short Only" || dir === "Short" ? "down" : null },
@@ -813,8 +813,8 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
       title: "Performance OOS",
       items: [
         { k: "Sharpe OOS", v: val(sharpeV), arrow: sharpeV != null ? (sharpeV >= 0.5 ? "up" : sharpeV < 0 ? "down" : null) : null },
-        { k: "CAGR OOS",   v: row.cagr ?? (ist?.cagr != null ? `+${fmtN(ist.cagr)}%` : "—"), arrow: row.cagr && !row.cagr.startsWith("−") ? "up" : "down" },
-        { k: "Max DD",     v: row.maxDd ?? (ist?.maxDD != null ? `−${fmtN(ist.maxDD)}%` : "—"), arrow: "down" },
+        { k: "CAGR OOS",   v: row.cagr ?? (ist?.cagr != null ? `+${fmtN(ist.cagr)}%` : "â€”"), arrow: row.cagr && !row.cagr.startsWith("âˆ’") ? "up" : "down" },
+        { k: "Max DD",     v: row.maxDd ?? (ist?.maxDD != null ? `âˆ’${fmtN(ist.maxDD)}%` : "â€”"), arrow: "down" },
         { k: "Calmar/MAR", v: val(calmarV), arrow: calmarV != null ? (calmarV >= 0.5 ? "up" : "down") : null },
         { k: "Profit Factor", v: val(pfV), arrow: pfV != null ? (pfV >= 1.3 ? "up" : pfV < 1.05 ? "down" : null) : null },
       ],
@@ -823,9 +823,9 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
       title: "Handel & Statistik",
       items: [
         { k: "# Trades",  v: val(tradesV) },
-        { k: "Win Rate",  v: wrV != null ? `${Number(wrV).toFixed(1)}%` : "—" },
-        { k: "WF / OOS",  v: wfV ?? "—", arrow: wfV ? "up" : null },
-        { k: "Final Equity", v: oos?.finalEquity != null ? `${oos.finalEquity.toFixed(0)}` : "—" },
+        { k: "Win Rate",  v: wrV != null ? `${Number(wrV).toFixed(1)}%` : "â€”" },
+        { k: "WF / OOS",  v: wfV ?? "â€”", arrow: wfV ? "up" : null },
+        { k: "Final Equity", v: oos?.finalEquity != null ? `${oos.finalEquity.toFixed(0)}` : "â€”" },
       ],
     },
     {
@@ -846,7 +846,7 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
           {/* Left: candle chart */}
           <div>
             <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 6 }}>
-              OHLC · {row.ticker} · {candleTf} · {isRealtime ? "5s" : "30s"} Refresh
+              OHLC Â· {row.ticker} Â· {candleTf} Â· {isRealtime ? "5s" : "30s"} Refresh
             </div>
             <CandleChart ticker={row.ticker} timeframe={candleTf} refreshSecs={refreshSecs} />
           </div>
@@ -858,7 +858,7 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
             {/* KPI cards + "Mehr anzeigen" button */}
             <div style={{ display: "flex", flexWrap: "nowrap" as const, gap: 5, marginTop: 2 }}>
               {kpis.map(k => <EKpi key={k.label} label={k.label} value={k.value} />)}
-              {/* Mehr-Button — plain, no gold */}
+              {/* Mehr-Button â€” plain, no gold */}
               <div
                 onClick={() => setShowInfo(v => !v)}
                 style={{
@@ -885,7 +885,7 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
         </div>
       </div>
 
-      {/* Info panel — 4 thematic boxes in one row */}
+      {/* Info panel â€” 4 thematic boxes in one row */}
       {showInfo && (
         <div style={{ borderTop: `1px solid ${RBORD}`, padding: "14px 16px 18px", background: "rgba(255,255,255,0.014)" }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
@@ -905,7 +905,7 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
                         )}
                         {item.arrow && (
                           <span style={{ fontSize: 8, color: arrowColor, lineHeight: 1 }}>
-                            {item.arrow === "up" ? "▲" : "▼"}
+                            {item.arrow === "up" ? "â–²" : "â–¼"}
                           </span>
                         )}
                         <span style={{ fontSize: 11, fontFamily: "var(--font-montserrat),sans-serif", color: arrowColor, fontWeight: 600, lineHeight: 1.35 }}>
@@ -924,7 +924,7 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
   );
 }
 
-// ── main component ────────────────────────────────────────────────────────────
+// â”€â”€ main component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function StrategyMasterTable() {
   const [portfolio, setPortfolio] = useState<Portfolio>("ws");
   const [section, setSection]     = useState<string>("all");
@@ -938,7 +938,7 @@ export default function StrategyMasterTable() {
   const [tick, setTick]           = useState(0);
   const LIVE_INTERVAL = 30;
 
-  // TradingView-style OHLC prefetch — warm cache for ALL strategies on mount
+  // TradingView-style OHLC prefetch â€” warm cache for ALL strategies on mount
   useEffect(() => {
     const allTickers = [...WS_ROWS, ...CI_ROWS].map(r => toOhlcSymbol(r.ticker));
     const unique = [...new Set(allTickers)].filter(s => s.length > 0);
@@ -960,7 +960,7 @@ export default function StrategyMasterTable() {
     setTimeout(next, 800); // start after initial render
   }, []);
 
-  // live feed + live state — same polling pattern as signals page
+  // live feed + live state â€” same polling pattern as signals page
   // pre-fetch on mount so live data is ready when the toggle is clicked
   useEffect(() => {
     fetch("/api/monitoring/live-feed")
@@ -1041,7 +1041,7 @@ export default function StrategyMasterTable() {
   if (section === "active") rows = rows.filter(r => r.status !== "archived");
   else if (section !== "all") rows = rows.filter(r => r.pillarKey === section);
 
-  // sort — archived always pinned at bottom
+  // sort â€” archived always pinned at bottom
   const archOrder = (s: string) => s === "archived" ? 1 : 0;
 
   if (sortKey) {
@@ -1159,7 +1159,7 @@ export default function StrategyMasterTable() {
                 const cagrs = rows.map(r => parseFloat((r.cagr ?? "").replace(/[^0-9.-]/g, ""))).filter(v => !isNaN(v));
                 const avgCagr = cagrs.length ? (cagrs.reduce((s, v) => s + v, 0) / cagrs.length).toFixed(1) + "%" : null;
                 const dds = rows.map(r => parseFloat((r.maxDd ?? "").replace(/[^0-9.-]/g, ""))).filter(v => !isNaN(v) && v !== 0);
-                const avgDd = dds.length ? "−" + (dds.reduce((s, v) => s + v, 0) / dds.length).toFixed(1) + "%" : null;
+                const avgDd = dds.length ? "âˆ’" + (dds.reduce((s, v) => s + v, 0) / dds.length).toFixed(1) + "%" : null;
                 const pfs = rows.map(r => r.pf).filter((v): v is number => v != null);
                 const avgPf = pfs.length ? (pfs.reduce((s, v) => s + v, 0) / pfs.length).toFixed(2) : null;
                 const tradesSum = rows.map(r => r.trades).filter((v): v is number => v != null).reduce((s, v) => s + v, 0);
@@ -1176,18 +1176,18 @@ export default function StrategyMasterTable() {
                     <Th label="Ticker"  k="ticker"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
                     <Th label="Asset"   k="label"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
                     <Th label="Pillar"  k="pillar"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={`n ${pillars}`} />
-                    <Th label="Gew."    k="weight"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={weightSum > 0 ? `Σ ${weightSum}%` : undefined} />
-                    <Th label="Sharpe"  k="sharpeOos" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgSharpe ? `∅ ${avgSharpe}` : undefined} />
-                    <Th label="CAGR"    k="cagr"      sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgCagr ? `∅ ${avgCagr}` : undefined} />
-                    <Th label="Max DD"  k="maxDd"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgDd ? `∅ ${avgDd}` : undefined} />
-                    <Th label="PF"      k="pf"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgPf ? `∅ ${avgPf}` : undefined} />
-                    <Th label="Trades"  k="trades"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={tradesSum > 0 ? `Σ ${tradesSum}` : undefined} />
-                    <Th label="WF/Win%" k="wfWin"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgWf ? `∅ ${avgWf}` : undefined} />
+                    <Th label="Gew."    k="weight"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={weightSum > 0 ? `Î£ ${weightSum}%` : undefined} />
+                    <Th label="Sharpe"  k="sharpeOos" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgSharpe ? `âˆ… ${avgSharpe}` : undefined} />
+                    <Th label="CAGR"    k="cagr"      sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgCagr ? `âˆ… ${avgCagr}` : undefined} />
+                    <Th label="Max DD"  k="maxDd"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgDd ? `âˆ… ${avgDd}` : undefined} />
+                    <Th label="PF"      k="pf"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgPf ? `âˆ… ${avgPf}` : undefined} />
+                    <Th label="Trades"  k="trades"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={tradesSum > 0 ? `Î£ ${tradesSum}` : undefined} />
+                    <Th label="WF/Win%" k="wfWin"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={avgWf ? `âˆ… ${avgWf}` : undefined} />
                     <Th label="Status"  k="status"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={activeRows.length > 0 ? `n ${activeRows.length}` : undefined} />
                     {liveCols && <>
                       <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, borderLeft: "1px solid rgba(255,255,255,0.05)" }}>Preis</th>
                       <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG }}>Signal</th>
-                      <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, whiteSpace: "nowrap" as const }}>Von – Bis</th>
+                      <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, whiteSpace: "nowrap" as const }}>Von â€“ Bis</th>
                     </>}
                   </tr>
                 );
@@ -1223,7 +1223,7 @@ export default function StrategyMasterTable() {
                   >
                     <td style={{ padding: "5px 6px", textAlign: "left", fontSize: 9, color: "rgba(255,255,255,0.65)", fontWeight: 600, width: 26, fontVariantNumeric: "tabular-nums" }}>{isArch ? "" : rowNum}</td>
                     <td style={{ padding: "5px 3px", width: 18, textAlign: "center" }}>
-                      {!isArch && <span style={{ fontSize: 10, color: isExp ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.15)", display: "inline-block", transform: isExp ? "rotate(90deg)" : "none", transition: "transform .2s" }}>›</span>}
+                      {!isArch && <span style={{ fontSize: 10, color: isExp ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.15)", display: "inline-block", transform: isExp ? "rotate(90deg)" : "none", transition: "transform .2s" }}>â€º</span>}
                     </td>
                     <td style={{ padding: "5px 8px" }}>
                       <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -1234,18 +1234,18 @@ export default function StrategyMasterTable() {
                     <td style={{ padding: "5px 8px", color: "rgba(255,255,255,0.35)", fontSize: 10, textAlign: "left" }}>{row.label}</td>
                     <td style={{ padding: "5px 8px", fontSize: 9, color: "rgba(255,255,255,0.22)", letterSpacing: ".04em", textAlign: "left" }}>{row.pillarLabel}</td>
                     <td style={{ padding: "5px 8px", textAlign: "left", color: row.weight ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.15)", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>
-                      {row.weight != null ? `${row.weight}%` : "—"}
+                      {row.weight != null ? `${row.weight}%` : "â€”"}
                     </td>
                     <td style={{ padding: "5px 8px", textAlign: "left", fontWeight: 700, fontVariantNumeric: "tabular-nums", color: numColor(row.sharpeOos) }}>
-                      {row.sharpeOos != null ? fmtN(row.sharpeOos) : "—"}
+                      {row.sharpeOos != null ? fmtN(row.sharpeOos) : "â€”"}
                     </td>
-                    <td style={{ padding: "5px 8px", textAlign: "left", color: strNumColor(row.cagr), fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{row.cagr ?? "—"}</td>
-                    <td style={{ padding: "5px 8px", textAlign: "left", color: strNumColor(row.maxDd), fontVariantNumeric: "tabular-nums" }}>{row.maxDd ?? "—"}</td>
+                    <td style={{ padding: "5px 8px", textAlign: "left", color: strNumColor(row.cagr), fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{row.cagr ?? "â€”"}</td>
+                    <td style={{ padding: "5px 8px", textAlign: "left", color: strNumColor(row.maxDd), fontVariantNumeric: "tabular-nums" }}>{row.maxDd ?? "â€”"}</td>
                     <td style={{ padding: "5px 8px", textAlign: "left", color: (row.pf ?? 0) >= 1.3 ? "rgba(255,255,255,0.75)" : row.pf ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.15)", fontVariantNumeric: "tabular-nums" }}>
-                      {row.pf != null ? fmtN(row.pf) : "—"}
+                      {row.pf != null ? fmtN(row.pf) : "â€”"}
                     </td>
-                    <td style={{ padding: "5px 8px", textAlign: "left", color: "rgba(255,255,255,0.28)", fontSize: 10, fontVariantNumeric: "tabular-nums" }}>{row.trades != null ? row.trades.toLocaleString("de") : "—"}</td>
-                    <td style={{ padding: "5px 8px", textAlign: "left", color: "rgba(255,255,255,0.28)", fontSize: 10 }}>{row.wfWin ?? "—"}</td>
+                    <td style={{ padding: "5px 8px", textAlign: "left", color: "rgba(255,255,255,0.28)", fontSize: 10, fontVariantNumeric: "tabular-nums" }}>{row.trades != null ? row.trades.toLocaleString("de") : "â€”"}</td>
+                    <td style={{ padding: "5px 8px", textAlign: "left", color: "rgba(255,255,255,0.28)", fontSize: 10 }}>{row.wfWin ?? "â€”"}</td>
                     <td style={{ padding: "5px 8px" }}><Chip status={row.status} /></td>
 
                     {liveCols && (() => {
@@ -1254,7 +1254,7 @@ export default function StrategyMasterTable() {
                       return (
                         <>
                           <td style={{ padding: "5px 8px", textAlign: "left", fontVariantNumeric: "tabular-nums", color: priceColor, borderLeft: "1px solid rgba(255,255,255,0.05)", fontWeight: price != null ? 600 : 400 }}>
-                            {price != null ? fmtPrice(price, row.ticker) : "—"}
+                            {price != null ? fmtPrice(price, row.ticker) : "â€”"}
                           </td>
                           <td style={{ padding: "5px 8px", textAlign: "left" }}>
                             <SignalCell hasTrade={hasTrade} />
@@ -1263,10 +1263,10 @@ export default function StrategyMasterTable() {
                             {live ? (
                               <span>
                                 {estimateVon(live, row.ticker)}
-                                <span style={{ color: "rgba(255,255,255,0.12)", margin: "0 4px" }}>–</span>
+                                <span style={{ color: "rgba(255,255,255,0.12)", margin: "0 4px" }}>â€“</span>
                                 {fmtDateTime(live.lastDate)}
                               </span>
-                            ) : "—"}
+                            ) : "â€”"}
                           </td>
                         </>
                       );

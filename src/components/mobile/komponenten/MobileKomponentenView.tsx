@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
@@ -8,7 +8,7 @@ import {
   WS_PORTFOLIO_KPIS, CI_PORTFOLIO_KPIS,
 } from "@/lib/components/ws-strategy-data";
 
-// ── design tokens ──────────────────────────────────────────────────────────────
+// â”€â”€ design tokens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const GOLD  = "#e2ca7a";
 const MUTED = "#737373";
 const BG    = "#0c0d10";
@@ -16,7 +16,7 @@ const CARD  = "linear-gradient(180deg,#1c1d20 0%,#141517 100%)";
 const CBORD = "rgba(255,255,255,0.06)";
 const RBORD = "rgba(255,255,255,0.04)";
 
-// ── asset icon map ─────────────────────────────────────────────────────────────
+// â”€â”€ asset icon map â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const AI = "/asset-icons/";
 const TICKER_ICON: Record<string, string> = {
   "ES1!": AI+"es_s&p.png","NQ1!": AI+"nasdaq.png","YM1!": AI+"dow_jones.png",
@@ -38,7 +38,7 @@ const TICKER_ICON: Record<string, string> = {
   "MXNUSD": AI+"flag_mxn.png", "CLPUSD": AI+"flag_clp.webp",
 };
 
-// ── types ─────────────────────────────────────────────────────────────────────
+// â”€â”€ types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type Portfolio = "ws" | "ci";
 type SortKey = "weight" | "sharpeOos" | "cagr" | "maxDd" | "pf" | "trades";
 type SortDir = "desc" | "asc";
@@ -96,10 +96,10 @@ const CI_KPIS = [
   { label: "CAGR OOS",   value: CI_PORTFOLIO_KPIS.cagr      },
   { label: "Max DD",     value: CI_PORTFOLIO_KPIS.maxDd     },
   { label: "Calmar",     value: CI_PORTFOLIO_KPIS.calmar     },
-  { label: "Positionen", value: CI_PORTFOLIO_KPIS.positions  },
+  { label: "Komponenten", value: CI_PORTFOLIO_KPIS.components },
 ];
 
-// ── OHLC cache ─────────────────────────────────────────────────────────────────
+// â”€â”€ OHLC cache â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type OhlcCacheEntry = { bars: OhlcBar[]; ts: number };
 const OHLC_CACHE = new Map<string, OhlcCacheEntry>();
 const OHLC_CACHE_TTL = 60_000;
@@ -108,7 +108,7 @@ const OHLC_SYMBOL: Record<string, string> = {
 };
 function toOhlcSymbol(t: string): string { return OHLC_SYMBOL[t] ?? t.split(" ")[0]; }
 
-// ── live feed ─────────────────────────────────────────────────────────────────
+// â”€â”€ live feed â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 interface LiveFeedItem {
   symbol: string; lastClose: number | null; changePct: number | null;
   lastDate: string | null; dataStatus: "live"|"daily"|"missing";
@@ -137,7 +137,7 @@ function fmtPrice(v: number, ticker: string): string {
   return v.toFixed(3);
 }
 
-// ── data types ─────────────────────────────────────────────────────────────────
+// â”€â”€ data types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 interface EP { time: string; value: number; }
 interface OhlcBar { time: string; open: number; high: number; low: number; close: number; }
 interface StrategyData {
@@ -151,11 +151,11 @@ interface IntradayStrategy {
   oos:  { curve: IntradayCurvePoint[]; stats: { cagr: number; maxDD: number; mar?: number; sharpe: number; pf: number; n: number; wr: number } };
 }
 
-// ── helpers ───────────────────────────────────────────────────────────────────
-const fmtN = (v: number | null, d = 2) => v === null ? "—" : v.toFixed(d);
+// â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const fmtN = (v: number | null, d = 2) => v === null ? "â€”" : v.toFixed(d);
 function strNumColor(s: string | null): string {
-  if (!s || s === "—") return "rgba(255,255,255,0.2)";
-  if (s.startsWith("−") || s.startsWith("-")) return GOLD;
+  if (!s || s === "â€”") return "rgba(255,255,255,0.2)";
+  if (s.startsWith("âˆ’") || s.startsWith("-")) return GOLD;
   return "rgba(255,255,255,0.82)";
 }
 const archOrder = (s: string) => s === "archived" ? 1 : 0;
@@ -204,8 +204,8 @@ function inferDirection(engine: string): string {
 }
 function pillarDesc(pillar: string): string {
   const m: Record<string, string> = {
-    valuation: "Fundamentale Über-/Unterbewertung.",
-    macro: "Makroökonomischer Filter.",
+    valuation: "Fundamentale Ãœber-/Unterbewertung.",
+    macro: "MakroÃ¶konomischer Filter.",
     trend: "EMA-basierter Trendfolge-Ansatz.",
     seasonal: "Kalender-basiertes Muster.",
     anomaly: "Wochentagsanomalie.",
@@ -214,7 +214,7 @@ function pillarDesc(pillar: string): string {
   return m[pillar] ?? "Multi-Asset Strategie.";
 }
 
-// ── Chip ──────────────────────────────────────────────────────────────────────
+// â”€â”€ Chip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function Chip({ status }: { status: string }) {
   const cfg: Record<string, { label: string; c: string }> = {
     active: { label: "Aktiv", c: "rgba(255,255,255,0.5)" },
@@ -233,7 +233,7 @@ function Chip({ status }: { status: string }) {
   );
 }
 
-// ── CandleChart ───────────────────────────────────────────────────────────────
+// â”€â”€ CandleChart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function MobileCandleChart({ ticker }: { ticker: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const sym = toOhlcSymbol(ticker);
@@ -293,12 +293,12 @@ function MobileCandleChart({ ticker }: { ticker: string }) {
     return () => { destroyed = true; if (chart) { try { chart.remove(); } catch { /**/ } } };
   }, [bars]);
 
-  if (bars === null) return <div style={{ height: 160, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-montserrat),sans-serif", background: BG, borderRadius: 6 }}>Lade OHLC…</div>;
+  if (bars === null) return <div style={{ height: 160, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-montserrat),sans-serif", background: BG, borderRadius: 6 }}>Lade OHLCâ€¦</div>;
   if (!bars.length) return <div style={{ height: 40, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "rgba(255,255,255,0.15)", fontFamily: "var(--font-montserrat),sans-serif" }}>Keine Daten</div>;
   return <div ref={ref} style={{ width: "100%", height: 160, borderRadius: 6, overflow: "hidden", background: BG }} />;
 }
 
-// ── InfoBox ───────────────────────────────────────────────────────────────────
+// â”€â”€ InfoBox â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function InfoBox({ title, items }: { title: string; items: Array<{ k: string; v: string }> }) {
   return (
     <div style={{ background: "rgba(255,255,255,0.03)", border: `1px solid ${RBORD}`, borderRadius: 10, padding: "10px 12px" }}>
@@ -313,7 +313,7 @@ function InfoBox({ title, items }: { title: string; items: Array<{ k: string; v:
   );
 }
 
-// ── Expanded panel (fits one screen: smaller charts, 3×2 KPI grid) ────────────
+// â”€â”€ Expanded panel (fits one screen: smaller charts, 3Ã—2 KPI grid) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ExpandedPanel({ row }: { row: DisplayRow }) {
   const [data, setData]         = useState<StrategyData | null>(null);
   const [intraday, setIntraday] = useState<IntradayStrategy | null>(null);
@@ -347,7 +347,7 @@ function ExpandedPanel({ row }: { row: DisplayRow }) {
   const eqOos = data?.equityCurve?.oos;
   const oos   = data?.summary?.oos;
   const ist   = intraday?.oos?.stats;
-  // chain IS + OOS — scale OOS to continue from IS end value (no vertical gap)
+  // chain IS + OOS â€” scale OOS to continue from IS end value (no vertical gap)
   const intradayFull: EP[] | null = (() => {
     if (!intraday) return null;
     const isC  = (intraday.is?.curve  ?? []).map(p => ({ time: p.date + "-01", value: p.equity }));
@@ -368,15 +368,15 @@ function ExpandedPanel({ row }: { row: DisplayRow }) {
     return activeEq.map(p => { if (p.value > peak) peak = p.value; return { time: p.time, value: Math.round(((p.value - peak) / peak) * 10000) / 100 }; });
   })();
 
-  // exactly 6 KPIs for 3×2 grid
+  // exactly 6 KPIs for 3Ã—2 grid
   const kpis: Array<{ label: string; value: string }> = [];
   if (row.sharpeOos !== null)          kpis.push({ label: "Sharpe OOS",    value: fmtN(row.sharpeOos) });
   else if (ist?.sharpe != null)        kpis.push({ label: "Sharpe OOS",    value: fmtN(ist.sharpe) });
   if (oos?.cagr != null)               kpis.push({ label: "CAGR OOS",      value: `${oos.cagr > 0 ? "+" : ""}${oos.cagr.toFixed(2)}%` });
   else if (ist?.cagr != null)          kpis.push({ label: "CAGR OOS",      value: `+${fmtN(ist.cagr)}%` });
   else if (row.cagr)                   kpis.push({ label: "CAGR",          value: row.cagr });
-  if (oos?.maxDrawdownPercent != null) kpis.push({ label: "Max DD",        value: `−${Math.abs(oos.maxDrawdownPercent).toFixed(2)}%` });
-  else if (ist?.maxDD != null)         kpis.push({ label: "Max DD",        value: `−${fmtN(ist.maxDD)}%` });
+  if (oos?.maxDrawdownPercent != null) kpis.push({ label: "Max DD",        value: `âˆ’${Math.abs(oos.maxDrawdownPercent).toFixed(2)}%` });
+  else if (ist?.maxDD != null)         kpis.push({ label: "Max DD",        value: `âˆ’${fmtN(ist.maxDD)}%` });
   else if (row.maxDd)                  kpis.push({ label: "Max DD",        value: row.maxDd });
   if (row.pf != null)                  kpis.push({ label: "Profit Factor", value: fmtN(row.pf) });
   else if (ist?.pf != null)            kpis.push({ label: "Profit Factor", value: fmtN(ist.pf) });
@@ -417,7 +417,7 @@ function ExpandedPanel({ row }: { row: DisplayRow }) {
       {tab === "charts" && (
         <div style={{ padding: "10px 12px 14px" }}>
           <div style={{ fontSize: 8, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase", marginBottom: 5 }}>
-            OHLC · {row.ticker} · Daily
+            OHLC Â· {row.ticker} Â· Daily
           </div>
           <MobileCandleChart ticker={row.ticker} />
 
@@ -456,7 +456,7 @@ function ExpandedPanel({ row }: { row: DisplayRow }) {
             </div>
           )}
 
-          {/* 3×2 KPI grid */}
+          {/* 3Ã—2 KPI grid */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 5, marginTop: 10 }}>
             {kpi6.map(k => (
               <div key={k.label} style={{ background: CARD, border: `1px solid ${CBORD}`, borderRadius: 9, padding: "7px 9px" }}>
@@ -472,19 +472,19 @@ function ExpandedPanel({ row }: { row: DisplayRow }) {
         <div style={{ padding: "10px 12px 14px", display: "flex", flexDirection: "column", gap: 7 }}>
           <InfoBox title="Asset & Strategie" items={[
             { k: "Asset", v: row.label },{ k: "Ticker", v: row.ticker },
-            { k: "Exchange", v: row.exchange ?? "—" },{ k: "Pillar", v: row.pillarLabel },
+            { k: "Exchange", v: row.exchange ?? "â€”" },{ k: "Pillar", v: row.pillarLabel },
             { k: "Engine", v: row.engine },{ k: "Richtung", v: dir },
           ]} />
           <InfoBox title="Performance OOS" items={[
-            { k: "Sharpe OOS", v: fmtN(sharpeV) },{ k: "CAGR OOS", v: row.cagr ?? "—" },
-            { k: "Max DD", v: row.maxDd ?? "—" },{ k: "Calmar/MAR", v: fmtN(calmarV) },
+            { k: "Sharpe OOS", v: fmtN(sharpeV) },{ k: "CAGR OOS", v: row.cagr ?? "â€”" },
+            { k: "Max DD", v: row.maxDd ?? "â€”" },{ k: "Calmar/MAR", v: fmtN(calmarV) },
             { k: "Profit Factor", v: fmtN(pfV) },
           ]} />
           <InfoBox title="Handel & Statistik" items={[
-            { k: "# Trades", v: tradesV != null ? String(tradesV) : "—" },
-            { k: "Win Rate", v: wrV != null ? `${Number(wrV).toFixed(1)}%` : "—" },
-            { k: "WF / OOS", v: row.wfWin ?? "—" },
-            { k: "Final Equity", v: oos?.finalEquity != null ? `${oos.finalEquity.toFixed(0)}` : "—" },
+            { k: "# Trades", v: tradesV != null ? String(tradesV) : "â€”" },
+            { k: "Win Rate", v: wrV != null ? `${Number(wrV).toFixed(1)}%` : "â€”" },
+            { k: "WF / OOS", v: row.wfWin ?? "â€”" },
+            { k: "Final Equity", v: oos?.finalEquity != null ? `${oos.finalEquity.toFixed(0)}` : "â€”" },
           ]} />
           <InfoBox title="Kontext & Zeitraum" items={[
             { k: "Status", v: row.status },{ k: "Beschreibung", v: pillarDesc(row.pillarKey) },
@@ -496,7 +496,7 @@ function ExpandedPanel({ row }: { row: DisplayRow }) {
   );
 }
 
-// ── Clickable column header with aggregate + sort ─────────────────────────────
+// â”€â”€ Clickable column header with aggregate + sort â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ColHeader({ label, agg, k, sortKey, sortDir, onSort, w, align = "left" }: {
   label: string; agg: string; k: SortKey; sortKey: SortKey; sortDir: SortDir;
   onSort: (k: SortKey) => void; w: string; align?: "left"|"right";
@@ -507,13 +507,13 @@ function ColHeader({ label, agg, k, sortKey, sortDir, onSort, w, align = "left" 
       <div style={{ fontSize: 8, fontWeight: 600, color: active ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.32)", letterSpacing: ".05em", fontFamily: "var(--font-montserrat),sans-serif", marginBottom: 1, whiteSpace: "nowrap" }}>{agg}</div>
       <div style={{ fontSize: 8, fontWeight: 700, color: active ? "rgba(255,255,255,0.65)" : MUTED, letterSpacing: ".08em", textTransform: "uppercase", fontFamily: "var(--font-montserrat),sans-serif", display: "flex", alignItems: "center", gap: 2, justifyContent: align === "right" ? "flex-end" : "flex-start" }}>
         {label}
-        {active && <span style={{ opacity: 0.6, fontSize: 8 }}>{sortDir === "desc" ? "↓" : "↑"}</span>}
+        {active && <span style={{ opacity: 0.6, fontSize: 8 }}>{sortDir === "desc" ? "â†“" : "â†‘"}</span>}
       </div>
     </div>
   );
 }
 
-// ── Strategy row ──────────────────────────────────────────────────────────────
+// â”€â”€ Strategy row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function StrategyRow({ row, num, liveData, liveOn }: {
   row: DisplayRow; num: number;
   liveData: Map<string, LiveFeedItem>; liveOn: boolean;
@@ -542,20 +542,20 @@ function StrategyRow({ row, num, liveData, liveOn }: {
         {/* metric columns */}
         <div style={{ display: "flex", alignItems: "flex-end", paddingLeft: 20 }}>
           <MCol label="Pillar"  value={row.pillarLabel} w="22%" dim />
-          <MCol label="Gew."   value={row.weight != null ? `${row.weight}%` : "—"} w="11%" />
-          <MCol label="Sharpe" value={row.sharpeOos != null ? row.sharpeOos.toFixed(2) : "—"} w="14%" />
-          <MCol label="CAGR"   value={row.cagr ?? "—"} w="15%" color={strNumColor(row.cagr)} />
-          <MCol label="Max DD" value={row.maxDd ?? "—"} w="17%" color={strNumColor(row.maxDd)} />
-          <MCol label="PF"     value={row.pf != null ? row.pf.toFixed(2) : "—"} w="12%" />
-          <MCol label="Trades" value={row.trades != null ? String(row.trades) : "—"} w="9%" />
+          <MCol label="Gew."   value={row.weight != null ? `${row.weight}%` : "â€”"} w="11%" />
+          <MCol label="Sharpe" value={row.sharpeOos != null ? row.sharpeOos.toFixed(2) : "â€”"} w="14%" />
+          <MCol label="CAGR"   value={row.cagr ?? "â€”"} w="15%" color={strNumColor(row.cagr)} />
+          <MCol label="Max DD" value={row.maxDd ?? "â€”"} w="17%" color={strNumColor(row.maxDd)} />
+          <MCol label="PF"     value={row.pf != null ? row.pf.toFixed(2) : "â€”"} w="12%" />
+          <MCol label="Trades" value={row.trades != null ? String(row.trades) : "â€”"} w="9%" />
         </div>
         {/* live row */}
         {liveOn && (
           <div style={{ display: "flex", alignItems: "flex-end", paddingLeft: 20, marginTop: 5 }}>
-            <MCol label="Preis" value={live?.lastClose != null ? fmtPrice(live.lastClose, row.ticker) : "—"} w="25%" />
-            <MCol label="Δ%" value={live?.changePct != null ? `${live.changePct >= 0 ? "+" : ""}${live.changePct.toFixed(2)}%` : "—"} w="20%"
+            <MCol label="Preis" value={live?.lastClose != null ? fmtPrice(live.lastClose, row.ticker) : "â€”"} w="25%" />
+            <MCol label="Î”%" value={live?.changePct != null ? `${live.changePct >= 0 ? "+" : ""}${live.changePct.toFixed(2)}%` : "â€”"} w="20%"
               color={live?.changePct != null ? (live.changePct >= 0 ? "rgba(255,255,255,0.8)" : GOLD) : undefined} />
-            <MCol label="WF/Win%" value={row.wfWin ?? "—"} w="22%" />
+            <MCol label="WF/Win%" value={row.wfWin ?? "â€”"} w="22%" />
           </div>
         )}
       </button>
@@ -572,7 +572,7 @@ function MCol({ label, value, w, color, dim }: { label: string; value: string; w
   );
 }
 
-// ── ToggleBtn ─────────────────────────────────────────────────────────────────
+// â”€â”€ ToggleBtn â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ToggleBtn({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button onClick={onClick} style={{
@@ -589,7 +589,7 @@ function ToggleBtn({ active, onClick, children }: { active: boolean; onClick: ()
   );
 }
 
-// ── Main view ─────────────────────────────────────────────────────────────────
+// â”€â”€ Main view â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function MobileKomponentenView() {
   const [portfolio, setPortfolio] = useState<Portfolio>("ws");
   const [pillarFilter, setPillarFilter] = useState<string>("all");
@@ -648,8 +648,8 @@ export function MobileKomponentenView() {
 
   // aggregates for column headers
   const nums = (fn: (r: DisplayRow) => number | null) => filtered.map(fn).filter((v): v is number => v !== null);
-  const avg = (arr: number[]) => arr.length ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(2) : "—";
-  const sum = (arr: number[]) => arr.length ? arr.reduce((a, b) => a + b, 0).toFixed(0) : "—";
+  const avg = (arr: number[]) => arr.length ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(2) : "â€”";
+  const sum = (arr: number[]) => arr.length ? arr.reduce((a, b) => a + b, 0).toFixed(0) : "â€”";
   const parseNum = (s: string | null) => { const v = parseFloat((s ?? "").replace(/[^0-9.-]/g, "")); return isFinite(v) ? v : null; };
 
   const aggWeight  = sum(nums(r => r.weight));
@@ -661,13 +661,13 @@ export function MobileKomponentenView() {
 
   const pillarsWithSearch = (
     <div style={{ position: "relative" }}>
-      {/* pill row: mini search | Alle | … (scrollable with fade) */}
+      {/* pill row: mini search | Alle | â€¦ (scrollable with fade) */}
       <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 12px", position: "relative" }}>
         {/* mini search input */}
         <div style={{ flexShrink: 0, position: "relative", width: 90 }}>
           <input
             type="search"
-            placeholder="Suchen…"
+            placeholder="Suchenâ€¦"
             value={search}
             onChange={e => setSearch(e.target.value)}
             style={{
@@ -709,20 +709,20 @@ export function MobileKomponentenView() {
 
         {/* live toggle */}
         <ToggleBtn active={liveOn} onClick={() => setLiveOn(v => !v)}>
-          {liveOn ? "● Live" : "Live"}
+          {liveOn ? "â— Live" : "Live"}
         </ToggleBtn>
       </div>
     </div>
   );
 
-  // two-row height ≈ 90px used for bottom fade overlap
+  // two-row height â‰ˆ 90px used for bottom fade overlap
   const NAV_H = "calc(76px + env(safe-area-inset-bottom, 34px))";
-  const FADE_H = 90; // px — ~2 list rows
+  const FADE_H = 90; // px â€” ~2 list rows
 
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", background: BG, overflow: "hidden" }}>
 
-      {/* ── STICKY HEADER (never scrolls) ─────────────────────────────────── */}
+      {/* â”€â”€ STICKY HEADER (never scrolls) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div style={{ flexShrink: 0, background: BG, zIndex: 10 }}>
 
         {/* Portfolio tabs */}
@@ -750,7 +750,7 @@ export function MobileKomponentenView() {
           ))}
         </div>
 
-        {/* KPI strip — 5 cards, full width grid */}
+        {/* KPI strip â€” 5 cards, full width grid */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6, padding: "18px 10px 0" }}>
           {kpis.map(k => (
             <div key={k.label} style={{ background: CARD, border: `1px solid ${CBORD}`, borderRadius: 10, padding: "7px 8px" }}>
@@ -760,11 +760,11 @@ export function MobileKomponentenView() {
           ))}
         </div>
 
-        {/* Filter pills + mini search + live — more spacing above */}
+        {/* Filter pills + mini search + live â€” more spacing above */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "16px 12px 10px" }}>
           {/* mini search */}
           <div style={{ flexShrink: 0, position: "relative", width: 90 }}>
-            <input type="search" placeholder="Suchen…" value={search}
+            <input type="search" placeholder="Suchenâ€¦" value={search}
               onChange={e => setSearch(e.target.value)}
               style={{
                 width: "100%", boxSizing: "border-box",
@@ -804,17 +804,17 @@ export function MobileKomponentenView() {
 
           {/* live toggle */}
           <ToggleBtn active={liveOn} onClick={() => setLiveOn(v => !v)}>
-            {liveOn ? "● Live" : "Live"}
+            {liveOn ? "â— Live" : "Live"}
           </ToggleBtn>
         </div>
 
-        {/* Column headers — more gap above table */}
+        {/* Column headers â€” more gap above table */}
         <div style={{ display: "flex", alignItems: "flex-end", padding: "2px 12px 7px", paddingLeft: 44, borderBottom: `1px solid ${RBORD}` }}>
           <ColHeader label="Pillar"  agg={`${filtered.length}`}              k="weight"   sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="22%" />
-          <ColHeader label="Gew."   agg={aggWeight ? `${aggWeight}%` : "—"}  k="weight"   sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="11%" />
+          <ColHeader label="Gew."   agg={aggWeight ? `${aggWeight}%` : "â€”"}  k="weight"   sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="11%" />
           <ColHeader label="Sharpe" agg={aggSharpe}                          k="sharpeOos" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="14%" />
-          <ColHeader label="CAGR"   agg={aggCagr ? `${aggCagr}%` : "—"}     k="cagr"      sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="15%" />
-          <ColHeader label="Max DD" agg={aggMaxDd ? `${aggMaxDd}%` : "—"}   k="maxDd"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="17%" />
+          <ColHeader label="CAGR"   agg={aggCagr ? `${aggCagr}%` : "â€”"}     k="cagr"      sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="15%" />
+          <ColHeader label="Max DD" agg={aggMaxDd ? `${aggMaxDd}%` : "â€”"}   k="maxDd"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="17%" />
           <ColHeader label="PF"     agg={aggPf}                              k="pf"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="12%" />
           <ColHeader label="Trades" agg={aggTrades}                          k="trades"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} w="9%" />
         </div>
@@ -823,7 +823,7 @@ export function MobileKomponentenView() {
         <div style={{ height: 16, background: `linear-gradient(to bottom, ${BG} 30%, transparent)`, marginBottom: -16, position: "relative", zIndex: 2, pointerEvents: "none" }} />
       </div>
 
-      {/* ── SCROLLABLE LIST ────────────────────────────────────────────────── */}
+      {/* â”€â”€ SCROLLABLE LIST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div style={{
         flex: 1,
         overflowY: "auto",
@@ -848,7 +848,7 @@ export function MobileKomponentenView() {
         <div style={{ height: `calc(${NAV_H} + ${FADE_H}px)` }} />
       </div>
 
-      {/* ── BOTTOM FADE — ~2 row heights, very subtle ──────────────────────── */}
+      {/* â”€â”€ BOTTOM FADE â€” ~2 row heights, very subtle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div style={{
         position: "absolute",
         bottom: 0,
