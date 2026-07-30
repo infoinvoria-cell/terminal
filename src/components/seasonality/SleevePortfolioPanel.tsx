@@ -214,18 +214,18 @@ function DrawdownLine({ equity, width, height }: { equity: number[]; width: numb
   );
 }
 
-/* ─── Symbol icon (for detail panel) ────────────────────────────────── */
-function SymbolIcon({ symbol, dir }: { symbol: string; dir: "LONG" | "SHORT" }) {
+/* ─── Symbol icon — matches SignalCard AssetIcon ────────────────────── */
+function SymbolIcon({ symbol, dir, size = 40 }: { symbol: string; dir: "LONG" | "SHORT"; size?: number }) {
   const letter = symbol.replace("1!", "").charAt(0);
   const isL = dir === "LONG";
   return (
     <div style={{
-      width: 36, height: 36, borderRadius: 8, flexShrink: 0,
-      background: isL ? "rgba(232,234,239,0.08)" : "rgba(216,188,103,0.08)",
-      border: `1px solid ${isL ? "rgba(232,234,239,0.14)" : "rgba(216,188,103,0.18)"}`,
+      width: size, height: size, borderRadius: 10, flexShrink: 0,
+      background: "rgba(255,255,255,0.06)",
+      border: "1px solid rgba(255,255,255,0.08)",
       display: "flex", alignItems: "center", justifyContent: "center",
     }}>
-      <span style={{ fontSize: 14, fontWeight: 900, color: isL ? "rgba(232,234,239,0.75)" : "rgba(216,188,103,0.80)" }}>
+      <span style={{ fontSize: size * 0.38, fontWeight: 800, color: isL ? "rgba(232,234,239,0.80)" : C_GOLD }}>
         {letter}
       </span>
     </div>
@@ -286,85 +286,75 @@ function KpiCell({ label, value, valueColor = "#eef2f7" }: { label: string; valu
   );
 }
 
-/* ─── Grid card — Monitoring Tester style ───────────────────────────── */
+/* ─── Grid card — SignalCard style ──────────────────────────────────── */
 function SleeveCard({ p, selected, onSelect }: { p: SleevePattern; selected: boolean; onSelect: () => void }) {
-  const [hov, setHov] = useState(false);
   const isLong   = p.direction === "LONG";
-  // positive=white, negative=gold — no green
-  const dirColor = isLong ? "rgba(232,234,239,0.85)" : C_GOLD;
+  // positive = white, negative = gold — no green
+  const dirColor = isLong ? "rgba(232,234,239,0.90)" : C_GOLD;
+
+  const cardBg = selected
+    ? `radial-gradient(ellipse 100% 80% at 110% 115%, rgba(216,188,103,0.12) 0%, transparent 60%), ${C_CARD}`
+    : C_CARD;
 
   return (
     <div
       role="button" tabIndex={0}
       onClick={onSelect}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onSelect(); }}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
       style={{
-        background: selected
-          ? `radial-gradient(ellipse 100% 80% at 110% 115%, rgba(216,188,103,0.10) 0%, transparent 60%), ${C_CARD}`
-          : C_CARD,
-        border: selected ? "1px solid rgba(216,188,103,0.30)" : `1px solid ${hov ? "rgba(255,255,255,0.12)" : C_BORDER}`,
+        background: cardBg,
+        border: selected ? "1px solid rgba(216,188,103,0.32)" : `1px solid ${C_BORDER}`,
         borderRadius: 12,
-        padding: "11px 11px 9px",
-        boxShadow: `inset 3px 0 0 ${dirColor}`,
+        padding: "14px 14px 13px",
+        display: "flex", flexDirection: "column", gap: 0,
         cursor: "pointer", outline: "none",
         transition: "border-color 120ms",
         height: "100%", boxSizing: "border-box" as const,
         fontFamily: FONT, overflow: "hidden",
-        display: "flex", flexDirection: "column", gap: 0,
+        position: "relative" as const,
+        // SignalCard-style left accent bar
+        boxShadow: `inset 3px 0 0 ${dirColor}`,
       }}
     >
-      {/* Row 1: Symbol + name + tier + dir chip */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 6, marginBottom: 9 }}>
-        <div style={{ minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 2 }}>
-            <span style={{ fontSize: 13, fontWeight: 900, color: C_WHITE, letterSpacing: "0.01em", whiteSpace: "nowrap" }}>
-              {p.symbol}
-            </span>
-            <TierBadge tier={p.tier} />
-          </div>
-          <span style={{ fontSize: 8.5, color: C_TEXT3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block" }}>
+      {/* Row 1: [Icon] [Symbol / Name] [Win Rate chip] — exactly like SignalCard */}
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 10 }}>
+        <SymbolIcon symbol={p.symbol} dir={p.direction} size={40} />
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 3, paddingTop: 1 }}>
+          <span style={{ fontSize: 16, fontWeight: 900, color: "#ffffff", letterSpacing: "0.01em", lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {p.symbol.replace("1!", "")}
+          </span>
+          <span style={{ fontSize: 10, fontWeight: 400, color: "rgba(255,255,255,0.30)", lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             {p.name}
           </span>
         </div>
-        <span style={{
-          fontSize: 8, fontWeight: 700, padding: "2px 6px", borderRadius: 4, flexShrink: 0,
-          background: isLong ? "rgba(232,234,239,0.08)" : "rgba(216,188,103,0.12)",
-          color: dirColor, letterSpacing: "0.04em",
-        }}>
-          {p.direction}
+        {/* Win rate chip — top-right like P&L chip in SignalCard */}
+        <span style={{ fontSize: 13, fontWeight: 800, color: dirColor, letterSpacing: "-0.02em", lineHeight: 1, flexShrink: 0, paddingTop: 2, fontVariantNumeric: "tabular-nums" }}>
+          {(p.winRate * 100).toFixed(0)}%
         </span>
       </div>
 
-      {/* Donut + equity curve side by side */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 9 }}>
-        <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-          <MiniDonut
-            pct={p.winRate * 100}
-            color={isLong ? "#e6e7ea" : C_GOLD}
-            bg="rgba(255,255,255,0.07)"
-            size={52} thick={5}
-          />
-          <span style={{ fontSize: 6.5, color: "#7c8798", letterSpacing: "0.08em", textTransform: "uppercase" as const }}>IS Win Rate</span>
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <CardEquityLine returns={p.fakeReturns} id={`p${p.id}`} />
-          <div style={{ fontSize: 6.5, color: "#7c8798", marginTop: 2, letterSpacing: "0.06em", textTransform: "uppercase" as const }}>Kum. Equity</div>
-        </div>
+      {/* Row 2: Window · Tier — like strategy/date row in SignalCard */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6, marginBottom: 10 }}>
+        <span style={{ fontSize: 10, fontWeight: 400, color: "rgba(255,255,255,0.26)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
+          {p.window}
+        </span>
+        <TierBadge tier={p.tier} />
       </div>
 
-      {/* Window */}
-      <div style={{ fontSize: 10.5, fontWeight: 700, color: C_GOLD, marginBottom: 8, letterSpacing: "-0.1px" }}>
-        {p.window}
+      {/* Row 3: Cumulative equity line */}
+      <div style={{ marginBottom: 10 }}>
+        <CardEquityLine returns={p.fakeReturns} id={`p${p.id}`} />
       </div>
 
-      {/* KPI grid — Monitoring Tester style */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 4, marginTop: "auto" }}>
-        <KpiCell label="OOS WR"  value={`${(p.oosWinRate * 100).toFixed(0)}%`}  valueColor="#eef2f7" />
-        <KpiCell label="Sortino" value={p.sortino.toFixed(1)}                    valueColor="#eef2f7" />
-        <KpiCell label="Robust"  value={`${(p.robustness * 100).toFixed(0)}%`}   valueColor="#7c8798" />
-        <KpiCell label="n"       value={String(p.nObs)}                          valueColor="#7c8798" />
+      {/* Row 4: Direction chip + Sortino — like direction/chart row in SignalCard */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto" }}>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 900, letterSpacing: "0.08em", color: dirColor, lineHeight: 1 }}>
+          <span style={{ fontSize: 10 }}>{isLong ? "▲" : "▼"}</span>
+          {p.direction}
+        </span>
+        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.22)", lineHeight: 1 }}>
+          S {p.sortino.toFixed(1)}
+        </span>
       </div>
     </div>
   );
