@@ -152,3 +152,6 @@ GRAPH_REPORT.md
 
 .vercel
 .env*
+data/historical/intraday/
+# Allow historical daily OHLC CSVs needed for Vercel seasonal chart API
+!data/historical/**/*.csv
