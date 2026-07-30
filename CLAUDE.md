@@ -70,3 +70,7 @@ Kein Task gilt als abgeschlossen ohne Push auf main.
 - No secrets may be printed, staged or copied into the repo.
 - No files from the Brain vault or local handoff room may be copied into the shared repo.
 - Run a security audit before every commit.
+
+## Mandatory Brain Workflow
+
+For durable project work, run `npm run brain:agent-context -- --query "<task topic>"` before broad reads. Open the returned Brain sources and treat Graphify only as an index. After durable changes, run `npm run brain:sync`, `npm run brain:validate`, and `npm run brain:graphify`, then update the relevant Brain MOC, change log, source register, or decision record. Never copy private Brain or Vault content into this repository.

@@ -86,3 +86,21 @@ This version has breaking changes - APIs, conventions, and file structure may al
 - No secrets may be printed, staged or copied into the repo.
 - No files from the Brain vault or local handoff room may be copied into the shared repo.
 - Run a security audit before every commit.
+
+## Mandatory Brain Workflow
+
+- PRE-TASK for durable project work:
+  - `npm run brain:agent-context -- --query "<task topic>"`
+  - inspect the returned MOCs, source-of-truth files, decisions, and contradictions
+  - check both repository worktrees for parallel changes
+- DURING TASK:
+  - record source paths for durable facts
+  - keep status distinctions such as live, historical, backtest, walk-forward, paper, planned, contradictory, and not found
+  - never treat Graphify output as truth without opening the referenced Brain file
+- POST-TASK when durable knowledge changed:
+  - update the relevant Brain source or MOC without copying private Brain content into this repository
+  - `npm run brain:sync`
+  - `npm run brain:validate`
+  - `npm run brain:graphify`
+  - update the Brain change log or decision register
+- A Brain update may be skipped only when the task produced no durable project knowledge.
