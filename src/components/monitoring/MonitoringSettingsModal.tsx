@@ -212,7 +212,7 @@ export default function MonitoringSettingsModal({ open, prefs, onChange, onClose
           <Row label="Bearish (Down)">
             <input
               type="color"
-              value={prefs.candleDownColor ?? "#D6B44B"}
+              value={prefs.candleDownColor ?? "#EF5350"}
               onChange={(e) => set({ candleDownColor: clampHex(e.target.value) })}
               style={{ width: 44, height: 28, border: 0, background: "transparent" }}
             />
