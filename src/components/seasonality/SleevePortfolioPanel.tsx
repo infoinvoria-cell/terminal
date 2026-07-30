@@ -144,18 +144,21 @@ function WrDonut({ pct, size = 64 }: { pct: number | null; size?: number }) {
 }
 
 /* ─── Cumulative equity from yearly returns ──────────────────────────────── */
-function CardEquityLine({ yearReturns, id, avgReturnPct }: {
+function CardEquityLine({ yearReturns, id, avgReturnPct, noDataSource = false }: {
   yearReturns: Array<{ year: number; returnPct: number }>;
   id: string;
   avgReturnPct: number | null;
+  noDataSource?: boolean;
 }) {
   const W = 300; const H = 60;
   const padTop = 18; const padBot = 4;
 
   if (yearReturns.length === 0) {
-    const label = avgReturnPct != null
-      ? `${avgReturnPct >= 0 ? "+" : ""}${avgReturnPct.toFixed(1)}% avg`
-      : "Nicht getestet";
+    const label = noDataSource
+      ? "Keine Datenquelle"
+      : avgReturnPct != null
+        ? `${avgReturnPct >= 0 ? "+" : ""}${avgReturnPct.toFixed(1)}% avg`
+        : "Nicht bewertet";
     return (
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{ display: "block" }}>
         <text x={W - 2} y={12} textAnchor="end" fill="rgba(255,255,255,0.20)"
@@ -445,11 +448,11 @@ function SleeveCard({ item, selected, onActivate, onDetail }: {
   const statusDetail = result?.statusDetail ?? null;
   const oosWinRate  = wf?.oosWinRatePct ?? null;
   // isWinRatePct is the canonical field; winRatePct is the legacy alias
-  const isWinRate   = (hist as Record<string, unknown>)?.isWinRatePct as number ?? hist?.winRatePct ?? null;
+  const isWinRate   = hist?.isWinRatePct ?? hist?.winRatePct ?? null;
   const displayWr   = oosWinRate ?? isWinRate;
   const displayWrSource: "OOS" | "IS" | null = oosWinRate != null ? "OOS" : isWinRate != null ? "IS" : null;
   // isAvgReturnMeanPct is canonical; avgReturnPct / avgReturnMeanPct are legacy aliases
-  const avgReturnPct = (hist as Record<string, unknown>)?.isAvgReturnMeanPct as number ?? hist?.avgReturnPct ?? null;
+  const avgReturnPct = hist?.isAvgReturnMeanPct ?? hist?.avgReturnPct ?? null;
   const yearReturns  = hist?.yearReturns ?? [];
   const negativeOosExpectancy = statusDetail?.profitabilityStatus === "negative_oos_expectancy";
   const displaySym   = def.monitoringSymbol.replace("1!", "!");
@@ -527,6 +530,7 @@ function SleeveCard({ item, selected, onActivate, onDetail }: {
           yearReturns={yearReturns}
           id={`p${displayId}`}
           avgReturnPct={avgReturnPct}
+          noDataSource={result?.status === "no_data_source"}
         />
       </div>
 
@@ -569,7 +573,7 @@ function PatternListRow({ item, selected, onSelect }: {
   const dirColor  = def.direction === "LONG" ? "rgba(232,234,239,0.70)" : C_GOLD;
   const hist      = result?.historical;
   const wf        = result?.wf;
-  const displayWr = wf?.oosWinRatePct ?? hist?.winRatePct ?? null;
+  const displayWr = wf?.oosWinRatePct ?? hist?.isWinRatePct ?? hist?.winRatePct ?? null;
   const sortino   = hist?.sortinoRatio ?? null;
 
   return (
@@ -616,9 +620,9 @@ function DetailPanel({ item, onGoToChart }: { item: DisplayItem; onGoToChart: ()
   const wf   = result?.wf ?? null;
   const status = result?.status ?? "not_tested";
 
-  const isWr   = (hist as Record<string, unknown>)?.isWinRatePct as number ?? hist?.winRatePct;
+  const isWr   = hist?.isWinRatePct ?? hist?.winRatePct;
   const oosWr  = wf?.oosWinRatePct;
-  const isAvg  = (hist as Record<string, unknown>)?.isAvgReturnMeanPct as number ?? hist?.avgReturnPct;
+  const isAvg  = hist?.isAvgReturnMeanPct ?? hist?.avgReturnPct;
   const oosAvg = wf?.oosAvgReturnPct;
   const nObs   = hist?.nObs;
   const maxDd  = hist?.maxDrawdownPct;
@@ -775,7 +779,11 @@ function PortfolioView({ items }: { items: DisplayItem[] }) {
   const nComputed   = computed.length;
   const nBon        = items.filter(it => it.def.multipleTestingTier === "bonferroni").length;
 
-  const avgIsWr  = nComputed > 0 ? computed.reduce((s, it) => s + (it.result!.historical!.winRatePct), 0) / nComputed : null;
+  const avgIsWr  = nComputed > 0 ? computed.reduce((s, it) => {
+    const h = it.result!.historical!;
+    const wr = h.isWinRatePct ?? h.winRatePct ?? 0;
+    return s + wr;
+  }, 0) / nComputed : null;
   const avgOosWr = computed.filter(it => it.result?.wf).length > 0
     ? computed.filter(it => it.result?.wf).reduce((s, it) => s + it.result!.wf!.oosWinRatePct, 0) / computed.filter(it => it.result?.wf).length
     : null;

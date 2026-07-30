@@ -6,7 +6,7 @@
       "patternId": "rb1_long_slot29_v1",
       "registryVersion": "1.0.0",
       "computedAt": "2026-07-30T15:51:07.281Z",
-      "status": "calculated",
+      "status": "wf_completed",
       "csvPath": "data/historical/energy/NYMEX_RB1_D.csv",
       "dataHash": "d00db917ca79cc61",
       "dataValidation": {
@@ -572,7 +572,7 @@
       "patternId": "zw1_long_slot152_v1",
       "registryVersion": "1.0.0",
       "computedAt": "2026-07-30T15:51:07.364Z",
-      "status": "calculated",
+      "status": "wf_completed",
       "csvPath": "workspace/output/tradingview_data_test/full_history_validated/CBOT_ZW1_TV_MERGED_FULL_HISTORY_daily.csv",
       "dataHash": "c3dcc968454cfb79",
       "dataValidation": {
@@ -1278,7 +1278,7 @@
       "patternId": "gc1_long_slot128_v1",
       "registryVersion": "1.0.0",
       "computedAt": "2026-07-30T15:51:07.463Z",
-      "status": "calculated",
+      "status": "wf_completed",
       "csvPath": "data/historical/metals/COMEX_GC1_D.csv",
       "dataHash": "dc1219326b71166b",
       "dataValidation": {
@@ -1934,7 +1934,7 @@
       "patternId": "ng1_short_slot170_v1",
       "registryVersion": "1.0.0",
       "computedAt": "2026-07-30T15:51:07.559Z",
-      "status": "calculated",
+      "status": "wf_completed",
       "csvPath": "data/historical/energy/NYMEX_NG1_D.csv",
       "dataHash": "87321facdc438c1b",
       "dataValidation": {
@@ -2440,7 +2440,7 @@
       "patternId": "sb1_short_slot172_v1",
       "registryVersion": "1.0.0",
       "computedAt": "2026-07-30T15:51:07.638Z",
-      "status": "calculated",
+      "status": "wf_completed",
       "csvPath": "workspace/output/tradingview_data_test/full_history_validated/ICEUS_SB1_TV_MERGED_FULL_HISTORY_daily.csv",
       "dataHash": "05d3539f6cf581a6",
       "dataValidation": {
@@ -3136,7 +3136,7 @@
       "patternId": "cc1_long_slot210_v1",
       "registryVersion": "1.0.0",
       "computedAt": "2026-07-30T15:51:07.715Z",
-      "status": "calculated",
+      "status": "wf_completed",
       "csvPath": "workspace/output/tradingview_data_test/full_history_validated/ICEUS_CC1_TV_MERGED_FULL_HISTORY_daily.csv",
       "dataHash": "a520bf0c7655643b",
       "dataValidation": {
@@ -3752,7 +3752,7 @@
       "patternId": "pa1_short_slot10_v1",
       "registryVersion": "1.0.0",
       "computedAt": "2026-07-30T15:51:07.780Z",
-      "status": "calculated",
+      "status": "wf_completed",
       "csvPath": "data/historical/metals/NYMEX_PA1_D.csv",
       "dataHash": "0ca1ac69320903af",
       "dataValidation": {
@@ -4328,7 +4328,7 @@
       "patternId": "ct1_long_slot29_v1",
       "registryVersion": "1.0.0",
       "computedAt": "2026-07-30T15:51:07.861Z",
-      "status": "calculated",
+      "status": "wf_completed",
       "csvPath": "workspace/output/tradingview_data_test/full_history_validated/ICEUS_CT1_TV_MERGED_FULL_HISTORY_daily.csv",
       "dataHash": "3d51e972684e2eed",
       "dataValidation": {
@@ -5014,7 +5014,7 @@
       "patternId": "es1_long_slot240_v1",
       "registryVersion": "1.0.0",
       "computedAt": "2026-07-30T15:51:07.914Z",
-      "status": "calculated",
+      "status": "wf_completed",
       "csvPath": "data/historical/indices/CME_MINI_ES1_D.csv",
       "dataHash": "92681e342a2bb449",
       "dataValidation": {
