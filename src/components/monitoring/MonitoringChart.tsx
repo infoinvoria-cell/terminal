@@ -1750,20 +1750,22 @@ function MonitoringChartInner({
         touch: true,
         mouse: false,
       },
-      // Keep the crosshair visible after every update (createChart sets it once,
-      // but a later applyOptions elsewhere could drop it — re-assert here).
+      // Re-assert crosshair settings on every data update so the 5s refresh
+      // cannot silently revert mode or color.
       crosshair: {
-        mode: CrosshairMode.Normal,
+        mode: CrosshairMode.Magnet,
         vertLine: {
-          color: "rgba(230, 235, 245, 0.75)",
+          color: "rgba(180, 185, 200, 0.6)",
           width: 1,
+          style: 0,
           labelVisible: true,
           labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
           visible: true,
         },
         horzLine: {
-          color: "rgba(230, 235, 245, 0.75)",
+          color: "rgba(180, 185, 200, 0.6)",
           width: 1,
+          style: 0,
           labelVisible: true,
           labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
           visible: true,
