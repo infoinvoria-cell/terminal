@@ -111,6 +111,50 @@ Result: corrupted Supabase data displayed as authoritative
 
 ---
 
+## Phase 2 — Hardening (2026-07-30)
+
+### Supabase Quarantine Migration
+New file: `supabase/migrations/20260730_quarantine_ym1_corrupt_ohlc.sql`
+- Creates `monitoring_ohlc_quarantine` archive table (idempotent)
+- Copies YM1! 1D rows with `close < 5000` to quarantine before deleting
+- Installs trigger `monitoring_ohlc_ym1_scale_guard` blocking future inserts with `close < 5000`
+- **Status**: Migration file ready; must be run manually against live database by DBA
+
+### API Route — Instrument Price Floor
+`src/app/api/monitoring/ohlc/route.ts`: added `INSTRUMENT_PRICE_FLOOR` pre-filter before `validateAndRepairOhlc`.
+Floors: YM1!→5 000, FDAX1!→1 000, GC1!→100, GLD→20, 6E1!→0.5
+Floor-rejected bars are logged to `ohlc_quality_events` with flag `instrument_price_floor`.
+
+### Seeder Hardening
+`tools/market-data/seed_anomaly_daily.py`: added `PRICE_FLOOR` dict; any bar whose close is below the floor is rejected before upsert with a printed warning. Prevents Yahoo Finance `auto_adjust=True` ratio-splice artifacts from re-entering the database.
+
+### Multi-Source Cross-Validation
+New script: `tools/market-data/validate_anomaly_sources.mjs`
+Run: `node tools/market-data/validate_anomaly_sources.mjs [--with-supabase]`
+
+Validation results (2026-07-30, local sources only):
+
+| Chart | TVC cache age | all_s age | TVC vs all_s | Assessment |
+|---|---|---|---|---|
+| FDAX1! 2H | 0d (current) | — | — | ✓ current |
+| FDAX1! 1H | 0d (current) | — | — | ✓ current |
+| 6E1! 30M | 0d (current) | — | — | ✓ current |
+| GC1! 1D | 9d stale | 77d stale | 39 field mismatches | See note |
+| GLD 1D | no local file | no local file | N/A | Supabase only |
+| YM1! 1D | 9d stale | 77d stale | 35 field mismatches | See note |
+
+**GC1!/YM1! inter-source discrepancies**: 39 and 35 mismatches respectively, concentrated in March 2026 (up to 6.75% on GC1! LOW for 2026-03-18). Root cause: continuous futures contract roll — TVC cache updated in July 2026 with revised historical data; all_s file generated in May 2026 captures an earlier front-month adjustment. Price scale is correct in both sources. Not a data corruption issue; normal behavior for continuous futures time series.
+
+**GLD**: No local TVC cache file exists. Chart relies entirely on live-data fallback. Cannot perform independent local cross-validation. Signals locked until independent source is confirmed.
+
+### Signal Marker Status
+Anomaly tab renders with `payload: null` and `strategy: ""` for GC1!, GLD, YM1!. This causes `getBadge(null)` → `"DATA WARN"` and `hasStrategy(null, "DATA WARN")` → `false`. No signal markers are rendered. No markers needed to be removed.
+
+### Engine Status — Anomaly Charts
+All three Anomaly strategy registrations (`ANOMALY_1`–`ANOMALY_4`) are PLACEHOLDER ("not yet defined"). The `run-anomaly` API route is a 503 stub. No signals can be computed or displayed for GC1!, GLD, or YM1! until engines are defined and approved.
+
+---
+
 ## 5. Engine Mapping Table
 
 | Chart | Strategy | Engine ID | Engine Version | Asset | TF | Data Source |
@@ -143,7 +187,7 @@ Extreme wicks (>5% of close):
 ## 7. Tests
 
 New test file: `src/lib/market-data/__tests__/ohlc-quality.test.ts`  
-**17 tests, all passing** — covers:
+**Phase 1: 17 tests, all passing** — covers:
 
 - Valid bar acceptance
 - `non_positive` (price = 0, negative)
@@ -158,6 +202,12 @@ New test file: `src/lib/market-data/__tests__/ohlc-quality.test.ts`
 - OHLC invariants (high >= low, positive close) after repair
 - Intraday 30M and 2H bar acceptance
 
+**Phase 2**: `src/app/api/monitoring/ohlc/__tests__/ohlc-route-floor.test.ts` — 15 tests, all passing.
+
+Covers: YM1! 515 rejected, YM1! 45 000 accepted, floor boundary cases, mixed-series filtering, GC1! historical range, GLD ETF range, 6E1! EUR/USD range, unknown symbol passes all, CBOT:YM1! alias routes to correct data, staleness check.
+
+**Total: 32 tests, all passing. Build: clean.**
+
 ---
 
 ## 8. External Blockers
@@ -165,11 +215,14 @@ New test file: `src/lib/market-data/__tests__/ohlc-quality.test.ts`
 | Item | Status |
 |---|---|
 | Supabase monitoring_ohlc: corrupted YM1! data at ~515 | Not cleaned up — but no longer reachable after fix; should be purged from DB separately |
-| GLD TVC cache file (AMEX_GLD_D.json) | Does not exist; GLD depends on invest_ohlc table |
-| Strategy engines for GC1!, GLD, YM1! Anomaly | MISSING / PLACEHOLDER in registry — Codex output pending |
+| Supabase migration (quarantine YM1!) | File ready; DBA must run manually |
+| GLD TVC cache file (AMEX_GLD_D.json) | Does not exist; GLD depends on invest_ohlc table; cannot independently validate |
+| Strategy engines for GC1!, GLD, YM1! Anomaly | All MISSING / PLACEHOLDER in registry — Codex output pending |
 | DAX_2H and EURUSD_30M live_ready | false (OOS gate not passed per Codex Run 3) |
 | GLD invest_ohlc content | Unverified from static files; requires DB inspection |
-| Cache staleness (GC1! and YM1! last date 2026-07-21) | 9 days stale — normal refresh cycle pending |
+| GC1! / YM1! TVC cache | Stale by 9 days (2026-07-21); requires TradingView auth to refresh |
+| GC1!/YM1! signals | Locked — no approved engine; DATA WARN badge shown |
+| GLD signals | Locked — no validated independent source, no approved engine |
 
 ---
 

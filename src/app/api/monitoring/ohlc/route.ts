@@ -7,6 +7,39 @@ type OhlcRow = { date: unknown; open: unknown; high: unknown; low: unknown; clos
 type ShapedBar = { time: string; open: number; high: number; low: number; close: number; tick: boolean };
 
 /**
+ * Conservative price floors per instrument symbol.
+ *
+ * These values are well below any plausible real market price; they exist
+ * only to catch import-level scale errors (Yahoo Finance auto_adjust ratio
+ * splicing, wrong ticker, decimal shift). They do NOT replace OHLC quality
+ * validation — they are a pre-filter that runs before validateAndRepairOhlc.
+ *
+ * Adding new symbols here requires a confirmed historical minimum price.
+ */
+const INSTRUMENT_PRICE_FLOOR: Record<string, number> = {
+  "YM1!":   5_000,   // Dow Jones E-mini (CBOT): lowest historical ~6 500 (2002)
+  "FDAX1!": 1_000,   // DAX future (EUREX): lowest historical ~1 300 (2003)
+  "GC1!":     100,   // Gold continuous (COMEX): lowest historical ~103 (1975)
+  "GLD":       20,   // SPDR Gold ETF: tracks ~1/10 gold; ~$20 floor
+  "6E1!":     0.5,   // EUR/USD future: lowest historical ~0.82 (2001)
+};
+
+function applyInstrumentPriceFloor(bars: ShapedBar[], symbol: string): { accepted: ShapedBar[]; rejected: ShapedBar[] } {
+  const floor = INSTRUMENT_PRICE_FLOOR[symbol];
+  if (floor === undefined || !Number.isFinite(floor)) return { accepted: bars, rejected: [] };
+  const accepted: ShapedBar[] = [];
+  const rejected: ShapedBar[] = [];
+  for (const bar of bars) {
+    if (bar.close < floor) {
+      rejected.push(bar);
+    } else {
+      accepted.push(bar);
+    }
+  }
+  return { accepted, rejected };
+}
+
+/**
  * Canonical period key.
  *
  * `monitoring_ohlc.date` is a TEXT column and the unique key is
@@ -186,7 +219,32 @@ export async function GET(request: Request) {
       return { time, open, high, low, close, tick };
     });
 
-    const quality = validateAndRepairOhlc(pruneStaleTickBars(shaped, isDaily), {
+    // Reject bars whose close falls below the known instrument price floor.
+    // This catches import-level scale errors (Yahoo Finance auto_adjust ratio
+    // splicing, wrong ticker, decimal shift) that would otherwise pass through
+    // validateAndRepairOhlc undetected when the entire series is consistently wrong.
+    const { accepted: floorPassed, rejected: floorRejected } = applyInstrumentPriceFloor(
+      pruneStaleTickBars(shaped, isDaily),
+      symbol,
+    );
+    // Log floor-rejected bars as quarantine events so the same ohlc_quality_events
+    // table captures them alongside the validator's own quarantine records.
+    const floorEvents = floorRejected.map((bar) => ({
+      event_hash: sha256Json([symbol, timeframe, bar.time, "instrument_price_floor", bar, null]),
+      asset: symbol,
+      timeframe,
+      period_utc: bar.time,
+      severity: "quarantine" as const,
+      quality_flag: "instrument_price_floor",
+      repair_method: `Close ${bar.close} below known floor for ${symbol}; bar quarantined`,
+      original_bar: bar,
+      corrected_bar: null,
+    }));
+    if (floorEvents.length) {
+      await db.from("ohlc_quality_events").upsert(floorEvents, { onConflict: "event_hash", ignoreDuplicates: true });
+    }
+
+    const quality = validateAndRepairOhlc(floorPassed, {
       intraday: !isDaily,
       nowMs,
     });
@@ -218,11 +276,19 @@ export async function GET(request: Request) {
       count: bars.length,
       lastDate: lastBar?.time ?? null,
       quality: {
-        status: quality.events.length ? "warning" : "ok",
+        status: (quality.events.length || floorRejected.length) ? "warning" : "ok",
         flags: quality.flags,
         repaired: quality.events.filter((event) => event.severity === "repair").length,
-        quarantined: quality.quarantined.length,
-        events: quality.events.slice(-100),
+        quarantined: quality.quarantined.length + floorRejected.length,
+        floor_rejected: floorRejected.length,
+        events: [...floorEvents.map(e => ({
+          time: e.period_utc,
+          severity: "quarantine" as const,
+          flag: "instrument_price_floor" as const,
+          method: e.repair_method,
+          original: e.original_bar,
+          corrected: null,
+        })), ...quality.events].slice(-100),
       },
     });
   } catch (err) {
