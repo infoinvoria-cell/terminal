@@ -285,10 +285,11 @@ function Chip({ status }: { status: string }) {
     active:         { label: "Aktiv",      c: "rgba(255,255,255,0.5)" },
     watch:          { label: "Watch",      c: GOLD },
     archived:       { label: "Archiviert", c: "rgba(255,255,255,0.15)" },
-    historical_reference: { label: "Historisch", c: "#60a5fa" },
-    research:       { label: "Research",   c: "rgba(255,255,255,0.3)" },
-    validation:     { label: "Validation", c: "rgba(255,255,255,0.45)" },
-    parity_pending: { label: "Pending",    c: GOLD },
+    historical_reference: { label: "Historisch",      c: "#60a5fa" },
+    research:             { label: "Research",        c: "rgba(255,255,255,0.3)" },
+    validation:           { label: "Validation",      c: "rgba(255,255,255,0.45)" },
+    parity_pending:       { label: "Pending",         c: GOLD },
+    parity_partial:       { label: "⚠ Parity partiell", c: "#f59e0b" },
   };
   const s = cfg[status] ?? { label: status, c: MUTED };
   return (
@@ -1119,6 +1120,21 @@ export default function StrategyMasterTable() {
           {kpis.map(k => <HKpi key={k.label} label={k.label} value={k.value} />)}
         </div>
       </div>
+      {portfolio === "ci" && (
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12, flexShrink: 0 }}>
+          <span style={{
+            fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600,
+            color: "#f59e0b", letterSpacing: ".04em",
+            background: "rgba(245,158,11,0.10)", border: "1px solid rgba(245,158,11,0.28)",
+            borderRadius: 6, padding: "2px 8px", whiteSpace: "nowrap" as const,
+          }}>
+            ⚠ Engine Parity partiell (Pine2-Sleeves ~15% Match)
+          </span>
+          <span style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, color: MUTED }}>
+            OOS 2019–2026 · Backtest-Werte · kein Live-Track-Record
+          </span>
+        </div>
+      )}
 
       {/* filter bar + live toggle */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexShrink: 0 }}>
