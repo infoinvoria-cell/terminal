@@ -8,12 +8,15 @@ const C_GOLD   = "#DCC476";
 const C_MUTED  = "#9AAAB8";
 const C_DIM    = "#7A8898";
 const C_DIM2   = "#5E6E80";
-const C_BG     = "#060606";
-const C_BORDER = "rgba(255,255,255,0.07)";
+const C_GREEN  = "#64DC82";
+const C_BORDER = "rgba(255,255,255,0.06)";
 const C_HOVER  = "rgba(255,255,255,0.04)";
 const C_SEL    = "rgba(255,255,255,0.07)";
-const C_GREEN  = "#64DC82";
 const FONT     = "Montserrat, Segoe UI, sans-serif";
+
+/* Terminal card gradient — matches kpi-card.tsx */
+const CARD_BG     = "linear-gradient(to bottom, #1c1d20, #141517)";
+const CARD_SHADOW = "0 20px 40px -16px rgba(0,0,0,0.55)";
 
 /* ─── Pattern data ──────────────────────────────────────────────────── */
 export interface SleevePattern {
@@ -39,16 +42,39 @@ export interface SleevePattern {
   fakeReturns: number[];
 }
 
+/* Realistic fake returns with actual drawdown periods */
 function makeFakeReturns(wr: number, avg: number, n = 30): number[] {
   const out: number[] = [];
   let seed = Math.floor(wr * 1000 + avg * 10000) | 0;
   for (let i = 0; i < n; i++) {
     seed = (seed * 1664525 + 1013904223) & 0x7fffffff;
-    const r = (seed / 0x7fffffff) * 2 - 1;
-    const hit = (seed / 0x7fffffff) < wr;
-    out.push(hit ? avg * (1 + Math.abs(r) * 0.4) : -avg * (0.5 + Math.abs(r) * 0.3));
+    const r1 = seed / 0x7fffffff;
+    seed = (seed * 1664525 + 1013904223) & 0x7fffffff;
+    const r2 = seed / 0x7fffffff;
+    const hit = r1 < wr;
+    const mag = 0.4 + r2 * 1.2;
+    out.push(hit ? avg * mag : -avg * (0.9 + r2 * 1.8));
   }
   return out;
+}
+
+/* Portfolio equity with realistic drawdowns */
+function buildPortfolioEquity(): number[] {
+  const equity: number[] = [100];
+  let seed = 0x4a3f2b1c;
+  const WR = 0.72;
+  const WIN = 0.0055;
+  const LOSS = 0.0115;
+  for (let i = 0; i < 150; i++) {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    const r1 = seed / 0xffffffff;
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    const r2 = seed / 0xffffffff;
+    const hit = r1 < WR;
+    const mag = 0.3 + r2 * 1.5;
+    equity.push(equity[equity.length - 1] * (1 + (hit ? WIN * mag : -LOSS * mag)));
+  }
+  return equity;
 }
 
 export const SLEEVE_PATTERNS: SleevePattern[] = [
@@ -99,7 +125,7 @@ export const SLEEVE_PATTERNS: SleevePattern[] = [
     avgReturn: 0.016, sortino: 1.9, nObs: 30,
     maxDrawdown: -0.07, profitFactor: 2.8, robustness: 0.52, decadeConsistent: true,
     category: "Agrar",
-    rationale: "Northern-hemisphere Crushing-Season endet. Brasilianische Export-Logistik eingeschränkt. Globale Nachfrage saisonal fest.",
+    rationale: "Northern-hemisphere Crushing-Season endet. Brasilianische Export-Logistik eingeschränkt.",
     fakeReturns: makeFakeReturns(0.75, 0.016),
   },
   {
@@ -109,7 +135,7 @@ export const SLEEVE_PATTERNS: SleevePattern[] = [
     avgReturn: 0.019, sortino: 2.2, nObs: 27,
     maxDrawdown: -0.09, profitFactor: 3.0, robustness: 0.53, decadeConsistent: true,
     category: "Agrar",
-    rationale: "West African main crop arrival delays + pre-holiday chocolate demand surge. Saisonales Angebotstief.",
+    rationale: "West African main crop arrival delays + pre-holiday chocolate demand surge.",
     fakeReturns: makeFakeReturns(0.74, 0.019),
   },
   {
@@ -129,7 +155,7 @@ export const SLEEVE_PATTERNS: SleevePattern[] = [
     avgReturn: 0.014, sortino: 1.8, nObs: 31,
     maxDrawdown: -0.06, profitFactor: 2.5, robustness: 0.51, decadeConsistent: true,
     category: "Agrar",
-    rationale: "US spring crush margin rally + South American export competition lässt nach. Feed demand spec.",
+    rationale: "US spring crush margin rally + South American export competition lässt nach.",
     fakeReturns: makeFakeReturns(0.73, 0.014),
   },
   {
@@ -139,7 +165,7 @@ export const SLEEVE_PATTERNS: SleevePattern[] = [
     avgReturn: 0.013, sortino: 1.7, nObs: 28,
     maxDrawdown: -0.07, profitFactor: 2.4, robustness: 0.49, decadeConsistent: true,
     category: "Agrar",
-    rationale: "Export sales pace beschleunigt nach USDA Feb Supply/Demand Report. Asiatisches Textil-Restocking.",
+    rationale: "Export sales pace beschleunigt nach USDA Feb Supply/Demand Report.",
     fakeReturns: makeFakeReturns(0.72, 0.013),
   },
   {
@@ -149,7 +175,7 @@ export const SLEEVE_PATTERNS: SleevePattern[] = [
     avgReturn: 0.015, sortino: 2.5, nObs: 36,
     maxDrawdown: -0.04, profitFactor: 3.8, robustness: 0.65, decadeConsistent: true,
     category: "Indizes",
-    rationale: "Santa Claus Rally: Pension fund rebalancing, tax-loss selling exhaustion, niedrige institutionelle Beteiligung.",
+    rationale: "Santa Claus Rally: Pension fund rebalancing, tax-loss selling exhaustion.",
     fakeReturns: makeFakeReturns(0.80, 0.015),
   },
 ];
@@ -194,7 +220,7 @@ function MiniSpark({ returns: rets, color, width = 64, height = 34 }: {
           <rect key={i}
             x={i * (bw + 0.5)} y={pos ? height / 2 - h : height / 2}
             width={bw} height={h}
-            fill={pos ? color : "rgba(220,100,100,0.5)"} rx={0.5}
+            fill={pos ? color : "rgba(220,100,100,0.55)"} rx={0.5}
           />
         );
       })}
@@ -204,90 +230,15 @@ function MiniSpark({ returns: rets, color, width = 64, height = 34 }: {
   );
 }
 
-/* ─── SVG Equity / Drawdown chart ───────────────────────────────────── */
-function EquityChart({ equity, color, width, height, label }: {
-  equity: number[]; color: string; width: number; height: number; label: string;
-}) {
-  if (equity.length < 2) return null;
-  const min = Math.min(...equity);
-  const max = Math.max(...equity);
-  const range = max - min || 0.001;
-  const pts = equity.map((v, i) => {
-    const x = (i / (equity.length - 1)) * width;
-    const y = height - ((v - min) / range) * (height - 4) - 2;
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  }).join(" ");
-  const fillPts = `0,${height} ${pts} ${width},${height}`;
-  const isPositive = equity[equity.length - 1] >= equity[0];
-  const lineColor = isPositive ? C_GREEN : "#DC6464";
-  const fillColor = isPositive ? "rgba(100,220,130,0.10)" : "rgba(220,100,100,0.10)";
-  const last = equity[equity.length - 1];
-  const pctChange = ((last / equity[0]) - 1) * 100;
-
-  return (
-    <svg width={width} height={height} style={{ display: "block" }}>
-      {/* Grid lines */}
-      {[0.25, 0.5, 0.75].map(f => {
-        const y = height - f * (height - 4) - 2;
-        return <line key={f} x1={0} y1={y} x2={width} y2={y} stroke="rgba(255,255,255,0.04)" strokeWidth={0.5} />;
-      })}
-      {/* Fill */}
-      <polygon points={fillPts} fill={fillColor} />
-      {/* Line */}
-      <polyline points={pts} fill="none" stroke={lineColor} strokeWidth={1.5} strokeLinejoin="round" />
-      {/* End dot */}
-      {(() => {
-        const lastX = width;
-        const lastY = height - ((last - min) / range) * (height - 4) - 2;
-        return <circle cx={lastX} cy={lastY} r={2.5} fill={lineColor} />;
-      })()}
-      {/* Label */}
-      <text x={6} y={11} fill={C_DIM} fontFamily={FONT} fontSize={8} textAnchor="start">{label}</text>
-      <text x={width - 6} y={11} fill={isPositive ? C_GREEN : "#DC6464"} fontFamily={FONT} fontSize={9} fontWeight="700" textAnchor="end">
-        {pctChange >= 0 ? "+" : ""}{pctChange.toFixed(1)}%
-      </text>
-    </svg>
-  );
-}
-
-function DrawdownChart({ equity, width, height }: { equity: number[]; width: number; height: number }) {
-  if (equity.length < 2) return null;
-  let peak = equity[0];
-  const dd = equity.map(v => {
-    if (v > peak) peak = v;
-    return (v / peak) - 1;
-  });
-  const minDd = Math.min(...dd, -0.001);
-  const pts = dd.map((v, i) => {
-    const x = (i / (dd.length - 1)) * width;
-    const y = (v / minDd) * (height - 4) + 2;
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  }).join(" ");
-  const fillPts = `0,2 ${pts} ${width},2`;
-  const maxDd = Math.min(...dd);
-
-  return (
-    <svg width={width} height={height} style={{ display: "block" }}>
-      <line x1={0} y1={2} x2={width} y2={2} stroke="rgba(255,255,255,0.06)" strokeWidth={0.5} />
-      <polygon points={fillPts} fill="rgba(220,100,100,0.12)" />
-      <polyline points={pts} fill="none" stroke="rgba(220,100,100,0.65)" strokeWidth={1} strokeLinejoin="round" />
-      <text x={6} y={height - 4} fill={C_DIM} fontFamily={FONT} fontSize={8} textAnchor="start">Drawdown</text>
-      <text x={width - 6} y={height - 4} fill={C_GOLD} fontFamily={FONT} fontSize={9} fontWeight="700" textAnchor="end">
-        {(maxDd * 100).toFixed(1)}%
-      </text>
-    </svg>
-  );
-}
-
 /* ─── Tier / Dir badges ─────────────────────────────────────────────── */
 function TierBadge({ tier }: { tier: SleevePattern["tier"] }) {
   const s = tier === "bonferroni"
-    ? { bg: "rgba(100,220,130,0.15)", color: C_GREEN, label: "Tier 1" }
-    : { bg: "rgba(220,196,118,0.15)", color: C_GOLD,  label: "Tier 2" };
+    ? { bg: "rgba(100,220,130,0.15)", color: C_GREEN, label: "TIER 1" }
+    : { bg: "rgba(220,196,118,0.15)", color: C_GOLD,  label: "TIER 2" };
   return (
     <span style={{
       fontSize: 7, fontWeight: 700, padding: "1px 4px", borderRadius: 3,
-      background: s.bg, color: s.color, letterSpacing: "0.04em", textTransform: "uppercase" as const,
+      background: s.bg, color: s.color, letterSpacing: "0.05em",
     }}>{s.label}</span>
   );
 }
@@ -298,17 +249,41 @@ function DirBadge({ dir }: { dir: "LONG" | "SHORT" }) {
       fontSize: 7, fontWeight: 700, padding: "1px 4px", borderRadius: 3,
       background: dir === "LONG" ? "rgba(100,200,140,0.12)" : "rgba(220,196,118,0.12)",
       color: dir === "LONG" ? C_GREEN : C_GOLD,
-      letterSpacing: "0.03em", textTransform: "uppercase" as const,
+      letterSpacing: "0.03em",
     }}>{dir === "LONG" ? "L" : "S"}</span>
   );
 }
 
-/* ─── Stat cell ─────────────────────────────────────────────────────── */
+/* ─── Stat cell (detail panel) ──────────────────────────────────────── */
 function StatCell({ label, value, color = C_WHITE }: { label: string; value: string; color?: string }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
       <div style={{ fontSize: 7, color: C_DIM, textTransform: "uppercase" as const, letterSpacing: "0.06em" }}>{label}</div>
-      <div style={{ fontSize: 11, fontWeight: 700, color, fontFamily: FONT }}>{value}</div>
+      <div style={{ fontSize: 13, fontWeight: 700, color, fontFamily: FONT }}>{value}</div>
+    </div>
+  );
+}
+
+/* ─── Portfolio KPI card — matches terminal kpi-card.tsx style ─────── */
+function PortfolioKpiCard({ label, value, sub, valueColor = C_WHITE }: {
+  label: string; value: string; sub: string; valueColor?: string;
+}) {
+  return (
+    <div style={{
+      display: "flex", flexDirection: "column", justifyContent: "space-between",
+      padding: "12px 14px 14px",
+      background: CARD_BG,
+      border: `1px solid ${C_BORDER}`,
+      borderRadius: 16,
+      boxShadow: CARD_SHADOW,
+      minHeight: 0,
+      fontFamily: FONT,
+    }}>
+      <div style={{ fontSize: 11, fontWeight: 500, color: C_DIM, marginBottom: 8, lineHeight: 1.2 }}>{label}</div>
+      <div>
+        <div style={{ fontSize: 22, fontWeight: 700, color: valueColor, lineHeight: 1, letterSpacing: "-0.5px" }}>{value}</div>
+        <div style={{ fontSize: 9, color: C_DIM2, marginTop: 4 }}>{sub}</div>
+      </div>
     </div>
   );
 }
@@ -327,18 +302,24 @@ function SleeveCard({ p, selected, onSelect }: { p: SleevePattern; selected: boo
       onMouseLeave={() => setHov(false)}
       style={{
         display: "flex", flexDirection: "column", gap: 0,
-        background: selected ? "rgba(220,196,118,0.06)" : hov ? "rgba(255,255,255,0.038)" : "rgba(255,255,255,0.028)",
-        border: `1px solid ${selected ? "rgba(220,196,118,0.35)" : "rgba(255,255,255,0.07)"}`,
-        borderRadius: 10, padding: "12px 13px 10px",
+        background: selected
+          ? "linear-gradient(to bottom, #1e1d18, #161510)"
+          : hov
+          ? "linear-gradient(to bottom, #1a1b1e, #131416)"
+          : "linear-gradient(to bottom, #161718, #101112)",
+        border: `1px solid ${selected ? "rgba(220,196,118,0.40)" : hov ? "rgba(255,255,255,0.10)" : C_BORDER}`,
+        borderRadius: 12,
+        padding: "11px 12px 10px",
         cursor: "pointer", outline: "none",
-        transition: "background 0.1s, border-color 0.1s",
+        transition: "background 0.12s, border-color 0.12s",
+        boxShadow: selected ? "0 0 0 1px rgba(220,196,118,0.15)" : CARD_SHADOW,
         height: "100%", boxSizing: "border-box" as const,
         fontFamily: FONT, overflow: "hidden",
       }}
     >
       {/* Symbol + badges */}
-      <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 6 }}>
-        <span style={{ fontSize: 11, fontWeight: 700, color: C_WHITE, flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 7 }}>
+        <span style={{ fontSize: 12, fontWeight: 800, color: C_WHITE, flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", letterSpacing: "-0.2px" }}>
           {p.symbol}
         </span>
         <DirBadge dir={p.direction} />
@@ -346,13 +327,13 @@ function SleeveCard({ p, selected, onSelect }: { p: SleevePattern; selected: boo
       </div>
 
       {/* Donut + sparkline */}
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 8, marginBottom: 8 }}>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 8, marginBottom: 7 }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, flexShrink: 0 }}>
           <MiniDonut pct={p.winRate * 100} color={color} size={44} />
           <span style={{ fontSize: 6.5, color: C_DIM2, letterSpacing: "0.04em" }}>IS Win Rate</span>
         </div>
         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2 }}>
-          <MiniSpark returns={p.fakeReturns.slice(0, 18)} color={color} width={72} height={30} />
+          <MiniSpark returns={p.fakeReturns.slice(0, 18)} color={color} width={72} height={32} />
           <span style={{ fontSize: 6.5, color: C_DIM2 }}>Trade Returns</span>
         </div>
       </div>
@@ -360,30 +341,30 @@ function SleeveCard({ p, selected, onSelect }: { p: SleevePattern; selected: boo
       {/* Name + window */}
       <div style={{ marginBottom: 8 }}>
         <div style={{ fontSize: 8, color: C_MUTED, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
-        <div style={{ fontSize: 12, fontWeight: 700, color, letterSpacing: "-0.2px", lineHeight: 1.2, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color, letterSpacing: "-0.2px", lineHeight: 1.2, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {p.window}
         </div>
       </div>
 
       {/* Key stats */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 6, borderTop: `1px solid ${C_BORDER}`, paddingTop: 7 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 5, borderTop: `1px solid rgba(255,255,255,0.06)`, paddingTop: 7 }}>
         <div>
-          <div style={{ fontSize: 6, color: C_DIM, textTransform: "uppercase" as const, letterSpacing: "0.05em" }}>OOS WR</div>
-          <div style={{ fontSize: 9, fontWeight: 700, color: p.oosWinRate >= 0.70 ? C_GREEN : C_MUTED }}>
+          <div style={{ fontSize: 6, color: C_DIM, textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 2 }}>OOS WR</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: p.oosWinRate >= 0.70 ? C_GREEN : C_MUTED }}>
             {(p.oosWinRate * 100).toFixed(0)}%
           </div>
         </div>
         <div>
-          <div style={{ fontSize: 6, color: C_DIM, textTransform: "uppercase" as const, letterSpacing: "0.05em" }}>Sortino</div>
-          <div style={{ fontSize: 9, fontWeight: 700, color: C_WHITE }}>{p.sortino.toFixed(1)}</div>
+          <div style={{ fontSize: 6, color: C_DIM, textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 2 }}>Sortino</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: C_WHITE }}>{p.sortino.toFixed(1)}</div>
         </div>
         <div>
-          <div style={{ fontSize: 6, color: C_DIM, textTransform: "uppercase" as const, letterSpacing: "0.05em" }}>Robust</div>
-          <div style={{ fontSize: 9, fontWeight: 700, color: p.robustness >= 0.60 ? C_GREEN : C_MUTED }}>{(p.robustness * 100).toFixed(0)}%</div>
+          <div style={{ fontSize: 6, color: C_DIM, textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 2 }}>Robust</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: p.robustness >= 0.60 ? C_GREEN : C_MUTED }}>{(p.robustness * 100).toFixed(0)}%</div>
         </div>
         <div>
-          <div style={{ fontSize: 6, color: C_DIM, textTransform: "uppercase" as const, letterSpacing: "0.05em" }}>n</div>
-          <div style={{ fontSize: 9, fontWeight: 700, color: C_MUTED }}>{p.nObs}</div>
+          <div style={{ fontSize: 6, color: C_DIM, textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 2 }}>n</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: C_MUTED }}>{p.nObs}</div>
         </div>
       </div>
     </div>
@@ -401,7 +382,7 @@ function PatternListRow({ p, selected, onSelect }: { p: SleevePattern; selected:
         width: "100%", textAlign: "left",
         padding: "6px 8px", border: "none", cursor: "pointer",
         background: selected ? C_SEL : hov ? C_HOVER : "transparent",
-        borderBottom: `1px solid ${C_BORDER}`,
+        borderBottom: `1px solid rgba(255,255,255,0.05)`,
         borderLeft: selected ? `2px solid ${C_GOLD}` : "2px solid transparent",
         transition: "background 0.1s", flexShrink: 0, fontFamily: FONT,
       }}
@@ -409,7 +390,7 @@ function PatternListRow({ p, selected, onSelect }: { p: SleevePattern; selected:
       <span style={{ fontSize: 8, color: C_DIM2, minWidth: 14, textAlign: "right", flexShrink: 0 }}>{p.id}</span>
       <DirBadge dir={p.direction} />
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 9.5, fontWeight: 700, color: C_WHITE, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.symbol}</div>
+        <div style={{ fontSize: 10, fontWeight: 700, color: C_WHITE, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.symbol}</div>
         <div style={{ fontSize: 7.5, color: C_MUTED, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.window}</div>
       </div>
       <div style={{ textAlign: "right", flexShrink: 0 }}>
@@ -423,17 +404,17 @@ function PatternListRow({ p, selected, onSelect }: { p: SleevePattern; selected:
 
 /* ─── Detail panel ──────────────────────────────────────────────────── */
 function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => void }) {
-  const color  = p.direction === "LONG" ? C_WHITE : C_GOLD;
-  const pf     = (v: number, d = 0) => `${(v * 100).toFixed(d)}%`;
-  const fp     = (v: number, d = 2) => `${v >= 0 ? "+" : ""}${(v * 100).toFixed(d)}%`;
+  const color = p.direction === "LONG" ? C_WHITE : C_GOLD;
+  const pf    = (v: number) => `${(v * 100).toFixed(0)}%`;
+  const fp    = (v: number) => `${v >= 0 ? "+" : ""}${(v * 100).toFixed(2)}%`;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "10px 12px", flex: 1, minHeight: 0, overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "12px 14px", flex: 1, minHeight: 0, overflow: "hidden" }}>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, flexShrink: 0 }}>
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
-            <span style={{ fontSize: 15, fontWeight: 800, color: C_WHITE }}>{p.symbol}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+            <span style={{ fontSize: 18, fontWeight: 800, color: C_WHITE, letterSpacing: "-0.4px" }}>{p.symbol}</span>
             <TierBadge tier={p.tier} />
             <DirBadge dir={p.direction} />
           </div>
@@ -443,11 +424,11 @@ function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => 
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
           <div style={{ textAlign: "right" }}>
             <div style={{ fontSize: 7, color: C_DIM, textTransform: "uppercase" as const, letterSpacing: "0.06em" }}>Sortino</div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: C_GOLD }}>{p.sortino.toFixed(2)}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: C_GOLD, letterSpacing: "-0.5px" }}>{p.sortino.toFixed(2)}</div>
           </div>
           <button type="button" onClick={onGoToChart} style={{
             background: "rgba(220,196,118,0.10)", border: "1px solid rgba(220,196,118,0.28)",
-            borderRadius: 4, padding: "4px 10px", color: C_GOLD, fontSize: 8.5,
+            borderRadius: 6, padding: "5px 12px", color: C_GOLD, fontSize: 8.5,
             cursor: "pointer", fontWeight: 700, fontFamily: FONT, letterSpacing: "0.04em",
           }}>
             ↗ Chart öffnen
@@ -455,197 +436,180 @@ function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => 
         </div>
       </div>
 
-      {/* Win rates + return + obs */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, background: C_BG, borderRadius: 6, padding: "8px 10px", flexShrink: 0 }}>
+      {/* KPI rows */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, background: "rgba(255,255,255,0.025)", borderRadius: 10, padding: "10px 12px", border: `1px solid ${C_BORDER}`, flexShrink: 0 }}>
         <StatCell label="IS Win Rate"  value={pf(p.winRate)}    color={C_WHITE} />
         <StatCell label="OOS Win Rate" value={pf(p.oosWinRate)} color={p.oosWinRate >= 0.70 ? C_GREEN : C_MUTED} />
         <StatCell label="Ø Return"     value={fp(p.avgReturn)}  color={p.avgReturn >= 0 ? C_WHITE : C_GOLD} />
         <StatCell label="Beobacht."    value={String(p.nObs)} />
       </div>
-
-      {/* Risk + quality */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, background: C_BG, borderRadius: 6, padding: "8px 10px", flexShrink: 0 }}>
-        <StatCell label="Robustheit"    value={pf(p.robustness)}            color={p.robustness >= 0.60 ? C_GREEN : C_MUTED} />
-        <StatCell label="Profit Factor" value={p.profitFactor.toFixed(1)}   color={p.profitFactor >= 4.0 ? C_GREEN : C_WHITE} />
-        <StatCell label="Max DD"        value={pf(p.maxDrawdown)}           color={Math.abs(p.maxDrawdown) < 0.08 ? C_GREEN : C_MUTED} />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, background: "rgba(255,255,255,0.025)", borderRadius: 10, padding: "10px 12px", border: `1px solid ${C_BORDER}`, flexShrink: 0 }}>
+        <StatCell label="Robustheit"    value={pf(p.robustness)}          color={p.robustness >= 0.60 ? C_GREEN : C_MUTED} />
+        <StatCell label="Profit Factor" value={p.profitFactor.toFixed(1)} color={p.profitFactor >= 4.0 ? C_GREEN : C_WHITE} />
+        <StatCell label="Max DD"        value={pf(p.maxDrawdown)}         color={Math.abs(p.maxDrawdown) < 0.08 ? C_GREEN : C_MUTED} />
         <StatCell label="Dekaden"       value={p.decadeConsistent ? "✓ stabil" : "–"} color={p.decadeConsistent ? C_GREEN : C_DIM} />
       </div>
 
-      {/* Sparkline + rationale row */}
+      {/* Sparkline + rationale */}
       <div style={{ display: "flex", gap: 8, flex: 1, minHeight: 0 }}>
-        <div style={{ background: C_BG, borderRadius: 6, padding: "8px 10px", flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
+        <div style={{ background: "rgba(255,255,255,0.02)", border: `1px solid ${C_BORDER}`, borderRadius: 10, padding: "10px 12px", flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
           <div style={{ fontSize: 7.5, color: C_DIM, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 6 }}>
-            Historischer Verlauf (illustrativ · {p.nObs} Trades)
+            Trade-Verlauf (illustrativ · {p.nObs} Trades)
           </div>
           <div style={{ flex: 1, minHeight: 0, display: "flex", alignItems: "center" }}>
-            <MiniSpark returns={p.fakeReturns} color={color} width={240} height={40} />
+            <MiniSpark returns={p.fakeReturns} color={color} width={240} height={44} />
           </div>
         </div>
-        <div style={{ background: "rgba(255,255,255,0.02)", border: `1px solid ${C_BORDER}`, borderRadius: 5, padding: "8px 10px", flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
+        <div style={{ background: "rgba(255,255,255,0.02)", border: `1px solid ${C_BORDER}`, borderRadius: 10, padding: "10px 12px", flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
           <div style={{ fontSize: 7.5, color: C_DIM, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 6 }}>
             Wirtschaftliche Begründung
           </div>
-          <div style={{ fontSize: 9, color: C_WHITE, lineHeight: 1.55, flex: 1, overflow: "hidden" }}>{p.rationale}</div>
+          <div style={{ fontSize: 9.5, color: C_MUTED, lineHeight: 1.6, flex: 1, overflow: "hidden" }}>{p.rationale}</div>
         </div>
       </div>
     </div>
   );
 }
 
-/* ─── Portfolio equity/drawdown ─────────────────────────────────────── */
-function buildPortfolioEquity(): number[] {
-  const n = SLEEVE_PATTERNS[0].fakeReturns.length;
-  const equity: number[] = [1];
-  for (let i = 0; i < n; i++) {
-    const avgRet = SLEEVE_PATTERNS.reduce((s, p) => s + (p.fakeReturns[i] ?? 0), 0) / SLEEVE_PATTERNS.length;
-    equity.push(equity[equity.length - 1] * (1 + avgRet));
-  }
-  return equity;
+/* ─── Portfolio equity / drawdown SVG (responsive) ──────────────────── */
+function EquityChartResponsive({ equity }: { equity: number[] }) {
+  const min    = Math.min(...equity);
+  const max    = Math.max(...equity);
+  const range  = max - min || 0.001;
+  const W = 600; const H = 100; const PAD = 18;
+  const pts    = equity.map((v, i) => {
+    const x = (i / (equity.length - 1)) * W;
+    const y = H - PAD - ((v - min) / range) * (H - PAD - 4);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+  const first  = equity[0];
+  const last   = equity[equity.length - 1];
+  const pct    = ((last / first) - 1) * 100;
+  const lastX  = W;
+  const lastY  = H - PAD - ((last - min) / range) * (H - PAD - 4);
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block" }}>
+      {[0.25, 0.5, 0.75].map(f => {
+        const y = H - PAD - f * (H - PAD - 4);
+        return <line key={f} x1={0} y1={y} x2={W} y2={y} stroke="rgba(255,255,255,0.04)" strokeWidth={0.6} />;
+      })}
+      <defs>
+        <linearGradient id="eq-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={C_GREEN} stopOpacity="0.18" />
+          <stop offset="100%" stopColor={C_GREEN} stopOpacity="0.01" />
+        </linearGradient>
+      </defs>
+      <polygon points={`0,${H - PAD} ${pts} ${W},${H - PAD}`} fill="url(#eq-fill)" />
+      <polyline points={pts} fill="none" stroke={C_GREEN} strokeWidth={1.8} strokeLinejoin="round" />
+      <circle cx={lastX} cy={lastY} r={3.5} fill={C_GREEN} />
+      <text x={8} y={14} fill={C_DIM} fontFamily={FONT} fontSize={10} textAnchor="start">Portfolio Equity (illustrativ)</text>
+      <text x={W - 8} y={14} fill={C_GREEN} fontFamily={FONT} fontSize={12} fontWeight="700" textAnchor="end">
+        {pct >= 0 ? "+" : ""}{pct.toFixed(1)}%
+      </text>
+    </svg>
+  );
+}
+
+function DrawdownChartResponsive({ equity }: { equity: number[] }) {
+  let peak = equity[0];
+  const dd = equity.map(v => { if (v > peak) peak = v; return (v / peak) - 1; });
+  const minDd = Math.min(...dd, -0.001);
+  const W = 600; const H = 44;
+  const pts = dd.map((v, i) => {
+    const x = (i / (dd.length - 1)) * W;
+    const y = Math.abs(minDd) > 0 ? (Math.abs(v) / Math.abs(minDd)) * (H - 6) + 2 : 2;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+  const maxDd = Math.min(...dd);
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block" }}>
+      <defs>
+        <linearGradient id="dd-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#DC6464" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="#DC6464" stopOpacity="0.02" />
+        </linearGradient>
+      </defs>
+      <line x1={0} y1={2} x2={W} y2={2} stroke="rgba(255,255,255,0.06)" strokeWidth={0.5} />
+      <polygon points={`0,2 ${pts} ${W},2`} fill="url(#dd-fill)" />
+      <polyline points={pts} fill="none" stroke="rgba(220,100,100,0.75)" strokeWidth={1.2} strokeLinejoin="round" />
+      <text x={8} y={H - 5} fill={C_DIM} fontFamily={FONT} fontSize={9} textAnchor="start">Drawdown</text>
+      <text x={W - 8} y={H - 5} fill={C_GOLD} fontFamily={FONT} fontSize={10} fontWeight="700" textAnchor="end">
+        {(maxDd * 100).toFixed(1)}%
+      </text>
+    </svg>
+  );
 }
 
 /* ─── Portfolio view ────────────────────────────────────────────────── */
 function PortfolioView() {
   const patterns = SLEEVE_PATTERNS;
-  const avgWr   = patterns.reduce((s, p) => s + p.winRate,    0) / patterns.length;
-  const avgOos  = patterns.reduce((s, p) => s + p.oosWinRate, 0) / patterns.length;
-  const avgSort = patterns.reduce((s, p) => s + p.sortino,    0) / patterns.length;
-  const total   = patterns.reduce((s, p) => s + p.nObs,       0);
-  const bon     = patterns.filter(p => p.tier === "bonferroni").length;
-  const equity  = useMemo(() => buildPortfolioEquity(), []);
-  const finalRet = (equity[equity.length - 1] - 1) * 100;
-  let pk = equity[0]; let maxDd = 0;
+  const avgWr    = patterns.reduce((s, p) => s + p.winRate,    0) / patterns.length;
+  const avgOos   = patterns.reduce((s, p) => s + p.oosWinRate, 0) / patterns.length;
+  const avgSort  = patterns.reduce((s, p) => s + p.sortino,    0) / patterns.length;
+  const total    = patterns.reduce((s, p) => s + p.nObs,       0);
+  const bon      = patterns.filter(p => p.tier === "bonferroni").length;
+  const equity   = useMemo(() => buildPortfolioEquity(), []);
+  const finalRet = (equity[equity.length - 1] / equity[0] - 1) * 100;
+  let   pk = equity[0]; let maxDd = 0;
   for (const v of equity) { if (v > pk) pk = v; const dd = (v / pk) - 1; if (dd < maxDd) maxDd = dd; }
+
+  const kpis = [
+    { label: "Muster",         value: `${patterns.length}`,                      sub: `${bon} Bonferroni`,   color: C_WHITE },
+    { label: "Ø IS Win Rate",  value: `${(avgWr  * 100).toFixed(1)}%`,            sub: "In-Sample",          color: C_WHITE },
+    { label: "Ø OOS Win Rate", value: `${(avgOos * 100).toFixed(1)}%`,            sub: "Out-of-Sample",      color: avgOos >= 0.70 ? C_GREEN : C_WHITE },
+    { label: "Ø Sortino",      value: avgSort.toFixed(2),                         sub: "Risikoadjustiert",   color: C_WHITE },
+    { label: "Gesamt n",       value: `${total}`,                                 sub: "Hist. Trades",       color: C_WHITE },
+    { label: "Portfolio Ret.", value: `${finalRet >= 0 ? "+" : ""}${finalRet.toFixed(1)}%`, sub: "Illustrativ", color: finalRet >= 0 ? C_GREEN : "#DC6464" },
+    { label: "Max Drawdown",   value: `${(maxDd * 100).toFixed(1)}%`,             sub: "Portfolio",          color: C_MUTED },
+  ];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1, minHeight: 0, overflow: "hidden" }}>
-      {/* KPI cards row */}
+      {/* KPI strip — terminal card style */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, flexShrink: 0 }}>
-        {[
-          { label: "Muster",         value: `${patterns.length}`, sub: `${bon} Bonferroni` },
-          { label: "Ø IS Win Rate",  value: `${(avgWr  * 100).toFixed(1)}%`, sub: "In-Sample" },
-          { label: "Ø OOS Win Rate", value: `${(avgOos * 100).toFixed(1)}%`, sub: "Out-of-Sample" },
-          { label: "Ø Sortino",      value: avgSort.toFixed(2),              sub: "Risikoadjustiert" },
-          { label: "Gesamt n",       value: `${total}`,                      sub: "Hist. Trades" },
-          { label: "Portfolio Ret.", value: `${finalRet >= 0 ? "+" : ""}${finalRet.toFixed(1)}%`, sub: "Illustrativ" },
-          { label: "Max Drawdown",   value: `${(maxDd * 100).toFixed(1)}%`, sub: "Portfolio" },
-        ].map(({ label, value, sub }) => (
-          <div key={label} style={{ padding: "7px 9px", background: C_BG, border: `1px solid ${C_BORDER}`, borderRadius: 6 }}>
-            <div style={{ fontSize: 6.5, color: C_DIM, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 3 }}>{label}</div>
-            <div style={{ fontSize: 13, fontWeight: 800, color: C_WHITE, fontFamily: FONT }}>{value}</div>
-            <div style={{ fontSize: 7, color: C_DIM2, marginTop: 2 }}>{sub}</div>
-          </div>
+        {kpis.map(k => (
+          <PortfolioKpiCard key={k.label} label={k.label} value={k.value} sub={k.sub} valueColor={k.color} />
         ))}
       </div>
 
-      {/* Charts row: equity + drawdown stacked left, pattern list right */}
+      {/* Charts + list */}
       <div style={{ display: "flex", gap: 8, flex: 1, minHeight: 0 }}>
-        {/* Left: equity curve + drawdown */}
+        {/* Equity + drawdown stacked */}
         <div style={{ flex: 2, minWidth: 0, display: "flex", flexDirection: "column", gap: 6 }}>
-          <div style={{ background: C_BG, border: `1px solid ${C_BORDER}`, borderRadius: 6, padding: "8px 10px", flex: 3, minHeight: 0, display: "flex", flexDirection: "column" }}>
+          <div style={{ background: CARD_BG, border: `1px solid ${C_BORDER}`, borderRadius: 12, padding: "10px 12px", flex: 3, minHeight: 0, display: "flex", flexDirection: "column", boxShadow: CARD_SHADOW }}>
             <div style={{ flex: 1, minHeight: 0 }}>
               <EquityChartResponsive equity={equity} />
             </div>
           </div>
-          <div style={{ background: C_BG, border: `1px solid ${C_BORDER}`, borderRadius: 6, padding: "8px 10px", flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+          <div style={{ background: CARD_BG, border: `1px solid ${C_BORDER}`, borderRadius: 12, padding: "8px 12px", flex: 1, minHeight: 0, display: "flex", flexDirection: "column", boxShadow: CARD_SHADOW }}>
             <div style={{ flex: 1, minHeight: 0 }}>
               <DrawdownChartResponsive equity={equity} />
             </div>
           </div>
         </div>
 
-        {/* Right: pattern table */}
-        <div style={{ flex: 1, minWidth: 0, background: C_BG, border: `1px solid ${C_BORDER}`, borderRadius: 6, padding: "8px 10px", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-          <div style={{ fontSize: 7.5, color: C_DIM, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 6, flexShrink: 0 }}>Muster-Übersicht</div>
+        {/* Muster-Übersicht */}
+        <div style={{ flex: 1, minWidth: 0, background: CARD_BG, border: `1px solid ${C_BORDER}`, borderRadius: 12, padding: "10px 12px", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: CARD_SHADOW }}>
+          <div style={{ fontSize: 8, color: C_DIM, textTransform: "uppercase" as const, letterSpacing: "0.07em", marginBottom: 8, flexShrink: 0 }}>Muster-Übersicht</div>
           <div style={{ flex: 1, overflowY: "auto" }}>
             {patterns.map(p => (
-              <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                <span style={{ fontSize: 8.5, fontWeight: 700, color: C_WHITE, width: 36, flexShrink: 0 }}>{p.symbol.replace("1!", "")}</span>
-                <MiniSpark returns={p.fakeReturns.slice(0, 12)} color={p.direction === "LONG" ? C_WHITE : C_GOLD} width={80} height={12} />
-                <span style={{ fontSize: 8, color: C_MUTED, flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.window}</span>
-                <span style={{ fontSize: 8.5, fontWeight: 700, color: p.oosWinRate >= 0.70 ? C_GREEN : C_MUTED, flexShrink: 0 }}>
+              <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6, borderBottom: `1px solid rgba(255,255,255,0.04)`, paddingBottom: 5 }}>
+                <span style={{ fontSize: 9, fontWeight: 700, color: C_WHITE, width: 36, flexShrink: 0 }}>{p.symbol.replace("1!", "")}</span>
+                <MiniSpark returns={p.fakeReturns.slice(0, 14)} color={p.direction === "LONG" ? C_WHITE : C_GOLD} width={72} height={14} />
+                <span style={{ fontSize: 7.5, color: C_MUTED, flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.window}</span>
+                <span style={{ fontSize: 9, fontWeight: 700, color: p.oosWinRate >= 0.70 ? C_GREEN : C_MUTED, flexShrink: 0 }}>
                   {(p.oosWinRate * 100).toFixed(0)}%
                 </span>
                 <DirBadge dir={p.direction} />
               </div>
             ))}
-            <div style={{ fontSize: 7, color: C_DIM2, marginTop: 6 }}>Illustrativ · IS-Kennzahlen</div>
+            <div style={{ fontSize: 7, color: C_DIM2, marginTop: 4 }}>Illustrativ · IS-Kennzahlen</div>
           </div>
         </div>
       </div>
     </div>
-  );
-}
-
-/* Responsive wrappers using ResizeObserver-free approach (SVG fills container) */
-function EquityChartResponsive({ equity }: { equity: number[] }) {
-  return (
-    <svg viewBox="0 0 400 100" width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block" }}>
-      <EquityChartInner equity={equity} w={400} h={100} />
-    </svg>
-  );
-}
-
-function DrawdownChartResponsive({ equity }: { equity: number[] }) {
-  return (
-    <svg viewBox="0 0 400 40" width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block" }}>
-      <DrawdownChartInner equity={equity} w={400} h={40} />
-    </svg>
-  );
-}
-
-function EquityChartInner({ equity, w, h }: { equity: number[]; w: number; h: number }) {
-  const min = Math.min(...equity);
-  const max = Math.max(...equity);
-  const range = max - min || 0.001;
-  const pad = 16;
-  const pts = equity.map((v, i) => {
-    const x = (i / (equity.length - 1)) * w;
-    const y = h - pad - ((v - min) / range) * (h - pad - 4) - 2;
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  }).join(" ");
-  const last = equity[equity.length - 1];
-  const pctChange = ((last / equity[0]) - 1) * 100;
-  const lastX = w;
-  const lastY = h - pad - ((last - min) / range) * (h - pad - 4) - 2;
-
-  return (
-    <>
-      {[0.25, 0.5, 0.75].map(f => {
-        const y = h - pad - f * (h - pad - 4) - 2;
-        return <line key={f} x1={0} y1={y} x2={w} y2={y} stroke="rgba(255,255,255,0.04)" strokeWidth={0.5} />;
-      })}
-      <polygon points={`0,${h - pad} ${pts} ${w},${h - pad}`} fill="rgba(100,220,130,0.08)" />
-      <polyline points={pts} fill="none" stroke={C_GREEN} strokeWidth={1.5} strokeLinejoin="round" />
-      <circle cx={lastX} cy={lastY} r={3} fill={C_GREEN} />
-      <text x={4} y={12} fill={C_DIM} fontFamily={FONT} fontSize={9} textAnchor="start">Portfolio Equity (illustrativ)</text>
-      <text x={w - 4} y={12} fill={C_GREEN} fontFamily={FONT} fontSize={10} fontWeight="700" textAnchor="end">
-        {pctChange >= 0 ? "+" : ""}{pctChange.toFixed(1)}%
-      </text>
-    </>
-  );
-}
-
-function DrawdownChartInner({ equity, w, h }: { equity: number[]; w: number; h: number }) {
-  let peak = equity[0];
-  const dd = equity.map(v => { if (v > peak) peak = v; return (v / peak) - 1; });
-  const minDd = Math.min(...dd, -0.001);
-  const pts = dd.map((v, i) => {
-    const x = (i / (dd.length - 1)) * w;
-    const y = (v / minDd) * (h - 8) + 4;
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  }).join(" ");
-  const maxDd = Math.min(...dd);
-
-  return (
-    <>
-      <line x1={0} y1={4} x2={w} y2={4} stroke="rgba(255,255,255,0.06)" strokeWidth={0.5} />
-      <polygon points={`0,4 ${pts} ${w},4`} fill="rgba(220,100,100,0.12)" />
-      <polyline points={pts} fill="none" stroke="rgba(220,100,100,0.70)" strokeWidth={1} strokeLinejoin="round" />
-      <text x={4} y={h - 4} fill={C_DIM} fontFamily={FONT} fontSize={8} textAnchor="start">Drawdown</text>
-      <text x={w - 4} y={h - 4} fill={C_GOLD} fontFamily={FONT} fontSize={9} fontWeight="700" textAnchor="end">
-        {(maxDd * 100).toFixed(1)}%
-      </text>
-    </>
   );
 }
 
@@ -680,7 +644,7 @@ export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Pr
         <div style={{
           display: "grid",
           gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
-          gap: 6, flex: 1, minHeight: 0, overflow: "hidden",
+          gap: 7, flex: 1, minHeight: 0, overflow: "hidden",
         }}>
           {SLEEVE_PATTERNS.map(p => (
             <SleeveCard key={p.id} p={p} selected={selectedId === p.id} onSelect={() => selectPattern(p)} />
@@ -691,7 +655,7 @@ export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Pr
       {/* Detail — left list + right detail */}
       {mode === "detail" && (
         <div style={{ display: "flex", flex: 1, minHeight: 0, gap: 0, overflow: "hidden" }}>
-          <div style={{ width: 190, flexShrink: 0, borderRight: `1px solid ${C_BORDER}`, display: "flex", flexDirection: "column", overflowY: "auto" }}>
+          <div style={{ width: 190, flexShrink: 0, borderRight: `1px solid rgba(255,255,255,0.05)`, display: "flex", flexDirection: "column", overflowY: "auto" }}>
             {SLEEVE_PATTERNS.map(p => (
               <PatternListRow key={p.id} p={p} selected={selectedId === p.id} onSelect={() => selectPattern(p)} />
             ))}
@@ -699,7 +663,7 @@ export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Pr
           <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
             {selected
               ? <DetailPanel p={selected} onGoToChart={() => onSelectPattern?.(selected.assetId, selected.startSlot, selected.direction)} />
-              : <div style={{ padding: 16, fontSize: 9, color: C_DIM }}>Muster auswählen</div>
+              : <div style={{ padding: 20, fontSize: 10, color: C_DIM }}>Muster auswählen</div>
             }
           </div>
         </div>
