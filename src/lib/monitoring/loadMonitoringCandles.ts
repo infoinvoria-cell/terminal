@@ -135,6 +135,11 @@ const STRATEGY_ALL_S_MAP: Record<string, string> = {
   "EUREX:FDAX1!": "/generated/monitoring/all_s-4-dax-macro-fdax1.json",
   "CAPITALCOM:DE40": "/generated/monitoring/all_s-4-dax-macro-fdax1.json",
   "CBOT_MINI:YM1!": "/generated/monitoring/all_s-5-dow-macro-ym1.json",
+  // Defensive alias: Anomaly tab historically used CBOT:YM1! but the cache and
+  // strategy payload are keyed under CBOT_MINI:YM1!. If the source ever reverts,
+  // this ensures the fallback chain reaches the correct pre-computed file instead
+  // of Supabase monitoring_ohlc, which carries corrupted ~515 data for that key.
+  "CBOT:YM1!": "/generated/monitoring/all_s-5-dow-macro-ym1.json",
   "CME_MINI:NQ1!": "/generated/monitoring/all_s-6-nasdaq-macro-nq1.json",
   "CME_MINI:ES1!": "/generated/monitoring/all_s-7-s-p500-macro-es1.json",
   "COMEX:GC1!": "/generated/monitoring/all_s-10-gold-macro-gc1.json",
