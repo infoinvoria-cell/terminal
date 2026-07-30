@@ -5,20 +5,31 @@
   "timeframe": "1H",
   "source": "engine_futures",
   "hasStrategy": true,
-  "generatedAt": "2026-07-30T08:52:06Z",
+  "generatedAt": "2026-07-30T09:16:18Z",
   "dateRange": {
-    "first": "2025-08-22T08:00:00",
-    "last": "2026-07-27T11:00:00"
+    "first": "2025-08-27T08:00:00",
+    "last": "2026-07-30T10:00:00"
   },
   "barPolicy": {
     "excludeFormingIntradayBar": true,
-    "excludedBars": 0
+    "excludedBars": 1
   },
-  "openTrade": false,
-  "openTradeRow": null,
-  "openCount": 0,
+  "openTrade": true,
+  "openTradeRow": {
+    "direction": "long",
+    "entryTime": "2026-07-30T09:00:00Z",
+    "exitTime": null,
+    "entry": 25466.0,
+    "sl": 25431.0,
+    "tp": 25592.0,
+    "exit": null,
+    "exitReason": null,
+    "pnl": null,
+    "isOpen": true
+  },
+  "openCount": 1,
   "tradeCounts": {
-    "total": 37
+    "total": 38
   },
   "trades": [
     {
@@ -427,6 +438,18 @@
       "exit": 25221.0,
       "exitReason": "sl",
       "pnl": 0.0
+    },
+    {
+      "direction": "long",
+      "entryTime": "2026-07-30T09:00:00Z",
+      "exitTime": null,
+      "entry": 25466.0,
+      "sl": 25431.0,
+      "tp": 25592.0,
+      "exit": null,
+      "exitReason": null,
+      "pnl": null,
+      "isOpen": true
     }
   ]
 }
