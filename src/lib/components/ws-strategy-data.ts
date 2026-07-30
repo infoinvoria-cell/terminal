@@ -375,7 +375,7 @@ export const CI_PORTFOLIO_KPIS = {
   cagr:       "+17.11%",
   maxDd:      "−21.73%",
   calmar:     "0.787",
-  components: "7",
+  components: "8",
   parityNote: "⚠ Engine Parity partiell (Pine1)",
 } as const;
 
