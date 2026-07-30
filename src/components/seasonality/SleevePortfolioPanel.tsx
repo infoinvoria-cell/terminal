@@ -23,6 +23,7 @@ export interface SleevePattern {
   direction: "LONG" | "SHORT";
   window: string;
   startSlot: number;
+  endSlot: number;
   calStart: number; // calendar day-of-year (1-365) for accurate countdown
   tier: "bonferroni" | "fdr";
   winRate: number;
@@ -76,16 +77,16 @@ function buildPortfolioEquity(): number[] {
 }
 
 export const SLEEVE_PATTERNS: SleevePattern[] = [
-  { id: 1,  assetId: "rb1",     symbol: "RB1!",  name: "RBOB Gasoline",  direction: "LONG",  window: "Feb 8 – 16",  startSlot: 29,  calStart: 39,  tier: "bonferroni", winRate: 0.86, oosWinRate: 0.86, avgReturn:  0.024, sortino: 3.2, nObs: 29, maxDrawdown: -0.08, profitFactor: 5.1, robustness: 0.72, decadeConsistent: true,  category: "Energie", rationale: "Pre-summer driving season baut RFG-Nachfrage auf.",        fakeReturns: makeFakeReturns(0.86,  0.024) },
-  { id: 2,  assetId: "wheat",   symbol: "ZW1!",  name: "Chicago Wheat",  direction: "LONG",  window: "Aug 10 – 20", startSlot: 152, calStart: 222, tier: "bonferroni", winRate: 0.84, oosWinRate: 0.75, avgReturn:  0.018, sortino: 2.8, nObs: 32, maxDrawdown: -0.06, profitFactor: 4.3, robustness: 0.68, decadeConsistent: true,  category: "Agrar",   rationale: "Northern-hemisphere Erntedruck lässt nach.",                fakeReturns: makeFakeReturns(0.84,  0.018) },
-  { id: 3,  assetId: "gc1",     symbol: "GC1!",  name: "Gold",           direction: "LONG",  window: "Jul 25 – 31", startSlot: 128, calStart: 206, tier: "fdr",        winRate: 0.78, oosWinRate: 0.72, avgReturn:  0.012, sortino: 2.1, nObs: 35, maxDrawdown: -0.05, profitFactor: 3.1, robustness: 0.58, decadeConsistent: true,  category: "Metalle", rationale: "Pre-India wedding season demand ramp.",                     fakeReturns: makeFakeReturns(0.78,  0.012) },
-  { id: 4,  assetId: "ng1",     symbol: "NG1!",  name: "Natural Gas",    direction: "SHORT", window: "Sep 16 – 30", startSlot: 170, calStart: 259, tier: "fdr",        winRate: 0.74, oosWinRate: 0.71, avgReturn: -0.021, sortino: 2.4, nObs: 28, maxDrawdown: -0.10, profitFactor: 3.6, robustness: 0.55, decadeConsistent: true,  category: "Energie", rationale: "Post-Injection-Season Überangebot drückt Nov-Kontrakt.",    fakeReturns: makeFakeReturns(0.74, -0.021) },
-  { id: 5,  assetId: "sugar",   symbol: "SB1!",  name: "Sugar #11",      direction: "SHORT", window: "Sep 18 – 30", startSlot: 172, calStart: 261, tier: "fdr",        winRate: 0.73, oosWinRate: 0.70, avgReturn: -0.016, sortino: 1.9, nObs: 30, maxDrawdown: -0.07, profitFactor: 2.8, robustness: 0.52, decadeConsistent: true,  category: "Agrar",   rationale: "Brasilianische Ernte drückt Exportpreise in Q4.",           fakeReturns: makeFakeReturns(0.73, -0.016) },
-  { id: 6,  assetId: "cocoa",   symbol: "CC1!",  name: "Cocoa",          direction: "LONG",  window: "Nov 5 – 15",  startSlot: 210, calStart: 309, tier: "fdr",        winRate: 0.74, oosWinRate: 0.70, avgReturn:  0.019, sortino: 2.2, nObs: 27, maxDrawdown: -0.09, profitFactor: 3.0, robustness: 0.53, decadeConsistent: true,  category: "Agrar",   rationale: "West African main crop arrival delays.",                    fakeReturns: makeFakeReturns(0.74,  0.019) },
-  { id: 7,  assetId: "pa1",     symbol: "PA1!",  name: "Palladium",      direction: "SHORT", window: "Jan 10 – 20", startSlot: 10,  calStart: 10,  tier: "fdr",        winRate: 0.72, oosWinRate: 0.68, avgReturn: -0.022, sortino: 2.3, nObs: 24, maxDrawdown: -0.08, profitFactor: 3.4, robustness: 0.60, decadeConsistent: true,  category: "Metalle", rationale: "Jan-Liquidation nach Jahres-Rally drückt Palladium.",       fakeReturns: makeFakeReturns(0.72, -0.022) },
-  { id: 8,  assetId: "soymeal", iconAssetId: "zs1", symbol: "ZM1!", name: "Soybean Meal", direction: "LONG", window: "Apr 15 – 25", startSlot: 73, calStart: 105, tier: "fdr", winRate: 0.73, oosWinRate: 0.69, avgReturn: 0.014, sortino: 1.8, nObs: 31, maxDrawdown: -0.06, profitFactor: 2.5, robustness: 0.51, decadeConsistent: true,  category: "Agrar",   rationale: "US spring crush margin rally.",                             fakeReturns: makeFakeReturns(0.73,  0.014) },
-  { id: 9,  assetId: "cotton",  symbol: "CT1!",  name: "Cotton #2",      direction: "LONG",  window: "Feb 8 – 16",  startSlot: 29,  calStart: 39,  tier: "fdr",        winRate: 0.72, oosWinRate: 0.68, avgReturn:  0.013, sortino: 1.7, nObs: 28, maxDrawdown: -0.07, profitFactor: 2.4, robustness: 0.49, decadeConsistent: true,  category: "Agrar",   rationale: "Export sales pace beschleunigt nach USDA Feb Report.",       fakeReturns: makeFakeReturns(0.72,  0.013) },
-  { id: 10, assetId: "es1",     symbol: "ES1!",  name: "S&P 500 E-mini", direction: "LONG",  window: "Dez 15 – 25", startSlot: 240, calStart: 349, tier: "fdr",        winRate: 0.80, oosWinRate: 0.75, avgReturn:  0.015, sortino: 2.5, nObs: 36, maxDrawdown: -0.04, profitFactor: 3.8, robustness: 0.65, decadeConsistent: true,  category: "Indizes", rationale: "Santa Claus Rally: Pension fund rebalancing.",              fakeReturns: makeFakeReturns(0.80,  0.015) },
+  { id: 1,  assetId: "rb1",     symbol: "RB1!",  name: "RBOB Gasoline",  direction: "LONG",  window: "Feb 8 – 16",  startSlot: 29,  endSlot: 35,  calStart: 39,  tier: "bonferroni", winRate: 0.86, oosWinRate: 0.86, avgReturn:  0.024, sortino: 3.2, nObs: 29, maxDrawdown: -0.08, profitFactor: 5.1, robustness: 0.72, decadeConsistent: true,  category: "Energie", rationale: "Pre-summer driving season baut RFG-Nachfrage auf.",        fakeReturns: makeFakeReturns(0.86,  0.024) },
+  { id: 2,  assetId: "wheat",   symbol: "ZW1!",  name: "Chicago Wheat",  direction: "LONG",  window: "Aug 10 – 20", startSlot: 152, endSlot: 159, calStart: 222, tier: "bonferroni", winRate: 0.84, oosWinRate: 0.75, avgReturn:  0.018, sortino: 2.8, nObs: 32, maxDrawdown: -0.06, profitFactor: 4.3, robustness: 0.68, decadeConsistent: true,  category: "Agrar",   rationale: "Northern-hemisphere Erntedruck lässt nach.",                fakeReturns: makeFakeReturns(0.84,  0.018) },
+  { id: 3,  assetId: "gc1",     symbol: "GC1!",  name: "Gold",           direction: "LONG",  window: "Jul 25 – 31", startSlot: 128, endSlot: 133, calStart: 206, tier: "fdr",        winRate: 0.78, oosWinRate: 0.72, avgReturn:  0.012, sortino: 2.1, nObs: 35, maxDrawdown: -0.05, profitFactor: 3.1, robustness: 0.58, decadeConsistent: true,  category: "Metalle", rationale: "Pre-India wedding season demand ramp.",                     fakeReturns: makeFakeReturns(0.78,  0.012) },
+  { id: 4,  assetId: "ng1",     symbol: "NG1!",  name: "Natural Gas",    direction: "SHORT", window: "Sep 16 – 30", startSlot: 170, endSlot: 181, calStart: 259, tier: "fdr",        winRate: 0.74, oosWinRate: 0.71, avgReturn: -0.021, sortino: 2.4, nObs: 28, maxDrawdown: -0.10, profitFactor: 3.6, robustness: 0.55, decadeConsistent: true,  category: "Energie", rationale: "Post-Injection-Season Überangebot drückt Nov-Kontrakt.",    fakeReturns: makeFakeReturns(0.74, -0.021) },
+  { id: 5,  assetId: "sugar",   symbol: "SB1!",  name: "Sugar #11",      direction: "SHORT", window: "Sep 18 – 30", startSlot: 172, endSlot: 182, calStart: 261, tier: "fdr",        winRate: 0.73, oosWinRate: 0.70, avgReturn: -0.016, sortino: 1.9, nObs: 30, maxDrawdown: -0.07, profitFactor: 2.8, robustness: 0.52, decadeConsistent: true,  category: "Agrar",   rationale: "Brasilianische Ernte drückt Exportpreise in Q4.",           fakeReturns: makeFakeReturns(0.73, -0.016) },
+  { id: 6,  assetId: "cocoa",   symbol: "CC1!",  name: "Cocoa",          direction: "LONG",  window: "Nov 5 – 15",  startSlot: 210, endSlot: 217, calStart: 309, tier: "fdr",        winRate: 0.74, oosWinRate: 0.70, avgReturn:  0.019, sortino: 2.2, nObs: 27, maxDrawdown: -0.09, profitFactor: 3.0, robustness: 0.53, decadeConsistent: true,  category: "Agrar",   rationale: "West African main crop arrival delays.",                    fakeReturns: makeFakeReturns(0.74,  0.019) },
+  { id: 7,  assetId: "pa1",     symbol: "PA1!",  name: "Palladium",      direction: "SHORT", window: "Jan 10 – 20", startSlot: 10,  endSlot: 17,  calStart: 10,  tier: "fdr",        winRate: 0.72, oosWinRate: 0.68, avgReturn: -0.022, sortino: 2.3, nObs: 24, maxDrawdown: -0.08, profitFactor: 3.4, robustness: 0.60, decadeConsistent: true,  category: "Metalle", rationale: "Jan-Liquidation nach Jahres-Rally drückt Palladium.",       fakeReturns: makeFakeReturns(0.72, -0.022) },
+  { id: 8,  assetId: "soymeal", iconAssetId: "zs1", symbol: "ZM1!", name: "Soybean Meal", direction: "LONG", window: "Apr 15 – 25", startSlot: 73, endSlot: 80, calStart: 105, tier: "fdr", winRate: 0.73, oosWinRate: 0.69, avgReturn: 0.014, sortino: 1.8, nObs: 31, maxDrawdown: -0.06, profitFactor: 2.5, robustness: 0.51, decadeConsistent: true,  category: "Agrar",   rationale: "US spring crush margin rally.",                             fakeReturns: makeFakeReturns(0.73,  0.014) },
+  { id: 9,  assetId: "cotton",  symbol: "CT1!",  name: "Cotton #2",      direction: "LONG",  window: "Feb 8 – 16",  startSlot: 29,  endSlot: 35,  calStart: 39,  tier: "fdr",        winRate: 0.72, oosWinRate: 0.68, avgReturn:  0.013, sortino: 1.7, nObs: 28, maxDrawdown: -0.07, profitFactor: 2.4, robustness: 0.49, decadeConsistent: true,  category: "Agrar",   rationale: "Export sales pace beschleunigt nach USDA Feb Report.",       fakeReturns: makeFakeReturns(0.72,  0.013) },
+  { id: 10, assetId: "es1",     symbol: "ES1!",  name: "S&P 500 E-mini", direction: "LONG",  window: "Dez 15 – 25", startSlot: 240, endSlot: 248, calStart: 349, tier: "fdr",        winRate: 0.80, oosWinRate: 0.75, avgReturn:  0.015, sortino: 2.5, nObs: 36, maxDrawdown: -0.04, profitFactor: 3.8, robustness: 0.65, decadeConsistent: true,  category: "Indizes", rationale: "Santa Claus Rally: Pension fund rebalancing.",              fakeReturns: makeFakeReturns(0.80,  0.015) },
 ];
 
 /* ─── Countdown hook — uses calStart (calendar day 1-365) ──────────── */
@@ -410,6 +411,19 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
   const countdown = usePatternCountdown(p.calStart);
   const [detailHov, setDetailHov] = useState(false);
 
+  // Live-Schätzung für aktive Muster (historische Avg-Kurve an aktueller Position)
+  const activeLiveEst = useMemo<number | null>(() => {
+    if (countdown !== "Aktiv") return null;
+    const todayCal = todayCalendarDay();
+    const daysElapsed = Math.max(0, todayCal - p.calStart);
+    const windowTd = Math.max(1, p.endSlot - p.startSlot);
+    // Kalender→Trading: ~252/365 ≈ 0.69
+    const tradingElapsed = daysElapsed * (252 / 365);
+    const progress = Math.min(1, tradingElapsed / windowTd);
+    const idx = Math.max(1, Math.round(progress * p.fakeReturns.length));
+    return p.fakeReturns.slice(0, idx).reduce((s, r) => s + r * 100, 0);
+  }, [countdown, p.calStart, p.endSlot, p.startSlot, p.fakeReturns]);
+
   const cardBg = selected
     ? `radial-gradient(ellipse 120% 90% at 115% 120%, rgba(216,188,103,0.14) 0%, transparent 55%), ${C_CARD}`
     : C_CARD;
@@ -450,9 +464,19 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
         {p.window}
       </div>
 
-      {/* ── Row 3: Countdown Timer (gold) — mit Abstand oben ── */}
-      <div style={{ fontSize: 11, fontWeight: 600, color: countdown === "Aktiv" ? "#e8edf3" : C_GOLD, lineHeight: 1, marginBottom: 8, letterSpacing: "0.01em" }}>
-        {countdown || "—"}
+      {/* ── Row 3: Countdown / Aktiv + Live-Schätzung ── */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: countdown === "Aktiv" ? "#e8edf3" : C_GOLD, lineHeight: 1, letterSpacing: "0.01em" }}>
+          {countdown || "—"}
+        </span>
+        {activeLiveEst !== null && (
+          <span style={{
+            fontSize: 11, fontWeight: 800, lineHeight: 1, letterSpacing: "0.02em",
+            color: activeLiveEst >= 0 ? C_GOLD : "rgba(210,90,80,0.90)",
+          }}>
+            {activeLiveEst >= 0 ? "+" : ""}{activeLiveEst.toFixed(1)}%
+          </span>
+        )}
       </div>
 
       {/* ── Row 4: Performance-Chart — kein eigener Border ── */}
