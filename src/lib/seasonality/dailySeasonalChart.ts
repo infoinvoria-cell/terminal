@@ -13,7 +13,8 @@ export interface DailySeasonalPoint {
   monthDay: string;     // MM-DD label
   month: number;        // 1..12
   dayInMonth: number;   // 1..31
-  seasonal: number;     // cumulative seasonal value (%) starting at 0
+  seasonal: number;     // cumulative seasonal value (%) starting at 0 (average)
+  medianSeasonal?: number; // cumulative median seasonal value (%)
   winrate: number;      // 0..100: % of years that were positive at this day
   avgReturn: number;    // average cross-sectional daily return (%)
   sampleSize: number;   // number of years contributing
@@ -139,9 +140,10 @@ export function buildDailySeasonalCurve(
     profiles.push(profile);
   }
 
-  // Aggregate: for each doy compute avg daily return and winrate
+  // Aggregate: for each doy compute avg + median daily return and winrate
   const points: DailySeasonalPoint[] = [];
   let cumulative = 0;
+  let cumulativeMedian = 0;
 
   for (let doy = 1; doy <= 365; doy++) {
     const vals: number[] = [];
@@ -153,14 +155,13 @@ export function buildDailySeasonalCurve(
     const { month, dayInMonth } = monthOfDayOfYear(doy);
 
     if (vals.length === 0) {
-      // No trading days for this DOY (weekends, holidays, Feb 29 in most years)
-      // Carry cumulative forward unchanged (zero avg return for this slot)
       points.push({
         dayOfYear: doy,
         monthDay: formatMMDD(doy),
         month,
         dayInMonth,
         seasonal: parseFloat((cumulative * 100).toFixed(3)),
+        medianSeasonal: parseFloat((cumulativeMedian * 100).toFixed(3)),
         winrate: 50,
         avgReturn: 0,
         sampleSize: 0,
@@ -169,8 +170,14 @@ export function buildDailySeasonalCurve(
     }
 
     const avgRet = vals.reduce((s, v) => s + v, 0) / vals.length;
+    const sorted = [...vals].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    const medianRet = sorted.length % 2 === 0
+      ? (sorted[mid - 1] + sorted[mid]) / 2
+      : sorted[mid];
     const winrate = (vals.filter((v) => v > 0).length / vals.length) * 100;
     cumulative += avgRet;
+    cumulativeMedian += medianRet;
 
     points.push({
       dayOfYear: doy,
@@ -178,6 +185,7 @@ export function buildDailySeasonalCurve(
       month,
       dayInMonth,
       seasonal: parseFloat((cumulative * 100).toFixed(3)),
+      medianSeasonal: parseFloat((cumulativeMedian * 100).toFixed(3)),
       winrate,
       avgReturn: parseFloat((avgRet * 100).toFixed(4)),
       sampleSize: vals.length,

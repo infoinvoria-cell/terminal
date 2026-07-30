@@ -971,6 +971,7 @@ export function SeasonalResearchDashboard({ onSwitchToLegacy: _unused }: Props) 
           showToday={settings.showToday}
           showPatternHighlight={settings.showPatternHighlight}
           chartGradient={settings.chartGradient}
+          formulaMode={settings.formulaMode}
           chartLogoEnabled={settings.chartLogoEnabled}
           chartLogoOpacity={settings.chartLogoOpacity}
           chartLogoSize={settings.chartLogoSize}

@@ -26,7 +26,7 @@ const ASSET_IDS = [
   // FX — Yahoo fallback where available
   'fx_6a1', 'fx_6b1', 'fx_6c1', 'fx_6e1', 'fx_6j1', 'fx_6n1', 'fx_6s1', 'dxy',
   // Energie
-  'ng1', 'cl1',
+  'ng1', 'cl1', 'rb1',
   // Metalle
   'gc1', 'si1', 'hg1', 'pl1', 'pa1',
   // Indizes

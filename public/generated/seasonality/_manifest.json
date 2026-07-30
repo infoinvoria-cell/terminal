@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-25T20:21:58.003Z",
+  "generatedAt": "2026-07-30T13:31:52.330Z",
   "files": [
     "wheat_20y_cache.json",
     "wheat_15y_cache.json",
@@ -81,6 +81,10 @@
     "fx_6s1_15y_cache.json",
     "fx_6s1_10y_cache.json",
     "fx_6s1_5y_cache.json",
+    "rb1_20y_cache.json",
+    "rb1_15y_cache.json",
+    "rb1_10y_cache.json",
+    "rb1_5y_cache.json",
     "gc1_20y_cache.json",
     "gc1_15y_cache.json",
     "gc1_10y_cache.json",
@@ -102,5 +106,5 @@
     "pa1_10y_cache.json",
     "pa1_5y_cache.json"
   ],
-  "count": 100
+  "count": 104
 }

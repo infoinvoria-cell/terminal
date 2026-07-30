@@ -11,6 +11,7 @@ export interface SeasonalityUiSettings {
   showToday: boolean;
   showPatternHighlight: boolean;
   chartGradient: boolean;
+  formulaMode: "avg" | "median";
   chartLogoEnabled: boolean;
   /** 0–100 */
   chartLogoOpacity: number;
@@ -24,10 +25,11 @@ export interface SeasonalityUiSettings {
 
 const DEFAULTS: SeasonalityUiSettings = {
   hoverPreview: true,
-  fastMode: true,       // ON by default → maximum smoothness
+  fastMode: true,
   showToday: true,
   showPatternHighlight: true,
   chartGradient: true,
+  formulaMode: "avg",
   chartLogoEnabled: true,
   chartLogoOpacity: 70,
   chartLogoSize: 200,

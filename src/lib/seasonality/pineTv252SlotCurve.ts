@@ -131,26 +131,26 @@ export function buildPineTv252SlotSeasonalCurve(
     });
   }
 
-  // 3. Accumulate per-bin: sum of absolute changes, count, years, months
+  // 3. Accumulate per-bin: sum of absolute changes, count, years, months, all changes for median
   const binSums = new Float64Array(BINS);
   const binCounts = new Int32Array(BINS);
   const binYears: Set<number>[] = Array.from({ length: BINS }, () => new Set<number>());
-  // Track month counts per bin to pick the MODE month (not first occurrence — avoids partial-year bias)
   const binMonthCounts: Array<Map<number, number>> = Array.from({ length: BINS }, () => new Map());
-  const binPositiveCount = new Int32Array(BINS); // for winrate (oscillator)
+  const binPositiveCount = new Int32Array(BINS);
+  const binAllChanges: number[][] = Array.from({ length: BINS }, () => []);
 
   for (const ab of annotated) {
     const change = ab.close - ab.prevClose;
     binSums[ab.binIndex] += change;
     binCounts[ab.binIndex]++;
     binYears[ab.binIndex].add(ab.year);
-    // Count months per bin
+    binAllChanges[ab.binIndex].push(change);
     const m = parseInt(ab.date.slice(5, 7));
     binMonthCounts[ab.binIndex].set(m, (binMonthCounts[ab.binIndex].get(m) ?? 0) + 1);
     if (change > 0) binPositiveCount[ab.binIndex]++;
   }
 
-  // Derive modal month per bin (most common calendar month across all contributing years)
+  // Derive modal month per bin
   const binModalMonth = new Int32Array(BINS);
   for (let i = 0; i < BINS; i++) {
     if (binMonthCounts[i].size === 0) continue;
@@ -161,10 +161,18 @@ export function buildPineTv252SlotSeasonalCurve(
     binModalMonth[i] = modalM;
   }
 
-  // 4. Average per bin
+  // 4. Average and Median per bin
   const binAverages = new Float64Array(BINS);
+  const binMedians = new Float64Array(BINS);
   for (let i = 0; i < BINS; i++) {
-    if (binCounts[i] > 0) binAverages[i] = binSums[i] / binCounts[i];
+    if (binCounts[i] > 0) {
+      binAverages[i] = binSums[i] / binCounts[i];
+      const sorted = [...binAllChanges[i]].sort((a, b) => a - b);
+      const mid = Math.floor(sorted.length / 2);
+      binMedians[i] = sorted.length % 2 === 0
+        ? (sorted[mid - 1] + sorted[mid]) / 2
+        : sorted[mid];
+    }
   }
 
   // 5. Find last bin with observations ("used" in Pine)
@@ -179,20 +187,22 @@ export function buildPineTv252SlotSeasonalCurve(
   // line[0] = 0
   // line[i] = line[i-1] + bins[i]  for i = 1..used  (SKIPS bin 0)
   const C = new Float64Array(BINS);
-  // C[0] = 0 by default
+  const CM = new Float64Array(BINS); // median cumulative
   for (let i = 1; i <= used; i++) {
     C[i] = C[i - 1] + binAverages[i];
+    CM[i] = CM[i - 1] + binMedians[i];
   }
   const rawEndpoint = C[used];
 
   // 7. Detrend — linear correction so endpoint ≈ 0:
-  // step = line[used] / used
-  // for i = 1..used: line[i] -= step * i
   let detrendStep = 0;
+  let detrendStepMedian = 0;
   if (used > 0) {
     detrendStep = rawEndpoint / used;
+    detrendStepMedian = CM[used] / used;
     for (let i = 1; i <= used; i++) {
       C[i] -= detrendStep * i;
+      CM[i] -= detrendStepMedian * i;
     }
   }
   const finalEndpoint = C[used];
@@ -223,13 +233,14 @@ export function buildPineTv252SlotSeasonalCurve(
     const approxLabel = MONTH_LABELS_DE[month - 1] ?? "";
 
     points.push({
-      dayOfYear: slot,                                    // slot number 1..252
-      monthDay: `${approxLabel} S${slot}`,               // "Mär S44" etc.
+      dayOfYear: slot,
+      monthDay: `${approxLabel} S${slot}`,
       month,
-      dayInMonth: slot,                                   // approximate
-      seasonal: parseFloat(C[i].toFixed(4)),             // detrended price units
-      winrate,                                             // for oscillator
-      avgReturn: parseFloat(binAverages[i].toFixed(4)),  // avg abs close change
+      dayInMonth: slot,
+      seasonal: parseFloat(C[i].toFixed(4)),
+      medianSeasonal: parseFloat(CM[i].toFixed(4)),
+      winrate,
+      avgReturn: parseFloat(binAverages[i].toFixed(4)),
       sampleSize: binCounts[i],
     });
   }

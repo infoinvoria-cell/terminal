@@ -31,6 +31,7 @@ interface Props {
   chartLogoSize?: number;
   chartLogoPosX?: number;
   chartLogoPosY?: number;
+  formulaMode?: "avg" | "median";
   /** Active oscillator mode for the bottom bar chart strip. */
   oscillatorMode?: OscillatorMode;
   onOscillatorModeChange?: (mode: OscillatorMode) => void;
@@ -58,6 +59,7 @@ export function SeasonalCombinedChartPanel({
   chartLogoSize = 200,
   chartLogoPosX = 60,
   chartLogoPosY = 60,
+  formulaMode = "avg",
   oscillatorMode = "WR",
   onOscillatorModeChange,
   qsLiveBars,
@@ -90,6 +92,17 @@ export function SeasonalCombinedChartPanel({
 
   const labelText = useMemo(() => (labelSlot != null ? slotToApproxDate(labelSlot) : ""), [labelSlot]);
 
+  const displayResult = useMemo(() => {
+    if (!chartResult || formulaMode !== "median") return chartResult;
+    return {
+      ...chartResult,
+      points: chartResult.points.map(p => ({
+        ...p,
+        seasonal: p.medianSeasonal ?? p.seasonal,
+      })),
+    };
+  }, [chartResult, formulaMode]);
+
   const labelLeftPx = useMemo(() => {
     if (labelSlot == null || seasonalWrapW <= 1) return null;
     // Match SeasonalMainChart chart scale: margin left(4) + yAxis width(38) = 42; right margin = 8
@@ -121,9 +134,9 @@ export function SeasonalCombinedChartPanel({
       <div className={styles.combinedBody}>
         {/* Seasonal curve — with Today+Hover lines and pattern overlay */}
         <div className={styles.seasonalSlot} ref={seasonalWrapRef} style={{ position: "relative" }}>
-          {chartResult && !chartLoading ? (
+          {displayResult && !chartLoading ? (
             <SeasonalCurveChart
-              result={chartResult}
+              result={displayResult}
               hoverDoy={hoverDoy}
               onHoverDoy={onHoverDoy}
               onClickDoy={handleSeasonalClick}

@@ -292,6 +292,34 @@ export function SeasonalSettingsPopover({ settings, onUpdate }: Props) {
             value={settings.chartGradient}
             onChange={v => onUpdate("chartGradient", v)}
           />
+          <div style={{ padding: "8px 12px 4px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: C_TEXT }}>Berechnungsart</div>
+              <div style={{ fontSize: 10.5, color: C_TEXT2, marginTop: 2 }}>Saisonale Kurve: Durchschnitt oder Median aller Jahre.</div>
+            </div>
+            <div style={{ display: "flex", gap: 4, marginLeft: 12, flexShrink: 0 }}>
+              {(["avg", "median"] as const).map(mode => (
+                <button
+                  key={mode}
+                  onClick={() => onUpdate("formulaMode", mode)}
+                  style={{
+                    padding: "3px 10px",
+                    borderRadius: 6,
+                    border: "1px solid",
+                    fontSize: 11,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                    borderColor: settings.formulaMode === mode ? "rgba(216,188,103,0.6)" : "rgba(255,255,255,0.1)",
+                    background: settings.formulaMode === mode ? "rgba(216,188,103,0.12)" : "transparent",
+                    color: settings.formulaMode === mode ? "#DCC476" : C_TEXT2,
+                  }}
+                >
+                  {mode === "avg" ? "Ø Avg" : "Median"}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <div style={{
             padding: "6px 10px 4px",

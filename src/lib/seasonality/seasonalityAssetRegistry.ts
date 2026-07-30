@@ -184,6 +184,16 @@ function dailyCsvNameForTvSymbol(tvSymbol: string): string | null {
 function resolveManualTvSource(binding: MonitoringBinding, legacy?: SeasonalAssetDef): SeasonalityDataSource | null {
   const tvSymbol = binding.tvSymbol;
 
+  // Local repo OHLC files (data/historical/...) — highest priority, no Brain workspace needed
+  if (legacy?.csvDir?.startsWith("data/historical") && legacy.csvFile && !legacy.csvFile.startsWith("__")) {
+    return {
+      type: "manual_tv_csv",
+      path: `${legacy.csvDir}/${legacy.csvFile}`,
+      csvFile: legacy.csvFile,
+      csvDir: legacy.csvDir,
+    };
+  }
+
   if (legacy?.csvFile) {
     const csvDir = legacy.csvDir ?? "";
     if (csvDir.includes("history_parts") && historyPartsSet.has(legacy.csvFile)) {
