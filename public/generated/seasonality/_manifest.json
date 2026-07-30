@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-30T13:31:52.330Z",
+  "generatedAt": "2026-07-30T14:17:41.178Z",
   "files": [
     "wheat_20y_cache.json",
     "wheat_15y_cache.json",
@@ -81,6 +81,18 @@
     "fx_6s1_15y_cache.json",
     "fx_6s1_10y_cache.json",
     "fx_6s1_5y_cache.json",
+    "dxy_20y_cache.json",
+    "dxy_15y_cache.json",
+    "dxy_10y_cache.json",
+    "dxy_5y_cache.json",
+    "ng1_20y_cache.json",
+    "ng1_15y_cache.json",
+    "ng1_10y_cache.json",
+    "ng1_5y_cache.json",
+    "cl1_20y_cache.json",
+    "cl1_15y_cache.json",
+    "cl1_10y_cache.json",
+    "cl1_5y_cache.json",
     "rb1_20y_cache.json",
     "rb1_15y_cache.json",
     "rb1_10y_cache.json",
@@ -104,7 +116,23 @@
     "pa1_20y_cache.json",
     "pa1_15y_cache.json",
     "pa1_10y_cache.json",
-    "pa1_5y_cache.json"
+    "pa1_5y_cache.json",
+    "nq1_20y_cache.json",
+    "nq1_15y_cache.json",
+    "nq1_10y_cache.json",
+    "nq1_5y_cache.json",
+    "es1_20y_cache.json",
+    "es1_15y_cache.json",
+    "es1_10y_cache.json",
+    "es1_5y_cache.json",
+    "fdax1_20y_cache.json",
+    "fdax1_15y_cache.json",
+    "fdax1_10y_cache.json",
+    "fdax1_5y_cache.json",
+    "ym1_20y_cache.json",
+    "ym1_15y_cache.json",
+    "ym1_10y_cache.json",
+    "ym1_5y_cache.json"
   ],
-  "count": 104
+  "count": 132
 }

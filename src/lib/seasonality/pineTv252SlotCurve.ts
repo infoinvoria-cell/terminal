@@ -161,18 +161,26 @@ export function buildPineTv252SlotSeasonalCurve(
     binModalMonth[i] = modalM;
   }
 
-  // 4. Average and Median per bin
+  // 4. Average and Median per bin — with ±3σ outlier winsorizing
+  // Winsorizing caps extreme single-year crisis moves (e.g. 2008 on Gold/Silver)
+  // without removing them entirely. Median is naturally outlier-resistant.
   const binAverages = new Float64Array(BINS);
   const binMedians = new Float64Array(BINS);
   for (let i = 0; i < BINS; i++) {
-    if (binCounts[i] > 0) {
-      binAverages[i] = binSums[i] / binCounts[i];
-      const sorted = [...binAllChanges[i]].sort((a, b) => a - b);
-      const mid = Math.floor(sorted.length / 2);
-      binMedians[i] = sorted.length % 2 === 0
-        ? (sorted[mid - 1] + sorted[mid]) / 2
-        : sorted[mid];
-    }
+    if (binCounts[i] === 0) continue;
+    const rawSorted = [...binAllChanges[i]].sort((a, b) => a - b);
+    const mid = Math.floor(rawSorted.length / 2);
+    binMedians[i] = rawSorted.length % 2 === 0
+      ? (rawSorted[mid - 1] + rawSorted[mid]) / 2
+      : rawSorted[mid];
+    // Winsorize: clip each value to [mean - 3σ, mean + 3σ] before averaging
+    const rawMean = binSums[i] / binCounts[i];
+    const variance = rawSorted.reduce((acc, v) => acc + (v - rawMean) ** 2, 0) / binCounts[i];
+    const sigma = Math.sqrt(variance);
+    const lo = rawMean - 3 * sigma;
+    const hi = rawMean + 3 * sigma;
+    const clipped = rawSorted.map(v => Math.min(hi, Math.max(lo, v)));
+    binAverages[i] = clipped.reduce((a, v) => a + v, 0) / clipped.length;
   }
 
   // 5. Find last bin with observations ("used" in Pine)
