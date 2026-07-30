@@ -134,10 +134,17 @@ def choose_exchange(tv: TvDatafeed, mapping: SymbolMapping, do_search: bool) -> 
 
 
 def normalize_date(value: Any, interval: str) -> str:
-    timestamp = pd.to_datetime(value, utc=True)
+    # tvDatafeed returns timestamps in the TradingView session timezone (Europe/Berlin
+    # for a CEST session) as timezone-naive values.  pd.to_datetime(utc=True) would
+    # wrongly treat those as UTC and shift every intraday bar 1-2 h too late.
+    # Localize naive values to Europe/Berlin first so the UTC conversion is correct.
+    ts = pd.to_datetime(value)
+    if ts.tzinfo is None:
+        ts = ts.tz_localize("Europe/Berlin", ambiguous="NaT", nonexistent="NaT")
+    ts_utc = ts.tz_convert("UTC")
     if interval == "1D":
-      return timestamp.strftime("%Y-%m-%dT00:00:00Z")
-    return timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
+        return ts_utc.strftime("%Y-%m-%dT00:00:00Z")
+    return ts_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def normalize_frame(frame: pd.DataFrame, symbol: str, exchange: str, interval: str, fetched_at: str) -> dict[str, Any]:
