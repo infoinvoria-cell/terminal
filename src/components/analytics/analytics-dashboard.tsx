@@ -84,10 +84,10 @@ function computeBenchmarkCagr(benchmarkSeries: AnalyticsSeriesPoint[]): number |
 const LIVE_PHASE_A_START = "2025-05-01";
 const LIVE_PHASE_B_START = "2026-05-01";
 // Core Invest target weights (Core Invest v2.0 — frozen 2026-07-20)
-const LIVE_DEFAULT_WEIGHTS: Record<string, number> = { SPY: 5, SPMO: 5, QQQ: 45, GLD: 25, WHITE_SWAN_NAS_EMA: 5, QQQ_PINE_2_EMA: 5, COPPER_HG: 5, CHF_6S: 5 };
-const LIVE_ORIGINAL_WEIGHTS: Record<string, number> = { SPY: 5, SPMO: 5, QQQ: 45, GLD: 25, WHITE_SWAN_NAS_EMA: 5, QQQ_PINE_2_EMA: 5, COPPER_HG: 5, CHF_6S: 5 };
-const LIVE_ASSET_SYMBOLS = ["SPY", "SPMO", "QQQ", "GLD", "WHITE_SWAN_NAS_EMA", "QQQ_PINE_2_EMA", "COPPER_HG", "CHF_6S"] as const;
-const LIVE_ASSET_LABELS: Record<string, string> = { SPY: "SPY", SPMO: "SPMO", QQQ: "QQQ passive", GLD: "GLD", WHITE_SWAN_NAS_EMA: "QQQ Pine 1", QQQ_PINE_2_EMA: "QQQ Pine 2 EMA", COPPER_HG: "Copper/HG", CHF_6S: "CHF/6S" };
+const LIVE_DEFAULT_WEIGHTS: Record<string, number> = { SPY: 5, SPMO: 5, QQQ: 45, GLD: 25, WHITE_SWAN_NAS_EMA: 10, COPPER_HG: 5, CHF_6S: 5 };
+const LIVE_ORIGINAL_WEIGHTS: Record<string, number> = { SPY: 5, SPMO: 5, QQQ: 45, GLD: 25, WHITE_SWAN_NAS_EMA: 10, COPPER_HG: 5, CHF_6S: 5 };
+const LIVE_ASSET_SYMBOLS = ["SPY", "SPMO", "QQQ", "GLD", "WHITE_SWAN_NAS_EMA", "COPPER_HG", "CHF_6S"] as const;
+const LIVE_ASSET_LABELS: Record<string, string> = { SPY: "SPY", SPMO: "SPMO", QQQ: "QQQ passive", GLD: "GLD", WHITE_SWAN_NAS_EMA: "QQQ Pine 1", COPPER_HG: "Copper/HG", CHF_6S: "CHF/6S" };
 
 // ── White Swan v1.1 constants ─────────────────────────────────────────────────
 const WS_STRATEGY_IDS = [
@@ -1646,12 +1646,12 @@ function LiveControlPanel({
   const activeSyms = LIVE_ASSET_SYMBOLS.filter((sym) => enabled[sym] !== false);
   const totalW = activeSyms.reduce((s, sym) => s + (weights[sym] ?? 0), 0);
 
-  // 8 assets in 4 rows of 2: [Pine1|SPY] [SPMO|QQQ] [GLD|Pine2] [Copper|CHF]
+  // 7 assets in 4 rows: [Pine1|SPY] [SPMO|QQQ] [GLD|Copper] [CHF|–]
   const assetPairs: Array<[string, string | null]> = [
     ["WHITE_SWAN_NAS_EMA", "SPY"],
     ["SPMO", "QQQ"],
-    ["GLD", "QQQ_PINE_2_EMA"],
-    ["COPPER_HG", "CHF_6S"],
+    ["GLD", "COPPER_HG"],
+    ["CHF_6S", null],
   ];
 
   const INVEST_ICONS: Record<string, string> = {
@@ -1660,7 +1660,6 @@ function LiveControlPanel({
     SPMO: "/assets/invest/spmo.png",
     QQQ: "/assets/invest/qqq.png",
     GLD: "/assets/invest/gld.png",
-    QQQ_PINE_2_EMA: "/assets/invest/qqq.png",
   };
 
   function AssetCell({ sym }: { sym: string }) {

@@ -332,15 +332,9 @@ export const CI_STRATEGIES: CoreInvestRow[] = [
   },
   {
     id: "qqq_pine1", ticker: "QQQ", label: "QQQ Pine 1", group: "Strategy Sleeve",
-    engine: "SMA(400) + SMA(5) - Long/Cash - TP 2% - SL 25%", pillar: "ci_sleeve", weight: 5,
+    engine: "SMA(400) + SMA(5) - Long/Cash - TP 2% - SL 25%", pillar: "ci_sleeve", weight: 10,
     sharpe: 1.18, pf: 1.602, cagr: "+3.44%", maxDd: "-8.71%", calmar: 0.40, trades: 642, winRate: "69.31%", totalReturn: "+95.19%", status: "parity_partial",
     notes: "TradingView-Referenz: 642 Trades, PF 1.602, MaxDD 8.71%, +95.19%; Python-/Trade-Parität offen.",
-  },
-  {
-    id: "qqq_pine2", ticker: "QQQ", label: "QQQ Pine 2 EMA", group: "Strategy Sleeve",
-    engine: "EMA(20)/EMA(50) + Valuation - Long/Cash - TP 4% - SL 2%", pillar: "ci_sleeve", weight: 5,
-    sharpe: 1.42, pf: 2.158, cagr: "+7.96%", maxDd: "-28.59%", calmar: 0.28, trades: 68, winRate: "42.65%", totalReturn: "+358.27%", status: "parity_partial",
-    notes: "TradingView-Referenz: 68 Trades, PF 2.158, MaxDD 28.59%, +358.27%; Python-/Trade-Parität offen.",
   },
   {
     id: "hg1_ci", ticker: "HG1!", label: "Copper / HG", group: "Strategy Sleeve",
@@ -381,18 +375,17 @@ export const CI_PORTFOLIO_KPIS = {
   cagr:       "+17.11%",
   maxDd:      "−21.73%",
   calmar:     "0.787",
-  components: "8",
-  parityNote: "⚠ Engine Parity partiell (Pine2)",
+  components: "7",
+  parityNote: "⚠ Engine Parity partiell (Pine1)",
 } as const;
 
 // Core Invest v2.0 canonical allocation weights (decimals, must sum to 1.0)
 export const CI_WEIGHTS = {
-  QQQ_PASSIVE:    0.45,
-  GLD:            0.25,
-  SPMO:           0.05,
-  SPY:            0.05,
-  QQQ_PINE_1:     0.05,
-  QQQ_PINE_2_EMA: 0.05,
-  COPPER_HG:      0.05,
-  CHF_6S:         0.05,
+  QQQ_PASSIVE: 0.45,
+  GLD:         0.25,
+  SPMO:        0.05,
+  SPY:         0.05,
+  QQQ_PINE_1:  0.10,
+  COPPER_HG:   0.05,
+  CHF_6S:      0.05,
 } as const;

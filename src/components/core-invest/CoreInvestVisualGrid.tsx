@@ -44,7 +44,6 @@ const C = {
 
 const SLEEVE_COLORS: Record<string, string> = {
   QQQ_PINE_1: C.cyan,
-  QQQ_PINE_2_EMA: C.orange,
   COPPER_HG: C.copper,
   CHF_6S: C.chf,
 };
@@ -410,7 +409,7 @@ function ValidationPanel({
         {/* Pine files */}
         <p className="text-[8px] font-semibold tracking-wide [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.muted }}>PINE FILES</p>
         <div className="flex gap-3 mb-1.5">
-          {["QQQ_pine1.txt", "pine2.txt"].map((fname) => {
+          {["QQQ_pine1.txt"].map((fname) => {
             const found = pineFiles[fname]?.found ?? false;
             return (
               <div key={fname} className="flex items-center gap-1">

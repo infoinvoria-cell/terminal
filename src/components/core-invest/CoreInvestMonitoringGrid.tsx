@@ -35,8 +35,7 @@ const ALLOC_ITEMS = [
   { id: "gld",      label: "GLD",        weight: 25,  icon: "/assets/invest/gld.png"   },
   { id: "spmo",     label: "SPMO",       weight: 5,   icon: "/assets/invest/spmo.png"  },
   { id: "spy",      label: "SPY",        weight: 5,   icon: "/assets/invest/spy.png"   },
-  { id: "qqqPine1", label: "Pine 1",     weight: 5,   icon: "/asset-icons/nasdaq.png"  },
-  { id: "qqqPine2", label: "Pine 2 EMA", weight: 5,   icon: "/asset-icons/nasdaq.png"  },
+  { id: "qqqPine1", label: "Pine 1",     weight: 10,  icon: "/asset-icons/nasdaq.png"  },
   { id: "copper",   label: "Copper/HG",  weight: 5,   icon: "/asset-icons/Kupfer.webp" },
   { id: "chf",      label: "CHF/6S",     weight: 5,   icon: "/asset-icons/chf.png"     },
 ];
@@ -48,7 +47,6 @@ const ASSET_ICON: Record<string, string> = {
   spmo:     "/assets/invest/spmo.png",
   spy:      "/assets/invest/spy.png",
   qqqPine1: "/asset-icons/nasdaq.png",
-  qqqPine2: "/asset-icons/nasdaq.png",
   copper:   "/asset-icons/Kupfer.webp",
   chf:      "/asset-icons/chf.png",
 };
@@ -59,8 +57,7 @@ const ASSET_LABEL: Record<string, { sym: string; name: string; desc: string }> =
   gld:      { sym: "GLD",  name: "Gold ETF",         desc: "ETF-Core" },
   spmo:     { sym: "SPMO", name: "S&P Momentum",     desc: "ETF-Core" },
   spy:      { sym: "SPY",  name: "S&P 500 ETF",      desc: "ETF-Core" },
-  qqqPine1: { sym: "QQQ",  name: "QQQ Pine 1",     desc: "Nasdaq Strategy" },
-  qqqPine2: { sym: "QQQ",  name: "QQQ Pine 2 EMA", desc: "Valuation / EMA" },
+  qqqPine1: { sym: "QQQ",  name: "QQQ Pine 1", desc: "Nasdaq Strategy" },
   copper:   { sym: "HG1!", name: "Copper",         desc: "COMEX" },
   chf:      { sym: "6S1!", name: "CHF / Swiss Franc", desc: "CME" },
 };
@@ -72,12 +69,11 @@ const WEIGHT_TO_SLEEVE_ID: Record<string, string> = {
   spmo:     "SPMO",
   spy:      "SPY",
   qqqPine1: "QQQ_PINE_1",
-  qqqPine2: "QQQ_PINE_2_EMA",
   copper:   "COPPER_HG",
   chf:      "CHF_6S",
 };
 
-const STRATEGY_CARD_IDS = new Set(["qqqPine1", "qqqPine2", "copper", "chf"]);
+const STRATEGY_CARD_IDS = new Set(["qqqPine1", "copper", "chf"]);
 
 // Types
 export type TradeRow = {
@@ -357,7 +353,7 @@ function computeWeightedPortfolio(
 }
 
 // ─── performance tile ────────────────────────────────────────────────────────
-type SeriesKey = "portfolio" | "spy" | "qqq" | "gld" | "qqqPine1" | "qqqPine2" | "copper" | "chf";
+type SeriesKey = "portfolio" | "spy" | "qqq" | "gld" | "qqqPine1" | "copper" | "chf";
 type TF = "D" | "W" | "M" | "ALL";
 type Anchor = "fixed" | "visible";
 
@@ -367,7 +363,6 @@ const PERF_SERIES: Array<{ key: SeriesKey; label: string; defaultOn: boolean }> 
   { key: "qqq",       label: "QQQ",       defaultOn: false },
   { key: "gld",       label: "GLD",       defaultOn: false },
   { key: "qqqPine1",  label: "Pine 1",    defaultOn: false },
-  { key: "qqqPine2",  label: "Pine 2",    defaultOn: false },
   { key: "copper",    label: "Copper",    defaultOn: false },
   { key: "chf",       label: "CHF/6S",    defaultOn: false },
 ];
@@ -414,23 +409,20 @@ function InteractivePerformanceTile({ benchmarkCurve, qqqCurve, sleeves, gldBars
 
   const rawData: PerfSeriesData = useMemo(() => {
     const pine1  = sleeves.find(s => s.config.id === "QQQ_PINE_1");
-    const pine2  = sleeves.find(s => s.config.id === "QQQ_PINE_2_EMA");
     const copper = sleeves.find(s => s.config.id === "COPPER_HG");
     const chf    = sleeves.find(s => s.config.id === "CHF_6S");
     const gld    = buildBuyholdPct(gldBars);
     const spyCurve = benchmarkCurve;
     const qqqCurveData = qqqCurve;
     const pine1Curve  = pine1?.equityCurve  ?? (pine1  ? buildEquityPct(pine1.bars,  pine1.signals)  : []);
-    const pine2Curve  = pine2?.equityCurve  ?? (pine2  ? buildEquityPct(pine2.bars,  pine2.signals)  : []);
     const copperCurve = copper?.equityCurve ?? (copper ? buildEquityPct(copper.bars, copper.signals) : []);
     const chfCurve    = chf?.equityCurve    ?? (chf    ? buildEquityPct(chf.bars,    chf.signals)    : []);
-    // Portfolio = weighted mix of available series (SPMO 35% excluded — data unavailable)
+    // Portfolio = weighted mix of available series (SPMO excluded — data unavailable)
     const portfolio = computeWeightedPortfolio([
       { pts: spyCurve,     weight: 15   },
       { pts: qqqCurveData, weight: 15   },
       { pts: gld,          weight: 10   },
-      { pts: pine1Curve,   weight: 7.5  },
-      { pts: pine2Curve,   weight: 7.5  },
+      { pts: pine1Curve,   weight: 15   },
       { pts: copperCurve,  weight: 5    },
       { pts: chfCurve,     weight: 5    },
     ]);
@@ -440,7 +432,6 @@ function InteractivePerformanceTile({ benchmarkCurve, qqqCurve, sleeves, gldBars
       qqq:      qqqCurveData,
       gld,
       qqqPine1: pine1Curve,
-      qqqPine2: pine2Curve,
       copper:   copperCurve,
       chf:      chfCurve,
     };
@@ -657,8 +648,7 @@ function InfoTile({ dataStatus, missingSymbols, sleeves }: InfoTileProps) {
   const byId: Record<string, SleeveData> = Object.fromEntries(sleeves.map(s => [s.config.id, s]));
 
   const signals = [
-    { id: "qqqPine1", label: "Pine 1",     sym: "QQQ",  sid: "QQQ_PINE_1"     },
-    { id: "qqqPine2", label: "Pine 2 EMA", sym: "QQQ",  sid: "QQQ_PINE_2_EMA" },
+    { id: "qqqPine1", label: "Pine 1", sym: "QQQ", sid: "QQQ_PINE_1" },
     { id: "copper",   label: "Copper",     sym: "HG1!", sid: "COPPER_HG"       },
     { id: "chf",      label: "CHF/6S",     sym: "6S1!", sid: "CHF_6S"          },
   ].map(r => ({
@@ -755,9 +745,8 @@ export default function CoreInvestMonitoringGrid({ onStrategySelect, selectedStr
     bars: [], signals: [], status: "missing_ohlc", statusMessage: "", lastDate: null,
   };
 
-  const pine1  = sleeves.find(s => s.config.id === "QQQ_PINE_1")     ?? EMPTY;
-  const pine2  = sleeves.find(s => s.config.id === "QQQ_PINE_2_EMA") ?? EMPTY;
-  const copper = sleeves.find(s => s.config.id === "COPPER_HG")      ?? EMPTY;
+  const pine1  = sleeves.find(s => s.config.id === "QQQ_PINE_1")  ?? EMPTY;
+  const copper = sleeves.find(s => s.config.id === "COPPER_HG")   ?? EMPTY;
   const chf    = sleeves.find(s => s.config.id === "CHF_6S")         ?? EMPTY;
   const qqq    = sleeves.find(s => s.config.id === "QQQ_PASSIVE")    ?? EMPTY;
   const gld    = sleeves.find(s => s.config.id === "GLD")            ?? EMPTY;
@@ -791,8 +780,6 @@ export default function CoreInvestMonitoringGrid({ onStrategySelect, selectedStr
     }}>
       <CandleCard weightId="qqqPine1" sleeve={pine1}
         isSelected={isCardSelected("qqqPine1")} onClick={makeCardClick("qqqPine1")} />
-      <CandleCard weightId="qqqPine2" sleeve={pine2}
-        isSelected={isCardSelected("qqqPine2")} onClick={makeCardClick("qqqPine2")} />
       <CandleCard weightId="copper"   sleeve={copper}
         isSelected={isCardSelected("copper")} onClick={makeCardClick("copper")} />
       <CandleCard weightId="chf"      sleeve={chf}

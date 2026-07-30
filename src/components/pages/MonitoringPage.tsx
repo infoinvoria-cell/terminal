@@ -232,18 +232,16 @@ const FALLBACK_INVEST_UNIVERSE_ITEMS: UniverseAssetItem[] = [
   { tab: "Invest", symbol: "GLD",           requestSymbol: "GLD",   source: "AMEX:GLD",    name: "Gold ETF (GLD)",         timeframe: "D", hasData: false, hasStrategy: false, strategyStatus: "passive",  buildable: false },
   // CI v2.0 — Active Sleeves
   { tab: "Invest", symbol: "QQQ_PINE_1",    requestSymbol: "QQQ",   source: "NASDAQ:QQQ",  name: "QQQ Pine 1",             timeframe: "D", hasData: false, hasStrategy: true,  strategyStatus: "mapped",   buildable: true,  strategyId: "QQQ_PINE_1" },
-  { tab: "Invest", symbol: "QQQ_PINE_2_EMA",requestSymbol: "QQQ",   source: "NASDAQ:QQQ",  name: "QQQ Pine 2 EMA",         timeframe: "D", hasData: false, hasStrategy: true,  strategyStatus: "mapped",   buildable: true,  strategyId: "QQQ_PINE_2_EMA" },
   { tab: "Invest", symbol: "HG1!",          requestSymbol: "HG1!",  source: "COMEX:HG1!",  name: "Copper Sleeve (HG1!)",   timeframe: "D", hasData: false, hasStrategy: true,  strategyStatus: "mapped",   buildable: true,  strategyId: "COPPER_HG" },
   { tab: "Invest", symbol: "6S1!",          requestSymbol: "6S1!",  source: "CME:6S1!",    name: "CHF Sleeve (6S1!)",      timeframe: "D", hasData: false, hasStrategy: true,  strategyStatus: "mapped",   buildable: true,  strategyId: "CHF_6S" },
 ];
 
 const INVEST_WORKSPACE_ASSETS = [
   { symbol: "QQQ_PINE_1", name: "QQQ Pine 1" },
-  { symbol: "QQQ_PINE_2_EMA", name: "QQQ Pine 2 EMA" },
   { symbol: "COPPER_HG", name: "Copper/HG" },
   { symbol: "CHF_6S", name: "CHF/6S" },
 ] as const;
-const INVEST_STRATEGY_IDS = ["QQQ_PINE_1", "QQQ_PINE_2_EMA", "COPPER_HG", "CHF_6S"] as const;
+const INVEST_STRATEGY_IDS = ["QQQ_PINE_1", "COPPER_HG", "CHF_6S"] as const;
 const isInvestStrategyId = (value: string): value is (typeof INVEST_STRATEGY_IDS)[number] =>
   (INVEST_STRATEGY_IDS as readonly string[]).includes(value);
 
@@ -6035,8 +6033,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
 
   // ── Core Invest Tester: context ────────────────────────────────────────────────
   const INVEST_SLEEVE_META: Record<string, { symbol: string; name: string; strategy: string }> = {
-    QQQ_PINE_1:     { symbol: "QQQ",  name: "QQQ Pine 1",     strategy: "Pine 1 (SMA400/5)" },
-    QQQ_PINE_2_EMA: { symbol: "QQQ",  name: "QQQ Pine 2 EMA", strategy: "Pine 2 EMA (EMA20/50)" },
+    QQQ_PINE_1: { symbol: "QQQ",  name: "QQQ Pine 1", strategy: "Pine 1 (SMA400/5)" },
     COPPER_HG:      { symbol: "HG1!", name: "Copper/HG",       strategy: "EMA20/50 Valuation" },
     CHF_6S:         { symbol: "6S1!", name: "CHF/6S",          strategy: "EMA20/50 Valuation" },
   };

@@ -41,7 +41,6 @@ const INVEST_LABEL_BY_CODE: Record<string, MonitoringChartLabel> = {
   GLD: { symbol: "GLD", term: "Gold ETF" },
   // CI v2.0 Sleeves
   QQQ_PINE_1: { symbol: "QQQ", term: "QQQ Pine 1" },
-  QQQ_PINE_2_EMA: { symbol: "QQQ", term: "QQQ Pine 2 EMA" },
   COPPER_HG: { symbol: "HG1!", term: "Copper Sleeve" },
   CHF_6S: { symbol: "6S1!", term: "CHF Sleeve" },
   // Legacy

@@ -87,7 +87,7 @@ export const MONITORING_TAB_CONFIG: MonitoringTabDefinition[] = [
   {
     tabId: "invest",
     title: "Invest",
-    assets: ["SPY", "QQQ_PASSIVE", "SPMO", "GLD", "QQQ_PINE_1", "QQQ_PINE_2_EMA", "HG1!", "6S1!"],
+    assets: ["SPY", "QQQ_PASSIVE", "SPMO", "GLD", "QQQ_PINE_1", "HG1!", "6S1!"],
     gridMode: "flex",
     defaultTimeframe: "D",
     strategyMode: "event_json_engine",

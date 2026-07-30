@@ -354,17 +354,6 @@ const INTRADAY_STRATEGY_CONFIG: Record<string, {
     breakEven: "—",
     regimeFilter: "Macro valuation (rate / macro regime)",
   },
-  QQQ_PINE_2_EMA: {
-    panelTitle: "Core Invest Config",
-    configFile: "BATS_QQQ_pine2_events.json · Pine 2 EMA20/50",
-    sessionRules: "Daily (1D) · US equity session",
-    direction: "Long only",
-    entryRules: "EMA20 > EMA50 + valuation regime signal",
-    exitRules: "EMA crossunder or opposite valuation",
-    slTp: "Strategy exits — no fixed SL/TP",
-    breakEven: "—",
-    regimeFilter: "Macro valuation (rate / macro regime)",
-  },
   COPPER_HG: {
     panelTitle: "Core Invest Config",
     configFile: "COMEX_HG1_events.json · EMA20/50 Valuation",

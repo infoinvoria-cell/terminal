@@ -5,14 +5,9 @@ import type { CoreInvestPanelData, OhlcBar, SleeveConfig, SleeveData } from "./t
 
 const SLEEVE_CONFIGS: SleeveConfig[] = [
   {
-    id: "QQQ_PINE_1", label: "QQQ Pine 1", instrument: "QQQ", pineFile: "08_core_invest_universal_presets.pine", weight: 0.05,
+    id: "QQQ_PINE_1", label: "QQQ Pine 1", instrument: "QQQ", pineFile: "08_core_invest_universal_presets.pine", weight: 0.10,
     kind: "strategy", tvSymbol: "QQQ", tvPreset: "QQQ Pine 1", sma1: 400, sma2: 5, stopPct: 25, tpPct: 2,
     tvMetrics: { source: "tradingview", preset: "QQQ Pine 1", status: "tv_reference", totalReturnPct: 95.19, maxDrawdownPct: 8.71, profitFactor: 1.602, trades: 642, winRatePct: 69.31, note: "TV Strategy Tester reference; lokale Trade-Paritaet noch nicht als validiert markiert." },
-  },
-  {
-    id: "QQQ_PINE_2_EMA", label: "QQQ Pine 2 EMA", instrument: "QQQ", pineFile: "08_core_invest_universal_presets.pine", weight: 0.05,
-    kind: "strategy", tvSymbol: "QQQ", tvPreset: "QQQ Pine 2", emaFast: 20, emaSlow: 50, stopPct: 2, tpPct: 4,
-    tvMetrics: { source: "tradingview", preset: "QQQ Pine 2", status: "tv_reference", totalReturnPct: 358.27, maxDrawdownPct: 28.59, profitFactor: 2.158, trades: 68, winRatePct: 42.65, note: "TV-Referenz aktiv; Python/TV Trade-Paritaet und Account-Sizing separat validieren." },
   },
   {
     id: "COPPER_HG", label: "Copper/HG", instrument: "HG1!", pineFile: "08_core_invest_universal_presets.pine", weight: 0.05,
