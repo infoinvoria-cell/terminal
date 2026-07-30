@@ -107,52 +107,55 @@ function ReturnBars({ returns: rets, width = 80, height = 36 }: {
   );
 }
 
-/* ─── Equity line chart (portfolio) ─────────────────────────────────── */
+/* ─── Equity line chart — Analytics-style (white line, white fill) ── */
 function EquityLine({ equity, width, height }: { equity: number[]; width: number; height: number }) {
   const min = Math.min(...equity);
   const max = Math.max(...equity);
   const rng = max - min || 0.001;
+  const pad = 20;
   const pts = equity.map((v, i) => {
     const x = (i / (equity.length - 1)) * width;
-    const y = height - 4 - ((v - min) / rng) * (height - 8);
+    const y = height - pad - ((v - min) / rng) * (height - pad - 4);
     return `${x.toFixed(1)},${y.toFixed(1)}`;
   }).join(" ");
   const last  = equity[equity.length - 1];
   const pct   = ((last / equity[0]) - 1) * 100;
   const lastX = width;
-  const lastY = height - 4 - ((last - min) / rng) * (height - 8);
-  const lineC = pct >= 0 ? C_GREEN : C_RED;
+  const lastY = height - pad - ((last - min) / rng) * (height - pad - 4);
 
   return (
     <svg viewBox={`0 0 ${width} ${height}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block" }}>
       <defs>
         <linearGradient id="eq-g" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={lineC} stopOpacity="0.20" />
-          <stop offset="100%" stopColor={lineC} stopOpacity="0.00" />
+          <stop offset="0%"   stopColor="rgba(244,245,247,0.16)" />
+          <stop offset="100%" stopColor="rgba(244,245,247,0.01)" />
         </linearGradient>
       </defs>
       {[0.25, 0.5, 0.75].map(f => (
-        <line key={f} x1={0} y1={height - 4 - f * (height - 8)} x2={width} y2={height - 4 - f * (height - 8)}
-          stroke="rgba(255,255,255,0.05)" strokeWidth={0.5} />
+        <line key={f}
+          x1={0} y1={height - pad - f * (height - pad - 4)}
+          x2={width} y2={height - pad - f * (height - pad - 4)}
+          stroke="rgba(255,255,255,0.045)" strokeWidth={0.5} strokeDasharray="3 5" />
       ))}
-      <polygon points={`0,${height - 4} ${pts} ${width},${height - 4}`} fill="url(#eq-g)" />
-      <polyline points={pts} fill="none" stroke={lineC} strokeWidth={1.5} strokeLinejoin="round" />
-      <circle cx={lastX} cy={lastY} r={3} fill={lineC} />
-      <text x={6} y={13} fill="rgba(255,255,255,0.35)" fontFamily={FONT} fontSize={9}>Portfolio Equity (illustrativ)</text>
-      <text x={width - 6} y={13} fill={lineC} fontFamily={FONT} fontSize={11} fontWeight="700" textAnchor="end">
+      <polygon points={`0,${height - pad} ${pts} ${width},${height - pad}`} fill="url(#eq-g)" />
+      <polyline points={pts} fill="none" stroke="#e6e7ea" strokeWidth={1.8} strokeLinejoin="round" />
+      <circle cx={lastX} cy={lastY} r={2.5} fill="#e6e7ea" />
+      <text x={6} y={13} fill="rgba(255,255,255,0.28)" fontFamily={FONT} fontSize={9}>Portfolio Equity (illustrativ)</text>
+      <text x={width - 6} y={13} fill={pct >= 0 ? C_GOLD : "rgba(172,96,104,0.90)"} fontFamily={FONT} fontSize={11} fontWeight="700" textAnchor="end">
         {pct >= 0 ? "+" : ""}{pct.toFixed(1)}%
       </text>
     </svg>
   );
 }
 
+/* Drawdown — Analytics-style (burgundy) */
 function DrawdownLine({ equity, width, height }: { equity: number[]; width: number; height: number }) {
   let pk = equity[0];
   const dd = equity.map(v => { if (v > pk) pk = v; return (v / pk) - 1; });
   const minDd = Math.min(...dd, -0.001);
   const pts = dd.map((v, i) => {
     const x = (i / (dd.length - 1)) * width;
-    const y = 4 + (Math.abs(v) / Math.abs(minDd)) * (height - 8);
+    const y = 4 + (Math.abs(v) / Math.abs(minDd)) * (height - 10);
     return `${x.toFixed(1)},${y.toFixed(1)}`;
   }).join(" ");
   const maxDd = Math.min(...dd);
@@ -160,15 +163,15 @@ function DrawdownLine({ equity, width, height }: { equity: number[]; width: numb
   return (
     <svg viewBox={`0 0 ${width} ${height}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block" }}>
       <defs>
-        <linearGradient id="dd-g" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={C_RED} stopOpacity="0.00" />
-          <stop offset="100%" stopColor={C_RED} stopOpacity="0.20" />
+        <linearGradient id="dd-g" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0%"   stopColor="rgba(124,58,67,0.30)" />
+          <stop offset="100%" stopColor="rgba(124,58,67,0.04)" />
         </linearGradient>
       </defs>
-      <line x1={0} y1={4} x2={width} y2={4} stroke="rgba(255,255,255,0.07)" strokeWidth={0.5} />
+      <line x1={0} y1={4} x2={width} y2={4} stroke="rgba(255,255,255,0.16)" strokeWidth={0.5} strokeDasharray="5 4" />
       <polygon points={`0,4 ${pts} ${width},4`} fill="url(#dd-g)" />
-      <polyline points={pts} fill="none" stroke="rgba(239,68,68,0.70)" strokeWidth={1.2} strokeLinejoin="round" />
-      <text x={6} y={height - 4} fill="rgba(255,255,255,0.30)" fontFamily={FONT} fontSize={9}>Drawdown</text>
+      <polyline points={pts} fill="none" stroke="rgba(172,96,104,0.86)" strokeWidth={1.45} strokeLinejoin="round" />
+      <text x={6} y={height - 4} fill="rgba(255,255,255,0.28)" fontFamily={FONT} fontSize={9}>Drawdown</text>
       <text x={width - 6} y={height - 4} fill={C_GOLD} fontFamily={FONT} fontSize={10} fontWeight="700" textAnchor="end">
         {(maxDd * 100).toFixed(1)}%
       </text>
