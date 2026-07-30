@@ -1,16 +1,5324 @@
 {
-  "generatedAt": "2026-07-30T00:00:00.000Z",
+  "generatedAt": "2026-07-30T15:51:07.914Z",
   "registryVersion": "1.0.0",
   "patterns": {
-    "rb1_long_slot29_v1":  { "patternId": "rb1_long_slot29_v1",  "registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "not_tested", "dataValidation": null, "historical": null, "wf": null },
-    "zw1_long_slot152_v1": { "patternId": "zw1_long_slot152_v1", "registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "not_tested", "dataValidation": null, "historical": null, "wf": null },
-    "gc1_long_slot128_v1": { "patternId": "gc1_long_slot128_v1", "registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "not_tested", "dataValidation": null, "historical": null, "wf": null },
-    "ng1_short_slot170_v1":{ "patternId": "ng1_short_slot170_v1","registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "not_tested", "dataValidation": null, "historical": null, "wf": null },
-    "sb1_short_slot172_v1":{ "patternId": "sb1_short_slot172_v1","registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "not_tested", "dataValidation": null, "historical": null, "wf": null },
-    "cc1_long_slot210_v1": { "patternId": "cc1_long_slot210_v1", "registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "not_tested", "dataValidation": null, "historical": null, "wf": null },
-    "pa1_short_slot10_v1": { "patternId": "pa1_short_slot10_v1", "registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "not_tested", "dataValidation": null, "historical": null, "wf": null },
-    "zm1_long_slot73_v1":  { "patternId": "zm1_long_slot73_v1",  "registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "no_data_source", "dataValidation": null, "historical": null, "wf": null },
-    "ct1_long_slot29_v1":  { "patternId": "ct1_long_slot29_v1",  "registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "not_tested", "dataValidation": null, "historical": null, "wf": null },
-    "es1_long_slot240_v1": { "patternId": "es1_long_slot240_v1", "registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "not_tested", "dataValidation": null, "historical": null, "wf": null }
+    "rb1_long_slot29_v1": {
+      "patternId": "rb1_long_slot29_v1",
+      "registryVersion": "1.0.0",
+      "computedAt": "2026-07-30T15:51:07.281Z",
+      "status": "calculated",
+      "csvPath": "data/historical/energy/NYMEX_RB1_D.csv",
+      "dataHash": "d00db917ca79cc61",
+      "dataValidation": {
+        "totalBars": 10453,
+        "firstDate": "2006-02-13",
+        "lastDate": "2025-02-27",
+        "yearsAvailable": 20,
+        "validTradeCount": 20,
+        "missingYearCount": 0,
+        "missingYears": [],
+        "csvHash": "d00db917ca79cc61",
+        "csvBars": 10453,
+        "passed": true,
+        "notes": []
+      },
+      "historical": {
+        "winRatePct": 70,
+        "avgReturnPct": 3.203,
+        "avgReturnMeanPct": 3.203,
+        "avgReturnMedianPct": 3.131,
+        "nObs": 20,
+        "maxDrawdownPct": 17.16,
+        "sortinoRatio": 1.055,
+        "profitFactor": 3.563,
+        "sharpeRatio": 8.468,
+        "calmarRatio": 0.176,
+        "decadeConsistent": true,
+        "sampleStartYear": 2006,
+        "sampleEndYear": 2025,
+        "yearReturns": [
+          {
+            "year": 2006,
+            "returnPct": -0.487,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2006-02-13",
+            "exitDate": "2006-02-28"
+          },
+          {
+            "year": 2007,
+            "returnPct": 10.118,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2007-02-12",
+            "exitDate": "2007-02-27"
+          },
+          {
+            "year": 2008,
+            "returnPct": 11.82,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2008-02-12",
+            "exitDate": "2008-02-27"
+          },
+          {
+            "year": 2009,
+            "returnPct": 2.098,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2009-02-12",
+            "exitDate": "2009-02-27"
+          },
+          {
+            "year": 2010,
+            "returnPct": 4.957,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2010-02-12",
+            "exitDate": "2010-03-01"
+          },
+          {
+            "year": 2011,
+            "returnPct": 10.62,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2011-02-11",
+            "exitDate": "2011-02-28"
+          },
+          {
+            "year": 2012,
+            "returnPct": 2.047,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2012-02-13",
+            "exitDate": "2012-02-28"
+          },
+          {
+            "year": 2013,
+            "returnPct": -4.735,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2013-02-12",
+            "exitDate": "2013-02-27"
+          },
+          {
+            "year": 2014,
+            "returnPct": 0.81,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2014-02-12",
+            "exitDate": "2014-02-27"
+          },
+          {
+            "year": 2015,
+            "returnPct": 8.242,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2015-02-12",
+            "exitDate": "2015-02-27"
+          },
+          {
+            "year": 2016,
+            "returnPct": 4.164,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2016-02-12",
+            "exitDate": "2016-02-29"
+          },
+          {
+            "year": 2017,
+            "returnPct": -1.744,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2017-02-13",
+            "exitDate": "2017-02-28"
+          },
+          {
+            "year": 2018,
+            "returnPct": 6.545,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2018-02-12",
+            "exitDate": "2018-02-27"
+          },
+          {
+            "year": 2019,
+            "returnPct": 8.854,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2019-02-12",
+            "exitDate": "2019-02-27"
+          },
+          {
+            "year": 2020,
+            "returnPct": -11.803,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2020-02-12",
+            "exitDate": "2020-02-27"
+          },
+          {
+            "year": 2021,
+            "returnPct": 7.112,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2021-02-12",
+            "exitDate": "2021-03-01"
+          },
+          {
+            "year": 2022,
+            "returnPct": 2.082,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2022-02-11",
+            "exitDate": "2022-02-28"
+          },
+          {
+            "year": 2023,
+            "returnPct": -3.138,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2023-02-13",
+            "exitDate": "2023-02-28"
+          },
+          {
+            "year": 2024,
+            "returnPct": 9.593,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2024-02-12",
+            "exitDate": "2024-02-27"
+          },
+          {
+            "year": 2025,
+            "returnPct": -3.087,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2025-02-12",
+            "exitDate": "2025-02-27"
+          }
+        ]
+      },
+      "wf": {
+        "oosWinRatePct": 84.4,
+        "oosAvgReturnPct": 9.814,
+        "nFolds": 32,
+        "nOosObs": 32,
+        "oosMaxDrawdownPct": 15.05,
+        "oosSortinoRatio": null,
+        "oosProfitFactor": 38.07,
+        "robustnessPct": 68.8,
+        "qualityScore": 88,
+        "qualityStatus": "Strong",
+        "sourceFingerprint": "C:\\Users\\joris\\Documents\\Capitalife Terminal\\data\\historical\\energy\\NYMEX_RB1_D.csv|1984-12-03|2026-07-06|10453",
+        "folds": [
+          {
+            "foldIndex": 0,
+            "isStartYear": null,
+            "isEndYear": 1993,
+            "oosYear": 1994,
+            "selectedEntrySlot": 30,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.987,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 1,
+            "isStartYear": null,
+            "isEndYear": 1993,
+            "oosYear": 1995,
+            "selectedEntrySlot": 30,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.971,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 2,
+            "isStartYear": null,
+            "isEndYear": 1995,
+            "oosYear": 1996,
+            "selectedEntrySlot": 29,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 12.928,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 3,
+            "isStartYear": null,
+            "isEndYear": 1995,
+            "oosYear": 1997,
+            "selectedEntrySlot": 29,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.673,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 4,
+            "isStartYear": null,
+            "isEndYear": 1997,
+            "oosYear": 1998,
+            "selectedEntrySlot": 28,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.316,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 5,
+            "isStartYear": null,
+            "isEndYear": 1997,
+            "oosYear": 1999,
+            "selectedEntrySlot": 28,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.059,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 6,
+            "isStartYear": null,
+            "isEndYear": 1999,
+            "oosYear": 2000,
+            "selectedEntrySlot": 28,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 16.882,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 7,
+            "isStartYear": null,
+            "isEndYear": 1999,
+            "oosYear": 2001,
+            "selectedEntrySlot": 28,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -3.795,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 8,
+            "isStartYear": null,
+            "isEndYear": 2001,
+            "oosYear": 2002,
+            "selectedEntrySlot": 28,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 9.693,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 9,
+            "isStartYear": null,
+            "isEndYear": 2001,
+            "oosYear": 2003,
+            "selectedEntrySlot": 28,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.603,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 10,
+            "isStartYear": null,
+            "isEndYear": 2003,
+            "oosYear": 2004,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 13.727,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 11,
+            "isStartYear": null,
+            "isEndYear": 2003,
+            "oosYear": 2005,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 14.595,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 12,
+            "isStartYear": null,
+            "isEndYear": 2005,
+            "oosYear": 2006,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 12.607,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 13,
+            "isStartYear": null,
+            "isEndYear": 2005,
+            "oosYear": 2007,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 16.055,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 14,
+            "isStartYear": null,
+            "isEndYear": 2007,
+            "oosYear": 2008,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 12.332,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 15,
+            "isStartYear": null,
+            "isEndYear": 2007,
+            "oosYear": 2009,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 10.338,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 16,
+            "isStartYear": null,
+            "isEndYear": 2009,
+            "oosYear": 2010,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 5.115,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 17,
+            "isStartYear": null,
+            "isEndYear": 2009,
+            "oosYear": 2011,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 14.517,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 18,
+            "isStartYear": null,
+            "isEndYear": 2011,
+            "oosYear": 2012,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 7.033,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 19,
+            "isStartYear": null,
+            "isEndYear": 2011,
+            "oosYear": 2013,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.553,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 20,
+            "isStartYear": null,
+            "isEndYear": 2013,
+            "oosYear": 2014,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 8.65,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 21,
+            "isStartYear": null,
+            "isEndYear": 2013,
+            "oosYear": 2015,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 27.417,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 22,
+            "isStartYear": null,
+            "isEndYear": 2015,
+            "oosYear": 2016,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 40.127,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 23,
+            "isStartYear": null,
+            "isEndYear": 2015,
+            "oosYear": 2017,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 10.139,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 24,
+            "isStartYear": null,
+            "isEndYear": 2017,
+            "oosYear": 2018,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 12.425,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 25,
+            "isStartYear": null,
+            "isEndYear": 2017,
+            "oosYear": 2019,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 21.723,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 26,
+            "isStartYear": null,
+            "isEndYear": 2019,
+            "oosYear": 2020,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.046,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 27,
+            "isStartYear": null,
+            "isEndYear": 2019,
+            "oosYear": 2021,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 8.901,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 28,
+            "isStartYear": null,
+            "isEndYear": 2021,
+            "oosYear": 2022,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 10.519,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 29,
+            "isStartYear": null,
+            "isEndYear": 2021,
+            "oosYear": 2023,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 7.947,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 30,
+            "isStartYear": null,
+            "isEndYear": 2023,
+            "oosYear": 2024,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 10.777,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 31,
+            "isStartYear": null,
+            "isEndYear": 2023,
+            "oosYear": 2025,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 6.539,
+            "oosWin": true
+          }
+        ]
+      }
+    },
+    "zw1_long_slot152_v1": {
+      "patternId": "zw1_long_slot152_v1",
+      "registryVersion": "1.0.0",
+      "computedAt": "2026-07-30T15:51:07.364Z",
+      "status": "calculated",
+      "csvPath": "workspace/output/tradingview_data_test/full_history_validated/CBOT_ZW1_TV_MERGED_FULL_HISTORY_daily.csv",
+      "dataHash": "c3dcc968454cfb79",
+      "dataValidation": {
+        "totalBars": 14227,
+        "firstDate": "2006-08-09",
+        "lastDate": "2025-08-25",
+        "yearsAvailable": 20,
+        "validTradeCount": 20,
+        "missingYearCount": 0,
+        "missingYears": [],
+        "csvHash": "c3dcc968454cfb79",
+        "csvBars": 14227,
+        "passed": true,
+        "notes": []
+      },
+      "historical": {
+        "winRatePct": 60,
+        "avgReturnPct": 2.026,
+        "avgReturnMeanPct": 2.026,
+        "avgReturnMedianPct": 1.35,
+        "nObs": 20,
+        "maxDrawdownPct": 19.48,
+        "sortinoRatio": 0.901,
+        "profitFactor": 2.916,
+        "sharpeRatio": 5.69,
+        "calmarRatio": 0.096,
+        "decadeConsistent": true,
+        "sampleStartYear": 2006,
+        "sampleEndYear": 2025,
+        "yearReturns": [
+          {
+            "year": 2006,
+            "returnPct": -0.258,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2006-08-09",
+            "exitDate": "2006-08-23"
+          },
+          {
+            "year": 2007,
+            "returnPct": 9.725,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2007-08-09",
+            "exitDate": "2007-08-23"
+          },
+          {
+            "year": 2008,
+            "returnPct": 12.162,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2008-08-07",
+            "exitDate": "2008-08-21"
+          },
+          {
+            "year": 2009,
+            "returnPct": 1.012,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2009-08-10",
+            "exitDate": "2009-08-24"
+          },
+          {
+            "year": 2010,
+            "returnPct": 1.871,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2010-08-10",
+            "exitDate": "2010-08-24"
+          },
+          {
+            "year": 2011,
+            "returnPct": 16.784,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2011-08-09",
+            "exitDate": "2011-08-23"
+          },
+          {
+            "year": 2012,
+            "returnPct": 1.974,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2012-08-08",
+            "exitDate": "2012-08-22"
+          },
+          {
+            "year": 2013,
+            "returnPct": -0.117,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2013-08-08",
+            "exitDate": "2013-08-22"
+          },
+          {
+            "year": 2014,
+            "returnPct": 2.367,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2014-08-08",
+            "exitDate": "2014-08-22"
+          },
+          {
+            "year": 2015,
+            "returnPct": -3.33,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2015-08-10",
+            "exitDate": "2015-08-24"
+          },
+          {
+            "year": 2016,
+            "returnPct": 2.518,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2016-08-09",
+            "exitDate": "2016-08-23"
+          },
+          {
+            "year": 2017,
+            "returnPct": -6.42,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2017-08-09",
+            "exitDate": "2017-08-23"
+          },
+          {
+            "year": 2018,
+            "returnPct": -4.342,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2018-08-08",
+            "exitDate": "2018-08-22"
+          },
+          {
+            "year": 2019,
+            "returnPct": -5.366,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2019-08-08",
+            "exitDate": "2019-08-22"
+          },
+          {
+            "year": 2020,
+            "returnPct": 7.972,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2020-08-07",
+            "exitDate": "2020-08-21"
+          },
+          {
+            "year": 2021,
+            "returnPct": 0.722,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2021-08-10",
+            "exitDate": "2021-08-24"
+          },
+          {
+            "year": 2022,
+            "returnPct": 1.688,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2022-08-10",
+            "exitDate": "2022-08-24"
+          },
+          {
+            "year": 2023,
+            "returnPct": -0.941,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2023-08-10",
+            "exitDate": "2023-08-24"
+          },
+          {
+            "year": 2024,
+            "returnPct": -0.372,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2024-08-08",
+            "exitDate": "2024-08-22"
+          },
+          {
+            "year": 2025,
+            "returnPct": 2.864,
+            "direction": "LONG",
+            "entrySlot": 152,
+            "exitSlot": 162,
+            "entryDate": "2025-08-11",
+            "exitDate": "2025-08-25"
+          }
+        ]
+      },
+      "wf": {
+        "oosWinRatePct": 73.9,
+        "oosAvgReturnPct": 3.437,
+        "nFolds": 46,
+        "nOosObs": 46,
+        "oosMaxDrawdownPct": 15.27,
+        "oosSortinoRatio": null,
+        "oosProfitFactor": 7.485,
+        "robustnessPct": 60.9,
+        "qualityScore": 80,
+        "qualityStatus": "Strong",
+        "sourceFingerprint": "C:\\Users\\joris\\Documents\\Capitalife Terminal\\workspace\\output\\tradingview_data_test\\full_history_validated\\CBOT_ZW1_TV_MERGED_FULL_HISTORY_daily.csv|1970-01-05|2026-06-16|14227",
+        "folds": [
+          {
+            "foldIndex": 0,
+            "isStartYear": null,
+            "isEndYear": 1979,
+            "oosYear": 1980,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.745,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 1,
+            "isStartYear": null,
+            "isEndYear": 1979,
+            "oosYear": 1981,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 2.766,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 2,
+            "isStartYear": null,
+            "isEndYear": 1981,
+            "oosYear": 1982,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.513,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 3,
+            "isStartYear": null,
+            "isEndYear": 1981,
+            "oosYear": 1983,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 8.076,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 4,
+            "isStartYear": null,
+            "isEndYear": 1983,
+            "oosYear": 1984,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 2.613,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 5,
+            "isStartYear": null,
+            "isEndYear": 1983,
+            "oosYear": 1985,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 3.55,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 6,
+            "isStartYear": null,
+            "isEndYear": 1985,
+            "oosYear": 1986,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.947,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 7,
+            "isStartYear": null,
+            "isEndYear": 1985,
+            "oosYear": 1987,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 10.21,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 8,
+            "isStartYear": null,
+            "isEndYear": 1987,
+            "oosYear": 1988,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.731,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 9,
+            "isStartYear": null,
+            "isEndYear": 1987,
+            "oosYear": 1989,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.974,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 10,
+            "isStartYear": null,
+            "isEndYear": 1989,
+            "oosYear": 1990,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.594,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 11,
+            "isStartYear": null,
+            "isEndYear": 1989,
+            "oosYear": 1991,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 5.453,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 12,
+            "isStartYear": null,
+            "isEndYear": 1991,
+            "oosYear": 1992,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 8.79,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 13,
+            "isStartYear": null,
+            "isEndYear": 1991,
+            "oosYear": 1993,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.771,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 14,
+            "isStartYear": null,
+            "isEndYear": 1993,
+            "oosYear": 1994,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 9.255,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 15,
+            "isStartYear": null,
+            "isEndYear": 1993,
+            "oosYear": 1995,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 2.494,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 16,
+            "isStartYear": null,
+            "isEndYear": 1995,
+            "oosYear": 1996,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 2.13,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 17,
+            "isStartYear": null,
+            "isEndYear": 1995,
+            "oosYear": 1997,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 8.104,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 18,
+            "isStartYear": null,
+            "isEndYear": 1997,
+            "oosYear": 1998,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 7.194,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 19,
+            "isStartYear": null,
+            "isEndYear": 1997,
+            "oosYear": 1999,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 5.138,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 20,
+            "isStartYear": null,
+            "isEndYear": 1999,
+            "oosYear": 2000,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.128,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 21,
+            "isStartYear": null,
+            "isEndYear": 1999,
+            "oosYear": 2001,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 5.92,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 22,
+            "isStartYear": null,
+            "isEndYear": 2001,
+            "oosYear": 2002,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 6.213,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 23,
+            "isStartYear": null,
+            "isEndYear": 2001,
+            "oosYear": 2003,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 6.147,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 24,
+            "isStartYear": null,
+            "isEndYear": 2003,
+            "oosYear": 2004,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.805,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 25,
+            "isStartYear": null,
+            "isEndYear": 2003,
+            "oosYear": 2005,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.077,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 26,
+            "isStartYear": null,
+            "isEndYear": 2005,
+            "oosYear": 2006,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.063,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 27,
+            "isStartYear": null,
+            "isEndYear": 2005,
+            "oosYear": 2007,
+            "selectedEntrySlot": 149,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 11.747,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 28,
+            "isStartYear": null,
+            "isEndYear": 2007,
+            "oosYear": 2008,
+            "selectedEntrySlot": 153,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 16.367,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 29,
+            "isStartYear": null,
+            "isEndYear": 2007,
+            "oosYear": 2009,
+            "selectedEntrySlot": 153,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 2.782,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 30,
+            "isStartYear": null,
+            "isEndYear": 2009,
+            "oosYear": 2010,
+            "selectedEntrySlot": 153,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.051,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 31,
+            "isStartYear": null,
+            "isEndYear": 2009,
+            "oosYear": 2011,
+            "selectedEntrySlot": 153,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 13.467,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 32,
+            "isStartYear": null,
+            "isEndYear": 2011,
+            "oosYear": 2012,
+            "selectedEntrySlot": 153,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.999,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 33,
+            "isStartYear": null,
+            "isEndYear": 2011,
+            "oosYear": 2013,
+            "selectedEntrySlot": 153,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.973,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 34,
+            "isStartYear": null,
+            "isEndYear": 2013,
+            "oosYear": 2014,
+            "selectedEntrySlot": 151,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.247,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 35,
+            "isStartYear": null,
+            "isEndYear": 2013,
+            "oosYear": 2015,
+            "selectedEntrySlot": 151,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.155,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 36,
+            "isStartYear": null,
+            "isEndYear": 2015,
+            "oosYear": 2016,
+            "selectedEntrySlot": 153,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.067,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 37,
+            "isStartYear": null,
+            "isEndYear": 2015,
+            "oosYear": 2017,
+            "selectedEntrySlot": 153,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.362,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 38,
+            "isStartYear": null,
+            "isEndYear": 2017,
+            "oosYear": 2018,
+            "selectedEntrySlot": 153,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -4.03,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 39,
+            "isStartYear": null,
+            "isEndYear": 2017,
+            "oosYear": 2019,
+            "selectedEntrySlot": 153,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -4.354,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 40,
+            "isStartYear": null,
+            "isEndYear": 2019,
+            "oosYear": 2020,
+            "selectedEntrySlot": 154,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 8.182,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 41,
+            "isStartYear": null,
+            "isEndYear": 2019,
+            "oosYear": 2021,
+            "selectedEntrySlot": 154,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.891,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 42,
+            "isStartYear": null,
+            "isEndYear": 2021,
+            "oosYear": 2022,
+            "selectedEntrySlot": 154,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.093,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 43,
+            "isStartYear": null,
+            "isEndYear": 2021,
+            "oosYear": 2023,
+            "selectedEntrySlot": 154,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.162,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 44,
+            "isStartYear": null,
+            "isEndYear": 2023,
+            "oosYear": 2024,
+            "selectedEntrySlot": 154,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.189,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 45,
+            "isStartYear": null,
+            "isEndYear": 2023,
+            "oosYear": 2025,
+            "selectedEntrySlot": 154,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 3.351,
+            "oosWin": true
+          }
+        ]
+      }
+    },
+    "gc1_long_slot128_v1": {
+      "patternId": "gc1_long_slot128_v1",
+      "registryVersion": "1.0.0",
+      "computedAt": "2026-07-30T15:51:07.463Z",
+      "status": "calculated",
+      "csvPath": "data/historical/metals/COMEX_GC1_D.csv",
+      "dataHash": "dc1219326b71166b",
+      "dataValidation": {
+        "totalBars": 12955,
+        "firstDate": "2006-07-07",
+        "lastDate": "2025-07-22",
+        "yearsAvailable": 20,
+        "validTradeCount": 20,
+        "missingYearCount": 0,
+        "missingYears": [],
+        "csvHash": "dc1219326b71166b",
+        "csvBars": 12955,
+        "passed": true,
+        "notes": []
+      },
+      "historical": {
+        "winRatePct": 60,
+        "avgReturnPct": 0.504,
+        "avgReturnMeanPct": 0.504,
+        "avgReturnMedianPct": 0.703,
+        "nObs": 20,
+        "maxDrawdownPct": 10.36,
+        "sortinoRatio": 0.321,
+        "profitFactor": 1.594,
+        "sharpeRatio": 2.989,
+        "calmarRatio": 0.045,
+        "decadeConsistent": true,
+        "sampleStartYear": 2006,
+        "sampleEndYear": 2025,
+        "yearReturns": [
+          {
+            "year": 2006,
+            "returnPct": -2.3,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2006-07-07",
+            "exitDate": "2006-07-21"
+          },
+          {
+            "year": 2007,
+            "returnPct": 1.602,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2007-07-03",
+            "exitDate": "2007-07-17"
+          },
+          {
+            "year": 2008,
+            "returnPct": 1.712,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2008-07-02",
+            "exitDate": "2008-07-16"
+          },
+          {
+            "year": 2009,
+            "returnPct": 1.916,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2009-07-07",
+            "exitDate": "2009-07-21"
+          },
+          {
+            "year": 2010,
+            "returnPct": -0.592,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2010-07-07",
+            "exitDate": "2010-07-21"
+          },
+          {
+            "year": 2011,
+            "returnPct": 4.427,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2011-07-06",
+            "exitDate": "2011-07-20"
+          },
+          {
+            "year": 2012,
+            "returnPct": -1.802,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2012-07-05",
+            "exitDate": "2012-07-19"
+          },
+          {
+            "year": 2013,
+            "returnPct": 6.613,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2013-07-05",
+            "exitDate": "2013-07-19"
+          },
+          {
+            "year": 2014,
+            "returnPct": -0.235,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2014-07-07",
+            "exitDate": "2014-07-21"
+          },
+          {
+            "year": 2015,
+            "returnPct": -4.26,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2015-07-07",
+            "exitDate": "2015-07-21"
+          },
+          {
+            "year": 2016,
+            "returnPct": -3.497,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2016-07-06",
+            "exitDate": "2016-07-20"
+          },
+          {
+            "year": 2017,
+            "returnPct": 1.815,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2017-07-06",
+            "exitDate": "2017-07-20"
+          },
+          {
+            "year": 2018,
+            "returnPct": -2.764,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2018-07-05",
+            "exitDate": "2018-07-19"
+          },
+          {
+            "year": 2019,
+            "returnPct": 1.9,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2019-07-05",
+            "exitDate": "2019-07-19"
+          },
+          {
+            "year": 2020,
+            "returnPct": 1.333,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2020-07-06",
+            "exitDate": "2020-07-20"
+          },
+          {
+            "year": 2021,
+            "returnPct": 0.072,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2021-07-07",
+            "exitDate": "2021-07-21"
+          },
+          {
+            "year": 2022,
+            "returnPct": -1.512,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2022-07-07",
+            "exitDate": "2022-07-21"
+          },
+          {
+            "year": 2023,
+            "returnPct": 1.765,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2023-07-07",
+            "exitDate": "2023-07-21"
+          },
+          {
+            "year": 2024,
+            "returnPct": 0.058,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2024-07-05",
+            "exitDate": "2024-07-19"
+          },
+          {
+            "year": 2025,
+            "returnPct": 3.823,
+            "direction": "LONG",
+            "entrySlot": 128,
+            "exitSlot": 138,
+            "entryDate": "2025-07-08",
+            "exitDate": "2025-07-22"
+          }
+        ]
+      },
+      "wf": {
+        "oosWinRatePct": 56.1,
+        "oosAvgReturnPct": 0.217,
+        "nFolds": 41,
+        "nOosObs": 41,
+        "oosMaxDrawdownPct": 10.36,
+        "oosSortinoRatio": null,
+        "oosProfitFactor": 1.288,
+        "robustnessPct": 68.3,
+        "qualityScore": 31,
+        "qualityStatus": "Failed",
+        "sourceFingerprint": "C:\\Users\\joris\\Documents\\Capitalife Terminal\\data\\historical\\metals\\COMEX_GC1_D.csv|1975-01-02|2026-07-06|12955",
+        "folds": [
+          {
+            "foldIndex": 0,
+            "isStartYear": null,
+            "isEndYear": 1984,
+            "oosYear": 1985,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 2.633,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 1,
+            "isStartYear": null,
+            "isEndYear": 1984,
+            "oosYear": 1986,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.129,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 2,
+            "isStartYear": null,
+            "isEndYear": 1986,
+            "oosYear": 1987,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.444,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 3,
+            "isStartYear": null,
+            "isEndYear": 1986,
+            "oosYear": 1988,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.635,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 4,
+            "isStartYear": null,
+            "isEndYear": 1988,
+            "oosYear": 1989,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -4.918,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 5,
+            "isStartYear": null,
+            "isEndYear": 1988,
+            "oosYear": 1990,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.439,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 6,
+            "isStartYear": null,
+            "isEndYear": 1990,
+            "oosYear": 1991,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.108,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 7,
+            "isStartYear": null,
+            "isEndYear": 1990,
+            "oosYear": 1992,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 2.992,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 8,
+            "isStartYear": null,
+            "isEndYear": 1992,
+            "oosYear": 1993,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.229,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 9,
+            "isStartYear": null,
+            "isEndYear": 1992,
+            "oosYear": 1994,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.26,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 10,
+            "isStartYear": null,
+            "isEndYear": 1994,
+            "oosYear": 1995,
+            "selectedEntrySlot": 127,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.831,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 11,
+            "isStartYear": null,
+            "isEndYear": 1994,
+            "oosYear": 1996,
+            "selectedEntrySlot": 127,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.392,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 12,
+            "isStartYear": null,
+            "isEndYear": 1996,
+            "oosYear": 1997,
+            "selectedEntrySlot": 127,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.287,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 13,
+            "isStartYear": null,
+            "isEndYear": 1996,
+            "oosYear": 1998,
+            "selectedEntrySlot": 127,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.816,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 14,
+            "isStartYear": null,
+            "isEndYear": 1998,
+            "oosYear": 1999,
+            "selectedEntrySlot": 127,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.435,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 15,
+            "isStartYear": null,
+            "isEndYear": 1998,
+            "oosYear": 2000,
+            "selectedEntrySlot": 127,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.476,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 16,
+            "isStartYear": null,
+            "isEndYear": 2000,
+            "oosYear": 2001,
+            "selectedEntrySlot": 127,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.932,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 17,
+            "isStartYear": null,
+            "isEndYear": 2000,
+            "oosYear": 2002,
+            "selectedEntrySlot": 127,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.047,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 18,
+            "isStartYear": null,
+            "isEndYear": 2002,
+            "oosYear": 2003,
+            "selectedEntrySlot": 127,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.139,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 19,
+            "isStartYear": null,
+            "isEndYear": 2002,
+            "oosYear": 2004,
+            "selectedEntrySlot": 127,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.341,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 20,
+            "isStartYear": null,
+            "isEndYear": 2004,
+            "oosYear": 2005,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.565,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 21,
+            "isStartYear": null,
+            "isEndYear": 2004,
+            "oosYear": 2006,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.3,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 22,
+            "isStartYear": null,
+            "isEndYear": 2006,
+            "oosYear": 2007,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.602,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 23,
+            "isStartYear": null,
+            "isEndYear": 2006,
+            "oosYear": 2008,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.712,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 24,
+            "isStartYear": null,
+            "isEndYear": 2008,
+            "oosYear": 2009,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.916,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 25,
+            "isStartYear": null,
+            "isEndYear": 2008,
+            "oosYear": 2010,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.592,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 26,
+            "isStartYear": null,
+            "isEndYear": 2010,
+            "oosYear": 2011,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.427,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 27,
+            "isStartYear": null,
+            "isEndYear": 2010,
+            "oosYear": 2012,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.802,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 28,
+            "isStartYear": null,
+            "isEndYear": 2012,
+            "oosYear": 2013,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 6.613,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 29,
+            "isStartYear": null,
+            "isEndYear": 2012,
+            "oosYear": 2014,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.235,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 30,
+            "isStartYear": null,
+            "isEndYear": 2014,
+            "oosYear": 2015,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -4.26,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 31,
+            "isStartYear": null,
+            "isEndYear": 2014,
+            "oosYear": 2016,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -3.497,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 32,
+            "isStartYear": null,
+            "isEndYear": 2016,
+            "oosYear": 2017,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.815,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 33,
+            "isStartYear": null,
+            "isEndYear": 2016,
+            "oosYear": 2018,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.764,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 34,
+            "isStartYear": null,
+            "isEndYear": 2018,
+            "oosYear": 2019,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.9,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 35,
+            "isStartYear": null,
+            "isEndYear": 2018,
+            "oosYear": 2020,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.333,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 36,
+            "isStartYear": null,
+            "isEndYear": 2020,
+            "oosYear": 2021,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.072,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 37,
+            "isStartYear": null,
+            "isEndYear": 2020,
+            "oosYear": 2022,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.512,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 38,
+            "isStartYear": null,
+            "isEndYear": 2022,
+            "oosYear": 2023,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.765,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 39,
+            "isStartYear": null,
+            "isEndYear": 2022,
+            "oosYear": 2024,
+            "selectedEntrySlot": 128,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.058,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 40,
+            "isStartYear": null,
+            "isEndYear": 2024,
+            "oosYear": 2025,
+            "selectedEntrySlot": 126,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.461,
+            "oosWin": true
+          }
+        ]
+      }
+    },
+    "ng1_short_slot170_v1": {
+      "patternId": "ng1_short_slot170_v1",
+      "registryVersion": "1.0.0",
+      "computedAt": "2026-07-30T15:51:07.559Z",
+      "status": "calculated",
+      "csvPath": "data/historical/energy/NYMEX_NG1_D.csv",
+      "dataHash": "87321facdc438c1b",
+      "dataValidation": {
+        "totalBars": 9111,
+        "firstDate": "2006-09-05",
+        "lastDate": "2025-09-19",
+        "yearsAvailable": 20,
+        "validTradeCount": 20,
+        "missingYearCount": 0,
+        "missingYears": [],
+        "csvHash": "87321facdc438c1b",
+        "csvBars": 9111,
+        "passed": true,
+        "notes": []
+      },
+      "historical": {
+        "winRatePct": 40,
+        "avgReturnPct": -3.701,
+        "avgReturnMeanPct": -3.701,
+        "avgReturnMedianPct": -3.14,
+        "nObs": 20,
+        "maxDrawdownPct": 72.73,
+        "sortinoRatio": -0.277,
+        "profitFactor": 0.434,
+        "sharpeRatio": -4.159,
+        "calmarRatio": -0.069,
+        "decadeConsistent": false,
+        "sampleStartYear": 2006,
+        "sampleEndYear": 2025,
+        "yearReturns": [
+          {
+            "year": 2006,
+            "returnPct": 17.106,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2006-09-05",
+            "exitDate": "2006-09-19"
+          },
+          {
+            "year": 2007,
+            "returnPct": -25.033,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2007-09-03",
+            "exitDate": "2007-09-17"
+          },
+          {
+            "year": 2008,
+            "returnPct": -8.893,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2008-09-03",
+            "exitDate": "2008-09-17"
+          },
+          {
+            "year": 2009,
+            "returnPct": -50.638,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2009-09-03",
+            "exitDate": "2009-09-18"
+          },
+          {
+            "year": 2010,
+            "returnPct": 2.97,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2010-09-03",
+            "exitDate": "2010-09-20"
+          },
+          {
+            "year": 2011,
+            "returnPct": 1.111,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2011-09-02",
+            "exitDate": "2011-09-19"
+          },
+          {
+            "year": 2012,
+            "returnPct": 2.838,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2012-09-04",
+            "exitDate": "2012-09-18"
+          },
+          {
+            "year": 2013,
+            "returnPct": -0.815,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2013-09-04",
+            "exitDate": "2013-09-18"
+          },
+          {
+            "year": 2014,
+            "returnPct": -2.383,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2014-09-04",
+            "exitDate": "2014-09-18"
+          },
+          {
+            "year": 2015,
+            "returnPct": 4.404,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2015-09-03",
+            "exitDate": "2015-09-18"
+          },
+          {
+            "year": 2016,
+            "returnPct": -5.086,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2016-09-02",
+            "exitDate": "2016-09-19"
+          },
+          {
+            "year": 2017,
+            "returnPct": -5.047,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2017-09-05",
+            "exitDate": "2017-09-19"
+          },
+          {
+            "year": 2018,
+            "returnPct": -3.897,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2018-09-04",
+            "exitDate": "2018-09-18"
+          },
+          {
+            "year": 2019,
+            "returnPct": -7.853,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2019-09-04",
+            "exitDate": "2019-09-18"
+          },
+          {
+            "year": 2020,
+            "returnPct": 17.86,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2020-09-02",
+            "exitDate": "2020-09-17"
+          },
+          {
+            "year": 2021,
+            "returnPct": -5.794,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2021-09-03",
+            "exitDate": "2021-09-20"
+          },
+          {
+            "year": 2022,
+            "returnPct": 5.255,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2022-09-06",
+            "exitDate": "2022-09-20"
+          },
+          {
+            "year": 2023,
+            "returnPct": -8.884,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2023-09-06",
+            "exitDate": "2023-09-20"
+          },
+          {
+            "year": 2024,
+            "returnPct": -6.48,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2024-09-04",
+            "exitDate": "2024-09-18"
+          },
+          {
+            "year": 2025,
+            "returnPct": 5.249,
+            "direction": "SHORT",
+            "entrySlot": 170,
+            "exitSlot": 180,
+            "entryDate": "2025-09-05",
+            "exitDate": "2025-09-19"
+          }
+        ]
+      },
+      "wf": {
+        "oosWinRatePct": 34.6,
+        "oosAvgReturnPct": -2.167,
+        "nFolds": 26,
+        "nOosObs": 26,
+        "oosMaxDrawdownPct": 66.37,
+        "oosSortinoRatio": null,
+        "oosProfitFactor": 0.643,
+        "robustnessPct": 53.8,
+        "qualityScore": 27,
+        "qualityStatus": "Failed",
+        "sourceFingerprint": "C:\\Users\\joris\\Documents\\Capitalife Terminal\\data\\historical\\energy\\NYMEX_NG1_D.csv|1990-04-03|2026-07-06|9111",
+        "folds": [
+          {
+            "foldIndex": 0,
+            "isStartYear": null,
+            "isEndYear": 1999,
+            "oosYear": 2000,
+            "selectedEntrySlot": 168,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -6.122,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 1,
+            "isStartYear": null,
+            "isEndYear": 1999,
+            "oosYear": 2001,
+            "selectedEntrySlot": 168,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 19.624,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 2,
+            "isStartYear": null,
+            "isEndYear": 2001,
+            "oosYear": 2002,
+            "selectedEntrySlot": 168,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -14.017,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 3,
+            "isStartYear": null,
+            "isEndYear": 2001,
+            "oosYear": 2003,
+            "selectedEntrySlot": 168,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 3.126,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 4,
+            "isStartYear": null,
+            "isEndYear": 2003,
+            "oosYear": 2004,
+            "selectedEntrySlot": 168,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -16.719,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 5,
+            "isStartYear": null,
+            "isEndYear": 2003,
+            "oosYear": 2005,
+            "selectedEntrySlot": 168,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -9.833,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 6,
+            "isStartYear": null,
+            "isEndYear": 2005,
+            "oosYear": 2006,
+            "selectedEntrySlot": 167,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 19.114,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 7,
+            "isStartYear": null,
+            "isEndYear": 2005,
+            "oosYear": 2007,
+            "selectedEntrySlot": 167,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -15.356,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 8,
+            "isStartYear": null,
+            "isEndYear": 2007,
+            "oosYear": 2008,
+            "selectedEntrySlot": 167,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 8.497,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 9,
+            "isStartYear": null,
+            "isEndYear": 2007,
+            "oosYear": 2009,
+            "selectedEntrySlot": 167,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -11.522,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 10,
+            "isStartYear": null,
+            "isEndYear": 2009,
+            "oosYear": 2010,
+            "selectedEntrySlot": 167,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -4.691,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 11,
+            "isStartYear": null,
+            "isEndYear": 2009,
+            "oosYear": 2011,
+            "selectedEntrySlot": 167,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -3.326,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 12,
+            "isStartYear": null,
+            "isEndYear": 2011,
+            "oosYear": 2012,
+            "selectedEntrySlot": 167,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -13.11,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 13,
+            "isStartYear": null,
+            "isEndYear": 2011,
+            "oosYear": 2013,
+            "selectedEntrySlot": 167,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.631,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 14,
+            "isStartYear": null,
+            "isEndYear": 2013,
+            "oosYear": 2014,
+            "selectedEntrySlot": 167,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 3.296,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 15,
+            "isStartYear": null,
+            "isEndYear": 2013,
+            "oosYear": 2015,
+            "selectedEntrySlot": 167,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.45,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 16,
+            "isStartYear": null,
+            "isEndYear": 2015,
+            "oosYear": 2016,
+            "selectedEntrySlot": 167,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.193,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 17,
+            "isStartYear": null,
+            "isEndYear": 2015,
+            "oosYear": 2017,
+            "selectedEntrySlot": 167,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -4.457,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 18,
+            "isStartYear": null,
+            "isEndYear": 2017,
+            "oosYear": 2018,
+            "selectedEntrySlot": 168,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -3.549,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 19,
+            "isStartYear": null,
+            "isEndYear": 2017,
+            "oosYear": 2019,
+            "selectedEntrySlot": 168,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -10.897,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 20,
+            "isStartYear": null,
+            "isEndYear": 2019,
+            "oosYear": 2020,
+            "selectedEntrySlot": 167,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 13.06,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 21,
+            "isStartYear": null,
+            "isEndYear": 2019,
+            "oosYear": 2021,
+            "selectedEntrySlot": 167,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -24.743,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 22,
+            "isStartYear": null,
+            "isEndYear": 2021,
+            "oosYear": 2022,
+            "selectedEntrySlot": 168,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 23.461,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 23,
+            "isStartYear": null,
+            "isEndYear": 2021,
+            "oosYear": 2023,
+            "selectedEntrySlot": 168,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.629,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 24,
+            "isStartYear": null,
+            "isEndYear": 2023,
+            "oosYear": 2024,
+            "selectedEntrySlot": 168,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -14.433,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 25,
+            "isStartYear": null,
+            "isEndYear": 2023,
+            "oosYear": 2025,
+            "selectedEntrySlot": 168,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 6.886,
+            "oosWin": false
+          }
+        ]
+      }
+    },
+    "sb1_short_slot172_v1": {
+      "patternId": "sb1_short_slot172_v1",
+      "registryVersion": "1.0.0",
+      "computedAt": "2026-07-30T15:51:07.638Z",
+      "status": "calculated",
+      "csvPath": "workspace/output/tradingview_data_test/full_history_validated/ICEUS_SB1_TV_MERGED_FULL_HISTORY_daily.csv",
+      "dataHash": "05d3539f6cf581a6",
+      "dataValidation": {
+        "totalBars": 13705,
+        "firstDate": "2006-09-07",
+        "lastDate": "2025-09-23",
+        "yearsAvailable": 20,
+        "validTradeCount": 20,
+        "missingYearCount": 0,
+        "missingYears": [],
+        "csvHash": "05d3539f6cf581a6",
+        "csvBars": 13705,
+        "passed": true,
+        "notes": []
+      },
+      "historical": {
+        "winRatePct": 35,
+        "avgReturnPct": -2.058,
+        "avgReturnMeanPct": -2.058,
+        "avgReturnMedianPct": -1.219,
+        "nObs": 20,
+        "maxDrawdownPct": 40.45,
+        "sortinoRatio": -0.33,
+        "profitFactor": 0.402,
+        "sharpeRatio": -4.888,
+        "calmarRatio": -0.057,
+        "decadeConsistent": false,
+        "sampleStartYear": 2006,
+        "sampleEndYear": 2025,
+        "yearReturns": [
+          {
+            "year": 2006,
+            "returnPct": 0.516,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2006-09-07",
+            "exitDate": "2006-09-21"
+          },
+          {
+            "year": 2007,
+            "returnPct": -4.038,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2007-09-07",
+            "exitDate": "2007-09-21"
+          },
+          {
+            "year": 2008,
+            "returnPct": 7.097,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2008-09-05",
+            "exitDate": "2008-09-19"
+          },
+          {
+            "year": 2009,
+            "returnPct": -6.133,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2009-09-08",
+            "exitDate": "2009-09-22"
+          },
+          {
+            "year": 2010,
+            "returnPct": -13.704,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2010-09-08",
+            "exitDate": "2010-09-22"
+          },
+          {
+            "year": 2011,
+            "returnPct": 10.651,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2011-09-08",
+            "exitDate": "2011-09-22"
+          },
+          {
+            "year": 2012,
+            "returnPct": -1.802,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2012-09-06",
+            "exitDate": "2012-09-20"
+          },
+          {
+            "year": 2013,
+            "returnPct": -2.323,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2013-09-06",
+            "exitDate": "2013-09-20"
+          },
+          {
+            "year": 2014,
+            "returnPct": 5.756,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2014-09-08",
+            "exitDate": "2014-09-22"
+          },
+          {
+            "year": 2015,
+            "returnPct": 1.716,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2015-09-08",
+            "exitDate": "2015-09-22"
+          },
+          {
+            "year": 2016,
+            "returnPct": -9.413,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2016-09-07",
+            "exitDate": "2016-09-21"
+          },
+          {
+            "year": 2017,
+            "returnPct": -0.143,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2017-09-07",
+            "exitDate": "2017-09-21"
+          },
+          {
+            "year": 2018,
+            "returnPct": 0,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2018-09-06",
+            "exitDate": "2018-09-20"
+          },
+          {
+            "year": 2019,
+            "returnPct": -0.635,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2019-09-06",
+            "exitDate": "2019-09-20"
+          },
+          {
+            "year": 2020,
+            "returnPct": -5.197,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2020-09-04",
+            "exitDate": "2020-09-21"
+          },
+          {
+            "year": 2021,
+            "returnPct": 0.821,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2021-09-08",
+            "exitDate": "2021-09-22"
+          },
+          {
+            "year": 2022,
+            "returnPct": -3.123,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2022-09-08",
+            "exitDate": "2022-09-22"
+          },
+          {
+            "year": 2023,
+            "returnPct": -2.509,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2023-09-08",
+            "exitDate": "2023-09-22"
+          },
+          {
+            "year": 2024,
+            "returnPct": -19.831,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2024-09-06",
+            "exitDate": "2024-09-20"
+          },
+          {
+            "year": 2025,
+            "returnPct": 1.136,
+            "direction": "SHORT",
+            "entrySlot": 172,
+            "exitSlot": 182,
+            "entryDate": "2025-09-09",
+            "exitDate": "2025-09-23"
+          }
+        ]
+      },
+      "wf": {
+        "oosWinRatePct": 42.2,
+        "oosAvgReturnPct": 0.442,
+        "nFolds": 45,
+        "nOosObs": 45,
+        "oosMaxDrawdownPct": 34,
+        "oosSortinoRatio": null,
+        "oosProfitFactor": 1.178,
+        "robustnessPct": 40,
+        "qualityScore": 15,
+        "qualityStatus": "Failed",
+        "sourceFingerprint": "C:\\Users\\joris\\Documents\\Capitalife Terminal\\workspace\\output\\tradingview_data_test\\full_history_validated\\ICEUS_SB1_TV_MERGED_FULL_HISTORY_daily.csv|1971-10-04|2026-06-16|13705",
+        "folds": [
+          {
+            "foldIndex": 0,
+            "isStartYear": null,
+            "isEndYear": 1980,
+            "oosYear": 1981,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 10.927,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 1,
+            "isStartYear": null,
+            "isEndYear": 1980,
+            "oosYear": 1982,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 12.682,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 2,
+            "isStartYear": null,
+            "isEndYear": 1982,
+            "oosYear": 1983,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 6.064,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 3,
+            "isStartYear": null,
+            "isEndYear": 1982,
+            "oosYear": 1984,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 10.944,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 4,
+            "isStartYear": null,
+            "isEndYear": 1984,
+            "oosYear": 1985,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.19,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 5,
+            "isStartYear": null,
+            "isEndYear": 1984,
+            "oosYear": 1986,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.986,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 6,
+            "isStartYear": null,
+            "isEndYear": 1986,
+            "oosYear": 1987,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -9.828,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 7,
+            "isStartYear": null,
+            "isEndYear": 1986,
+            "oosYear": 1988,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 8.976,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 8,
+            "isStartYear": null,
+            "isEndYear": 1988,
+            "oosYear": 1989,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -6.572,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 9,
+            "isStartYear": null,
+            "isEndYear": 1988,
+            "oosYear": 1990,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.831,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 10,
+            "isStartYear": null,
+            "isEndYear": 1990,
+            "oosYear": 1991,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.605,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 11,
+            "isStartYear": null,
+            "isEndYear": 1990,
+            "oosYear": 1992,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.517,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 12,
+            "isStartYear": null,
+            "isEndYear": 1992,
+            "oosYear": 1993,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -6.878,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 13,
+            "isStartYear": null,
+            "isEndYear": 1992,
+            "oosYear": 1994,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -5.643,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 14,
+            "isStartYear": null,
+            "isEndYear": 1994,
+            "oosYear": 1995,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.914,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 15,
+            "isStartYear": null,
+            "isEndYear": 1994,
+            "oosYear": 1996,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 7.673,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 16,
+            "isStartYear": null,
+            "isEndYear": 1996,
+            "oosYear": 1997,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.103,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 17,
+            "isStartYear": null,
+            "isEndYear": 1996,
+            "oosYear": 1998,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.642,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 18,
+            "isStartYear": null,
+            "isEndYear": 1998,
+            "oosYear": 1999,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.147,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 19,
+            "isStartYear": null,
+            "isEndYear": 1998,
+            "oosYear": 2000,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 7.197,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 20,
+            "isStartYear": null,
+            "isEndYear": 2000,
+            "oosYear": 2001,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 13.527,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 21,
+            "isStartYear": null,
+            "isEndYear": 2000,
+            "oosYear": 2002,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -14.003,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 22,
+            "isStartYear": null,
+            "isEndYear": 2002,
+            "oosYear": 2003,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.675,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 23,
+            "isStartYear": null,
+            "isEndYear": 2002,
+            "oosYear": 2004,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.551,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 24,
+            "isStartYear": null,
+            "isEndYear": 2004,
+            "oosYear": 2005,
+            "selectedEntrySlot": 173,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.849,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 25,
+            "isStartYear": null,
+            "isEndYear": 2004,
+            "oosYear": 2006,
+            "selectedEntrySlot": 173,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 12.027,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 26,
+            "isStartYear": null,
+            "isEndYear": 2006,
+            "oosYear": 2007,
+            "selectedEntrySlot": 173,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -6.351,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 27,
+            "isStartYear": null,
+            "isEndYear": 2006,
+            "oosYear": 2008,
+            "selectedEntrySlot": 173,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 2.506,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 28,
+            "isStartYear": null,
+            "isEndYear": 2008,
+            "oosYear": 2009,
+            "selectedEntrySlot": 173,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.668,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 29,
+            "isStartYear": null,
+            "isEndYear": 2008,
+            "oosYear": 2010,
+            "selectedEntrySlot": 173,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -10.12,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 30,
+            "isStartYear": null,
+            "isEndYear": 2010,
+            "oosYear": 2011,
+            "selectedEntrySlot": 171,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 12.566,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 31,
+            "isStartYear": null,
+            "isEndYear": 2010,
+            "oosYear": 2012,
+            "selectedEntrySlot": 171,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.946,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 32,
+            "isStartYear": null,
+            "isEndYear": 2012,
+            "oosYear": 2013,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -4.736,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 33,
+            "isStartYear": null,
+            "isEndYear": 2012,
+            "oosYear": 2014,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 9.411,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 34,
+            "isStartYear": null,
+            "isEndYear": 2014,
+            "oosYear": 2015,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.05,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 35,
+            "isStartYear": null,
+            "isEndYear": 2014,
+            "oosYear": 2016,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -13.17,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 36,
+            "isStartYear": null,
+            "isEndYear": 2016,
+            "oosYear": 2017,
+            "selectedEntrySlot": 173,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.781,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 37,
+            "isStartYear": null,
+            "isEndYear": 2016,
+            "oosYear": 2018,
+            "selectedEntrySlot": 173,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.544,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 38,
+            "isStartYear": null,
+            "isEndYear": 2018,
+            "oosYear": 2019,
+            "selectedEntrySlot": 173,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.747,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 39,
+            "isStartYear": null,
+            "isEndYear": 2018,
+            "oosYear": 2020,
+            "selectedEntrySlot": 173,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -7.06,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 40,
+            "isStartYear": null,
+            "isEndYear": 2020,
+            "oosYear": 2021,
+            "selectedEntrySlot": 173,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.299,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 41,
+            "isStartYear": null,
+            "isEndYear": 2020,
+            "oosYear": 2022,
+            "selectedEntrySlot": 173,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.329,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 42,
+            "isStartYear": null,
+            "isEndYear": 2022,
+            "oosYear": 2023,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.964,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 43,
+            "isStartYear": null,
+            "isEndYear": 2022,
+            "oosYear": 2024,
+            "selectedEntrySlot": 169,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.514,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 44,
+            "isStartYear": null,
+            "isEndYear": 2024,
+            "oosYear": 2025,
+            "selectedEntrySlot": 171,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.064,
+            "oosWin": true
+          }
+        ]
+      }
+    },
+    "cc1_long_slot210_v1": {
+      "patternId": "cc1_long_slot210_v1",
+      "registryVersion": "1.0.0",
+      "computedAt": "2026-07-30T15:51:07.715Z",
+      "status": "calculated",
+      "csvPath": "workspace/output/tradingview_data_test/full_history_validated/ICEUS_CC1_TV_MERGED_FULL_HISTORY_daily.csv",
+      "dataHash": "a520bf0c7655643b",
+      "dataValidation": {
+        "totalBars": 11667,
+        "firstDate": "2006-10-31",
+        "lastDate": "2025-11-14",
+        "yearsAvailable": 20,
+        "validTradeCount": 20,
+        "missingYearCount": 0,
+        "missingYears": [],
+        "csvHash": "a520bf0c7655643b",
+        "csvBars": 11667,
+        "passed": true,
+        "notes": []
+      },
+      "historical": {
+        "winRatePct": 55,
+        "avgReturnPct": -0.283,
+        "avgReturnMeanPct": -0.283,
+        "avgReturnMedianPct": 0.458,
+        "nObs": 20,
+        "maxDrawdownPct": 29.73,
+        "sortinoRatio": -0.063,
+        "profitFactor": 0.878,
+        "sharpeRatio": -0.797,
+        "calmarRatio": -0.015,
+        "decadeConsistent": false,
+        "sampleStartYear": 2006,
+        "sampleEndYear": 2025,
+        "yearReturns": [
+          {
+            "year": 2006,
+            "returnPct": 2.089,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2006-10-31",
+            "exitDate": "2006-11-14"
+          },
+          {
+            "year": 2007,
+            "returnPct": -0.823,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2007-10-31",
+            "exitDate": "2007-11-14"
+          },
+          {
+            "year": 2008,
+            "returnPct": -9.827,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2008-10-29",
+            "exitDate": "2008-11-12"
+          },
+          {
+            "year": 2009,
+            "returnPct": -4.944,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2009-10-30",
+            "exitDate": "2009-11-13"
+          },
+          {
+            "year": 2010,
+            "returnPct": 2.283,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2010-11-01",
+            "exitDate": "2010-11-15"
+          },
+          {
+            "year": 2011,
+            "returnPct": -2.423,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2011-11-01",
+            "exitDate": "2011-11-15"
+          },
+          {
+            "year": 2012,
+            "returnPct": -0.126,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2012-10-30",
+            "exitDate": "2012-11-13"
+          },
+          {
+            "year": 2013,
+            "returnPct": 0.188,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2013-10-30",
+            "exitDate": "2013-11-13"
+          },
+          {
+            "year": 2014,
+            "returnPct": -4.243,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2014-10-30",
+            "exitDate": "2014-11-13"
+          },
+          {
+            "year": 2015,
+            "returnPct": 3.191,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2015-10-30",
+            "exitDate": "2015-11-13"
+          },
+          {
+            "year": 2016,
+            "returnPct": -11.59,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2016-10-31",
+            "exitDate": "2016-11-14"
+          },
+          {
+            "year": 2017,
+            "returnPct": 2.913,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2017-10-31",
+            "exitDate": "2017-11-14"
+          },
+          {
+            "year": 2018,
+            "returnPct": 1.806,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2018-10-30",
+            "exitDate": "2018-11-13"
+          },
+          {
+            "year": 2019,
+            "returnPct": 8.191,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2019-10-30",
+            "exitDate": "2019-11-13"
+          },
+          {
+            "year": 2020,
+            "returnPct": 0.727,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2020-10-29",
+            "exitDate": "2020-11-12"
+          },
+          {
+            "year": 2021,
+            "returnPct": -1.248,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2021-11-01",
+            "exitDate": "2021-11-15"
+          },
+          {
+            "year": 2022,
+            "returnPct": 6.388,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2022-11-01",
+            "exitDate": "2022-11-15"
+          },
+          {
+            "year": 2023,
+            "returnPct": 5.219,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2023-11-01",
+            "exitDate": "2023-11-15"
+          },
+          {
+            "year": 2024,
+            "returnPct": 7.847,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2024-10-30",
+            "exitDate": "2024-11-13"
+          },
+          {
+            "year": 2025,
+            "returnPct": -11.283,
+            "direction": "LONG",
+            "entrySlot": 210,
+            "exitSlot": 220,
+            "entryDate": "2025-10-31",
+            "exitDate": "2025-11-14"
+          }
+        ]
+      },
+      "wf": {
+        "oosWinRatePct": 62.2,
+        "oosAvgReturnPct": 2.069,
+        "nFolds": 37,
+        "nOosObs": 37,
+        "oosMaxDrawdownPct": 30.81,
+        "oosSortinoRatio": null,
+        "oosProfitFactor": 2.028,
+        "robustnessPct": 40.5,
+        "qualityScore": 56,
+        "qualityStatus": "Weak",
+        "sourceFingerprint": "C:\\Users\\joris\\Documents\\Capitalife Terminal\\workspace\\output\\tradingview_data_test\\full_history_validated\\ICEUS_CC1_TV_MERGED_FULL_HISTORY_daily.csv|1979-12-19|2026-06-15|11667",
+        "folds": [
+          {
+            "foldIndex": 0,
+            "isStartYear": null,
+            "isEndYear": 1988,
+            "oosYear": 1989,
+            "selectedEntrySlot": 210,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.85,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 1,
+            "isStartYear": null,
+            "isEndYear": 1988,
+            "oosYear": 1990,
+            "selectedEntrySlot": 210,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.259,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 2,
+            "isStartYear": null,
+            "isEndYear": 1990,
+            "oosYear": 1991,
+            "selectedEntrySlot": 210,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 6.397,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 3,
+            "isStartYear": null,
+            "isEndYear": 1990,
+            "oosYear": 1992,
+            "selectedEntrySlot": 210,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 7.571,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 4,
+            "isStartYear": null,
+            "isEndYear": 1992,
+            "oosYear": 1993,
+            "selectedEntrySlot": 210,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 6.339,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 5,
+            "isStartYear": null,
+            "isEndYear": 1992,
+            "oosYear": 1994,
+            "selectedEntrySlot": 210,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.582,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 6,
+            "isStartYear": null,
+            "isEndYear": 1994,
+            "oosYear": 1995,
+            "selectedEntrySlot": 210,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.577,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 7,
+            "isStartYear": null,
+            "isEndYear": 1994,
+            "oosYear": 1996,
+            "selectedEntrySlot": 210,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.922,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 8,
+            "isStartYear": null,
+            "isEndYear": 1996,
+            "oosYear": 1997,
+            "selectedEntrySlot": 211,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.096,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 9,
+            "isStartYear": null,
+            "isEndYear": 1996,
+            "oosYear": 1998,
+            "selectedEntrySlot": 211,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.53,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 10,
+            "isStartYear": null,
+            "isEndYear": 1998,
+            "oosYear": 1999,
+            "selectedEntrySlot": 211,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.024,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 11,
+            "isStartYear": null,
+            "isEndYear": 1998,
+            "oosYear": 2000,
+            "selectedEntrySlot": 211,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.125,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 12,
+            "isStartYear": null,
+            "isEndYear": 2000,
+            "oosYear": 2001,
+            "selectedEntrySlot": 211,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 28.028,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 13,
+            "isStartYear": null,
+            "isEndYear": 2000,
+            "oosYear": 2002,
+            "selectedEntrySlot": 211,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -9.364,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 14,
+            "isStartYear": null,
+            "isEndYear": 2002,
+            "oosYear": 2003,
+            "selectedEntrySlot": 211,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 9.142,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 15,
+            "isStartYear": null,
+            "isEndYear": 2002,
+            "oosYear": 2004,
+            "selectedEntrySlot": 211,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 10.274,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 16,
+            "isStartYear": null,
+            "isEndYear": 2004,
+            "oosYear": 2005,
+            "selectedEntrySlot": 211,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.243,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 17,
+            "isStartYear": null,
+            "isEndYear": 2004,
+            "oosYear": 2006,
+            "selectedEntrySlot": 211,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.785,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 18,
+            "isStartYear": null,
+            "isEndYear": 2006,
+            "oosYear": 2007,
+            "selectedEntrySlot": 211,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.989,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 19,
+            "isStartYear": null,
+            "isEndYear": 2006,
+            "oosYear": 2008,
+            "selectedEntrySlot": 211,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -6.526,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 20,
+            "isStartYear": null,
+            "isEndYear": 2008,
+            "oosYear": 2009,
+            "selectedEntrySlot": 211,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.892,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 21,
+            "isStartYear": null,
+            "isEndYear": 2008,
+            "oosYear": 2010,
+            "selectedEntrySlot": 211,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.82,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 22,
+            "isStartYear": null,
+            "isEndYear": 2010,
+            "oosYear": 2011,
+            "selectedEntrySlot": 213,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -10.234,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 23,
+            "isStartYear": null,
+            "isEndYear": 2010,
+            "oosYear": 2012,
+            "selectedEntrySlot": 213,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.368,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 24,
+            "isStartYear": null,
+            "isEndYear": 2012,
+            "oosYear": 2013,
+            "selectedEntrySlot": 213,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 5.878,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 25,
+            "isStartYear": null,
+            "isEndYear": 2012,
+            "oosYear": 2014,
+            "selectedEntrySlot": 213,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.805,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 26,
+            "isStartYear": null,
+            "isEndYear": 2014,
+            "oosYear": 2015,
+            "selectedEntrySlot": 213,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.111,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 27,
+            "isStartYear": null,
+            "isEndYear": 2014,
+            "oosYear": 2016,
+            "selectedEntrySlot": 213,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -10.129,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 28,
+            "isStartYear": null,
+            "isEndYear": 2016,
+            "oosYear": 2017,
+            "selectedEntrySlot": 213,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 2.377,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 29,
+            "isStartYear": null,
+            "isEndYear": 2016,
+            "oosYear": 2018,
+            "selectedEntrySlot": 213,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -3.397,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 30,
+            "isStartYear": null,
+            "isEndYear": 2018,
+            "oosYear": 2019,
+            "selectedEntrySlot": 213,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 5.712,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 31,
+            "isStartYear": null,
+            "isEndYear": 2018,
+            "oosYear": 2020,
+            "selectedEntrySlot": 213,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 16.376,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 32,
+            "isStartYear": null,
+            "isEndYear": 2020,
+            "oosYear": 2021,
+            "selectedEntrySlot": 213,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 6.066,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 33,
+            "isStartYear": null,
+            "isEndYear": 2020,
+            "oosYear": 2022,
+            "selectedEntrySlot": 213,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.863,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 34,
+            "isStartYear": null,
+            "isEndYear": 2022,
+            "oosYear": 2023,
+            "selectedEntrySlot": 213,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 3.628,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 35,
+            "isStartYear": null,
+            "isEndYear": 2022,
+            "oosYear": 2024,
+            "selectedEntrySlot": 213,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 15.884,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 36,
+            "isStartYear": null,
+            "isEndYear": 2024,
+            "oosYear": 2025,
+            "selectedEntrySlot": 213,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -19.34,
+            "oosWin": false
+          }
+        ]
+      }
+    },
+    "pa1_short_slot10_v1": {
+      "patternId": "pa1_short_slot10_v1",
+      "registryVersion": "1.0.0",
+      "computedAt": "2026-07-30T15:51:07.780Z",
+      "status": "calculated",
+      "csvPath": "data/historical/metals/NYMEX_PA1_D.csv",
+      "dataHash": "0ca1ac69320903af",
+      "dataValidation": {
+        "totalBars": 10282,
+        "firstDate": "2006-01-17",
+        "lastDate": "2025-01-30",
+        "yearsAvailable": 20,
+        "validTradeCount": 20,
+        "missingYearCount": 0,
+        "missingYears": [],
+        "csvHash": "0ca1ac69320903af",
+        "csvBars": 10282,
+        "passed": true,
+        "notes": []
+      },
+      "historical": {
+        "winRatePct": 25,
+        "avgReturnPct": -2.393,
+        "avgReturnMeanPct": -2.393,
+        "avgReturnMedianPct": -2.707,
+        "nObs": 20,
+        "maxDrawdownPct": 44.18,
+        "sortinoRatio": -0.367,
+        "profitFactor": 0.333,
+        "sharpeRatio": -5.815,
+        "calmarRatio": -0.06,
+        "decadeConsistent": false,
+        "sampleStartYear": 2006,
+        "sampleEndYear": 2025,
+        "yearReturns": [
+          {
+            "year": 2006,
+            "returnPct": -4.065,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2006-01-17",
+            "exitDate": "2006-01-31"
+          },
+          {
+            "year": 2007,
+            "returnPct": -1.608,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2007-01-16",
+            "exitDate": "2007-01-30"
+          },
+          {
+            "year": 2008,
+            "returnPct": -1.639,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2008-01-15",
+            "exitDate": "2008-01-30"
+          },
+          {
+            "year": 2009,
+            "returnPct": -7.449,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2009-01-15",
+            "exitDate": "2009-01-30"
+          },
+          {
+            "year": 2010,
+            "returnPct": 4.288,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2010-01-15",
+            "exitDate": "2010-02-01"
+          },
+          {
+            "year": 2011,
+            "returnPct": -3.744,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2011-01-14",
+            "exitDate": "2011-01-31"
+          },
+          {
+            "year": 2012,
+            "returnPct": -4.706,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2012-01-17",
+            "exitDate": "2012-01-31"
+          },
+          {
+            "year": 2013,
+            "returnPct": -5.334,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2013-01-15",
+            "exitDate": "2013-01-30"
+          },
+          {
+            "year": 2014,
+            "returnPct": 4.993,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2014-01-15",
+            "exitDate": "2014-01-30"
+          },
+          {
+            "year": 2015,
+            "returnPct": -0.789,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2015-01-15",
+            "exitDate": "2015-01-30"
+          },
+          {
+            "year": 2016,
+            "returnPct": -3.141,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2016-01-15",
+            "exitDate": "2016-02-01"
+          },
+          {
+            "year": 2017,
+            "returnPct": -0.173,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2017-01-17",
+            "exitDate": "2017-01-31"
+          },
+          {
+            "year": 2018,
+            "returnPct": 3.281,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2018-01-16",
+            "exitDate": "2018-01-30"
+          },
+          {
+            "year": 2019,
+            "returnPct": -3.077,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2019-01-15",
+            "exitDate": "2019-01-30"
+          },
+          {
+            "year": 2020,
+            "returnPct": -2.337,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2020-01-15",
+            "exitDate": "2020-01-30"
+          },
+          {
+            "year": 2021,
+            "returnPct": 6.405,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2021-01-15",
+            "exitDate": "2021-02-01"
+          },
+          {
+            "year": 2022,
+            "returnPct": -25.429,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2022-01-14",
+            "exitDate": "2022-01-31"
+          },
+          {
+            "year": 2023,
+            "returnPct": 4.942,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2023-01-17",
+            "exitDate": "2023-01-31"
+          },
+          {
+            "year": 2024,
+            "returnPct": -4.413,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2024-01-16",
+            "exitDate": "2024-01-30"
+          },
+          {
+            "year": 2025,
+            "returnPct": -3.858,
+            "direction": "SHORT",
+            "entrySlot": 10,
+            "exitSlot": 20,
+            "entryDate": "2025-01-15",
+            "exitDate": "2025-01-30"
+          }
+        ]
+      },
+      "wf": {
+        "oosWinRatePct": 38.7,
+        "oosAvgReturnPct": -1.319,
+        "nFolds": 31,
+        "nOosObs": 31,
+        "oosMaxDrawdownPct": 46.33,
+        "oosSortinoRatio": null,
+        "oosProfitFactor": 0.538,
+        "robustnessPct": 74.2,
+        "qualityScore": 28,
+        "qualityStatus": "Failed",
+        "sourceFingerprint": "C:\\Users\\joris\\Documents\\Capitalife Terminal\\data\\historical\\metals\\NYMEX_PA1_D.csv|1985-08-26|2026-07-06|10282",
+        "folds": [
+          {
+            "foldIndex": 0,
+            "isStartYear": null,
+            "isEndYear": 1994,
+            "oosYear": 1995,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.85,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 1,
+            "isStartYear": null,
+            "isEndYear": 1994,
+            "oosYear": 1996,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 2.144,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 2,
+            "isStartYear": null,
+            "isEndYear": 1996,
+            "oosYear": 1997,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.318,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 3,
+            "isStartYear": null,
+            "isEndYear": 1996,
+            "oosYear": 1998,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -3.186,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 4,
+            "isStartYear": null,
+            "isEndYear": 1998,
+            "oosYear": 1999,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -4.611,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 5,
+            "isStartYear": null,
+            "isEndYear": 1998,
+            "oosYear": 2000,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -6.799,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 6,
+            "isStartYear": null,
+            "isEndYear": 2000,
+            "oosYear": 2001,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.205,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 7,
+            "isStartYear": null,
+            "isEndYear": 2000,
+            "oosYear": 2002,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 11.077,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 8,
+            "isStartYear": null,
+            "isEndYear": 2002,
+            "oosYear": 2003,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.13,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 9,
+            "isStartYear": null,
+            "isEndYear": 2002,
+            "oosYear": 2004,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -3.741,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 10,
+            "isStartYear": null,
+            "isEndYear": 2004,
+            "oosYear": 2005,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.864,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 11,
+            "isStartYear": null,
+            "isEndYear": 2004,
+            "oosYear": 2006,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.342,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 12,
+            "isStartYear": null,
+            "isEndYear": 2006,
+            "oosYear": 2007,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -4.246,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 13,
+            "isStartYear": null,
+            "isEndYear": 2006,
+            "oosYear": 2008,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -3.283,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 14,
+            "isStartYear": null,
+            "isEndYear": 2008,
+            "oosYear": 2009,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.004,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 15,
+            "isStartYear": null,
+            "isEndYear": 2008,
+            "oosYear": 2010,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 3.088,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 16,
+            "isStartYear": null,
+            "isEndYear": 2010,
+            "oosYear": 2011,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -4.242,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 17,
+            "isStartYear": null,
+            "isEndYear": 2010,
+            "oosYear": 2012,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -6.637,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 18,
+            "isStartYear": null,
+            "isEndYear": 2012,
+            "oosYear": 2013,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -6.772,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 19,
+            "isStartYear": null,
+            "isEndYear": 2012,
+            "oosYear": 2014,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.678,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 20,
+            "isStartYear": null,
+            "isEndYear": 2014,
+            "oosYear": 2015,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 5.221,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 21,
+            "isStartYear": null,
+            "isEndYear": 2014,
+            "oosYear": 2016,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -6.109,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 22,
+            "isStartYear": null,
+            "isEndYear": 2016,
+            "oosYear": 2017,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 2.049,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 23,
+            "isStartYear": null,
+            "isEndYear": 2016,
+            "oosYear": 2018,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.557,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 24,
+            "isStartYear": null,
+            "isEndYear": 2018,
+            "oosYear": 2019,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.388,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 25,
+            "isStartYear": null,
+            "isEndYear": 2018,
+            "oosYear": 2020,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -6.238,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 26,
+            "isStartYear": null,
+            "isEndYear": 2020,
+            "oosYear": 2021,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 7.062,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 27,
+            "isStartYear": null,
+            "isEndYear": 2020,
+            "oosYear": 2022,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -23.578,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 28,
+            "isStartYear": null,
+            "isEndYear": 2022,
+            "oosYear": 2023,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 8.596,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 29,
+            "isStartYear": null,
+            "isEndYear": 2022,
+            "oosYear": 2024,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.407,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 30,
+            "isStartYear": null,
+            "isEndYear": 2024,
+            "oosYear": 2025,
+            "selectedEntrySlot": 7,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.743,
+            "oosWin": true
+          }
+        ]
+      }
+    },
+    "zm1_long_slot73_v1": {
+      "patternId": "zm1_long_slot73_v1",
+      "registryVersion": "1.0.0",
+      "computedAt": "2026-07-30T15:51:07.781Z",
+      "status": "no_data_source",
+      "dataHash": null,
+      "csvPath": null,
+      "dataValidation": null,
+      "historical": null,
+      "wf": null
+    },
+    "ct1_long_slot29_v1": {
+      "patternId": "ct1_long_slot29_v1",
+      "registryVersion": "1.0.0",
+      "computedAt": "2026-07-30T15:51:07.861Z",
+      "status": "calculated",
+      "csvPath": "workspace/output/tradingview_data_test/full_history_validated/ICEUS_CT1_TV_MERGED_FULL_HISTORY_daily.csv",
+      "dataHash": "3d51e972684e2eed",
+      "dataValidation": {
+        "totalBars": 13512,
+        "firstDate": "2006-02-13",
+        "lastDate": "2025-02-27",
+        "yearsAvailable": 20,
+        "validTradeCount": 20,
+        "missingYearCount": 0,
+        "missingYears": [],
+        "csvHash": "3d51e972684e2eed",
+        "csvBars": 13512,
+        "passed": true,
+        "notes": []
+      },
+      "historical": {
+        "winRatePct": 55,
+        "avgReturnPct": 1.632,
+        "avgReturnMeanPct": 1.632,
+        "avgReturnMedianPct": 1.407,
+        "nObs": 20,
+        "maxDrawdownPct": 15.27,
+        "sortinoRatio": 0.567,
+        "profitFactor": 2.055,
+        "sharpeRatio": 4.369,
+        "calmarRatio": 0.096,
+        "decadeConsistent": false,
+        "sampleStartYear": 2006,
+        "sampleEndYear": 2025,
+        "yearReturns": [
+          {
+            "year": 2006,
+            "returnPct": -2.05,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2006-02-13",
+            "exitDate": "2006-02-28"
+          },
+          {
+            "year": 2007,
+            "returnPct": 2.028,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2007-02-13",
+            "exitDate": "2007-02-28"
+          },
+          {
+            "year": 2008,
+            "returnPct": 16.279,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2008-02-12",
+            "exitDate": "2008-02-27"
+          },
+          {
+            "year": 2009,
+            "returnPct": -6.908,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2009-02-12",
+            "exitDate": "2009-02-27"
+          },
+          {
+            "year": 2010,
+            "returnPct": 11.187,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2010-02-12",
+            "exitDate": "2010-03-01"
+          },
+          {
+            "year": 2011,
+            "returnPct": 3.056,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2011-02-11",
+            "exitDate": "2011-02-28"
+          },
+          {
+            "year": 2012,
+            "returnPct": 0.787,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2012-02-13",
+            "exitDate": "2012-02-28"
+          },
+          {
+            "year": 2013,
+            "returnPct": 3.141,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2013-02-12",
+            "exitDate": "2013-02-27"
+          },
+          {
+            "year": 2014,
+            "returnPct": -0.634,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2014-02-12",
+            "exitDate": "2014-02-27"
+          },
+          {
+            "year": 2015,
+            "returnPct": 3.375,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2015-02-12",
+            "exitDate": "2015-02-27"
+          },
+          {
+            "year": 2016,
+            "returnPct": -3.649,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2016-02-12",
+            "exitDate": "2016-02-29"
+          },
+          {
+            "year": 2017,
+            "returnPct": -2.391,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2017-02-13",
+            "exitDate": "2017-02-28"
+          },
+          {
+            "year": 2018,
+            "returnPct": 7.587,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2018-02-12",
+            "exitDate": "2018-02-27"
+          },
+          {
+            "year": 2019,
+            "returnPct": 3.697,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2019-02-12",
+            "exitDate": "2019-02-27"
+          },
+          {
+            "year": 2020,
+            "returnPct": -8.866,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2020-02-12",
+            "exitDate": "2020-02-27"
+          },
+          {
+            "year": 2021,
+            "returnPct": 3.282,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2021-02-12",
+            "exitDate": "2021-03-01"
+          },
+          {
+            "year": 2022,
+            "returnPct": -3.084,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2022-02-11",
+            "exitDate": "2022-02-28"
+          },
+          {
+            "year": 2023,
+            "returnPct": -2.051,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2023-02-13",
+            "exitDate": "2023-02-28"
+          },
+          {
+            "year": 2024,
+            "returnPct": 9.135,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2024-02-12",
+            "exitDate": "2024-02-27"
+          },
+          {
+            "year": 2025,
+            "returnPct": -1.29,
+            "direction": "LONG",
+            "entrySlot": 29,
+            "exitSlot": 39,
+            "entryDate": "2025-02-12",
+            "exitDate": "2025-02-27"
+          }
+        ]
+      },
+      "wf": {
+        "oosWinRatePct": 70.5,
+        "oosAvgReturnPct": 3.073,
+        "nFolds": 44,
+        "nOosObs": 44,
+        "oosMaxDrawdownPct": 16.58,
+        "oosSortinoRatio": null,
+        "oosProfitFactor": 3.436,
+        "robustnessPct": 100,
+        "qualityScore": 80,
+        "qualityStatus": "Strong",
+        "sourceFingerprint": "C:\\Users\\joris\\Documents\\Capitalife Terminal\\workspace\\output\\tradingview_data_test\\full_history_validated\\ICEUS_CT1_TV_MERGED_FULL_HISTORY_daily.csv|1972-08-22|2026-06-16|13512",
+        "folds": [
+          {
+            "foldIndex": 0,
+            "isStartYear": null,
+            "isEndYear": 1981,
+            "oosYear": 1982,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 3.875,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 1,
+            "isStartYear": null,
+            "isEndYear": 1981,
+            "oosYear": 1983,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 8.879,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 2,
+            "isStartYear": null,
+            "isEndYear": 1983,
+            "oosYear": 1984,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 2.615,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 3,
+            "isStartYear": null,
+            "isEndYear": 1983,
+            "oosYear": 1985,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.14,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 4,
+            "isStartYear": null,
+            "isEndYear": 1985,
+            "oosYear": 1986,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 5.891,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 5,
+            "isStartYear": null,
+            "isEndYear": 1985,
+            "oosYear": 1987,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.018,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 6,
+            "isStartYear": null,
+            "isEndYear": 1987,
+            "oosYear": 1988,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.293,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 7,
+            "isStartYear": null,
+            "isEndYear": 1987,
+            "oosYear": 1989,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.667,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 8,
+            "isStartYear": null,
+            "isEndYear": 1989,
+            "oosYear": 1990,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.826,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 9,
+            "isStartYear": null,
+            "isEndYear": 1989,
+            "oosYear": 1991,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 5.052,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 10,
+            "isStartYear": null,
+            "isEndYear": 1991,
+            "oosYear": 1992,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 3.96,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 11,
+            "isStartYear": null,
+            "isEndYear": 1991,
+            "oosYear": 1993,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 3.203,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 12,
+            "isStartYear": null,
+            "isEndYear": 1993,
+            "oosYear": 1994,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.949,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 13,
+            "isStartYear": null,
+            "isEndYear": 1993,
+            "oosYear": 1995,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 16.145,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 14,
+            "isStartYear": null,
+            "isEndYear": 1995,
+            "oosYear": 1996,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.804,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 15,
+            "isStartYear": null,
+            "isEndYear": 1995,
+            "oosYear": 1997,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.408,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 16,
+            "isStartYear": null,
+            "isEndYear": 1997,
+            "oosYear": 1998,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.207,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 17,
+            "isStartYear": null,
+            "isEndYear": 1997,
+            "oosYear": 1999,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.234,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 18,
+            "isStartYear": null,
+            "isEndYear": 1999,
+            "oosYear": 2000,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 10.233,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 19,
+            "isStartYear": null,
+            "isEndYear": 1999,
+            "oosYear": 2001,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -8.84,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 20,
+            "isStartYear": null,
+            "isEndYear": 2001,
+            "oosYear": 2002,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -5.75,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 21,
+            "isStartYear": null,
+            "isEndYear": 2001,
+            "oosYear": 2003,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 13.733,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 22,
+            "isStartYear": null,
+            "isEndYear": 2003,
+            "oosYear": 2004,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 7.823,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 23,
+            "isStartYear": null,
+            "isEndYear": 2003,
+            "oosYear": 2005,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 16.531,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 24,
+            "isStartYear": null,
+            "isEndYear": 2005,
+            "oosYear": 2006,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -3.031,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 25,
+            "isStartYear": null,
+            "isEndYear": 2005,
+            "oosYear": 2007,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 2.142,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 26,
+            "isStartYear": null,
+            "isEndYear": 2007,
+            "oosYear": 2008,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 18.483,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 27,
+            "isStartYear": null,
+            "isEndYear": 2007,
+            "oosYear": 2009,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -11.196,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 28,
+            "isStartYear": null,
+            "isEndYear": 2009,
+            "oosYear": 2010,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 13.939,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 29,
+            "isStartYear": null,
+            "isEndYear": 2009,
+            "oosYear": 2011,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 11.087,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 30,
+            "isStartYear": null,
+            "isEndYear": 2011,
+            "oosYear": 2012,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.786,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 31,
+            "isStartYear": null,
+            "isEndYear": 2011,
+            "oosYear": 2013,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 3.302,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 32,
+            "isStartYear": null,
+            "isEndYear": 2013,
+            "oosYear": 2014,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.099,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 33,
+            "isStartYear": null,
+            "isEndYear": 2013,
+            "oosYear": 2015,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.792,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 34,
+            "isStartYear": null,
+            "isEndYear": 2015,
+            "oosYear": 2016,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -5.01,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 35,
+            "isStartYear": null,
+            "isEndYear": 2015,
+            "oosYear": 2017,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.588,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 36,
+            "isStartYear": null,
+            "isEndYear": 2017,
+            "oosYear": 2018,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 6.774,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 37,
+            "isStartYear": null,
+            "isEndYear": 2017,
+            "oosYear": 2019,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.792,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 38,
+            "isStartYear": null,
+            "isEndYear": 2019,
+            "oosYear": 2020,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -7.054,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 39,
+            "isStartYear": null,
+            "isEndYear": 2019,
+            "oosYear": 2021,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.464,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 40,
+            "isStartYear": null,
+            "isEndYear": 2021,
+            "oosYear": 2022,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -6.241,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 41,
+            "isStartYear": null,
+            "isEndYear": 2021,
+            "oosYear": 2023,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -2.094,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 42,
+            "isStartYear": null,
+            "isEndYear": 2023,
+            "oosYear": 2024,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 11.751,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 43,
+            "isStartYear": null,
+            "isEndYear": 2023,
+            "oosYear": 2025,
+            "selectedEntrySlot": 27,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.548,
+            "oosWin": false
+          }
+        ]
+      }
+    },
+    "es1_long_slot240_v1": {
+      "patternId": "es1_long_slot240_v1",
+      "registryVersion": "1.0.0",
+      "computedAt": "2026-07-30T15:51:07.914Z",
+      "status": "calculated",
+      "csvPath": "data/historical/indices/CME_MINI_ES1_D.csv",
+      "dataHash": "92681e342a2bb449",
+      "dataValidation": {
+        "totalBars": 7288,
+        "firstDate": "2006-12-05",
+        "lastDate": "2025-12-30",
+        "yearsAvailable": 20,
+        "validTradeCount": 20,
+        "missingYearCount": 0,
+        "missingYears": [],
+        "csvHash": "92681e342a2bb449",
+        "csvBars": 7288,
+        "passed": true,
+        "notes": []
+      },
+      "historical": {
+        "winRatePct": 70,
+        "avgReturnPct": 0.56,
+        "avgReturnMeanPct": 0.56,
+        "avgReturnMedianPct": 1.439,
+        "nObs": 20,
+        "maxDrawdownPct": 12.68,
+        "sortinoRatio": 0.309,
+        "profitFactor": 1.693,
+        "sharpeRatio": 3.536,
+        "calmarRatio": 0.042,
+        "decadeConsistent": true,
+        "sampleStartYear": 2006,
+        "sampleEndYear": 2025,
+        "yearReturns": [
+          {
+            "year": 2006,
+            "returnPct": 1.376,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2006-12-05",
+            "exitDate": "2006-12-19"
+          },
+          {
+            "year": 2007,
+            "returnPct": 2.148,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2007-12-11",
+            "exitDate": "2007-12-26"
+          },
+          {
+            "year": 2008,
+            "returnPct": -3.485,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2008-12-09",
+            "exitDate": "2008-12-23"
+          },
+          {
+            "year": 2009,
+            "returnPct": 0.741,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2009-12-14",
+            "exitDate": "2009-12-29"
+          },
+          {
+            "year": 2010,
+            "returnPct": 1.027,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2010-12-13",
+            "exitDate": "2010-12-28"
+          },
+          {
+            "year": 2011,
+            "returnPct": 1.987,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2011-12-13",
+            "exitDate": "2011-12-28"
+          },
+          {
+            "year": 2012,
+            "returnPct": -1.257,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2012-12-11",
+            "exitDate": "2012-12-26"
+          },
+          {
+            "year": 2013,
+            "returnPct": 3.465,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2013-12-12",
+            "exitDate": "2013-12-27"
+          },
+          {
+            "year": 2014,
+            "returnPct": 4.431,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2014-12-12",
+            "exitDate": "2014-12-29"
+          },
+          {
+            "year": 2015,
+            "returnPct": 1.94,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2015-12-11",
+            "exitDate": "2015-12-28"
+          },
+          {
+            "year": 2016,
+            "returnPct": -0.992,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2016-12-13",
+            "exitDate": "2016-12-28"
+          },
+          {
+            "year": 2017,
+            "returnPct": 0.628,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2017-12-13",
+            "exitDate": "2017-12-28"
+          },
+          {
+            "year": 2018,
+            "returnPct": -5.938,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2018-12-12",
+            "exitDate": "2018-12-27"
+          },
+          {
+            "year": 2019,
+            "returnPct": 2.194,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2019-12-12",
+            "exitDate": "2019-12-27"
+          },
+          {
+            "year": 2020,
+            "returnPct": 1.809,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2020-12-11",
+            "exitDate": "2020-12-28"
+          },
+          {
+            "year": 2021,
+            "returnPct": 2.351,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2021-12-13",
+            "exitDate": "2021-12-28"
+          },
+          {
+            "year": 2022,
+            "returnPct": -3.945,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2022-12-14",
+            "exitDate": "2022-12-29"
+          },
+          {
+            "year": 2023,
+            "returnPct": 1.502,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2023-12-13",
+            "exitDate": "2023-12-28"
+          },
+          {
+            "year": 2024,
+            "returnPct": -0.557,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2024-12-12",
+            "exitDate": "2024-12-27"
+          },
+          {
+            "year": 2025,
+            "returnPct": 1.777,
+            "direction": "LONG",
+            "entrySlot": 240,
+            "exitSlot": 250,
+            "entryDate": "2025-12-15",
+            "exitDate": "2025-12-30"
+          }
+        ]
+      },
+      "wf": {
+        "oosWinRatePct": 68.4,
+        "oosAvgReturnPct": 0.359,
+        "nFolds": 19,
+        "nOosObs": 19,
+        "oosMaxDrawdownPct": 11.72,
+        "oosSortinoRatio": null,
+        "oosProfitFactor": 1.409,
+        "robustnessPct": 36.8,
+        "qualityScore": 43,
+        "qualityStatus": "Weak",
+        "sourceFingerprint": "C:\\Users\\joris\\Documents\\Capitalife Terminal\\data\\historical\\indices\\CME_MINI_ES1_D.csv|1997-09-09|2026-07-06|7288",
+        "folds": [
+          {
+            "foldIndex": 0,
+            "isStartYear": null,
+            "isEndYear": 2006,
+            "oosYear": 2007,
+            "selectedEntrySlot": 237,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -1.177,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 1,
+            "isStartYear": null,
+            "isEndYear": 2006,
+            "oosYear": 2008,
+            "selectedEntrySlot": 237,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 2.065,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 2,
+            "isStartYear": null,
+            "isEndYear": 2008,
+            "oosYear": 2009,
+            "selectedEntrySlot": 237,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 2.419,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 3,
+            "isStartYear": null,
+            "isEndYear": 2008,
+            "oosYear": 2010,
+            "selectedEntrySlot": 237,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 2.197,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 4,
+            "isStartYear": null,
+            "isEndYear": 2010,
+            "oosYear": 2011,
+            "selectedEntrySlot": 237,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.74,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 5,
+            "isStartYear": null,
+            "isEndYear": 2010,
+            "oosYear": 2012,
+            "selectedEntrySlot": 237,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.159,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 6,
+            "isStartYear": null,
+            "isEndYear": 2012,
+            "oosYear": 2013,
+            "selectedEntrySlot": 237,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.52,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 7,
+            "isStartYear": null,
+            "isEndYear": 2012,
+            "oosYear": 2014,
+            "selectedEntrySlot": 237,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.3,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 8,
+            "isStartYear": null,
+            "isEndYear": 2014,
+            "oosYear": 2015,
+            "selectedEntrySlot": 237,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.364,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 9,
+            "isStartYear": null,
+            "isEndYear": 2014,
+            "oosYear": 2016,
+            "selectedEntrySlot": 237,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.59,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 10,
+            "isStartYear": null,
+            "isEndYear": 2016,
+            "oosYear": 2017,
+            "selectedEntrySlot": 238,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.958,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 11,
+            "isStartYear": null,
+            "isEndYear": 2016,
+            "oosYear": 2018,
+            "selectedEntrySlot": 238,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -11.398,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 12,
+            "isStartYear": null,
+            "isEndYear": 2018,
+            "oosYear": 2019,
+            "selectedEntrySlot": 237,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 3.509,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 13,
+            "isStartYear": null,
+            "isEndYear": 2018,
+            "oosYear": 2020,
+            "selectedEntrySlot": 237,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -0.189,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 14,
+            "isStartYear": null,
+            "isEndYear": 2020,
+            "oosYear": 2021,
+            "selectedEntrySlot": 238,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.045,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 15,
+            "isStartYear": null,
+            "isEndYear": 2020,
+            "oosYear": 2022,
+            "selectedEntrySlot": 238,
+            "selectedHoldingDays": null,
+            "oosReturnPct": -3.426,
+            "oosWin": false
+          },
+          {
+            "foldIndex": 16,
+            "isStartYear": null,
+            "isEndYear": 2022,
+            "oosYear": 2023,
+            "selectedEntrySlot": 238,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 4.302,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 17,
+            "isStartYear": null,
+            "isEndYear": 2022,
+            "oosYear": 2024,
+            "selectedEntrySlot": 238,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 0.856,
+            "oosWin": true
+          },
+          {
+            "foldIndex": 18,
+            "isStartYear": null,
+            "isEndYear": 2024,
+            "oosYear": 2025,
+            "selectedEntrySlot": 238,
+            "selectedHoldingDays": null,
+            "oosReturnPct": 1.042,
+            "oosWin": true
+          }
+        ]
+      }
+    }
   }
 }

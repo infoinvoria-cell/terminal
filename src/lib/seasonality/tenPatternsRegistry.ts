@@ -11,12 +11,11 @@
 export const TEN_PATTERNS_REGISTRY_VERSION = "1.0.0";
 
 export type PatternStatus =
-  | "not_tested"           // No computation has been run
-  | "historical_computed"  // Full-sample historical KPIs computed
-  | "wf_completed"         // Walk-forward finished (OOS validated)
-  | "wf_failed"            // Walk-forward ran but pattern did not pass quality gates
+  | "not_tested"           // No computation has been run yet
+  | "calculated"           // Historical KPIs + WF computed successfully (≥10 trades)
+  | "insufficient_history" // < 10 valid historical trades; no KPIs shown
   | "no_data_source"       // CSV data not available for this asset
-  | "data_error";          // Data validation failed
+  | "calculation_failed";  // API error or computation error; no KPIs shown
 
 export type PatternRobustness =
   | "robust"
