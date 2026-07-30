@@ -1,0 +1,16 @@
+{
+  "generatedAt": "2026-07-30T00:00:00.000Z",
+  "registryVersion": "1.0.0",
+  "patterns": {
+    "rb1_long_slot29_v1":  { "patternId": "rb1_long_slot29_v1",  "registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "not_tested", "dataValidation": null, "historical": null, "wf": null },
+    "zw1_long_slot152_v1": { "patternId": "zw1_long_slot152_v1", "registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "not_tested", "dataValidation": null, "historical": null, "wf": null },
+    "gc1_long_slot128_v1": { "patternId": "gc1_long_slot128_v1", "registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "not_tested", "dataValidation": null, "historical": null, "wf": null },
+    "ng1_short_slot170_v1":{ "patternId": "ng1_short_slot170_v1","registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "not_tested", "dataValidation": null, "historical": null, "wf": null },
+    "sb1_short_slot172_v1":{ "patternId": "sb1_short_slot172_v1","registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "not_tested", "dataValidation": null, "historical": null, "wf": null },
+    "cc1_long_slot210_v1": { "patternId": "cc1_long_slot210_v1", "registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "not_tested", "dataValidation": null, "historical": null, "wf": null },
+    "pa1_short_slot10_v1": { "patternId": "pa1_short_slot10_v1", "registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "not_tested", "dataValidation": null, "historical": null, "wf": null },
+    "zm1_long_slot73_v1":  { "patternId": "zm1_long_slot73_v1",  "registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "no_data_source", "dataValidation": null, "historical": null, "wf": null },
+    "ct1_long_slot29_v1":  { "patternId": "ct1_long_slot29_v1",  "registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "not_tested", "dataValidation": null, "historical": null, "wf": null },
+    "es1_long_slot240_v1": { "patternId": "es1_long_slot240_v1", "registryVersion": "1.0.0", "computedAt": "2026-07-30T00:00:00.000Z", "status": "not_tested", "dataValidation": null, "historical": null, "wf": null }
+  }
+}
