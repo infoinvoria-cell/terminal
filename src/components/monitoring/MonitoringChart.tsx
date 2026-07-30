@@ -330,6 +330,7 @@ const COMPACT_RIGHT_OFFSET = 1;
 const DASHBOARD_RIGHT_OFFSET = 3;
 const RIGHT_EDGE_THRESHOLD = 2;
 const HORIZONTAL_WHEEL_BAR_SHIFT = 0.75;
+const VERTICAL_WHEEL_BAR_SHIFT = 3;
 /** Set true only for DOM/CSS verification in browser. */
 const DEBUG_FORCE_GO_TO_LATEST = false;
 const FULLSCREEN_HOVER_ZONE_WIDTH = 160;
@@ -1395,7 +1396,7 @@ function MonitoringChartInner({
         ...(isIntraday ? { tickMarkFormatter: berlinIntradayTickMarkFormatter } : {}),
       },
       handleScroll: {
-        mouseWheel: false, // wheel is reserved for zoom (handleScale) — TV-style
+        mouseWheel: false, // custom onWheel handler handles all wheel events
         pressedMouseMove: true, // TradingView-style: drag to pan
         horzTouchDrag: true,
         vertTouchDrag: true,
@@ -1405,7 +1406,7 @@ function MonitoringChartInner({
         mouse: false,
       },
       handleScale: {
-        mouseWheel: true, // wheel zoom on the time axis
+        mouseWheel: false, // wheel pans (TV-style); pinch zooms on touch
         pinch: true,
         axisPressedMouseMove: {
           time: true,
@@ -1601,11 +1602,19 @@ function MonitoringChartInner({
     const onWheel = (event: WheelEvent) => {
       const absX = Math.abs(event.deltaX);
       const absY = Math.abs(event.deltaY);
-      if (absX <= 0 || absX < absY * 0.45) return;
+      const isHorizontal = absX > 0 && absX >= absY * 0.45;
+      const isVertical = absY > 0 && !isHorizontal;
+      if (!isHorizontal && !isVertical) return;
       event.preventDefault();
       const range = chart.timeScale().getVisibleLogicalRange();
       if (!range) return;
-      const shift = event.deltaX > 0 ? HORIZONTAL_WHEEL_BAR_SHIFT : -HORIZONTAL_WHEEL_BAR_SHIFT;
+      let shift: number;
+      if (isHorizontal) {
+        shift = event.deltaX > 0 ? HORIZONTAL_WHEEL_BAR_SHIFT : -HORIZONTAL_WHEEL_BAR_SHIFT;
+      } else {
+        // Vertical scroll: pan the chart (TV-style — wheel down = older bars, wheel up = newer)
+        shift = event.deltaY > 0 ? -VERTICAL_WHEEL_BAR_SHIFT : VERTICAL_WHEEL_BAR_SHIFT;
+      }
       applyVisibleRange({
         from: range.from + shift,
         to: range.to + shift,
@@ -1738,10 +1747,10 @@ function MonitoringChartInner({
 
     chart.applyOptions({
       // TradingView-style interaction — re-asserted on every data update so the
-      // 5s refresh can't silently re-lock the chart. Wheel zooms (handleScale),
+      // 5s refresh can't silently re-lock the chart. Wheel pans (custom onWheel),
       // drag pans (handleScroll.pressedMouseMove).
       handleScroll: {
-        mouseWheel: false,
+        mouseWheel: false, // custom onWheel handles all wheel events
         pressedMouseMove: true,
         horzTouchDrag: true,
         vertTouchDrag: true,
@@ -1797,7 +1806,7 @@ function MonitoringChartInner({
         ...(isIntradayTf ? { tickMarkFormatter: berlinIntradayTickMarkFormatter } : {}),
       },
       handleScale: {
-        mouseWheel: true,
+        mouseWheel: false, // wheel pans; pinch/axis-drag zooms
         pinch: true,
         axisPressedMouseMove: {
           time: true,
