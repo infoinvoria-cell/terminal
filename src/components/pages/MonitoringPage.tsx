@@ -665,10 +665,15 @@ type AnomalyMtAssetConfig = {
 };
 
 // WS v1.3 active anomaly components (3×15% = 45% portfolio weight)
+// YM1!: must use CBOT_MINI:YM1! — this is the only source key that has a TVC
+// cache file (CBOT_MINI_YM1_D.json) and a STRATEGY_ALL_S_MAP entry. CBOT:YM1!
+// has no cache and Supabase monitoring_ohlc carries corrupted data (~515 instead
+// of ~52 000) under that key. CBOT_MINI:YM1! is identical on TradingView to the
+// full-sized YM (the Dow micro MYM is a separate contract).
 const ANOMALY_MT_ASSETS: AnomalyMtAssetConfig[] = [
-  { slot: "left",   displaySymbol: "GC1! 1D",  requestSymbol: "GC1!", source: "COMEX:GC1!", name: "Gold Freitag Long (GC1!)",   timeframe: "1D" },
-  { slot: "center", displaySymbol: "GLD 1D",   requestSymbol: "GLD",  source: "AMEX:GLD",   name: "Gold Donnerstag Long (GLD)", timeframe: "1D" },
-  { slot: "right",  displaySymbol: "YM1! 1D",  requestSymbol: "YM1!", source: "CBOT:YM1!",  name: "Dow Jones TAT (YM1!)",       timeframe: "1D" },
+  { slot: "left",   displaySymbol: "GC1! 1D",  requestSymbol: "GC1!", source: "COMEX:GC1!",      name: "Gold Freitag Long (GC1!)",   timeframe: "1D" },
+  { slot: "center", displaySymbol: "GLD 1D",   requestSymbol: "GLD",  source: "AMEX:GLD",        name: "Gold Donnerstag Long (GLD)", timeframe: "1D" },
+  { slot: "right",  displaySymbol: "YM1! 1D",  requestSymbol: "YM1!", source: "CBOT_MINI:YM1!",  name: "Dow Jones TAT (YM1!)",       timeframe: "1D" },
 ];
 
 const WAVE1_GROUP_BY_TAB: Partial<Record<TabId, Wave1GroupId>> = {
