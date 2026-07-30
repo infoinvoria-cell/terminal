@@ -744,7 +744,7 @@ export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Pr
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, fontFamily: FONT }}>
 
       {mode === "grid" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gap: 10, flex: 1, minHeight: 0, overflow: "hidden", padding: "8px 10px 10px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gap: 14, flex: 1, minHeight: 0, overflow: "hidden", padding: "12px 14px 14px" }}>
           {SLEEVE_PATTERNS.map(p => (
             <SleeveCard key={p.id} p={p} selected={selectedId === p.id}
               onActivate={() => activatePattern(p)}
