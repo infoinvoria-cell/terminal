@@ -82,6 +82,7 @@ export async function collectDarwinexSnapshotBundle(options: DarwinexRunOptions)
     accounts,
     dailyEquity,
     dailyReturns,
+    monthlyReturns: [],
     openPositions,
     closedTrades: [],
     cashflows: [],
@@ -116,16 +117,25 @@ function normalizeInvestorOpenPositions(productId: string, investor: unknown): O
 
 function normalizeDarwinReturns(productId: string, history: unknown): DailyReturnRow[] {
   const quotes = asArray<Record<string, unknown>>((history as Record<string, unknown>).quotes);
-  return quotes.map((row) => ({
-    source: "darwinex_darwin",
-    provider: "darwinex",
-    providerAccountId: productId,
-    dateUtc: asString(row.timestamp)?.slice(0, 10) ?? "1970-01-01",
-    returnPct: asNumber(row.returnPct),
-    profit: null,
-    brokerLocalDate: asString(row.timestamp),
-    brokerTimezone: "UTC",
-  }));
+  return quotes.map((row, index) => {
+    const currentQuote = asNumber(row.quote);
+    const previousQuote = index > 0 ? asNumber(quotes[index - 1]?.quote) : null;
+    const derivedReturnPct =
+      currentQuote !== null && previousQuote !== null && previousQuote !== 0
+        ? ((currentQuote - previousQuote) / previousQuote) * 100
+        : null;
+
+    return {
+      source: "darwinex_darwin",
+      provider: "darwinex",
+      providerAccountId: productId,
+      dateUtc: asString(row.timestamp)?.slice(0, 10) ?? "1970-01-01",
+      returnPct: derivedReturnPct,
+      profit: null,
+      brokerLocalDate: asString(row.timestamp),
+      brokerTimezone: "UTC",
+    };
+  });
 }
 
 function normalizeDarwinEquity(productId: string, history: unknown): DailyEquityRow[] {

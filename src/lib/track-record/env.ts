@@ -37,7 +37,10 @@ export function getTrackRecordEnv() {
 
 export function ensureCronSecret(request: Request) {
   const { cronSecret } = getTrackRecordEnv();
-  if (!cronSecret) return true;
+  if (!cronSecret) {
+    return process.env.TRACK_RECORD_ALLOW_UNAUTHENTICATED_LOCAL === "1"
+      && !process.env.VERCEL;
+  }
   const bearer = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? "";
   const direct = request.headers.get("x-track-record-token") ?? "";
   return bearer === cronSecret || direct === cronSecret;

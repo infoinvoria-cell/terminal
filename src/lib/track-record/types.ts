@@ -66,6 +66,16 @@ export type DailyReturnRow = {
   brokerTimezone: string | null;
 };
 
+export type MonthlyReturnRow = {
+  source: TrackRecordSourceKind;
+  provider: TrackRecordProvider;
+  providerAccountId: string;
+  monthUtc: string;
+  returnPct: number;
+  sourceDocument: string;
+  calculationVersion: string;
+};
+
 export type OpenPositionRow = {
   source: TrackRecordSourceKind;
   provider: TrackRecordProvider;
@@ -158,6 +168,7 @@ export type TrackRecordSnapshotBundle = {
   accounts: AccountRow[];
   dailyEquity: DailyEquityRow[];
   dailyReturns: DailyReturnRow[];
+  monthlyReturns: MonthlyReturnRow[];
   openPositions: OpenPositionRow[];
   closedTrades: ClosedTradeRow[];
   cashflows: CashflowRow[];
@@ -174,6 +185,12 @@ export type TrackRecordOverview = {
     myfxbookVisibleSource: string;
     officialKpisSource: string;
     baselinePeriod: string;
+    firstReliableDate: string | null;
+    lastReliableDate: string | null;
+    monthlyReturnCount: number;
+    monthlyReturns: Array<{ month: string; returnPct: number }>;
+    normalizedClosedTradeCount: number;
+    historicalDataQuality: "complete" | "partial" | "insufficient";
   };
   capabilities: {
     supabaseConfigured: boolean;
@@ -189,6 +206,12 @@ export type TrackRecordOverview = {
     accountRows: AccountRow[];
     metrics: TrackRecordMetricRow[];
     badges: VerificationBadge[];
+  };
+  readiness: {
+    completed: number;
+    total: number;
+    percent: number;
+    blockers: string[];
   };
   notes: string[];
 };

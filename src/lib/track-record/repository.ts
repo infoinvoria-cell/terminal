@@ -9,7 +9,10 @@ import type {
   TrackRecordSnapshotBundle,
 } from "@/lib/track-record/types";
 
-export async function persistTrackRecordBundle(bundle: TrackRecordSnapshotBundle) {
+export async function persistTrackRecordBundle(
+  bundle: TrackRecordSnapshotBundle,
+  options: { appendOnly?: boolean } = {},
+) {
   const env = getTrackRecordEnv();
   if (!env.hasSupabase) {
     return { persisted: false, reason: "supabase_not_configured" as const };
@@ -17,14 +20,15 @@ export async function persistTrackRecordBundle(bundle: TrackRecordSnapshotBundle
 
   const db = createSupabaseServiceClient();
 
-  await upsert(db, "track_record_raw_snapshots", mapRawSnapshots(bundle.rawSnapshots), "source,provider,account_or_darwin_id,payload_hash");
+  await insertImmutable(db, "track_record_raw_snapshots", mapRawSnapshots(bundle.rawSnapshots));
   await upsert(db, "accounts", mapAccounts(bundle.accounts), "source,provider,provider_account_id");
-  await upsert(db, "daily_equity", mapDailyEquity(bundle.dailyEquity), "source,provider,provider_account_id,date_utc");
-  await upsert(db, "daily_returns", mapDailyReturns(bundle.dailyReturns), "source,provider,provider_account_id,date_utc");
+  await persistSeries(db, "daily_equity", mapDailyEquity(bundle.dailyEquity), "source,provider,provider_account_id,date_utc", options.appendOnly);
+  await persistSeries(db, "daily_returns", mapDailyReturns(bundle.dailyReturns), "source,provider,provider_account_id,date_utc", options.appendOnly);
+  await persistSeries(db, "monthly_returns", mapMonthlyReturns(bundle.monthlyReturns), "source,provider,provider_account_id,month_utc", options.appendOnly);
   await upsert(db, "open_positions", mapOpenPositions(bundle.openPositions), "source,provider,provider_account_id,provider_position_id");
-  await upsert(db, "closed_trades", mapClosedTrades(bundle.closedTrades), "source,provider,provider_account_id,stable_trade_id");
-  await upsert(db, "cashflows", mapCashflows(bundle.cashflows), "source,provider,provider_account_id,stable_cashflow_id");
-  await upsert(db, "track_record_metrics", mapMetrics(bundle.metrics), "source,provider,provider_account_id,metric_scope,metric_name,as_of_utc");
+  await persistSeries(db, "closed_trades", mapClosedTrades(bundle.closedTrades), "source,provider,provider_account_id,stable_trade_id", true);
+  await persistSeries(db, "cashflows", mapCashflows(bundle.cashflows), "source,provider,provider_account_id,stable_cashflow_id", true);
+  await insertImmutable(db, "track_record_metrics", mapMetrics(bundle.metrics));
   await upsert(db, "source_sync_status", mapSyncStatus(bundle.syncStatus), "source,provider,provider_account_id");
 
   return { persisted: true as const };
@@ -54,6 +58,28 @@ async function upsert(db: ReturnType<typeof createSupabaseServiceClient>, table:
   if (!rows.length) return;
   const { error } = await db.from(table).upsert(rows, { onConflict });
   if (error) throw error;
+}
+
+async function insertImmutable(db: ReturnType<typeof createSupabaseServiceClient>, table: string, rows: object[]) {
+  if (!rows.length) return;
+  const { error } = await db.from(table).insert(rows);
+  if (error && error.code !== "23505") throw error;
+}
+
+async function persistSeries(
+  db: ReturnType<typeof createSupabaseServiceClient>,
+  table: string,
+  rows: object[],
+  onConflict: string,
+  appendOnly = false,
+) {
+  if (!rows.length) return;
+  if (appendOnly) {
+    const { error } = await db.from(table).upsert(rows, { onConflict, ignoreDuplicates: true });
+    if (error) throw error;
+    return;
+  }
+  await upsert(db, table, rows, onConflict);
 }
 
 function mapAccounts(rows: TrackRecordSnapshotBundle["accounts"]) {
@@ -109,6 +135,18 @@ function mapDailyReturns(rows: TrackRecordSnapshotBundle["dailyReturns"]) {
     profit: row.profit,
     broker_local_date: row.brokerLocalDate,
     broker_timezone: row.brokerTimezone,
+  }));
+}
+
+function mapMonthlyReturns(rows: TrackRecordSnapshotBundle["monthlyReturns"]) {
+  return rows.map((row) => ({
+    source: row.source,
+    provider: row.provider,
+    provider_account_id: row.providerAccountId,
+    month_utc: row.monthUtc,
+    return_pct: row.returnPct,
+    source_document: row.sourceDocument,
+    calculation_version: row.calculationVersion,
   }));
 }
 
