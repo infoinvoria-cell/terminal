@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import {
   LineChart, Line, AreaChart, Area,
   XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -10,7 +10,6 @@ import {
 
 type Strategy  = "EUR_30M" | "DAX_1H" | "DAX_2H" | "GC_FRI" | "GLD_THU" | "YM_TAT";
 type AssetType = "futures" | "cfd";
-type Period    = "1M" | "3M" | "1Y" | "Max";
 
 interface StrategyMeta {
   label: string;
@@ -44,8 +43,6 @@ interface TradeRecord {
   win: boolean;
   pnl_pct: number;
   equity: number;
-  entry_date?: string;
-  exit_date?: string;
   direction?: string;
 }
 
@@ -122,8 +119,34 @@ const ANOMALY:  Strategy[] = ["GC_FRI", "GLD_THU", "YM_TAT"];
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 function todayISO() { return new Date().toISOString().slice(0, 10); }
+function dateAgo(years: number) {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - years);
+  return d.toISOString().slice(0, 10);
+}
 function fmt(v: number | undefined, d = 2, suf = "") { return v == null ? "—" : `${v.toFixed(d)}${suf}`; }
-function fmtPct(v: number | undefined) { return v == null ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(2)}%`; }
+
+// ── localStorage cache ─────────────────────────────────────────────────────────
+
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1h
+
+function cacheKey(strategy: string, assetType: string, start: string, end: string) {
+  return `te_bt_${strategy}_${assetType}_${start}_${end}`;
+}
+
+function readCache(key: string): BacktestResult | null {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const { ts, data } = JSON.parse(raw) as { ts: number; data: BacktestResult };
+    if (Date.now() - ts > CACHE_TTL_MS) { localStorage.removeItem(key); return null; }
+    return data;
+  } catch { return null; }
+}
+
+function writeCache(key: string, data: BacktestResult) {
+  try { localStorage.setItem(key, JSON.stringify({ ts: Date.now(), data })); } catch { /* storage full */ }
+}
 
 // ── TradingView widget loader ──────────────────────────────────────────────────
 
@@ -144,48 +167,34 @@ function loadTVScript(): Promise<void> {
     s.src = "https://s3.tradingview.com/tv.js";
     s.async = true;
     s.onload = () => { window._tvScriptReady = true; resolve(); };
-    s.onerror = () => resolve(); // fail silently
+    s.onerror = () => resolve();
     document.head.appendChild(s);
   });
   return window._tvScriptLoadPromise;
 }
 
-interface TVChartProps { tvSymbol: string; tvInterval: string; }
-
-function TradingViewChart({ tvSymbol, tvInterval }: TVChartProps) {
+function TradingViewChart({ tvSymbol, tvInterval }: { tvSymbol: string; tvInterval: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef  = useRef(`tv_${Math.random().toString(36).slice(2, 8)}`);
 
   useEffect(() => {
     const containerId = widgetIdRef.current;
     let cancelled = false;
-
-    const create = async () => {
+    void (async () => {
       await loadTVScript();
       if (cancelled || !window.TradingView || !document.getElementById(containerId)) return;
       try {
         new window.TradingView.widget({
-          autosize: true,
-          symbol: tvSymbol,
-          interval: tvInterval,
-          timezone: "Etc/UTC",
-          theme: "dark",
-          style: "1",
-          locale: "en",
-          toolbar_bg: "#111214",
-          enable_publishing: false,
-          allow_symbol_change: true,
-          save_image: false,
-          container_id: containerId,
-          hide_top_toolbar: false,
-          withdateranges: true,
-          hide_legend: false,
+          autosize: true, symbol: tvSymbol, interval: tvInterval,
+          timezone: "Etc/UTC", theme: "dark", style: "1", locale: "en",
+          toolbar_bg: "#111214", enable_publishing: false,
+          allow_symbol_change: true, save_image: false,
+          container_id: containerId, hide_top_toolbar: false,
+          withdateranges: true, hide_legend: false,
           studies: ["MASimple@tv-basicstudies"],
         });
-      } catch { /* widget creation failed silently */ }
-    };
-
-    void create();
+      } catch { /* silent */ }
+    })();
     return () => { cancelled = true; };
   }, [tvSymbol, tvInterval]);
 
@@ -196,50 +205,22 @@ function TradingViewChart({ tvSymbol, tvInterval }: TVChartProps) {
   );
 }
 
-// ── Drawdown chart ─────────────────────────────────────────────────────────────
-
-function DrawdownChart({ data }: { data: number[] }) {
-  if (!data?.length) return null;
-  const pts = data.map((v, i) => ({ i, value: v }));
-  return (
-    <ResponsiveContainer width="100%" height={80}>
-      <AreaChart data={pts} margin={{ top: 2, right: 2, bottom: 0, left: 2 }}>
-        <defs>
-          <linearGradient id="ddGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%"  stopColor="#ef4444" stopOpacity={0.4} />
-            <stop offset="95%" stopColor="#ef4444" stopOpacity={0.05} />
-          </linearGradient>
-        </defs>
-        <XAxis dataKey="i" hide />
-        <YAxis tick={{ fill: "rgba(113,113,122,1)", fontSize: 8 }} width={28} tickFormatter={(v: number) => `${v.toFixed(0)}%`} />
-        <Tooltip
-          contentStyle={{ background: "#1c1d20", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 6, fontSize: 10 }}
-          formatter={(v: unknown) => [`${(v as number).toFixed(2)}%`, "DD"]}
-          labelFormatter={() => ""}
-        />
-        <Area type="monotone" dataKey="value" stroke="#ef4444" strokeWidth={1}
-          fill="url(#ddGrad)" dot={false} isAnimationActive={false} />
-      </AreaChart>
-    </ResponsiveContainer>
-  );
-}
-
-// ── Equity chart ───────────────────────────────────────────────────────────────
+// ── Charts ─────────────────────────────────────────────────────────────────────
 
 function EquityChart({ data }: { data: number[] }) {
-  if (!data?.length) return (
-    <div style={{ height: 160, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "rgba(113,113,122,1)" }}>
-      Backtest ausführen um Equity Curve zu sehen
+  const pts = useMemo(() => data.map((v, i) => ({ i, value: v })), [data]);
+  if (!pts.length) return (
+    <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "rgba(113,113,122,1)" }}>
+      Backtest läuft…
     </div>
   );
-  const pts = data.map((v, i) => ({ i, value: v }));
   const min = Math.min(...data);
   const max = Math.max(...data);
   return (
-    <ResponsiveContainer width="100%" height={160}>
-      <LineChart data={pts} margin={{ top: 4, right: 4, bottom: 0, left: 4 }}>
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={pts} margin={{ top: 6, right: 6, bottom: 2, left: 4 }}>
         <XAxis dataKey="i" hide />
-        <YAxis tick={{ fill: "rgba(113,113,122,1)", fontSize: 8 }} width={32}
+        <YAxis tick={{ fill: "rgba(113,113,122,1)", fontSize: 9 }} width={34}
           domain={[min * 0.98, max * 1.02]} tickFormatter={(v: number) => `${v.toFixed(0)}`} />
         <Tooltip
           contentStyle={{ background: "#1c1d20", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 6, fontSize: 10 }}
@@ -253,43 +234,29 @@ function EquityChart({ data }: { data: number[] }) {
   );
 }
 
-// ── Trade list ─────────────────────────────────────────────────────────────────
-
-function TradeList({ trades }: { trades: TradeRecord[] }) {
-  if (!trades?.length) return null;
+function DrawdownChart({ data }: { data: number[] }) {
+  const pts = useMemo(() => data.map((v, i) => ({ i, value: v })), [data]);
+  if (!pts.length) return null;
   return (
-    <div style={{ maxHeight: 200, overflowY: "auto" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10 }}>
-        <thead>
-          <tr style={{ position: "sticky", top: 0, background: "#111214" }}>
-            {["#", "Dir", "Entry", "Exit", "PnL%"].map((h) => (
-              <th key={h} style={{ padding: "3px 6px", textAlign: "right", color: "rgba(113,113,122,1)", fontWeight: 600, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {trades.slice(-50).reverse().map((t, i) => (
-            <tr key={i} style={{ background: i % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent" }}>
-              <td style={{ padding: "2px 6px", color: "rgba(113,113,122,1)" }}>{trades.length - i}</td>
-              <td style={{ padding: "2px 6px", color: t.direction === "short" ? "#f87171" : "#34d399", textAlign: "right" }}>
-                {t.direction === "short" ? "S" : "L"}
-              </td>
-              <td style={{ padding: "2px 6px", textAlign: "right", fontFamily: "monospace", color: "rgba(228,228,231,1)" }}>
-                {t.entry?.toFixed(4) ?? "—"}
-              </td>
-              <td style={{ padding: "2px 6px", textAlign: "right", fontFamily: "monospace", color: "rgba(228,228,231,1)" }}>
-                {t.exit?.toFixed(4) ?? "—"}
-              </td>
-              <td style={{ padding: "2px 6px", textAlign: "right", fontFamily: "monospace", color: t.win ? "#34d399" : "#f87171" }}>
-                {fmtPct(t.pnl_pct * 100)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <ResponsiveContainer width="100%" height="100%">
+      <AreaChart data={pts} margin={{ top: 4, right: 6, bottom: 2, left: 4 }}>
+        <defs>
+          <linearGradient id="ddGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%"  stopColor="#ef4444" stopOpacity={0.4} />
+            <stop offset="95%" stopColor="#ef4444" stopOpacity={0.05} />
+          </linearGradient>
+        </defs>
+        <XAxis dataKey="i" hide />
+        <YAxis tick={{ fill: "rgba(113,113,122,1)", fontSize: 9 }} width={34} tickFormatter={(v: number) => `${v.toFixed(0)}%`} />
+        <Tooltip
+          contentStyle={{ background: "#1c1d20", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 6, fontSize: 10 }}
+          formatter={(v: unknown) => [`${(v as number).toFixed(2)}%`, "DD"]}
+          labelFormatter={() => ""}
+        />
+        <Area type="monotone" dataKey="value" stroke="#ef4444" strokeWidth={1}
+          fill="url(#ddGrad)" dot={false} isAnimationActive={false} />
+      </AreaChart>
+    </ResponsiveContainer>
   );
 }
 
@@ -298,36 +265,46 @@ function TradeList({ trades }: { trades: TradeRecord[] }) {
 const S = {
   panel: {
     background: "#111214",
-    borderRadius: 12,
     border: "1px solid rgba(255,255,255,0.08)",
     overflow: "hidden" as const,
   },
-  sectionHead: {
+  secHead: {
     fontSize: 9, fontWeight: 800, letterSpacing: "0.10em",
     textTransform: "uppercase" as const,
-    color: "rgba(255,255,255,0.25)",
-    padding: "12px 0 6px",
+    color: "rgba(255,255,255,0.22)",
+    padding: "10px 0 5px",
     borderBottom: "1px solid rgba(255,255,255,0.05)",
-    marginBottom: 10,
+    marginBottom: 8,
   },
   label: {
-    fontSize: 10, fontWeight: 700, letterSpacing: "0.06em",
+    fontSize: 9, fontWeight: 700, letterSpacing: "0.07em",
     textTransform: "uppercase" as const,
-    color: "rgba(161,161,170,1)", marginBottom: 4, display: "block" as const,
+    color: "rgba(113,113,122,1)", marginBottom: 3, display: "block" as const,
   },
-  input: {
+  inputStyle: {
     width: "100%", background: "rgba(255,255,255,0.05)",
-    border: "1px solid rgba(255,255,255,0.10)", borderRadius: 6,
-    padding: "6px 8px", color: "#ffffff", fontSize: 12, outline: "none",
+    border: "1px solid rgba(255,255,255,0.10)", borderRadius: 5,
+    padding: "5px 7px", color: "#ffffff", fontSize: 11, outline: "none",
   },
 };
+
+function KpiCard({ label, value, color = "#ffffff" }: { label: string; value: string; color?: string }) {
+  return (
+    <div style={{
+      background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)",
+      borderRadius: 6, padding: "6px 8px",
+    }}>
+      <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(113,113,122,1)", marginBottom: 2 }}>{label}</div>
+      <div style={{ fontSize: 13, fontWeight: 800, fontFamily: "monospace", color, lineHeight: 1 }}>{value}</div>
+    </div>
+  );
+}
 
 // ── Main page ──────────────────────────────────────────────────────────────────
 
 export default function TradingEnginePage() {
   const [strategy,  setStrategy]  = useState<Strategy>("EUR_30M");
   const [assetType, setAssetType] = useState<AssetType>("futures");
-  const [period,    setPeriod]    = useState<Period>("3M");
   const [startDate, setStartDate] = useState("2019-01-01");
   const [endDate,   setEndDate]   = useState(todayISO());
   const [result,    setResult]    = useState<BacktestResult | null>(null);
@@ -337,9 +314,8 @@ export default function TradingEnginePage() {
 
   const meta     = STRATEGIES[strategy];
   const tvSymbol = assetType === "futures" ? meta.tvFutures : meta.tvCfd;
-  const asset    = assetType === "futures" ? meta.futures   : meta.cfd;
 
-  // ── Signal fetch + 30s auto-refresh ─────────────────────────────────────────
+  // ── Signal fetch ─────────────────────────────────────────────────────────────
   const fetchSignal = useCallback(async () => {
     try {
       const res = await fetch("/api/engine", {
@@ -352,33 +328,43 @@ export default function TradingEnginePage() {
   }, [strategy, assetType]);
 
   useEffect(() => { void fetchSignal(); }, [fetchSignal]);
-
   useEffect(() => {
     const id = setInterval(() => { void fetchSignal(); }, 30_000);
     return () => clearInterval(id);
   }, [fetchSignal]);
 
-  // ── Auto-run backtest on strategy / assetType / dates change ─────────────────
-  useEffect(() => {
-    void runBacktest();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [strategy, assetType, startDate, endDate]);
-
-  // ── Backtest ──────────────────────────────────────────────────────────────────
-  async function runBacktest() {
-    setIsRunning(true); setResult(null);
+  // ── Backtest with cache ───────────────────────────────────────────────────────
+  const runBacktest = useCallback(async (force = false) => {
+    const key = cacheKey(strategy, assetType, startDate, endDate);
+    if (!force) {
+      const cached = readCache(key);
+      if (cached) { setResult(cached); return; }
+    }
+    setIsRunning(true);
     try {
       const res = await fetch("/api/engine", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "backtest", strategy, asset_type: assetType, start_date: startDate, end_date: endDate }),
       });
-      if (res.ok) setResult(await res.json());
+      if (res.ok) {
+        const data = await res.json() as BacktestResult;
+        setResult(data);
+        if (!data.error) writeCache(key, data);
+      }
     } catch { /* no-op */ }
     finally { setIsRunning(false); }
+  }, [strategy, assetType, startDate, endDate]);
+
+  useEffect(() => { void runBacktest(); }, [runBacktest]);
+
+  // ── Quick date presets ────────────────────────────────────────────────────────
+  function applyPreset(years: number | "max") {
+    setStartDate(years === "max" ? "2010-01-01" : dateAgo(years));
+    setEndDate(todayISO());
   }
 
-  // ── Exports ──────────────────────────────────────────────────────────────────
+  // ── Export ────────────────────────────────────────────────────────────────────
   function exportJSON() {
     if (!result) return;
     const blob = new Blob([JSON.stringify(result, null, 2)], { type: "application/json" });
@@ -388,14 +374,12 @@ export default function TradingEnginePage() {
     });
     a.click(); URL.revokeObjectURL(a.href);
   }
-
   function exportCSV() {
     if (!result?.trades?.length) return;
-    const header = "trade,direction,entry,exit,win,pnl_pct,equity";
     const rows = result.trades.map((t, i) =>
       `${i + 1},${t.direction ?? "long"},${t.entry ?? ""},${t.exit ?? ""},${t.win},${(t.pnl_pct * 100).toFixed(3)},${t.equity.toFixed(2)}`
     );
-    const blob = new Blob([[header, ...rows].join("\n")], { type: "text/csv" });
+    const blob = new Blob([["trade,direction,entry,exit,win,pnl_pct,equity", ...rows].join("\n")], { type: "text/csv" });
     const a = Object.assign(document.createElement("a"), {
       href: URL.createObjectURL(blob),
       download: `trades_${strategy}_${startDate}_${endDate}.csv`,
@@ -403,289 +387,278 @@ export default function TradingEnginePage() {
     a.click(); URL.revokeObjectURL(a.href);
   }
 
-  // ── Metric rows ───────────────────────────────────────────────────────────────
   const m = result?.metrics;
-  const metricRows = m ? [
-    ["CAGR",          fmt(m.cagr, 1, "%"),           m.cagr >= 0 ? "#34d399" : "#f87171"],
-    ["Sharpe",        fmt(m.sharpe, 2),               "#ffffff"],
-    ["Max DD",        fmt(m.maxDD, 1, "%"),            "#f87171"],
-    ["Calmar",        fmt(m.calmar, 2),               "#ffffff"],
-    ["Trades",        String(m.trades ?? "—"),        "#ffffff"],
-    ["Win Rate",      fmt(m.winRate, 1, "%"),          "#ffffff"],
-    ["Profit Factor", fmt(m.profitFactor, 2),         m.profitFactor != null && m.profitFactor >= 1 ? "#34d399" : "#f87171"],
-    ["Avg Win",       fmt(m.avgWin, 2, "%"),           "#34d399"],
-    ["Avg Loss",      fmt(m.avgLoss, 2, "%"),          "#f87171"],
-    ["Best Trade",    fmt(m.bestTrade, 2, "%"),        "#34d399"],
-    ["Worst Trade",   fmt(m.worstTrade, 2, "%"),       "#f87171"],
-  ] as [string, string, string][] : [];
-
   const signalColor = signal.direction === "long" ? "#34d399" : signal.direction === "short" ? "#f87171" : "rgba(113,113,122,1)";
-  const signalBg    = signal.direction === "long" ? "rgba(16,185,129,0.12)" : signal.direction === "short" ? "rgba(239,68,68,0.12)" : "rgba(39,39,42,0.8)";
+  const signalBg    = signal.direction === "long" ? "rgba(16,185,129,0.12)" : signal.direction === "short" ? "rgba(239,68,68,0.12)" : "rgba(39,39,42,0.6)";
+
+  // last trade for sidebar
+  const lastTrade = result?.trades?.length ? result.trades[result.trades.length - 1] : null;
 
   return (
-    <div style={{ display: "flex", width: "100%", height: "100%", overflow: "hidden", background: "#0c0d10", gap: 8, padding: 8 }}>
+    <div style={{ display: "flex", width: "100%", height: "100%", overflow: "hidden", background: "#0c0d10", gap: 6, padding: 6 }}>
+      <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
 
-      {/* ── LEFT: Strategy + Signal ──────────────────────────────────────────── */}
-      <div style={{ ...S.panel, width: 260, flexShrink: 0, display: "flex", flexDirection: "column" }}>
-        <div className="no-scrollbar" style={{ flex: 1, overflowY: "auto", padding: "12px 10px" }}>
+      {/* ── LEFT 80%: Chart top + Tester bottom ──────────────────────────────── */}
+      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 6 }}>
 
-          <div style={S.sectionHead}>Strategy</div>
+        {/* Chart — top 50% */}
+        <div style={{ ...S.panel, borderRadius: 10, flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+          {/* Chart toolbar */}
+          <div style={{
+            flexShrink: 0, display: "flex", alignItems: "center", gap: 8,
+            padding: "8px 12px", borderBottom: "1px solid rgba(255,255,255,0.06)",
+          }}>
+            <span style={{ fontSize: 13, fontWeight: 800, color: "#ffffff", letterSpacing: "-0.01em" }}>
+              {assetType === "futures" ? meta.futures : meta.cfd}
+            </span>
+            <span style={{ fontSize: 10, color: "rgba(113,113,122,1)" }}>{meta.label}</span>
+            {meta.useEma && (
+              <div style={{ display: "flex", gap: 10, marginLeft: "auto" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  <div style={{ width: 14, height: 2, background: "#3b82f6", borderRadius: 1 }} />
+                  <span style={{ fontSize: 9, color: "rgba(161,161,170,1)" }}>EMA Fast</span>
+                  {signal.ema_fast_val != null && <span style={{ fontSize: 9, fontFamily: "monospace", color: "#3b82f6" }}>{signal.ema_fast_val.toFixed(4)}</span>}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  <div style={{ width: 14, height: 2, background: "#f59e0b", borderRadius: 1 }} />
+                  <span style={{ fontSize: 9, color: "rgba(161,161,170,1)" }}>EMA Slow</span>
+                  {signal.ema_slow_val != null && <span style={{ fontSize: 9, fontFamily: "monospace", color: "#f59e0b" }}>{signal.ema_slow_val.toFixed(4)}</span>}
+                </div>
+              </div>
+            )}
+          </div>
+          {/* TV widget */}
+          <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
+            <TradingViewChart key={`${tvSymbol}-${meta.tvInterval}`} tvSymbol={tvSymbol} tvInterval={meta.tvInterval} />
+          </div>
+        </div>
 
-          {/* Intraday group */}
-          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", color: "rgba(255,255,255,0.2)", textTransform: "uppercase", padding: "4px 2px 3px" }}>Intraday</div>
-          {INTRADAY.map((id) => (
-            <StratBtn key={id} id={id} active={strategy === id} assetType={assetType} onClick={() => setStrategy(id)} />
-          ))}
-
-          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", color: "rgba(255,255,255,0.2)", textTransform: "uppercase", padding: "8px 2px 3px" }}>Anomaly</div>
-          {ANOMALY.map((id) => (
-            <StratBtn key={id} id={id} active={strategy === id} assetType={assetType} onClick={() => setStrategy(id)} />
-          ))}
-
-          {/* Asset Type */}
-          <div style={{ margin: "14px 0 10px" }}>
-            <div style={S.label}>Asset Type</div>
-            <div style={{ display: "flex", gap: 4 }}>
-              {(["futures", "cfd"] as AssetType[]).map((t) => (
-                <button key={t} onClick={() => setAssetType(t)} style={{
-                  flex: 1, padding: "5px 0", borderRadius: 6, cursor: "pointer",
-                  border: assetType === t ? "1px solid rgba(255,255,255,0.18)" : "1px solid rgba(255,255,255,0.06)",
-                  background: assetType === t ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.03)",
-                  color: assetType === t ? "#ffffff" : "rgba(113,113,122,1)",
-                  fontSize: 11, fontWeight: assetType === t ? 700 : 400, textTransform: "capitalize",
-                }}>
-                  {t === "futures" ? "Futures" : "CFD"}
-                </button>
-              ))}
+        {/* Strategy Tester — bottom 50% */}
+        <div style={{ ...S.panel, borderRadius: 10, flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+          {/* Tester header */}
+          <div style={{
+            flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "7px 12px", borderBottom: "1px solid rgba(255,255,255,0.06)",
+          }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(212,212,216,1)", letterSpacing: "0.04em" }}>
+              STRATEGY TESTER — {meta.label}
+            </span>
+            <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
+              {isRunning && (
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style={{ animation: "spin 0.8s linear infinite", flexShrink: 0 }}>
+                  <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.2)" strokeWidth="3" />
+                  <path d="M12 2a10 10 0 0 1 10 10" stroke="#3b82f6" strokeWidth="3" strokeLinecap="round" />
+                </svg>
+              )}
+              <button onClick={() => void runBacktest(true)} disabled={isRunning} style={{
+                padding: "3px 10px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.10)",
+                background: isRunning ? "rgba(255,255,255,0.04)" : "rgba(37,99,235,0.15)",
+                color: isRunning ? "rgba(113,113,122,1)" : "#60a5fa",
+                fontSize: 10, fontWeight: 700, cursor: isRunning ? "not-allowed" : "pointer",
+              }}>↻ Neu berechnen</button>
+              {result && !result.error && (
+                <>
+                  <button onClick={exportJSON} style={{ padding: "3px 8px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.08)", background: "transparent", color: "rgba(161,161,170,1)", fontSize: 10, cursor: "pointer" }}>JSON</button>
+                  <button onClick={exportCSV} style={{ padding: "3px 8px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.08)", background: "transparent", color: "rgba(161,161,170,1)", fontSize: 10, cursor: "pointer" }}>CSV</button>
+                </>
+              )}
             </div>
           </div>
 
-          {/* Parameters */}
-          <div style={S.sectionHead}>Parameters — {meta.label}</div>
+          {/* Tester body: charts left + KPIs right */}
+          <div style={{ flex: 1, minHeight: 0, display: "flex", overflow: "hidden" }}>
+
+            {/* Charts — 60% */}
+            <div style={{ flex: 6, minWidth: 0, display: "flex", flexDirection: "column", padding: "8px 8px 8px 12px", gap: 4, borderRight: "1px solid rgba(255,255,255,0.05)" }}>
+              {result?.error ? (
+                <div style={{ padding: "10px 12px", background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 6, color: "#f87171", fontSize: 11 }}>
+                  {result.error}
+                </div>
+              ) : (
+                <>
+                  <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(113,113,122,1)", marginBottom: 2 }}>Equity Curve</div>
+                  <div style={{ flex: 3, minHeight: 0 }}>
+                    <EquityChart data={result?.equity ?? []} />
+                  </div>
+                  {result?.drawdown && result.drawdown.length > 0 && (
+                    <>
+                      <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(113,113,122,1)", marginTop: 4 }}>Drawdown</div>
+                      <div style={{ flex: 2, minHeight: 0 }}>
+                        <DrawdownChart data={result.drawdown} />
+                      </div>
+                    </>
+                  )}
+                  {!result && (
+                    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "rgba(113,113,122,0.6)" }}>
+                      Lade Backtest…
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* KPIs — 40% */}
+            <div style={{ flex: 4, minWidth: 0, padding: "8px 12px 8px 10px", overflowY: "auto", display: "flex", flexDirection: "column", gap: 5 }} className="no-scrollbar">
+              {m ? (
+                <>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
+                    <KpiCard label="CAGR" value={fmt(m.cagr, 1, "%")} color={m.cagr >= 0 ? "#34d399" : "#f87171"} />
+                    <KpiCard label="Sharpe" value={fmt(m.sharpe, 2)} color={m.sharpe >= 1 ? "#34d399" : "#ffffff"} />
+                    <KpiCard label="Max DD" value={fmt(m.maxDD, 1, "%")} color="#f87171" />
+                    <KpiCard label="Calmar" value={fmt(m.calmar, 2)} />
+                    <KpiCard label="Trades" value={String(m.trades ?? "—")} />
+                    <KpiCard label="Win Rate" value={fmt(m.winRate, 1, "%")} color={m.winRate >= 50 ? "#34d399" : "#ffffff"} />
+                    <KpiCard label="Profit Factor" value={fmt(m.profitFactor, 2)} color={m.profitFactor != null && m.profitFactor >= 1 ? "#34d399" : "#f87171"} />
+                    <KpiCard label="Avg Win" value={fmt(m.avgWin, 2, "%")} color="#34d399" />
+                    <KpiCard label="Avg Loss" value={fmt(m.avgLoss, 2, "%")} color="#f87171" />
+                    <KpiCard label="Best Trade" value={fmt(m.bestTrade, 2, "%")} color="#34d399" />
+                    <KpiCard label="Worst Trade" value={fmt(m.worstTrade, 2, "%")} color="#f87171" />
+                  </div>
+                </>
+              ) : (
+                <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "rgba(113,113,122,0.6)" }}>
+                  {isRunning ? "Berechne…" : "Keine Daten"}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── RIGHT SIDEBAR 20% ─────────────────────────────────────────────────── */}
+      <div style={{ ...S.panel, borderRadius: 10, width: "20%", flexShrink: 0, display: "flex", flexDirection: "column" }}>
+        <div className="no-scrollbar" style={{ flex: 1, overflowY: "auto", padding: "10px 10px 14px" }}>
+
+          {/* 1. STRATEGY */}
+          <div style={S.secHead}>Strategy</div>
+          <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.08em", color: "rgba(255,255,255,0.18)", textTransform: "uppercase", padding: "2px 2px 3px" }}>Intraday</div>
+          {INTRADAY.map((id) => <StratBtn key={id} id={id} active={strategy === id} assetType={assetType} onClick={() => setStrategy(id)} />)}
+          <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.08em", color: "rgba(255,255,255,0.18)", textTransform: "uppercase", padding: "6px 2px 3px" }}>Anomaly</div>
+          {ANOMALY.map((id) => <StratBtn key={id} id={id} active={strategy === id} assetType={assetType} onClick={() => setStrategy(id)} />)}
+
+          {/* 2. ASSET TYPE */}
+          <div style={{ ...S.secHead, marginTop: 10 }}>Asset Type</div>
+          <div style={{ display: "flex", gap: 4 }}>
+            {(["futures", "cfd"] as AssetType[]).map((t) => (
+              <button key={t} onClick={() => setAssetType(t)} style={{
+                flex: 1, padding: "5px 0", borderRadius: 5, cursor: "pointer",
+                border: assetType === t ? "1px solid rgba(255,255,255,0.18)" : "1px solid rgba(255,255,255,0.06)",
+                background: assetType === t ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.02)",
+                color: assetType === t ? "#ffffff" : "rgba(113,113,122,1)",
+                fontSize: 10, fontWeight: assetType === t ? 700 : 400,
+              }}>
+                {t === "futures" ? "Futures" : "CFD"}
+              </button>
+            ))}
+          </div>
+
+          {/* 3. ZEITRAUM */}
+          <div style={{ ...S.secHead, marginTop: 10 }}>Zeitraum</div>
+          <div style={{ display: "flex", gap: 3, marginBottom: 8 }}>
+            {([1, 3, 5, "max"] as (number | "max")[]).map((y) => (
+              <button key={y} onClick={() => applyPreset(y as number | "max")} style={{
+                flex: 1, padding: "4px 0", borderRadius: 5, cursor: "pointer",
+                border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)",
+                color: "rgba(161,161,170,1)", fontSize: 9, fontWeight: 600,
+              }}>
+                {y === "max" ? "Max" : `${y}J`}
+              </button>
+            ))}
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <div>
+              <label style={S.label}>Start</label>
+              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={S.inputStyle} />
+            </div>
+            <div>
+              <label style={S.label}>Ende</label>
+              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} style={S.inputStyle} />
+            </div>
+          </div>
+
+          {/* 4. PARAMETER */}
+          <div style={{ ...S.secHead, marginTop: 10 }}>Parameter — {meta.label}</div>
           {Object.entries(meta.params).map(([k, v]) => (
-            <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "3px 0", borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
-              <span style={{ fontSize: 10, color: "rgba(161,161,170,1)" }}>{k}</span>
-              <span style={{ fontSize: 10, color: "rgba(228,228,231,1)", fontFamily: "monospace" }}>{v}</span>
+            <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "2px 0", borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
+              <span style={{ fontSize: 9, color: "rgba(113,113,122,1)" }}>{k}</span>
+              <span style={{ fontSize: 9, color: "rgba(212,212,216,1)", fontFamily: "monospace" }}>{v}</span>
             </div>
           ))}
 
-          {/* Signal */}
-          <div style={{ ...S.sectionHead, marginTop: 14 }}>Current Signal</div>
+          {/* 5. CURRENT SIGNAL */}
+          <div style={{ ...S.secHead, marginTop: 10 }}>Current Signal</div>
           <div style={{
             display: "flex", alignItems: "center", justifyContent: "center",
-            padding: "10px 0", background: signalBg,
-            border: `1px solid ${signalColor}33`, borderRadius: 8,
-            color: signalColor, fontSize: 16, fontWeight: 800, letterSpacing: "0.12em",
-            marginBottom: 10,
+            padding: "9px 0", background: signalBg,
+            border: `1px solid ${signalColor}33`, borderRadius: 7,
+            color: signalColor, fontSize: 15, fontWeight: 800, letterSpacing: "0.12em",
+            marginBottom: 8,
           }}>
             {signal.direction.toUpperCase()}
           </div>
-
-          {/* EMA values */}
-          {(signal.ema_fast_val != null || signal.ema_slow_val != null) && (
-            <div style={{ marginBottom: 10 }}>
-              {signal.ema_fast_val != null && (
-                <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 0" }}>
-                  <span style={{ fontSize: 10, color: "rgba(113,113,122,1)" }}>EMA Fast</span>
-                  <span style={{ fontSize: 10, fontFamily: "monospace", color: "#3b82f6" }}>{signal.ema_fast_val.toFixed(4)}</span>
+          {signal.ema_fast_val != null && (
+            <div style={{ marginBottom: 6 }}>
+              {[
+                ["EMA Fast", signal.ema_fast_val?.toFixed(4), "#3b82f6"],
+                ["EMA Slow", signal.ema_slow_val?.toFixed(4), "#f59e0b"],
+              ].filter(([, v]) => v).map(([l, v, c]) => (
+                <div key={l as string} style={{ display: "flex", justifyContent: "space-between", padding: "2px 0" }}>
+                  <span style={{ fontSize: 9, color: "rgba(113,113,122,1)" }}>{l as string}</span>
+                  <span style={{ fontSize: 9, fontFamily: "monospace", color: c as string }}>{v as string}</span>
                 </div>
-              )}
-              {signal.ema_slow_val != null && (
-                <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 0" }}>
-                  <span style={{ fontSize: 10, color: "rgba(113,113,122,1)" }}>EMA Slow</span>
-                  <span style={{ fontSize: 10, fontFamily: "monospace", color: "#f59e0b" }}>{signal.ema_slow_val.toFixed(4)}</span>
-                </div>
-              )}
+              ))}
               {signal.last_cross_bars != null && (
                 <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 0" }}>
-                  <span style={{ fontSize: 10, color: "rgba(113,113,122,1)" }}>Letzter Cross</span>
-                  <span style={{ fontSize: 10, fontFamily: "monospace", color: "rgba(228,228,231,1)" }}>
-                    vor {signal.last_cross_bars} Bars
-                    {signal.last_cross_date && <span style={{ color: "rgba(113,113,122,1)" }}> ({signal.last_cross_date})</span>}
+                  <span style={{ fontSize: 9, color: "rgba(113,113,122,1)" }}>Letzter Cross</span>
+                  <span style={{ fontSize: 9, fontFamily: "monospace", color: "rgba(212,212,216,1)" }}>
+                    -{signal.last_cross_bars}b {signal.last_cross_date && <span style={{ color: "rgba(113,113,122,0.7)" }}>({signal.last_cross_date})</span>}
                   </span>
                 </div>
               )}
             </div>
           )}
-
-          {/* Entry / SL / TP */}
           {signal.direction !== "flat" && (
-            <>
-              <div style={S.sectionHead}>Position</div>
+            <div style={{ marginBottom: 6 }}>
               {[
-                ["Entry", signal.entry?.toFixed(5) ?? "—"],
-                ["SL",    signal.sl?.toFixed(5)    ?? "—"],
-                ["TP",    signal.tp?.toFixed(5)    ?? "—"],
-              ].map(([l, v]) => (
-                <div key={l} style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}>
-                  <span style={{ fontSize: 10, color: "rgba(161,161,170,1)" }}>{l}</span>
-                  <span style={{ fontSize: 10, fontFamily: "monospace", color: "rgba(228,228,231,1)" }}>{v}</span>
+                ["Entry", signal.entry?.toFixed(5)],
+                ["SL",    signal.sl?.toFixed(5)],
+                ["TP",    signal.tp?.toFixed(5)],
+              ].filter(([, v]) => v).map(([l, v]) => (
+                <div key={l as string} style={{ display: "flex", justifyContent: "space-between", padding: "2px 0" }}>
+                  <span style={{ fontSize: 9, color: "rgba(113,113,122,1)" }}>{l as string}</span>
+                  <span style={{ fontSize: 9, fontFamily: "monospace", color: "rgba(212,212,216,1)" }}>{v as string}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 4 }}>
+            <span style={{ fontSize: 8, color: "rgba(113,113,122,0.5)" }}>
+              {lastRefresh ? `${lastRefresh.toLocaleTimeString()} · 30s` : "Fetching…"}
+            </span>
+            <button onClick={() => void fetchSignal()} style={{
+              fontSize: 8, color: "rgba(113,113,122,1)", background: "none",
+              border: "1px solid rgba(255,255,255,0.06)", borderRadius: 4, padding: "2px 5px", cursor: "pointer",
+            }}>↻</button>
+          </div>
+
+          {/* 6. LAST TRADE */}
+          {lastTrade && (
+            <>
+              <div style={{ ...S.secHead, marginTop: 10 }}>Last Trade</div>
+              {[
+                ["Direction", lastTrade.direction === "short" ? "Short" : "Long", lastTrade.direction === "short" ? "#f87171" : "#34d399"],
+                ["Entry", lastTrade.entry?.toFixed(4), "rgba(212,212,216,1)"],
+                ["Exit",  lastTrade.exit?.toFixed(4) ?? "—", "rgba(212,212,216,1)"],
+                ["PnL",   `${lastTrade.win ? "+" : ""}${(lastTrade.pnl_pct * 100).toFixed(2)}%`, lastTrade.win ? "#34d399" : "#f87171"],
+              ].map(([l, v, c]) => (
+                <div key={l as string} style={{ display: "flex", justifyContent: "space-between", padding: "2px 0" }}>
+                  <span style={{ fontSize: 9, color: "rgba(113,113,122,1)" }}>{l as string}</span>
+                  <span style={{ fontSize: 9, fontFamily: "monospace", color: c as string }}>{v as string}</span>
                 </div>
               ))}
             </>
           )}
 
-          {/* Last refresh */}
-          <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ fontSize: 9, color: "rgba(113,113,122,0.6)" }}>
-              {lastRefresh ? `${lastRefresh.toLocaleTimeString()} · auto 30s` : "Fetching…"}
-            </span>
-            <button onClick={() => void fetchSignal()} style={{
-              fontSize: 9, color: "rgba(113,113,122,1)", background: "none", border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: 4, padding: "2px 6px", cursor: "pointer",
-            }}>↻ Refresh</button>
-          </div>
-        </div>
-      </div>
-
-      {/* ── CENTER: TradingView Chart ─────────────────────────────────────────── */}
-      <div style={{ ...S.panel, flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
-        {/* Toolbar */}
-        <div style={{
-          flexShrink: 0, display: "flex", alignItems: "center", gap: 10,
-          padding: "10px 14px", borderBottom: "1px solid rgba(255,255,255,0.06)",
-        }}>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-            <span style={{ fontSize: 13, fontWeight: 800, color: "#ffffff", letterSpacing: "-0.01em" }}>{asset}</span>
-            <span style={{ fontSize: 10, color: "rgba(113,113,122,1)" }}>{meta.label}</span>
-          </div>
-          <div style={{ display: "flex", gap: 2, marginLeft: 4 }}>
-            {(["1M", "3M", "1Y", "Max"] as Period[]).map((p) => (
-              <button key={p} onClick={() => setPeriod(p)} style={{
-                padding: "3px 9px", borderRadius: 5, cursor: "pointer",
-                border: period === p ? "1px solid rgba(255,255,255,0.15)" : "1px solid transparent",
-                background: period === p ? "rgba(255,255,255,0.08)" : "transparent",
-                color: period === p ? "#ffffff" : "rgba(113,113,122,1)",
-                fontSize: 11, fontWeight: period === p ? 700 : 400,
-              }}>{p}</button>
-            ))}
-          </div>
-          {meta.useEma && (
-            <div style={{ display: "flex", gap: 10, marginLeft: "auto" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                <div style={{ width: 16, height: 2, background: "#3b82f6", borderRadius: 1 }} />
-                <span style={{ fontSize: 9, color: "rgba(161,161,170,1)" }}>EMA Fast</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                <div style={{ width: 16, height: 2, background: "#f59e0b", borderRadius: 1 }} />
-                <span style={{ fontSize: 9, color: "rgba(161,161,170,1)" }}>EMA Slow</span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* TV Widget */}
-        <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
-          <TradingViewChart key={`${tvSymbol}-${meta.tvInterval}`} tvSymbol={tvSymbol} tvInterval={meta.tvInterval} />
-        </div>
-      </div>
-
-      {/* ── RIGHT: Backtest Panel ─────────────────────────────────────────────── */}
-      <div style={{ ...S.panel, width: 300, flexShrink: 0, display: "flex", flexDirection: "column" }}>
-        <div className="no-scrollbar" style={{ flex: 1, overflowY: "auto", padding: "12px 10px" }}>
-
-          <div style={S.sectionHead}>Backtest</div>
-
-          {/* Dates */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
-            <div>
-              <label style={S.label}>Start Date</label>
-              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={S.input} />
-            </div>
-            <div>
-              <label style={S.label}>End Date</label>
-              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} style={S.input} />
-            </div>
-          </div>
-
-          {/* Run button */}
-          <button onClick={() => void runBacktest()} disabled={isRunning} style={{
-            width: "100%", padding: "9px 0", borderRadius: 7, border: "none",
-            background: isRunning ? "#1d4ed8" : "#2563eb", color: "#ffffff",
-            fontSize: 13, fontWeight: 700, cursor: isRunning ? "not-allowed" : "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-            marginBottom: 16,
-          }}>
-            {isRunning ? (
-              <>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ animation: "spin 0.8s linear infinite" }}>
-                  <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3" />
-                  <path d="M12 2a10 10 0 0 1 10 10" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
-                </svg>
-                Berechnung…
-              </>
-            ) : "↻ Neu berechnen"}
-          </button>
-          <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
-
-          {/* Error */}
-          {result?.error && (
-            <div style={{ padding: "8px 10px", background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 6, color: "#f87171", fontSize: 11, marginBottom: 12 }}>
-              {result.error}
-            </div>
-          )}
-
-          {/* Metrics table */}
-          {m && !result?.error && (
-            <>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, marginBottom: 12 }}>
-                <tbody>
-                  {metricRows.map(([label, val, color], i) => (
-                    <tr key={label} style={{ background: i % 2 === 0 ? "rgba(255,255,255,0.025)" : "transparent" }}>
-                      <td style={{ padding: "4px 8px", color: "rgba(161,161,170,1)", fontWeight: 500 }}>{label}</td>
-                      <td style={{ padding: "4px 8px", color, fontWeight: 700, textAlign: "right", fontFamily: "monospace" }}>{val}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              {/* Equity curve */}
-              <div style={S.sectionHead}>Equity Curve</div>
-              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, overflow: "hidden", marginBottom: 8, padding: "4px 0" }}>
-                <EquityChart data={result.equity ?? []} />
-              </div>
-
-              {/* Drawdown chart */}
-              {result.drawdown && result.drawdown.length > 0 && (
-                <>
-                  <div style={{ ...S.sectionHead, marginTop: 8 }}>Drawdown</div>
-                  <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, overflow: "hidden", marginBottom: 8, padding: "4px 0" }}>
-                    <DrawdownChart data={result.drawdown} />
-                  </div>
-                </>
-              )}
-
-              {/* Trade list */}
-              {result.trades?.length > 0 && (
-                <>
-                  <div style={S.sectionHead}>Trades (letzte 50)</div>
-                  <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, overflow: "hidden", marginBottom: 10 }}>
-                    <TradeList trades={result.trades} />
-                  </div>
-                </>
-              )}
-
-              {/* Export buttons */}
-              <div style={{ display: "flex", gap: 6 }}>
-                <button onClick={exportJSON} style={{
-                  flex: 1, padding: "6px 0", borderRadius: 6, cursor: "pointer",
-                  border: "1px solid rgba(255,255,255,0.10)", background: "rgba(255,255,255,0.04)",
-                  color: "rgba(212,212,216,1)", fontSize: 10, fontWeight: 600,
-                }}>Export JSON</button>
-                <button onClick={exportCSV} style={{
-                  flex: 1, padding: "6px 0", borderRadius: 6, cursor: "pointer",
-                  border: "1px solid rgba(255,255,255,0.10)", background: "rgba(255,255,255,0.04)",
-                  color: "rgba(212,212,216,1)", fontSize: 10, fontWeight: 600,
-                }}>Export CSV</button>
-              </div>
-            </>
-          )}
-
-          {!result && !isRunning && (
-            <div style={{ padding: "24px 0", textAlign: "center", fontSize: 11, color: "rgba(113,113,122,1)" }}>
-              Run a backtest to see results
-            </div>
-          )}
         </div>
       </div>
     </div>
@@ -695,20 +668,19 @@ export default function TradingEnginePage() {
 // ── Strategy button ────────────────────────────────────────────────────────────
 
 function StratBtn({ id, active, assetType, onClick }: { id: Strategy; active: boolean; assetType: AssetType; onClick: () => void }) {
-  const meta = STRATEGIES[id];
+  const meta  = STRATEGIES[id];
   const asset = assetType === "futures" ? meta.futures : meta.cfd;
   return (
     <button onClick={onClick} style={{
-      width: "100%", textAlign: "left", padding: "6px 8px", borderRadius: 6,
+      width: "100%", textAlign: "left", padding: "5px 7px", borderRadius: 5,
       border: active ? "1px solid rgba(255,255,255,0.18)" : "1px solid transparent",
       background: active ? "rgba(255,255,255,0.10)" : "transparent",
       color: active ? "#ffffff" : "rgba(161,161,170,1)",
-      fontSize: 11, fontWeight: active ? 700 : 400, cursor: "pointer",
-      display: "flex", alignItems: "center", justifyContent: "space-between",
-      marginBottom: 2,
+      fontSize: 10, fontWeight: active ? 700 : 400, cursor: "pointer",
+      display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 2,
     }}>
       <span>{meta.label}</span>
-      <span style={{ fontSize: 9, color: active ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.2)", fontFamily: "monospace" }}>{asset}</span>
+      <span style={{ fontSize: 8, color: active ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.18)", fontFamily: "monospace" }}>{asset}</span>
     </button>
   );
 }
