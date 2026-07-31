@@ -187,11 +187,13 @@ interface LWCProps {
 }
 
 function LWChart({ bars, trades, emaFast, emaSlow, showEma }: LWCProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const chartRef     = useRef<unknown>(null);
-  const candleRef    = useRef<unknown>(null);
-  const emaFRef      = useRef<unknown>(null);
-  const emaSRef      = useRef<unknown>(null);
+  const containerRef  = useRef<HTMLDivElement>(null);
+  const chartRef      = useRef<unknown>(null);
+  const candleRef     = useRef<unknown>(null);
+  const emaFRef       = useRef<unknown>(null);
+  const emaSRef       = useRef<unknown>(null);
+  // v5: createSeriesMarkers result — typed inline at call site
+  const markerApiRef  = useRef<unknown>(null);
 
   // Init chart once
   useEffect(() => {
@@ -245,6 +247,8 @@ function LWChart({ bars, trades, emaFast, emaSlow, showEma }: LWCProps) {
       candleRef.current = candleSeries;
       emaFRef.current   = emaFastSeries;
       emaSRef.current   = emaSlowSeries;
+      // v5: attach marker series to the candle series once at init
+      markerApiRef.current = lc.createSeriesMarkers(candleSeries, []);
 
       // Resize observer
       const ro = new ResizeObserver(() => {
@@ -289,35 +293,35 @@ function LWChart({ bars, trades, emaFast, emaSlow, showEma }: LWCProps) {
     c.timeScale().fitContent();
   }, [bars, emaFast, emaSlow, showEma]);
 
-  // Trade markers
+  // Trade markers — v5: use markerApiRef (createSeriesMarkers) instead of series.setMarkers
   useEffect(() => {
-    if (!candleRef.current) return;
-    const cs = candleRef.current as { setMarkers: (m: unknown[]) => void };
-    if (!trades.length) { cs.setMarkers([]); return; }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const api = markerApiRef.current as ({ setMarkers: (m: any[]) => void }) | null;
+    if (!api) return;
 
-    // Build time→unix map from bars
-    const barTimes = new Set(bars.map(b => b.time));
+    if (!trades.length) {
+      api.setMarkers([]);
+      return;
+    }
 
     const markers = trades
       .filter(t => t.entry_date)
       .map(t => {
-        const dt   = new Date(t.entry_date!);
-        const unix = Math.floor(dt.getTime() / 1000);
-        // snap to nearest bar if exact not found
-        const time = barTimes.has(unix) ? unix : unix;
+        const unix = Math.floor(new Date(t.entry_date!).getTime() / 1000);
         const dir  = t.dir ?? t.direction ?? "long";
         const pips = Math.abs(t.pnl_pct * 10000).toFixed(0);
         return {
-          time,
+          time:     unix,
           position: dir === "long" ? "belowBar" : "aboveBar",
-          color:     t.win ? C.positive : C.negative,
-          shape:     dir === "long" ? "arrowUp" : "arrowDown",
-          text:      (t.win ? "+" : "") + pips + "p",
+          color:    t.win ? C.positive : C.negative,
+          shape:    dir === "long" ? "arrowUp" : "arrowDown",
+          text:     (t.win ? "+" : "") + pips + "p",
+          size:     1,
         };
       })
-      .sort((a, b) => (a.time as number) - (b.time as number));
+      .sort((a, b) => a.time - b.time);
 
-    cs.setMarkers(markers);
+    api.setMarkers(markers);
   }, [trades, bars]);
 
   return (
