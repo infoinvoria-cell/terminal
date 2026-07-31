@@ -1,0 +1,7 @@
+vectorbt
+pandas
+numpy
+yfinance
+ibapi
+pyyaml
+loguru

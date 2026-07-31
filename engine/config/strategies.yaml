@@ -1,0 +1,60 @@
+core_invest:
+  rebalance_frequency: monthly
+  components:
+    SPY:
+      weight: 0.30
+      type: buy_hold
+    QQQ_PINE_1:
+      weight: 0.10
+      type: sma_cross
+      fast: 5
+      slow: 400
+    GLD:
+      weight: 0.15
+      type: buy_hold
+    HG:
+      weight: 0.10
+      type: ema_cross
+      fast: 20
+      slow: 50
+    CHF:
+      weight: 0.10
+      type: ema_cross
+      fast: 20
+      slow: 50
+    BTC:
+      weight: 0.10
+      type: buy_hold
+    CASH:
+      weight: 0.15
+      type: cash
+
+intraday_eur_30m:
+  symbol: EURUSD
+  timeframe: 30m
+  risk_per_trade: 0.01
+
+intraday_dax_1h:
+  symbol: FDAX
+  timeframe: 1h
+  risk_per_trade: 0.01
+
+intraday_dax_2h:
+  symbol: FDAX
+  timeframe: 2h
+  risk_per_trade: 0.01
+
+anomaly_gc_friday:
+  symbol: GC
+  day: Friday
+  risk_per_trade: 0.01
+
+anomaly_gld_thursday:
+  symbol: GLD
+  day: Thursday
+  risk_per_trade: 0.01
+
+anomaly_ym_tat:
+  symbol: YM
+  pattern: turn_around_tuesday
+  risk_per_trade: 0.01

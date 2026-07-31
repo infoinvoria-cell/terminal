@@ -1,0 +1,5 @@
+host: "127.0.0.1"
+port: 7497          # TWS Paper: 7497 | TWS Live: 7496 | IB Gateway Paper: 4002 | IB Gateway Live: 4001
+client_id: 1
+timeout: 30         # seconds to wait for connection
+reconnect_attempts: 3
