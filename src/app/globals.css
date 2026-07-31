@@ -111,8 +111,17 @@ body { padding-left: var(--mobile-preview-left); transition: padding-left 220ms 
 }
 
 :root {
-  --background: #0c0d10;
-  --foreground: #fafafa;
+  --header-height: 0px;
+  --background: #090909;
+  --foreground: #F5F5F5;
+  --color-bg:       #090909;
+  --color-surface:  #111111;
+  --color-border:   #1A1A1A;
+  --color-text:     #F5F5F5;
+  --color-muted:    #6B7280;
+  --color-gold:     #C9A84C;
+  --color-positive: #22C55E;
+  --color-negative: #EF4444;
 }
 
 @theme inline {
