@@ -1,8 +1,11 @@
 "use client";
 
 import {
-  useEffect, useLayoutEffect, useRef, useState, useCallback, useMemo,
+  useEffect, useRef, useState, useCallback, useMemo,
 } from "react";
+import dynamic from "next/dynamic";
+
+const ChartComponent = dynamic(() => import("@/components/engine/LWChart"), { ssr: false });
 import {
   LineChart, Line, AreaChart, Area,
   XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -95,15 +98,22 @@ const DEFAULT_PARAMS: Record<Strategy, Params> = {
 };
 
 // ── Colors ─────────────────────────────────────────────────────────────────────
-const BG      = "#090909";
-const SURFACE = "#111111";
-const SURFACE2= "#0D0D0D";
-const BORDER  = "#1A1A1A";
-const TEXT    = "#F5F5F5";
-const MUTED   = "#6B7280";
-const GOLD    = "#C9A84C";
-const POS     = "#22C55E";
-const NEG     = "#EF4444";
+// Design system: matches Capitalife Terminal (.claude/skills/design-review.md)
+const BG       = "#0c0d10";
+const CARD_TOP = "#1c1d20";
+const CARD_BOT = "#141517";
+const CHART_BG = "#0A0A0A";
+const BORDER   = "rgba(255,255,255,0.06)";
+const BORDER2  = "rgba(255,255,255,0.04)";
+const TEXT     = "#F5F5F5";
+const MUTED    = "#a1a1aa";
+const MUTED2   = "#71717a";
+const GOLD     = "#e2ca7a";
+const POS      = "#22C55E";  // trade signals only
+const NEG      = "#EF4444";  // trade signals only
+// Aliases for inline use
+const SURFACE  = CARD_TOP;
+const SURFACE2 = CARD_BOT;
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function calcEma(closes: number[], span: number): number[] {
@@ -140,83 +150,6 @@ const KPIS = [
   { key: "avgWin",       label: "AVG WIN", fmt: (v: number) => `+${v.toFixed(2)}%`,                    dot: () => POS },
 ];
 
-// ── LWChart ────────────────────────────────────────────────────────────────────
-interface LWChartProps {
-  bars: OhlcBar[]; trades: TradeRecord[];
-  emaFast: number; emaSlow: number; showEma: boolean;
-}
-function LWChart({ bars, trades, emaFast, emaSlow, showEma }: LWChartProps) {
-  const wrapRef = useRef<HTMLDivElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const R = useRef<{ chart: any; cs: any; efs: any; ess: any; mk: any } | null>(null);
-  const pendingBars = useRef<OhlcBar[]>([]);
-
-  useLayoutEffect(() => {
-    if (!wrapRef.current) return;
-    let cancelled = false;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let inst: any = null;
-
-    void import("lightweight-charts").then((lc) => {
-      if (cancelled || !wrapRef.current) return;
-      const chart = lc.createChart(wrapRef.current, {
-        autoSize: true,
-        layout: { background: { color: BG }, textColor: MUTED, fontFamily: "var(--font-montserrat,system-ui)", fontSize: 10 },
-        grid:    { vertLines: { visible: false }, horzLines: { visible: false } },
-        crosshair: { mode: 1 },
-        timeScale: { borderColor: BORDER, timeVisible: true, secondsVisible: false, rightOffset: 5 },
-        rightPriceScale: { borderColor: BORDER },
-      });
-      inst = chart;
-      const cs  = chart.addSeries(lc.CandlestickSeries, { upColor: TEXT, downColor: NEG, borderUpColor: TEXT, borderDownColor: NEG, wickUpColor: TEXT, wickDownColor: NEG });
-      const efs = chart.addSeries(lc.LineSeries, { color: GOLD, lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
-      const ess = chart.addSeries(lc.LineSeries, { color: MUTED, lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
-      const mk  = lc.createSeriesMarkers(cs, []);
-      R.current = { chart, cs, efs, ess, mk };
-      if (pendingBars.current.length) applyBarsToRefs(R.current, pendingBars.current, emaFast, emaSlow, showEma);
-    });
-
-    return () => { cancelled = true; inst?.remove(); R.current = null; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    pendingBars.current = bars;
-    if (R.current && bars.length) applyBarsToRefs(R.current, bars, emaFast, emaSlow, showEma);
-  }, [bars, emaFast, emaSlow, showEma]);
-
-  useEffect(() => {
-    const r = R.current;
-    if (!r) return;
-    const markers = trades
-      .filter(t => t.entry_date)
-      .map(t => {
-        const unix = Math.floor(new Date(t.entry_date!).getTime() / 1000);
-        const dir  = t.dir ?? t.direction ?? "long";
-        return { time: unix, position: dir === "long" ? "belowBar" : "aboveBar", color: t.win ? POS : NEG, shape: dir === "long" ? "arrowUp" : "arrowDown", text: `${t.win ? "+" : ""}${(t.pnl_pct * 100).toFixed(0)}p`, size: 1 };
-      })
-      .sort((a, b) => a.time - b.time);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (r.mk as any).setMarkers(markers);
-  }, [trades]);
-
-  return <div ref={wrapRef} className="lwc-wrap" style={{ position: "absolute", inset: 0 }} />;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function applyBarsToRefs(r: { chart: any; cs: any; efs: any; ess: any }, bars: OhlcBar[], emaFast: number, emaSlow: number, showEma: boolean) {
-  r.cs.setData(bars.map(b => ({ time: b.time, open: b.open, high: b.high, low: b.low, close: b.close })));
-  const closes = bars.map(b => b.close);
-  const fv = calcEma(closes, emaFast);
-  const sv = calcEma(closes, emaSlow);
-  r.efs.applyOptions({ visible: showEma });
-  r.ess.applyOptions({ visible: showEma });
-  if (showEma) {
-    r.efs.setData(bars.map((b, i) => ({ time: b.time, value: fv[i] })));
-    r.ess.setData(bars.map((b, i) => ({ time: b.time, value: sv[i] })));
-  }
-  r.chart.timeScale().fitContent();
-}
 
 // ── Page ───────────────────────────────────────────────────────────────────────
 export default function TradingEnginePage() {
@@ -288,6 +221,29 @@ export default function TradingEnginePage() {
 
   const trades  = result?.trades ?? [];
   const metrics = result?.metrics as Record<string, number> | undefined;
+  const emaFast = Number(params.ema_fast ?? 20);
+  const emaSlow = Number(params.ema_slow ?? 50);
+
+  const emaFastData = useMemo(() => {
+    if (!bars.length) return [];
+    const vals = calcEma(bars.map(b => b.close), emaFast);
+    return bars.map((b, i) => ({ time: b.time, value: vals[i] }));
+  }, [bars, emaFast]);
+
+  const emaSlowData = useMemo(() => {
+    if (!bars.length) return [];
+    const vals = calcEma(bars.map(b => b.close), emaSlow);
+    return bars.map((b, i) => ({ time: b.time, value: vals[i] }));
+  }, [bars, emaSlow]);
+
+  const chartTrades = useMemo(() =>
+    trades.filter(t => t.entry_date).map(t => ({
+      time: Math.floor(new Date(t.entry_date!).getTime() / 1000),
+      win: t.win,
+      dir: t.dir ?? t.direction ?? "long",
+      pnlPct: t.pnl_pct,
+    })).sort((a, b) => a.time - b.time),
+  [trades]);
 
   const equityData = useMemo(() => {
     if (!result?.equity?.length) return [];
@@ -326,26 +282,26 @@ export default function TradingEnginePage() {
         input[type=number]{-moz-appearance:textfield}
         input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
         input[type=date]::-webkit-calendar-picker-indicator{filter:invert(0.4);cursor:pointer}
-        select option{background:${SURFACE}}
-        .e-root{display:grid;grid-template-rows:24px 1fr;grid-template-columns:1fr 280px;height:100dvh;background:${BG};overflow:hidden;color:${TEXT};font-family:var(--font-montserrat,system-ui)}
-        .e-status{grid-column:1/-1;grid-row:1;display:flex;align-items:center;gap:8px;padding:0 12px;background:${SURFACE};border-bottom:1px solid ${BORDER};flex-shrink:0}
+        select option{background:${CARD_TOP}}
+        .e-root{display:grid;grid-template-rows:28px 1fr;grid-template-columns:1fr 280px;height:100%;width:100%;background:${BG};overflow:hidden;color:${TEXT};font-family:var(--font-montserrat,system-ui)}
+        .e-status{grid-column:1/-1;grid-row:1;display:flex;align-items:center;gap:8px;padding:0 12px;background:${CARD_TOP};border-bottom:1px solid ${BORDER};flex-shrink:0}
         .e-main{grid-column:1;grid-row:2;display:grid;grid-template-rows:55% 45%;overflow:hidden}
-        .e-chart{grid-row:1;position:relative;overflow:hidden;border-bottom:1px solid ${BORDER}}
+        .e-chart{grid-row:1;position:relative;overflow:hidden;border-bottom:1px solid ${BORDER};width:100%}
         .e-tester{grid-row:2;display:grid;grid-template-columns:65% 35%;overflow:hidden}
         .e-charts-col{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid ${BORDER};padding:4px 2px 4px 6px}
         .e-kpi-col{overflow-y:auto;padding:6px;display:flex;flex-direction:column;gap:6px}
-        .e-sidebar{grid-column:2;grid-row:2;border-left:1px solid ${BORDER};overflow-y:auto;padding:10px 12px 24px;background:${SURFACE}}
-        .sl{font-size:8.5px;font-weight:700;color:${MUTED};letter-spacing:.12em;text-transform:uppercase;margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid ${BORDER}}
-        .strat{display:flex;justify-content:space-between;align-items:center;padding:4px 0 4px 6px;border-left:2px solid transparent;cursor:pointer;font-size:11px;color:${MUTED};background:none;border-top:none;border-right:none;border-bottom:none;width:100%;text-align:left;transition:color .1s,border-color .1s}
-        .strat.on{color:${TEXT};border-left-color:${GOLD}}
-        .strat:hover:not(.on){color:${TEXT}}
-        .kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
-        .kpi-card{padding:5px 7px;background:${SURFACE};border-radius:3px}
+        .e-sidebar{grid-column:2;grid-row:2;border-left:1px solid ${BORDER};overflow-y:auto;padding:10px 12px 24px;background:${CARD_TOP}}
+        .sl{font-size:8.5px;font-weight:700;color:${MUTED2};letter-spacing:.12em;text-transform:uppercase;margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid ${BORDER2}}
+        .strat{display:flex;justify-content:space-between;align-items:center;padding:5px 0 5px 8px;border-left:2px solid transparent;border-radius:0 4px 4px 0;cursor:pointer;font-size:11px;color:${MUTED};background:none;border-top:none;border-right:none;border-bottom:none;width:100%;text-align:left;transition:color .15s,border-color .15s,background .15s}
+        .strat.on{color:${TEXT};border-left-color:${GOLD};background:linear-gradient(90deg,rgba(226,202,122,0.06) 0%,transparent 80%)}
+        .strat:hover:not(.on){color:${TEXT};background:rgba(255,255,255,0.02)}
+        .kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+        .kpi-card{padding:7px 9px;background:linear-gradient(to bottom,${CARD_TOP},${CARD_BOT});border-radius:10px;border:1px solid ${BORDER};box-shadow:0 8px 24px -8px rgba(0,0,0,0.45)}
         .kpi-val{font-size:17px;font-weight:800;font-family:var(--font-nunito,monospace);color:${TEXT};line-height:1.1;display:flex;align-items:center;gap:5px}
-        .kpi-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0;margin-top:2px}
-        .kpi-lbl{font-size:8.5px;color:${MUTED};letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+        .kpi-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:2px}
+        .kpi-lbl{font-size:8px;color:${MUTED2};letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
         .trade-tbl{width:100%;border-collapse:collapse}
-        .trade-tbl th{padding:3px 4px;font-size:7.5px;color:${MUTED};font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid ${BORDER};text-align:left;position:sticky;top:0;background:${SURFACE}}
+        .trade-tbl th{padding:3px 4px;font-size:7.5px;color:${MUTED2};font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid ${BORDER};text-align:left;position:sticky;top:0;background:${CARD_TOP}}
         .trade-tbl td{padding:2px 4px;font-size:10px;font-family:var(--font-nunito,monospace)}
       `}</style>
 
@@ -376,7 +332,15 @@ export default function TradingEnginePage() {
             <div style={{ position: "absolute", top: 8, right: 10, zIndex: 5 }}>
               <span style={{ fontSize: 12, fontWeight: 800, color: sigColor }}>{sigLabel}</span>
             </div>
-            <LWChart bars={bars} trades={trades} emaFast={Number(params.ema_fast ?? 20)} emaSlow={Number(params.ema_slow ?? 50)} showEma={meta.useEma} />
+            <div style={{ width: "100%", height: "100%", minHeight: 400 }}>
+              <ChartComponent
+                data={bars}
+                trades={chartTrades}
+                emaFastData={emaFastData}
+                emaSlowData={emaSlowData}
+                showEma={meta.useEma}
+              />
+            </div>
             {bars.length === 0 && (
               <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
                 <span style={{ fontSize: 11, color: `${MUTED}50` }}>{online ? "Lade Chart-Daten…" : "Engine offline"}</span>
