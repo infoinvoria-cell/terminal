@@ -14,23 +14,37 @@ async function get<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+async function post<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${ENGINE_URL}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    cache: "no-store",
+    signal: AbortSignal.timeout(30_000),
+  });
+  if (!res.ok) throw new Error(`Engine ${res.status}: ${path}`);
+  return res.json() as Promise<T>;
+}
+
 export const engineClient = {
-  getHealth:   ()                => get<EngineHealth>("/health"),
-  getSignals:  ()                => get<Record<string, SignalData>>("/signals"),
-  getSignal:   (s: string)       => get<SignalData>(`/signal/${s}`),
-  getBacktest: (s: string, start?: string, end?: string) => {
-    const q = new URLSearchParams();
-    if (start) q.set("start", start);
-    if (end)   q.set("end",   end);
-    const qs = q.toString() ? `?${q.toString()}` : "";
-    return get<BacktestResult>(`/backtest/${s}${qs}`);
-  },
-  getTrades:   (s: string)       => get<{ trades: TradeRecord[] }>(`/trades/${s}`),
-  getPositions: ()               => get<{ positions: unknown[] }>("/positions"),
-  getAccount:  ()                => get<{ account: unknown }>("/account"),
+  getHealth:    ()                       => get<EngineHealth>("/health"),
+  getSignals:   ()                       => get<Record<string, SignalData>>("/signals"),
+  getSignal:    (s: string)              => get<SignalData>(`/signal/${s}`),
+  postBacktest: (body: BacktestRequest)  => post<BacktestResult>("/backtest", body),
+  getTrades:    (s: string)              => get<{ trades: TradeRecord[] }>(`/trades/${s}`),
+  getPositions: ()                       => get<{ positions: unknown[] }>("/positions"),
+  getAccount:   ()                       => get<{ account: unknown }>("/account"),
 };
 
 // ── Types ──────────────────────────────────────────────────────────────────────
+
+export interface BacktestRequest {
+  strategy:   string;
+  asset_type: string;
+  params:     Record<string, number | string>;
+  start_date: string;
+  end_date:   string;
+}
 
 export interface EngineHealth {
   status:     "ok" | "error";
@@ -42,17 +56,17 @@ export interface EngineHealth {
 }
 
 export interface SignalData {
-  strategy?:       string;
-  direction:       "long" | "short" | "flat";
-  entry?:          number;
-  sl?:             number;
-  tp?:             number;
-  ema_fast_val?:   number;
-  ema_slow_val?:   number;
+  strategy?:        string;
+  direction:        "long" | "short" | "flat";
+  entry?:           number;
+  sl?:              number;
+  tp?:              number;
+  ema_fast_val?:    number;
+  ema_slow_val?:    number;
   last_cross_bars?: number;
   last_cross_date?: string;
-  timestamp?:      string;
-  error?:          string;
+  timestamp?:       string;
+  error?:           string;
 }
 
 export interface BacktestMetrics {
@@ -70,13 +84,15 @@ export interface BacktestMetrics {
 }
 
 export interface BacktestResult {
-  metrics:  BacktestMetrics;
-  equity:   number[];
-  drawdown: number[];
-  trades:   TradeRecord[];
-  source?:  string;
-  bars?:    number;
-  error?:   string;
+  metrics:       BacktestMetrics;
+  equity:        number[];
+  equity_dates?: string[];
+  drawdown:      number[];
+  buy_hold?:     number[];
+  trades:        TradeRecord[];
+  source?:       string;
+  bars?:         number;
+  error?:        string;
 }
 
 export interface TradeRecord {
@@ -86,7 +102,7 @@ export interface TradeRecord {
   exit?:       number;
   win:         boolean;
   pnl_pct:     number;
-  equity:      number;
+  equity?:     number;
   entry_date?: string;
   exit_date?:  string;
 }
