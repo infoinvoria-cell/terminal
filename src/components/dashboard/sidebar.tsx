@@ -23,6 +23,7 @@ import {
   Smartphone,
   Users,
   Handshake,
+  Zap,
 } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
@@ -417,6 +418,7 @@ export function Sidebar() {
 
   const aboutActive         = pathname?.startsWith("/about") ?? false;
   const monitoringActive    = pathname?.startsWith("/monitoring") ?? false;
+  const engineActive        = pathname?.startsWith("/engine") ?? false;
   const signalActive        = pathname?.startsWith("/signal") ?? false;
   const brainActive         = (pathname?.startsWith("/brain") ?? false) || (pathname?.startsWith("/brain-graph") ?? false);
   const globeActive         = pathname?.startsWith("/globe") ?? false;
@@ -502,6 +504,7 @@ export function Sidebar() {
 
       {/* Group 2: Signale · Monitoring · Analytics · Komponenten (hidden for partner_manager) */}
       <nav className={cn("mt-2", navClass)} aria-label="Tools">
+        <SidebarLink href="/engine" active={engineActive} label="Trading Engine" icon={Zap} expanded={expanded} />
         <SidebarLink href="/signal" active={signalActive} label="Signale" icon={BellRing} expanded={expanded} />
         {canViewMonitoring  && <SidebarLink href="/monitoring" active={monitoringActive} label="Monitoring" icon={Activity} expanded={expanded} />}
         {canViewAnalytics   && <SidebarIconButton page="analytics" activePage={sidebarPageState} label="Analytics" icon={ChartColumn} onSelect={onSelectPage} expanded={expanded} />}
