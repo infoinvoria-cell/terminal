@@ -1,6 +1,57 @@
 import { NextRequest, NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
 
 export const dynamic = "force-dynamic";
+
+// ── Local CSV data source ──────────────────────────────────────────────────────
+
+const LOCAL_DATA_PATH =
+  process.env.LOCAL_DATA_PATH ??
+  "C:\\Users\\joris\\Desktop\\Invest Portfolio";
+
+// Strategies that have a matching local CSV file
+const LOCAL_CSV_MAP: Record<string, string> = {
+  GLD_THU: "GLD.csv",
+};
+
+function parseCSV(content: string, startDate: string, endDate: string): Bar[] {
+  const lines = content.trim().split(/\r?\n/);
+  const bars: Bar[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    const parts = lines[i].split(",");
+    if (parts.length < 5) continue;
+    const [dateStr, openStr, highStr, lowStr, closeStr] = parts;
+    const date = dateStr.trim().slice(0, 10);
+    if (date < startDate || date > endDate) continue;
+    const close = parseFloat(closeStr);
+    if (isNaN(close)) continue;
+    const d = new Date(date + "T12:00:00Z");
+    bars.push({
+      ts:    d.getTime() / 1000,
+      date,
+      dow:   (d.getUTCDay() + 6) % 7,
+      open:  parseFloat(openStr)  || close,
+      high:  parseFloat(highStr)  || close,
+      low:   parseFloat(lowStr)   || close,
+      close,
+    });
+  }
+  return bars;
+}
+
+function readLocalBars(strategy: string, startDate: string, endDate: string): Bar[] | null {
+  const csvFile = LOCAL_CSV_MAP[strategy];
+  if (!csvFile) return null;
+  try {
+    const fullPath = path.join(LOCAL_DATA_PATH, csvFile);
+    const content  = fs.readFileSync(fullPath, "utf-8");
+    const bars     = parseCSV(content, startDate, endDate);
+    return bars.length >= 10 ? bars : null;
+  } catch {
+    return null; // file not found or unreadable → caller falls back to Yahoo
+  }
+}
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -454,9 +505,13 @@ export async function POST(req: NextRequest) {
   // ── Backtest ────────────────────────────────────────────────────────────────
   if (action === "backtest") {
     try {
-      const bars = await fetchBars(ticker, interval, start, end);
+      // Prefer local CSV; fall back to Yahoo Finance for strategies without local data
+      const localBars = readLocalBars(strategy, start, end);
+      const bars = localBars ?? await fetchBars(ticker, interval, start, end);
+      const source = localBars ? "local CSV" : "Yahoo Finance";
+
       if (bars.length < 10) {
-        return NextResponse.json({ error: `Zu wenig Daten: ${bars.length} Bars für ${ticker} (${interval}). Yahoo Finance limitiert ${interval}-Daten auf ~60 Tage.` });
+        return NextResponse.json({ error: `Zu wenig Daten: ${bars.length} Bars für ${ticker} (${interval}, ${source}). Yahoo Finance limitiert ${interval}-Daten auf ~60 Tage.` });
       }
 
       let rawTrades: RawTrade[];
@@ -474,7 +529,7 @@ export async function POST(req: NextRequest) {
       const result = computeMetrics(trades, bars[0].date, bars[bars.length - 1].date);
 
       if (!result) return NextResponse.json({ error: "Keine Trades generiert. Datenfenster zu klein oder Strategie passt nicht." });
-      return NextResponse.json(result);
+      return NextResponse.json({ ...result, source });
     } catch (err) {
       return NextResponse.json({ error: err instanceof Error ? err.message : String(err) }, { status: 500 });
     }
