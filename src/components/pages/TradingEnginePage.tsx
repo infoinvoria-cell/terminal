@@ -5,6 +5,7 @@ import {
   LineChart, Line, AreaChart, Area,
   XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from "recharts";
+import { engineClient, type EngineHealth, type BacktestResult, type SignalData } from "@/lib/engine-client";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -23,48 +24,8 @@ interface StrategyMeta {
   params: Record<string, string>;
 }
 
-interface BacktestMetrics {
-  cagr: number;
-  sharpe: number;
-  maxDD: number;
-  calmar: number;
-  trades: number;
-  winRate: number;
-  profitFactor?: number;
-  avgWin?: number;
-  avgLoss?: number;
-  bestTrade?: number;
-  worstTrade?: number;
-}
-
-interface TradeRecord {
-  entry: number;
-  exit?: number;
-  win: boolean;
-  pnl_pct: number;
-  equity: number;
-  direction?: string;
-}
-
-interface BacktestResult {
-  metrics: BacktestMetrics;
-  equity: number[];
-  drawdown?: number[];
-  trades: TradeRecord[];
-  error?: string;
-}
-
-interface SignalState {
-  direction: "long" | "short" | "flat";
-  entry?: number;
-  sl?: number;
-  tp?: number;
-  ema_fast_val?: number;
-  ema_slow_val?: number;
-  last_cross_bars?: number;
-  last_cross_date?: string;
-  error?: string;
-}
+// Types imported from engine-client: BacktestResult, SignalData, EngineHealth
+type SignalState = SignalData;
 
 // ── Strategy config ────────────────────────────────────────────────────────────
 
@@ -307,25 +268,35 @@ export default function TradingEnginePage() {
   const [assetType, setAssetType] = useState<AssetType>("futures");
   const [startDate, setStartDate] = useState("2019-01-01");
   const [endDate,   setEndDate]   = useState(todayISO());
-  const [result,    setResult]    = useState<BacktestResult | null>(null);
-  const [isRunning, setIsRunning] = useState(false);
-  const [signal,    setSignal]    = useState<SignalState>({ direction: "flat" });
+  const [result,      setResult]      = useState<BacktestResult | null>(null);
+  const [isRunning,   setIsRunning]   = useState(false);
+  const [signal,      setSignal]      = useState<SignalState>({ direction: "flat" });
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+  const [health,      setHealth]      = useState<EngineHealth | null>(null);
 
   const meta     = STRATEGIES[strategy];
   const tvSymbol = assetType === "futures" ? meta.tvFutures : meta.tvCfd;
 
+  // ── Health check ──────────────────────────────────────────────────────────────
+  const checkHealth = useCallback(async () => {
+    try { setHealth(await engineClient.getHealth()); }
+    catch { setHealth(null); }
+  }, []);
+
+  useEffect(() => { void checkHealth(); }, [checkHealth]);
+  useEffect(() => {
+    const id = setInterval(() => { void checkHealth(); }, 30_000);
+    return () => clearInterval(id);
+  }, [checkHealth]);
+
   // ── Signal fetch ─────────────────────────────────────────────────────────────
   const fetchSignal = useCallback(async () => {
     try {
-      const res = await fetch("/api/engine", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "signal", strategy, asset_type: assetType }),
-      });
-      if (res.ok) { setSignal(await res.json()); setLastRefresh(new Date()); }
+      const data = await engineClient.getSignal(strategy);
+      setSignal(data);
+      setLastRefresh(new Date());
     } catch { /* keep last */ }
-  }, [strategy, assetType]);
+  }, [strategy]);
 
   useEffect(() => { void fetchSignal(); }, [fetchSignal]);
   useEffect(() => {
@@ -333,7 +304,7 @@ export default function TradingEnginePage() {
     return () => clearInterval(id);
   }, [fetchSignal]);
 
-  // ── Backtest with cache ───────────────────────────────────────────────────────
+  // ── Backtest with localStorage cache ─────────────────────────────────────────
   const runBacktest = useCallback(async (force = false) => {
     const key = cacheKey(strategy, assetType, startDate, endDate);
     if (!force) {
@@ -342,18 +313,12 @@ export default function TradingEnginePage() {
     }
     setIsRunning(true);
     try {
-      const res = await fetch("/api/engine", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "backtest", strategy, asset_type: assetType, start_date: startDate, end_date: endDate }),
-      });
-      if (res.ok) {
-        const data = await res.json() as BacktestResult;
-        setResult(data);
-        if (!data.error) writeCache(key, data);
-      }
-    } catch { /* no-op */ }
-    finally { setIsRunning(false); }
+      const data = await engineClient.getBacktest(strategy, startDate, endDate);
+      setResult(data);
+      if (!data.error) writeCache(key, data);
+    } catch (err) {
+      setResult({ metrics: {} as BacktestResult["metrics"], equity: [], drawdown: [], trades: [], error: err instanceof Error ? err.message : "Engine offline — starte start.bat" });
+    } finally { setIsRunning(false); }
   }, [strategy, assetType, startDate, endDate]);
 
   useEffect(() => { void runBacktest(); }, [runBacktest]);
@@ -394,9 +359,38 @@ export default function TradingEnginePage() {
   // last trade for sidebar
   const lastTrade = result?.trades?.length ? result.trades[result.trades.length - 1] : null;
 
+  // ── Status banner ─────────────────────────────────────────────────────────────
+  const engineOnline = health?.status === "ok";
+  const ibkrOk       = health?.ibkr === "connected";
+  const bannerBg     = !engineOnline ? "rgba(239,68,68,0.12)" : !ibkrOk ? "rgba(234,179,8,0.10)" : "rgba(16,185,129,0.10)";
+  const bannerBorder = !engineOnline ? "rgba(239,68,68,0.3)" : !ibkrOk ? "rgba(234,179,8,0.3)" : "rgba(16,185,129,0.3)";
+  const bannerDot    = !engineOnline ? "#ef4444" : !ibkrOk ? "#eab308" : "#10b981";
+  const bannerText   = !engineOnline
+    ? "Engine offline — starte start.bat um die Bridge zu starten"
+    : !ibkrOk
+      ? `Engine online${health?.lean === "running" ? " · LEAN läuft" : ""} · IBKR nicht verbunden`
+      : `Engine online · IBKR verbunden${health?.paper_mode ? " (Paper)" : " (Live)"}`;
+
   return (
-    <div style={{ display: "flex", width: "100%", height: "100%", overflow: "hidden", background: "#0c0d10", gap: 6, padding: 6 }}>
+    <div style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%", overflow: "hidden", background: "#0c0d10" }}>
       <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
+
+      {/* Status Banner */}
+      <div style={{
+        flexShrink: 0, display: "flex", alignItems: "center", gap: 8,
+        padding: "5px 10px", background: bannerBg, borderBottom: `1px solid ${bannerBorder}`,
+      }}>
+        <div style={{ width: 7, height: 7, borderRadius: "50%", background: bannerDot, flexShrink: 0 }} />
+        <span style={{ fontSize: 10, color: "rgba(212,212,216,1)" }}>{bannerText}</span>
+        {engineOnline && (
+          <span style={{ fontSize: 9, color: "rgba(113,113,122,1)", marginLeft: "auto" }}>
+            localhost:5000
+          </span>
+        )}
+      </div>
+
+      {/* Main layout */}
+      <div style={{ flex: 1, minHeight: 0, display: "flex", gap: 6, padding: 6 }}>
 
       {/* ── LEFT 80%: Chart top + Tester bottom ──────────────────────────────── */}
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 6 }}>
@@ -661,6 +655,7 @@ export default function TradingEnginePage() {
 
         </div>
       </div>
+      </div> {/* /Main layout */}
     </div>
   );
 }
