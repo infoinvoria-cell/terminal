@@ -75,21 +75,21 @@ const STRATEGIES: Record<Strategy, StrategyMeta> = {
   EUR_30M: {
     label: "EUR 30M", group: "Intraday", useEma: true,
     futures: "6E1!", cfd: "EURUSD",
-    tvFutures: "CME_MINI:6E1!", tvCfd: "FX:EURUSD",
+    tvFutures: "FX:EURUSD", tvCfd: "FX:EURUSD",
     tvInterval: "30",
     params: { ema_fast: "20", ema_slow: "50", sl_pips: "0.0013", tp_pips: "0.0039", rr: "3:1" },
   },
   DAX_1H: {
     label: "DAX 1H", group: "Intraday", useEma: true,
-    futures: "FDAX1!", cfd: "DE30EUR",
-    tvFutures: "EUREX:FDAX1!", tvCfd: "OANDA:DE30EUR",
+    futures: "FDAX1!", cfd: "DE30",
+    tvFutures: "EUREX:FDAX1!", tvCfd: "SPREADEX:DE30",
     tvInterval: "60",
     params: { ema_fast: "20", ema_slow: "50", sl_pts: "35", tp_pts: "126", rr: "3.6:1" },
   },
   DAX_2H: {
     label: "DAX 2H", group: "Intraday", useEma: true,
-    futures: "FDAX1!", cfd: "DE30EUR",
-    tvFutures: "EUREX:FDAX1!", tvCfd: "OANDA:DE30EUR",
+    futures: "FDAX1!", cfd: "DE30",
+    tvFutures: "EUREX:FDAX1!", tvCfd: "SPREADEX:DE30",
     tvInterval: "120",
     params: { ema: "4", atr_len: "14", sl_mult: "0.8×ATR", rr: "3:1", be_at: "1R", session: "09–11 UTC" },
   },
@@ -358,6 +358,12 @@ export default function TradingEnginePage() {
     return () => clearInterval(id);
   }, [fetchSignal]);
 
+  // ── Auto-run backtest on strategy / assetType / dates change ─────────────────
+  useEffect(() => {
+    void runBacktest();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [strategy, assetType, startDate, endDate]);
+
   // ── Backtest ──────────────────────────────────────────────────────────────────
   async function runBacktest() {
     setIsRunning(true); setResult(null);
@@ -606,9 +612,9 @@ export default function TradingEnginePage() {
                   <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3" />
                   <path d="M12 2a10 10 0 0 1 10 10" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
                 </svg>
-                Running…
+                Berechnung…
               </>
-            ) : "Run Backtest"}
+            ) : "↻ Neu berechnen"}
           </button>
           <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
 
