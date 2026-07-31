@@ -6,6 +6,7 @@ import {
 import dynamic from "next/dynamic";
 
 const ChartComponent = dynamic(() => import("@/components/engine/LWChart"), { ssr: false });
+const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
 import {
   LineChart, Line, AreaChart, Area,
   XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -163,6 +164,8 @@ export default function TradingEnginePage() {
   const [signal,    setSignal]    = useState<SignalData>({ direction: "flat" });
   const [health,    setHealth]    = useState<EngineHealth | null>(null);
   const [bars,      setBars]      = useState<OhlcBar[]>([]);
+  const [codePanel, setCodePanel] = useState(false);
+  const [strategyCode, setStrategyCode] = useState("");
   const debRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const meta   = STRATEGIES[strategy];
@@ -212,6 +215,15 @@ export default function TradingEnginePage() {
     })();
   }, [strategy, assetType]);
 
+  // Code panel
+  useEffect(() => {
+    if (!codePanel) return
+    void fetch(`http://localhost:5000/strategy-code/${strategy}`)
+      .then(r => r.json())
+      .then(d => setStrategyCode((d as { code?: string }).code ?? ""))
+      .catch(() => undefined)
+  }, [codePanel, strategy])
+
   // Signal
   useEffect(() => {
     void engineClient.getSignal(strategy).then(setSignal).catch(() => undefined);
@@ -242,6 +254,7 @@ export default function TradingEnginePage() {
       win: t.win,
       dir: t.dir ?? t.direction ?? "long",
       pnlPct: t.pnl_pct,
+      pnlPips: t.pnl_pips,
     })).sort((a, b) => a.time - b.time),
   [trades]);
 
@@ -283,7 +296,8 @@ export default function TradingEnginePage() {
         input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
         input[type=date]::-webkit-calendar-picker-indicator{filter:invert(0.4);cursor:pointer}
         select option{background:${CARD_TOP}}
-        .e-root{display:grid;grid-template-rows:28px 1fr;grid-template-columns:1fr 280px;height:100%;width:100%;background:${BG};overflow:hidden;color:${TEXT};font-family:var(--font-montserrat,system-ui)}
+        .e-root{display:grid;grid-template-rows:28px 1fr;grid-template-columns:1fr 280px${codePanel ? ' 400px' : ''};height:100%;width:100%;background:${BG};overflow:hidden;color:${TEXT};font-family:var(--font-montserrat,system-ui)}
+        .e-codepanel{grid-column:3;grid-row:2;border-left:1px solid ${BORDER};display:flex;flex-direction:column;background:${BG};overflow:hidden}
         .e-status{grid-column:1/-1;grid-row:1;display:flex;align-items:center;gap:8px;padding:0 12px;background:${CARD_TOP};border-bottom:1px solid ${BORDER};flex-shrink:0}
         .e-main{grid-column:1;grid-row:2;display:grid;grid-template-rows:55% 45%;overflow:hidden}
         .e-chart{grid-row:1;position:relative;overflow:hidden;border-bottom:1px solid ${BORDER};width:100%}
@@ -329,8 +343,17 @@ export default function TradingEnginePage() {
                 </>
               )}
             </div>
-            <div style={{ position: "absolute", top: 8, right: 10, zIndex: 5 }}>
+            <div style={{ position: "absolute", top: 8, right: 10, zIndex: 5, display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ fontSize: 12, fontWeight: 800, color: sigColor }}>{sigLabel}</span>
+              <button
+                onClick={() => setCodePanel(p => !p)}
+                style={{
+                  background: 'none', border: `1px solid ${BORDER}`,
+                  color: codePanel ? GOLD : MUTED2,
+                  padding: '3px 7px', cursor: 'pointer',
+                  fontFamily: 'monospace', fontSize: 10, borderRadius: 3,
+                }}
+              >{'</>'}</button>
             </div>
             <div style={{ width: "100%", height: "100%", minHeight: 400 }}>
               <ChartComponent
@@ -360,11 +383,11 @@ export default function TradingEnginePage() {
                   <div style={{ flex: 7, minHeight: 0 }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={equityData} margin={{ top: 6, right: 6, left: 0, bottom: 0 }}>
-                        <XAxis dataKey="x" tick={{ fontSize: 8, fill: MUTED }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-                        <YAxis domain={["auto", "auto"]} tick={{ fontSize: 8, fill: MUTED, fontFamily: "var(--font-nunito,monospace)" }} tickLine={false} axisLine={false} width={48} tickFormatter={v => `${Number(v).toFixed(0)}%`} />
-                        <Tooltip contentStyle={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 4, fontSize: 9 }} labelStyle={{ color: MUTED }} formatter={(v: unknown, n: unknown) => [`${Number(v).toFixed(2)}%`, n === "y" ? "Strategie" : "Buy & Hold"]} />
+                        <XAxis dataKey="x" tick={{ fontSize: 9, fill: MUTED2, fontFamily: 'var(--font-montserrat,system-ui)' }} tickLine={{ stroke: '#1A1A1A' }} axisLine={{ stroke: '#1A1A1A' }} interval="preserveStartEnd" />
+                        <YAxis domain={["auto", "auto"]} tick={{ fontSize: 9, fill: MUTED2, fontFamily: 'var(--font-nunito,monospace)' }} tickLine={{ stroke: '#1A1A1A' }} axisLine={{ stroke: '#1A1A1A' }} width={45} tickFormatter={v => `${Number(v).toFixed(0)}%`} />
+                        <Tooltip contentStyle={{ background: '#111111', border: '1px solid #1A1A1A', borderRadius: 4, fontSize: 10, fontFamily: 'var(--font-nunito,monospace)' }} labelStyle={{ color: MUTED2 }} formatter={(v: unknown, n: unknown) => [`${Number(v).toFixed(2)}%`, n === "y" ? "Strategie" : "Buy & Hold"]} />
                         <Line type="monotone" dataKey="y"  stroke={TEXT}    dot={false} strokeWidth={1.5} />
-                        <Line type="monotone" dataKey="bh" stroke="#2a2a2a" dot={false} strokeWidth={1} strokeDasharray="4 3" />
+                        <Line type="monotone" dataKey="bh" stroke="#333333" dot={false} strokeWidth={1} strokeDasharray="4 3" />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
@@ -372,7 +395,7 @@ export default function TradingEnginePage() {
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={ddData} margin={{ top: 2, right: 6, left: 0, bottom: 0 }}>
                         <XAxis dataKey="x" tick={{ fontSize: 7, fill: `${MUTED}60` }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-                        <YAxis domain={["auto", 0]} tick={{ fontSize: 7, fill: `${MUTED}60`, fontFamily: "var(--font-nunito,monospace)" }} tickLine={false} axisLine={false} width={48} tickFormatter={v => `${Number(v).toFixed(0)}%`} />
+                        <YAxis domain={["auto", 0]} tick={{ fontSize: 8, fill: MUTED2, fontFamily: 'var(--font-nunito,monospace)' }} tickLine={{ stroke: '#1A1A1A' }} axisLine={{ stroke: '#1A1A1A' }} width={45} tickFormatter={v => `${Number(v).toFixed(1)}%`} />
                         <Tooltip contentStyle={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 4, fontSize: 9 }} formatter={(v: unknown) => [`${Number(v).toFixed(2)}%`, "Drawdown"]} />
                         <Area type="monotone" dataKey="dd" stroke={NEG} fill={`${NEG}20`} strokeWidth={1} dot={false} />
                       </AreaChart>
@@ -401,7 +424,7 @@ export default function TradingEnginePage() {
                 <div style={{ flex: 1, overflowY: "auto", border: `1px solid ${BORDER}`, borderRadius: 3, minHeight: 0 }}>
                   <table className="trade-tbl">
                     <thead>
-                      <tr>{["#", "Datum", "D", "Entry", "Exit", "PnL"].map(h => <th key={h}>{h}</th>)}</tr>
+                      <tr>{["#", "Datum", "D", "Entry", "Exit", "Pips", "PnL"].map(h => <th key={h}>{h}</th>)}</tr>
                     </thead>
                     <tbody>
                       {[...trades].reverse().slice(0, 120).map((t: TradeRecord, i) => {
@@ -413,7 +436,10 @@ export default function TradingEnginePage() {
                             <td style={{ fontWeight: 700, color: dir === "short" ? NEG : POS }}>{dir === "short" ? "S" : "L"}</td>
                             <td style={{ color: MUTED }}>{t.entry?.toFixed(4)}</td>
                             <td style={{ color: MUTED }}>{t.exit?.toFixed(4) ?? "—"}</td>
-                            <td style={{ textAlign: "right", color: t.win ? POS : NEG, fontWeight: 600 }}>
+                            <td style={{ textAlign: 'right', color: (t.pnl_pips ?? 0) >= 0 ? POS : NEG, fontFamily: 'var(--font-nunito,monospace)' }}>
+                              {t.pnl_pips != null ? `${(t.pnl_pips ?? 0) > 0 ? '+' : ''}${t.pnl_pips.toFixed(0)}p` : '—'}
+                            </td>
+                            <td style={{ textAlign: "right", color: t.win ? POS : NEG, fontWeight: 600, fontFamily: 'var(--font-nunito,monospace)' }}>
                               {t.win ? "+" : ""}{(t.pnl_pct * 100).toFixed(2)}%
                             </td>
                           </tr>
@@ -500,6 +526,40 @@ export default function TradingEnginePage() {
             </div>
           )}
         </div>
+
+        {codePanel && (
+          <div className="e-codepanel">
+            <div style={{ padding: '8px 12px', borderBottom: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+              <span style={{ fontSize: 10, color: MUTED2, fontFamily: 'monospace' }}>
+                {strategy.toLowerCase()}_strategy.py
+              </span>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  onClick={() => void fetch(`http://localhost:5000/strategy-code/${strategy}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: strategyCode }),
+                  })}
+                  style={{ fontSize: 9, color: MUTED, background: 'none', border: `1px solid ${BORDER}`, borderRadius: 2, padding: '2px 8px', cursor: 'pointer' }}
+                >Speichern</button>
+                <button
+                  onClick={() => void runBacktest()}
+                  style={{ fontSize: 9, color: GOLD, background: 'none', border: `1px solid ${BORDER}`, borderRadius: 2, padding: '2px 8px', cursor: 'pointer' }}
+                >Ausführen</button>
+              </div>
+            </div>
+            <div style={{ flex: 1, minHeight: 0 }}>
+              <MonacoEditor
+                height="100%"
+                language="python"
+                theme="vs-dark"
+                value={strategyCode}
+                onChange={v => setStrategyCode(v ?? "")}
+                options={{ minimap: { enabled: false }, fontSize: 12, scrollBeyondLastLine: false, wordWrap: 'on' }}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

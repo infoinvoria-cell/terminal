@@ -79,8 +79,14 @@ canvas {
 }
 
 /* Hide lightweight-charts branding (v5 injects a link/table after canvas) */
-.tv-lightweight-charts a[href] { display: none !important; }
-.tv-lightweight-charts tr:last-child { display: none !important; }
+.tv-lightweight-charts a,
+.tv-lightweight-charts a[href],
+.tv-lightweight-charts tr:last-child,
+.tv-lightweight-charts tr:last-child td,
+canvas + div a {
+  display: none !important;
+  visibility: hidden !important;
+}
 
 /* LAYER 4: Named visual-only canvases (belt-and-suspenders)
    .brain-canvas = Brain sphere canvas — clicks handled by container div

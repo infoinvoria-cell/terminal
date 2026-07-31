@@ -102,6 +102,7 @@ export interface TradeRecord {
   exit?:       number;
   win:         boolean;
   pnl_pct:     number;
+  pnl_pips?:   number;
   equity?:     number;
   entry_date?: string;
   exit_date?:  string;

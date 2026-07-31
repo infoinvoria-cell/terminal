@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3000",
     "dev:auto": "nodemon --watch src --ext ts,tsx,css --ignore .next --exec \"npm run dev\"",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3000",
     "lint": "eslint",
     "audit:github-safe": "node scripts/audit-github-safe.mjs",
     "audit:encoding": "node scripts/audit-encoding.mjs",
