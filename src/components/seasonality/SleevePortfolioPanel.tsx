@@ -2,6 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
+import {
+  getDeepValidatedPatterns,
+  gradeColor,
+  gradeBg,
+  type DeepValidationPattern,
+} from "@/lib/seasonality/deepValidation";
 
 /* ─── Design tokens — SignalCard / terminal exact ───────────────────── */
 const C_WHITE  = "#ffffff";
@@ -38,6 +44,14 @@ export interface SleevePattern {
   category: string;
   rationale: string;
   fakeReturns: number[];
+  validationId?: string;
+  deepScore?: number;
+  deepGrade?: string;
+  wfStrictPct?: number;
+  bonferroniSig?: boolean;
+  paramStabilityPct?: number;
+  decadesProfitable?: number;
+  forwardPass?: boolean;
 }
 
 function makeFakeReturns(wr: number, avg: number, n = 32): number[] {
@@ -76,18 +90,85 @@ function buildPortfolioEquity(): number[] {
   return equity;
 }
 
-export const SLEEVE_PATTERNS: SleevePattern[] = [
-  { id: 1,  assetId: "rb1",     symbol: "RB1!",  name: "RBOB Gasoline",  direction: "LONG",  window: "Feb 8 – 16",  startSlot: 29,  endSlot: 35,  calStart: 39,  tier: "bonferroni", winRate: 0.86, oosWinRate: 0.86, avgReturn:  0.024, sortino: 3.2, nObs: 29, maxDrawdown: -0.08, profitFactor: 5.1, robustness: 0.72, decadeConsistent: true,  category: "Energie", rationale: "Pre-summer driving season baut RFG-Nachfrage auf.",        fakeReturns: makeFakeReturns(0.86,  0.024) },
-  { id: 2,  assetId: "wheat",   symbol: "ZW1!",  name: "Chicago Wheat",  direction: "LONG",  window: "Aug 10 – 20", startSlot: 152, endSlot: 159, calStart: 222, tier: "bonferroni", winRate: 0.84, oosWinRate: 0.75, avgReturn:  0.018, sortino: 2.8, nObs: 32, maxDrawdown: -0.06, profitFactor: 4.3, robustness: 0.68, decadeConsistent: true,  category: "Agrar",   rationale: "Northern-hemisphere Erntedruck lässt nach.",                fakeReturns: makeFakeReturns(0.84,  0.018) },
-  { id: 3,  assetId: "gc1",     symbol: "GC1!",  name: "Gold",           direction: "LONG",  window: "Jul 25 – 31", startSlot: 128, endSlot: 133, calStart: 206, tier: "fdr",        winRate: 0.78, oosWinRate: 0.72, avgReturn:  0.012, sortino: 2.1, nObs: 35, maxDrawdown: -0.05, profitFactor: 3.1, robustness: 0.58, decadeConsistent: true,  category: "Metalle", rationale: "Pre-India wedding season demand ramp.",                     fakeReturns: makeFakeReturns(0.78,  0.012) },
-  { id: 4,  assetId: "ng1",     symbol: "NG1!",  name: "Natural Gas",    direction: "SHORT", window: "Sep 16 – 30", startSlot: 170, endSlot: 181, calStart: 259, tier: "fdr",        winRate: 0.74, oosWinRate: 0.71, avgReturn: -0.021, sortino: 2.4, nObs: 28, maxDrawdown: -0.10, profitFactor: 3.6, robustness: 0.55, decadeConsistent: true,  category: "Energie", rationale: "Post-Injection-Season Überangebot drückt Nov-Kontrakt.",    fakeReturns: makeFakeReturns(0.74, -0.021) },
-  { id: 5,  assetId: "sugar",   symbol: "SB1!",  name: "Sugar #11",      direction: "SHORT", window: "Sep 18 – 30", startSlot: 172, endSlot: 182, calStart: 261, tier: "fdr",        winRate: 0.73, oosWinRate: 0.70, avgReturn: -0.016, sortino: 1.9, nObs: 30, maxDrawdown: -0.07, profitFactor: 2.8, robustness: 0.52, decadeConsistent: true,  category: "Agrar",   rationale: "Brasilianische Ernte drückt Exportpreise in Q4.",           fakeReturns: makeFakeReturns(0.73, -0.016) },
-  { id: 6,  assetId: "cocoa",   symbol: "CC1!",  name: "Cocoa",          direction: "LONG",  window: "Nov 5 – 15",  startSlot: 210, endSlot: 217, calStart: 309, tier: "fdr",        winRate: 0.74, oosWinRate: 0.70, avgReturn:  0.019, sortino: 2.2, nObs: 27, maxDrawdown: -0.09, profitFactor: 3.0, robustness: 0.53, decadeConsistent: true,  category: "Agrar",   rationale: "West African main crop arrival delays.",                    fakeReturns: makeFakeReturns(0.74,  0.019) },
-  { id: 7,  assetId: "pa1",     symbol: "PA1!",  name: "Palladium",      direction: "SHORT", window: "Jan 10 – 20", startSlot: 10,  endSlot: 17,  calStart: 10,  tier: "fdr",        winRate: 0.72, oosWinRate: 0.68, avgReturn: -0.022, sortino: 2.3, nObs: 24, maxDrawdown: -0.08, profitFactor: 3.4, robustness: 0.60, decadeConsistent: true,  category: "Metalle", rationale: "Jan-Liquidation nach Jahres-Rally drückt Palladium.",       fakeReturns: makeFakeReturns(0.72, -0.022) },
-  { id: 8,  assetId: "soymeal", iconAssetId: "zs1", symbol: "ZM1!", name: "Soybean Meal", direction: "LONG", window: "Apr 15 – 25", startSlot: 73, endSlot: 80, calStart: 105, tier: "fdr", winRate: 0.73, oosWinRate: 0.69, avgReturn: 0.014, sortino: 1.8, nObs: 31, maxDrawdown: -0.06, profitFactor: 2.5, robustness: 0.51, decadeConsistent: true,  category: "Agrar",   rationale: "US spring crush margin rally.",                             fakeReturns: makeFakeReturns(0.73,  0.014) },
-  { id: 9,  assetId: "cotton",  symbol: "CT1!",  name: "Cotton #2",      direction: "LONG",  window: "Feb 8 – 16",  startSlot: 29,  endSlot: 35,  calStart: 39,  tier: "fdr",        winRate: 0.72, oosWinRate: 0.68, avgReturn:  0.013, sortino: 1.7, nObs: 28, maxDrawdown: -0.07, profitFactor: 2.4, robustness: 0.49, decadeConsistent: true,  category: "Agrar",   rationale: "Export sales pace beschleunigt nach USDA Feb Report.",       fakeReturns: makeFakeReturns(0.72,  0.013) },
-  { id: 10, assetId: "es1",     symbol: "ES1!",  name: "S&P 500 E-mini", direction: "LONG",  window: "Dez 15 – 25", startSlot: 240, endSlot: 248, calStart: 349, tier: "fdr",        winRate: 0.80, oosWinRate: 0.75, avgReturn:  0.015, sortino: 2.5, nObs: 36, maxDrawdown: -0.04, profitFactor: 3.8, robustness: 0.65, decadeConsistent: true,  category: "Indizes", rationale: "Santa Claus Rally: Pension fund rebalancing.",              fakeReturns: makeFakeReturns(0.80,  0.015) },
-];
+/* ─── Build sleeve patterns from deep-validated + legacy data ─────── */
+function buildDeepSleevePatterns(): SleevePattern[] {
+  const deepPatterns = getDeepValidatedPatterns();
+  const monthNames: Record<number, string> = { 1: "Jan", 2: "Feb", 3: "Mär", 4: "Apr", 5: "Mai", 6: "Jun", 7: "Jul", 8: "Aug", 9: "Sep", 10: "Okt", 11: "Nov", 12: "Dez" };
+  function parseEntryDate(id: string): { month: number; day: number; hold: number } | null {
+    const m = id.match(/_(\d{2})(\d{2})_(\d+)$/);
+    if (!m) return null;
+    return { month: parseInt(m[1], 10), day: parseInt(m[2], 10), hold: parseInt(m[3], 10) };
+  }
+  function calDay(month: number, day: number): number {
+    return Math.floor((new Date(2024, month - 1, day).getTime() - new Date(2024, 0, 1).getTime()) / 86400000) + 1;
+  }
+  function approxSlot(month: number, day: number): number {
+    return Math.round(calDay(month, day) * (252 / 365));
+  }
+  const assetMap: Record<string, { assetId: string; iconAssetId?: string; category: string }> = {
+    SB1: { assetId: "sugar", category: "Agrar" },
+    ZW1: { assetId: "wheat", category: "Agrar" },
+    ZC1: { assetId: "zc1", category: "Agrar" },
+    ZS1: { assetId: "zs1", category: "Agrar" },
+    IWM: { assetId: "iwm", category: "Indizes" },
+    CL1: { assetId: "cl1", category: "Energie" },
+    CC1: { assetId: "cocoa", category: "Agrar" },
+    CT1: { assetId: "cotton", category: "Agrar" },
+    ES1: { assetId: "es1", category: "Indizes" },
+    KC1: { assetId: "kc1", category: "Agrar" },
+  };
+
+  const result: SleevePattern[] = deepPatterns.map((dp, i) => {
+    const entry = parseEntryDate(dp.id);
+    const asset = assetMap[dp.asset] ?? { assetId: dp.asset.toLowerCase(), category: "Sonstige" };
+    const startSlot = entry ? approxSlot(entry.month, entry.day) : 1;
+    const holdSlots = entry ? Math.round(entry.hold * (252 / 365)) : 10;
+    const cStart = entry ? calDay(entry.month, entry.day) : 1;
+    const windowLabel = entry
+      ? `${monthNames[entry.month] ?? entry.month} ${entry.day} – ${entry.day + Math.round((dp.avg_trade_days ?? 10) * 365 / 252)}`
+      : dp.name;
+    const avgRet = dp.direction === "LONG" ? Math.abs(dp.cagr / 100) * 0.3 : -Math.abs(dp.cagr / 100) * 0.3;
+
+    return {
+      id: 100 + i,
+      assetId: asset.assetId,
+      iconAssetId: asset.iconAssetId,
+      symbol: `${dp.asset}!`,
+      name: dp.name,
+      direction: dp.direction,
+      window: windowLabel,
+      startSlot,
+      endSlot: startSlot + holdSlots,
+      calStart: cStart,
+      tier: dp.bonferroni_significant ? "bonferroni" as const : "fdr" as const,
+      winRate: dp.win_rate / 100,
+      oosWinRate: dp.wf_strict_pct != null ? dp.wf_strict_pct / 100 : dp.wf_efficiency / 100,
+      avgReturn: avgRet,
+      sortino: dp.sharpe * 1.4,
+      nObs: dp.trades,
+      maxDrawdown: dp.max_dd / 100,
+      profitFactor: dp.profit_factor,
+      robustness: (dp.param_stability_pct ?? 50) / 100,
+      decadeConsistent: (dp.decades_profitable ?? 0) >= 4,
+      category: asset.category,
+      rationale: dp.verdict,
+      fakeReturns: makeFakeReturns(dp.win_rate / 100, avgRet),
+      validationId: dp.id,
+      deepScore: dp.deep_score,
+      deepGrade: dp.deep_grade,
+      wfStrictPct: dp.wf_strict_pct,
+      bonferroniSig: dp.bonferroni_significant,
+      paramStabilityPct: dp.param_stability_pct,
+      decadesProfitable: dp.decades_profitable,
+      forwardPass: dp.forward_pass,
+    };
+  });
+
+  result.sort((a, b) => (b.deepScore ?? 0) - (a.deepScore ?? 0));
+  return result;
+}
+
+export const SLEEVE_PATTERNS: SleevePattern[] = buildDeepSleevePatterns();
 
 /* ─── Countdown hook — uses calStart (calendar day 1-365) ──────────── */
 function todayCalendarDay(): number {
@@ -355,6 +436,27 @@ function MiniDonut({ pct, color, bg = "rgba(255,255,255,0.06)", size = 52, thick
   );
 }
 
+/* ─── Deep Grade Badge — replaces WrDonut for deep-validated patterns ── */
+function DeepGradeBadge({ grade, score, size = 48 }: { grade: string; score: number; size?: number }) {
+  const color = gradeColor(grade);
+  const bg = gradeBg(grade);
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: 10, flexShrink: 0,
+      background: bg, border: `1.5px solid ${color}40`,
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+      gap: 1,
+    }}>
+      <span style={{ fontSize: size * 0.38, fontWeight: 900, color, lineHeight: 1, fontFamily: FONT }}>
+        {grade}
+      </span>
+      <span style={{ fontSize: size * 0.17, fontWeight: 700, color: `${color}B0`, lineHeight: 1, fontFamily: FONT }}>
+        {score}
+      </span>
+    </div>
+  );
+}
+
 /* ─── Tier badge ────────────────────────────────────────────────────── */
 function TierBadge({ tier }: { tier: SleevePattern["tier"] }) {
   return (
@@ -424,6 +526,7 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
     return p.fakeReturns.slice(0, idx).reduce((s, r) => s + r * 100, 0);
   }, [countdown, p.calStart, p.endSlot, p.startSlot, p.fakeReturns]);
 
+  const isGradeD = p.deepGrade === "D";
   const cardBg = selected
     ? `radial-gradient(ellipse 120% 90% at 115% 120%, rgba(216,188,103,0.14) 0%, transparent 55%), ${C_CARD}`
     : C_CARD;
@@ -440,12 +543,13 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
         padding: "12px 14px 10px",
         display: "flex", flexDirection: "column", gap: 0,
         cursor: "pointer", outline: "none",
-        transition: "border-color 120ms",
+        transition: "border-color 120ms, opacity 120ms",
         height: "100%", boxSizing: "border-box" as const,
         fontFamily: FONT, overflow: "hidden",
+        opacity: isGradeD ? 0.4 : 1,
       }}
     >
-      {/* ── Row 1: Asset icon · Symbol + Name · OOS-WR-Donut ── */}
+      {/* ── Row 1: Asset icon · Symbol + Name · Deep Grade or WR Donut ── */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
         <AssetIcon assetId={p.assetId} iconAssetId={p.iconAssetId} symbol={p.symbol} name={p.name} size={36} />
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -456,7 +560,10 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
             {p.name}
           </div>
         </div>
-        <WrDonut pct={p.oosWinRate * 100} size={48} />
+        {p.deepGrade && p.deepScore != null
+          ? <DeepGradeBadge grade={p.deepGrade} score={p.deepScore} size={48} />
+          : <WrDonut pct={p.oosWinRate * 100} size={48} />
+        }
       </div>
 
       {/* ── Row 2: Muster-Datum ── */}
@@ -478,6 +585,16 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
           </span>
         )}
       </div>
+
+      {/* ── Row 3b: Deep Validation mini-stats ── */}
+      {p.deepGrade && (
+        <div style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.45)", lineHeight: 1, marginBottom: 6, fontFamily: FONT, letterSpacing: "0.01em" }}>
+          WF {p.wfStrictPct?.toFixed(0) ?? "—"}%
+          {" · Bonf "}
+          <span style={{ color: p.bonferroniSig ? "#22C55E" : "#EF4444" }}>{p.bonferroniSig ? "✓" : "✗"}</span>
+          {" · "}{p.decadesProfitable ?? 0}/5
+        </div>
+      )}
 
       {/* ── Row 4: Performance-Chart — kein eigener Border ── */}
       <div style={{ flex: 1, minHeight: 50, overflow: "hidden" }}>

@@ -6,6 +6,7 @@ import {
   Line,
   CartesianGrid,
   ComposedChart,
+  ReferenceArea,
   ReferenceLine,
   XAxis,
   YAxis,
@@ -237,23 +238,30 @@ function SeasonalCurveChartInner({ result, hoverDoy, onHoverDoy, onClickDoy, emb
             />
           )}
 
-          {/* Show Pattern Highlight setting */}
+          {/* Show Pattern Highlight setting — gold zone + dashed entry/exit */}
           {overlayPattern && showPatternHighlight && (
             <>
+              <ReferenceArea
+                x1={overlayPattern.startSlot}
+                x2={overlayPattern.endSlot}
+                fill={activeColor}
+                fillOpacity={0.06}
+                ifOverflow="visible"
+              />
               <ReferenceLine
                 x={overlayPattern.startSlot}
                 stroke={activeColor}
-                strokeOpacity={0.62}
-                strokeWidth={1}
-                strokeDasharray="2 4"
+                strokeOpacity={0.72}
+                strokeWidth={1.2}
+                strokeDasharray="4 3"
                 ifOverflow="visible"
               />
               <ReferenceLine
                 x={overlayPattern.endSlot}
                 stroke={activeColor}
-                strokeOpacity={0.48}
-                strokeWidth={1}
-                strokeDasharray="2 4"
+                strokeOpacity={0.55}
+                strokeWidth={1.2}
+                strokeDasharray="4 3"
                 ifOverflow="visible"
               />
             </>

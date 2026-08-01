@@ -20,6 +20,12 @@ import type { PatternFamilyWFResult } from "@/lib/seasonality/patternFamilyWalkF
 import styles from "./seasonal.module.css";
 import { PanelTitle } from "./PanelTitle";
 import { DirectionSparkline } from "./DirectionSparkline";
+import {
+  getAllPatterns,
+  gradeColor,
+  gradeBg,
+  type DeepValidationPattern,
+} from "@/lib/seasonality/deepValidation";
 
 const C_WHITE = "#F0F3F7";
 const C_GOLD = "#DCC476";
@@ -486,6 +492,61 @@ function NextPatternColumn({
   );
 }
 
+/* ─── Deep Validation Block — Backtrader 7-Test summary ────────────── */
+function DeepValidationBlock({ pattern }: { pattern: DeepValidationPattern }) {
+  if (pattern.deep_score == null || pattern.deep_grade == null) return null;
+  const gc = gradeColor(pattern.deep_grade);
+  const gb = gradeBg(pattern.deep_grade);
+  const C_PASS = "#22C55E";
+  const C_FAIL = "#EF4444";
+  const C_SCORE = "#C9A84C";
+  const C_LBL = "#6B7280";
+  const rows: { label: string; value: string; color: string }[] = [
+    { label: "WF Strict", value: `${pattern.wf_strict_pct?.toFixed(0) ?? "—"}%`, color: (pattern.wf_strict_pct ?? 0) >= 60 ? C_PASS : C_FAIL },
+    { label: "Bonferroni", value: pattern.bonferroni_significant ? "PASS" : "FAIL", color: pattern.bonferroni_significant ? C_PASS : C_FAIL },
+    { label: "Stabilität", value: `${pattern.param_stability_pct?.toFixed(0) ?? "—"}%`, color: (pattern.param_stability_pct ?? 0) >= 70 ? C_PASS : C_FAIL },
+    { label: "Dekaden", value: `${pattern.decades_profitable ?? 0}/5`, color: (pattern.decades_profitable ?? 0) >= 4 ? C_PASS : C_FAIL },
+    { label: "Forward", value: pattern.forward_pass ? "PASS" : "FAIL", color: pattern.forward_pass ? C_PASS : C_FAIL },
+  ];
+
+  return (
+    <div style={{ padding: "6px 10px 8px", flexShrink: 0 }}>
+      <div style={{
+        background: "rgba(12,14,18,0.92)", border: `1px solid ${gc}30`,
+        borderRadius: 10, padding: "10px 12px",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+          <span style={{ fontSize: 8.5, fontWeight: 700, color: C_LBL, textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>
+            Backtrader Validation
+          </span>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 6,
+          }}>
+            <span style={{
+              fontSize: 13, fontWeight: 900, color: gc,
+              background: gb, padding: "2px 8px", borderRadius: 6,
+              fontFamily: FONT,
+            }}>
+              {pattern.deep_grade}
+            </span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: C_SCORE, fontFamily: FONT }}>
+              {pattern.deep_score}
+            </span>
+          </div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 8px" }}>
+          {rows.map(r => (
+            <div key={r.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: 9, fontWeight: 600, color: C_LBL, fontFamily: FONT }}>{r.label}</span>
+              <span style={{ fontSize: 9, fontWeight: 700, color: r.color, fontFamily: FONT }}>{r.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 interface Props {
   wfResult: WalkForwardResult | null;
   activePattern: PatternCandidate | null;
@@ -670,6 +731,22 @@ export const SeasonalRightPanel = memo(function SeasonalRightPanel({
       <div style={{ padding: "0 10px 8px", fontSize: 8.5, fontWeight: 600, color: statusColor, letterSpacing: "0.03em", flexShrink: 0 }}>
         {statusLabel}
       </div>
+
+      {/* ── Backtrader Deep Validation ── */}
+      {(() => {
+        if (!kpiSource) return null;
+        const allP = getAllPatterns();
+        const match = allP.find(p =>
+          p.deep_score != null &&
+          p.asset.toLowerCase() === (kpiSource as any)?.assetId?.toLowerCase?.() &&
+          p.direction === kpiSource.direction
+        ) ?? allP.find(p =>
+          p.deep_score != null &&
+          kpiSource.startSlot != null &&
+          Math.abs((p.wf_efficiency ?? 0) - (kpiSource as any)?.winRate * 100) < 5
+        );
+        return match ? <DeepValidationBlock pattern={match} /> : null;
+      })()}
 
       <div style={{ padding: "6px 10px 8px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, flexShrink: 0 }}>
         <KpiCard label="Window" value={kpiWindow} color={activeDirectionColor} subLabel={kpiWindowSub} />
