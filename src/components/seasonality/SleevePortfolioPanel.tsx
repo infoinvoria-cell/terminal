@@ -301,14 +301,14 @@ function WrDonut({ pct, size = 64 }: { pct: number; size?: number }) {
   );
 }
 
-/* ─── Cumulative equity card-line ────────────────────────────────────── */
+/* ─── Cumulative equity card-line — AVG label at last point Y ────────── */
 function CardEquityLine({ returns: rets, id, avgReturn }: {
   returns: number[]; id: string; avgReturn: number;
 }) {
   const eq: number[] = [0];
   for (const r of rets) eq.push(eq[eq.length - 1] + r * 100);
-  const W = 240; const H = 42;
-  const padTop = 4; const padBot = 3;
+  const W = 200; const H = 60; const LABEL_W = 52; const VW = W + LABEL_W;
+  const padTop = 4; const padBot = 4;
   const min = Math.min(...eq); const max = Math.max(...eq);
   const rng = max - min || 0.1;
   const pts = eq.map((v, i) => {
@@ -319,24 +319,28 @@ function CardEquityLine({ returns: rets, id, avgReturn }: {
   const lineC = avgReturn >= 0 ? "#e8edf3" : "#d6b867";
   const fillId = `cf-${id}`;
   const lastVal = eq[eq.length - 1];
-  const lastX = W;
   const lastY = padTop + (1 - (lastVal - min) / rng) * (H - padTop - padBot);
   const base  = padTop + (1 - (0 - min) / rng) * (H - padTop - padBot);
   const clampedBase = Math.min(H - padBot, Math.max(padTop, base));
+  const avgLabel = `${avgReturn >= 0 ? "+" : ""}${(avgReturn * 100).toFixed(1)}%`;
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{ display: "block" }}>
+    <svg viewBox={`0 0 ${VW} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block" }}>
       <defs>
         <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={lineC} stopOpacity="0.18" />
+          <stop offset="0%" stopColor={lineC} stopOpacity="0.20" />
           <stop offset="100%" stopColor={lineC} stopOpacity="0.00" />
         </linearGradient>
       </defs>
       <line x1={0} y1={clampedBase} x2={W} y2={clampedBase}
         stroke="rgba(255,255,255,0.07)" strokeWidth={0.5} strokeDasharray="3 5" />
       <polygon points={`0,${clampedBase} ${pts} ${W},${clampedBase}`} fill={`url(#${fillId})`} />
-      <polyline points={pts} fill="none" stroke={lineC} strokeWidth={2} strokeLinejoin="round" />
-      <circle cx={lastX} cy={lastY} r={3} fill={lineC} />
+      <polyline points={pts} fill="none" stroke={lineC} strokeWidth={1.8} strokeLinejoin="round" />
+      <circle cx={W} cy={lastY} r={2.5} fill={lineC} />
+      <text x={W + 5} y={lastY} dominantBaseline="central"
+        fill={lineC} fontSize={9} fontWeight={700} fontFamily={FONT}>
+        {avgLabel}
+      </text>
     </svg>
   );
 }
@@ -582,9 +586,8 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
   }, [countdown, p.calStart, p.endSlot, p.startSlot, p.fakeReturns]);
 
   const cardBg = selected
-    ? `radial-gradient(ellipse 120% 90% at 115% 120%, rgba(216,188,103,0.14) 0%, transparent 55%), ${C_CARD}`
-    : C_CARD;
-  const avgLabel = `${p.avgReturn >= 0 ? "+" : ""}${(p.avgReturn * 100).toFixed(1)}% avg`;
+    ? `radial-gradient(ellipse 120% 90% at 115% 120%, rgba(216,188,103,0.14) 0%, transparent 55%), linear-gradient(160deg, #181c24 0%, #111318 100%)`
+    : `linear-gradient(160deg, #181c24 0%, #111318 100%)`;
 
   return (
     <div
@@ -632,14 +635,9 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
         )}
       </div>
 
-      {/* ── Row 4: Sparkline + Avg label ── */}
-      <div style={{ flex: 1, minHeight: 32, display: "flex", alignItems: "flex-end", gap: 4, overflow: "hidden" }}>
-        <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
-          <CardEquityLine returns={p.fakeReturns} id={`p${p.id}`} avgReturn={p.avgReturn} />
-        </div>
-        <span style={{ fontSize: 8, fontWeight: 700, color: p.avgReturn >= 0 ? "#e8edf3" : C_GOLD, whiteSpace: "nowrap", lineHeight: 1, flexShrink: 0, paddingBottom: 2 }}>
-          {avgLabel}
-        </span>
+      {/* ── Row 4: Sparkline — fills remaining space, AVG label inside SVG ── */}
+      <div style={{ flex: 1, minHeight: 48, overflow: "hidden" }}>
+        <CardEquityLine returns={p.fakeReturns} id={`p${p.id}`} avgReturn={p.avgReturn} />
       </div>
 
       {/* ── Row 5: Direction ▲/▼ · Detail icon ── */}
