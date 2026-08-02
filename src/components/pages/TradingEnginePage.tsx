@@ -617,7 +617,7 @@ export default function TradingEnginePage() {
                               <XAxis dataKey="x" tick={{ fontSize: 9, fill: FAINT }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} interval={Math.max(1, Math.floor(equityData.length / 8))} tickFormatter={v => String(v).slice(0, 4)} />
                               <YAxis domain={["auto", "auto"]} tick={{ fontSize: 9, fill: DIM, fontFamily: 'var(--font-nunito,monospace)' }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} width={50} tickFormatter={v => `${Number(v).toFixed(0)}%`} />
                               <Tooltip contentStyle={{ background: BG, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 10, fontFamily: 'var(--font-nunito,monospace)' }} labelStyle={{ color: DIM }} formatter={(v: unknown, n: unknown) => [`${Number(v).toFixed(2)}%`, n === "y" ? "Strategy" : "Buy & Hold"]} />
-                              <Line type="monotone" dataKey="y" stroke={GOLD} dot={false} strokeWidth={1.5} name="Strategy" />
+                              <Line type="monotone" dataKey="y" stroke="#F5F5F5" dot={false} strokeWidth={1.5} name="Strategy" />
                               {equityData.some(d => d.bh != null) && <Line type="monotone" dataKey="bh" stroke="#333333" dot={false} strokeWidth={1} strokeDasharray="4 3" name="Buy & Hold" />}
                             </LineChart>
                           </ResponsiveContainer>
@@ -626,9 +626,9 @@ export default function TradingEnginePage() {
                           <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={ddData} margin={{ top: 2, right: 6, left: 0, bottom: 0 }}>
                               <XAxis dataKey="x" tick={{ fontSize: 7, fill: FAINT }} tickLine={false} axisLine={false} interval={Math.max(1, Math.floor(ddData.length / 8))} tickFormatter={v => String(v).slice(0, 4)} />
-                              <YAxis domain={["dataMin", 0]} tick={{ fontSize: 8, fill: DIM, fontFamily: 'var(--font-nunito,monospace)' }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} width={50} tickFormatter={v => `${Number(v).toFixed(1)}%`} />
+                              <YAxis domain={["auto", 0]} tick={{ fontSize: 8, fill: DIM, fontFamily: 'var(--font-nunito,monospace)' }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} width={50} tickFormatter={v => `${Number(v).toFixed(1)}%`} />
                               <Tooltip contentStyle={{ background: BG, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 9 }} formatter={(v: unknown) => [`${Number(v).toFixed(2)}%`, "Drawdown"]} />
-                              <Area type="monotone" dataKey="dd" stroke={RED} fill="rgba(220,38,38,0.12)" strokeWidth={1} dot={false} />
+                              <Area type="monotone" dataKey="dd" stroke="#C9A84C" fill="rgba(201,168,76,0.2)" strokeWidth={1} dot={false} />
                             </AreaChart>
                           </ResponsiveContainer>
                         </div>

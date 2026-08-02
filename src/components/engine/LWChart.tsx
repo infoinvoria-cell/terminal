@@ -31,45 +31,47 @@ export default function LWChart({ data, trades = [], emaFastData = [], emaSlowDa
 
     const chart = createChart(ref.current, {
       autoSize: true,
-      layout: { background: { color: '#0a0a0c' }, textColor: '#6B7280', fontSize: 10, attributionLogo: false, fontFamily: 'var(--font-montserrat, system-ui)' },
+      layout: {
+        background: { color: '#090909' },
+        textColor: '#9CA3AF',
+        fontSize: 10,
+        attributionLogo: false,
+        fontFamily: 'var(--font-montserrat, system-ui)',
+      },
       grid: {
         vertLines: { color: 'rgba(255,255,255,0.03)', style: 1 },
         horzLines: { color: 'rgba(255,255,255,0.03)', style: 1 },
       },
       crosshair: {
         mode: 0,
-        vertLine: { color: 'rgba(226,202,122,0.4)', width: 1, style: 0, labelBackgroundColor: '#1c1d20' },
-        horzLine: { color: 'rgba(226,202,122,0.4)', width: 1, style: 0, labelBackgroundColor: '#1c1d20' },
+        vertLine: { color: '#333333', width: 1, style: 3, labelBackgroundColor: '#1c1d20' },
+        horzLine: { color: '#333333', width: 1, style: 3, labelBackgroundColor: '#1c1d20' },
       },
       handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: true },
       handleScale: { mouseWheel: true, pinch: true, axisPressedMouseMove: { time: true, price: true } },
       timeScale: {
-        borderColor: '#1A1A1A',
+        borderColor: '#2A2A2A',
         borderVisible: true,
         timeVisible: true,
         secondsVisible: false,
         rightOffset: 5,
         minBarSpacing: 2,
-        tickMarkFormatter: (time: number) => {
-          const d = new Date(time * 1000)
-          return d.toLocaleDateString('de-DE', { month: 'short', day: 'numeric' })
-        },
       },
       rightPriceScale: {
-        borderColor: '#1A1A1A',
+        borderColor: '#2A2A2A',
         borderVisible: true,
-        scaleMargins: { top: 0.08, bottom: 0.08 },
+        scaleMargins: { top: 0.1, bottom: 0.1 },
         autoScale: true,
       },
     })
 
     const series = chart.addSeries(CandlestickSeries, {
       upColor: '#F5F5F5',
-      downColor: '#C9A84C',
+      downColor: '#F5F5F5',
       borderUpColor: '#F5F5F5',
-      borderDownColor: '#C9A84C',
-      wickUpColor: '#999999',
-      wickDownColor: '#C9A84C',
+      borderDownColor: '#6B7280',
+      wickUpColor: '#9CA3AF',
+      wickDownColor: '#9CA3AF',
     })
 
     const emaFastSeries = chart.addSeries(LineSeries, {
@@ -126,7 +128,7 @@ export default function LWChart({ data, trades = [], emaFastData = [], emaSlowDa
         const allMarkers = trades.map(t => ({
           time: toSec(t.time) as UTCTimestamp,
           position: t.dir === 'long' ? 'belowBar' as const : 'aboveBar' as const,
-          color: t.win ? '#F5F5F5' : '#C9A84C',
+          color: t.win ? '#F5F5F5' : '#9CA3AF',
           shape: t.dir === 'long' ? 'arrowUp' as const : 'arrowDown' as const,
           text: t.pnlPips != null ? `${t.pnlPips > 0 ? '+' : ''}${t.pnlPips.toFixed(0)}p` : `${t.win ? '+' : ''}${(t.pnlPct * 100).toFixed(0)}%`,
           size: 1,
