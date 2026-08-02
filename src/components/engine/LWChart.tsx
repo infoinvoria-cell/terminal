@@ -28,9 +28,13 @@ export default function LWChart({ data, trades = [], emaFastData = [], emaSlowDa
 
   useEffect(() => {
     if (!ref.current) return
+    const container = ref.current
+    const w = container.clientWidth || 800
+    const h = container.clientHeight || 400
 
-    const chart = createChart(ref.current, {
-      autoSize: true,
+    const chart = createChart(container, {
+      width: w,
+      height: h,
       layout: {
         background: { color: '#090909' },
         textColor: '#9CA3AF',
@@ -65,11 +69,21 @@ export default function LWChart({ data, trades = [], emaFastData = [], emaSlowDa
       },
     })
 
+    let chartInstance: IChartApi | null = chart
+
+    const ro = new ResizeObserver(entries => {
+      const e = entries[0]
+      if (e && chartInstance) {
+        chartInstance.resize(e.contentRect.width, e.contentRect.height)
+      }
+    })
+    ro.observe(container)
+
     const series = chart.addSeries(CandlestickSeries, {
       upColor: '#F5F5F5',
-      downColor: '#F5F5F5',
+      downColor: '#C9A84C',
       borderUpColor: '#F5F5F5',
-      borderDownColor: '#6B7280',
+      borderDownColor: '#C9A84C',
       wickUpColor: '#9CA3AF',
       wickDownColor: '#9CA3AF',
     })
@@ -82,7 +96,6 @@ export default function LWChart({ data, trades = [], emaFastData = [], emaSlowDa
     })
 
     const markerApi = createSeriesMarkers(series, [])
-    let chartInstance: IChartApi | null = chart
 
     if (data?.length) {
       const normalized = data.map(d => ({
@@ -121,8 +134,8 @@ export default function LWChart({ data, trades = [], emaFastData = [], emaSlowDa
             from: from as UTCTimestamp,
             to: (lastT + 86400) as UTCTimestamp,
           })
-        } catch {}
-      }, 1000)
+        } catch { /* ignore if chart unmounted */ }
+      }, 300)
 
       if (trades.length) {
         const allMarkers = trades.map(t => ({
@@ -145,10 +158,11 @@ export default function LWChart({ data, trades = [], emaFastData = [], emaSlowDa
     }
 
     return () => {
+      ro.disconnect()
       chartInstance = null
-      try { chart.remove() } catch {}
+      try { chart.remove() } catch { /* ignore */ }
     }
   }, [data, trades, emaFastData, emaSlowData, showEma, showEmaFast, showEmaSlow, visibleDays, priceLines])
 
-  return <div ref={ref} style={{ width: '100%', height: '100%' }} />
+  return <div ref={ref} style={{ position: 'absolute', inset: 0 }} />
 }

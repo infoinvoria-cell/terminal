@@ -571,7 +571,7 @@ export default function TradingEnginePage() {
             </div>
 
             {hasData ? (
-              <div style={{ width: "100%", height: "100%" }}>
+              <div style={{ position: "relative", width: "100%", height: "100%" }}>
                 <ChartComponent data={bars} trades={chartTrades} emaFastData={emaFastData} emaSlowData={emaSlowData}
                   showEma={meta.useEma && (showEmaFast || showEmaSlow)} showEmaFast={showEmaFast} showEmaSlow={showEmaSlow} visibleDays={chartDays}
                   priceLines={signal.direction !== "flat" ? [

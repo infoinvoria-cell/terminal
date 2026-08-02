@@ -51,7 +51,7 @@ function smartPreferredProvider(messages: ChatMessage[]): SentinelProviderId {
   const lastUser = messages.findLast((m) => m.role === "user")?.content ?? "";
   const tokens = estimateTokens(messages);
   const isComplex = tokens > 200 || COMPLEX_KEYWORDS.test(lastUser);
-  return isComplex ? "groq" : "ollama";
+  return isComplex ? "groq" : "cerebras";
 }
 
 function groqDailyLimitReached(): boolean {
@@ -259,7 +259,7 @@ export async function ask(messages: ChatMessage[], options?: { requestedProvider
     if (!firstError && (explicitProvider || providerStatus?.usable)) firstError = `${providerId}: ${error ?? "unknown error"}`;
   }
 
-  throw new Error(firstError ?? `Lokales Modell offline. Starte Ollama unter ${config.ollamaBaseUrl}.`);
+  throw new Error(firstError ?? "Kein Provider verfügbar. Prüfe API-Keys in .env.local.");
 }
 
 export async function stream(messages: ChatMessage[], options?: { requestedProvider?: string }): Promise<{ stream: ReadableStream<Uint8Array>; provider: SentinelProviderId; mode: SentinelRouterMode; tokensUsed?: number }> {
@@ -312,5 +312,5 @@ export async function stream(messages: ChatMessage[], options?: { requestedProvi
     }
   }
 
-  throw new Error(lastError ?? `Lokales Modell offline. Starte Ollama unter ${config.ollamaBaseUrl}.`);
+  throw new Error(lastError ?? "Kein Provider verfügbar. Prüfe API-Keys in .env.local.");
 }
