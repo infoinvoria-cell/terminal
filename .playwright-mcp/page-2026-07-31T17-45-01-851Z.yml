@@ -1,0 +1,872 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - 'button "Logged in as jg_fxtrading Active layout: 🍎Capitalife Valuation Stocks" [ref=e7]'
+      - generic [ref=e8]: "26"
+    - toolbar [ref=e12]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]:
+            - button "ES1!" [ref=e798]
+            - button [ref=e799]
+          - button "Compare symbols" [ref=e25]
+        - generic [ref=e33]:
+          - radiogroup [ref=e34]:
+            - radio "1 minute" [ref=e35]:
+              - generic [ref=e36]: 1m
+            - radio "5 minutes" [ref=e38]:
+              - generic [ref=e39]: 5m
+            - radio "15 minutes" [ref=e41]:
+              - generic [ref=e42]: 15m
+            - radio "30 minutes" [ref=e44]:
+              - generic [ref=e45]: 30m
+            - radio "1 hour" [ref=e47]:
+              - generic [ref=e48]: 1h
+            - radio "2 hours" [ref=e50]:
+              - generic [ref=e51]: 2h
+            - radio "4 hours" [ref=e53]:
+              - generic [ref=e54]: 4h
+            - radio "1 day" [checked] [ref=e56]:
+              - generic [ref=e57]: D
+            - radio "1 week" [ref=e59]:
+              - generic [ref=e60]: W
+            - radio "1 month" [ref=e62]:
+              - generic [ref=e63]: M
+          - button "Chart interval" [ref=e65]
+        - generic [ref=e74]:
+          - radiogroup [ref=e75]:
+            - radio "Candles" [checked] [ref=e76]
+            - radio "Heikin Ashi" [ref=e83]
+          - button "Bar's style" [ref=e90]
+        - generic [ref=e98]:
+          - generic [ref=e99]:
+            - button "Indicators, metrics, and strategies" [ref=e100]
+            - button "Favorite indicators" [ref=e105]
+          - button "Indicator templates" [ref=e112]
+        - generic [ref=e119]:
+          - button "Create alert" [ref=e120]
+          - button "Bar replay" [ref=e800]
+        - generic [ref=e140]:
+          - button "Undo change resolution" [ref=e804]
+          - button [disabled] [ref=e145]
+        - generic [ref=e149]:
+          - button "Layout setup" [ref=e150]
+          - generic [ref=e153]:
+            - button "Save all charts for all symbols and intervals on your layout" [ref=e805]:
+              - generic [ref=e156]:
+                - generic [ref=e157]: Data
+                - generic [ref=e806]: Save
+            - button "Manage layouts" [ref=e160]
+            - link "⚔️Copy Trading JG 2" [ref=e166]:
+              - /url: https://www.tradingview.com/chart/W0GEb5M7/
+            - link "🍎Swing Stocks Strategien" [ref=e169]:
+              - /url: https://www.tradingview.com/chart/4Hn8TX6E/
+            - link "📊SCANNER" [ref=e172]:
+              - /url: https://www.tradingview.com/chart/lrY2G4rE/
+            - link "🧐invest" [ref=e175]:
+              - /url: https://www.tradingview.com/chart/gVBhfGn8/
+        - generic [ref=e180]:
+          - button "Quick search" [ref=e181]
+          - button "Settings" [ref=e186]
+          - button "Fullscreen mode" [ref=e192]
+          - button "Take a snapshot" [ref=e196]
+        - generic [ref=e217]:
+          - button "Share your idea with the trade community"
+          - generic "Share your idea with the trade community" [ref=e218]
+    - toolbar [ref=e224]:
+      - generic [ref=e228]:
+        - generic [ref=e229]:
+          - generic [ref=e232]:
+            - button "Cross" [ref=e234]
+            - button "Cursors" [pressed] [ref=e240]
+          - generic [ref=e246]:
+            - button "Trendline" [ref=e248]
+            - button "Trend tools" [ref=e254]
+          - generic [ref=e260]:
+            - button "Fib retracement" [ref=e262]
+            - button "Gann and Fibonacci tools" [ref=e271]
+          - generic [ref=e277]:
+            - button "XABCD pattern" [ref=e279]
+            - button "Patterns" [ref=e285]
+          - generic [ref=e291]:
+            - button "Long position" [ref=e293]
+            - button "Forecasting and measurement tools" [ref=e297]
+          - generic [ref=e303]:
+            - button "Brush" [ref=e305]
+            - button "Geometric shapes" [ref=e311]
+          - generic [ref=e317]:
+            - button "Text" [ref=e319]
+            - button "Annotation tools" [ref=e323]
+          - generic [ref=e328]:
+            - button "Icon" [ref=e330]
+            - button "Icons" [ref=e334]
+        - generic [ref=e338]:
+          - button "Measure" [ref=e339]
+          - button "Zoom in" [ref=e343]
+        - generic [ref=e350]:
+          - generic [ref=e353]:
+            - button "Magnet mode snaps drawings placed near price bars to the closest OHLC value" [ref=e355]
+            - button "Magnets" [ref=e361]
+          - button "Keep drawing" [ref=e365]
+          - button "Lock all drawings" [ref=e369]
+          - generic [ref=e374]:
+            - button "Hide all indicators" [ref=e376]
+            - button "Hide options" [ref=e380]
+          - generic [ref=e385]:
+            - button "New drawings will not be synced" [ref=e387]
+            - button "Sync drawings options" [ref=e391]
+        - generic [ref=e397]:
+          - button "Remove objects" [ref=e399]
+          - button "Remove options" [ref=e403]
+        - button "Show Favorite Drawing Tools Toolbar" [ref=e409]
+    - generic [ref=e413]:
+      - 'region "Chart #1" [ref=e416]':
+        - generic [ref=e420]:
+          - generic:
+            - generic:
+              - toolbar:
+                - generic:
+                  - generic [ref=e421]:
+                    - generic "Change symbol" [ref=e807]:
+                      - generic [ref=e423]: E
+                      - button "Change symbol" [ref=e809]: ES1!
+                    - text: · ·
+                  - generic:
+                    - generic:
+                      - button "Flag symbol"
+                      - button "More"
+                  - button "Data is delayed" [ref=e811]
+          - generic "Chart for CME_MINI_DL:ES1!, 1 day" [ref=e815]
+      - toolbar [ref=e656]:
+        - button [ref=e792]
+        - generic [ref=e683]:
+          - button "Timezone" [ref=e686]:
+            - generic [ref=e687]: 19:45:01 UTC+2
+          - button "Adjust for contract changes" [ref=e817]:
+            - generic [ref=e818]: B-ADJ
+          - button "Use settlement as close on daily interval" [pressed] [ref=e820]:
+            - generic [ref=e821]: SET
+    - text: – – –
+  - generic: Symbol search
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+    - dialog "Symbol search" [ref=e824]:
+      - generic [ref=e825]:
+        - generic [ref=e826]: Symbol search
+        - button "Close menu" [ref=e828]
+      - generic [ref=e835]:
+        - searchbox "Symbol, ISIN, or CUSIP" [ref=e839]: SPY
+        - generic [ref=e840]:
+          - button "Clear" [ref=e841]
+          - separator [ref=e845]
+          - button "Show spread operators" [ref=e846]
+      - tablist [ref=e852]:
+        - tab "All" [ref=e853]
+        - tab "Stocks" [ref=e855]
+        - tab "Funds" [active] [selected] [ref=e857]
+        - tab "Futures" [ref=e859]
+        - tab "Forex" [ref=e861]
+        - tab "Crypto" [ref=e863]
+        - tab "Indices" [ref=e865]
+        - tab "Bonds" [ref=e867]
+        - tab "Economy" [ref=e869]
+        - tab "Options" [ref=e871]
+        - button:
+          - generic: More
+      - generic [ref=e873]:
+        - button "All countries" [ref=e878]
+        - button "All types" [ref=e1326]
+      - generic [ref=e904]:
+        - generic [ref=e905]:
+          - generic [ref=e906]:
+            - generic [ref=e907]: S
+            - generic [ref=e914]:
+              - emphasis [ref=e1021]: SPY
+              - generic [ref=e916]: SPDR S&P 500 ETF TRUST
+          - generic [ref=e917]:
+            - generic [ref=e918]:
+              - generic [ref=e1022]: fund etf
+              - generic "Arca — NYSE Arca" [ref=e1341]: NYSE Arca
+            - generic [ref=e1342]: "+2"
+            - button "Expand" [ref=e1352]
+        - generic [ref=e1028]:
+          - generic [ref=e1029]:
+            - generic [ref=e1030]: S
+            - generic [ref=e1038]:
+              - emphasis [ref=e1361]: SPY
+              - generic [ref=e1042]: SPDR S&P 500 ETF Trust
+          - generic [ref=e1044]:
+            - generic [ref=e1045]: fund cfd etf
+            - generic "Spreadex" [ref=e1362]
+        - generic [ref=e1052]:
+          - generic [ref=e1053]:
+            - generic [ref=e1054]: S
+            - generic [ref=e1062]:
+              - emphasis [ref=e1372]: SPY
+              - generic [ref=e1066]: SPDR S&P 500 ETF
+          - generic [ref=e1068]:
+            - generic [ref=e1069]: fund etf
+            - generic "ASX — Australian Securities Exchange" [ref=e1373]: ASX
+        - generic [ref=e1076]:
+          - generic [ref=e1077]:
+            - generic [ref=e1078]: S
+            - generic [ref=e1086]:
+              - emphasis [ref=e1383]: SPY
+              - generic [ref=e1090]: State Street SPDR S&P 500 ETF Trust
+          - generic [ref=e1092]:
+            - generic [ref=e1093]: fund cfd etf
+            - generic "Eightcap" [ref=e1384]
+        - generic [ref=e1100]:
+          - generic [ref=e1101]:
+            - generic [ref=e1102]: S
+            - generic [ref=e1110]:
+              - emphasis [ref=e1394]: SPY
+              - generic [ref=e1114]: SPDR S&P 500 ETF Trust
+          - generic [ref=e1117]:
+            - generic [ref=e1118]: fund cfd etf
+            - generic "Vantage" [ref=e1395]
+        - generic [ref=e1128]:
+          - generic [ref=e1129]:
+            - generic [ref=e1130]: S
+            - generic [ref=e1138]:
+              - emphasis [ref=e1406]: SPY
+              - generic [ref=e1140]: SPDR S&P 500 ETF
+          - generic [ref=e1143]:
+            - generic [ref=e1144]: fund cfd etf
+            - generic "Skilling" [ref=e1407]
+        - generic [ref=e1161]:
+          - generic [ref=e1162]:
+            - generic [ref=e1163]: S
+            - generic [ref=e1171]:
+              - emphasis [ref=e1417]: SPY
+              - generic [ref=e1175]: SPDR S&P 500ETF Trust
+          - generic [ref=e1177]:
+            - generic [ref=e1178]: fund cfd etf
+            - generic "CFI" [ref=e1418]
+        - generic [ref=e1185]:
+          - generic [ref=e1186]:
+            - generic [ref=e1187]: S
+            - generic [ref=e1195]:
+              - emphasis [ref=e1428]: SPY
+              - generic [ref=e1199]: SPDR SP 500 ETF Trust
+          - generic [ref=e1201]:
+            - generic [ref=e1202]: fund cfd etf
+            - generic "ThinkMarkets" [ref=e1429]
+        - generic [ref=e1209]:
+          - generic [ref=e1210]:
+            - generic [ref=e1211]: S
+            - generic [ref=e1219]:
+              - emphasis [ref=e1440]: SPY
+              - generic [ref=e1221]: SPDR S&P 500 ETF Trust
+          - generic [ref=e1224]:
+            - generic [ref=e1225]: fund cfd
+            - generic "Deriv" [ref=e1441]
+        - generic [ref=e1239]:
+          - generic [ref=e1240]:
+            - generic [ref=e1241]: S
+            - generic [ref=e1249]:
+              - generic [ref=e1451]:
+                - emphasis [ref=e1452]: SPY
+                - text: M
+              - generic [ref=e1251]: State Street SPDR Portfolio S&P 500 ETF
+          - generic [ref=e1253]:
+            - generic [ref=e1254]:
+              - generic [ref=e1255]: fund etf
+              - generic "Arca — NYSE Arca" [ref=e1453]: NYSE Arca
+            - generic [ref=e1454]: "+1"
+            - button "Expand" [ref=e1268]
+        - generic [ref=e1272]:
+          - generic [ref=e1273]:
+            - generic [ref=e1274]: S
+            - generic [ref=e1282]:
+              - generic [ref=e1284]:
+                - emphasis [ref=e1468]: SPY
+                - text: I
+              - generic [ref=e1286]: NEOS S&P 500 High Income ETF
+          - generic [ref=e1287]:
+            - generic [ref=e1288]:
+              - generic [ref=e1289]: fund etf
+              - generic "CBOE — Chicago Board Options Exchange" [ref=e1469]: CBOE
+            - button "Expand" [ref=e1479]
+        - generic [ref=e1296]:
+          - generic [ref=e1297]:
+            - generic [ref=e1298]: S
+            - generic [ref=e1306]:
+              - generic [ref=e1488]:
+                - emphasis [ref=e1489]: SPY
+                - text: G
+              - generic [ref=e1308]: State Street SPDR Portfolio S&P 500 Growth ETF
+          - generic [ref=e1310]:
+            - generic [ref=e1311]:
+              - generic [ref=e1312]: fund etf
+              - generic "Arca — NYSE Arca" [ref=e1490]: NYSE Arca
+            - generic [ref=e1491]: "+2"
+            - button "Expand" [ref=e1501]
+        - generic [ref=e1505]:
+          - generic [ref=e1506]:
+            - generic [ref=e1507]: S
+            - generic [ref=e1515]:
+              - generic [ref=e1517]:
+                - emphasis [ref=e1518]: SPY
+                - text: U
+              - generic [ref=e1519]: MAX S&P 500 4X Leveraged ETNs due October 30, 2043
+          - generic [ref=e1520]:
+            - generic [ref=e1521]:
+              - generic [ref=e1522]: fund etf
+              - generic "Arca — NYSE Arca" [ref=e1524]: NYSE Arca
+            - button "Expand" [ref=e1532]
+        - generic [ref=e1536]:
+          - generic [ref=e1537]:
+            - generic [ref=e1538]: S
+            - generic [ref=e1546]:
+              - generic [ref=e1548]:
+                - emphasis [ref=e1549]: SPY
+                - text: H
+              - generic [ref=e1550]: NEOS S&P 500 Hedged Equity Income ETF
+          - generic [ref=e1551]:
+            - generic [ref=e1552]:
+              - generic [ref=e1553]: fund etf
+              - generic "CBOE — Chicago Board Options Exchange" [ref=e1555]: CBOE
+            - button "Expand" [ref=e1563]
+        - generic [ref=e1567]:
+          - generic [ref=e1568]:
+            - generic [ref=e1569]: S
+            - generic [ref=e1577]:
+              - generic [ref=e1579]:
+                - emphasis [ref=e1580]: SPY
+                - text: Q
+              - generic [ref=e1581]:
+                - text: Tradr 2X Long
+                - emphasis [ref=e1582]: SPY
+                - text: Quarterly ETF
+          - generic [ref=e1583]:
+            - generic [ref=e1584]:
+              - generic [ref=e1585]: fund etf
+              - generic "NASDAQ — NASDAQ Stock Market" [ref=e1587]: NASDAQ
+            - button "Expand" [ref=e1595]
+        - generic [ref=e1599]:
+          - generic [ref=e1600]:
+            - generic [ref=e1601]: S
+            - generic [ref=e1609]:
+              - generic [ref=e1611]:
+                - emphasis [ref=e1612]: SPY
+                - text: A
+              - generic [ref=e1613]: Twin Oak Endure ETF
+          - generic [ref=e1614]:
+            - generic [ref=e1615]:
+              - generic [ref=e1616]: fund etf
+              - generic "CBOE — Chicago Board Options Exchange" [ref=e1618]: CBOE
+            - button "Expand" [ref=e1626]
+        - generic [ref=e1630]:
+          - generic [ref=e1631]:
+            - generic [ref=e1632]: S
+            - generic [ref=e1640]:
+              - generic [ref=e1642]:
+                - emphasis [ref=e1643]: SPY
+                - text: D
+              - generic [ref=e1644]: State Street SPDR Portfolio S&P 500 High Dividend ETF
+          - generic [ref=e1645]:
+            - generic [ref=e1646]:
+              - generic [ref=e1647]: fund etf
+              - generic "Arca — NYSE Arca" [ref=e1649]: NYSE Arca
+            - generic [ref=e1650]: "+1"
+            - button "Expand" [ref=e1660]
+        - generic [ref=e1664]:
+          - generic [ref=e1665]:
+            - generic [ref=e1666]: S
+            - generic [ref=e1674]:
+              - generic [ref=e1676]:
+                - emphasis [ref=e1677]: SPY
+                - text: V
+              - generic [ref=e1678]: State Street SPDR Portfolio S&P 500 Value ETF
+          - generic [ref=e1679]:
+            - generic [ref=e1680]:
+              - generic [ref=e1681]: fund etf
+              - generic "Arca — NYSE Arca" [ref=e1683]: NYSE Arca
+            - generic [ref=e1684]: "+1"
+            - button "Expand" [ref=e1694]
+        - generic [ref=e1698]:
+          - generic [ref=e1699]:
+            - generic [ref=e1700]: S
+            - generic [ref=e1708]:
+              - generic [ref=e1710]:
+                - emphasis [ref=e1711]: SPY
+                - text: T
+              - generic [ref=e1712]: Defiance S&P 500 Target Income ETF
+          - generic [ref=e1713]:
+            - generic [ref=e1714]:
+              - generic [ref=e1715]: fund etf
+              - generic "Arca — NYSE Arca" [ref=e1717]: NYSE Arca
+            - button "Expand" [ref=e1725]
+        - generic [ref=e1729]:
+          - generic [ref=e1730]:
+            - generic [ref=e1731]: S
+            - generic [ref=e1739]:
+              - generic [ref=e1741]:
+                - emphasis [ref=e1742]: SPY
+                - text: X
+              - generic [ref=e1743]: State Street SPDR S&P 500 Fossil Fuel Reserves Free ETF
+          - generic [ref=e1744]:
+            - generic [ref=e1745]:
+              - generic [ref=e1746]: fund etf
+              - generic "Arca — NYSE Arca" [ref=e1748]: NYSE Arca
+            - button "Expand" [ref=e1756]
+        - generic [ref=e1760]:
+          - generic [ref=e1761]:
+            - generic [ref=e1762]: S
+            - generic [ref=e1770]:
+              - generic [ref=e1772]:
+                - emphasis [ref=e1773]: SPY
+                - text: C
+              - generic [ref=e1774]: Simplify US Equity PLUS Convexity ETF
+          - generic [ref=e1775]:
+            - generic [ref=e1776]:
+              - generic [ref=e1777]: fund etf
+              - generic "Arca — NYSE Arca" [ref=e1779]: NYSE Arca
+            - button "Expand" [ref=e1787]
+        - generic [ref=e1791]:
+          - generic [ref=e1792]:
+            - generic [ref=e1793]: S
+            - generic [ref=e1801]:
+              - generic [ref=e1803]:
+                - emphasis [ref=e1804]: SPY
+                - text: L
+              - generic [ref=e1805]: State Street SPDR S&P 500 UCITS ETF Accum shs - USD
+          - generic [ref=e1806]:
+            - generic [ref=e1807]:
+              - generic [ref=e1808]: fund etf
+              - generic "XETR — Xetra" [ref=e1810]: XETR
+            - generic [ref=e1811]: "+16"
+            - button "Expand" [ref=e1821]
+        - generic [ref=e1825]:
+          - generic [ref=e1826]:
+            - generic [ref=e1827]: S
+            - generic [ref=e1835]:
+              - generic [ref=e1837]:
+                - emphasis [ref=e1838]: SPY
+                - text: "4"
+              - generic [ref=e1839]: State Street SPDR S&P 400 US Mid Cap UCITS ETF
+          - generic [ref=e1840]:
+            - generic [ref=e1841]:
+              - generic [ref=e1842]: fund etf
+              - generic "XETR — Xetra" [ref=e1844]: XETR
+            - generic [ref=e1845]: "+20"
+            - button "Expand" [ref=e1855]
+        - generic [ref=e1859]:
+          - generic [ref=e1860]:
+            - generic [ref=e1861]: S
+            - generic [ref=e1869]:
+              - generic [ref=e1871]:
+                - emphasis [ref=e1872]: SPY
+                - text: "Y"
+              - generic [ref=e1873]: IncomeShares S&P500 Options ETP
+          - generic [ref=e1874]:
+            - generic [ref=e1875]:
+              - generic [ref=e1876]: fund etf
+              - generic "LSE — London Stock Exchange (UK Companies)" [ref=e1878]: LSE
+            - button "Expand" [ref=e1888]
+        - generic [ref=e1892]:
+          - generic [ref=e1893]:
+            - generic [ref=e1894]: S
+            - generic [ref=e1902]:
+              - generic [ref=e1904]:
+                - emphasis [ref=e1905]: SPY
+                - text: "5"
+              - generic [ref=e1906]: State Street SPDR S&P 500 UCITS ETF USD
+          - generic [ref=e1907]:
+            - generic [ref=e1908]:
+              - generic [ref=e1909]: fund etf
+              - generic "XETR — Xetra" [ref=e1911]: XETR
+            - generic [ref=e1912]: "+17"
+            - button "Expand" [ref=e1922]
+        - generic [ref=e1926]:
+          - generic [ref=e1927]:
+            - generic [ref=e1928]: S
+            - generic [ref=e1936]:
+              - generic [ref=e1938]:
+                - emphasis [ref=e1939]: SPY
+                - text: S
+              - generic [ref=e1940]: Leverage Shares -5x Short S&P 500 ETP
+          - generic [ref=e1942]:
+            - generic [ref=e1943]: fund etf
+            - generic "LSE — London Stock Exchange (UK Companies)" [ref=e1945]: LSE
+        - generic [ref=e1950]:
+          - generic [ref=e1951]:
+            - generic [ref=e1952]: S
+            - generic [ref=e1960]:
+              - generic [ref=e1962]:
+                - emphasis [ref=e1963]: SPY
+                - text: "3"
+              - generic [ref=e1964]: Leverage Shares 3x Long S&P 500 ETP Securities
+          - generic [ref=e1966]:
+            - generic [ref=e1967]: fund etf
+            - generic "LSE — London Stock Exchange (UK Companies)" [ref=e1969]: LSE
+        - generic [ref=e1974]:
+          - generic [ref=e1975]:
+            - generic [ref=e1976]: P
+            - generic [ref=e1984]:
+              - generic [ref=e1985]: PYPS
+              - generic [ref=e1986]: Leverage Shares -1x Short Paypal ETP
+          - generic [ref=e1987]:
+            - generic [ref=e1988]:
+              - generic [ref=e1989]: fund etf
+              - generic "LSE — London Stock Exchange (UK Companies)" [ref=e1991]: LSE
+            - generic [ref=e1992]: "+1"
+            - button "Expand" [ref=e2002]
+        - generic [ref=e2006]:
+          - generic [ref=e2007]:
+            - generic [ref=e2008]: S
+            - generic [ref=e2016]:
+              - generic [ref=e2018]:
+                - emphasis [ref=e2019]: SPY
+                - text: I
+              - generic [ref=e2020]: State Street SPDR MSCI All Country World Investable Market UCITS ETF Accum USD
+          - generic [ref=e2021]:
+            - generic [ref=e2022]:
+              - generic [ref=e2023]: fund etf
+              - generic "XETR — Xetra" [ref=e2025]: XETR
+            - generic [ref=e2026]: "+8"
+            - button "Expand" [ref=e2036]
+        - generic [ref=e2040]:
+          - generic [ref=e2041]:
+            - generic [ref=e2042]: S
+            - generic [ref=e2050]:
+              - generic [ref=e2052]:
+                - emphasis [ref=e2053]: SPY
+                - text: "Y"
+              - generic [ref=e2054]: State Street SPDR MSCI All Country World UCITS ETF Accum Shs USD
+          - generic [ref=e2055]:
+            - generic [ref=e2056]:
+              - generic [ref=e2057]: fund etf
+              - generic "XETR — Xetra" [ref=e2059]: XETR
+            - generic [ref=e2060]: "+8"
+            - button "Expand" [ref=e2070]
+        - generic [ref=e2074]:
+          - generic [ref=e2075]:
+            - generic [ref=e2076]: S
+            - generic [ref=e2084]:
+              - generic [ref=e2086]:
+                - emphasis [ref=e2087]: SPY
+                - text: D
+              - generic [ref=e2088]: State Street SPDR S&P US Dividend Aristocrats UCITS ETF USD
+          - generic [ref=e2089]:
+            - generic [ref=e2090]:
+              - generic [ref=e2091]: fund etf
+              - generic "XETR — Xetra" [ref=e2093]: XETR
+            - generic [ref=e2094]: "+9"
+            - button "Expand" [ref=e2104]
+        - generic [ref=e2108]:
+          - generic [ref=e2109]:
+            - generic [ref=e2110]: S
+            - generic [ref=e2118]:
+              - generic [ref=e2120]:
+                - emphasis [ref=e2121]: SPY
+                - text: D
+              - generic [ref=e2122]: MegaShort (-3X) S&P 500 Daily Leveraged Alternative ETF
+          - generic [ref=e2123]:
+            - generic [ref=e2124]:
+              - generic [ref=e2125]: fund etf
+              - generic "TSX — Toronto Stock Exchange" [ref=e2127]: TSX
+            - button "Expand" [ref=e2135]
+        - generic [ref=e2139]:
+          - generic [ref=e2140]:
+            - generic [ref=e2141]: S
+            - generic [ref=e2149]:
+              - generic [ref=e2151]:
+                - emphasis [ref=e2152]: SPY
+                - text: X
+              - generic [ref=e2153]: State Street SPDR MSCI Emerging Markets Small Cap UCITS ETF Accum USD
+          - generic [ref=e2154]:
+            - generic [ref=e2155]:
+              - generic [ref=e2156]: fund etf
+              - generic "XETR — Xetra" [ref=e2158]: XETR
+            - generic [ref=e2159]: "+4"
+            - button "Expand" [ref=e2169]
+        - generic [ref=e2173]:
+          - generic [ref=e2174]:
+            - generic [ref=e2175]: S
+            - generic [ref=e2183]:
+              - generic [ref=e2185]:
+                - emphasis [ref=e2186]: SPY
+                - text: W
+              - generic [ref=e2187]: State Street SPDR S&P Euro Dividend Aristocrats UCITS ETF EUR
+          - generic [ref=e2188]:
+            - generic [ref=e2189]:
+              - generic [ref=e2190]: fund etf
+              - generic "XETR — Xetra" [ref=e2192]: XETR
+            - generic [ref=e2193]: "+8"
+            - button "Expand" [ref=e2203]
+        - generic [ref=e2207]:
+          - generic [ref=e2208]:
+            - generic [ref=e2209]: S
+            - generic [ref=e2217]:
+              - generic [ref=e2219]:
+                - emphasis [ref=e2220]: SPY
+                - text: A
+              - generic [ref=e2221]: State Street SPDR MSCI EM Asia UCITS ETF Accum USD
+          - generic [ref=e2222]:
+            - generic [ref=e2223]:
+              - generic [ref=e2224]: fund etf
+              - generic "XETR — Xetra" [ref=e2226]: XETR
+            - generic [ref=e2227]: "+7"
+            - button "Expand" [ref=e2237]
+        - generic [ref=e2241]:
+          - generic [ref=e2242]:
+            - generic [ref=e2243]: S
+            - generic [ref=e2251]:
+              - generic [ref=e2253]:
+                - emphasis [ref=e2254]: SPY
+                - text: M
+              - generic [ref=e2255]: State Street SPDR MSCI Emerging Markets UCITS ETF Accum.Shs USD
+          - generic [ref=e2256]:
+            - generic [ref=e2257]:
+              - generic [ref=e2258]: fund etf
+              - generic "XETR — Xetra" [ref=e2260]: XETR
+            - generic [ref=e2261]: "+6"
+            - button "Expand" [ref=e2271]
+        - generic [ref=e2275]:
+          - generic [ref=e2276]:
+            - generic [ref=e2277]: S
+            - generic [ref=e2285]:
+              - generic [ref=e2287]:
+                - emphasis [ref=e2288]: SPY
+                - text: U
+              - generic [ref=e2289]: MegaLong (3X) S&P 500 Daily Leveraged Alternative ETF
+          - generic [ref=e2290]:
+            - generic [ref=e2291]:
+              - generic [ref=e2292]: fund etf
+              - generic "TSX — Toronto Stock Exchange" [ref=e2294]: TSX
+            - button "Expand" [ref=e2302]
+        - generic [ref=e2306]:
+          - generic [ref=e2307]:
+            - generic [ref=e2308]: S
+            - generic [ref=e2316]:
+              - generic [ref=e2318]:
+                - emphasis [ref=e2319]: SPY
+                - text: G
+              - generic [ref=e2320]: State Street SPDR S&P UK Dividend Aristocrats UCITS ETF GBP
+          - generic [ref=e2321]:
+            - generic [ref=e2322]:
+              - generic [ref=e2323]: fund etf
+              - generic "XETR — Xetra" [ref=e2325]: XETR
+            - generic [ref=e2326]: "+7"
+            - button "Expand" [ref=e2336]
+        - generic [ref=e2340]:
+          - generic [ref=e2341]:
+            - generic [ref=e2342]: S
+            - generic [ref=e2350]:
+              - generic [ref=e2351]: STN
+              - generic [ref=e2352]: State Street SPDR MSCI Europe Energy UCITS ETF
+          - generic [ref=e2353]:
+            - generic [ref=e2354]:
+              - generic [ref=e2355]: fund etf
+              - generic "Euronext — Euronext NV" [ref=e2357]: Euronext Paris
+            - generic [ref=e2358]: "+9"
+            - button "Expand" [ref=e2368]
+        - generic [ref=e2372]:
+          - generic [ref=e2373]:
+            - generic [ref=e2374]: S
+            - generic [ref=e2382]:
+              - generic [ref=e2383]: STP
+              - generic [ref=e2384]: State Street SPDR MSCI Europe Materials UCITS ETF Acc Ptg EUR
+          - generic [ref=e2385]:
+            - generic [ref=e2386]:
+              - generic [ref=e2387]: fund etf
+              - generic "Euronext — Euronext NV" [ref=e2389]: Euronext Paris
+            - generic [ref=e2390]: "+9"
+            - button "Expand" [ref=e2400]
+        - generic [ref=e2404]:
+          - generic [ref=e2405]:
+            - generic [ref=e2406]: S
+            - generic [ref=e2414]:
+              - generic [ref=e2415]: STT
+              - generic [ref=e2416]: SSgA SPDR ETFs Europe II PLC - State Street SPDR MSCI Europe Communication Services UCITS ETF Accum EUR
+          - generic [ref=e2417]:
+            - generic [ref=e2418]:
+              - generic [ref=e2419]: fund etf
+              - generic "Euronext — Euronext NV" [ref=e2421]: Euronext Paris
+            - generic [ref=e2422]: "+7"
+            - button "Expand" [ref=e2432]
+        - generic [ref=e2436]:
+          - generic [ref=e2437]:
+            - generic [ref=e2438]: S
+            - generic [ref=e2446]:
+              - generic [ref=e2447]: STU
+              - generic [ref=e2448]: State Street SPDR MSCI Europe Utilities UCITS ETF
+          - generic [ref=e2449]:
+            - generic [ref=e2450]:
+              - generic [ref=e2451]: fund etf
+              - generic "Euronext — Euronext NV" [ref=e2453]: Euronext Paris
+            - generic [ref=e2454]: "+9"
+            - button "Expand" [ref=e2464]
+        - generic [ref=e2468]:
+          - generic [ref=e2469]:
+            - generic [ref=e2470]: S
+            - generic [ref=e2478]:
+              - generic [ref=e2479]: STQ
+              - generic [ref=e2480]: State Street SPDR MSCI Europe Industrials UCITS ETF
+          - generic [ref=e2481]:
+            - generic [ref=e2482]:
+              - generic [ref=e2483]: fund etf
+              - generic "Euronext — Euronext NV" [ref=e2485]: Euronext Paris
+            - generic [ref=e2486]: "+9"
+            - button "Expand" [ref=e2496]
+        - generic [ref=e2500]:
+          - generic [ref=e2501]:
+            - generic [ref=e2502]: S
+            - generic [ref=e2510]:
+              - generic [ref=e2511]: STZ
+              - generic [ref=e2512]: State Street SPDR MSCI Europe Financials UCITS ETF
+          - generic [ref=e2513]:
+            - generic [ref=e2514]:
+              - generic [ref=e2515]: fund etf
+              - generic "Euronext — Euronext NV" [ref=e2517]: Euronext Paris
+            - generic [ref=e2518]: "+7"
+            - button "Expand" [ref=e2528]
+        - generic [ref=e2532]:
+          - generic [ref=e2533]:
+            - generic [ref=e2534]: S
+            - generic [ref=e2542]:
+              - generic [ref=e2543]: STW
+              - generic [ref=e2544]: State Street SPDR MSCI Europe Health Care UCITS ETF Accum Ptg EUR
+          - generic [ref=e2545]:
+            - generic [ref=e2546]:
+              - generic [ref=e2547]: fund etf
+              - generic "Euronext — Euronext NV" [ref=e2549]: Euronext Paris
+            - generic [ref=e2550]: "+9"
+            - button "Expand" [ref=e2560]
+        - generic [ref=e2564]:
+          - generic [ref=e2565]:
+            - generic [ref=e2566]: S
+            - generic [ref=e2574]:
+              - generic [ref=e2575]: STK
+              - generic [ref=e2576]: State Street SPDR MSCI Europe Technology UCITS ETF Accum Ptg EUR
+          - generic [ref=e2577]:
+            - generic [ref=e2578]:
+              - generic [ref=e2579]: fund etf
+              - generic "Euronext — Euronext NV" [ref=e2581]: Euronext Paris
+            - generic [ref=e2582]: "+7"
+            - button "Expand" [ref=e2592]
+        - generic [ref=e2596]:
+          - generic [ref=e2597]:
+            - generic [ref=e2598]: S
+            - generic [ref=e2606]:
+              - generic [ref=e2607]: STR
+              - generic [ref=e2608]: State Street SPDR MSCI Europe Consumer Discretionary UCITS ETF Acc Ptg EUR
+          - generic [ref=e2609]:
+            - generic [ref=e2610]:
+              - generic [ref=e2611]: fund etf
+              - generic "Euronext — Euronext NV" [ref=e2613]: Euronext Paris
+            - generic [ref=e2614]: "+7"
+            - button "Expand" [ref=e2624]
+        - generic [ref=e2628]:
+          - generic [ref=e2629]:
+            - generic [ref=e2630]: S
+            - generic [ref=e2638]:
+              - generic [ref=e2640]:
+                - emphasis [ref=e2641]: SPY
+                - text: "2"
+              - generic [ref=e2642]: State Street SPDR Dow Jones Global Real Estate UCITS ETF Accum Unhedged USD
+          - generic [ref=e2643]:
+            - generic [ref=e2644]:
+              - generic [ref=e2645]: fund etf
+              - generic "XETR — Xetra" [ref=e2647]: XETR
+            - generic [ref=e2648]: "+7"
+            - button "Expand" [ref=e2658]
+        - generic [ref=e2662]:
+          - generic [ref=e2663]:
+            - generic [ref=e2664]: S
+            - generic [ref=e2672]:
+              - generic [ref=e2674]:
+                - emphasis [ref=e2675]: SPY
+                - text: F
+              - generic [ref=e2676]: State Street SPDR FTSE UK All Share UCITS ETF Accum. GBP
+          - generic [ref=e2677]:
+            - generic [ref=e2678]:
+              - generic [ref=e2679]: fund etf
+              - generic "XETR — Xetra" [ref=e2681]: XETR
+            - generic [ref=e2682]: "+4"
+            - button "Expand" [ref=e2692]
+        - generic [ref=e2696]:
+          - generic [ref=e2697]:
+            - generic [ref=e2698]: S
+            - generic [ref=e2706]:
+              - generic [ref=e2708]:
+                - emphasis [ref=e2709]: SPY
+                - text: V
+              - generic [ref=e2710]: State Street SPDR S&P Emerging Markets Dividend Aristocrats UCITS ETF USD
+          - generic [ref=e2711]:
+            - generic [ref=e2712]:
+              - generic [ref=e2713]: fund etf
+              - generic "XETR — Xetra" [ref=e2715]: XETR
+            - generic [ref=e2716]: "+9"
+            - button "Expand" [ref=e2726]
+        - progressbar [ref=e2731]
+      - generic [ref=e971]: Search using ISIN and CUSIP codes

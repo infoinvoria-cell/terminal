@@ -4,6 +4,7 @@ import {
   useEffect, useRef, useState, useCallback, useMemo,
 } from "react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 
 const ChartComponent = dynamic(() => import("@/components/engine/LWChart"), { ssr: false });
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
@@ -23,16 +24,17 @@ import {
 type Strategy  = "EUR_30M" | "DAX_1H" | "DAX_2H" | "GC_FRI" | "GLD_THU" | "YM_TAT";
 type AssetType = "futures" | "cfd";
 type Params    = Record<string, number | string>;
+type TesterTab = "overview" | "performance" | "trades" | "settings";
 interface OhlcBar { time: number; open: number; high: number; low: number; close: number; }
 
-interface StrategyMeta { label: string; futures: string; cfd: string; interval: string; useEma: boolean; }
+interface StrategyMeta { label: string; futures: string; cfd: string; interval: string; useEma: boolean; icon: string; engine?: string; }
 const STRATEGIES: Record<Strategy, StrategyMeta> = {
-  EUR_30M: { label: "EUR 30M",      futures: "6E",     cfd: "EURUSD", interval: "30m", useEma: true  },
-  DAX_1H:  { label: "DAX 1H",       futures: "FDAX1!", cfd: "DE30",   interval: "1H",  useEma: true  },
-  DAX_2H:  { label: "DAX 2H",       futures: "FDAX1!", cfd: "DE30",   interval: "2H",  useEma: true  },
-  GC_FRI:  { label: "GC Friday",    futures: "GC1!",   cfd: "XAUUSD", interval: "D",   useEma: false },
-  GLD_THU: { label: "GLD Thursday", futures: "GLD",    cfd: "XAUUSD", interval: "D",   useEma: false },
-  YM_TAT:  { label: "YM TAT",       futures: "YM1!",   cfd: "US30",   interval: "D",   useEma: false },
+  EUR_30M: { label: "EUR/USD 30M",    futures: "6E",     cfd: "EURUSD", interval: "30m", useEma: false, icon: "/asset-icons/eurusd.png", engine: "Liquidity Sweep · ATR SL · TP 3R" },
+  DAX_1H:  { label: "DAX 1H",         futures: "FDAX1!", cfd: "DE30",   interval: "1H",  useEma: true,  icon: "/asset-icons/dax.png" },
+  DAX_2H:  { label: "DAX 2H",         futures: "FDAX1!", cfd: "DE30",   interval: "2H",  useEma: true,  icon: "/asset-icons/dax.png" },
+  GC_FRI:  { label: "Gold Friday",    futures: "GC1!",   cfd: "XAUUSD", interval: "D",   useEma: false, icon: "/asset-icons/gold.png" },
+  GLD_THU: { label: "Gold Thursday",  futures: "GLD",    cfd: "XAUUSD", interval: "D",   useEma: false, icon: "/asset-icons/gold.png" },
+  YM_TAT:  { label: "Dow Jones",      futures: "YM1!",   cfd: "US30",   interval: "D",   useEma: false, icon: "/asset-icons/dow_jones.png" },
 };
 
 interface ParamDef {
@@ -47,31 +49,31 @@ const DIR_OPTS = [
 ];
 const PARAM_DEFS: Record<Strategy, ParamDef[]> = {
   EUR_30M: [
-    { key: "ema_fast",      label: "EMA Fast",    type: "slider", min: 3,      max: 100, step: 1      },
-    { key: "ema_slow",      label: "EMA Slow",    type: "slider", min: 10,     max: 200, step: 1      },
-    { key: "sl_pips",       label: "Stop Loss",   type: "number", min: 0.0001, max: 0.01,step: 0.0001 },
-    { key: "tp_pips",       label: "Take Profit", type: "number", min: 0.0001, max: 0.02,step: 0.0001 },
-    { key: "direction",     label: "Direction",   type: "select", options: DIR_OPTS },
-    { key: "session_start", label: "Session Sta", type: "slider", min: 0, max: 23, step: 1 },
-    { key: "session_end",   label: "Session End", type: "slider", min: 0, max: 23, step: 1 },
+    { key: "fo_pips",         label: "FO Pips",         type: "number", min: 0.00001, max: 0.001,  step: 0.00001 },
+    { key: "sl_atr_mult",     label: "SL ATR Mult",     type: "slider", min: 0.5,     max: 3.0,    step: 0.1     },
+    { key: "tp_crv",          label: "TP CRV",          type: "slider", min: 1.0,     max: 5.0,    step: 0.5     },
+    { key: "session_start_h", label: "Session Start",   type: "slider", min: 0,       max: 23,     step: 1       },
+    { key: "session_end_h",   label: "Session End",     type: "slider", min: 0,       max: 23,     step: 1       },
+    { key: "flip_threshold",  label: "Flip Threshold",  type: "slider", min: 0.3,     max: 0.7,    step: 0.05    },
+    { key: "spec_threshold",  label: "Spec Threshold",  type: "slider", min: 0.3,     max: 0.9,    step: 0.05    },
   ],
   DAX_1H: [
-    { key: "ema_fast",      label: "EMA Fast",    type: "slider", min: 5,  max: 100, step: 1 },
-    { key: "ema_slow",      label: "EMA Slow",    type: "slider", min: 10, max: 200, step: 1 },
-    { key: "sl_pts",        label: "SL Points",   type: "number", min: 5,  max: 200, step: 1 },
-    { key: "tp_pts",        label: "TP Points",   type: "number", min: 10, max: 500, step: 1 },
-    { key: "direction",     label: "Direction",   type: "select", options: DIR_OPTS },
-    { key: "session_start", label: "Session Sta", type: "slider", min: 0, max: 23, step: 1 },
-    { key: "session_end",   label: "Session End", type: "slider", min: 0, max: 23, step: 1 },
+    { key: "ema_fast",      label: "EMA Fast",      type: "slider", min: 5,  max: 100, step: 1 },
+    { key: "ema_slow",      label: "EMA Slow",      type: "slider", min: 10, max: 200, step: 1 },
+    { key: "sl_pts",        label: "SL Points",     type: "number", min: 5,  max: 200, step: 1 },
+    { key: "tp_pts",        label: "TP Points",     type: "number", min: 10, max: 500, step: 1 },
+    { key: "direction",     label: "Direction",     type: "select", options: DIR_OPTS },
+    { key: "session_start", label: "Session Start", type: "slider", min: 0, max: 23, step: 1 },
+    { key: "session_end",   label: "Session End",   type: "slider", min: 0, max: 23, step: 1 },
   ],
   DAX_2H: [
-    { key: "ema_fast",      label: "EMA Fast",    type: "slider", min: 2,  max: 20,  step: 1 },
-    { key: "ema_slow",      label: "EMA Slow",    type: "slider", min: 5,  max: 50,  step: 1 },
-    { key: "sl_pts",        label: "SL Points",   type: "number", min: 20, max: 300, step: 5 },
-    { key: "tp_pts",        label: "TP Points",   type: "number", min: 30, max: 600, step: 5 },
-    { key: "direction",     label: "Direction",   type: "select", options: DIR_OPTS },
-    { key: "session_start", label: "Session Sta", type: "slider", min: 0, max: 23, step: 1 },
-    { key: "session_end",   label: "Session End", type: "slider", min: 0, max: 23, step: 1 },
+    { key: "ema_fast",      label: "EMA Fast",      type: "slider", min: 2,  max: 20,  step: 1 },
+    { key: "ema_slow",      label: "EMA Slow",      type: "slider", min: 5,  max: 50,  step: 1 },
+    { key: "sl_pts",        label: "SL Points",     type: "number", min: 20, max: 300, step: 5 },
+    { key: "tp_pts",        label: "TP Points",     type: "number", min: 30, max: 600, step: 5 },
+    { key: "direction",     label: "Direction",     type: "select", options: DIR_OPTS },
+    { key: "session_start", label: "Session Start", type: "slider", min: 0, max: 23, step: 1 },
+    { key: "session_end",   label: "Session End",   type: "slider", min: 0, max: 23, step: 1 },
   ],
   GC_FRI:  [
     { key: "atr_len", label: "ATR Length", type: "slider", min: 5,   max: 30,  step: 1    },
@@ -90,7 +92,7 @@ const PARAM_DEFS: Record<Strategy, ParamDef[]> = {
   ],
 };
 const DEFAULT_PARAMS: Record<Strategy, Params> = {
-  EUR_30M: { ema_fast: 20, ema_slow: 50, sl_pips: 0.0013, tp_pips: 0.0039, direction: "both", session_start: 7,  session_end: 17 },
+  EUR_30M: { fo_pips: 0.00012, sl_atr_mult: 1.2, tp_crv: 3.0, session_start_h: 7, session_end_h: 11, flip_threshold: 0.55, spec_threshold: 0.7, min_candle_size: 0.0008, max_candle_size: 0.005, engulfing_only: 1, use_regime: 1 },
   DAX_1H:  { ema_fast: 20, ema_slow: 50, sl_pts: 35,      tp_pts: 126,     direction: "both", session_start: 8,  session_end: 17 },
   DAX_2H:  { ema_fast: 4,  ema_slow: 20, sl_pts: 50,      tp_pts: 150,     direction: "both", session_start: 8,  session_end: 18 },
   GC_FRI:  { atr_len: 14, sl_mult: 0.75, rr: 1.25 },
@@ -98,23 +100,18 @@ const DEFAULT_PARAMS: Record<Strategy, Params> = {
   YM_TAT:  { atr_len: 14, sl_mult: 1.0,  rr: 2.0  },
 };
 
-// ── Colors ─────────────────────────────────────────────────────────────────────
-// Design system: matches Capitalife Terminal (.claude/skills/design-review.md)
-const BG       = "#0c0d10";
-const CARD_TOP = "#1c1d20";
-const CARD_BOT = "#141517";
-const CHART_BG = "#0A0A0A";
-const BORDER   = "rgba(255,255,255,0.06)";
-const BORDER2  = "rgba(255,255,255,0.04)";
-const TEXT     = "#F5F5F5";
-const MUTED    = "#a1a1aa";
-const MUTED2   = "#71717a";
-const GOLD     = "#e2ca7a";
-const POS      = "#22C55E";  // trade signals only
-const NEG      = "#EF4444";  // trade signals only
-// Aliases for inline use
-const SURFACE  = CARD_TOP;
-const SURFACE2 = CARD_BOT;
+// ── Single background color — matches sidebar ────────────────────────────────
+const BG      = "#0a0a0c";
+const GAP     = "#000000";
+const GOLD    = "#C9A84C";
+const GOLD_S  = "#e2ca7a";
+const GOLD_DIM= "rgba(201,168,76,0.12)";
+const TXT     = "#F0F0F0";
+const MUT     = "#9ca3af";
+const DIM     = "#6b7280";
+const FAINT   = "#4b5563";
+const BORDER  = "rgba(255,255,255,0.06)";
+const RED     = "#dc2626";
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function calcEma(closes: number[], span: number): number[] {
@@ -124,7 +121,6 @@ function calcEma(closes: number[], span: number): number[] {
     out.push(i === 0 ? closes[0] : closes[i] * k + out[i - 1] * (1 - k));
   return out;
 }
-
 const CACHE_TTL = 5 * 60_000;
 function getCached(key: string): BacktestResult | null {
   try {
@@ -136,43 +132,134 @@ function getCached(key: string): BacktestResult | null {
   } catch { return null; }
 }
 function setCached(key: string, data: BacktestResult) {
-  try { localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() })); } catch { /* quota */ }
+  try { localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() })); } catch {}
+}
+function valColor(v: number): string {
+  if (v > 0) return TXT;
+  if (v < -25) return RED;
+  if (v < 0) return GOLD;
+  return MUT;
 }
 
-// ── KPI config ─────────────────────────────────────────────────────────────────
-const KPIS = [
-  { key: "cagr",         label: "CAGR",    fmt: (v: number) => `${v > 0 ? "+" : ""}${v.toFixed(1)}%`, dot: (v: number) => v > 10 ? POS : v > 0 ? GOLD : NEG },
-  { key: "sharpe",       label: "SHARPE",  fmt: (v: number) => v.toFixed(2),                           dot: (v: number) => v > 1  ? POS : v > 0.5 ? GOLD : NEG },
-  { key: "maxDD",        label: "MAX DD",  fmt: (v: number) => `${v.toFixed(1)}%`,                     dot: (v: number) => v > -10 ? POS : v > -20 ? GOLD : NEG },
-  { key: "calmar",       label: "CALMAR",  fmt: (v: number) => v.toFixed(2),                           dot: (v: number) => v > 1  ? POS : v > 0.5 ? GOLD : NEG },
-  { key: "trades",       label: "TRADES",  fmt: (v: number) => String(Math.round(v)),                  dot: () => MUTED },
-  { key: "winRate",      label: "WIN %",   fmt: (v: number) => `${v.toFixed(1)}%`,                     dot: (v: number) => v > 60 ? POS : v > 50 ? GOLD : NEG },
-  { key: "profitFactor", label: "PF",      fmt: (v: number) => v.toFixed(2),                           dot: (v: number) => v > 1.5 ? POS : v > 1 ? GOLD : NEG },
-  { key: "avgWin",       label: "AVG WIN", fmt: (v: number) => `+${v.toFixed(2)}%`,                    dot: () => POS },
+const KPIS: { key: string; label: string; fmt: (v: number) => string; color: (v: number) => string }[] = [
+  { key: "cagr",         label: "CAGR",    fmt: v => `${v > 0 ? "+" : ""}${v.toFixed(1)}%`, color: v => v > 5 ? "#22C55E" : v > 0 ? GOLD : RED },
+  { key: "sharpe",       label: "Sharpe",  fmt: v => v.toFixed(2),  color: v => v > 1 ? "#22C55E" : v > 0.5 ? GOLD : RED },
+  { key: "maxDD",        label: "Max DD",  fmt: v => `${v.toFixed(1)}%`, color: v => v > -10 ? "#22C55E" : v > -25 ? GOLD : RED },
+  { key: "calmar",       label: "Calmar",  fmt: v => v.toFixed(2),  color: v => v > 1 ? "#22C55E" : v > 0.5 ? GOLD : RED },
+  { key: "trades",       label: "Trades",  fmt: v => String(Math.round(v)), color: () => TXT },
+  { key: "winRate",      label: "Win %",   fmt: v => `${v.toFixed(1)}%`, color: v => v > 55 ? "#22C55E" : v > 45 ? GOLD : RED },
+  { key: "profitFactor", label: "PF",      fmt: v => v.toFixed(2),  color: v => v > 1.5 ? "#22C55E" : v > 1 ? GOLD : RED },
+  { key: "avgWin",       label: "Avg Win", fmt: v => `+${v.toFixed(2)}%`, color: () => "#22C55E" },
 ];
 
+const PERF_ROWS: { key: string; label: string; fmt: (v: number) => string }[] = [
+  { key: "cagr",         label: "CAGR",           fmt: v => `${v > 0 ? "+" : ""}${v.toFixed(2)}%` },
+  { key: "sharpe",       label: "Sharpe Ratio",   fmt: v => v.toFixed(3) },
+  { key: "maxDD",        label: "Max Drawdown",   fmt: v => `${v.toFixed(2)}%` },
+  { key: "calmar",       label: "Calmar Ratio",   fmt: v => v.toFixed(3) },
+  { key: "trades",       label: "Total Trades",   fmt: v => String(Math.round(v)) },
+  { key: "winRate",      label: "Win Rate",       fmt: v => `${v.toFixed(1)}%` },
+  { key: "profitFactor", label: "Profit Factor",  fmt: v => v.toFixed(3) },
+  { key: "avgWin",       label: "Avg Win",        fmt: v => `+${v.toFixed(3)}%` },
+  { key: "avgLoss",      label: "Avg Loss",       fmt: v => `${v.toFixed(3)}%` },
+  { key: "bestTrade",    label: "Best Trade",     fmt: v => `${v > 0 ? "+" : ""}${v.toFixed(3)}%` },
+  { key: "worstTrade",   label: "Worst Trade",    fmt: v => `${v.toFixed(3)}%` },
+];
+
+const TIMEFRAMES: { label: string; days: number | null }[] = [
+  { label: "1W",  days: 7 },
+  { label: "1M",  days: 30 },
+  { label: "3M",  days: 90 },
+  { label: "6M",  days: 180 },
+  { label: "1Y",  days: 365 },
+  { label: "All", days: null },
+];
+
+const TAB_LABELS: { key: TesterTab; label: string }[] = [
+  { key: "overview",    label: "Overview" },
+  { key: "performance", label: "Performance" },
+  { key: "trades",      label: "Trades" },
+  { key: "settings",    label: "Settings" },
+];
+
+// ── Resizable column hook ──────────────────────────────────────────────────────
+function useResizable(initial: number, min: number, max: number, dir: "left" | "right" = "left") {
+  const [w, setW] = useState(initial);
+  const dragging = useRef(false);
+  const startX = useRef(0);
+  const startW = useRef(0);
+
+  const onMouseDown = useCallback((e: React.MouseEvent) => {
+    dragging.current = true;
+    startX.current = e.clientX;
+    startW.current = w;
+    e.preventDefault();
+    const onMove = (ev: MouseEvent) => {
+      if (!dragging.current) return;
+      const dx = dir === "left" ? startX.current - ev.clientX : ev.clientX - startX.current;
+      setW(Math.min(max, Math.max(min, startW.current + dx)));
+    };
+    const onUp = () => {
+      dragging.current = false;
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  }, [w, min, max, dir]);
+
+  return { w, onMouseDown };
+}
+
+// ── No data placeholder ────────────────────────────────────────────────────────
+function NoData({ text = "No data available" }: { text?: string }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 8, opacity: 0.4 }}>
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={DIM} strokeWidth="1.5">
+        <path d="M3 3v18h18" />
+        <path d="M7 16l4-4 3 3 4-6" />
+      </svg>
+      <span style={{ fontSize: 10, color: DIM, letterSpacing: ".04em" }}>{text}</span>
+    </div>
+  );
+}
 
 // ── Page ───────────────────────────────────────────────────────────────────────
 export default function TradingEnginePage() {
   const [strategy,  setStrategy]  = useState<Strategy>("EUR_30M");
   const [assetType, setAssetType] = useState<AssetType>("futures");
   const [params,    setParams]    = useState<Params>(DEFAULT_PARAMS["EUR_30M"]);
-  const [startDate, setStartDate] = useState("2019-01-01");
+  const [startDate, setStartDate] = useState("2007-01-01");
   const [endDate,   setEndDate]   = useState(new Date().toISOString().slice(0, 10));
   const [result,    setResult]    = useState<BacktestResult | null>(null);
   const [running,   setRunning]   = useState(false);
+  const [btPhase,   setBtPhase]   = useState("");
   const [signal,    setSignal]    = useState<SignalData>({ direction: "flat" });
   const [health,    setHealth]    = useState<EngineHealth | null>(null);
   const [bars,      setBars]      = useState<OhlcBar[]>([]);
   const [codePanel, setCodePanel] = useState(false);
   const [strategyCode, setStrategyCode] = useState("");
+  const [testerTab,  setTesterTab]  = useState<TesterTab>("overview");
+  const [chartDays,  setChartDays]  = useState<number | null>(90);
+  const [sortCol,    setSortCol]    = useState<string>("#");
+  const [sortAsc,    setSortAsc]    = useState(false);
+  const [showEmaFast, setShowEmaFast] = useState(true);
+  const [showEmaSlow, setShowEmaSlow] = useState(true);
+  const [codeSaving,  setCodeSaving]  = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const debRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const sidebar = useResizable(260, 200, 400, "left");
+  const codeW   = useResizable(380, 280, 600, "right");
 
   const meta   = STRATEGIES[strategy];
   const online = health?.status === "ok";
   const ibkrOk = health?.ibkr === "connected";
 
-  // Health
   const checkHealth = useCallback(async () => {
     try { setHealth(await engineClient.getHealth()); } catch { setHealth(null); }
   }, []);
@@ -182,49 +269,75 @@ export default function TradingEnginePage() {
     return () => clearInterval(id);
   }, [checkHealth, online]);
 
-  // Backtest
+  const BT_STRATEGIES = new Set<Strategy>(["EUR_30M"]);
+
   const runBacktest = useCallback(async () => {
     const ck = `bt_${strategy}_${assetType}_${JSON.stringify(params)}_${startDate}_${endDate}`;
     const cached = getCached(ck);
     if (cached) { setResult(cached); return; }
-    setRunning(true);
+    setRunning(true); setBtPhase("Lade Daten...");
     try {
-      const data = await engineClient.postBacktest({ strategy, asset_type: assetType, params, start_date: startDate, end_date: endDate });
+      let data: BacktestResult;
+      if (BT_STRATEGIES.has(strategy)) {
+        const btAsset = assetType === "cfd" ? "spot" : assetType;
+        setBtPhase("Berechne Trades...");
+        const r = await fetch("http://localhost:5000/bt/backtest", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ strategy, asset_type: btAsset, params, start_date: startDate, end_date: endDate }),
+          signal: AbortSignal.timeout(60_000),
+        });
+        setBtPhase("Erstelle Equity Curve...");
+        const raw = await r.json();
+        if (raw.error) {
+          data = { metrics: {} as BacktestResult["metrics"], equity: [], drawdown: [], trades: [], error: raw.error };
+        } else {
+          data = {
+            metrics: raw.metrics ?? raw,
+            equity: raw.equity_curve ?? raw.equity ?? [],
+            drawdown: raw.drawdown ?? [],
+            trades: (raw.trades ?? []).map((t: Record<string, unknown>) => ({
+              entry_date: t.entry_date ?? t.date, dir: t.dir ?? t.direction ?? "long",
+              entry: t.entry ?? t.entry_price, exit: t.exit ?? t.exit_price,
+              pnl_pct: t.pnl_pct ?? (typeof t.pnl === "number" ? t.pnl / 100000 : 0),
+              pnl_pips: t.pnl_pips,
+              win: t.win ?? (typeof t.pnl === "number" ? t.pnl > 0 : (t.pnl_pct as number) > 0),
+            })),
+            equity_dates: raw.equity_dates ?? [],
+          };
+        }
+      } else {
+        data = await engineClient.postBacktest({ strategy, asset_type: assetType, params, start_date: startDate, end_date: endDate });
+      }
       setResult(data);
       if (!data.error) setCached(ck, data);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      setResult({ metrics: {} as BacktestResult["metrics"], equity: [], drawdown: [], trades: [], error: msg.includes("30000") ? "Timeout — Zeitraum verkleinern" : "Engine offline" });
-    } finally { setRunning(false); }
+      setResult({ metrics: {} as BacktestResult["metrics"], equity: [], drawdown: [], trades: [], error: msg.includes("Timeout") || msg.includes("60000") ? "Timeout — reduce date range" : "Engine offline" });
+    } finally { setRunning(false); setBtPhase(""); }
   }, [strategy, assetType, params, startDate, endDate]);
 
   useEffect(() => {
     if (debRef.current) clearTimeout(debRef.current);
-    debRef.current = setTimeout(() => void runBacktest(), 400);
+    debRef.current = setTimeout(() => void runBacktest(), 500);
   }, [runBacktest]);
-
   useEffect(() => { setParams(DEFAULT_PARAMS[strategy]); }, [strategy]);
 
-  // Chart bars
   useEffect(() => {
     void (async () => {
       try {
-        const r = await fetch(`http://localhost:5000/chart-data/${strategy}?asset_type=${assetType}&limit=2000`, { cache: "no-store", signal: AbortSignal.timeout(12_000) });
+        const asset = assetType === "cfd" ? "spot" : assetType;
+        const r = await fetch(`http://localhost:5000/chart-data/${strategy}?asset_type=${asset}`, { cache: "no-store", signal: AbortSignal.timeout(30_000) });
         if (r.ok) setBars(await r.json() as OhlcBar[]);
-      } catch { /* offline */ }
+      } catch {}
     })();
   }, [strategy, assetType]);
 
-  // Code panel
   useEffect(() => {
-    if (!codePanel) return
+    if (!codePanel) return;
     void fetch(`http://localhost:5000/strategy-code/${strategy}`)
-      .then(r => r.json())
-      .then(d => setStrategyCode((d as { code?: string }).code ?? ""))
-      .catch(() => undefined)
-  }, [codePanel, strategy])
+      .then(r => r.json()).then(d => setStrategyCode((d as { code?: string }).code ?? "")).catch(() => undefined);
+  }, [codePanel, strategy]);
 
-  // Signal
   useEffect(() => {
     void engineClient.getSignal(strategy).then(setSignal).catch(() => undefined);
     const id = setInterval(() => void engineClient.getSignal(strategy).then(setSignal).catch(() => undefined), 30_000);
@@ -235,43 +348,55 @@ export default function TradingEnginePage() {
   const metrics = result?.metrics as Record<string, number> | undefined;
   const emaFast = Number(params.ema_fast ?? 20);
   const emaSlow = Number(params.ema_slow ?? 50);
+  const hasData = bars.length > 0;
+  const hasResult = !!result && !result.error;
 
   const emaFastData = useMemo(() => {
     if (!bars.length) return [];
     const vals = calcEma(bars.map(b => b.close), emaFast);
     return bars.map((b, i) => ({ time: b.time, value: vals[i] }));
   }, [bars, emaFast]);
-
   const emaSlowData = useMemo(() => {
     if (!bars.length) return [];
     const vals = calcEma(bars.map(b => b.close), emaSlow);
     return bars.map((b, i) => ({ time: b.time, value: vals[i] }));
   }, [bars, emaSlow]);
-
   const chartTrades = useMemo(() =>
     trades.filter(t => t.entry_date).map(t => ({
       time: Math.floor(new Date(t.entry_date!).getTime() / 1000),
-      win: t.win,
-      dir: t.dir ?? t.direction ?? "long",
-      pnlPct: t.pnl_pct,
-      pnlPips: t.pnl_pips,
-    })).sort((a, b) => a.time - b.time),
-  [trades]);
-
+      win: t.win, dir: t.dir ?? t.direction ?? "long", pnlPct: t.pnl_pct, pnlPips: t.pnl_pips,
+    })).sort((a, b) => a.time - b.time), [trades]);
   const equityData = useMemo(() => {
     if (!result?.equity?.length) return [];
-    const base = Math.abs(result.equity[0] ?? 0) < 5 ? 100 : 0;
-    return result.equity.map((v, i) => ({
-      y:  base + v,
-      bh: result.buy_hold ? base + (result.buy_hold[i] ?? 0) : null,
-      x:  (result.equity_dates?.[i] ?? "").slice(0, 4),
-    }));
+    const first = result.equity[0] ?? 0;
+    const isAbsolute = first > 1000;
+    return result.equity.map((v, i) => {
+      const y = isAbsolute ? ((v / first) - 1) * 100 : v;
+      const bh = result.buy_hold?.[i] != null
+        ? (isAbsolute ? ((result.buy_hold[i]! / (result.buy_hold[0] ?? first)) - 1) * 100 : result.buy_hold[i]!)
+        : null;
+      return { y, bh, x: (result.equity_dates?.[i] ?? "").slice(0, 7) };
+    });
   }, [result]);
-
   const ddData = useMemo(() => {
     if (!result?.drawdown?.length) return [];
-    return result.drawdown.map((v, i) => ({ dd: v, x: (result.equity_dates?.[i] ?? "").slice(0, 4) }));
+    return result.drawdown.map((v, i) => ({ dd: v, x: (result.equity_dates?.[i] ?? "").slice(0, 7) }));
   }, [result]);
+  const sortedTrades = useMemo(() => {
+    const arr = [...trades].reverse();
+    if (!sortCol || sortCol === "#") return sortAsc ? [...arr].reverse() : arr;
+    const sorted = [...arr].sort((a, b) => {
+      let va: number | string = 0, vb: number | string = 0;
+      if (sortCol === "Date")  { va = a.entry_date ?? ""; vb = b.entry_date ?? ""; }
+      if (sortCol === "Pips")  { va = a.pnl_pips ?? 0;    vb = b.pnl_pips ?? 0; }
+      if (sortCol === "PnL")   { va = a.pnl_pct ?? 0;     vb = b.pnl_pct ?? 0; }
+      if (sortCol === "Entry") { va = a.entry ?? 0;       vb = b.entry ?? 0; }
+      if (sortCol === "Exit")  { va = a.exit ?? 0;        vb = b.exit ?? 0; }
+      if (typeof va === "string") return va.localeCompare(vb as string);
+      return (va as number) - (vb as number);
+    });
+    return sortAsc ? sorted : sorted.reverse();
+  }, [trades, sortCol, sortAsc]);
 
   const setP = useCallback((k: string, v: number | string) => setParams(p => ({ ...p, [k]: v })), []);
   const setZeitraum = useCallback((y: number | null) => {
@@ -281,324 +406,515 @@ export default function TradingEnginePage() {
     const d = new Date(); d.setFullYear(d.getFullYear() - y);
     setStartDate(d.toISOString().slice(0, 10));
   }, []);
+  const handleSort = useCallback((col: string) => {
+    setSortCol(prev => { if (prev === col) { setSortAsc(a => !a); return col; } setSortAsc(false); return col; });
+  }, []);
+  const exportCSV = useCallback(() => {
+    if (!trades.length) return;
+    const headers = ["#","Date","Direction","Entry","Exit","Pips","PnL%"];
+    const rows = [...trades].reverse().map((t, i) => [i + 1, t.entry_date ?? "", t.dir ?? t.direction ?? "long", t.entry?.toFixed(5) ?? "", t.exit?.toFixed(5) ?? "", t.pnl_pips?.toFixed(1) ?? "", (t.pnl_pct * 100).toFixed(2)]);
+    const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = `trades_${strategy}_${startDate}_${endDate}.csv`; a.click();
+    URL.revokeObjectURL(url);
+  }, [trades, strategy, startDate, endDate]);
 
-  const sigColor = signal.direction === "long" ? POS : signal.direction === "short" ? NEG : MUTED;
-  const sigLabel = signal.direction === "long" ? "LONG ▲" : signal.direction === "short" ? "SHORT ▼" : "FLAT —";
+  const sigColor = signal.direction === "long" ? TXT : signal.direction === "short" ? GOLD : DIM;
+  const sigLabel = signal.direction === "long" ? "LONG" : signal.direction === "short" ? "SHORT" : "FLAT";
   const assetSym = assetType === "futures" ? meta.futures : meta.cfd;
 
   return (
     <>
       <style>{`
-        @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        @keyframes espin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
         input[type=range]{-webkit-appearance:none;height:2px;background:${BORDER};border-radius:2px;outline:none;width:100%;cursor:pointer}
         input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:${GOLD};cursor:pointer}
         input[type=number]{-moz-appearance:textfield}
         input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
         input[type=date]::-webkit-calendar-picker-indicator{filter:invert(0.4);cursor:pointer}
-        select option{background:${CARD_TOP}}
-        .e-root{display:grid;grid-template-rows:28px 1fr;grid-template-columns:1fr 280px${codePanel ? ' 400px' : ''};height:100%;width:100%;background:${BG};overflow:hidden;color:${TEXT};font-family:var(--font-montserrat,system-ui)}
-        .e-codepanel{grid-column:3;grid-row:2;border-left:1px solid ${BORDER};display:flex;flex-direction:column;background:${BG};overflow:hidden}
-        .e-status{grid-column:1/-1;grid-row:1;display:flex;align-items:center;gap:8px;padding:0 12px;background:${CARD_TOP};border-bottom:1px solid ${BORDER};flex-shrink:0}
-        .e-main{grid-column:1;grid-row:2;display:grid;grid-template-rows:55% 45%;overflow:hidden}
-        .e-chart{grid-row:1;position:relative;overflow:hidden;border-bottom:1px solid ${BORDER};width:100%}
-        .e-tester{grid-row:2;display:grid;grid-template-columns:65% 35%;overflow:hidden}
-        .e-charts-col{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid ${BORDER};padding:4px 2px 4px 6px}
-        .e-kpi-col{overflow-y:auto;padding:6px;display:flex;flex-direction:column;gap:6px}
-        .e-sidebar{grid-column:2;grid-row:2;border-left:1px solid ${BORDER};overflow-y:auto;padding:10px 12px 24px;background:${CARD_TOP}}
-        .sl{font-size:8.5px;font-weight:700;color:${MUTED2};letter-spacing:.12em;text-transform:uppercase;margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid ${BORDER2}}
-        .strat{display:flex;justify-content:space-between;align-items:center;padding:5px 0 5px 8px;border-left:2px solid transparent;border-radius:0 4px 4px 0;cursor:pointer;font-size:11px;color:${MUTED};background:none;border-top:none;border-right:none;border-bottom:none;width:100%;text-align:left;transition:color .15s,border-color .15s,background .15s}
-        .strat.on{color:${TEXT};border-left-color:${GOLD};background:linear-gradient(90deg,rgba(226,202,122,0.06) 0%,transparent 80%)}
-        .strat:hover:not(.on){color:${TEXT};background:rgba(255,255,255,0.02)}
-        .kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
-        .kpi-card{padding:7px 9px;background:linear-gradient(to bottom,${CARD_TOP},${CARD_BOT});border-radius:10px;border:1px solid ${BORDER};box-shadow:0 8px 24px -8px rgba(0,0,0,0.45)}
-        .kpi-val{font-size:17px;font-weight:800;font-family:var(--font-nunito,monospace);color:${TEXT};line-height:1.1;display:flex;align-items:center;gap:5px}
-        .kpi-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:2px}
-        .kpi-lbl{font-size:8px;color:${MUTED2};letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
+        select option{background:${BG}}
+
+        .e-root{display:flex;height:100%;width:100%;background:${GAP};overflow:hidden;color:${TXT};font-family:var(--font-montserrat,system-ui);gap:2px}
+        .e-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+        .e-chart-wrap{flex:55%;min-height:0;background:${BG};position:relative;overflow:hidden}
+        .e-tester-wrap{flex:45%;min-height:0;background:${BG};display:flex;flex-direction:column;overflow:hidden}
+
+        .e-sidebar{width:${sidebar.w}px;flex-shrink:0;background:${BG};overflow-y:auto;overflow-x:hidden;position:relative}
+        .e-sidebar-resize{position:absolute;top:0;left:0;width:3px;height:100%;cursor:col-resize;z-index:5}
+        .e-sidebar-resize:hover{background:${GOLD}40}
+        .e-sidebar-section{padding:12px 14px}
+
+        .e-codepanel{width:${codeW.w}px;flex-shrink:0;background:${BG};display:flex;flex-direction:column;overflow:hidden;position:relative}
+        .e-code-resize{position:absolute;top:0;left:0;width:3px;height:100%;cursor:col-resize;z-index:5}
+        .e-code-resize:hover{background:${GOLD}40}
+
+        .e-tester-head{display:flex;align-items:center;height:36px;flex-shrink:0;border-bottom:1px solid ${BORDER};padding:0 12px;gap:0}
+        .e-tester-body{flex:1;overflow:hidden;display:flex}
+
+        .e-tab{padding:0 14px;height:36px;display:flex;align-items:center;font-size:11px;font-weight:500;color:${DIM};cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:color .15s,border-color .15s}
+        .e-tab:hover{color:${MUT}}
+        .e-tab.on{color:${TXT};border-bottom-color:${GOLD}}
+
+        .e-charts-col{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid ${BORDER};padding:4px 2px 4px 6px;flex:1;min-width:0}
+        .e-kpi-col{overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:0;width:220px;flex-shrink:0}
+
+        .sl{font-size:9px;font-weight:600;color:${FAINT};letter-spacing:.12em;text-transform:uppercase;margin:0 0 8px}
+        .strat-btn{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:11.5px;color:${MUT};background:none;border:1px solid transparent;width:100%;text-align:left;transition:all .15s;margin-bottom:2px}
+        .strat-btn:hover{background:rgba(255,255,255,0.02);color:${TXT}}
+        .strat-btn.on{color:${TXT};background:${GOLD_DIM};border-color:rgba(201,168,76,0.2)}
+
+        .kpi-row{display:flex;justify-content:space-between;align-items:baseline;padding:7px 8px;border-bottom:1px solid rgba(255,255,255,0.03)}
+        .kpi-row:last-child{border-bottom:none}
+        .kpi-label{font-size:10px;color:${DIM};letter-spacing:.04em}
+        .kpi-value{font-size:15px;font-weight:700;font-family:var(--font-nunito,monospace)}
+
         .trade-tbl{width:100%;border-collapse:collapse}
-        .trade-tbl th{padding:3px 4px;font-size:7.5px;color:${MUTED2};font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid ${BORDER};text-align:left;position:sticky;top:0;background:${CARD_TOP}}
-        .trade-tbl td{padding:2px 4px;font-size:10px;font-family:var(--font-nunito,monospace)}
+        .trade-tbl th{padding:6px 8px;font-size:9px;color:${DIM};font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid ${BORDER};text-align:left;position:sticky;top:0;background:${BG};cursor:pointer;user-select:none;white-space:nowrap}
+        .trade-tbl th:hover{color:${MUT}}
+        .trade-tbl td{padding:4px 8px;font-size:11px;font-family:var(--font-nunito,monospace)}
+
+        .tf-btn{padding:3px 8px;font-size:10px;font-weight:600;color:${DIM};background:none;border:1px solid transparent;border-radius:4px;cursor:pointer;transition:all .15s}
+        .tf-btn:hover{color:${MUT};border-color:${BORDER}}
+        .tf-btn.on{color:${TXT};background:rgba(255,255,255,0.04);border-color:${BORDER}}
+
+        .perf-tbl{width:100%;border-collapse:collapse}
+        .perf-tbl tr{border-bottom:1px solid rgba(255,255,255,0.03)}
+        .perf-tbl td{padding:8px 14px;font-size:11.5px}
+        .perf-tbl td:first-child{color:${DIM};font-size:10.5px}
+        .perf-tbl td:last-child{text-align:right;font-family:var(--font-nunito,monospace);font-weight:600;color:${TXT}}
+
+        .tbtn{background:none;border:1px solid ${BORDER};color:${DIM};padding:4px 8px;border-radius:4px;cursor:pointer;font-size:10px;transition:all .12s;display:flex;align-items:center;gap:4px}
+        .tbtn:hover{color:${TXT};border-color:rgba(255,255,255,0.12)}
+        .tbtn.active{color:${GOLD};border-color:rgba(201,168,76,0.3)}
+
+        .settings-drop{position:absolute;top:36px;right:8px;background:${BG};border:1px solid ${BORDER};border-radius:8px;padding:12px 16px;z-index:20;min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,0.6)}
+
+        .pill{padding:3px 10px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid transparent}
+        .pill.on{color:${TXT};background:rgba(255,255,255,0.06);border-color:${BORDER}}
+        .pill:not(.on){color:${DIM}}
+        .pill:not(.on):hover{color:${MUT}}
       `}</style>
 
       <div className="e-root">
-        {/* Status */}
-        <div className="e-status">
-          <div style={{ width: 6, height: 6, borderRadius: "50%", background: !online ? NEG : !ibkrOk ? GOLD : POS, flexShrink: 0 }} />
-          <span style={{ fontSize: 11, color: MUTED }}>
-            {!online ? "Engine offline — starte Desktop\\start.bat"
-              : `Engine online · ${ibkrOk ? `IBKR verbunden${health?.paper_mode ? " (Paper)" : ""}` : "IBKR nicht verbunden"} · localhost:5000`}
-          </span>
-          {running && <div style={{ marginLeft: 8, width: 8, height: 8, border: `1.5px solid ${GOLD}`, borderTopColor: "transparent", borderRadius: "50%", animation: "spin .7s linear infinite" }} />}
-        </div>
-
-        {/* Main */}
+        {/* ── Main area ── */}
         <div className="e-main">
           {/* Chart */}
-          <div className="e-chart">
-            <div style={{ position: "absolute", top: 8, left: 10, zIndex: 5, display: "flex", gap: 10, alignItems: "center", pointerEvents: "none" }}>
-              <span style={{ fontSize: 11, color: MUTED }}>{assetSym} · {meta.interval}</span>
-              {meta.useEma && signal.ema_fast_val != null && (
-                <>
-                  <span style={{ fontSize: 10, color: GOLD, fontFamily: "var(--font-nunito,monospace)" }}>F {signal.ema_fast_val.toFixed(5)}</span>
-                  <span style={{ fontSize: 10, color: `${MUTED}80`, fontFamily: "var(--font-nunito,monospace)" }}>S {signal.ema_slow_val?.toFixed(5)}</span>
-                </>
-              )}
-            </div>
-            <div style={{ position: "absolute", top: 8, right: 10, zIndex: 5, display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 12, fontWeight: 800, color: sigColor }}>{sigLabel}</span>
-              <button
-                onClick={() => setCodePanel(p => !p)}
-                style={{
-                  background: 'none', border: `1px solid ${BORDER}`,
-                  color: codePanel ? GOLD : MUTED2,
-                  padding: '3px 7px', cursor: 'pointer',
-                  fontFamily: 'monospace', fontSize: 10, borderRadius: 3,
-                }}
-              >{'</>'}</button>
-            </div>
-            <div style={{ width: "100%", height: "100%", minHeight: 400 }}>
-              <ChartComponent
-                data={bars}
-                trades={chartTrades}
-                emaFastData={emaFastData}
-                emaSlowData={emaSlowData}
-                showEma={meta.useEma}
-              />
-            </div>
-            {bars.length === 0 && (
-              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                <span style={{ fontSize: 11, color: `${MUTED}50` }}>{online ? "Lade Chart-Daten…" : "Engine offline"}</span>
+          <div className="e-chart-wrap">
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 5, display: "flex", alignItems: "center", height: 36, padding: "0 10px", gap: 6, background: `linear-gradient(180deg, ${BG} 0%, transparent 100%)`, pointerEvents: "none" }}>
+              <div style={{ pointerEvents: "auto", display: "flex", alignItems: "center", gap: 8 }}>
+                <Image src={meta.icon} alt="" width={18} height={18} style={{ borderRadius: 4 }} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: TXT }}>{assetSym}</span>
+                <span style={{ fontSize: 10, color: DIM }}>{meta.interval}</span>
+                {meta.engine && (
+                  <>
+                    <span style={{ width: 1, height: 12, background: BORDER, margin: "0 4px" }} />
+                    <span style={{ fontSize: 9, color: DIM }}>{meta.engine}</span>
+                  </>
+                )}
+                {signal.status && (
+                  <>
+                    <span style={{ width: 1, height: 12, background: BORDER, margin: "0 4px" }} />
+                    <span style={{ fontSize: 9, fontWeight: 700, color: signal.status === "APPROVED_LIVE" ? "#4ade80" : GOLD, padding: "2px 8px", borderRadius: 3, background: signal.status === "APPROVED_LIVE" ? "rgba(74,222,128,0.1)" : GOLD_DIM }}>
+                      {signal.status === "APPROVED_LIVE" ? "APPROVED LIVE" : signal.status}
+                    </span>
+                    {signal.parity && (
+                      <span style={{ fontSize: 9, color: MUT }}>Parity {signal.parity}</span>
+                    )}
+                  </>
+                )}
+                {meta.useEma && signal.ema_fast_val != null && (
+                  <>
+                    <span style={{ width: 1, height: 12, background: BORDER, margin: "0 4px" }} />
+                    <span style={{ fontSize: 10, color: GOLD_S, fontFamily: "var(--font-nunito,monospace)" }}>EMA {emaFast}: {signal.ema_fast_val.toFixed(5)}</span>
+                    <span style={{ fontSize: 10, color: FAINT, fontFamily: "var(--font-nunito,monospace)" }}>EMA {emaSlow}: {signal.ema_slow_val?.toFixed(5)}</span>
+                  </>
+                )}
               </div>
+              <div style={{ flex: 1 }} />
+              <div style={{ pointerEvents: "auto", display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: sigColor }}>{sigLabel}</span>
+                {running && <div style={{ width: 10, height: 10, border: `1.5px solid ${GOLD}`, borderTopColor: "transparent", borderRadius: "50%", animation: "espin .7s linear infinite" }} />}
+                <button className={`tbtn${codePanel ? " active" : ""}`} onClick={() => setCodePanel(p => !p)}>
+                  <span style={{ fontFamily: "monospace", fontSize: 11 }}>{"</>"}</span>
+                </button>
+                <div style={{ position: "relative" }}>
+                  <button className="tbtn" onClick={() => setShowSettings(s => !s)} style={{ position: "relative" }}>
+                    <span style={{ fontSize: 11 }}>&#9881;</span>
+                    <div style={{ width: 5, height: 5, borderRadius: "50%", background: online ? "#4ade80" : GOLD, position: "absolute", top: 2, right: 2 }} />
+                  </button>
+                  {showSettings && (
+                    <div className="settings-drop">
+                      <div style={{ fontSize: 10, color: DIM, marginBottom: 8, letterSpacing: ".06em", textTransform: "uppercase" }}>Engine Status</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: online ? "#4ade80" : GOLD }} />
+                        <span style={{ fontSize: 11, color: online ? TXT : MUT }}>{online ? "Online" : "Offline"}</span>
+                      </div>
+                      {online && (
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: ibkrOk ? "#4ade80" : GOLD }} />
+                          <span style={{ fontSize: 11, color: MUT }}>IBKR {ibkrOk ? `connected${health?.paper_mode ? " (Paper)" : ""}` : "disconnected"}</span>
+                        </div>
+                      )}
+                      {!online && <div style={{ fontSize: 10, color: DIM, marginTop: 6 }}>Start Desktop\start.bat</div>}
+                      <div style={{ borderTop: `1px solid ${BORDER}`, marginTop: 8, paddingTop: 8, fontSize: 10, color: FAINT }}>localhost:5000</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ position: "absolute", bottom: 8, left: 10, zIndex: 5, display: "flex", gap: 2 }}>
+              {TIMEFRAMES.map(tf => (
+                <button key={tf.label} className={`tf-btn${chartDays === tf.days ? " on" : ""}`} onClick={() => setChartDays(tf.days)}>{tf.label}</button>
+              ))}
+            </div>
+
+            {hasData ? (
+              <div style={{ width: "100%", height: "100%" }}>
+                <ChartComponent data={bars} trades={chartTrades} emaFastData={emaFastData} emaSlowData={emaSlowData}
+                  showEma={meta.useEma && (showEmaFast || showEmaSlow)} showEmaFast={showEmaFast} showEmaSlow={showEmaSlow} visibleDays={chartDays}
+                  priceLines={signal.direction !== "flat" ? [
+                    ...(signal.entry != null ? [{ price: signal.entry, color: "#C9A84C", label: "Entry" }] : []),
+                    ...(signal.sl != null    ? [{ price: signal.sl,    color: "#EF4444", label: "SL" }] : []),
+                    ...(signal.tp != null    ? [{ price: signal.tp,    color: "#22C55E", label: "TP" }] : []),
+                  ] : []} />
+              </div>
+            ) : (
+              <NoData text={online ? "Loading chart data..." : "Start engine to load chart"} />
             )}
           </div>
 
           {/* Tester */}
-          <div className="e-tester">
-            <div className="e-charts-col">
+          <div className="e-tester-wrap">
+            <div className="e-tester-head">
+              {TAB_LABELS.map(t => (
+                <button key={t.key} className={`e-tab${testerTab === t.key ? " on" : ""}`} onClick={() => setTesterTab(t.key)}>{t.label}</button>
+              ))}
+              <div style={{ flex: 1 }} />
+              <span style={{ fontSize: 10, color: FAINT, fontFamily: "var(--font-nunito,monospace)", flexShrink: 0 }}>
+                {hasResult ? `${trades.length} Trades · ${startDate.slice(0, 4)}–${endDate.slice(0, 4)}` : hasData ? `${bars.length.toLocaleString()} Kerzen geladen` : ""}
+              </span>
+              <button onClick={() => void runBacktest()} disabled={running}
+                style={{ marginLeft: 10, fontSize: 10, fontWeight: 600, color: running ? DIM : BG, background: running ? "rgba(255,255,255,0.06)" : GOLD, border: "none", borderRadius: 4, padding: '5px 16px', cursor: running ? 'default' : 'pointer', flexShrink: 0, transition: "all .15s" }}>
+                {running ? (btPhase || "Running...") : "Run Backtest"}
+              </button>
+            </div>
+
+            <div className="e-tester-body">
               {result?.error ? (
                 <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <span style={{ fontSize: 11, color: NEG }}>{result.error}</span>
+                  <span style={{ fontSize: 11, color: RED }}>{result.error}</span>
                 </div>
-              ) : (
+              ) : testerTab === "overview" ? (
                 <>
-                  <div style={{ flex: 7, minHeight: 0 }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={equityData} margin={{ top: 6, right: 6, left: 0, bottom: 0 }}>
-                        <XAxis dataKey="x" tick={{ fontSize: 9, fill: MUTED2, fontFamily: 'var(--font-montserrat,system-ui)' }} tickLine={{ stroke: '#1A1A1A' }} axisLine={{ stroke: '#1A1A1A' }} interval="preserveStartEnd" />
-                        <YAxis domain={["auto", "auto"]} tick={{ fontSize: 9, fill: MUTED2, fontFamily: 'var(--font-nunito,monospace)' }} tickLine={{ stroke: '#1A1A1A' }} axisLine={{ stroke: '#1A1A1A' }} width={45} tickFormatter={v => `${Number(v).toFixed(0)}%`} />
-                        <Tooltip contentStyle={{ background: '#111111', border: '1px solid #1A1A1A', borderRadius: 4, fontSize: 10, fontFamily: 'var(--font-nunito,monospace)' }} labelStyle={{ color: MUTED2 }} formatter={(v: unknown, n: unknown) => [`${Number(v).toFixed(2)}%`, n === "y" ? "Strategie" : "Buy & Hold"]} />
-                        <Line type="monotone" dataKey="y"  stroke={TEXT}    dot={false} strokeWidth={1.5} />
-                        <Line type="monotone" dataKey="bh" stroke="#333333" dot={false} strokeWidth={1} strokeDasharray="4 3" />
-                      </LineChart>
-                    </ResponsiveContainer>
+                  <div className="e-charts-col">
+                    {hasResult && equityData.length > 0 ? (
+                      <>
+                        <div style={{ flex: 7, minHeight: 0 }}>
+                          <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={equityData} margin={{ top: 6, right: 6, left: 0, bottom: 0 }}>
+                              <XAxis dataKey="x" tick={{ fontSize: 9, fill: FAINT }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} interval={Math.max(1, Math.floor(equityData.length / 8))} tickFormatter={v => String(v).slice(0, 4)} />
+                              <YAxis domain={["auto", "auto"]} tick={{ fontSize: 9, fill: DIM, fontFamily: 'var(--font-nunito,monospace)' }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} width={50} tickFormatter={v => `${Number(v).toFixed(0)}%`} />
+                              <Tooltip contentStyle={{ background: BG, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 10, fontFamily: 'var(--font-nunito,monospace)' }} labelStyle={{ color: DIM }} formatter={(v: unknown, n: unknown) => [`${Number(v).toFixed(2)}%`, n === "y" ? "Strategy" : "Buy & Hold"]} />
+                              <Line type="monotone" dataKey="y" stroke={GOLD} dot={false} strokeWidth={1.5} name="Strategy" />
+                              {equityData.some(d => d.bh != null) && <Line type="monotone" dataKey="bh" stroke="#333333" dot={false} strokeWidth={1} strokeDasharray="4 3" name="Buy & Hold" />}
+                            </LineChart>
+                          </ResponsiveContainer>
+                        </div>
+                        <div style={{ flex: 3, minHeight: 0 }}>
+                          <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={ddData} margin={{ top: 2, right: 6, left: 0, bottom: 0 }}>
+                              <XAxis dataKey="x" tick={{ fontSize: 7, fill: FAINT }} tickLine={false} axisLine={false} interval={Math.max(1, Math.floor(ddData.length / 8))} tickFormatter={v => String(v).slice(0, 4)} />
+                              <YAxis domain={["dataMin", 0]} tick={{ fontSize: 8, fill: DIM, fontFamily: 'var(--font-nunito,monospace)' }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} width={50} tickFormatter={v => `${Number(v).toFixed(1)}%`} />
+                              <Tooltip contentStyle={{ background: BG, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 9 }} formatter={(v: unknown) => [`${Number(v).toFixed(2)}%`, "Drawdown"]} />
+                              <Area type="monotone" dataKey="dd" stroke={RED} fill="rgba(220,38,38,0.12)" strokeWidth={1} dot={false} />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </>
+                    ) : (
+                      <NoData text="Run backtest to see equity curve" />
+                    )}
                   </div>
-                  <div style={{ flex: 3, minHeight: 0 }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={ddData} margin={{ top: 2, right: 6, left: 0, bottom: 0 }}>
-                        <XAxis dataKey="x" tick={{ fontSize: 7, fill: `${MUTED}60` }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-                        <YAxis domain={["auto", 0]} tick={{ fontSize: 8, fill: MUTED2, fontFamily: 'var(--font-nunito,monospace)' }} tickLine={{ stroke: '#1A1A1A' }} axisLine={{ stroke: '#1A1A1A' }} width={45} tickFormatter={v => `${Number(v).toFixed(1)}%`} />
-                        <Tooltip contentStyle={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 4, fontSize: 9 }} formatter={(v: unknown) => [`${Number(v).toFixed(2)}%`, "Drawdown"]} />
-                        <Area type="monotone" dataKey="dd" stroke={NEG} fill={`${NEG}20`} strokeWidth={1} dot={false} />
-                      </AreaChart>
-                    </ResponsiveContainer>
+                  <div className="e-kpi-col">
+                    {KPIS.map(kpi => {
+                      const val = metrics?.[kpi.key] ?? 0;
+                      return (
+                        <div key={kpi.key} className="kpi-row">
+                          <span className="kpi-label">{kpi.label}</span>
+                          <span className="kpi-value" style={{ color: hasResult ? kpi.color(val) : FAINT }}>{hasResult ? kpi.fmt(val) : "—"}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </>
-              )}
-            </div>
-
-            <div className="e-kpi-col">
-              <div className="kpi-grid">
-                {KPIS.map(kpi => {
-                  const val = metrics?.[kpi.key] ?? 0;
-                  return (
-                    <div key={kpi.key} className="kpi-card">
-                      <div className="kpi-val">
-                        <div className="kpi-dot" style={{ background: kpi.dot(val) }} />
-                        {kpi.fmt(val)}
-                      </div>
-                      <div className="kpi-lbl">{kpi.label}</div>
+              ) : testerTab === "performance" ? (
+                <div style={{ flex: 1, overflow: "auto" }}>
+                  {hasResult ? (
+                    <table className="perf-tbl"><tbody>
+                      {PERF_ROWS.map(row => { const val = metrics?.[row.key] ?? 0; return (<tr key={row.key}><td>{row.label}</td><td style={{ color: valColor(val) }}>{row.fmt(val)}</td></tr>); })}
+                    </tbody></table>
+                  ) : <NoData text="Run backtest to see performance" />}
+                </div>
+              ) : testerTab === "trades" ? (
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+                  <div style={{ display: "flex", alignItems: "center", padding: "6px 10px", gap: 8, borderBottom: `1px solid ${BORDER}`, flexShrink: 0 }}>
+                    <span style={{ fontSize: 10, color: DIM }}>{trades.length} trades</span>
+                    <div style={{ flex: 1 }} />
+                    {trades.length > 0 && <button onClick={exportCSV} className="tbtn">CSV Export</button>}
+                  </div>
+                  {trades.length > 0 ? (
+                    <div style={{ flex: 1, overflowY: "auto" }}>
+                      <table className="trade-tbl"><thead><tr>
+                        {["#", "Date", "D", "Entry", "Exit", "Pips", "PnL"].map(h => (
+                          <th key={h} onClick={() => handleSort(h)} style={{ color: sortCol === h ? GOLD : undefined }}>
+                            {h}{sortCol === h ? (sortAsc ? " ▲" : " ▼") : ""}
+                          </th>
+                        ))}
+                      </tr></thead><tbody>
+                        {sortedTrades.slice(0, 500).map((t: TradeRecord, i) => {
+                          const dir = t.dir ?? t.direction ?? "long";
+                          const rowIdx = trades.length - trades.indexOf(t);
+                          return (<tr key={i} style={{ background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.015)" }}>
+                            <td style={{ color: FAINT }}>{rowIdx}</td>
+                            <td style={{ color: DIM }}>{(t.entry_date ?? "").slice(0, 10)}</td>
+                            <td style={{ fontWeight: 600, color: dir === "short" ? GOLD : TXT, fontSize: 10 }}>{dir === "short" ? "S" : "L"}</td>
+                            <td style={{ color: MUT }}>{t.entry?.toFixed(4)}</td>
+                            <td style={{ color: MUT }}>{t.exit?.toFixed(4) ?? "—"}</td>
+                            <td style={{ textAlign: "right", color: (t.pnl_pips ?? 0) >= 0 ? TXT : GOLD }}>{t.pnl_pips != null ? `${(t.pnl_pips ?? 0) > 0 ? "+" : ""}${t.pnl_pips.toFixed(0)}p` : "—"}</td>
+                            <td style={{ textAlign: "right", color: t.win ? TXT : GOLD, fontWeight: 600 }}>{t.win ? "+" : ""}{(t.pnl_pct * 100).toFixed(2)}%</td>
+                          </tr>);
+                        })}
+                      </tbody></table>
                     </div>
-                  );
-                })}
-              </div>
-              {trades.length > 0 && (
-                <div style={{ flex: 1, overflowY: "auto", border: `1px solid ${BORDER}`, borderRadius: 3, minHeight: 0 }}>
-                  <table className="trade-tbl">
-                    <thead>
-                      <tr>{["#", "Datum", "D", "Entry", "Exit", "Pips", "PnL"].map(h => <th key={h}>{h}</th>)}</tr>
-                    </thead>
-                    <tbody>
-                      {[...trades].reverse().slice(0, 120).map((t: TradeRecord, i) => {
-                        const dir = t.dir ?? t.direction ?? "long";
-                        return (
-                          <tr key={i} style={{ background: i % 2 === 0 ? SURFACE : SURFACE2 }}>
-                            <td style={{ color: MUTED }}>{trades.length - i}</td>
-                            <td style={{ color: MUTED }}>{(t.entry_date ?? "").slice(5, 10)}</td>
-                            <td style={{ fontWeight: 700, color: dir === "short" ? NEG : POS }}>{dir === "short" ? "S" : "L"}</td>
-                            <td style={{ color: MUTED }}>{t.entry?.toFixed(4)}</td>
-                            <td style={{ color: MUTED }}>{t.exit?.toFixed(4) ?? "—"}</td>
-                            <td style={{ textAlign: 'right', color: (t.pnl_pips ?? 0) >= 0 ? POS : NEG, fontFamily: 'var(--font-nunito,monospace)' }}>
-                              {t.pnl_pips != null ? `${(t.pnl_pips ?? 0) > 0 ? '+' : ''}${t.pnl_pips.toFixed(0)}p` : '—'}
-                            </td>
-                            <td style={{ textAlign: "right", color: t.win ? POS : NEG, fontWeight: 600, fontFamily: 'var(--font-nunito,monospace)' }}>
-                              {t.win ? "+" : ""}{(t.pnl_pct * 100).toFixed(2)}%
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                  ) : <NoData text="Run backtest to see trades" />}
+                </div>
+              ) : /* settings */ (
+                <div style={{ flex: 1, overflow: "auto", padding: 20 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, maxWidth: 480 }}>
+                    <div>
+                      <label style={{ fontSize: 9, color: DIM, letterSpacing: ".06em", textTransform: "uppercase", display: "block", marginBottom: 4 }}>Start Date</label>
+                      <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)}
+                        style={{ width: "100%", fontSize: 11, background: "rgba(255,255,255,0.03)", border: `1px solid ${BORDER}`, color: TXT, padding: "6px 10px", borderRadius: 4, outline: "none", fontFamily: "var(--font-nunito,monospace)" }} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 9, color: DIM, letterSpacing: ".06em", textTransform: "uppercase", display: "block", marginBottom: 4 }}>End Date</label>
+                      <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)}
+                        style={{ width: "100%", fontSize: 11, background: "rgba(255,255,255,0.03)", border: `1px solid ${BORDER}`, color: TXT, padding: "6px 10px", borderRadius: 4, outline: "none", fontFamily: "var(--font-nunito,monospace)" }} />
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: 6, marginTop: 14 }}>
+                    {([1, 3, 5, null] as (number | null)[]).map(y => (
+                      <button key={y ?? "max"} onClick={() => setZeitraum(y)} className="tbtn" style={{ fontSize: 10, fontWeight: 600 }}>{y ? `${y}Y` : "Max"}</button>
+                    ))}
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, maxWidth: 480, marginTop: 20 }}>
+                    <div>
+                      <label style={{ fontSize: 9, color: DIM, letterSpacing: ".06em", textTransform: "uppercase", display: "block", marginBottom: 4 }}>Initial Capital</label>
+                      <div style={{ fontSize: 13, color: TXT, fontFamily: "var(--font-nunito,monospace)", fontWeight: 600, padding: "6px 0" }}>100.000 EUR</div>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 9, color: DIM, letterSpacing: ".06em", textTransform: "uppercase", display: "block", marginBottom: 4 }}>Commission</label>
+                      <div style={{ fontSize: 13, color: TXT, fontFamily: "var(--font-nunito,monospace)", fontWeight: 600, padding: "6px 0" }}>10 bps</div>
+                    </div>
+                  </div>
+                  <button onClick={() => void runBacktest()} disabled={running}
+                    style={{ marginTop: 20, fontSize: 11, fontWeight: 600, color: running ? DIM : BG, background: running ? "rgba(255,255,255,0.06)" : GOLD, border: "none", borderRadius: 4, padding: "7px 24px", cursor: running ? "default" : "pointer" }}>
+                    Recalculate
+                  </button>
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        {/* Sidebar */}
+        {/* ── Sidebar ── */}
         <div className="e-sidebar">
-          <div className="sl">Strategy</div>
-          {(Object.keys(STRATEGIES) as Strategy[]).map(id => (
-            <button key={id} onClick={() => setStrategy(id)} className={`strat${strategy === id ? " on" : ""}`}>
-              <span>{STRATEGIES[id].label}</span>
-              <span style={{ fontSize: 9, color: strategy === id ? `${GOLD}70` : `${MUTED}50`, fontFamily: "var(--font-nunito,monospace)" }}>
-                {assetType === "futures" ? STRATEGIES[id].futures : STRATEGIES[id].cfd}
-              </span>
-            </button>
-          ))}
+          <div className="e-sidebar-resize" onMouseDown={sidebar.onMouseDown} />
 
-          <div className="sl">Asset</div>
-          <div style={{ display: "flex", gap: 10, fontSize: 12, fontWeight: 700 }}>
-            <span onClick={() => setAssetType("futures")} style={{ cursor: "pointer", color: assetType === "futures" ? GOLD : MUTED }}>{meta.futures}</span>
-            <span style={{ color: BORDER }}>|</span>
-            <span onClick={() => setAssetType("cfd")} style={{ cursor: "pointer", color: assetType === "cfd" ? GOLD : MUTED }}>{meta.cfd}</span>
-          </div>
-
-          <div className="sl">Zeitraum</div>
-          <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
-            {([1, 3, 5, null] as (number | null)[]).map(y => (
-              <span key={y ?? "max"} onClick={() => setZeitraum(y)}
-                style={{ fontSize: 10, color: MUTED, cursor: "pointer", fontWeight: 600 }}>
-                {y ? `${y}J` : "Max"}
-              </span>
+          <div className="e-sidebar-section">
+            <div className="sl">Strategy</div>
+            {(Object.keys(STRATEGIES) as Strategy[]).map(id => (
+              <button key={id} onClick={() => setStrategy(id)} className={`strat-btn${strategy === id ? " on" : ""}`}>
+                <Image src={STRATEGIES[id].icon} alt="" width={24} height={24} style={{ borderRadius: 4, flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 11.5, fontWeight: strategy === id ? 600 : 400 }}>{STRATEGIES[id].label}</div>
+                  <div style={{ fontSize: 9, color: strategy === id ? GOLD_S : FAINT, fontFamily: "var(--font-nunito,monospace)", marginTop: 1 }}>
+                    {assetType === "futures" ? STRATEGIES[id].futures : STRATEGIES[id].cfd}
+                  </div>
+                </div>
+              </button>
             ))}
           </div>
-          {([["Von", startDate, setStartDate], ["Bis", endDate, setEndDate]] as [string, string, (v: string) => void][]).map(([lbl, val, setter]) => (
-            <div key={lbl} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 5 }}>
-              <span style={{ fontSize: 9, color: MUTED, width: 22, flexShrink: 0 }}>{lbl}</span>
-              <input type="date" value={val} onChange={e => setter(e.target.value)}
-                style={{ flex: 1, fontSize: 9, background: "none", border: "none", borderBottom: `1px solid ${BORDER}`, color: MUTED, outline: "none", padding: "1px 0", fontFamily: "var(--font-nunito,monospace)" }}
-              />
+
+          <div className="e-sidebar-section">
+            <div className="sl">Asset Type</div>
+            <div style={{ display: "flex", gap: 6 }}>
+              <span onClick={() => setAssetType("futures")} className={`pill${assetType === "futures" ? " on" : ""}`}>Futures</span>
+              <span onClick={() => setAssetType("cfd")} className={`pill${assetType === "cfd" ? " on" : ""}`}>CFD</span>
             </div>
-          ))}
+          </div>
 
-          <div className="sl">Parameter</div>
-          {PARAM_DEFS[strategy].map(def => (
-            <ParamRow key={`${strategy}-${def.key}`} def={def} value={params[def.key] ?? ""} onChange={v => setP(def.key, v)} />
-          ))}
+          <div className="e-sidebar-section">
+            <div className="sl">Date Range</div>
+            <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+              {([1, 3, 5, null] as (number | null)[]).map(y => (
+                <span key={y ?? "max"} onClick={() => setZeitraum(y)} className="pill" style={{ cursor: "pointer" }}>{y ? `${y}Y` : "Max"}</span>
+              ))}
+            </div>
+            {([["From", startDate, setStartDate], ["To", endDate, setEndDate]] as [string, string, (v: string) => void][]).map(([lbl, val, setter]) => (
+              <div key={lbl} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                <span style={{ fontSize: 9, color: FAINT, width: 28, flexShrink: 0 }}>{lbl}</span>
+                <input type="date" value={val} onChange={e => setter(e.target.value)}
+                  style={{ flex: 1, fontSize: 9, background: "none", border: "none", borderBottom: `1px solid ${BORDER}`, color: MUT, outline: "none", padding: "2px 0", fontFamily: "var(--font-nunito,monospace)" }} />
+              </div>
+            ))}
+          </div>
 
-          <div className="sl">Signal</div>
-          <div style={{ fontSize: 14, fontWeight: 800, color: sigColor, letterSpacing: ".02em", marginBottom: 8 }}>{sigLabel}</div>
-          {meta.useEma && signal.ema_fast_val != null && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              {([
-                ["EMA Fast", signal.ema_fast_val?.toFixed(5), GOLD],
-                ["EMA Slow", signal.ema_slow_val?.toFixed(5), `${MUTED}80`],
-                ["Last Cross", signal.last_cross_date, MUTED],
-              ] as [string, string | undefined, string][]).filter(([, v]) => v).map(([l, v, col]) => (
-                <div key={l} style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: 9, color: MUTED }}>{l}</span>
-                  <span style={{ fontSize: 10, color: col, fontFamily: "var(--font-nunito,monospace)" }}>{v}</span>
+          {meta.useEma && (
+            <div className="e-sidebar-section">
+              <div className="sl">Indicators</div>
+              {[["EMA Fast", showEmaFast, setShowEmaFast, GOLD_S, String(params.ema_fast)], ["EMA Slow", showEmaSlow, setShowEmaSlow, MUT, String(params.ema_slow)]].map(([label, checked, setter, col, val]) => (
+                <div key={label as string} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
+                  <input type="checkbox" checked={checked as boolean} onChange={e => (setter as (v: boolean) => void)(e.target.checked)} style={{ accentColor: GOLD, width: 13, height: 13, cursor: "pointer" }} />
+                  <span style={{ fontSize: 10.5, color: (checked as boolean) ? (col as string) : DIM, flex: 1 }}>{label as string}</span>
+                  <span style={{ fontSize: 11, color: TXT, fontFamily: "var(--font-nunito,monospace)", fontWeight: 600 }}>{val as string}</span>
                 </div>
               ))}
             </div>
           )}
-          {signal.entry != null && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 8 }}>
-              {([
-                ["Entry", signal.entry?.toFixed(4), TEXT],
-                ["SL",    signal.sl?.toFixed(4),    NEG ],
-                ["TP",    signal.tp?.toFixed(4),    POS ],
-              ] as [string, string | undefined, string][]).filter(([, v]) => v).map(([l, v, col]) => (
-                <div key={l} style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: 9, color: MUTED }}>{l}</span>
-                  <span style={{ fontSize: 10, color: col, fontFamily: "var(--font-nunito,monospace)" }}>{v}</span>
-                </div>
-              ))}
-            </div>
-          )}
+
+          <div className="e-sidebar-section" style={{ flex: 1 }}>
+            <div className="sl">Parameters</div>
+            {PARAM_DEFS[strategy].map(def => (
+              <ParamRow key={`${strategy}-${def.key}`} def={def} value={params[def.key] ?? ""} onChange={v => setP(def.key, v)} />
+            ))}
+          </div>
+
+          <div className="e-sidebar-section">
+            <div className="sl">Live Signal</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: sigColor, letterSpacing: ".02em", marginBottom: 6 }}>{sigLabel}</div>
+            {signal.atr != null && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                {([
+                  ["Close", signal.close?.toFixed(5), TXT],
+                  ["ATR", signal.atr?.toFixed(5), MUT],
+                  ["Regime", signal.regime_active ? "Active" : "Off", signal.regime_active ? "#4ade80" : DIM],
+                ] as [string, string | undefined, string][]).filter(([, v]) => v).map(([l, v, col]) => (
+                  <div key={l} style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 9, color: FAINT }}>{l}</span>
+                    <span style={{ fontSize: 10, color: col, fontFamily: "var(--font-nunito,monospace)" }}>{v}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {meta.useEma && signal.ema_fast_val != null && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                {([["EMA Fast", signal.ema_fast_val?.toFixed(5), GOLD_S], ["EMA Slow", signal.ema_slow_val?.toFixed(5), DIM], ["Last Cross", signal.last_cross_date, FAINT]] as [string, string | undefined, string][]).filter(([, v]) => v).map(([l, v, col]) => (
+                  <div key={l} style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 9, color: FAINT }}>{l}</span>
+                    <span style={{ fontSize: 10, color: col, fontFamily: "var(--font-nunito,monospace)" }}>{v}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {signal.entry != null && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 3, marginTop: 6 }}>
+                {([["Entry", signal.entry?.toFixed(4), TXT], ["SL", signal.sl?.toFixed(4), GOLD], ["TP", signal.tp?.toFixed(4), TXT]] as [string, string | undefined, string][]).filter(([, v]) => v).map(([l, v, col]) => (
+                  <div key={l} style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 9, color: FAINT }}>{l}</span>
+                    <span style={{ fontSize: 10, color: col, fontFamily: "var(--font-nunito,monospace)" }}>{v}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {signal.bt_trades != null && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 3, marginTop: 8, paddingTop: 8, borderTop: `1px solid ${BORDER}` }}>
+                {([
+                  ["BT Trades", String(signal.bt_trades), MUT],
+                  ["Sharpe", signal.bt_sharpe?.toFixed(3), MUT],
+                  ["PF", signal.bt_pf?.toFixed(3), MUT],
+                  ["Win %", signal.bt_win_rate ? `${signal.bt_win_rate.toFixed(1)}%` : undefined, MUT],
+                ] as [string, string | undefined, string][]).filter(([, v]) => v).map(([l, v, col]) => (
+                  <div key={l} style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 9, color: FAINT }}>{l}</span>
+                    <span style={{ fontSize: 10, color: col, fontFamily: "var(--font-nunito,monospace)" }}>{v}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
+        {/* ── Code panel ── */}
         {codePanel && (
           <div className="e-codepanel">
-            <div style={{ padding: '8px 12px', borderBottom: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-              <span style={{ fontSize: 10, color: MUTED2, fontFamily: 'monospace' }}>
+            <div className="e-code-resize" onMouseDown={codeW.onMouseDown} />
+            <div style={{ padding: '8px 14px 8px 18px', borderBottom: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+              <span style={{ fontSize: 11, color: TXT, fontFamily: 'var(--font-nunito,monospace)', fontWeight: 500 }}>
                 {strategy.toLowerCase()}_strategy.py
               </span>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button
-                  onClick={() => void fetch(`http://localhost:5000/strategy-code/${strategy}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code: strategyCode }),
-                  })}
-                  style={{ fontSize: 9, color: MUTED, background: 'none', border: `1px solid ${BORDER}`, borderRadius: 2, padding: '2px 8px', cursor: 'pointer' }}
-                >Speichern</button>
-                <button
-                  onClick={() => void runBacktest()}
-                  style={{ fontSize: 9, color: GOLD, background: 'none', border: `1px solid ${BORDER}`, borderRadius: 2, padding: '2px 8px', cursor: 'pointer' }}
-                >Ausführen</button>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <button onClick={async () => {
+                  setCodeSaving(true);
+                  try { await fetch(`http://localhost:5000/strategy-code/${strategy}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: strategyCode }) }); } finally { setCodeSaving(false); }
+                }} disabled={codeSaving} className="tbtn">{codeSaving ? "Saving..." : "Save"}</button>
+                <button onClick={async () => {
+                  setRunning(true);
+                  try {
+                    const r = await fetch('http://localhost:5000/bt/run-custom', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: strategyCode, strategy, asset_type: assetType, params }), signal: AbortSignal.timeout(30_000) });
+                    const data = await r.json();
+                    if (data.error) { setResult({ metrics: {} as BacktestResult["metrics"], equity: [], drawdown: [], trades: [], error: data.error }); }
+                    else if (data.equity_curve) { setResult({ metrics: data as BacktestResult["metrics"], equity: data.equity_curve, drawdown: [], trades: [], equity_dates: [] }); }
+                  } catch (e) { setResult({ metrics: {} as BacktestResult["metrics"], equity: [], drawdown: [], trades: [], error: e instanceof Error ? e.message : "Error" }); }
+                  finally { setRunning(false); }
+                }} disabled={running} style={{ fontSize: 10, fontWeight: 600, color: running ? DIM : BG, background: running ? "rgba(255,255,255,0.06)" : GOLD, border: "none", borderRadius: 4, padding: '4px 14px', cursor: running ? 'default' : 'pointer' }}>
+                  {running ? "..." : "Run"}
+                </button>
+                <button onClick={() => setCodePanel(false)} className="tbtn" style={{ padding: "4px 6px" }}>{"✕"}</button>
               </div>
             </div>
             <div style={{ flex: 1, minHeight: 0 }}>
-              <MonacoEditor
-                height="100%"
-                language="python"
-                theme="vs-dark"
-                value={strategyCode}
-                onChange={v => setStrategyCode(v ?? "")}
-                options={{ minimap: { enabled: false }, fontSize: 12, scrollBeyondLastLine: false, wordWrap: 'on' }}
-              />
+              <MonacoEditor height="100%" language="python" theme="vs-dark" value={strategyCode} onChange={v => setStrategyCode(v ?? "")}
+                options={{ minimap: { enabled: false }, fontSize: 12, scrollBeyondLastLine: false, wordWrap: 'on' }} />
             </div>
           </div>
         )}
       </div>
+
+      {showSettings && <div style={{ position: "fixed", inset: 0, zIndex: 10 }} onClick={() => setShowSettings(false)} />}
     </>
   );
 }
 
 // ── ParamRow ───────────────────────────────────────────────────────────────────
 function ParamRow({ def, value, onChange }: { def: ParamDef; value: number | string; onChange: (v: number | string) => void }) {
-  const labelSt: React.CSSProperties = { fontSize: 9.5, color: MUTED };
-  const valSt:   React.CSSProperties = { fontSize: 11, color: TEXT, fontFamily: "var(--font-nunito,monospace)", fontWeight: 600 };
-
   if (def.type === "select") return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0" }}>
-      <span style={labelSt}>{def.label}</span>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0" }}>
+      <span style={{ fontSize: 10, color: DIM }}>{def.label}</span>
       <select value={value as string} onChange={e => onChange(e.target.value)}
-        style={{ ...valSt, background: "none", border: "none", borderBottom: `1px solid ${BORDER}`, outline: "none", cursor: "pointer" }}>
+        style={{ fontSize: 11, color: TXT, fontFamily: "var(--font-nunito,monospace)", fontWeight: 600, background: "none", border: "none", borderBottom: `1px solid ${BORDER}`, outline: "none", cursor: "pointer" }}>
         {def.options?.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
     </div>
   );
-
   if (def.type === "slider") return (
-    <div style={{ padding: "4px 0" }}>
+    <div style={{ padding: "5px 0" }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-        <span style={labelSt}>{def.label}</span>
-        <span style={valSt}>{value}</span>
+        <span style={{ fontSize: 10, color: DIM }}>{def.label}</span>
+        <span style={{ fontSize: 11, color: TXT, fontFamily: "var(--font-nunito,monospace)", fontWeight: 600 }}>{value}</span>
       </div>
       <input type="range" min={def.min} max={def.max} step={def.step} value={value as number}
-        onChange={e => onChange((def.step ?? 1) < 1 ? parseFloat(e.target.value) : parseInt(e.target.value, 10))}
-      />
+        onChange={e => onChange((def.step ?? 1) < 1 ? parseFloat(e.target.value) : parseInt(e.target.value, 10))} />
     </div>
   );
-
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0" }}>
-      <span style={labelSt}>{def.label}</span>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0" }}>
+      <span style={{ fontSize: 10, color: DIM }}>{def.label}</span>
       <input type="number" min={def.min} max={def.max} step={def.step} value={value as number}
         onChange={e => { const n = parseFloat(e.target.value); if (!isNaN(n)) onChange(n); }}
-        style={{ ...valSt, background: "none", border: "none", borderBottom: `1px solid ${BORDER}`, outline: "none", width: 72, textAlign: "right" }}
-      />
+        style={{ fontSize: 11, color: TXT, fontFamily: "var(--font-nunito,monospace)", fontWeight: 600, background: "none", border: "none", borderBottom: `1px solid ${BORDER}`, outline: "none", width: 72, textAlign: "right" }} />
     </div>
   );
 }

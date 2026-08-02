@@ -31,19 +31,9 @@ strategy("Core Invest Viewer",
 // ============================================================================
 // Wichtig: input.string options[] braucht Literal-Strings (keine Variablen).
 
-G_PRE = "1) Preset"
-
-preset = input.string(
-     defval  = "QQQ_PINE_1",
-     title   = "Komponente",
-     options = ["QQQ_PASSIVE", "GLD", "SPMO", "SPY",
-                "QQQ_PINE_1", "COPPER_HG", "CHF_6S"],
-     tooltip = "Chart-Symbol passend zum Preset laden:\n"  +
-               "QQQ_PASSIVE -> QQQ  |  GLD -> GLD\n"      +
-               "SPMO -> SPMO        |  SPY -> SPY\n"       +
-               "QQQ_PINE_1 -> QQQ   |  COPPER_HG -> HG1!\n" +
-               "CHF_6S -> 6S1!",
-     group   = G_PRE)
+preset = input.string("QQQ_PINE_1", "Komponente",
+     options=["QQQ_PASSIVE", "GLD", "SPMO", "SPY", "QQQ_PINE_1", "COPPER_HG", "CHF_6S"],
+     group="1) Preset")
 
 isPassive = preset == "QQQ_PASSIVE" or preset == "GLD" or
             preset == "SPMO"        or preset == "SPY"
@@ -53,10 +43,8 @@ isEMA     = preset == "COPPER_HG"  or preset == "CHF_6S"
 // ============================================================================
 // 2) ZEITFILTER
 // ============================================================================
-G_TIME = "2) Zeit"
-
-startTime = input.time(timestamp("01 Jan 1995 00:00 +0000"), "Start", group=G_TIME)
-endTime   = input.time(timestamp("01 Jan 2099 00:00 +0000"), "End",   group=G_TIME)
+startTime = input.time(timestamp("01 Jan 1995 00:00 +0000"), "Start", group="2) Zeit")
+endTime   = input.time(timestamp("01 Jan 2099 00:00 +0000"), "End",   group="2) Zeit")
 inDate    = time >= startTime and time <= endTime
 
 // ============================================================================
@@ -66,16 +54,10 @@ inDate    = time >= startTime and time <= endTime
 //    Exit  : close > SMA(5) | SL 25% | TP 2%
 //    Exec  : NextOpen  (process_orders_on_close=false)
 // ============================================================================
-G_P1 = "3) QQQ_PINE_1  [QQQ_pine1.txt]"
-
-p1_ma1 = input.int(400, "SMA Trend (MA1)", minval=1, group=G_P1,
-     tooltip="Langfristiger Bull-Trend-Filter. Default: 400")
-p1_ma2 = input.int(5,   "SMA Dip   (MA2)", minval=1, group=G_P1,
-     tooltip="Kurzfristiger Dip-Filter. Default: 5")
-p1_sl  = input.float(25.0, "Stop Loss %",   minval=0.1, step=1.0, group=G_P1,
-     tooltip="Safety Stop. Default: 25%")
-p1_tp  = input.float(2.0,  "Take Profit %", minval=0.1, step=0.5, group=G_P1,
-     tooltip="Safety Profit. Default: 2%")
+p1_ma1 = input.int(400,  "SMA Trend (MA1)", minval=1,   group="3) QQQ_PINE_1")
+p1_ma2 = input.int(5,    "SMA Dip   (MA2)", minval=1,   group="3) QQQ_PINE_1")
+p1_sl  = input.float(25.0, "Stop Loss %",   minval=0.1, group="3) QQQ_PINE_1")
+p1_tp  = input.float(2.0,  "Take Profit %", minval=0.1, group="3) QQQ_PINE_1")
 
 // ============================================================================
 // 4) EMA SLEEVE — COPPER_HG + CHF_6S
@@ -84,48 +66,27 @@ p1_tp  = input.float(2.0,  "Take Profit %", minval=0.1, step=0.5, group=G_P1,
 //    Exit  : SL 2% | TP 4% | opposite Valuation | EMA-Flip (optional)
 //    Exec  : NextOpen  (process_orders_on_close=false)
 // ============================================================================
-G_EMA = "4) EMA Sleeve  [pine2.txt]"
+e_fast      = input.int(20,    "EMA Fast",               minval=1,   group="4) EMA Sleeve")
+e_slow      = input.int(50,    "EMA Slow",               minval=1,   group="4) EMA Sleeve")
+e_sl        = input.float(2.0, "Stop Loss %",            minval=0.1, group="4) EMA Sleeve")
+e_tp        = input.float(4.0, "Take Profit %",          minval=0.1, group="4) EMA Sleeve")
+exitOppVal  = input.bool(true,  "Exit: opposite Val",                group="4) EMA Sleeve")
+exitEMAFlip = input.bool(false, "Exit: EMA Flip",                    group="4) EMA Sleeve")
+onePerDay   = input.bool(true,  "Max 1 Entry / Tag",                 group="4) EMA Sleeve")
+minHold     = input.int(0,      "Min Hold Bars", minval=0,           group="4) EMA Sleeve")
 
-e_fast       = input.int(20,  "EMA Fast",        minval=1,   group=G_EMA)
-e_slow       = input.int(50,  "EMA Slow",        minval=1,   group=G_EMA)
-e_sl         = input.float(2.0, "Stop Loss %",   minval=0.1, step=0.1, group=G_EMA)
-e_tp         = input.float(4.0, "Take Profit %", minval=0.1, step=0.1, group=G_EMA)
-exitOppVal   = input.bool(true,  "Exit: opposite Valuation", group=G_EMA,
-     tooltip="exitOnOppositeVal=true in pine2.txt")
-exitEMAFlip  = input.bool(false, "Exit: EMA Flip",           group=G_EMA,
-     tooltip="exitOnEMAFlip=false in pine2.txt")
-onePerDay    = input.bool(true,  "Max 1 Entry / Tag",         group=G_EMA,
-     tooltip="oneEntryPerDay=true in pine2.txt")
-minHold      = input.int(0,  "Min Hold Bars", minval=0,       group=G_EMA,
-     tooltip="minHoldBars=0 in pine2.txt")
-
-// ============================================================================
-// 5) VALUATION FILTER  (EMA Sleeves)
-//    Quelle: pine2.txt  Sections VALUATION + COMPARISON SYMBOLS
-// ============================================================================
-G_VAL = "5) Valuation  [pine2.txt]"
-
-useVal    = input.bool(true,   "Valuation aktiv",      group=G_VAL)
-valFast   = input.int(10,  "Val Fast",                 group=G_VAL,
-     tooltip="valFast=10 in pine2.txt")
-valSlow   = input.int(20,  "Val Slow",                 group=G_VAL,
-     tooltip="valSlow=20 in pine2.txt")
-rescaleLB = input.int(100, "Rescale Lookback",         group=G_VAL,
-     tooltip="rescaleLookback=100 in pine2.txt")
-valUp     = input.float( 75.0, "Upper Threshold",      group=G_VAL,
-     tooltip="valUpper=75 in pine2.txt")
-valDn     = input.float(-75.0, "Lower Threshold",      group=G_VAL,
-     tooltip="valLower=-75 in pine2.txt")
-valReq    = input.string("1 von 3", "Symbol Requirement",
-     options=["1 von 3", "2 von 3", "3 von 3"],        group=G_VAL,
-     tooltip="mode='1 von 3' in pine2.txt")
-entryWin  = input.int(3, "Entry Window Bars", minval=0, group=G_VAL,
-     tooltip="entryBars=3 in pine2.txt")
-
-// Vergleichssymbole — exakt wie pine2.txt
-sym1 = input.symbol("TVC:DXY",    "Symbol 1 (DXY)",   group=G_VAL)
-sym2 = input.symbol("COMEX:GC1!", "Symbol 2 (Gold)",   group=G_VAL)
-sym3 = input.symbol("CBOT:ZB1!",  "Symbol 3 (T-Bond)", group=G_VAL)
+useVal    = input.bool(true,    "Valuation aktiv",    group="5) Valuation")
+valFast   = input.int(10,       "Val Fast",           group="5) Valuation")
+valSlow   = input.int(20,       "Val Slow",           group="5) Valuation")
+rescaleLB = input.int(100,      "Rescale Lookback",   group="5) Valuation")
+valUp     = input.float( 75.0,  "Upper Threshold",    group="5) Valuation")
+valDn     = input.float(-75.0,  "Lower Threshold",    group="5) Valuation")
+valReq    = input.string("1 von 3", "Symbol Req",
+     options=["1 von 3", "2 von 3", "3 von 3"],       group="5) Valuation")
+entryWin  = input.int(3, "Entry Window Bars", minval=0, group="5) Valuation")
+sym1      = input.symbol("TVC:DXY",    "Symbol 1 (DXY)",    group="5) Valuation")
+sym2      = input.symbol("COMEX:GC1!", "Symbol 2 (Gold)",   group="5) Valuation")
+sym3      = input.symbol("CBOT:ZB1!",  "Symbol 3 (T-Bond)", group="5) Valuation")
 
 // ============================================================================
 // HILFSFUNKTIONEN

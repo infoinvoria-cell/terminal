@@ -1,0 +1,216 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - 'button "Logged in as jg_fxtrading Active layout: Data" [ref=e7]'
+      - generic [ref=e8]: "15"
+    - toolbar [ref=e12]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]:
+            - button "IEF" [ref=e20429]
+            - button "Switch data type" [ref=e21]
+          - button "Compare symbols" [ref=e19740]
+        - generic [ref=e19748]:
+          - radiogroup [ref=e19749]:
+            - radio "1 minute" [ref=e19750]:
+              - generic [ref=e19751]: 1m
+            - radio "5 minutes" [ref=e19753]:
+              - generic [ref=e19754]: 5m
+            - radio "15 minutes" [ref=e19756]:
+              - generic [ref=e19757]: 15m
+            - radio "30 minutes" [ref=e19759]:
+              - generic [ref=e19760]: 30m
+            - radio "1 hour" [ref=e19762]:
+              - generic [ref=e19763]: 1h
+            - radio "2 hours" [ref=e19765]:
+              - generic [ref=e19766]: 2h
+            - radio "4 hours" [ref=e19768]:
+              - generic [ref=e19769]: 4h
+            - radio "1 day" [checked] [ref=e19771]:
+              - generic [ref=e19772]: D
+            - radio "1 week" [ref=e19774]:
+              - generic [ref=e19775]: W
+            - radio "1 month" [ref=e19777]:
+              - generic [ref=e19778]: M
+          - button "Chart interval" [ref=e19780]
+        - generic [ref=e19789]:
+          - radiogroup [ref=e19790]:
+            - radio "Candles" [checked] [ref=e19791]
+            - radio "Heikin Ashi" [ref=e19798]
+          - button "Bar's style" [ref=e19805]
+        - generic [ref=e19813]:
+          - generic [ref=e19814]:
+            - button "Indicators, metrics, and strategies" [ref=e19815]
+            - button "Favorite indicators" [ref=e19820]
+          - button "Indicator templates" [ref=e19827]
+        - generic [ref=e19834]:
+          - button "Create alert" [ref=e19835]
+          - button "Bar replay" [ref=e19840]
+        - generic [ref=e19847]:
+          - button "Undo change symbol" [ref=e19848]
+          - button [disabled] [ref=e19852]
+        - generic [ref=e19856]:
+          - button "Layout setup" [ref=e19857]
+          - generic [ref=e19860]:
+            - button "Save all charts for all symbols and intervals on your layout" [ref=e19861]:
+              - generic [ref=e19863]:
+                - generic [ref=e19864]: Data
+                - generic [ref=e19865]: Save
+            - button "Manage layouts" [ref=e19867]
+            - link "⚔️Copy Trading JG 2" [ref=e19873]:
+              - /url: https://www.tradingview.com/chart/W0GEb5M7/
+            - link "🍎Swing Stocks Strategien" [ref=e19876]:
+              - /url: https://www.tradingview.com/chart/4Hn8TX6E/
+            - link "📊SCANNER" [ref=e19879]:
+              - /url: https://www.tradingview.com/chart/lrY2G4rE/
+            - link "🧐invest" [ref=e19882]:
+              - /url: https://www.tradingview.com/chart/gVBhfGn8/
+        - generic [ref=e19887]:
+          - button "Quick search" [ref=e19888]
+          - button "Settings" [ref=e19893]
+          - button "Fullscreen mode" [ref=e19899]
+          - button "Take a snapshot" [ref=e19903]
+        - generic [ref=e19910]:
+          - button "Share your idea with the trade community"
+          - generic "Share your idea with the trade community" [ref=e19911]
+    - toolbar [ref=e201]:
+      - generic [ref=e205]:
+        - generic [ref=e206]:
+          - generic [ref=e209]:
+            - button "Cross" [ref=e211]
+            - button "Cursors" [pressed] [ref=e217]
+          - generic [ref=e223]:
+            - button "Trendline" [ref=e225]
+            - button "Trend tools" [ref=e231]
+          - generic [ref=e237]:
+            - button "Fib retracement" [ref=e239]
+            - button "Gann and Fibonacci tools" [ref=e248]
+          - generic [ref=e254]:
+            - button "XABCD pattern" [ref=e256]
+            - button "Patterns" [ref=e262]
+          - generic [ref=e268]:
+            - button "Long position" [ref=e270]
+            - button "Forecasting and measurement tools" [ref=e274]
+          - generic [ref=e280]:
+            - button "Brush" [ref=e282]
+            - button "Geometric shapes" [ref=e288]
+          - generic [ref=e294]:
+            - button "Text" [ref=e296]
+            - button "Annotation tools" [ref=e300]
+          - generic [ref=e305]:
+            - button "Icon" [ref=e307]
+            - button "Icons" [ref=e311]
+        - generic [ref=e315]:
+          - button "Measure" [ref=e316]
+          - button "Zoom in" [ref=e320]
+        - generic [ref=e327]:
+          - generic [ref=e330]:
+            - button "Magnet mode snaps drawings placed near price bars to the closest OHLC value" [pressed] [ref=e332]
+            - button "Magnets" [pressed] [ref=e338]
+          - button "Keep drawing" [ref=e342]
+          - button "Lock all drawings" [ref=e346]
+          - generic [ref=e351]:
+            - button "Hide all indicators" [ref=e353]
+            - button "Hide options" [ref=e357]
+          - generic [ref=e362]:
+            - button "New drawings will not be synced" [ref=e364]
+            - button "Sync drawings options" [ref=e368]
+        - generic [ref=e374]:
+          - button "Remove objects" [ref=e376]
+          - button "Remove options" [ref=e380]
+        - button "Show Favorite Drawing Tools Toolbar" [ref=e19916]
+    - generic [ref=e390]:
+      - 'region "Chart #1" [ref=e393]':
+        - generic [ref=e397]:
+          - generic:
+            - generic:
+              - toolbar:
+                - generic:
+                  - generic [ref=e398]:
+                    - generic "Change symbol" [ref=e20430]:
+                      - generic [ref=e400]: I
+                      - button "Change symbol" [ref=e20432]: IEF
+                    - text: · ·
+                  - generic [ref=e2726]:
+                    - button "Flag symbol" [ref=e2727]
+                    - button "More" [ref=e2733]
+                  - button "NASDAQ by Cboe One" [ref=e20434]
+          - generic "Chart for BATS:IEF, 1 day" [ref=e20438]
+      - toolbar [ref=e431]:
+        - button [ref=e434]
+        - generic [ref=e440]:
+          - button "Timezone" [ref=e443]:
+            - generic [ref=e444]: 21:37:29 UTC+2
+          - button "Adjust data for dividends" [pressed] [ref=e448]:
+            - generic [ref=e449]: ADJ
+    - text: – – –
+  - generic: More
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list

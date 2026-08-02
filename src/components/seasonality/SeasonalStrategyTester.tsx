@@ -590,22 +590,19 @@ export const SeasonalStrategyTester = memo(function SeasonalStrategyTester({
               : wfView === "sleeve_portfolio"
                 ? (
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-                    <span style={{ fontSize: 9, color: C_DIM, whiteSpace: "nowrap" }}>
-                      Saisonale Komponenten · {10} Muster · FDR / Bonferroni
-                    </span>
                     {sleeveMode !== "grid" && (
                       <button type="button" onClick={() => setSleeveMode("grid")} style={{
-                        background: "transparent", border: "1px solid rgba(255,255,255,0.07)",
-                        borderRadius: 4, padding: "2px 8px", color: C_MUTED, fontSize: 8,
-                        cursor: "pointer", fontFamily: "Montserrat, Segoe UI, sans-serif",
-                      }}>← Alle</button>
+                        background: "transparent", border: "1px solid rgba(255,255,255,0.12)",
+                        borderRadius: 6, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center",
+                        color: C_MUTED, fontSize: 12, cursor: "pointer",
+                      }}>‹</button>
                     )}
                     <button type="button" onClick={() => setSleeveMode(sleeveMode === "portfolio" ? "grid" : "portfolio")} style={{
-                      background: sleeveMode === "portfolio" ? "rgba(220,196,118,0.14)" : "rgba(220,196,118,0.08)",
-                      border: `1px solid ${sleeveMode === "portfolio" ? "rgba(220,196,118,0.40)" : "rgba(220,196,118,0.20)"}`,
-                      borderRadius: 4, padding: "2px 9px", color: C_GOLD, fontSize: 8,
-                      cursor: "pointer", fontWeight: 700, fontFamily: "Montserrat, Segoe UI, sans-serif",
-                      letterSpacing: "0.04em",
+                      background: sleeveMode === "portfolio" ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.05)",
+                      border: `1px solid rgba(255,255,255,0.12)`,
+                      borderRadius: 6, padding: "4px 14px", color: "#e8edf3", fontSize: 10,
+                      cursor: "pointer", fontWeight: 600, fontFamily: "Montserrat, Segoe UI, sans-serif",
+                      letterSpacing: "0.03em",
                     }}>Portfolio</button>
                   </div>
                 )

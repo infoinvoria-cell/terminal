@@ -1,0 +1,270 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - 'button "Logged in as jg_fxtrading Active layout: 🍎Capitalife Valuation Stocks" [ref=e7]'
+      - generic [ref=e8]: "26"
+    - toolbar [ref=e12]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]:
+            - button "ES1!" [ref=e798]
+            - button [ref=e799]
+          - button "Compare symbols" [ref=e25]
+        - generic [ref=e33]:
+          - radiogroup [ref=e34]:
+            - radio "1 minute" [ref=e35]:
+              - generic [ref=e36]: 1m
+            - radio "5 minutes" [ref=e38]:
+              - generic [ref=e39]: 5m
+            - radio "15 minutes" [ref=e41]:
+              - generic [ref=e42]: 15m
+            - radio "30 minutes" [ref=e44]:
+              - generic [ref=e45]: 30m
+            - radio "1 hour" [ref=e47]:
+              - generic [ref=e48]: 1h
+            - radio "2 hours" [ref=e50]:
+              - generic [ref=e51]: 2h
+            - radio "4 hours" [ref=e53]:
+              - generic [ref=e54]: 4h
+            - radio "1 day" [checked] [ref=e56]:
+              - generic [ref=e57]: D
+            - radio "1 week" [ref=e59]:
+              - generic [ref=e60]: W
+            - radio "1 month" [ref=e62]:
+              - generic [ref=e63]: M
+          - button "Chart interval" [ref=e65]
+        - generic [ref=e74]:
+          - radiogroup [ref=e75]:
+            - radio "Candles" [checked] [ref=e76]
+            - radio "Heikin Ashi" [ref=e83]
+          - button "Bar's style" [ref=e90]
+        - generic [ref=e98]:
+          - generic [ref=e99]:
+            - button "Indicators, metrics, and strategies" [ref=e100]
+            - button "Favorite indicators" [ref=e105]
+          - button "Indicator templates" [ref=e112]
+        - generic [ref=e119]:
+          - button "Create alert" [ref=e120]
+          - button "Bar replay" [ref=e800]
+        - generic [ref=e140]:
+          - button "Undo change resolution" [ref=e804]
+          - button [disabled] [ref=e145]
+        - generic [ref=e149]:
+          - button "Layout setup" [ref=e150]
+          - generic [ref=e153]:
+            - button "Save all charts for all symbols and intervals on your layout" [ref=e805]:
+              - generic [ref=e156]:
+                - generic [ref=e157]: Data
+                - generic [ref=e806]: Save
+            - button "Manage layouts" [ref=e160]
+            - link "⚔️Copy Trading JG 2" [ref=e166]:
+              - /url: https://www.tradingview.com/chart/W0GEb5M7/
+            - link "🍎Swing Stocks Strategien" [ref=e169]:
+              - /url: https://www.tradingview.com/chart/4Hn8TX6E/
+            - link "📊SCANNER" [ref=e172]:
+              - /url: https://www.tradingview.com/chart/lrY2G4rE/
+            - link "🧐invest" [ref=e175]:
+              - /url: https://www.tradingview.com/chart/gVBhfGn8/
+        - generic [ref=e180]:
+          - button "Quick search" [ref=e181]
+          - button "Settings" [ref=e186]
+          - button "Fullscreen mode" [ref=e192]
+          - button "Take a snapshot" [ref=e196]
+        - generic [ref=e217]:
+          - button "Share your idea with the trade community"
+          - generic "Share your idea with the trade community" [ref=e218]
+    - toolbar [ref=e224]:
+      - generic [ref=e228]:
+        - generic [ref=e229]:
+          - generic [ref=e232]:
+            - button "Cross" [ref=e234]
+            - button "Cursors" [pressed] [ref=e240]
+          - generic [ref=e246]:
+            - button "Trendline" [ref=e248]
+            - button "Trend tools" [ref=e254]
+          - generic [ref=e260]:
+            - button "Fib retracement" [ref=e262]
+            - button "Gann and Fibonacci tools" [ref=e271]
+          - generic [ref=e277]:
+            - button "XABCD pattern" [ref=e279]
+            - button "Patterns" [ref=e285]
+          - generic [ref=e291]:
+            - button "Long position" [ref=e293]
+            - button "Forecasting and measurement tools" [ref=e297]
+          - generic [ref=e303]:
+            - button "Brush" [ref=e305]
+            - button "Geometric shapes" [ref=e311]
+          - generic [ref=e317]:
+            - button "Text" [ref=e319]
+            - button "Annotation tools" [ref=e323]
+          - generic [ref=e328]:
+            - button "Icon" [ref=e330]
+            - button "Icons" [ref=e334]
+        - generic [ref=e338]:
+          - button "Measure" [ref=e339]
+          - button "Zoom in" [ref=e343]
+        - generic [ref=e350]:
+          - generic [ref=e353]:
+            - button "Magnet mode snaps drawings placed near price bars to the closest OHLC value" [ref=e355]
+            - button "Magnets" [ref=e361]
+          - button "Keep drawing" [ref=e365]
+          - button "Lock all drawings" [ref=e369]
+          - generic [ref=e374]:
+            - button "Hide all indicators" [ref=e376]
+            - button "Hide options" [ref=e380]
+          - generic [ref=e385]:
+            - button "New drawings will not be synced" [ref=e387]
+            - button "Sync drawings options" [ref=e391]
+        - generic [ref=e397]:
+          - button "Remove objects" [ref=e399]
+          - button "Remove options" [ref=e403]
+        - button "Show Favorite Drawing Tools Toolbar" [ref=e409]
+    - generic [ref=e413]:
+      - 'region "Chart #1" [ref=e416]':
+        - generic [ref=e420]:
+          - generic:
+            - generic:
+              - toolbar:
+                - generic:
+                  - generic [ref=e421]:
+                    - generic "Change symbol" [ref=e807]:
+                      - generic [ref=e423]: E
+                      - button "Change symbol" [ref=e809]: ES1!
+                    - text: · ·
+                  - generic:
+                    - generic:
+                      - button "Flag symbol"
+                      - button "More"
+                  - button "Data is delayed" [ref=e811]
+          - generic "Chart for CME_MINI_DL:ES1!, 1 day" [ref=e815]
+      - toolbar [ref=e656]:
+        - button [ref=e792]
+        - generic [ref=e683]:
+          - button "Timezone" [ref=e686]:
+            - generic [ref=e687]: 19:43:27 UTC+2
+          - button "Adjust for contract changes" [ref=e817]:
+            - generic [ref=e818]: B-ADJ
+          - button "Use settlement as close on daily interval" [pressed] [ref=e820]:
+            - generic [ref=e821]: SET
+    - text: – – –
+  - generic: Symbol search
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+    - dialog "Symbol search" [ref=e824]:
+      - generic [ref=e825]:
+        - generic [ref=e826]: Symbol search
+        - button "Close menu" [ref=e828]
+      - generic [ref=e835]:
+        - searchbox "Symbol, ISIN, or CUSIP" [active] [ref=e839]: ES1!
+        - generic [ref=e840]:
+          - button "Clear" [ref=e841]
+          - separator [ref=e845]
+          - button "Show spread operators" [ref=e846]
+      - tablist [ref=e852]:
+        - tab "All" [ref=e853]
+        - tab "Stocks" [ref=e855]
+        - tab "Funds" [ref=e857]
+        - tab "Futures" [selected] [ref=e859]
+        - tab "Forex" [ref=e861]
+        - tab "Crypto" [ref=e863]
+        - tab "Indices" [ref=e865]
+        - tab "Bonds" [ref=e867]
+        - tab "Economy" [ref=e869]
+        - tab "Options" [ref=e871]
+        - button:
+          - generic: More
+      - generic [ref=e873]:
+        - button "All countries" [ref=e878]
+        - button "All categories" [ref=e892]
+      - generic [ref=e904]:
+        - generic [ref=e905]:
+          - generic [ref=e906]:
+            - generic [ref=e907]: E
+            - generic [ref=e914]:
+              - generic [ref=e915]: ES
+              - generic [ref=e916]: E-mini S&P 500 Futures
+          - generic [ref=e917]:
+            - generic "CME GLOBEX — Chicago Mercantile Exchange Globex" [ref=e920]: CME
+            - button "Collapse" [ref=e926]
+        - generic [ref=e930]:
+          - generic [ref=e933]:
+            - emphasis [ref=e936]: ES1!
+            - generic [ref=e937]: E-mini S&P 500 Futures
+          - generic "CME GLOBEX — Chicago Mercantile Exchange Globex" [ref=e941]: CME
+        - generic [ref=e946]:
+          - generic [ref=e947]:
+            - generic [ref=e948]: E
+            - generic [ref=e955]:
+              - generic [ref=e956]: ES
+              - generic [ref=e957]: SA Base Load Month Electricity Futures
+          - generic [ref=e958]:
+            - generic [ref=e959]: ASX24
+            - button "Expand" [ref=e967]
+      - generic [ref=e971]: Search using ISIN and CUSIP codes

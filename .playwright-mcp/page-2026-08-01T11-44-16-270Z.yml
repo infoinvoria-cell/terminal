@@ -1,0 +1,2782 @@
+- generic [active] [ref=e1]:
+  - button [ref=e4]
+  - generic [ref=e6]:
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - button "Menü öffnen" [ref=e10] [cursor=pointer]
+        - link "TradingView Hauptseite" [ref=e14] [cursor=pointer]:
+          - /url: /
+      - button "Suche" [ref=e23]
+      - button "User-Menü öffnen" [ref=e27] [cursor=pointer]
+    - main "Hauptinhalt" [ref=e29]:
+      - generic [ref=e32]:
+        - generic [ref=e33]:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - tablist:
+                        - tab "Deutsche Aktien" [selected]
+                        - tab "Krypto"
+                        - tab "Futures"
+                        - tab "Devisen"
+                        - tab "Ökonomie"
+                        - tab "Broker"
+        - generic [ref=e34]:
+          - generic [ref=e36]:
+            - link [ref=e41] [cursor=pointer]:
+              - /url: /markets/
+              - heading [level=2] [ref=e42]
+            - generic [ref=e48]:
+              - generic [ref=e51]:
+                - generic [ref=e54]:
+                  - generic [ref=e56]:
+                    - generic [ref=e58]:
+                      - link "DAX DAX" [ref=e59] [cursor=pointer]:
+                        - /url: /symbols/XETR-DAX/
+                        - generic [ref=e60]: DAX
+                        - generic [ref=e61]: DAX
+                      - button [ref=e62]:
+                        - button "Markt ist geschlossen" [ref=e64]
+                    - generic [ref=e68]:
+                      - generic [ref=e69]:
+                        - generic [ref=e70]: 25.629,24
+                        - generic [ref=e71]:
+                          - generic "Kurse sind um 15 Minuten verzögert" [ref=e72]: D
+                          - generic [ref=e73]: POINT
+                      - generic [ref=e74]: +0,07%
+                  - table [ref=e80]:
+                    - row [ref=e81]:
+                      - cell
+                      - cell [ref=e82]
+                      - cell
+                    - row [ref=e86]:
+                      - cell
+                      - cell [ref=e87]
+                      - cell
+                - generic [ref=e91]:
+                  - generic [ref=e92]: Große Indizes
+                  - list [ref=e94]:
+                    - listitem [ref=e95]:
+                      - generic [ref=e97]:
+                        - link "SDAX D" [ref=e99] [cursor=pointer]:
+                          - /url: /symbols/XETR-SDXK/
+                          - generic [ref=e100]:
+                            - generic [ref=e101]: SDAX
+                            - generic [ref=e102]:
+                              - generic "Kurse sind um 15 Minuten verzögert" [ref=e103]: D
+                              - generic "Markt ist geschlossen" [ref=e104]
+                        - generic [ref=e106]: SDXK
+                        - generic [ref=e108]:
+                          - generic [ref=e109]:
+                            - generic [ref=e110]: 7.579,74
+                            - generic [ref=e111]: POINT
+                          - generic [ref=e112]: −0,86%
+                    - listitem [ref=e113]:
+                      - generic [ref=e115]:
+                        - link "S&P 500 D" [ref=e117] [cursor=pointer]:
+                          - /url: /symbols/SPX/?exchange=SP
+                          - generic [ref=e118]:
+                            - generic [ref=e119]: S&P 500
+                            - generic [ref=e120]:
+                              - generic "Kurse sind um 10 Minuten verzögert" [ref=e121]: D
+                              - generic "Markt ist geschlossen" [ref=e122]
+                        - generic [ref=e124]: SPX
+                        - generic [ref=e126]:
+                          - generic [ref=e127]:
+                            - generic [ref=e128]: 7.489,72
+                            - generic [ref=e129]: POINT
+                          - generic [ref=e130]: +0,70%
+                    - listitem [ref=e131]:
+                      - generic [ref=e133]:
+                        - link "Nasdaq 100 D" [ref=e135] [cursor=pointer]:
+                          - /url: /symbols/NASDAQ-NDX/
+                          - generic [ref=e136]:
+                            - generic [ref=e137]: Nasdaq 100
+                            - generic [ref=e138]:
+                              - generic "Kurse sind um 15 Minuten verzögert" [ref=e139]: D
+                              - generic "Markt ist geschlossen" [ref=e140]
+                        - generic [ref=e142]: NDX
+                        - generic [ref=e144]:
+                          - generic [ref=e145]:
+                            - generic [ref=e146]: 28.274,20
+                            - generic [ref=e147]: POINT
+                          - generic [ref=e148]: +0,60%
+                    - listitem [ref=e149]:
+                      - generic [ref=e151]:
+                        - link "Japan 225" [ref=e153] [cursor=pointer]:
+                          - /url: /symbols/TVC-NI225/
+                          - generic [ref=e154]:
+                            - generic [ref=e155]: Japan 225
+                            - generic "Markt ist geschlossen" [ref=e157]
+                        - generic [ref=e159]: NI225
+                        - generic [ref=e161]:
+                          - generic [ref=e162]:
+                            - generic [ref=e163]: 64.361,80
+                            - generic [ref=e164]: JPY
+                          - generic [ref=e165]: +4,03%
+                    - listitem [ref=e166]:
+                      - generic [ref=e168]:
+                        - link "SSE Composite D" [ref=e170] [cursor=pointer]:
+                          - /url: /symbols/SSE-000001/
+                          - generic [ref=e171]:
+                            - generic [ref=e172]: SSE Composite
+                            - generic [ref=e173]:
+                              - generic "Kurse sind um 15 Minuten verzögert" [ref=e174]: D
+                              - generic "Markt ist geschlossen" [ref=e175]
+                        - generic [ref=e177]: "000001"
+                        - generic [ref=e179]:
+                          - generic [ref=e180]:
+                            - generic [ref=e181]: 3.832,2624
+                            - generic [ref=e182]: POINT
+                          - generic [ref=e183]: +0,72%
+                    - listitem [ref=e184]:
+                      - generic [ref=e186]:
+                        - link "FTSE 100 D" [ref=e188] [cursor=pointer]:
+                          - /url: /symbols/FTSE-UKX/
+                          - generic [ref=e189]:
+                            - generic [ref=e190]: FTSE 100
+                            - generic [ref=e191]:
+                              - generic "Kurse sind um 15 Minuten verzögert" [ref=e192]: D
+                              - generic "Markt ist geschlossen" [ref=e193]
+                        - generic [ref=e195]: UKX
+                        - generic [ref=e197]:
+                          - generic [ref=e198]:
+                            - generic [ref=e199]: 10.868,05
+                            - generic [ref=e200]: POINT
+                          - generic [ref=e201]: −0,27%
+                  - link [ref=e202] [cursor=pointer]:
+                    - /url: /markets/indices/quotes-major/
+                    - generic [ref=e205]:
+                      - text: Ansicht aller großen
+                      - generic [ref=e206]: Indizes
+                - generic [ref=e211]:
+                  - generic [ref=e216]:
+                    - link "Krypto-Marktkapitalisierung TOTAL" [ref=e218] [cursor=pointer]:
+                      - /url: /symbols/TOTAL/?exchange=CRYPTOCAP
+                      - generic [ref=e219]: Krypto-Marktkapitalisierung
+                      - generic [ref=e220]: TOTAL
+                    - generic [ref=e221]:
+                      - generic [ref=e222]:
+                        - generic [ref=e223]: 2,14 T
+                        - generic [ref=e224]: USD
+                      - generic [ref=e225]: +4,28%
+                    - table [ref=e230]:
+                      - row [ref=e231]:
+                        - cell
+                        - cell [ref=e232]
+                        - cell
+                    - generic [ref=e236]: 1 Monat
+                  - link "Bitcoin-Dominanz Bitcoin 59,00% Ethereum 10,50% Sonstige 30,49%" [ref=e237] [cursor=pointer]:
+                    - /url: /markets/cryptocurrencies/dominance
+                    - generic [ref=e238]:
+                      - generic [ref=e239]: Bitcoin-Dominanz
+                      - generic [ref=e241]:
+                        - generic [ref=e242]:
+                          - generic [ref=e243]: Bitcoin
+                          - generic [ref=e246]: 59,00%
+                        - generic [ref=e247]:
+                          - generic [ref=e248]: Ethereum
+                          - generic [ref=e251]: 10,50%
+                        - generic [ref=e252]:
+                          - generic [ref=e253]: Sonstige
+                          - generic [ref=e256]: 30,49%
+                  - list [ref=e261]:
+                    - listitem [ref=e262]:
+                      - generic [ref=e264]:
+                        - link "Bitcoin" [ref=e266] [cursor=pointer]:
+                          - /url: /symbols/BTCUSD/?exchange=BITSTAMP
+                        - generic [ref=e270]: BTCUSD
+                        - generic [ref=e272]:
+                          - generic [ref=e273]:
+                            - generic [ref=e274]: "63.011"
+                            - generic [ref=e275]: USD
+                          - generic [ref=e276]: +0,31%
+                    - listitem [ref=e277]:
+                      - generic [ref=e279]:
+                        - link "Ethereum" [ref=e281] [cursor=pointer]:
+                          - /url: /symbols/ETHUSD/?exchange=BITSTAMP
+                        - generic [ref=e285]: ETHUSD
+                        - generic [ref=e287]:
+                          - generic [ref=e288]:
+                            - generic [ref=e289]: 1.865,0
+                            - generic [ref=e290]: USD
+                          - generic [ref=e291]: +0,23%
+                  - link [ref=e292] [cursor=pointer]:
+                    - /url: /markets/cryptocurrencies/prices-all/
+                    - generic [ref=e295]:
+                      - text: Ansicht aller
+                      - generic [ref=e296]: Krypto-Coins
+                - generic [ref=e301]:
+                  - generic [ref=e306]:
+                    - link "Euro-Index EXY" [ref=e308] [cursor=pointer]:
+                      - /url: /symbols/TVC-EXY/
+                      - generic [ref=e309]: Euro-Index
+                      - generic [ref=e310]: EXY
+                    - generic [ref=e311]:
+                      - generic [ref=e312]:
+                        - generic [ref=e313]: 115,29
+                        - generic [ref=e314]: USD
+                      - generic [ref=e315]: +1,26%
+                    - table [ref=e320]:
+                      - row [ref=e321]:
+                        - cell
+                        - cell [ref=e322]
+                        - cell
+                    - generic [ref=e326]: 1 Monat
+                  - list [ref=e327]:
+                    - listitem [ref=e328]:
+                      - generic [ref=e330]:
+                        - link "Leicht-Rohöl D" [ref=e332] [cursor=pointer]:
+                          - /url: /symbols/NYMEX-CL1!/
+                          - generic [ref=e333]:
+                            - generic [ref=e334]: Leicht-Rohöl
+                            - generic [ref=e335]:
+                              - generic "Kurse sind um 10 Minuten verzögert" [ref=e336]: D
+                              - generic "Markt ist geschlossen" [ref=e337]
+                        - generic [ref=e339]: CL1!
+                        - generic [ref=e341]:
+                          - generic [ref=e342]:
+                            - generic [ref=e343]: 84,67
+                            - generic [ref=e344]: USD / Barrel
+                          - generic [ref=e345]: +1,29%
+                    - listitem [ref=e346]:
+                      - generic [ref=e348]:
+                        - link "Erdgas D" [ref=e350] [cursor=pointer]:
+                          - /url: /symbols/NYMEX-NG1!/
+                          - generic [ref=e351]:
+                            - generic [ref=e352]: Erdgas
+                            - generic [ref=e353]:
+                              - generic "Kurse sind um 10 Minuten verzögert" [ref=e354]: D
+                              - generic "Markt ist geschlossen" [ref=e355]
+                        - generic [ref=e357]: NG1!
+                        - generic [ref=e359]:
+                          - generic [ref=e360]:
+                            - generic [ref=e361]: 2,747
+                            - generic [ref=e362]: USD / Million BTUs
+                          - generic [ref=e363]: −0,40%
+                    - listitem [ref=e364]:
+                      - generic [ref=e366]:
+                        - link "Gold D" [ref=e368] [cursor=pointer]:
+                          - /url: /symbols/COMEX-GC1!/
+                          - generic [ref=e369]:
+                            - generic [ref=e370]: Gold
+                            - generic [ref=e371]:
+                              - generic "Kurse sind um 10 Minuten verzögert" [ref=e372]: D
+                              - generic "Markt ist geschlossen" [ref=e373]
+                        - generic [ref=e375]: GC1!
+                        - generic [ref=e377]:
+                          - generic [ref=e378]:
+                            - generic [ref=e379]: 4.107,0
+                            - generic [ref=e380]: USD / Feinunze
+                          - generic [ref=e381]: −1,29%
+                    - listitem [ref=e382]:
+                      - generic [ref=e384]:
+                        - link "Kupfer D" [ref=e386] [cursor=pointer]:
+                          - /url: /symbols/COMEX-HG1!/
+                          - generic [ref=e387]:
+                            - generic [ref=e388]: Kupfer
+                            - generic [ref=e389]:
+                              - generic "Kurse sind um 10 Minuten verzögert" [ref=e390]: D
+                              - generic "Markt ist geschlossen" [ref=e391]
+                        - generic [ref=e393]: HG1!
+                        - generic [ref=e395]:
+                          - generic [ref=e396]:
+                            - generic [ref=e397]: 6,4655
+                            - generic [ref=e398]: USD / Pfund
+                          - generic [ref=e399]: −0,14%
+                  - link [ref=e400] [cursor=pointer]:
+                    - /url: /markets/futures/quotes-all/
+                    - generic [ref=e403]:
+                      - text: Alle Termingeschäfte
+                      - generic [ref=e404]: anzeigen
+                - generic [ref=e409]:
+                  - generic [ref=e414]:
+                    - link "Deutschland 10Y Rendite DE10Y" [ref=e416] [cursor=pointer]:
+                      - /url: /symbols/TVC-DE10Y/
+                      - generic [ref=e417]: Deutschland 10Y Rendite
+                      - generic [ref=e418]: DE10Y
+                    - table [ref=e425]:
+                      - row [ref=e426]:
+                        - cell
+                        - cell [ref=e427]
+                        - cell
+                    - generic [ref=e431]: 1 Monat
+                  - generic [ref=e432]:
+                    - link "Deutschland jährliche Inflationsrate DEIRYY" [ref=e433] [cursor=pointer]:
+                      - /url: /symbols/ECONOMICS-DEIRYY/
+                      - generic [ref=e434]: Deutschland jährliche Inflationsrate
+                      - generic [ref=e435]: DEIRYY
+                    - table [ref=e441]:
+                      - row [ref=e442]:
+                        - cell
+                        - cell [ref=e443]
+                        - cell [ref=e447]
+                      - row [ref=e451]:
+                        - cell
+                        - cell [ref=e452]
+                        - cell [ref=e456]
+                  - link "Eurozone Zinssatz Aktuell 2,4% Prognose — Nächste Veröffentlichung —" [ref=e459] [cursor=pointer]:
+                    - /url: /symbols/ECONOMICS-EUINTR/
+                    - generic [ref=e460]: Eurozone Zinssatz
+                    - generic [ref=e462]:
+                      - generic [ref=e463]:
+                        - generic [ref=e464]: Aktuell
+                        - generic [ref=e465]: 2,4%
+                      - generic [ref=e466]:
+                        - generic [ref=e467]: Prognose
+                        - generic [ref=e468]: —
+                      - generic [ref=e469]:
+                        - generic [ref=e470]: Nächste Veröffentlichung
+                        - generic [ref=e471]: —
+                  - link [ref=e472] [cursor=pointer]:
+                    - /url: /markets/world-economy/countries/germany/
+                    - generic [ref=e475]:
+                      - text: Ansicht aller wirtschaftlichen
+                      - generic [ref=e476]: Indikatoren
+              - generic [ref=e480]:
+                - link [ref=e485] [cursor=pointer]:
+                  - /url: /ideas/
+                  - heading [level=3] [ref=e486]:
+                    - text: Ideen der
+                    - generic [ref=e487]: Community
+                - generic [ref=e492]:
+                  - tablist [ref=e495]:
+                    - tab "Editors' Picks" [selected] [ref=e496]
+                    - tab "Für Sie" [ref=e499]
+                    - tab "Sie folgen" [ref=e502]
+                    - tab "Beliebt" [ref=e505]
+                    - button:
+                      - generic: Mehr
+                  - generic [ref=e510]:
+                    - article [ref=e513]:
+                      - generic [ref=e514]:
+                        - 'link "GOOGL_EW: Nach kurzer Erholung zurück zum März-Tief" [ref=e515] [cursor=pointer]':
+                          - /url: https://de.tradingview.com/chart/GOOGL/VgMYUcQy/
+                        - link "Google hat nach dem Zoll-Sell-Off im April 2025 eine solide Basis in Form eines Leading Diagonal gebaut, aus der es im Juni/Juli 2025 dynamisch ausgebrochen ist und sich in nur 155 Handelstagen bis Februar 2026 verdoppelt hat (klare Zeichen für eine Welle 3). Der Rücksetzer bis Ende März 2026 war in" [ref=e516] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/GOOGL/VgMYUcQy/
+                      - generic [ref=e520]:
+                        - link "Editors' Picks" [ref=e521] [cursor=pointer]:
+                          - /url: /ideas/editors-picks/
+                        - generic:
+                          - link [ref=e522] [cursor=pointer]:
+                            - /url: /symbols/NASDAQ-GOOGL/
+                            - img "NASDAQ:GOOGL" [ref=e523]
+                          - generic "Short" [ref=e524]
+                        - link [ref=e529] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/GOOGL/VgMYUcQy/
+                      - generic [ref=e532]:
+                        - link "von Sideshow83" [ref=e534] [cursor=pointer]:
+                          - /url: /u/Sideshow83/
+                        - time [ref=e537]: vor 3 Stunden
+                    - article [ref=e538]:
+                      - generic [ref=e539]:
+                        - link "GER40 testet Rekordhoch. Jetzt genau hinschauen..." [ref=e540] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/GER40/GYtSPGPn/
+                        - link "Liebe Trader und Investoren, sehr geehrte Damen und Herren, herzlich Willkommen zu einem weiteren Update zum DAX (GER40 CFD) von Pepperstone. Ich analysiere den CFD auf Tagesbasis. Die Schwergewichte Telekom & SAP konnten den DAX anschieben. Zum Monatsultimo schärfen wir in der Analyse nochmals na" [ref=e541] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/GER40/GYtSPGPn/
+                      - generic [ref=e545]:
+                        - link "Editors' Picks" [ref=e547] [cursor=pointer]:
+                          - /url: /ideas/editors-picks/
+                        - link [ref=e548] [cursor=pointer]:
+                          - /url: /symbols/PEPPERSTONE-GER40/
+                          - img "PEPPERSTONE:GER40" [ref=e549]
+                        - link [ref=e550] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/GER40/GYtSPGPn/
+                      - generic [ref=e553]:
+                        - link "von Pepperstone" [ref=e555] [cursor=pointer]:
+                          - /url: /u/Pepperstone/
+                        - time [ref=e558]: vor 22 Stunden
+                    - article [ref=e559]:
+                      - generic [ref=e560]:
+                        - link "31.7.2026 - Amazon, Apple, Meta, Microsoft - GBE Marktcheck" [ref=e561] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/AMZN/9kxghCkB/
+                        - link "Herzlich willkommen zum GBE-Marktcheck! Ich bin Raphael Dreyer, Experte für Charttechnik bei GBE brokers. In diesem Video analysiere ich für dich die aktuell wichtigsten und interessantesten Märkte aus charttechnischer Sicht. In dieser Woche haben Amazon, Apple, Meta und Microsoft ihre aktuellen Qu" [ref=e562] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/AMZN/9kxghCkB/
+                      - generic [ref=e566]:
+                        - link "Editors' Picks" [ref=e567] [cursor=pointer]:
+                          - /url: /ideas/editors-picks/
+                        - link [ref=e568] [cursor=pointer]:
+                          - /url: /symbols/NASDAQ-AMZN/
+                          - img "NASDAQ:AMZN" [ref=e569]
+                        - time [ref=e572]: 15:18
+                        - link [ref=e573] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/AMZN/9kxghCkB/
+                      - generic [ref=e576]:
+                        - link "von GBE brokers" [ref=e578] [cursor=pointer]:
+                          - /url: /u/GBEbrokers/
+                        - time [ref=e581]: Jul 31
+                    - article [ref=e582]:
+                      - generic [ref=e583]:
+                        - 'link "EWA: 1D EUR/USD – Erholung im August? Wohin schlägt Welle C aus?" [ref=e584] [cursor=pointer]':
+                          - /url: https://de.tradingview.com/chart/EURUSD/AVm9yzuC/
+                        - link "🔵EUR/USD🔴 🔵Europa vs Amerika🔴 🔵EUR Kerzen sind Blau🔵 🔴USD Kerzen sind Rot🔴 UP-Date Die Pause des Bären-Expresses (Immer noch im Gange) Erwartung und Prophezeiung -------------------------------------------------------------------------------------- „Wenn das Leben dir Charts gibt, dann zeichne" [ref=e585] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/EURUSD/AVm9yzuC/
+                      - generic [ref=e589]:
+                        - link "Editors' Picks" [ref=e590] [cursor=pointer]:
+                          - /url: /ideas/editors-picks/
+                        - generic:
+                          - link "FX:EURUSD" [ref=e591] [cursor=pointer]:
+                            - /url: /symbols/EURUSD/
+                          - generic "Long" [ref=e593]
+                        - link [ref=e598] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/EURUSD/AVm9yzuC/
+                      - generic [ref=e601]:
+                        - link "von TT136" [ref=e603] [cursor=pointer]:
+                          - /url: /u/TT136/
+                        - time [ref=e606]: Jul 29
+                    - article [ref=e607]:
+                      - generic [ref=e608]:
+                        - link "Xiaomi mit erfolgreichem Turnaround!" [ref=e609] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/1810/qLSDgnak/
+                        - link "Die Aktie von Xiaomi hat die Trendwende genauso wie seit Monaten hier besprochen vollführt. Seit dem Tief vor 5 Wochen ist die Aktie nun fast 50% nach oben gelaufen, was für eine Trendwende spricht. Was nun wichtig sein wird, ist die Überwindung der 200 Tagelinie, die noch etwas über dem Chart verlä" [ref=e610] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/1810/qLSDgnak/
+                      - generic [ref=e614]:
+                        - link "Editors' Picks" [ref=e615] [cursor=pointer]:
+                          - /url: /ideas/editors-picks/
+                        - generic:
+                          - link [ref=e616] [cursor=pointer]:
+                            - /url: /symbols/HKEX-1810/
+                            - img "HKEX:1810" [ref=e617]
+                          - generic "Long" [ref=e618]
+                        - link [ref=e623] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/1810/qLSDgnak/
+                      - generic [ref=e626]:
+                        - link "von Sal575" [ref=e628] [cursor=pointer]:
+                          - /url: /u/Sal575/
+                        - time [ref=e631]: Jul 29
+                    - article [ref=e632]:
+                      - generic [ref=e633]:
+                        - link "$AMD | H4 | Market Structure" [ref=e634] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/AMD/xSfJPvmv/
+                        - link "NASDAQ:AMD | H4 | Market Structure Die übergeordnete H4-Swingstruktur ist bearish. Mit dem Bruch des vorherigen Swing-Lows wurde die Abwärtsstruktur bestätigt. AMD hat inzwischen die aktuelle H4-Demand-Zone erreicht und zeigt dort eine erste Reaktion. Für eine Longidee genügt das Erreichen der Zo" [ref=e635] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/AMD/xSfJPvmv/
+                      - generic [ref=e639]:
+                        - link "Editors' Picks" [ref=e640] [cursor=pointer]:
+                          - /url: /ideas/editors-picks/
+                        - link [ref=e641] [cursor=pointer]:
+                          - /url: /symbols/NASDAQ-AMD/
+                          - img "NASDAQ:AMD" [ref=e642]
+                        - link [ref=e643] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/AMD/xSfJPvmv/
+                      - generic [ref=e646]:
+                        - link "von JoinVestara" [ref=e648] [cursor=pointer]:
+                          - /url: /u/JoinVestara/
+                        - time [ref=e651]: Aktualisiert Jul 30
+                    - article [ref=e652]:
+                      - generic [ref=e653]:
+                        - 'link "Nike (NKE): -78 % in 4,5 Jahren - Just Do It!" [ref=e654] [cursor=pointer]':
+                          - /url: https://de.tradingview.com/chart/NKE/seMlHY39/
+                        - 'link "Ausgangssituation: Die Nike-Aktie gehört zweifelsohne zu den größten Verlierern der letzten Jahre. Die Aktie hat seit seinem Hoch (ca. 180 $) im November 2021 mittlerweile -78 % an Wert verloren und erreichte den bisherigen Tiefpunkt bei 40 $! Die negativen Nachrichten und das schlechte Sentiment" [ref=e655] [cursor=pointer]':
+                          - /url: https://de.tradingview.com/chart/NKE/seMlHY39/
+                      - generic [ref=e659]:
+                        - link "Editors' Picks" [ref=e660] [cursor=pointer]:
+                          - /url: /ideas/editors-picks/
+                        - link [ref=e661] [cursor=pointer]:
+                          - /url: /symbols/NYSE-NKE/
+                          - img "NYSE:NKE" [ref=e662]
+                        - link [ref=e663] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/NKE/seMlHY39/
+                      - generic [ref=e666]:
+                        - link "von Chartklar" [ref=e668] [cursor=pointer]:
+                          - /url: /u/Chartklar/
+                        - time [ref=e671]: Jul 28
+                    - article [ref=e672]:
+                      - generic [ref=e673]:
+                        - link "FED-Zinsentscheid & Core PCE–Wichtigste Börsen-Event der Woche!" [ref=e674] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/GER40/ECgryzor/
+                        - link "Am Mittwoch richtet sich der Blick der Finanzmärkte auf den FED-Zinsentscheid, das FOMC-Statement und die anschließende Pressekonferenz von Kevin Warsh. Bereits einen Tag später folgen mit dem Core PCE – dem wichtigsten Inflationsindikator der US-Notenbank – sowie den US-BIP-Daten die nächsten entsc" [ref=e675] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/GER40/ECgryzor/
+                      - generic [ref=e679]:
+                        - link "Editors' Picks" [ref=e680] [cursor=pointer]:
+                          - /url: /ideas/editors-picks/
+                        - link [ref=e681] [cursor=pointer]:
+                          - /url: /symbols/CAPITALCOM-GER40/
+                          - img "CAPITALCOM:GER40" [ref=e682]
+                        - time [ref=e685]: 20:02
+                        - link [ref=e686] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/GER40/ECgryzor/
+                      - generic [ref=e689]:
+                        - link "von DaxFlow" [ref=e691] [cursor=pointer]:
+                          - /url: /u/DaxFlow/
+                        - time [ref=e694]: Jul 27
+                    - article [ref=e695]:
+                      - generic [ref=e696]:
+                        - link "Kawumm'sche MORGENANALYSE zum Montag, den 27.07.2026" [ref=e697] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/3XJN/6PX6cIvr/
+                        - 'link "Da hatte einer eindeutig am Freitag keine Lust unten weiterzumachen. Guten Morgen :) Marken mit Wichtigkeit und hoher Reaktionsfreundlichkeit für heute und die nächsten Tage sind meiner Meinung nach: 25635, 25460, 25380, 24830, 24420, 24000, 23760, 23450, 23100, 22800, 22600, 22420, 22235, 21988" [ref=e698] [cursor=pointer]':
+                          - /url: https://de.tradingview.com/chart/3XJN/6PX6cIvr/
+                      - generic [ref=e702]:
+                        - link "Editors' Picks" [ref=e703] [cursor=pointer]:
+                          - /url: /ideas/editors-picks/
+                        - link "3" [ref=e704] [cursor=pointer]:
+                          - /url: /symbols/XETR-3XJN/
+                        - link [ref=e706] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/3XJN/6PX6cIvr/
+                      - generic [ref=e709]:
+                        - link "von DrMartin_Kawumm" [ref=e711] [cursor=pointer]:
+                          - /url: /u/DrMartin_Kawumm/
+                        - time [ref=e714]: Jul 26
+                    - article [ref=e715]:
+                      - generic [ref=e716]:
+                        - link "Oracle - Chance oder weiterer Abverkauf vor uns?" [ref=e717] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/ORCL/CUvT1fSk/
+                        - link "Die Oracle Aktie sieht momentan sehr interessant aus. Wir befinden uns in den letzten Zügen der überzyklischen Korrektur (ABC) und sind mitten in der Fibonacci Zielzone. Auch fundamental glänzt das Unternehmen vor allem durch die sehr üppige Eigenkapitalrendite. Das KGV ist zudem ziemlich human bei" [ref=e718] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/ORCL/CUvT1fSk/
+                      - generic [ref=e722]:
+                        - link "Editors' Picks" [ref=e723] [cursor=pointer]:
+                          - /url: /ideas/editors-picks/
+                        - generic:
+                          - link [ref=e724] [cursor=pointer]:
+                            - /url: /symbols/NYSE-ORCL/
+                            - img "NYSE:ORCL" [ref=e725]
+                          - generic "Long" [ref=e726]
+                        - link [ref=e731] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/chart/ORCL/CUvT1fSk/
+                      - generic [ref=e734]:
+                        - link "von Sal575" [ref=e736] [cursor=pointer]:
+                          - /url: /u/Sal575/
+                        - time [ref=e739]: Jul 24
+                    - link [ref=e740] [cursor=pointer]:
+                      - /url: /ideas/editors-picks/
+                      - paragraph [ref=e741]:
+                        - generic [ref=e742]: Alle Editors' Picks Ideen anzeigen
+                    - button [ref=e747]
+              - generic [ref=e754]:
+                - link [ref=e759] [cursor=pointer]:
+                  - /url: /scripts/
+                  - heading [level=3] [ref=e760]:
+                    - text: Indikatoren und
+                    - generic [ref=e761]: Strategien
+                - generic [ref=e766]:
+                  - tablist [ref=e769]:
+                    - tab "Editors' Picks" [selected] [ref=e770]
+                    - tab "Sie folgen" [ref=e773]
+                    - tab "Beliebt" [ref=e776]
+                    - button:
+                      - generic: Mehr
+                  - generic [ref=e781]:
+                    - article [ref=e784]:
+                      - generic [ref=e785]:
+                        - link "Chess" [ref=e786] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/HmMDG0mr-Chess/
+                        - link "Play real, full games of Chess against the computer , live on your chart. The first playable chess on TradingView. 🟩 HIGHLIGHTS ⭐ Genuine independent gameplay - infinite different games possible. ⭐ The computer ranked over 1200 at Blitz across 100+ rated games on a popular online chess webs" [ref=e787] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/HmMDG0mr-Chess/
+                      - generic [ref=e791]:
+                        - link "Editors' Picks" [ref=e792] [cursor=pointer]:
+                          - /url: /scripts/editors-picks/
+                        - generic: Indikator
+                        - link [ref=e795] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/HmMDG0mr-Chess/
+                      - link "von SimpleCryptoLife" [ref=e800] [cursor=pointer]:
+                        - /url: /u/SimpleCryptoLife/
+                    - article [ref=e802]:
+                      - generic [ref=e803]:
+                        - link "Directional Volume Shapes (Zeiierman)" [ref=e804] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/3XE8qqfr-Directional-Volume-Shapes-Zeiierman/
+                        - 'link "█ Overview Directional Volume Shapes (Zeiierman) is a regime-classification oscillator that reframes volume analysis around a different question: not simply “how much volume traded,” but “what statistical shape has directional pressure been forming, and which way is it leaning?” Instead of plot" [ref=e805] [cursor=pointer]':
+                          - /url: https://de.tradingview.com/script/3XE8qqfr-Directional-Volume-Shapes-Zeiierman/
+                      - generic [ref=e809]:
+                        - link "Editors' Picks" [ref=e810] [cursor=pointer]:
+                          - /url: /scripts/editors-picks/
+                        - generic: Indikator
+                        - link [ref=e813] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/3XE8qqfr-Directional-Volume-Shapes-Zeiierman/
+                      - link "von Zeiierman" [ref=e818] [cursor=pointer]:
+                        - /url: /u/Zeiierman/
+                    - article [ref=e820]:
+                      - generic [ref=e821]:
+                        - link "IQ Trend Beams [TradingIQ]" [ref=e822] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/SG7Vk6uH-IQ-Trend-Beams-TradingIQ/
+                        - 'link "🔹 OVERVIEW IQ Trend Beams is a trend assistant that draws your trendlines the way a disciplined chartist would - and then holds them accountable. It maintains two channels, support and resistance , each always showing one working line. A line is born forming : it moves and re-shapes freely," [ref=e823] [cursor=pointer]':
+                          - /url: https://de.tradingview.com/script/SG7Vk6uH-IQ-Trend-Beams-TradingIQ/
+                      - generic [ref=e827]:
+                        - link "Editors' Picks" [ref=e828] [cursor=pointer]:
+                          - /url: /scripts/editors-picks/
+                        - generic: Indikator
+                        - link [ref=e831] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/SG7Vk6uH-IQ-Trend-Beams-TradingIQ/
+                      - link "von Trading-IQ" [ref=e836] [cursor=pointer]:
+                        - /url: /u/Trading-IQ/
+                    - article [ref=e838]:
+                      - generic [ref=e839]:
+                        - link "TASC 2026.08 An Ag Selling Model" [ref=e840] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/VFzCk3HX-TASC-2026-08-An-Ag-Selling-Model/
+                        - link "█ OVERVIEW This strategy implements the \"Ag Selling Model\" as presented by Perry J. Kaufman in the August 2026 edition of the TASC Traders' Tips \"Identifying The Best Price Levels For Selling Commodity Futures\". The article describes a long-hold selling strategy for agricultural commodity future" [ref=e841] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/VFzCk3HX-TASC-2026-08-An-Ag-Selling-Model/
+                      - generic [ref=e845]:
+                        - link "Editors' Picks" [ref=e846] [cursor=pointer]:
+                          - /url: /scripts/editors-picks/
+                        - generic: Strategie
+                        - link [ref=e849] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/VFzCk3HX-TASC-2026-08-An-Ag-Selling-Model/
+                      - link "von PineCodersTASC" [ref=e854] [cursor=pointer]:
+                        - /url: /u/PineCodersTASC/
+                    - article [ref=e856]:
+                      - generic [ref=e857]:
+                        - link "Machine Learning Neural Network Engine" [ref=e858] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/7sKZIrbB-Machine-Learning-Neural-Network-Engine/
+                        - 'link "Machine Learning Neural Network Engine turns complex Daily market behavior into three clear states: LONG, WATCH and CASH. Instead of relying on one fixed trend signal, the indicator combines an adaptive neural network, continuous model validation and an independent crisis detector. The result is a" [ref=e859] [cursor=pointer]':
+                          - /url: https://de.tradingview.com/script/7sKZIrbB-Machine-Learning-Neural-Network-Engine/
+                      - generic [ref=e863]:
+                        - link "Editors' Picks" [ref=e864] [cursor=pointer]:
+                          - /url: /scripts/editors-picks/
+                        - generic: Indikator
+                        - link [ref=e867] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/7sKZIrbB-Machine-Learning-Neural-Network-Engine/
+                      - link "von Julien_Exe" [ref=e872] [cursor=pointer]:
+                        - /url: /u/Julien_Exe/
+                    - article [ref=e874]:
+                      - generic [ref=e875]:
+                        - link "Intrabar Profile [Kioseff Trading]" [ref=e876] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/j38vuAvW-Intrabar-Profile-Kioseff-Trading/
+                        - 'link "Hello Traders! 🔹 Intrabar Profile Intrabar Profile is a lower-timeframe profile tool designed to draw a volume profile or delta profile on each individual candle . Instead of only looking at where a candle opened, closed, wicked, or changed color, this indicator attempts to show: Where did" [ref=e877] [cursor=pointer]':
+                          - /url: https://de.tradingview.com/script/j38vuAvW-Intrabar-Profile-Kioseff-Trading/
+                      - generic [ref=e881]:
+                        - link "Editors' Picks" [ref=e882] [cursor=pointer]:
+                          - /url: /scripts/editors-picks/
+                        - generic: Indikator
+                        - link [ref=e885] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/j38vuAvW-Intrabar-Profile-Kioseff-Trading/
+                      - link "von KioseffTrading" [ref=e890] [cursor=pointer]:
+                        - /url: /u/KioseffTrading/
+                    - article [ref=e892]:
+                      - generic [ref=e893]:
+                        - link "Kinetic Slippage Index (KSI)" [ref=e894] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/CUjAnbtS-Kinetic-Slippage-Index-KSI/
+                        - link "Overview The Kinetic Slippage Index (KSI) is an advanced volume-volatility oscillator designed to measure market efficiency—or the lack thereof. Inspired by order book microstructure and liquidity gaps, KSI calculates the \"cost of price movement.\" It helps traders identify hidden institutional di" [ref=e895] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/CUjAnbtS-Kinetic-Slippage-Index-KSI/
+                      - generic [ref=e899]:
+                        - link "Editors' Picks" [ref=e900] [cursor=pointer]:
+                          - /url: /scripts/editors-picks/
+                        - generic: Indikator
+                        - link [ref=e903] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/CUjAnbtS-Kinetic-Slippage-Index-KSI/
+                      - link "von HPotter" [ref=e908] [cursor=pointer]:
+                        - /url: /u/HPotter/
+                    - article [ref=e910]:
+                      - generic [ref=e911]:
+                        - link "Session Edge Profiler | Flux Charts" [ref=e912] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/T1V41Bl5-Session-Edge-Profiler-Flux-Charts/
+                        - 'link "GENERAL OVERVIEW: The Session Edge Profiler is a statistical dashboard indicator that profiles up to five configurable trading sessions (Asia, London, NY AM, NY Lunch, NY PM by default) across the available completed trading days loaded on the chart. The indicator records each session''s range, volu" [ref=e913] [cursor=pointer]':
+                          - /url: https://de.tradingview.com/script/T1V41Bl5-Session-Edge-Profiler-Flux-Charts/
+                      - generic [ref=e917]:
+                        - link "Editors' Picks" [ref=e918] [cursor=pointer]:
+                          - /url: /scripts/editors-picks/
+                        - generic: Indikator
+                        - link [ref=e921] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/T1V41Bl5-Session-Edge-Profiler-Flux-Charts/
+                      - link "von fluxchart" [ref=e926] [cursor=pointer]:
+                        - /url: /u/fluxchart/
+                    - article [ref=e928]:
+                      - generic [ref=e929]:
+                        - link "Supertrend Parameter Sensitivity 3D [LuxAlgo]" [ref=e930] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/kSMLs0Hh-Supertrend-Parameter-Sensitivity-3D-LuxAlgo/
+                        - link "The Supertrend Parameter Sensitivity 3D indicator is a powerful optimization tool that executes 100 simultaneous Supertrend backtests bar-by-bar to visualize how different ATR Lengths and Multipliers impact performance across various metrics. By projecting this data onto a 3D surface and a heatm" [ref=e931] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/kSMLs0Hh-Supertrend-Parameter-Sensitivity-3D-LuxAlgo/
+                      - generic [ref=e935]:
+                        - link "Editors' Picks" [ref=e936] [cursor=pointer]:
+                          - /url: /scripts/editors-picks/
+                        - generic: Indikator
+                        - link [ref=e939] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/kSMLs0Hh-Supertrend-Parameter-Sensitivity-3D-LuxAlgo/
+                      - link "von LuxAlgo" [ref=e944] [cursor=pointer]:
+                        - /url: /u/LuxAlgo/
+                    - article [ref=e946]:
+                      - generic [ref=e947]:
+                        - link "ExprLib" [ref=e948] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/QNGQtaZJ-ExprLib/
+                        - 'link "ExprLib is a library for parsing and evaluating string expressions. It allows scripts to expose configurable logic by letting users define custom conditions and calculations based on available data. █ KEY FEATURES • Rich expression support: • Built-in constants (e.g., `10`, `2.5`, `5e-2`," [ref=e949] [cursor=pointer]':
+                          - /url: https://de.tradingview.com/script/QNGQtaZJ-ExprLib/
+                      - generic [ref=e953]:
+                        - link "Editors' Picks" [ref=e954] [cursor=pointer]:
+                          - /url: /scripts/editors-picks/
+                        - generic: Bibliothek
+                        - link [ref=e957] [cursor=pointer]:
+                          - /url: https://de.tradingview.com/script/QNGQtaZJ-ExprLib/
+                      - link "von A1trdX" [ref=e962] [cursor=pointer]:
+                        - /url: /u/A1trdX/
+                    - link [ref=e964] [cursor=pointer]:
+                      - /url: /scripts/editors-picks/
+                      - paragraph [ref=e965]:
+                        - generic [ref=e966]: Ansicht aller Indikatoren und Strategien
+                    - button [ref=e971]
+          - generic [ref=e979]:
+            - link [ref=e985] [cursor=pointer]:
+              - /url: /markets/stocks-germany/
+              - heading [level=2] [ref=e986]:
+                - text: Deutsche
+                - generic [ref=e987]: Aktien
+            - generic [ref=e992]:
+              - generic [ref=e993]:
+                - heading "Community-Trends" [level=3] [ref=e998]
+                - generic [ref=e1001]:
+                  - link "MRK Merck KGaA" [ref=e1007] [cursor=pointer]:
+                    - /url: /symbols/XETR-MRK/
+                    - generic [ref=e1008]: MRK
+                    - generic [ref=e1011]: Merck KGaA
+                  - link "LHA Deutsche Lufthansa AG" [ref=e1016] [cursor=pointer]:
+                    - /url: /symbols/XETR-LHA/
+                    - generic [ref=e1017]: LHA
+                    - generic [ref=e1020]: Deutsche Lufthansa AG
+                  - link "CBK Commerzbank AG" [ref=e1025] [cursor=pointer]:
+                    - /url: /symbols/XETR-CBK/
+                    - generic [ref=e1026]: CBK
+                    - generic [ref=e1029]: Commerzbank AG
+                  - link "AIXA AIXTRON SE" [ref=e1034] [cursor=pointer]:
+                    - /url: /symbols/XETR-AIXA/
+                    - generic [ref=e1035]: AIXA
+                    - generic [ref=e1038]: AIXTRON SE
+                  - link "BAS BASF SE" [ref=e1043] [cursor=pointer]:
+                    - /url: /symbols/XETR-BAS/
+                    - generic [ref=e1044]: BAS
+                    - generic [ref=e1047]: BASF SE
+                  - link "EOAN E.ON SE" [ref=e1052] [cursor=pointer]:
+                    - /url: /symbols/XETR-EOAN/
+                    - generic [ref=e1053]: EOAN
+                    - generic [ref=e1056]: E.ON SE
+                  - link "MUV2 Munchener Ruckversicherungs-Gesellschaft AG" [ref=e1061] [cursor=pointer]:
+                    - /url: /symbols/XETR-MUV2/
+                    - generic [ref=e1062]: MUV2
+                    - generic [ref=e1065]: Munchener Ruckversicherungs-Gesellschaft AG
+                  - link "DBK Deutsche Bank Aktiengesellschaft" [ref=e1070] [cursor=pointer]:
+                    - /url: /symbols/XETR-DBK/
+                    - generic [ref=e1071]: DBK
+                    - generic [ref=e1074]: Deutsche Bank Aktiengesellschaft
+                  - link "TKA thyssenkrupp AG" [ref=e1079] [cursor=pointer]:
+                    - /url: /symbols/XETR-TKA/
+                    - generic [ref=e1080]: TKA
+                    - generic [ref=e1083]: thyssenkrupp AG
+                  - link "NEM Nemetschek SE" [ref=e1088] [cursor=pointer]:
+                    - /url: /symbols/XETR-NEM/
+                    - generic [ref=e1089]: NEM
+                    - generic [ref=e1092]: Nemetschek SE
+                  - button [ref=e1094]
+              - generic [ref=e1100]:
+                - link [ref=e1105] [cursor=pointer]:
+                  - /url: /markets/stocks-germany/ideas/
+                  - heading [level=3] [ref=e1106]:
+                    - text: Trading
+                    - generic [ref=e1107]: Ideen
+                - generic [ref=e1115]:
+                  - article [ref=e1118]:
+                    - generic [ref=e1119]:
+                      - 'link "Infineon: Korrektur nähert sich dem Ende" [ref=e1120] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/IFX/Nz0kA3t7/
+                      - link "Die Aktie vom deutschen Halbleiterunternehmen Infineon baut gerade eine Welle 4 Korrektur aus. Insgesamt sehe ich das Unternehmen sehr positiv - wird sehr stark unterschätzt und in Deutschland reden nur sehr Wenige über diesen Konzern, völlig zu Unrecht. Die Fibonacci-Zone für eine klassische Well" [ref=e1121] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/IFX/Nz0kA3t7/
+                    - generic [ref=e1125]:
+                      - generic:
+                        - link [ref=e1126] [cursor=pointer]:
+                          - /url: /symbols/XETR-IFX/
+                          - img "XETR:IFX" [ref=e1127]
+                        - generic "Long" [ref=e1128]
+                      - link [ref=e1133] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/IFX/Nz0kA3t7/
+                    - generic [ref=e1136]:
+                      - link "von Sal575" [ref=e1138] [cursor=pointer]:
+                        - /url: /u/Sal575/
+                      - time [ref=e1141]: vor 15 Stunden
+                  - article [ref=e1142]:
+                    - generic [ref=e1143]:
+                      - link "Deutsche Lufthansa. Halbierung? Wehe.." [ref=e1144] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/LHA/fZgYYUdS/
+                      - link "Ein wirklich krasser Keil im Monatschart. Bei Kursen um 8 Euro wäre ich sehr vorsichtig. Bzw. ich überlege short. Für Infos in kleineren Zeiteinheiten einfach mein noch kostenloses Skript runterladen. Viel Erfolg ." [ref=e1145] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/LHA/fZgYYUdS/
+                    - generic [ref=e1149]:
+                      - generic:
+                        - link [ref=e1150] [cursor=pointer]:
+                          - /url: /symbols/XETR-LHA/
+                          - img "XETR:LHA" [ref=e1151]
+                        - generic "Short" [ref=e1152]
+                      - link [ref=e1157] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/LHA/fZgYYUdS/
+                    - generic [ref=e1160]:
+                      - link "von thewolvetrading" [ref=e1162] [cursor=pointer]:
+                        - /url: /u/thewolvetrading/
+                      - time [ref=e1165]: Jul 30
+                  - article [ref=e1166]:
+                    - generic [ref=e1167]:
+                      - link "BASF - Rücksetzer als Chance?" [ref=e1168] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BAS/anFUtHno/
+                      - link "Von 55€ Mitte April ist die Aktie von BASF zwischenzeitlich auf 46€ gefallen und damit auch unter den EMA200 im 1D. Dieser konnte nun wieder zurückerobert werden, wenn auch nur knapp. Auch der korrektive Abwärtstrend konnte beendet werden. Über 50€ wird eine inverse SKS abgeschlossen, aus der ein Zi" [ref=e1169] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BAS/anFUtHno/
+                    - generic [ref=e1173]:
+                      - generic:
+                        - link [ref=e1174] [cursor=pointer]:
+                          - /url: /symbols/XETR-BAS/
+                          - img "XETR:BAS" [ref=e1175]
+                        - generic "Long" [ref=e1176]
+                      - link [ref=e1181] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BAS/anFUtHno/
+                    - generic [ref=e1184]:
+                      - link "von BonsaiSplinter" [ref=e1186] [cursor=pointer]:
+                        - /url: /u/BonsaiSplinter/
+                      - time [ref=e1189]: Jul 21
+                  - article [ref=e1190]:
+                    - generic [ref=e1191]:
+                      - link "Rheinmetall – Korrektur bald abgeschlossen?" [ref=e1192] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/RHM/5izn18Uu/
+                      - link "XETR:RHM – Korrektur bald abgeschlossen? 📉👀 Nach der starken Rally befindet sich Rheinmetall mittlerweile in einer deutlichen Korrektur. Der Kurs ist jetzt in einem Bereich angekommen, den ich für besonders interessant halte. In meiner Chartanalyse liegt die entscheidende Zone zwischen 770 und" [ref=e1193] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/RHM/5izn18Uu/
+                    - generic [ref=e1197]:
+                      - generic:
+                        - link [ref=e1198] [cursor=pointer]:
+                          - /url: /symbols/XETR-RHM/
+                          - img "XETR:RHM" [ref=e1199]
+                        - generic "Long" [ref=e1200]
+                      - link [ref=e1205] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/RHM/5izn18Uu/
+                    - generic [ref=e1208]:
+                      - link "von CMSystem" [ref=e1210] [cursor=pointer]:
+                        - /url: /u/CMSystem/
+                      - time [ref=e1213]: Jul 15
+                  - article [ref=e1214]:
+                    - generic [ref=e1215]:
+                      - link "Sixt- ABC leider nicht aufgegangen sondern Versuch abgewürgt" [ref=e1216] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/SIX2/0V7HIlUD/
+                      - link "@jenaparadies und andere Interessenten Großwetterlage also der Tages chart aktiv. Ich bitte um Entschuldigung dass ich die ABC Situation nicht besser präzisiert habe. Die ABC hielt ich für gut möglich wegen der roten Linie bei 86. ganz links sieht man, das ist der nächste Anlaufpunkt wenn 76 gekna" [ref=e1217] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/SIX2/0V7HIlUD/
+                    - generic [ref=e1221]:
+                      - link [ref=e1222] [cursor=pointer]:
+                        - /url: /symbols/XETR-SIX2/
+                        - img "XETR:SIX2" [ref=e1223]
+                      - link [ref=e1224] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/SIX2/0V7HIlUD/
+                    - generic [ref=e1227]:
+                      - link "von miracculix" [ref=e1229] [cursor=pointer]:
+                        - /url: /u/miracculix/
+                      - time [ref=e1232]: Aktualisiert Jul 15
+                  - article [ref=e1233]:
+                    - generic [ref=e1234]:
+                      - link "Bayer Aktie im Vordergrund" [ref=e1235] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BAYN/O1dWoKwa/
+                      - link "Die Aktien von Bayer stiegen stark nach der Ankündigung der Gründung von Ruveon, einer neuen Gesellschaft, die ihr US-Glyphosat-Geschäft bündeln wird und für die Marke Roundup verantwortlich ist. Dieser Schritt fällt mit einer erheblichen Erleichterung auf richterlicher Ebene zusammen, nachdem der O" [ref=e1236] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BAYN/O1dWoKwa/
+                    - generic [ref=e1240]:
+                      - link [ref=e1242] [cursor=pointer]:
+                        - /url: /symbols/XETR-BAYN/
+                        - img "XETR:BAYN" [ref=e1243]
+                      - link [ref=e1244] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BAYN/O1dWoKwa/
+                    - generic [ref=e1247]:
+                      - link "von ActivTrades" [ref=e1249] [cursor=pointer]:
+                        - /url: /u/ActivTrades/
+                      - time [ref=e1252]: Jul 3
+                  - article [ref=e1253]:
+                    - generic [ref=e1254]:
+                      - link "BMW BAYRISCHE MOTOREN WERKE AKTIEN SAUGEN DER KABALE 112,84" [ref=e1255] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BMW/yXXcOgUO/
+                      - link "an alle mitarbeitenden bei bmw seht in dem video wie eure leistung BLUT UND SCHWEISS entropisch ABGESAUGT wird innovationen mitarbeiter anständig zu bezahlen lässt die kabale nicht zu und deren vertreter die politiker die den krempel euch verkaufen als zufall sowas von falsch und gelogen IST und je" [ref=e1256] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BMW/yXXcOgUO/
+                    - generic [ref=e1260]:
+                      - link [ref=e1261] [cursor=pointer]:
+                        - /url: /symbols/XETR-BMW/
+                        - img "XETR:BMW" [ref=e1262]
+                      - time [ref=e1265]: 20:00
+                      - link [ref=e1266] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BMW/yXXcOgUO/
+                    - generic [ref=e1269]:
+                      - link "von PREDIKTIONS_RESONANZ_INSTITUT" [ref=e1271] [cursor=pointer]:
+                        - /url: /u/PREDIKTIONS_RESONANZ_INSTITUT/
+                      - time [ref=e1274]: Jun 29
+                  - article [ref=e1275]:
+                    - generic [ref=e1276]:
+                      - link "HelloFresh weiterhin unbeliebt" [ref=e1277] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/HFG/9IZoxQUj/
+                      - link "Hallo, hier mal ein kurzes Update zu HelloFresh. Auch wenn die Kurslage von Juli 2024 bis Anfang 2025 zeitweise wieder ganz gut ausgeschaut hat, sehe ich eigentlich aktuell nur bärisches Momentum. Fundamental fehlt ebenfalls jeglicher positiver Impuls, HelloFresh schreibt Verlust, das KGV ist weit" [ref=e1278] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/HFG/9IZoxQUj/
+                    - generic [ref=e1282]:
+                      - link [ref=e1283] [cursor=pointer]:
+                        - /url: /symbols/XETR-HFG/
+                        - img "XETR:HFG" [ref=e1284]
+                      - link [ref=e1285] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/HFG/9IZoxQUj/
+                    - generic [ref=e1288]:
+                      - link "von jenaparadies" [ref=e1290] [cursor=pointer]:
+                        - /url: /u/jenaparadies/
+                      - time [ref=e1293]: Jun 26
+                  - article [ref=e1294]:
+                    - generic [ref=e1295]:
+                      - link "TELEKOM verliert 25 %. Strategischer Support jetzt im Fokus." [ref=e1296] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/DTE/ctM7uE5p/
+                      - link "Liebe Trader und Investoren, sehr geehrte Damen und Herren, herzlich Willkommen zu einem weiteren Update zur Deutsche Telekom AG (DTED.DE) von Pepperstone. Ich analysiere die Aktie im Wochenchart. Seit meinem letzten Update konnte das DAX-Schwergewicht den Widerstand um 34 Euro nicht überwinden." [ref=e1297] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/DTE/ctM7uE5p/
+                    - generic [ref=e1301]:
+                      - link [ref=e1303] [cursor=pointer]:
+                        - /url: /symbols/XETR-DTE/
+                        - img "XETR:DTE" [ref=e1304]
+                      - link [ref=e1305] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/DTE/ctM7uE5p/
+                    - generic [ref=e1308]:
+                      - link "von Pepperstone" [ref=e1310] [cursor=pointer]:
+                        - /url: /u/Pepperstone/
+                      - time [ref=e1313]: Jun 25
+                  - article [ref=e1314]:
+                    - generic [ref=e1315]:
+                      - link "SMA Solar mit Wideraufnahme des Aufwärtstrends" [ref=e1316] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/S92/b48aB0pO/
+                      - 'link "Aus technischer Sicht hat sich das Chartbild von SMA Solar Technology in den letzten Handelstagen deutlich aufgehellt. Bullische Faktoren: Das Tief vom 11. Juni bei 46,48 Euro markiert bislang einen sauberen Wendepunkt. Seitdem läuft ein intakter Aufwärtstrend im 4 Stunden Chart mit steigenden Ho" [ref=e1317] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/S92/b48aB0pO/
+                    - generic [ref=e1321]:
+                      - generic:
+                        - link [ref=e1322] [cursor=pointer]:
+                          - /url: /symbols/TRADEGATE-S92/
+                          - img "TRADEGATE:S92" [ref=e1323]
+                        - generic "Long" [ref=e1324]
+                      - link [ref=e1329] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/S92/b48aB0pO/
+                    - generic [ref=e1332]:
+                      - link "von geldkatze" [ref=e1334] [cursor=pointer]:
+                        - /url: /u/geldkatze/
+                      - time [ref=e1337]: Jun 19
+                  - link [ref=e1338] [cursor=pointer]:
+                    - /url: /markets/stocks-germany/ideas/
+                    - paragraph [ref=e1339]:
+                      - generic [ref=e1340]: Alle Aktien-Ideen anzeigen
+                  - button [ref=e1345]
+              - generic [ref=e1354]:
+                - generic [ref=e1355]:
+                  - link [ref=e1360] [cursor=pointer]:
+                    - /url: /markets/stocks-germany/market-movers-active/
+                    - heading [level=3] [ref=e1361]:
+                      - text: Aktien mit den höchsten
+                      - generic [ref=e1362]: Volumen
+                  - generic [ref=e1368]:
+                    - generic [ref=e1370]:
+                      - link "SAP SE" [ref=e1372] [cursor=pointer]:
+                        - /url: /symbols/XETR-SAP/
+                      - generic [ref=e1376]: SAP
+                    - generic [ref=e1381]:
+                      - link "Infineon Technologies AG" [ref=e1383] [cursor=pointer]:
+                        - /url: /symbols/XETR-IFX/
+                      - generic [ref=e1387]: IFX
+                    - generic [ref=e1392]:
+                      - link "Siemens Energy AG" [ref=e1394] [cursor=pointer]:
+                        - /url: /symbols/XETR-ENR/
+                      - generic [ref=e1398]: ENR
+                    - generic [ref=e1403]:
+                      - link "Siemens AG" [ref=e1405] [cursor=pointer]:
+                        - /url: /symbols/XETR-SIE/
+                      - generic [ref=e1409]: SIE
+                    - generic [ref=e1414]:
+                      - link "adidas AG" [ref=e1416] [cursor=pointer]:
+                        - /url: /symbols/XETR-ADS/
+                      - generic [ref=e1420]: ADS
+                    - generic [ref=e1425]:
+                      - link "Allianz SE" [ref=e1427] [cursor=pointer]:
+                        - /url: /symbols/XETR-ALV/
+                      - generic [ref=e1431]: ALV
+                  - link [ref=e1437] [cursor=pointer]:
+                    - /url: /markets/stocks-germany/market-movers-active/
+                    - generic [ref=e1440]:
+                      - text: Ansicht der am aktivsten gehandelten
+                      - generic [ref=e1441]: Aktien
+                - generic [ref=e1445]:
+                  - link [ref=e1450] [cursor=pointer]:
+                    - /url: /markets/stocks-germany/market-movers-most-volatile/
+                    - heading [level=3] [ref=e1451]:
+                      - text: Die volatilsten
+                      - generic [ref=e1452]: Aktien
+                  - generic [ref=e1458]:
+                    - generic [ref=e1460]:
+                      - link "Marley Spoon Group SE" [ref=e1462] [cursor=pointer]:
+                        - /url: /symbols/XETR-MS1/
+                      - generic [ref=e1466]: MS1
+                    - generic [ref=e1471]:
+                      - link "VIDINEXT Ltd" [ref=e1473] [cursor=pointer]:
+                        - /url: /symbols/XETR-VXT/
+                      - generic [ref=e1477]: VXT
+                    - generic [ref=e1482]:
+                      - link "medondo holding AG" [ref=e1484] [cursor=pointer]:
+                        - /url: /symbols/XETR-AMI/
+                      - generic [ref=e1488]: AMI
+                    - generic [ref=e1493]:
+                      - link "Gateway Real Estate AG" [ref=e1495] [cursor=pointer]:
+                        - /url: /symbols/XETR-GTY/
+                      - generic [ref=e1499]: GTY
+                    - generic [ref=e1504]:
+                      - link "H2 Core AG" [ref=e1506] [cursor=pointer]:
+                        - /url: /symbols/XETR-M5S/
+                      - generic [ref=e1510]: M5S
+                    - generic [ref=e1515]:
+                      - link "sdm SE" [ref=e1517] [cursor=pointer]:
+                        - /url: /symbols/DUS-75S/
+                      - generic [ref=e1521]: 75S
+                  - link [ref=e1527] [cursor=pointer]:
+                    - /url: /markets/stocks-germany/market-movers-most-volatile/
+                    - generic [ref=e1530]:
+                      - text: Ansicht der Aktien mit den größten
+                      - generic [ref=e1531]: Preisveränderungen
+              - generic [ref=e1537]:
+                - generic [ref=e1538]:
+                  - link [ref=e1543] [cursor=pointer]:
+                    - /url: /markets/stocks-germany/market-movers-gainers/
+                    - heading [level=3] [ref=e1544]
+                  - generic [ref=e1553]:
+                    - strong [ref=e1555]: Keine Gewinner heute
+                    - generic [ref=e1556]: Zurzeit ist nichts zu holen. Düster.
+                  - link [ref=e1559] [cursor=pointer]:
+                    - /url: /markets/stocks-germany/market-movers-gainers/
+                    - generic [ref=e1562]:
+                      - text: Ansicht der Aktien mit dem größten täglichen
+                      - generic [ref=e1563]: Wachstum
+                - generic [ref=e1567]:
+                  - link [ref=e1572] [cursor=pointer]:
+                    - /url: /markets/stocks-germany/market-movers-losers/
+                    - heading [level=3] [ref=e1573]
+                  - generic [ref=e1582]:
+                    - strong [ref=e1584]: Keine Verlierer heute
+                    - generic [ref=e1585]: Allen geht es im Moment gut. Das ist super.
+                  - link [ref=e1588] [cursor=pointer]:
+                    - /url: /markets/stocks-germany/market-movers-losers/
+                    - generic [ref=e1591]:
+                      - text: Ansicht der Aktien mit dem größten täglichen
+                      - generic [ref=e1592]: Preissturz
+              - generic [ref=e1596]:
+                - link [ref=e1601] [cursor=pointer]:
+                  - /url: /earnings-calendar/?countries=de
+                  - heading [level=3] [ref=e1602]
+                - generic [ref=e1609]:
+                  - link "3. Aug. Vor Markteröffnung STM Stabilus SE Aktuell — Geschätzt 2,07 EUR" [ref=e1611] [cursor=pointer]:
+                    - /url: /symbols/XETR-STM/
+                    - generic [ref=e1612]:
+                      - generic "3. Aug. 2026, 07:00 GMT+2" [ref=e1614]: 3. Aug.
+                      - img "Vor Markteröffnung" [ref=e1615]
+                    - generic [ref=e1619]:
+                      - generic [ref=e1620]: STM
+                      - generic [ref=e1621]: Stabilus SE
+                    - generic [ref=e1622]:
+                      - generic [ref=e1623]:
+                        - generic [ref=e1624]: Aktuell
+                        - generic [ref=e1625]: —
+                      - generic [ref=e1627]:
+                        - generic [ref=e1628]: Geschätzt
+                        - generic [ref=e1629]:
+                          - generic [ref=e1630]: 2,07
+                          - generic [ref=e1631]: EUR
+                  - link "3. Aug. SHF SNP Schneider-Neureither & Partner SE Aktuell — Geschätzt —" [ref=e1632] [cursor=pointer]:
+                    - /url: /symbols/XETR-SHF/
+                    - generic "3. Aug. 2026, 14:00 GMT+2" [ref=e1635]: 3. Aug.
+                    - generic [ref=e1637]:
+                      - generic [ref=e1638]: SHF
+                      - generic [ref=e1639]: SNP Schneider-Neureither & Partner SE
+                    - generic [ref=e1640]:
+                      - generic [ref=e1641]:
+                        - generic [ref=e1642]: Aktuell
+                        - generic [ref=e1643]: —
+                      - generic [ref=e1645]:
+                        - generic [ref=e1646]: Geschätzt
+                        - generic [ref=e1647]: —
+                  - link "3. Aug. CSH Cenit AG Aktuell — Geschätzt —" [ref=e1649] [cursor=pointer]:
+                    - /url: /symbols/XETR-CSH/
+                    - generic "3. Aug. 2026, 14:00 GMT+2" [ref=e1652]: 3. Aug.
+                    - generic [ref=e1654]:
+                      - generic [ref=e1655]: CSH
+                      - generic [ref=e1656]: Cenit AG
+                    - generic [ref=e1657]:
+                      - generic [ref=e1658]:
+                        - generic [ref=e1659]: Aktuell
+                        - generic [ref=e1660]: —
+                      - generic [ref=e1662]:
+                        - generic [ref=e1663]: Geschätzt
+                        - generic [ref=e1664]: —
+                  - link "3. Aug. SUR SURTECO GROUP SE Aktuell — Geschätzt —" [ref=e1666] [cursor=pointer]:
+                    - /url: /symbols/XETR-SUR/
+                    - generic "3. Aug. 2026, 14:00 GMT+2" [ref=e1669]: 3. Aug.
+                    - generic [ref=e1671]:
+                      - generic [ref=e1672]: SUR
+                      - generic [ref=e1673]: SURTECO GROUP SE
+                    - generic [ref=e1674]:
+                      - generic [ref=e1675]:
+                        - generic [ref=e1676]: Aktuell
+                        - generic [ref=e1677]: —
+                      - generic [ref=e1679]:
+                        - generic [ref=e1680]: Geschätzt
+                        - generic [ref=e1681]: —
+                  - link "3. Aug. BYW BayWa AG Aktuell — Geschätzt —" [ref=e1683] [cursor=pointer]:
+                    - /url: /symbols/XETR-BYW/
+                    - generic "3. Aug. 2026, 14:00 GMT+2" [ref=e1686]: 3. Aug.
+                    - generic [ref=e1688]:
+                      - generic [ref=e1689]: BYW
+                      - generic [ref=e1690]: BayWa AG
+                    - generic [ref=e1691]:
+                      - generic [ref=e1692]:
+                        - generic [ref=e1693]: Aktuell
+                        - generic [ref=e1694]: —
+                      - generic [ref=e1696]:
+                        - generic [ref=e1697]: Geschätzt
+                        - generic [ref=e1698]: —
+                  - link "3. Aug. NVM Novem Group SA Aktuell — Geschätzt 0,04 EUR" [ref=e1700] [cursor=pointer]:
+                    - /url: /symbols/XETR-NVM/
+                    - generic "3. Aug. 2026, 14:00 GMT+2" [ref=e1703]: 3. Aug.
+                    - generic [ref=e1705]:
+                      - generic [ref=e1706]: NVM
+                      - generic [ref=e1707]: Novem Group SA
+                    - generic [ref=e1708]:
+                      - generic [ref=e1709]:
+                        - generic [ref=e1710]: Aktuell
+                        - generic [ref=e1711]: —
+                      - generic [ref=e1713]:
+                        - generic [ref=e1714]: Geschätzt
+                        - generic [ref=e1715]:
+                          - generic [ref=e1716]: 0,04
+                          - generic [ref=e1717]: EUR
+                  - link "3. Aug. Nach Marktschluss AAD Amadeus FiRe AG Aktuell — Geschätzt —" [ref=e1718] [cursor=pointer]:
+                    - /url: /symbols/XETR-AAD/
+                    - generic [ref=e1719]:
+                      - generic "3. Aug. 2026, 17:30 GMT+2" [ref=e1721]: 3. Aug.
+                      - img "Nach Marktschluss" [ref=e1722]
+                    - generic [ref=e1726]:
+                      - generic [ref=e1727]: AAD
+                      - generic [ref=e1728]: Amadeus FiRe AG
+                    - generic [ref=e1729]:
+                      - generic [ref=e1730]:
+                        - generic [ref=e1731]: Aktuell
+                        - generic [ref=e1732]: —
+                      - generic [ref=e1734]:
+                        - generic [ref=e1735]: Geschätzt
+                        - generic [ref=e1736]: —
+                  - link "4. Aug. Vor Markteröffnung EVK Evonik Industries AG Aktuell — Geschätzt 0,55 EUR" [ref=e1738] [cursor=pointer]:
+                    - /url: /symbols/XETR-EVK/
+                    - generic [ref=e1739]:
+                      - generic "4. Aug. 2026, 07:00 GMT+2" [ref=e1741]: 4. Aug.
+                      - img "Vor Markteröffnung" [ref=e1742]
+                    - generic [ref=e1746]:
+                      - generic [ref=e1747]: EVK
+                      - generic [ref=e1748]: Evonik Industries AG
+                    - generic [ref=e1749]:
+                      - generic [ref=e1750]:
+                        - generic [ref=e1751]: Aktuell
+                        - generic [ref=e1752]: —
+                      - generic [ref=e1754]:
+                        - generic [ref=e1755]: Geschätzt
+                        - generic [ref=e1756]:
+                          - generic [ref=e1757]: 0,55
+                          - generic [ref=e1758]: EUR
+                  - link [ref=e1759] [cursor=pointer]:
+                    - /url: /earnings-calendar/?countries=de
+                    - paragraph [ref=e1760]:
+                      - generic [ref=e1761]: Ansicht weiterer Events
+                  - button [ref=e1766]
+                - link [ref=e1774] [cursor=pointer]:
+                  - /url: /earnings-calendar/?countries=de
+                  - generic [ref=e1777]:
+                    - text: Alle Ereignisse
+                    - generic [ref=e1778]: sehen
+              - generic [ref=e1782]:
+                - link [ref=e1787] [cursor=pointer]:
+                  - /url: /markets/stocks-germany/news/
+                  - heading [level=3] [ref=e1788]:
+                    - text: News für deutsche
+                    - generic [ref=e1789]: Aktien
+                - generic [ref=e1795]:
+                  - link [ref=e1796] [cursor=pointer]:
+                    - /url: /news/dpa_afx:df6c0baa617cd:0/
+                    - article [ref=e1797]:
+                      - generic [ref=e1798]:
+                        - generic [ref=e1799]:
+                          - generic [ref=e1800]:
+                            - generic "1. Aug. 2026, 13:35 MESZ" [ref=e1801]
+                            - text: ·
+                          - generic [ref=e1802]: dpa-AFX
+                        - text: "Nach massivem Widerstand: FIFA gibt Investorenpläne auf"
+                  - link [ref=e1803] [cursor=pointer]:
+                    - /url: /news/dpa_afx:8991afcc6cba0:0/
+                    - article [ref=e1804]:
+                      - generic [ref=e1805]:
+                        - generic [ref=e1806]:
+                          - list [ref=e1807]:
+                            - listitem [ref=e1808]
+                            - listitem [ref=e1809]
+                          - generic [ref=e1810]:
+                            - generic "1. Aug. 2026, 11:02 MESZ" [ref=e1811]
+                            - text: ·
+                          - generic [ref=e1812]: dpa-AFX
+                        - text: KI-Aktienflaute zwang Hedge-Fonds-'Wunderkind' zu Eilverkauf
+                  - link [ref=e1813] [cursor=pointer]:
+                    - /url: /news/eqs:0b52cf513600c:0/
+                    - article [ref=e1814]:
+                      - generic [ref=e1815]:
+                        - generic [ref=e1816]:
+                          - list [ref=e1817]:
+                            - listitem [ref=e1818]
+                          - generic [ref=e1819]:
+                            - generic "31. Juli 2026, 19:55 MESZ" [ref=e1820]
+                            - text: ·
+                          - generic [ref=e1821]: EQS
+                        - text: ABO Energy GmbH & Co. KGaA einigt sich mit Finanzierungspartnern auf Verlängerung der Stillhaltevereinbarung und Fortsetzung des Sanierungskurses
+                  - link [ref=e1822] [cursor=pointer]:
+                    - /url: /news/dpa_afx:5ab17094e44b1:0/
+                    - article [ref=e1823]:
+                      - generic [ref=e1824]:
+                        - generic [ref=e1825]:
+                          - list [ref=e1826]:
+                            - listitem [ref=e1827]
+                            - listitem [ref=e1828]
+                            - listitem [ref=e1829]
+                            - listitem [ref=e1830]
+                          - generic [ref=e1831]:
+                            - generic "31. Juli 2026, 18:14 MESZ" [ref=e1832]
+                            - text: ·
+                          - generic [ref=e1833]: dpa-AFX
+                        - text: "ROUNDUP/Aktien Frankfurt Schluss: Dax leicht im Plus - Deutlicher Wochengewinn"
+                  - link [ref=e1834] [cursor=pointer]:
+                    - /url: /news/eqs:07b1f9f84600c:0/
+                    - article [ref=e1835]:
+                      - generic [ref=e1836]:
+                        - generic [ref=e1837]:
+                          - list [ref=e1838]:
+                            - listitem [ref=e1839]
+                          - generic [ref=e1840]:
+                            - generic "31. Juli 2026, 17:45 MESZ" [ref=e1841]
+                            - text: ·
+                          - generic [ref=e1842]: EQS
+                        - text: "flatexDEGIRO SE: Veröffentlichung gemäß § 40 Abs. 1 WpHG mit dem Ziel der europaweiten Verbreitung"
+                  - text: · · · · · · · · · · · · · · · · · · · ·
+                - link [ref=e1845] [cursor=pointer]:
+                  - /url: /markets/stocks-germany/news/
+          - generic [ref=e1854]:
+            - link [ref=e1859] [cursor=pointer]:
+              - /url: /markets/cryptocurrencies/
+              - heading [level=2] [ref=e1860]
+            - generic [ref=e1866]:
+              - generic [ref=e1867]:
+                - heading "Community-Trends" [level=3] [ref=e1872]
+                - generic [ref=e1875]:
+                  - link "GIGGLEUSDT.P GIGGLE / TetherUS PERPETUAL CONTRACT" [ref=e1881] [cursor=pointer]:
+                    - /url: /symbols/GIGGLEUSDT.P/?exchange=BINANCE
+                    - generic [ref=e1882]: GIGGLEUSDT.P
+                    - generic [ref=e1885]: GIGGLE / TetherUS PERPETUAL CONTRACT
+                  - link "MMTUSDT.P MMT / TetherUS PERPETUAL CONTRACT" [ref=e1890] [cursor=pointer]:
+                    - /url: /symbols/MMTUSDT.P/?exchange=BINANCE
+                    - generic [ref=e1891]: MMTUSDT.P
+                    - generic [ref=e1894]: MMT / TetherUS PERPETUAL CONTRACT
+                  - link "KOMAUSDT.P KOMA / TetherUS PERPETUAL CONTRACT" [ref=e1899] [cursor=pointer]:
+                    - /url: /symbols/KOMAUSDT.P/?exchange=BINANCE
+                    - generic [ref=e1900]: KOMAUSDT.P
+                    - generic [ref=e1903]: KOMA / TetherUS PERPETUAL CONTRACT
+                  - link "PUMPUSDT.P PUMP / TetherUS PERPETUAL CONTRACT" [ref=e1908] [cursor=pointer]:
+                    - /url: /symbols/PUMPUSDT.P/?exchange=BINANCE
+                    - generic [ref=e1909]: PUMPUSDT.P
+                    - generic [ref=e1912]: PUMP / TetherUS PERPETUAL CONTRACT
+                  - link "USDT.D Market Cap USDT Dominance, %" [ref=e1917] [cursor=pointer]:
+                    - /url: /symbols/USDT.D/?exchange=CRYPTOCAP
+                    - generic [ref=e1918]: USDT.D
+                    - generic [ref=e1921]: Market Cap USDT Dominance, %
+                  - link "HYPEUSDT.P HYPE / TetherUS PERPETUAL CONTRACT" [ref=e1926] [cursor=pointer]:
+                    - /url: /symbols/HYPEUSDT.P/?exchange=BINANCE
+                    - generic [ref=e1927]: HYPEUSDT.P
+                    - generic [ref=e1930]: HYPE / TetherUS PERPETUAL CONTRACT
+                  - link "XLMUSDT Stellar / TetherUS" [ref=e1935] [cursor=pointer]:
+                    - /url: /symbols/XLMUSDT/?exchange=BINANCE
+                    - generic [ref=e1936]: XLMUSDT
+                    - generic [ref=e1939]: Stellar / TetherUS
+                  - link "BTC.D Market Cap BTC Dominance, %" [ref=e1944] [cursor=pointer]:
+                    - /url: /symbols/BTC.D/?exchange=CRYPTOCAP
+                    - generic [ref=e1945]: BTC.D
+                    - generic [ref=e1948]: Market Cap BTC Dominance, %
+                  - link "UNIUSDT UNI / TetherUS" [ref=e1953] [cursor=pointer]:
+                    - /url: /symbols/UNIUSDT/?exchange=BINANCE
+                    - generic [ref=e1954]: UNIUSDT
+                    - generic [ref=e1957]: UNI / TetherUS
+                  - link "BTCUSDT Bitcoin / TetherUS" [ref=e1962] [cursor=pointer]:
+                    - /url: /symbols/BTCUSDT/?exchange=BINANCE
+                    - generic [ref=e1963]: BTCUSDT
+                    - generic [ref=e1966]: Bitcoin / TetherUS
+                  - button [ref=e1968]
+              - generic [ref=e1974]:
+                - link [ref=e1979] [cursor=pointer]:
+                  - /url: /markets/cryptocurrencies/ideas/
+                  - heading [level=3] [ref=e1980]:
+                    - text: Trading
+                    - generic [ref=e1981]: Ideen
+                - generic [ref=e1989]:
+                  - article [ref=e1992]:
+                    - generic [ref=e1993]:
+                      - link "DOGE in einer Konsolidierungsphase bzw. Falling Wedge" [ref=e1994] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/DOGEUSDT/1Z1milfy/
+                      - link "Hallo liebe TradingView-Community, DOGE zeigt auf dem Daily Chart aktuell ein Setup, das genaueres Hinsehen verdient. Nach dem starken Abverkauf Anfang Juni, der Dogecoin von rund 0,105 USD bis auf Tiefs um 0,067 USD durchgereicht hat, konsolidiert der Kurs seit Wochen in einer Art Falling Wedge. A" [ref=e1995] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/DOGEUSDT/1Z1milfy/
+                    - generic [ref=e1999]:
+                      - link [ref=e2000] [cursor=pointer]:
+                        - /url: /symbols/DOGEUSDT/
+                        - img "BITGET:DOGEUSDT" [ref=e2001]
+                      - link [ref=e2002] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/DOGEUSDT/1Z1milfy/
+                    - generic [ref=e2005]:
+                      - link "von BitbullTrading" [ref=e2007] [cursor=pointer]:
+                        - /url: /u/BitbullTrading/
+                      - time [ref=e2010]: Jul 31
+                  - article [ref=e2011]:
+                    - generic [ref=e2012]:
+                      - link "Bitcoin-Chartanalyse vom 31. Juli" [ref=e2013] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSD.P/5ZXQI55e/
+                      - link "Hallo! Dies ist ein Bitcoin-Leitfaden. Meine Analyse ist für TradingView optimiert. Mit der Wiedergabefunktion können Sie die Kursbewegungen in Echtzeit verfolgen. Dies ist der Bitcoin-30-Minuten-Chart. *Strategie für Long-Positionen basierend auf der Kursbewegung des roten Fingers 1) Sobald d" [ref=e2014] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSD.P/5ZXQI55e/
+                    - generic [ref=e2018]:
+                      - generic:
+                        - link [ref=e2019] [cursor=pointer]:
+                          - /url: /symbols/BTCUSD.P/
+                          - img "BYBIT:BTCUSD.P" [ref=e2020]
+                        - generic "Long" [ref=e2021]
+                      - link [ref=e2026] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSD.P/5ZXQI55e/
+                    - generic [ref=e2029]:
+                      - link "von BitCoinGuide" [ref=e2031] [cursor=pointer]:
+                        - /url: /u/BitCoinGuide/
+                      - time [ref=e2034]: Jul 31
+                  - article [ref=e2035]:
+                    - generic [ref=e2036]:
+                      - 'link "Bitcoin-Saisonalität: Vorsicht im August" [ref=e2037] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/BTCUSD/cbz8F5gY/
+                      - link "Seit seinem Tief bei 57.750 US-Dollar am 1. Juli hat Bitcoin wieder eine positive Dynamik entwickelt. Diese Erholung überrascht nicht, denn der Juli zählt historisch zu den statistisch stärksten Monaten für die Kryptowährung. Nun stellt sich die Frage, ob diese Erholung noch weiteres Potenzial bes" [ref=e2038] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSD/cbz8F5gY/
+                    - generic [ref=e2042]:
+                      - link [ref=e2043] [cursor=pointer]:
+                        - /url: /symbols/BTCUSD/
+                        - img "INDEX:BTCUSD" [ref=e2044]
+                      - link [ref=e2045] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSD/cbz8F5gY/
+                    - generic [ref=e2048]:
+                      - link "von Swissquote" [ref=e2050] [cursor=pointer]:
+                        - /url: /u/Swissquote/
+                      - time [ref=e2053]: Jul 31
+                  - article [ref=e2054]:
+                    - generic [ref=e2055]:
+                      - 'link "BTC/USD: Bullische Ablehnung am H1-OB | Blick auf die Hochs" [ref=e2056] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/BTCUSD/lVzYBSMs/
+                      - 'link "Beschreibung: Übersicht: Bitcoin ( BITSTAMP:BTCUSD ) konsolidiert nach einem scharfen Rücksetzer aktuell an einer wichtigen Unterstützung. Wir testen derzeit den H1 Order Block (H1-OB), der zuvor nach einem Ausbruch aus einer Konsolidierungsspanne als Akkumulationszone diente. Technische Analyse: Ha" [ref=e2057] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/BTCUSD/lVzYBSMs/
+                    - generic [ref=e2061]:
+                      - generic:
+                        - link [ref=e2062] [cursor=pointer]:
+                          - /url: /symbols/BTCUSD/
+                          - img "BITSTAMP:BTCUSD" [ref=e2063]
+                        - generic "Long" [ref=e2064]
+                      - link [ref=e2069] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSD/lVzYBSMs/
+                    - generic [ref=e2072]:
+                      - link "von fx_martin9" [ref=e2074] [cursor=pointer]:
+                        - /url: /u/fx_martin9/
+                      - time [ref=e2077]: Jul 31
+                  - article [ref=e2078]:
+                    - generic [ref=e2079]:
+                      - link "Bitcoin - Ausblick KW32/2026" [ref=e2080] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSD/6KKSAK4z/
+                      - 'link "Hallo Trader, Bitcoin hat irgendwie schon lange seinen \"Glanz\" verloren und dümpelt irgendwo zwischen 60.000$ und 67.000$ herum< Auf Stundenbasis hat sich nun wieder ein Abwärtstrend ausgebildet. Das dürfte u.a. dem hawkischen FED Ausblick geschuldet sein. Chart H1: Tradingtechnisch ist Bitcoin f" [ref=e2081] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/BTCUSD/6KKSAK4z/
+                    - generic [ref=e2085]:
+                      - link [ref=e2086] [cursor=pointer]:
+                        - /url: /symbols/BTCUSD/
+                        - img "COINBASE:BTCUSD" [ref=e2087]
+                      - link [ref=e2088] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSD/6KKSAK4z/
+                    - generic [ref=e2091]:
+                      - link "von PimpYourTrading" [ref=e2093] [cursor=pointer]:
+                        - /url: /u/PimpYourTrading/
+                      - time [ref=e2096]: vor 6 Stunden
+                  - article [ref=e2097]:
+                    - generic [ref=e2098]:
+                      - link "Bärische Ablehnung am Widerstand – Abwärtsbewegung erwartet" [ref=e2099] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSDT/2ysVEGvI/
+                      - link "Bitcoin befindet sich weiterhin in einem übergeordneten Abwärtstrend, wobei die fallende Trendlinie als dynamischer Widerstand fungiert. Der Kurs ist zuletzt in die markierte Widerstandszone zwischen 64.700 und 64.900 USDT gestiegen, wo sich Trendlinie und Angebotsbereich überschneiden. Diese Konst" [ref=e2100] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSDT/2ysVEGvI/
+                    - generic [ref=e2104]:
+                      - generic:
+                        - link [ref=e2105] [cursor=pointer]:
+                          - /url: /symbols/BTCUSDT/
+                          - img "MEXC:BTCUSDT" [ref=e2106]
+                        - generic "Short" [ref=e2107]
+                      - link [ref=e2112] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSDT/2ysVEGvI/
+                    - generic [ref=e2115]:
+                      - link "von BULLTRADER42" [ref=e2117] [cursor=pointer]:
+                        - /url: /u/BULLTRADER42/
+                      - time [ref=e2120]: Jul 30
+                  - article [ref=e2121]:
+                    - generic [ref=e2122]:
+                      - link "BTC/USD Technische Analyse (2H)" [ref=e2123] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSD/exxkZodV/
+                      - link "📊 BTC/USD Technische Analyse (2H) – Bullisches Umkehrpotenzial aus der Nachfragezone 🚀 🧠 Marktüberblick BTC/USD bewegt sich weiterhin innerhalb einer klaren bärischen Marktstruktur und respektiert die fallende Trendlinie. Nach dem jüngsten starken Abverkauf testet der Kurs nun einen wichtigen Order" [ref=e2124] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSD/exxkZodV/
+                    - generic [ref=e2128]:
+                      - generic:
+                        - link [ref=e2129] [cursor=pointer]:
+                          - /url: /symbols/BTCUSD/
+                          - img "BITSTAMP:BTCUSD" [ref=e2130]
+                        - generic "Long" [ref=e2131]
+                      - link [ref=e2136] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSD/exxkZodV/
+                    - generic [ref=e2139]:
+                      - link "von MarketStrategysignals" [ref=e2141] [cursor=pointer]:
+                        - /url: /u/MarketStrategysignals/
+                      - time [ref=e2144]: vor 3 Stunden
+                  - article [ref=e2145]:
+                    - generic [ref=e2146]:
+                      - link "*BTC/USD (1H) Technische Analyse" [ref=e2147] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSD/g7rmCp04/
+                      - link "**Marktüberblick** Der BTC/USD-Chart im 1-Stunden-Zeitrahmen zeigt erste Anzeichen einer Stabilisierung nach einer starken Abwärtsbewegung. Nach dem impulsiven Ausverkauf hat der Kurs im Bereich zwischen **62.800 und 63.000 USD** eine wichtige Unterstützungszone gefunden, in der Kaufinteresse sicht" [ref=e2148] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSD/g7rmCp04/
+                    - generic [ref=e2152]:
+                      - generic:
+                        - link [ref=e2153] [cursor=pointer]:
+                          - /url: /symbols/BTCUSD/
+                          - img "CRYPTO:BTCUSD" [ref=e2154]
+                        - generic "Long" [ref=e2155]
+                      - link [ref=e2160] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSD/g7rmCp04/
+                    - generic [ref=e2163]:
+                      - link "von FX_TRADER_86" [ref=e2165] [cursor=pointer]:
+                        - /url: /u/FX_TRADER_86/
+                      - time [ref=e2168]: vor 3 Stunden
+                  - article [ref=e2169]:
+                    - generic [ref=e2170]:
+                      - 'link "BTCUSDT: Bearischer Retest – Bären visieren 62.000 $ an" [ref=e2171] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/BTCUSDT/stmnfSlF/
+                      - link "BTCUSDT steht weiterhin unter Abwärtsdruck, nachdem der Kurs an einer wichtigen Widerstandszone im Bereich von 64,8k–65,2k abgewiesen wurde. Der jüngste impulsive Rückgang bestätigt, dass die Verkäufer die Kontrolle behalten, während der Kurs aktuell von einer kurzfristigen Nachfragezone (Demand Zon" [ref=e2172] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSDT/stmnfSlF/
+                    - generic [ref=e2176]:
+                      - generic:
+                        - link [ref=e2177] [cursor=pointer]:
+                          - /url: /symbols/BTCUSDT/
+                          - img "BINANCE:BTCUSDT" [ref=e2178]
+                        - generic "Short" [ref=e2179]
+                      - link [ref=e2184] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSDT/stmnfSlF/
+                    - generic [ref=e2187]:
+                      - link "von Alexfxclub" [ref=e2189] [cursor=pointer]:
+                        - /url: /u/Alexfxclub/
+                      - time [ref=e2192]: vor 17 Stunden
+                  - article [ref=e2193]:
+                    - generic [ref=e2194]:
+                      - 'link "STATUS: Sweep → Reclaim fehlt noch · Proof 72/100" [ref=e2195] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/BTCUSDT.P/vkh2DHQ3/
+                      - 'link "STATUS: Sweep → Reclaim fehlt noch · Proof 72/100 GESAMTBILD: Zu sehen ist klarer Abwärtsdruck auf 30m: tiefere Hochs, tiefe Kerzen und ein starker Abverkauf bis in den Bereich um 63,3k. Der Chart wirkt bereits ausgedehnt und der RSI ist sichtbar überverkauft. Das ist aber noch kein Umkehrbeweis. F" [ref=e2196] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/BTCUSDT.P/vkh2DHQ3/
+                    - generic [ref=e2200]:
+                      - generic:
+                        - link [ref=e2201] [cursor=pointer]:
+                          - /url: /symbols/BTCUSDT.P/
+                          - img "BITGET:BTCUSDT.P" [ref=e2202]
+                        - generic "Long" [ref=e2203]
+                      - link [ref=e2208] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/BTCUSDT.P/vkh2DHQ3/
+                    - generic [ref=e2211]:
+                      - link "von Marmoskrypto" [ref=e2213] [cursor=pointer]:
+                        - /url: /u/Marmoskrypto/
+                      - time [ref=e2216]: vor 22 Stunden
+                  - link [ref=e2217] [cursor=pointer]:
+                    - /url: /markets/cryptocurrencies/ideas/
+                    - paragraph [ref=e2218]:
+                      - generic [ref=e2219]: Alle Krypto-Ideen anzeigen
+                  - button [ref=e2224]
+              - generic [ref=e2233]:
+                - generic [ref=e2234]:
+                  - link [ref=e2239] [cursor=pointer]:
+                    - /url: /markets/cryptocurrencies/prices-gainers/
+                    - heading [level=3] [ref=e2240]
+                  - generic [ref=e2246]:
+                    - generic [ref=e2248]:
+                      - link "GEODNET" [ref=e2250] [cursor=pointer]:
+                        - /url: /symbols/GEODNUSD/?exchange=CRYPTO
+                      - generic [ref=e2254]: GEODNUSD
+                      - generic [ref=e2257]: +21,80%
+                    - generic [ref=e2260]:
+                      - link "Audiera" [ref=e2262] [cursor=pointer]:
+                        - /url: /symbols/BEATAUSD/?exchange=CRYPTO
+                      - generic [ref=e2266]: BEATAUSD
+                      - generic [ref=e2269]: +15,36%
+                    - generic [ref=e2272]:
+                      - link "ORDI" [ref=e2274] [cursor=pointer]:
+                        - /url: /symbols/ORDIUSD/?exchange=CRYPTO
+                      - generic [ref=e2278]: ORDIUSD
+                      - generic [ref=e2281]: +14,88%
+                    - generic [ref=e2284]:
+                      - link "Akash Network" [ref=e2286] [cursor=pointer]:
+                        - /url: /symbols/AKTUSD/?exchange=CRYPTO
+                      - generic [ref=e2290]: AKTUSD
+                      - generic [ref=e2293]: +8,73%
+                    - generic [ref=e2296]:
+                      - link "Pump.fun" [ref=e2298] [cursor=pointer]:
+                        - /url: /symbols/PUMPFUSD/?exchange=CRYPTO
+                      - generic [ref=e2302]: PUMPFUSD
+                      - generic [ref=e2305]: +6,89%
+                    - generic [ref=e2308]:
+                      - link "Shiba Inu" [ref=e2310] [cursor=pointer]:
+                        - /url: /symbols/SHIBUSD/?exchange=CRYPTO
+                      - generic [ref=e2314]: SHIBUSD
+                      - generic [ref=e2317]: +6,48%
+                  - link [ref=e2321] [cursor=pointer]:
+                    - /url: /markets/cryptocurrencies/prices-gainers/
+                    - generic [ref=e2324]:
+                      - text: Ansicht der Coins mit dem größten täglichen
+                      - generic [ref=e2325]: Wachstum
+                - generic [ref=e2329]:
+                  - link [ref=e2334] [cursor=pointer]:
+                    - /url: /markets/cryptocurrencies/prices-losers/
+                    - heading [level=3] [ref=e2335]
+                  - generic [ref=e2341]:
+                    - generic [ref=e2343]:
+                      - link "Lido DAO" [ref=e2345] [cursor=pointer]:
+                        - /url: /symbols/LDOUSD/?exchange=CRYPTO
+                      - generic [ref=e2349]: LDOUSD
+                      - generic [ref=e2352]: −7,66%
+                    - generic [ref=e2355]:
+                      - link "Uniswap" [ref=e2357] [cursor=pointer]:
+                        - /url: /symbols/UNIUSD/?exchange=CRYPTO
+                      - generic [ref=e2361]: UNIUSD
+                      - generic [ref=e2364]: −6,97%
+                    - generic [ref=e2367]:
+                      - link "Aave" [ref=e2369] [cursor=pointer]:
+                        - /url: /symbols/AAVEUSD/?exchange=CRYPTO
+                      - generic [ref=e2373]: AAVEUSD
+                      - generic [ref=e2376]: −6,19%
+                    - generic [ref=e2379]:
+                      - link "Lighter" [ref=e2381] [cursor=pointer]:
+                        - /url: /symbols/LITLUSD/?exchange=CRYPTO
+                      - generic [ref=e2385]: LITLUSD
+                      - generic [ref=e2388]: −6,11%
+                    - generic [ref=e2391]:
+                      - link "eCash" [ref=e2393] [cursor=pointer]:
+                        - /url: /symbols/XECUSD/?exchange=CRYPTO
+                      - generic [ref=e2397]: XECUSD
+                      - generic [ref=e2400]: −5,73%
+                    - generic [ref=e2403]:
+                      - link "Kamino" [ref=e2405] [cursor=pointer]:
+                        - /url: /symbols/KMNOUSD/?exchange=CRYPTO
+                      - generic [ref=e2409]: KMNOUSD
+                      - generic [ref=e2412]: −5,38%
+                  - link [ref=e2416] [cursor=pointer]:
+                    - /url: /markets/cryptocurrencies/prices-losers/
+                    - generic [ref=e2419]:
+                      - text: Ansicht der Coins mit dem größten täglichen
+                      - generic [ref=e2420]: Preissturz
+              - generic [ref=e2424]:
+                - link [ref=e2429] [cursor=pointer]:
+                  - /url: /markets/cryptocurrencies/news/
+                  - heading [level=3] [ref=e2430]
+                - generic [ref=e2437]:
+                  - link [ref=e2438] [cursor=pointer]:
+                    - /url: /news/beincrypto:a52584f84600c:0/
+                    - article [ref=e2439]:
+                      - generic [ref=e2440]:
+                        - generic [ref=e2441]:
+                          - list [ref=e2442]:
+                            - listitem [ref=e2443]
+                          - generic [ref=e2444]:
+                            - generic "1. Aug. 2026, 01:00 MESZ" [ref=e2445]
+                            - text: ·
+                          - generic [ref=e2446]: Beincrypto
+                        - text: "Pump.fun-Entlassungen: Unmut nach verpassten Token-Auszahlungen in Millionenhöhe"
+                  - link [ref=e2447] [cursor=pointer]:
+                    - /url: /news/beincrypto:4ce13efe6600c:0/
+                    - article [ref=e2448]:
+                      - generic [ref=e2449]:
+                        - generic [ref=e2450]:
+                          - list [ref=e2451]:
+                            - listitem [ref=e2452]
+                          - generic [ref=e2453]:
+                            - generic "31. Juli 2026, 17:59 MESZ" [ref=e2454]
+                            - text: ·
+                          - generic [ref=e2455]: Beincrypto
+                        - text: Bitcoin-Wale kaufen 40.100 BTC für 2,6 Milliarden USD in neun Tagen
+                  - link [ref=e2456] [cursor=pointer]:
+                    - /url: /news/reuters.com,2026:newsml_L8N43X1N9:0/
+                    - article [ref=e2457]:
+                      - generic [ref=e2458]:
+                        - generic [ref=e2459]:
+                          - list [ref=e2460]:
+                            - listitem [ref=e2461]
+                          - generic [ref=e2462]:
+                            - generic "31. Juli 2026, 13:53 MESZ" [ref=e2463]
+                            - text: ·
+                          - generic [ref=e2464]: Reuters
+                        - text: Coinbase-Aktie gibt nach – Quartalsverlust, Analysten befürworten Diversifizierungsstrategie
+                  - link [ref=e2465] [cursor=pointer]:
+                    - /url: /news/invezz:72df6ca39600c:0/
+                    - article [ref=e2466]:
+                      - generic [ref=e2467]:
+                        - generic [ref=e2468]:
+                          - list [ref=e2469]:
+                            - listitem [ref=e2470]
+                            - listitem [ref=e2471]
+                          - generic [ref=e2472]:
+                            - generic "31. Juli 2026, 09:13 MESZ" [ref=e2473]
+                            - text: ·
+                          - generic [ref=e2474]: Invezz
+                        - text: "XRP-Preis steigt durch ETF-Zuflüsse: Ist ein Ausbruch über $1,13 jetzt wahrscheinlich?"
+                  - link [ref=e2475] [cursor=pointer]:
+                    - /url: /news/eqs:9097167b1600c:0/
+                    - article [ref=e2476]:
+                      - generic [ref=e2477]:
+                        - generic [ref=e2478]:
+                          - list [ref=e2479]:
+                            - listitem [ref=e2480]
+                          - generic [ref=e2481]:
+                            - generic "31. Juli 2026, 09:00 MESZ" [ref=e2482]
+                            - text: ·
+                          - generic [ref=e2483]: EQS
+                        - text: Baader Bank beteiligt sich an Krypto-Provider Hyphe
+                  - text: · · · · · · · · · · · · · · · · · · · ·
+                - link [ref=e2486] [cursor=pointer]:
+                  - /url: /markets/cryptocurrencies/news/
+          - generic [ref=e2495]:
+            - link [ref=e2500] [cursor=pointer]:
+              - /url: /markets/futures/
+              - heading [level=2] [ref=e2501]:
+                - text: Termingeschäfte und
+                - generic [ref=e2502]: Rohstoffe
+            - generic [ref=e2507]:
+              - generic [ref=e2508]:
+                - link [ref=e2513] [cursor=pointer]:
+                  - /url: /markets/futures/ideas/
+                  - heading [level=3] [ref=e2514]:
+                    - text: Trading
+                    - generic [ref=e2515]: Ideen
+                - generic [ref=e2523]:
+                  - article [ref=e2526]:
+                    - generic [ref=e2527]:
+                      - link "Gold konsolidiert an der Spitze des Dreiecks – bereit für einen" [ref=e2528] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/7OAGVGC6/
+                      - link "Der 4H-Chart von XAUUSD zeigt derzeit eines der saubersten technischen Muster der letzten Wochen – und es lohnt sich, dieses genau zu beobachten. Seit dem bestätigten Bullish Market Structure Shift (BMS) am Protected Swing Low / Major Demand nahe 3.948 baut Gold still und stetig eine Basis auf und" [ref=e2529] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/7OAGVGC6/
+                    - generic [ref=e2533]:
+                      - generic:
+                        - link [ref=e2534] [cursor=pointer]:
+                          - /url: /symbols/XAUUSD/
+                          - img "OANDA:XAUUSD" [ref=e2535]
+                        - generic "Long" [ref=e2536]
+                      - link [ref=e2541] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/7OAGVGC6/
+                    - generic [ref=e2544]:
+                      - link "von ZenTrade_Setup" [ref=e2546] [cursor=pointer]:
+                        - /url: /u/ZenTrade_Setup/
+                      - time [ref=e2549]: vor 12 Stunden
+                  - article [ref=e2550]:
+                    - generic [ref=e2551]:
+                      - link "Gold Könnte Unter 4.080 USD Weiter Korrigieren" [ref=e2552] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/6C63NFbm/
+                      - 'link "📊 Marktüberblick: Gold (XAU/USD) wird derzeit bei etwa 4.062 USD je Unze gehandelt, nachdem der Preis im heutigen Handel von der 4.110-USD-Zone zurückgefallen ist. Gewinnmitnahmen haben zugenommen, da sich der US-Dollar erholt und die Renditen von US-Staatsanleihen nach starken US-Wirtschaftsdaten" [ref=e2553] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/XAUUSD/6C63NFbm/
+                    - generic [ref=e2557]:
+                      - generic:
+                        - link [ref=e2558] [cursor=pointer]:
+                          - /url: /symbols/XAUUSD/
+                          - img "OANDA:XAUUSD" [ref=e2559]
+                        - generic "Short" [ref=e2560]
+                      - link [ref=e2565] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/6C63NFbm/
+                    - generic [ref=e2568]:
+                      - link "von Mian-FXSignals" [ref=e2570] [cursor=pointer]:
+                        - /url: /u/Mian-FXSignals/
+                      - time [ref=e2573]: Aktualisiert vor 21 Stunden
+                  - article [ref=e2574]:
+                    - generic [ref=e2575]:
+                      - 'link "XAUUSD: Riesige Gewinnchance" [ref=e2576] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/XAUUSD/BI8d48oJ/
+                      - link "Diese Woche haben wir wiederholt in der Nähe des wichtigen Widerstandsbereichs 4100–4120 Short-Positionen eröffnet und kontinuierlich Gewinne erzielt. Alle Trades erreichten die Zielzonen meiner Signale. Der Abwärtstrend ist nun etabliert, nächste Woche erwarten uns weitere Handelsgelegenheiten. Obw" [ref=e2577] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/BI8d48oJ/
+                    - generic [ref=e2581]:
+                      - generic:
+                        - link [ref=e2582] [cursor=pointer]:
+                          - /url: /symbols/XAUUSD/
+                          - img "FOREXCOM:XAUUSD" [ref=e2583]
+                        - generic "Short" [ref=e2584]
+                      - link [ref=e2589] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/BI8d48oJ/
+                    - generic [ref=e2592]:
+                      - link "von Golden_Shark1" [ref=e2594] [cursor=pointer]:
+                        - /url: /u/Golden_Shark1/
+                      - time [ref=e2597]: Aktualisiert vor 7 Stunden
+                  - article [ref=e2598]:
+                    - generic [ref=e2599]:
+                      - 'link "Goldpreise durchbrechen 4100 $: Aufwärtstrend oder Bullenfalle?" [ref=e2600] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/XAUUSD/6UQcSUy4/
+                      - 'link "Goldpreise durchbrechen 4100 $: Aufwärtstrend oder Bullenfalle? Am Freitagmorgen im asiatischen Handel bewegte sich der Goldpreis in einer engen Spanne über 4100 $ und notierte aktuell bei rund 4105 $ pro Unze. Über Nacht durchbrachen die Goldpreise, ausgelöst durch die Zinsentscheidung der Fed, di" [ref=e2601] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/XAUUSD/6UQcSUy4/
+                    - generic [ref=e2605]:
+                      - generic:
+                        - link [ref=e2606] [cursor=pointer]:
+                          - /url: /symbols/XAUUSD/
+                          - img "FOREXCOM:XAUUSD" [ref=e2607]
+                        - generic "Short" [ref=e2608]
+                      - link [ref=e2613] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/6UQcSUy4/
+                    - generic [ref=e2616]:
+                      - link "von Elina-gold" [ref=e2618] [cursor=pointer]:
+                        - /url: /u/Elina-gold/
+                      - time [ref=e2621]: Aktualisiert vor 20 Stunden
+                  - article [ref=e2622]:
+                    - generic [ref=e2623]:
+                      - 'link "H1 SCALPING: WARTEN AUF NÄCHSTE EINTRITTSCHANCE" [ref=e2624] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/XAUUSD/AViAfeuy/
+                      - link "Gold hat nach dem Versuch, über den aktuellen Widerstand hinaus zu steigen, zurückgezogen, wobei der Preis nun in Richtung der steigenden intraday Trendlinie und der 4030 Unterstützungszone zurückgeht. Da sowohl die wöchentlichen als auch die monatlichen Kerzen heute schließen, wird eine erhöhte Vol" [ref=e2625] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/AViAfeuy/
+                    - generic [ref=e2629]:
+                      - generic:
+                        - link [ref=e2630] [cursor=pointer]:
+                          - /url: /symbols/XAUUSD/
+                          - img "OANDA:XAUUSD" [ref=e2631]
+                        - generic "Short" [ref=e2632]
+                      - link [ref=e2637] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/AViAfeuy/
+                    - generic [ref=e2640]:
+                      - link "von Emma_Diamond" [ref=e2642] [cursor=pointer]:
+                        - /url: /u/Emma_Diamond/
+                      - time [ref=e2645]: Jul 31
+                  - article [ref=e2646]:
+                    - generic [ref=e2647]:
+                      - link "XAUUSD – Ausbruchsdruck nimmt zu" [ref=e2648] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/GOLD/spqEX7pN/
+                      - link "Fundamentalanalyse Der Goldpreis bleibt volatil, nachdem die US-Notenbank Federal Reserve (Fed) die Leitzinsen in einer knappen Entscheidung (9:3) bei 3,50 % bis 3,75 % beließ. Drei Mitglieder des Fed-Ausschusses hatten eine Anhebung um 25 Basispunkte befürwortet. Diese Uneinigkeit verstärkt die Un" [ref=e2649] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/GOLD/spqEX7pN/
+                    - generic [ref=e2653]:
+                      - generic:
+                        - link [ref=e2654] [cursor=pointer]:
+                          - /url: /symbols/GOLD/
+                          - img "TVC:GOLD" [ref=e2655]
+                        - generic "Long" [ref=e2656]
+                      - link [ref=e2661] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/GOLD/spqEX7pN/
+                    - generic [ref=e2664]:
+                      - link "von Sophie_Lane" [ref=e2666] [cursor=pointer]:
+                        - /url: /u/Sophie_Lane/
+                      - time [ref=e2669]: Aktualisiert vor 3 Stunden
+                  - article [ref=e2670]:
+                    - generic [ref=e2671]:
+                      - link "Gold - Ausblick KW32/2026" [ref=e2672] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/2fWpAZ0W/
+                      - link "Hallo Trader, leider gab es bei Gold noch keine finale Entscheidung. Trotz des eher hawkischen FED Ausblicks hält aber trotzdem die 4000$ Marke. Das sehe ich erst einmal als positives Zeichen. Wir stehen aber nun wirklich unmittelbar vor der Auflösung - nagelt mich jetzt einfach mal drauf fest. Kom" [ref=e2673] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/2fWpAZ0W/
+                    - generic [ref=e2677]:
+                      - generic:
+                        - link [ref=e2678] [cursor=pointer]:
+                          - /url: /symbols/XAUUSD/
+                          - img "OANDA:XAUUSD" [ref=e2679]
+                        - generic "Long" [ref=e2680]
+                      - link [ref=e2685] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/2fWpAZ0W/
+                    - generic [ref=e2688]:
+                      - link "von PimpYourTrading" [ref=e2690] [cursor=pointer]:
+                        - /url: /u/PimpYourTrading/
+                      - time [ref=e2693]: vor 6 Stunden
+                  - article [ref=e2694]:
+                    - generic [ref=e2695]:
+                      - link "XAUUSD | Gold bleibt oberhalb von 4055–4063 bullisch" [ref=e2696] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/YzTvAPvq/
+                      - link "✅ 4-Stunden-Trendanalyse Auf dem 4-Stunden-Chart notiert Gold weiterhin oberhalb der Mittellinie der Bollinger-Bänder bei 4055,03. Dies zeigt, dass die aktuelle Erholungsstruktur noch nicht durchbrochen wurde. Allerdings traf der Preis im Bereich von 4110–4120 auf deutlichen Widerstand und steht we" [ref=e2697] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/YzTvAPvq/
+                    - generic [ref=e2701]:
+                      - link [ref=e2702] [cursor=pointer]:
+                        - /url: /symbols/XAUUSD/
+                        - img "OANDA:XAUUSD" [ref=e2703]
+                      - link [ref=e2704] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/YzTvAPvq/
+                    - generic [ref=e2707]:
+                      - link "von GoldTrend_Master" [ref=e2709] [cursor=pointer]:
+                        - /url: /u/GoldTrend_Master/
+                      - time [ref=e2712]: Jul 31
+                  - article [ref=e2713]:
+                    - generic [ref=e2714]:
+                      - 'link "Goldpreis: Juni-Tief bleibt gefährdet" [ref=e2715] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/XAUUSD/T5C8QaXI/
+                      - link "Analyse bei einem Goldpreis (XAU/USD) von $4.052 Die folgenden Szenarien basieren auf meiner Einschätzung und skizzieren die wahrscheinlichste Kursspanne. Goldpreis Prognose für Montag Nach dem Vorjahreshoch bei $4.550 konnte der Kurs im Januar sein Allzeithoch bei $5.598 setzen. Dort ist die" [ref=e2716] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/T5C8QaXI/
+                    - generic [ref=e2720]:
+                      - generic:
+                        - link [ref=e2721] [cursor=pointer]:
+                          - /url: /symbols/XAUUSD/
+                          - img "FX_IDC:XAUUSD" [ref=e2722]
+                        - generic "Short" [ref=e2723]
+                      - link [ref=e2728] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/T5C8QaXI/
+                    - generic [ref=e2731]:
+                      - link "von KarstenKagels" [ref=e2733] [cursor=pointer]:
+                        - /url: /u/KarstenKagels/
+                      - time [ref=e2736]: Aktualisiert Jul 31
+                  - article [ref=e2737]:
+                    - generic [ref=e2738]:
+                      - 'link "XAUUSD H1: Gold hat seinen Zug gemacht. Jetzt der Test!" [ref=e2739] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/XAUUSD/Zj8K9NSy/
+                      - link "Die meisten Händler werden sich an die heutige explosive Rallye erinnern. Wenige werden darauf achten, was als Nächstes passiert. Dieser Unterschied trennt oft Händler, die reagieren, von denen, die antizipieren. Die Rallye selbst war nicht besonders überraschend. Der Preis erreichte zuerst unter" [ref=e2740] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/Zj8K9NSy/
+                    - generic [ref=e2744]:
+                      - generic:
+                        - link [ref=e2745] [cursor=pointer]:
+                          - /url: /symbols/XAUUSD/
+                          - img "OANDA:XAUUSD" [ref=e2746]
+                        - generic "Long" [ref=e2747]
+                      - link [ref=e2752] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/XAUUSD/Zj8K9NSy/
+                    - generic [ref=e2755]:
+                      - link "von Ryan_TitanTrader" [ref=e2757] [cursor=pointer]:
+                        - /url: /u/Ryan_TitanTrader/
+                      - time [ref=e2760]: Aktualisiert Jul 31
+                  - link [ref=e2761] [cursor=pointer]:
+                    - /url: /markets/futures/ideas/
+                    - paragraph [ref=e2762]:
+                      - generic [ref=e2763]: Alle Futures-Ideen anzeigen
+                  - button [ref=e2768]
+              - generic [ref=e2777]:
+                - generic [ref=e2778]:
+                  - link [ref=e2783] [cursor=pointer]:
+                    - /url: /markets/futures/quotes-energy/
+                    - heading [level=3] [ref=e2784]
+                  - generic [ref=e2791]:
+                    - generic [ref=e2793]:
+                      - link "Brent Rohöl" [ref=e2795] [cursor=pointer]:
+                        - /url: /symbols/ICEEUR-BRN1!/
+                      - generic [ref=e2799]: BRN1!
+                    - generic [ref=e2804]:
+                      - link "Erdgas" [ref=e2806] [cursor=pointer]:
+                        - /url: /symbols/ICEENDEX-TFM1!/
+                      - generic [ref=e2810]: TFM1!
+                    - generic [ref=e2815]:
+                      - link "WTI Rohöl" [ref=e2817] [cursor=pointer]:
+                        - /url: /symbols/ICEEUR-WBS1!/
+                      - generic [ref=e2821]: WBS1!
+                    - generic [ref=e2826]:
+                      - link "TTF NATURAL GAS MONTH Futures" [ref=e2828] [cursor=pointer]:
+                        - /url: /symbols/EEX-G3BM1!/
+                      - generic [ref=e2832]: G3BM1!
+                    - generic [ref=e2837]:
+                      - link "GERMAN POWER BASE MONTH Futures" [ref=e2839] [cursor=pointer]:
+                        - /url: /symbols/EEX-DEBM1!/
+                      - generic [ref=e2843]: DEBM1!
+                    - generic [ref=e2848]:
+                      - link "GERMAN POWER PEAK MONTH Futures" [ref=e2850] [cursor=pointer]:
+                        - /url: /symbols/EEX-DEPM1!/
+                      - generic [ref=e2854]: DEPM1!
+                  - link [ref=e2860] [cursor=pointer]:
+                    - /url: /markets/futures/quotes-energy/
+                    - generic [ref=e2863]:
+                      - text: Ansicht aller
+                      - generic [ref=e2864]: Energieterminkontrakte
+                - generic [ref=e2868]:
+                  - link [ref=e2873] [cursor=pointer]:
+                    - /url: /markets/futures/quotes-metals/
+                    - heading [level=3] [ref=e2874]
+                  - generic [ref=e2881]:
+                    - generic [ref=e2883]:
+                      - link "Gold" [ref=e2885] [cursor=pointer]:
+                        - /url: /symbols/COMEX-GC1!/
+                      - generic [ref=e2889]: GC1!
+                    - generic [ref=e2894]:
+                      - link "Silber" [ref=e2896] [cursor=pointer]:
+                        - /url: /symbols/COMEX-SI1!/
+                      - generic [ref=e2900]: SI1!
+                    - generic [ref=e2905]:
+                      - link "Nickel" [ref=e2907] [cursor=pointer]:
+                        - /url: /symbols/LME-NI1!/
+                      - generic [ref=e2911]: NI1!
+                    - generic [ref=e2916]:
+                      - link "Grade A Kupfer" [ref=e2918] [cursor=pointer]:
+                        - /url: /symbols/LME-CA1!/
+                      - generic [ref=e2922]: CA1!
+                    - generic [ref=e2927]:
+                      - link "Zinn" [ref=e2929] [cursor=pointer]:
+                        - /url: /symbols/LME-SN1!/
+                      - generic [ref=e2933]: SN1!
+                    - generic [ref=e2938]:
+                      - link "Hochwertiges Aluminium" [ref=e2940] [cursor=pointer]:
+                        - /url: /symbols/LME-AH1!/
+                      - generic [ref=e2944]: AH1!
+                  - link [ref=e2950] [cursor=pointer]:
+                    - /url: /markets/futures/quotes-metals/
+                    - generic [ref=e2953]:
+                      - text: Ansicht aller
+                      - generic [ref=e2954]: Metallterminkontrakte
+              - generic [ref=e2958]:
+                - link [ref=e2963] [cursor=pointer]:
+                  - /url: /markets/futures/news/
+                  - heading [level=3] [ref=e2964]:
+                    - text: News für
+                    - generic [ref=e2965]: Termingeschäfte
+                - generic [ref=e2971]:
+                  - link [ref=e2972] [cursor=pointer]:
+                    - /url: /news/dpa_afx:67a10c20a7339:0/
+                    - article [ref=e2973]:
+                      - generic [ref=e2974]:
+                        - generic [ref=e2975]:
+                          - generic [ref=e2976]:
+                            - generic "1. Aug. 2026, 11:35 MESZ" [ref=e2977]
+                            - text: ·
+                          - generic [ref=e2978]: dpa-AFX
+                        - text: "ROUNDUP 2: Trump erwägt neue Angriffe - Iran droht mit Gegenschlägen"
+                  - link [ref=e2979] [cursor=pointer]:
+                    - /url: /news/dpa_afx:159b399e3b948:0/
+                    - article [ref=e2980]:
+                      - generic [ref=e2981]:
+                        - generic [ref=e2982]:
+                          - generic [ref=e2983]:
+                            - generic "1. Aug. 2026, 11:18 MESZ" [ref=e2984]
+                            - text: ·
+                          - generic [ref=e2985]: dpa-AFX
+                        - text: "Tiefseebergbau: Staaten einigen sich nicht auf Regeln"
+                  - link [ref=e2986] [cursor=pointer]:
+                    - /url: /news/dpa_afx:c2880a77c0ba9:0/
+                    - article [ref=e2987]:
+                      - generic [ref=e2988]:
+                        - generic [ref=e2989]:
+                          - generic [ref=e2990]:
+                            - generic "1. Aug. 2026, 11:04 MESZ" [ref=e2991]
+                            - text: ·
+                          - generic [ref=e2992]: dpa-AFX
+                        - text: "ROUNDUP: Trump erwägt neue Angriffe - Iran droht mit Gegenschlägen"
+                  - link [ref=e2993] [cursor=pointer]:
+                    - /url: /news/reuters.com,2026:newsml_L8N43Y04O:0/
+                    - article [ref=e2994]:
+                      - generic [ref=e2995]:
+                        - generic [ref=e2996]:
+                          - list [ref=e2997]:
+                            - listitem [ref=e2998]
+                          - generic [ref=e2999]:
+                            - generic "1. Aug. 2026, 09:02 MESZ" [ref=e3000]
+                            - text: ·
+                          - generic [ref=e3001]: Reuters
+                        - text: Vollständiger Stillstand des CPC nicht zur Debatte, so kasachisches Energieministerium
+                  - link [ref=e3002] [cursor=pointer]:
+                    - /url: /news/reuters.com,2026:newsml_L8N43Y01F:0/
+                    - article [ref=e3003]:
+                      - generic [ref=e3004]:
+                        - generic [ref=e3005]:
+                          - list [ref=e3006]:
+                            - listitem [ref=e3007]
+                          - generic [ref=e3008]:
+                            - generic "1. Aug. 2026, 02:30 MESZ" [ref=e3009]
+                            - text: ·
+                          - generic [ref=e3010]: Reuters
+                        - text: Motiva nimmt CDU seiner Raffinerie in Texas nach einem kurzen Stromausfall wieder in Betrieb, so Insider
+                  - text: · · · · · · · · · · · · · · · · · · · ·
+                - link [ref=e3013] [cursor=pointer]:
+                  - /url: /markets/futures/news/
+          - generic [ref=e3022]:
+            - link [ref=e3027] [cursor=pointer]:
+              - /url: /markets/currencies/
+              - heading [level=2] [ref=e3028]:
+                - text: Forex und
+                - generic [ref=e3029]: Währungen
+            - generic [ref=e3034]:
+              - generic [ref=e3035]:
+                - link [ref=e3040] [cursor=pointer]:
+                  - /url: /markets/currencies/ideas/
+                  - heading [level=3] [ref=e3041]:
+                    - text: Trading
+                    - generic [ref=e3042]: Ideen
+                - generic [ref=e3050]:
+                  - article [ref=e3053]:
+                    - generic [ref=e3054]:
+                      - link "EURUSD - SOW vs W-Formation" [ref=e3055] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURUSD/vYEckBTz/
+                      - link "Vorangegangene Analysen... Das ging ja schneller als gedacht. Manchmal braucht der Markt deutlich weniger Zeit, als die meisten erwarten. Genau deshalb lohnt es sich, verschiedene Szenarien im Voraus zu durchdenken – wenn sich eines bestätigt, muss man nicht mehr reagieren, sondern kann vorber" [ref=e3056] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURUSD/vYEckBTz/
+                    - generic [ref=e3060]:
+                      - link "WHSELFINVEST:EURUSD" [ref=e3061] [cursor=pointer]:
+                        - /url: /symbols/EURUSD/
+                      - link [ref=e3063] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURUSD/vYEckBTz/
+                    - generic [ref=e3066]:
+                      - link "von SwingMann" [ref=e3068] [cursor=pointer]:
+                        - /url: /u/SwingMann/
+                      - time [ref=e3071]: Jul 31
+                  - article [ref=e3072]:
+                    - generic [ref=e3073]:
+                      - link "Drei Wendebereiche auf einem Fleck. Jetzt wird es spannend!" [ref=e3074] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURGBP/liERvEi7/
+                      - link "Schau dir den Tageschart von EURGBP an und du siehst auf den ersten Blick ein ziemliches Durcheinander aus Boxen und Linien. Sortiert man das nach dem Matryoshka Prinzip, wird daraus eine sehr klare Geschichte. Außen liegt die schwarze Hauptsequenz. Sie ist die primäre, die externe Bewegung, an der" [ref=e3075] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURGBP/liERvEi7/
+                    - generic [ref=e3079]:
+                      - generic:
+                        - link "FX:EURGBP" [ref=e3080] [cursor=pointer]:
+                          - /url: /symbols/EURGBP/
+                        - generic "Short" [ref=e3082]
+                      - link [ref=e3087] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURGBP/liERvEi7/
+                    - generic [ref=e3090]:
+                      - link "von StefanKassing" [ref=e3092] [cursor=pointer]:
+                        - /url: /u/StefanKassing/
+                      - time [ref=e3095]: Jul 30
+                  - article [ref=e3096]:
+                    - generic [ref=e3097]:
+                      - 'link "EUR/USD Chartanalyse & Prognosen für die neue Woche #31" [ref=e3098] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/EURUSD/ejqgPhRa/
+                      - link "Analyse bei einem letzten Kurs von 1,1371 Die folgenden Szenarien basieren auf meiner Einschätzung und skizzieren die wahrscheinlichste Kursspanne. EUR/USD Prognose für Montag Am Vorjahreshoch aus dem September 2025 ist der Euro in eine Korrekturphase übergegangen, die zunächst Druck auf das" [ref=e3099] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURUSD/ejqgPhRa/
+                    - generic [ref=e3103]:
+                      - generic:
+                        - link "TICKMILL:EURUSD" [ref=e3104] [cursor=pointer]:
+                          - /url: /symbols/EURUSD/
+                        - generic "Short" [ref=e3106]
+                      - link [ref=e3111] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURUSD/ejqgPhRa/
+                    - generic [ref=e3114]:
+                      - link "von KarstenKagels" [ref=e3116] [cursor=pointer]:
+                        - /url: /u/KarstenKagels/
+                      - time [ref=e3119]: Aktualisiert Jul 31
+                  - article [ref=e3120]:
+                    - generic [ref=e3121]:
+                      - link "EUR/USD Technische Analyse" [ref=e3122] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURUSD/SloKz8qO/
+                      - link "📊 EUR/USD Technische Analyse – Bärische Struktur nahe einer Schlüsselunterstützung ⚠️📉 Der EUR/USD-Chart (2H) zeigt weiterhin eine bärische Marktstruktur, nachdem der vorherige Aufwärtstrend gebrochen und ein Break of Structure (BOS) bestätigt wurde. Der Markt bewegt sich aktuell in einem klaren Ab" [ref=e3123] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURUSD/SloKz8qO/
+                    - generic [ref=e3127]:
+                      - generic:
+                        - link "OANDA:EURUSD" [ref=e3128] [cursor=pointer]:
+                          - /url: /symbols/EURUSD/
+                        - generic "Long" [ref=e3130]
+                      - link [ref=e3135] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURUSD/SloKz8qO/
+                    - generic [ref=e3138]:
+                      - link "von MarketStrategysignals" [ref=e3140] [cursor=pointer]:
+                        - /url: /u/MarketStrategysignals/
+                      - time [ref=e3143]: Aktualisiert Jul 30
+                  - article [ref=e3144]:
+                    - generic [ref=e3145]:
+                      - 'link "EURUSD: Boden zeichnet sich ab" [ref=e3146] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/EURUSD/2W7fqfTJ/
+                      - link "EURUSD befindet sich weiterhin in einem Abwärtstrend, ein weiterer Bruch nach unten ist noch möglich, aber ein Wendepunkt steht bevor. Sollte EURUSD um 1,3500 nach unten brechen, könnte der Kurs direkt bis 1,2500 fallen. Bei 1,2500 befindet sich eine wichtige Unterstützung. Sobald der Kurs diesen Be" [ref=e3147] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURUSD/2W7fqfTJ/
+                    - generic [ref=e3151]:
+                      - generic:
+                        - link "PEPPERSTONE:EURUSD" [ref=e3152] [cursor=pointer]:
+                          - /url: /symbols/EURUSD/
+                        - generic "Long" [ref=e3154]
+                      - link [ref=e3159] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURUSD/2W7fqfTJ/
+                    - generic [ref=e3162]:
+                      - link "von DXSniper" [ref=e3164] [cursor=pointer]:
+                        - /url: /u/DXSniper/
+                      - time [ref=e3167]: Aktualisiert Jul 29
+                  - article [ref=e3168]:
+                    - generic [ref=e3169]:
+                      - 'link "GBPUSD: Neue Handelsgelegenheit" [ref=e3170] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/GBPUSD/fkcLpRth/
+                      - link "GBPUSD befindet sich in einer fortlaufenden Abwärtskorrektur, die sich weiter fortsetzen könnte. Kurzfristig wird ein erneuter Test der Tiefs erwartet. Sobald der Kurs jedoch wieder das vorherige Tief um 1,32000 erreicht, ergibt sich eine neue Kaufgelegenheit. Obwohl der Abwärtstrend noch nicht been" [ref=e3171] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/GBPUSD/fkcLpRth/
+                    - generic [ref=e3175]:
+                      - generic:
+                        - link "FX:GBPUSD" [ref=e3176] [cursor=pointer]:
+                          - /url: /symbols/GBPUSD/
+                        - generic "Long" [ref=e3178]
+                      - link [ref=e3183] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/GBPUSD/fkcLpRth/
+                    - generic [ref=e3186]:
+                      - link "von Forex_Sniper01" [ref=e3188] [cursor=pointer]:
+                        - /url: /u/Forex_Sniper01/
+                      - time [ref=e3191]: Aktualisiert Jul 29
+                  - article [ref=e3192]:
+                    - generic [ref=e3193]:
+                      - 'link "EWA: 1D EUR/USD – Erholung im August? Wohin schlägt Welle C aus?" [ref=e3194] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/EURUSD/AVm9yzuC/
+                      - link "🔵EUR/USD🔴 🔵Europa vs Amerika🔴 🔵EUR Kerzen sind Blau🔵 🔴USD Kerzen sind Rot🔴 UP-Date Die Pause des Bären-Expresses (Immer noch im Gange) Erwartung und Prophezeiung -------------------------------------------------------------------------------------- „Wenn das Leben dir Charts gibt, dann zeichne" [ref=e3195] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURUSD/AVm9yzuC/
+                    - generic [ref=e3199]:
+                      - link "Editors' Picks" [ref=e3200] [cursor=pointer]:
+                        - /url: /ideas/editors-picks/
+                      - generic:
+                        - link "FX:EURUSD" [ref=e3201] [cursor=pointer]:
+                          - /url: /symbols/EURUSD/
+                        - generic "Long" [ref=e3203]
+                      - link [ref=e3208] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURUSD/AVm9yzuC/
+                    - generic [ref=e3211]:
+                      - link "von TT136" [ref=e3213] [cursor=pointer]:
+                        - /url: /u/TT136/
+                      - time [ref=e3216]: Jul 29
+                  - article [ref=e3217]:
+                    - generic [ref=e3218]:
+                      - link "DOLLAR/YEN spitzt sich weiter zu. 165 Yen prüfen!" [ref=e3219] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/USDJPY/exEqHl7e/
+                      - link "Liebe Trader und Investoren, sehr geehrte Damen und Herren, herzlich Willkommen zu einem weiteren Update zum Dollar / Yen (USDJPY) von Pepperstone. Ich analysiere den Kontrakt im Tages- und Intradaychart. Im letzten Update hatte ich einen steigenden Keil im USDJPY skizziert, der zuletzt nach oben" [ref=e3220] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/USDJPY/exEqHl7e/
+                    - generic [ref=e3224]:
+                      - link "PEPPERSTONE:USDJPY" [ref=e3226] [cursor=pointer]:
+                        - /url: /symbols/USDJPY/
+                      - link [ref=e3228] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/USDJPY/exEqHl7e/
+                    - generic [ref=e3231]:
+                      - link "von Pepperstone" [ref=e3233] [cursor=pointer]:
+                        - /url: /u/Pepperstone/
+                      - time [ref=e3236]: Jul 27
+                  - article [ref=e3237]:
+                    - generic [ref=e3238]:
+                      - link "Wall Street Wochenausblick KW31 2026 + Wall Street Fokusthemen" [ref=e3239] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURUSD/tpQZGxL7/
+                      - 'link "📊 Wall Street Wochenausblick KW31 2026 + Wall Street Fokusthemen💡 👉 Auf geht''s: Euer Wochenausblick für die KW31 2026: 🔔 Die Fokuswoche der Tech-Unternehmen steht an 4 Schwergewichte legen diese Woche zahlen vor: Microsoft, Meta, Apple und Amanzon: 📊 Erstes Fazit: Sehr solide Berichts-Saiso" [ref=e3240] [cursor=pointer]':
+                        - /url: https://de.tradingview.com/chart/EURUSD/tpQZGxL7/
+                    - generic [ref=e3244]:
+                      - generic:
+                        - link "FX:EURUSD" [ref=e3245] [cursor=pointer]:
+                          - /url: /symbols/EURUSD/
+                        - generic "Short" [ref=e3247]
+                      - time [ref=e3254]: 21:58
+                      - link [ref=e3255] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURUSD/tpQZGxL7/
+                    - generic [ref=e3258]:
+                      - link "von WSICapital" [ref=e3260] [cursor=pointer]:
+                        - /url: /u/WSICapital/
+                      - time [ref=e3263]: Jul 26
+                  - article [ref=e3264]:
+                    - generic [ref=e3265]:
+                      - link "EURUSD Short" [ref=e3266] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURUSD/qRlwlxHn/
+                      - link "Nach Bruch EURUSD Short bis zum nächsten Support." [ref=e3267] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURUSD/qRlwlxHn/
+                    - generic [ref=e3271]:
+                      - generic:
+                        - link "TICKMILL:EURUSD" [ref=e3272] [cursor=pointer]:
+                          - /url: /symbols/EURUSD/
+                        - generic "Short" [ref=e3274]
+                      - link [ref=e3279] [cursor=pointer]:
+                        - /url: https://de.tradingview.com/chart/EURUSD/qRlwlxHn/
+                    - generic [ref=e3282]:
+                      - link "von schmoedl" [ref=e3284] [cursor=pointer]:
+                        - /url: /u/schmoedl/
+                      - time [ref=e3287]: Jul 23
+                  - link [ref=e3288] [cursor=pointer]:
+                    - /url: /markets/currencies/ideas/
+                    - paragraph [ref=e3289]:
+                      - generic [ref=e3290]: Alle Forex-Ideen anzeigen
+                  - button [ref=e3295]
+              - generic [ref=e3302]:
+                - link [ref=e3307] [cursor=pointer]:
+                  - /url: /markets/currencies/rates-major/
+                  - heading [level=3] [ref=e3308]
+                - generic [ref=e3314]:
+                  - generic [ref=e3315]:
+                    - link "EURUSD −0,02%" [ref=e3317] [cursor=pointer]:
+                      - /url: /symbols/EURUSD/?exchange=FX_IDC
+                      - generic [ref=e3319]: EURUSD
+                      - generic [ref=e3324]: −0,02%
+                    - link "JPYUSD +1,42%" [ref=e3326] [cursor=pointer]:
+                      - /url: /symbols/JPYUSD/?exchange=FX_IDC
+                      - generic [ref=e3328]: JPYUSD
+                      - generic [ref=e3333]: +1,42%
+                    - link "GBPUSD +0,14%" [ref=e3335] [cursor=pointer]:
+                      - /url: /symbols/GBPUSD/?exchange=FX_IDC
+                      - generic [ref=e3337]: GBPUSD
+                      - generic [ref=e3342]: +0,14%
+                    - link "AUDUSD −0,03%" [ref=e3344] [cursor=pointer]:
+                      - /url: /symbols/AUDUSD/?exchange=FX_IDC
+                      - generic [ref=e3346]: AUDUSD
+                      - generic [ref=e3351]: −0,03%
+                    - link "CHFUSD −0,27%" [ref=e3353] [cursor=pointer]:
+                      - /url: /symbols/CHFUSD/?exchange=FX_IDC
+                      - generic [ref=e3355]: CHFUSD
+                      - generic [ref=e3360]: −0,27%
+                    - link "CADUSD −0,04%" [ref=e3362] [cursor=pointer]:
+                      - /url: /symbols/CADUSD/?exchange=FX_IDC
+                      - generic [ref=e3364]: CADUSD
+                      - generic [ref=e3369]: −0,04%
+                    - link "NZDUSD +0,02%" [ref=e3371] [cursor=pointer]:
+                      - /url: /symbols/NZDUSD/?exchange=FX_IDC
+                      - generic [ref=e3373]: NZDUSD
+                      - generic [ref=e3378]: +0,02%
+                    - link "CNYUSD −0,01%" [ref=e3380] [cursor=pointer]:
+                      - /url: /symbols/CNYUSD/?exchange=FX_IDC
+                      - generic [ref=e3382]: CNYUSD
+                      - generic [ref=e3387]: −0,01%
+                  - generic [ref=e3389]:
+                    - button "1T" [ref=e3390]
+                    - button "1W" [ref=e3393]
+                    - button "1M" [ref=e3396]
+                    - button "3M" [ref=e3399]
+                    - button "6M" [ref=e3402]
+                    - button "YTD" [ref=e3405]
+                    - button "1J" [ref=e3408]
+                    - button "5J" [ref=e3411]
+                    - button "Alle" [ref=e3414]
+                - link [ref=e3419] [cursor=pointer]:
+                  - /url: /markets/currencies/rates-major/
+                  - generic [ref=e3422]:
+                    - text: Ansicht aller
+                    - generic [ref=e3423]: Preise
+              - generic [ref=e3427]:
+                - link [ref=e3432] [cursor=pointer]:
+                  - /url: /markets/currencies/news/
+                  - heading [level=3] [ref=e3433]
+                - generic [ref=e3440]:
+                  - link [ref=e3441] [cursor=pointer]:
+                    - /url: /news/reuters.com,2026:newsml_L8N43Y024:0/
+                    - article [ref=e3442]:
+                      - generic [ref=e3443]:
+                        - generic [ref=e3444]:
+                          - list [ref=e3445]:
+                            - listitem [ref=e3446]
+                            - listitem [ref=e3447]
+                            - listitem [ref=e3448]
+                            - listitem [ref=e3449]
+                          - generic [ref=e3450]:
+                            - generic "1. Aug. 2026, 02:47 MESZ" [ref=e3451]
+                            - text: ·
+                          - generic [ref=e3452]: Reuters
+                        - text: US-Finanzministerium greift ein, um den Yen zu stützen, nachdem Japan interveniert hatte, berichtet die FT
+                  - link [ref=e3453] [cursor=pointer]:
+                    - /url: /news/reuters.com,2026:newsml_L8N43Y00Z:0/
+                    - article [ref=e3454]:
+                      - generic [ref=e3455]:
+                        - generic [ref=e3456]:
+                          - list [ref=e3457]:
+                            - listitem [ref=e3458]
+                            - listitem [ref=e3459]
+                          - generic [ref=e3460]:
+                            - generic "1. Aug. 2026, 02:26 MESZ" [ref=e3461]
+                            - text: ·
+                          - generic [ref=e3462]: Reuters
+                        - text: Das US-Finanzministerium greift in den Yen-Markt ein, berichtet die FT
+                  - link [ref=e3463] [cursor=pointer]:
+                    - /url: /news/fxstreet:99da79d4a600c:0/
+                    - article [ref=e3464]:
+                      - generic [ref=e3465]:
+                        - generic [ref=e3466]:
+                          - list [ref=e3467]:
+                            - listitem [ref=e3468]
+                            - listitem [ref=e3469]
+                          - generic [ref=e3470]:
+                            - generic "31. Juli 2026, 22:15 MESZ" [ref=e3471]
+                            - text: ·
+                          - generic [ref=e3472]: FXStreet
+                        - text: "NZD/USD-Kursprognose: Bullen peilen 0,6000 nach SMA-Durchbruch an"
+                  - link [ref=e3473] [cursor=pointer]:
+                    - /url: /news/fxstreet:16f8b3f6f600c:0/
+                    - article [ref=e3474]:
+                      - generic [ref=e3475]:
+                        - generic [ref=e3476]:
+                          - list [ref=e3477]:
+                            - listitem [ref=e3478]
+                            - listitem [ref=e3479]
+                            - listitem [ref=e3480]
+                            - listitem [ref=e3481]
+                          - generic [ref=e3482]:
+                            - generic "31. Juli 2026, 22:15 MESZ" [ref=e3483]
+                            - text: ·
+                          - generic [ref=e3484]: FXStreet
+                        - text: "Prognose für die kommende Woche: US-Arbeitsmarkt rückt nach hawkischer Fed-Spaltung in den Mittelpunkt"
+                  - link [ref=e3485] [cursor=pointer]:
+                    - /url: /news/fxstreet:7057542ba600c:0/
+                    - article [ref=e3486]:
+                      - generic [ref=e3487]:
+                        - generic [ref=e3488]:
+                          - list [ref=e3489]:
+                            - listitem [ref=e3490]
+                            - listitem [ref=e3491]
+                          - generic [ref=e3492]:
+                            - generic "31. Juli 2026, 21:49 MESZ" [ref=e3493]
+                            - text: ·
+                          - generic [ref=e3494]: FXStreet
+                        - text: "USD/CHF-Preisprognose: Bullen verteidigen den 50-Tage-SMA, während sich die Erholung aufbaut"
+                  - text: · · · · · · · · · · · · · · · · · · · ·
+                - link [ref=e3497] [cursor=pointer]:
+                  - /url: /markets/currencies/news/
+          - generic [ref=e3506]:
+            - link [ref=e3511] [cursor=pointer]:
+              - /url: /markets/world-economy/
+              - heading [level=2] [ref=e3512]
+            - generic [ref=e3518]:
+              - generic [ref=e3519]:
+                - link [ref=e3524] [cursor=pointer]:
+                  - /url: /markets/world-economy/charts-global-trends/
+                  - heading [level=3] [ref=e3525]:
+                    - text: Globale
+                    - generic [ref=e3526]: Inflationskarte
+                - toolbar [ref=e3536]:
+                  - img [ref=e3537]:
+                    - generic [ref=e3538]:
+                      - generic "-40.04 bis zu 0%" [ref=e3539]
+                      - generic [ref=e3544]: 0%
+                    - generic "0 bis zu 3%" [ref=e3546]
+                    - generic [ref=e3551]:
+                      - generic "3 bis zu 7%" [ref=e3552]
+                      - generic [ref=e3557]: 7%
+                    - generic "7 bis zu 12%" [ref=e3559]
+                    - generic [ref=e3564]:
+                      - generic "12 bis zu 25%" [ref=e3565]
+                      - generic [ref=e3570]: 25%
+                    - generic "25 bis zu 544.1%" [ref=e3572]
+                - link [ref=e3788] [cursor=pointer]:
+                  - /url: /markets/world-economy/charts-global-trends/
+                  - generic [ref=e3791]:
+                    - text: Ansicht weiterer globaler
+                    - generic [ref=e3792]: Trends
+              - generic [ref=e3796]:
+                - generic [ref=e3798]:
+                  - link [ref=e3801] [cursor=pointer]:
+                    - /url: /economic-calendar/
+                    - heading [level=3] [ref=e3802]
+                  - link "Widget auswählen" [ref=e3807] [cursor=pointer]:
+                    - /url: /widget-docs/widgets/calendars/economic-calendar/
+                - button [ref=e3890]
+                - link [ref=e3898] [cursor=pointer]:
+                  - /url: /economic-calendar/
+                  - generic [ref=e3901]:
+                    - text: Ansicht aller
+                    - generic [ref=e3902]: Marktevents
+          - generic [ref=e3907]:
+            - generic [ref=e3908]:
+              - link [ref=e3912] [cursor=pointer]:
+                - /url: /brokers/
+                - heading [level=2] [ref=e3913]:
+                  - text: Trading &
+                  - generic [ref=e3914]: Broker
+              - generic [ref=e3918]: Traden Sie direkt auf den Supercharts mit unseren unterstützten, vollständig verifizierten und von Nutzern bewerteten Brokern.
+            - generic [ref=e3925]:
+              - generic [ref=e3927]:
+                - link "Featured" [ref=e3929] [cursor=pointer]:
+                  - /url: "?solution=43000701943"
+                - link "OANDA OANDA Best 2023 Devisen, CFDs 4.5 •Großartig Authentisches Rating von TradingView Konto eröffnen" [ref=e3931] [cursor=pointer]:
+                  - /url: /broker/OANDA/
+                  - generic [ref=e3932]:
+                    - img "OANDA" [ref=e3934]
+                    - generic [ref=e3935]:
+                      - generic [ref=e3936]:
+                        - generic [ref=e3937]: OANDA
+                        - button "Best 2023" [ref=e3938]:
+                          - generic "Broker des Jahres 2023" [ref=e3939]: Best 2023
+                      - generic [ref=e3941]: Devisen, CFDs
+                    - generic [ref=e3942]:
+                      - generic [ref=e3943]:
+                        - generic [ref=e3947]:
+                          - generic [ref=e3948]: "4.5"
+                          - generic [ref=e3949]: •Großartig
+                        - button "Authentisches Rating von TradingView" [ref=e3950]
+                      - button "Konto eröffnen" [ref=e3954]
+              - link "easyMarkets easyMarkets Best 2024 Devisen, CFDs 4.9 •Ausgezeichnet Authentisches Rating von TradingView Konto eröffnen" [ref=e3961] [cursor=pointer]:
+                - /url: /broker/easyMarkets/
+                - generic [ref=e3962]:
+                  - img "easyMarkets" [ref=e3964]
+                  - generic [ref=e3965]:
+                    - generic [ref=e3966]:
+                      - generic [ref=e3967]: easyMarkets
+                      - button "Best 2024" [ref=e3968]:
+                        - generic "Broker des Jahres 2024" [ref=e3969]: Best 2024
+                    - generic [ref=e3971]: Devisen, CFDs
+                  - generic [ref=e3972]:
+                    - generic [ref=e3973]:
+                      - generic [ref=e3977]:
+                        - generic [ref=e3978]: "4.9"
+                        - generic [ref=e3979]: •Ausgezeichnet
+                      - button "Authentisches Rating von TradingView" [ref=e3980]
+                    - button "Konto eröffnen" [ref=e3984]
+              - link "Trade Nation Trade Nation Devisen, CFDs 4.8 •Ausgezeichnet Authentisches Rating von TradingView Konto eröffnen" [ref=e3991] [cursor=pointer]:
+                - /url: /broker/TradeNation/
+                - generic [ref=e3992]:
+                  - img "Trade Nation" [ref=e3994]
+                  - generic [ref=e3995]:
+                    - generic [ref=e3996]: Trade Nation
+                    - generic [ref=e3998]: Devisen, CFDs
+                  - generic [ref=e3999]:
+                    - generic [ref=e4000]:
+                      - generic [ref=e4004]:
+                        - generic [ref=e4005]: "4.8"
+                        - generic [ref=e4006]: •Ausgezeichnet
+                      - button "Authentisches Rating von TradingView" [ref=e4007]
+                    - button "Konto eröffnen" [ref=e4011]
+              - link "OKX OKX Krypto 4.6 •Ausgezeichnet Authentisches Rating von TradingView Konto eröffnen" [ref=e4018] [cursor=pointer]:
+                - /url: /broker/OKX/
+                - generic [ref=e4019]:
+                  - img "OKX" [ref=e4021]
+                  - generic [ref=e4022]:
+                    - generic [ref=e4023]: OKX
+                    - generic [ref=e4025]: Krypto
+                  - generic [ref=e4026]:
+                    - generic [ref=e4027]:
+                      - generic [ref=e4031]:
+                        - generic [ref=e4032]: "4.6"
+                        - generic [ref=e4033]: •Ausgezeichnet
+                      - button "Authentisches Rating von TradingView" [ref=e4034]
+                    - button "Konto eröffnen" [ref=e4038]
+              - link [ref=e4044] [cursor=pointer]:
+                - /url: /brokers/
+                - paragraph [ref=e4045]:
+                  - generic [ref=e4046]: Alle Broker anzeigen
+              - button [ref=e4051]
+    - contentinfo [ref=e4057]:
+      - generic [ref=e4059]:
+        - separator [ref=e4060]
+        - generic [ref=e4062]:
+          - generic [ref=e4063]:
+            - generic [ref=e4064]:
+              - generic [ref=e4065]:
+                - link "TradingView-Hauptseite" [ref=e4066] [cursor=pointer]:
+                  - /url: /
+                - generic [ref=e4068]: Von Menschen erstellt
+              - generic [ref=e4072]:
+                - link "TradingView auf X" [ref=e4073] [cursor=pointer]:
+                  - /url: https://x.com/tradingview/
+                - link "TradingView auf Facebook" [ref=e4078] [cursor=pointer]:
+                  - /url: https://www.facebook.com/tradingview/
+                - link "TradingView auf YouTube" [ref=e4083] [cursor=pointer]:
+                  - /url: https://www.youtube.com/@TradingView
+                - link "TradingView auf Instagram" [ref=e4088] [cursor=pointer]:
+                  - /url: https://www.instagram.com/tradingview/
+                - link "TradingView auf LinkedIn" [ref=e4093] [cursor=pointer]:
+                  - /url: https://www.linkedin.com/company/tradingview/
+                - link "TradingView auf Telegram" [ref=e4098] [cursor=pointer]:
+                  - /url: https://t.me/tradingview/
+                - link "TradingView auf TikTok" [ref=e4103] [cursor=pointer]:
+                  - /url: https://www.tiktok.com/@tradingview/
+                - link "TradingView auf Reddit" [ref=e4108] [cursor=pointer]:
+                  - /url: https://www.reddit.com/r/TradingView/
+            - generic [ref=e4113]:
+              - button "Deutsch" [ref=e4114]
+              - paragraph [ref=e4124]:
+                - generic [ref=e4125]:
+                  - text: Die ausgewählten Marktdaten werden von
+                  - link "ICE Data Services" [ref=e4126] [cursor=pointer]:
+                    - /url: https://www.ice.com/fixed-income-data-services
+                  - text: bereitgestellt.
+                - generic [ref=e4127]: Die ausgewählten Referenzdaten werden von FactSet. Copyright © 2026 FactSet Research Systems Inc.
+                - generic [ref=e4128]: Copyright © 2026, American Bankers Association bereitgestellt. Die CUSIP-Datenbank wird von FactSet Research Systems Inc. bereitgestellt. Alle Rechte vorbehalten.
+                - generic [ref=e4129]:
+                  - text: Die SEC-Einreichungen und sonstigen Dokumente werden von
+                  - link "Quartr" [ref=e4130] [cursor=pointer]:
+                    - /url: https://quartr.com/
+                  - text: bereitgestellt.
+                - generic [ref=e4131]: © 2026 TradingView, Inc.
+          - generic [ref=e4132]:
+            - generic [ref=e4133]:
+              - generic [ref=e4134]:
+                - generic [ref=e4135]: Mehr als ein Produkt
+                - list [ref=e4136]:
+                  - listitem [ref=e4137]:
+                    - link "Supercharts" [ref=e4138] [cursor=pointer]:
+                      - /url: /chart/
+              - generic [ref=e4139]:
+                - generic [ref=e4140]: Screener
+                - list [ref=e4141]:
+                  - listitem [ref=e4142]:
+                    - link "Aktien" [ref=e4143] [cursor=pointer]:
+                      - /url: /screener/
+                  - listitem [ref=e4144]:
+                    - link "ETFs" [ref=e4145] [cursor=pointer]:
+                      - /url: /etf-screener/
+                  - listitem [ref=e4146]:
+                    - link "Anleihen" [ref=e4147] [cursor=pointer]:
+                      - /url: /bond-screener/
+                  - listitem [ref=e4148]:
+                    - link "Krypto-Coins" [ref=e4149] [cursor=pointer]:
+                      - /url: /crypto-coins-screener/
+                  - listitem [ref=e4150]:
+                    - link "CEX-Paare" [ref=e4151] [cursor=pointer]:
+                      - /url: /cex-screener/
+                  - listitem [ref=e4152]:
+                    - link "DEX-Paare" [ref=e4153] [cursor=pointer]:
+                      - /url: /dex-screener/
+                  - listitem [ref=e4154]:
+                    - link "Pine" [ref=e4155] [cursor=pointer]:
+                      - /url: /pine-screener/
+              - generic [ref=e4156]:
+                - generic [ref=e4157]: Heatmaps
+                - list [ref=e4158]:
+                  - listitem [ref=e4159]:
+                    - link "Aktien" [ref=e4160] [cursor=pointer]:
+                      - /url: /heatmap/stock/
+                  - listitem [ref=e4161]:
+                    - link "ETFs" [ref=e4162] [cursor=pointer]:
+                      - /url: /heatmap/etf/
+                  - listitem [ref=e4163]:
+                    - link "Krypto-Coins" [ref=e4164] [cursor=pointer]:
+                      - /url: /heatmap/crypto/
+              - generic [ref=e4165]:
+                - generic [ref=e4166]: Kalender
+                - list [ref=e4167]:
+                  - listitem [ref=e4168]:
+                    - link "Ökonomie" [ref=e4169] [cursor=pointer]:
+                      - /url: /economic-calendar/
+                  - listitem [ref=e4170]:
+                    - link "Earnings" [ref=e4171] [cursor=pointer]:
+                      - /url: /earnings-calendar/
+                  - listitem [ref=e4172]:
+                    - link "Dividenden" [ref=e4173] [cursor=pointer]:
+                      - /url: /dividend-calendar/
+                  - listitem [ref=e4174]:
+                    - link "IPOs" [ref=e4175] [cursor=pointer]:
+                      - /url: /ipo-calendar/
+              - generic [ref=e4176]:
+                - generic [ref=e4177]: Weitere Produkte
+                - list [ref=e4178]:
+                  - listitem [ref=e4179]:
+                    - link "Nachrichtenstrom" [ref=e4180] [cursor=pointer]:
+                      - /url: /news-flow/
+                  - listitem [ref=e4181]:
+                    - link "Portfolios" [ref=e4182] [cursor=pointer]:
+                      - /url: /portfolios/
+                  - listitem [ref=e4183]:
+                    - link "Fundamentalgraphen" [ref=e4184] [cursor=pointer]:
+                      - /url: /fundamental-graphs/
+                  - listitem [ref=e4185]:
+                    - link "Renditekurven" [ref=e4186] [cursor=pointer]:
+                      - /url: /yield-curves/
+                  - listitem [ref=e4187]:
+                    - link "Optionen" [ref=e4188] [cursor=pointer]:
+                      - /url: /options/
+                  - listitem [ref=e4189]:
+                    - link "Makro-Maps" [ref=e4190] [cursor=pointer]:
+                      - /url: /macro-maps/
+                  - listitem [ref=e4191]:
+                    - link "Pine Script®" [ref=e4192] [cursor=pointer]:
+                      - /url: https://www.tradingview.com/pine-script-docs/
+              - generic [ref=e4193]:
+                - generic [ref=e4194]: Apps
+                - list [ref=e4195]:
+                  - listitem [ref=e4196]:
+                    - link "Mobile" [ref=e4197] [cursor=pointer]:
+                      - /url: /mobile/
+                  - listitem [ref=e4198]:
+                    - link "Desktop" [ref=e4199] [cursor=pointer]:
+                      - /url: /desktop/
+              - generic [ref=e4200]:
+                - generic [ref=e4201]: Community
+                - list [ref=e4202]:
+                  - listitem [ref=e4203]:
+                    - link "Soziales Netzwerk" [ref=e4204] [cursor=pointer]:
+                      - /url: /social-network/
+                  - listitem [ref=e4205]:
+                    - link "Wall of Love" [ref=e4206] [cursor=pointer]:
+                      - /url: /wall-of-love/
+                  - listitem [ref=e4207]:
+                    - link "Einem Freund empfehlen" [ref=e4208] [cursor=pointer]:
+                      - /url: /share-your-love/?source=footer&feature=refer_friend
+                  - listitem [ref=e4209]:
+                    - link "Urheberprogramm" [ref=e4210] [cursor=pointer]:
+                      - /url: /creator-program/
+                  - listitem [ref=e4211]:
+                    - link "Hausregeln" [ref=e4212] [cursor=pointer]:
+                      - /url: /house-rules/
+                  - listitem [ref=e4213]:
+                    - link "Moderatoren" [ref=e4214] [cursor=pointer]:
+                      - /url: /moderators/
+              - generic [ref=e4215]:
+                - generic [ref=e4216]: Ideen
+                - list [ref=e4217]:
+                  - listitem [ref=e4218]:
+                    - link "Trading" [ref=e4219] [cursor=pointer]:
+                      - /url: /ideas/
+                  - listitem [ref=e4220]:
+                    - link "Ausbildung" [ref=e4221] [cursor=pointer]:
+                      - /url: /ideas/?type=education
+                  - listitem [ref=e4222]:
+                    - link "Editors' Picks" [ref=e4223] [cursor=pointer]:
+                      - /url: /ideas/editors-picks/
+              - generic [ref=e4224]:
+                - generic [ref=e4225]: Pine Script
+                - list [ref=e4226]:
+                  - listitem [ref=e4227]:
+                    - link "Indikatoren & Strategien" [ref=e4228] [cursor=pointer]:
+                      - /url: /scripts/
+                  - listitem [ref=e4229]:
+                    - link "Wizards" [ref=e4230] [cursor=pointer]:
+                      - /url: /wizards/
+                  - listitem [ref=e4231]:
+                    - link "Freelancer" [ref=e4232] [cursor=pointer]:
+                      - /url: /pine-script-freelancers/
+                  - listitem [ref=e4233]:
+                    - link "Paid Spaces" [ref=e4234] [cursor=pointer]:
+                      - /url: /spaces/
+            - generic [ref=e4235]:
+              - generic [ref=e4236]:
+                - generic [ref=e4237]: Tools & Abonnements
+                - list [ref=e4238]:
+                  - listitem [ref=e4239]:
+                    - link "Features" [ref=e4240] [cursor=pointer]:
+                      - /url: /features/
+                  - listitem [ref=e4241]:
+                    - link "Preise" [ref=e4242] [cursor=pointer]:
+                      - /url: /pricing/?source=footer&feature=pricing
+                  - listitem [ref=e4243]:
+                    - link "Marktdaten" [ref=e4244] [cursor=pointer]:
+                      - /url: /data-coverage/
+                  - listitem [ref=e4245]:
+                    - link "Abonnements verschenken" [ref=e4246] [cursor=pointer]:
+                      - /url: /gifts/
+              - generic [ref=e4247]:
+                - generic [ref=e4248]: Trading
+                - list [ref=e4249]:
+                  - listitem [ref=e4250]:
+                    - link "Übersicht" [ref=e4251] [cursor=pointer]:
+                      - /url: /trading/
+                  - listitem [ref=e4252]:
+                    - link "Broker" [ref=e4253] [cursor=pointer]:
+                      - /url: /brokers/
+                  - listitem [ref=e4254]:
+                    - link "Broker-Vergleich" [ref=e4255] [cursor=pointer]:
+                      - /url: /brokers/compare/
+                  - listitem [ref=e4256]:
+                    - link "The Leap" [ref=e4257] [cursor=pointer]:
+                      - /url: /the-leap/
+              - generic [ref=e4258]:
+                - generic [ref=e4259]: Sonderangebote
+                - list [ref=e4260]:
+                  - listitem [ref=e4261]:
+                    - link "Futures der CME Group" [ref=e4262] [cursor=pointer]:
+                      - /url: /cme/
+                  - listitem [ref=e4263]:
+                    - link "Eurex-Termingeschäfte" [ref=e4264] [cursor=pointer]:
+                      - /url: /eurex/
+                  - listitem [ref=e4265]:
+                    - link "US-Aktienbündel" [ref=e4266] [cursor=pointer]:
+                      - /url: /us-markets-bundle/
+              - generic [ref=e4267]:
+                - generic [ref=e4268]: Über das Unternehmen
+                - list [ref=e4269]:
+                  - listitem [ref=e4270]:
+                    - link "Wer wir sind" [ref=e4271] [cursor=pointer]:
+                      - /url: /about/
+                  - listitem [ref=e4272]:
+                    - link "Weltraummission" [ref=e4273] [cursor=pointer]:
+                      - /url: /space-mission/
+                  - listitem [ref=e4274]:
+                    - link "Blog" [ref=e4275] [cursor=pointer]:
+                      - /url: https://www.tradingview.com/blog/de/
+                  - listitem [ref=e4276]:
+                    - link "Hilfe Center" [ref=e4277] [cursor=pointer]:
+                      - /url: /support/
+                  - listitem [ref=e4278]:
+                    - link "Karrieren" [ref=e4279] [cursor=pointer]:
+                      - /url: /careers/
+                  - listitem [ref=e4280]:
+                    - link "Media Kit" [ref=e4281] [cursor=pointer]:
+                      - /url: /media-kit/
+              - generic [ref=e4282]:
+                - generic [ref=e4283]: Merch
+                - list [ref=e4284]:
+                  - listitem [ref=e4285]:
+                    - link "TradingView-Store" [ref=e4286] [cursor=pointer]:
+                      - /url: https://tradingviewstore.com/
+                  - listitem [ref=e4287]:
+                    - link "Tarotkarten für Trader" [ref=e4288] [cursor=pointer]:
+                      - /url: /tarot-reading/
+                  - listitem [ref=e4289]:
+                    - link "Der C63 TradeTime" [ref=e4290] [cursor=pointer]:
+                      - /url: /tradetime/
+              - generic [ref=e4291]:
+                - generic [ref=e4292]: Richtlinien & Sicherheit
+                - list [ref=e4293]:
+                  - listitem [ref=e4294]:
+                    - link "Nutzungsbedingungen" [ref=e4295] [cursor=pointer]:
+                      - /url: /policies/
+                  - listitem [ref=e4296]:
+                    - link "Haftungsausschluss" [ref=e4297] [cursor=pointer]:
+                      - /url: /disclaimer/
+                  - listitem [ref=e4298]:
+                    - link "Datenschutzrichtlinie" [ref=e4299] [cursor=pointer]:
+                      - /url: /privacy-policy/
+                  - listitem [ref=e4300]:
+                    - link "Cookies-Richtlinien" [ref=e4301] [cursor=pointer]:
+                      - /url: /cookies-policy/
+                  - listitem [ref=e4302]:
+                    - link "Zugänglichkeitserklärung" [ref=e4303] [cursor=pointer]:
+                      - /url: /accessibility/
+                  - listitem [ref=e4304]:
+                    - link "Sicherheitstipps" [ref=e4305] [cursor=pointer]:
+                      - /url: /security/
+                  - listitem [ref=e4306]:
+                    - link "Bug-Bounty-Programm" [ref=e4307] [cursor=pointer]:
+                      - /url: /bounty/
+                  - listitem [ref=e4308]:
+                    - link "Statusseite" [ref=e4309] [cursor=pointer]:
+                      - /url: https://status.tradingview.com/
+              - generic [ref=e4310]:
+                - generic [ref=e4311]: Geschäftslösungen
+                - list [ref=e4312]:
+                  - listitem [ref=e4313]:
+                    - link "Widgets" [ref=e4314] [cursor=pointer]:
+                      - /url: /widget/
+                  - listitem [ref=e4315]:
+                    - link "Charting-Bibliotheken" [ref=e4316] [cursor=pointer]:
+                      - /url: /free-charting-libraries/
+                  - listitem [ref=e4317]:
+                    - link "Lightweight Charts™" [ref=e4318] [cursor=pointer]:
+                      - /url: /lightweight-charts/
+                  - listitem [ref=e4319]:
+                    - link "Fortschrittliche Charts" [ref=e4320] [cursor=pointer]:
+                      - /url: /advanced-charts/
+                  - listitem [ref=e4321]:
+                    - link "Trading-Plattform" [ref=e4322] [cursor=pointer]:
+                      - /url: /trading-platform/
+              - generic [ref=e4323]:
+                - generic [ref=e4324]: Wachstumsmöglichkeiten
+                - list [ref=e4325]:
+                  - listitem [ref=e4326]:
+                    - link "Werbung" [ref=e4327] [cursor=pointer]:
+                      - /url: /advertising-info/
+                  - listitem [ref=e4328]:
+                    - link "Brokerage Integration" [ref=e4329] [cursor=pointer]:
+                      - /url: /brokerage-integration/
+                  - listitem [ref=e4330]:
+                    - link "Partnerprogramm" [ref=e4331] [cursor=pointer]:
+                      - /url: /partner-program/
+                  - listitem [ref=e4332]:
+                    - link "Ausbildungsprogramm" [ref=e4333] [cursor=pointer]:
+                      - /url: /students/
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list
+            - generic:
+              - log:
+                - list

@@ -127,8 +127,15 @@ function buildDeepSleevePatterns(): SleevePattern[] {
     const startSlot = entry ? approxSlot(entry.month, entry.day) : 1;
     const holdSlots = entry ? Math.round(entry.hold * (252 / 365)) : 10;
     const cStart = entry ? calDay(entry.month, entry.day) : 1;
+    const endDay = entry ? (() => {
+      const start = new Date(2024, entry.month - 1, entry.day);
+      const end = new Date(start.getTime() + (dp.avg_trade_days ?? 10) * 86400000 * (365 / 252));
+      return { month: end.getMonth() + 1, day: end.getDate() };
+    })() : null;
     const windowLabel = entry
-      ? `${monthNames[entry.month] ?? entry.month} ${entry.day} – ${entry.day + Math.round((dp.avg_trade_days ?? 10) * 365 / 252)}`
+      ? endDay && endDay.month !== entry.month
+        ? `${monthNames[entry.month] ?? entry.month} ${entry.day} - ${monthNames[endDay.month] ?? endDay.month} ${endDay.day}`
+        : `${monthNames[entry.month] ?? entry.month} ${entry.day} - ${endDay?.day ?? entry.day + 10}`
       : dp.name;
     const avgRet = dp.direction === "LONG" ? Math.abs(dp.cagr / 100) * 0.3 : -Math.abs(dp.cagr / 100) * 0.3;
 
@@ -512,10 +519,9 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
   onDetail: () => void;     // detail-icon klicken = detail-panel öffnen
 }) {
   const isLong    = p.direction === "LONG";
-  const dirColor  = isLong ? "#e8edf3" : C_GOLD;
+  const dirColor  = isLong ? "#22C55E" : "#EF4444";
   const countdown = usePatternCountdown(p.calStart);
   const [detailHov, setDetailHov] = useState(false);
-
   // Live-Schätzung für aktive Muster (historische Avg-Kurve an aktueller Position)
   const activeLiveEst = useMemo<number | null>(() => {
     if (countdown !== "Aktiv") return null;
@@ -552,21 +558,16 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
         opacity: isGradeD ? 0.4 : 1,
       }}
     >
-      {/* ── Row 1: Asset icon · Symbol + Name · Deep Grade or WR Donut ── */}
+      {/* ── Row 1: Asset icon · Symbol + Name · WR Donut ── */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
         <AssetIcon assetId={p.assetId} iconAssetId={p.iconAssetId} symbol={p.symbol} name={p.name} size={36} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 16, fontWeight: 900, color: "#fff", lineHeight: 1, letterSpacing: "0.01em" }}>
             {p.symbol.replace("1!", "!")}
-          </div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.38)", lineHeight: 1, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-            {p.name}
+            <span style={{ fontSize: 11, fontWeight: 500, color: "rgba(255,255,255,0.38)", marginLeft: 6 }}>{p.name.split(" ")[0]}</span>
           </div>
         </div>
-        {p.deepGrade && p.deepScore != null
-          ? <DeepGradeBadge grade={p.deepGrade} score={p.deepScore} size={48} />
-          : <WrDonut pct={p.oosWinRate * 100} size={48} />
-        }
+        <WrDonut pct={p.oosWinRate * 100} size={48} />
       </div>
 
       {/* ── Row 2: Muster-Datum ── */}
@@ -589,15 +590,6 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
         )}
       </div>
 
-      {/* ── Row 3b: Deep Validation mini-stats ── */}
-      {p.deepGrade && (
-        <div style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.45)", lineHeight: 1, marginBottom: 6, fontFamily: FONT, letterSpacing: "0.01em" }}>
-          WF {p.wfStrictPct?.toFixed(0) ?? "—"}%
-          {" · Bonf "}
-          <span style={{ color: p.bonferroniSig ? "#22C55E" : "#EF4444" }}>{p.bonferroniSig ? "✓" : "✗"}</span>
-          {" · "}{p.decadesProfitable ?? 0}/5
-        </div>
-      )}
 
       {/* ── Row 4: Performance-Chart — kein eigener Border ── */}
       <div style={{ flex: 1, minHeight: 50, overflow: "hidden" }}>
@@ -614,7 +606,6 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
           <span style={{ fontSize: 10 }}>{isLong ? "▲" : "▼"}</span>
           {p.direction}
         </span>
-        {/* Detail-Button — stopPropagation verhindert Karten-Click */}
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); onDetail(); }}
@@ -1144,12 +1135,12 @@ export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Pr
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, fontFamily: FONT }}>
 
-      {/* Next Signal Banner */}
-      <NextSignalBanner />
+      {/* Next Signal Banner — only in detail/portfolio, not grid */}
+      {mode !== "grid" && <NextSignalBanner />}
 
       {mode === "grid" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gap: 14, flex: 1, minHeight: 0, overflow: "hidden", padding: "12px 14px 14px" }}>
-          {SLEEVE_PATTERNS.map(p => (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gridTemplateRows: "1fr 1fr", gap: 14, flex: 1, minHeight: 0, overflow: "hidden", padding: "12px 14px 14px" }}>
+          {SLEEVE_PATTERNS.slice(0, 10).map(p => (
             <SleeveCard key={p.id} p={p} selected={selectedId === p.id}
               onActivate={() => openDetail(p)}
               onDetail={() => openDetail(p)}

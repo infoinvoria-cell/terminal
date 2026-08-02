@@ -1,0 +1,540 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - 'button "Logged in as jg_fxtrading Active layout: Data" [ref=e7]'
+      - generic [ref=e8]: "11"
+    - toolbar [ref=e12]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]:
+            - button "6A1!" [ref=e1377]
+            - button "Switch data type" [ref=e21]
+          - button "Compare symbols" [ref=e25]
+        - generic [ref=e33]:
+          - radiogroup [ref=e34]:
+            - radio "1 minute" [ref=e35]:
+              - generic [ref=e36]: 1m
+            - radio "5 minutes" [checked] [ref=e38]:
+              - generic [ref=e39]: 5m
+            - radio "15 minutes" [ref=e41]:
+              - generic [ref=e42]: 15m
+            - radio "30 minutes" [ref=e44]:
+              - generic [ref=e45]: 30m
+            - radio "1 hour" [ref=e47]:
+              - generic [ref=e48]: 1h
+            - radio "2 hours" [ref=e50]:
+              - generic [ref=e51]: 2h
+            - radio "4 hours" [ref=e53]:
+              - generic [ref=e54]: 4h
+            - radio "1 day" [ref=e56]:
+              - generic [ref=e57]: D
+            - radio "1 week" [ref=e59]:
+              - generic [ref=e60]: W
+            - radio "1 month" [ref=e62]:
+              - generic [ref=e63]: M
+          - button "Chart interval" [ref=e65]
+        - generic [ref=e74]:
+          - radiogroup [ref=e75]:
+            - radio "Candles" [checked] [ref=e76]
+            - radio "Heikin Ashi" [ref=e83]
+          - button "Bar's style" [ref=e90]
+        - generic [ref=e98]:
+          - generic [ref=e99]:
+            - button "Indicators, metrics, and strategies" [ref=e100]
+            - button "Favorite indicators" [ref=e105]
+          - button "Indicator templates" [ref=e112]
+        - generic [ref=e119]:
+          - button "Create alert" [ref=e120]
+          - button "Bar replay" [ref=e125]
+        - generic [ref=e132]:
+          - button "Undo change resolution" [ref=e1602]
+          - button [disabled] [ref=e137]
+        - generic [ref=e141]:
+          - button "Layout setup" [ref=e142]
+          - generic [ref=e145]:
+            - button "Save all charts for all symbols and intervals on your layout" [ref=e1379]:
+              - generic [ref=e148]:
+                - generic [ref=e149]: Data
+                - generic [ref=e1380]: Save
+            - button "Manage layouts" [ref=e151]
+            - link "⚔️Copy Trading JG 2" [ref=e157]:
+              - /url: https://www.tradingview.com/chart/W0GEb5M7/
+            - link "🍎Swing Stocks Strategien" [ref=e160]:
+              - /url: https://www.tradingview.com/chart/4Hn8TX6E/
+            - link "📊SCANNER" [ref=e163]:
+              - /url: https://www.tradingview.com/chart/lrY2G4rE/
+            - link "🧐invest" [ref=e166]:
+              - /url: https://www.tradingview.com/chart/gVBhfGn8/
+        - generic [ref=e171]:
+          - button "Quick search" [ref=e172]
+          - button "Settings" [ref=e177]
+          - button "Fullscreen mode" [ref=e183]
+          - button "Take a snapshot" [ref=e187]
+      - button "Trade" [ref=e1053]
+      - button "Share your idea with the trade community" [ref=e1061]:
+        - generic [ref=e1062]: Publish
+    - toolbar [ref=e215]:
+      - generic [ref=e219]:
+        - generic [ref=e220]:
+          - generic [ref=e223]:
+            - button "Cross" [ref=e225]
+            - button "Cursors" [pressed] [ref=e231]
+          - generic [ref=e237]:
+            - button "Trendline" [ref=e239]
+            - button "Trend tools" [ref=e245]
+          - generic [ref=e251]:
+            - button "Fib retracement" [ref=e253]
+            - button "Gann and Fibonacci tools" [ref=e262]
+          - generic [ref=e268]:
+            - button "XABCD pattern" [ref=e270]
+            - button "Patterns" [ref=e276]
+          - generic [ref=e282]:
+            - button "Long position" [ref=e284]
+            - button "Forecasting and measurement tools" [ref=e288]
+          - generic [ref=e294]:
+            - button "Brush" [ref=e296]
+            - button "Geometric shapes" [ref=e302]
+          - generic [ref=e308]:
+            - button "Text" [ref=e310]
+            - button "Annotation tools" [ref=e314]
+          - generic [ref=e319]:
+            - button "Icon" [ref=e321]
+            - button "Icons" [ref=e325]
+        - generic [ref=e329]:
+          - button "Measure" [ref=e330]
+          - button "Zoom in" [ref=e334]
+        - generic [ref=e341]:
+          - generic [ref=e344]:
+            - button "Magnet mode snaps drawings placed near price bars to the closest OHLC value" [ref=e346]
+            - button "Magnets" [ref=e352]
+          - button "Keep drawing" [ref=e356]
+          - button "Lock all drawings" [ref=e360]
+          - generic [ref=e365]:
+            - button "Hide all indicators" [ref=e367]
+            - button "Hide options" [ref=e371]
+          - generic [ref=e376]:
+            - button "New drawings will not be synced" [ref=e378]
+            - button "Sync drawings options" [ref=e382]
+        - generic [ref=e388]:
+          - button "Remove objects" [ref=e390]
+          - button "Remove options" [ref=e394]
+        - button "Show Favorite Drawing Tools Toolbar" [ref=e400]
+    - generic [ref=e404]:
+      - 'region "Chart #1" [ref=e407]':
+        - generic [ref=e411]:
+          - generic:
+            - generic:
+              - toolbar:
+                - generic:
+                  - generic [ref=e412]:
+                    - generic "Change symbol" [ref=e1603]:
+                      - generic [ref=e414]: E
+                      - button "Change symbol" [ref=e1604]: 6A1!
+                    - generic "Change interval" [ref=e1605]:
+                      - text: ·
+                      - button "Change interval" [ref=e1606]: "5"
+                    - generic [ref=e1607]:
+                      - text: ·
+                      - generic [ref=e1608]: CME
+                  - generic:
+                    - generic:
+                      - button "Flag symbol"
+                      - button "More"
+                  - button "Data is delayed" [ref=e1389]
+          - generic "Chart for CME_DL:6A1!, 5 minutes" [ref=e1609]
+      - toolbar [ref=e439]:
+        - generic [ref=e1153]:
+          - generic [ref=e1154]:
+            - button "1 day in 1 minute intervals" [ref=e1155]:
+              - generic [ref=e1156]: 1D
+            - button "5 days in 5 minutes intervals" [ref=e1157]:
+              - generic [ref=e1158]: 5D
+            - button "1 month in 30 minutes intervals" [ref=e1159]:
+              - generic [ref=e1160]: 1M
+            - button "3 months in 1 hour intervals" [ref=e1161]:
+              - generic [ref=e1162]: 3M
+            - button "6 months in 2 hours intervals" [ref=e1163]:
+              - generic [ref=e1164]: 6M
+            - button "Year to day in 1 day intervals" [ref=e1165]:
+              - generic [ref=e1166]: YTD
+            - button "1 year in 1 day intervals" [ref=e1167]:
+              - generic [ref=e1168]: 1Y
+            - button "5 years in 1 week intervals" [ref=e1169]:
+              - generic [ref=e1170]: 5Y
+            - button "All data in 1 month intervals" [ref=e1171]:
+              - generic [ref=e1172]: All
+          - button "Go to" [ref=e1174]
+        - generic [ref=e448]:
+          - button "Timezone" [ref=e451]:
+            - generic [ref=e452]: 16:36:45 UTC+2
+          - button "Electronic trading hours" [ref=e455]: ETH
+          - button "Adjust for contract changes" [ref=e1395]:
+            - generic [ref=e1396]: B-ADJ
+    - generic [ref=e457]:
+      - toolbar [ref=e462]:
+        - button "Watchlist, details, and news" [pressed] [ref=e463]
+        - button "Alerts" [ref=e468]:
+          - img "15 unread alert notifications" [ref=e474]: "15"
+        - button "Object tree and data window" [ref=e475]
+        - button "Chats" [ref=e479]
+        - button "Pine" [ref=e485]
+        - button "Community" [ref=e490]
+        - button "Notifications" [ref=e497]:
+          - img [ref=e502]: "9"
+        - button "Products" [ref=e503]
+        - button "Help Center" [ref=e508]
+      - generic [ref=e513]:
+        - generic [ref=e514]:
+          - generic [ref=e515]:
+            - generic [ref=e518]:
+              - button "Claude" [ref=e520]
+              - generic [ref=e530]:
+                - button "Add symbol" [ref=e531]
+                - button "Advanced view" [ref=e535]
+                - button "Settings" [ref=e539]
+            - generic [ref=e544]:
+              - toolbar [ref=e545]:
+                - button "Swing Aktiv" [ref=e546]
+                - button "Swing Stocks - Screener" [ref=e552]
+                - button "🌍Assets - JG" [ref=e558]
+                - button "Swing Attraktiv" [ref=e561]
+                - button "SwingStocks" [ref=e567]:
+                  - generic [ref=e568]: S
+                - button "🪐Capitalife Valuation" [ref=e569]
+              - generic [ref=e573]:
+                - generic [ref=e575]:
+                  - button [ref=e577]
+                  - button "Symbol" [ref=e582]
+                  - button "Last" [ref=e584]
+                  - button "Chg" [ref=e586]
+                  - button "Chg%" [ref=e588]
+                - generic [ref=e593]:
+                  - generic [ref=e598]:
+                    - generic [ref=e600]:
+                      - generic [ref=e601]: "6"
+                      - generic [ref=e606]:
+                        - generic: 6A1!
+                        - generic "Quotes are delayed by 10 min" [ref=e1065]: D
+                    - generic [ref=e609]: "0.69955"
+                    - generic [ref=e610]: −0.00285
+                    - generic [ref=e611]: −0.41%
+                  - generic [ref=e614]:
+                    - generic [ref=e616]:
+                      - generic [ref=e617]: A
+                      - generic [ref=e621]: AUDUSD
+                    - generic [ref=e1076]:
+                      - text: "0.7009"
+                      - superscript [ref=e1637]: "2"
+                    - generic [ref=e626]: −0.00184
+                    - generic [ref=e627]: −0.26%
+                  - generic [ref=e630]:
+                    - generic [ref=e632]:
+                      - generic [ref=e633]: G
+                      - generic [ref=e637]: GBPUSD
+                    - generic [ref=e1087]:
+                      - text: "1.3430"
+                      - superscript [ref=e1638]: "9"
+                    - generic [ref=e642]: −0.00349
+                    - generic [ref=e643]: −0.26%
+                  - generic [ref=e646]:
+                    - generic [ref=e648]:
+                      - generic [ref=e649]: "6"
+                      - generic [ref=e654]:
+                        - generic: 6B1!
+                        - generic "Quotes are delayed by 10 min" [ref=e1092]: D
+                    - generic [ref=e657]: "1.3419"
+                    - generic [ref=e658]: −0.0056
+                    - generic [ref=e659]: −0.42%
+                  - generic [ref=e662]:
+                    - generic [ref=e664]:
+                      - generic [ref=e665]: F
+                      - generic [ref=e670]:
+                        - generic: FDAX1!
+                        - generic "Quotes are delayed by 15 min" [ref=e1097]: D
+                    - generic [ref=e673]: 25,681
+                    - generic [ref=e674]: "23"
+                    - generic [ref=e675]: 0.09%
+                  - generic [ref=e678]:
+                    - generic [ref=e680]:
+                      - generic [ref=e681]: "Y"
+                      - generic [ref=e686]:
+                        - generic: YM1!
+                        - generic "Quotes are delayed by 10 min" [ref=e1102]: D
+                    - generic [ref=e689]: 52,274
+                    - generic [ref=e690]: −106
+                    - generic [ref=e691]: −0.20%
+                  - generic [ref=e694]:
+                    - generic [ref=e696]:
+                      - generic [ref=e697]: E
+                      - generic [ref=e701]: EURUSD
+                    - generic [ref=e1113]:
+                      - text: "1.1483"
+                      - superscript [ref=e1639]: "3"
+                    - generic [ref=e706]: −0.00439
+                    - generic [ref=e707]: −0.38%
+                  - generic [ref=e710]:
+                    - generic [ref=e712]:
+                      - generic [ref=e713]: "6"
+                      - generic [ref=e718]:
+                        - generic: 6E1!
+                        - generic "Quotes are delayed by 10 min" [ref=e1118]: D
+                    - generic [ref=e721]: "1.14955"
+                    - generic [ref=e722]: −0.00595
+                    - generic [ref=e723]: −0.51%
+                  - generic [ref=e726]:
+                    - generic [ref=e728]:
+                      - generic [ref=e729]: G
+                      - generic [ref=e734]:
+                        - generic: GC1!
+                        - generic "Quotes are delayed by 10 min" [ref=e1123]: D
+                    - generic [ref=e737]: 4,095.7
+                    - generic [ref=e738]: −64.9
+                    - generic [ref=e739]: −1.56%
+                  - generic [ref=e742]:
+                    - generic [ref=e744]:
+                      - generic [ref=e745]: H
+                      - generic [ref=e750]:
+                        - generic: HG1!
+                        - generic "Quotes are delayed by 10 min" [ref=e1128]: D
+                    - generic [ref=e753]: "6.4555"
+                    - generic [ref=e754]: −0.0190
+                    - generic [ref=e755]: −0.29%
+                  - generic [ref=e758]:
+                    - generic [ref=e760]:
+                      - generic [ref=e761]: "N"
+                      - generic [ref=e766]:
+                        - generic: NQ1!
+                        - generic "Quotes are delayed by 10 min" [ref=e1133]: D
+                    - generic [ref=e769]: 28,182.75
+                    - generic [ref=e770]: −55.00
+                    - generic [ref=e771]: −0.19%
+                  - generic [ref=e774]:
+                    - generic [ref=e776]:
+                      - generic [ref=e777]: G
+                      - generic [ref=e781]: GLD
+                    - generic [ref=e785]: "370.74"
+                    - generic [ref=e786]: −6.42
+                    - generic [ref=e787]: −1.70%
+                  - generic [ref=e790]:
+                    - generic [ref=e792]:
+                      - generic [ref=e793]: "6"
+                      - generic [ref=e798]:
+                        - generic: 6S1!
+                        - generic "Quotes are delayed by 10 min" [ref=e1143]: D
+                    - generic [ref=e801]: "1.23795"
+                    - generic [ref=e802]: −0.01170
+                    - generic [ref=e803]: −0.94%
+          - generic [ref=e806]:
+            - generic [ref=e808]:
+              - generic [ref=e809]: "6"
+              - generic [ref=e814]: 6A1!
+              - generic [ref=e815]:
+                - button "Metrics" [ref=e816]
+                - generic "Add note" [ref=e820]
+                - generic "Settings" [ref=e825]
+            - generic:
+              - generic:
+                - generic:
+                  - generic [ref=e829]:
+                    - generic [ref=e831]:
+                      - link "Australian Dollar Futures" [ref=e1401] [cursor=pointer]:
+                        - /url: https://www.tradingview.com/symbols/CME-6A1!/
+                      - text: CME
+                    - generic [ref=e838]: Futures
+                  - generic [ref=e1402]:
+                    - generic [ref=e1403]:
+                      - generic [ref=e1404]: "0.69955"
+                      - generic [ref=e1405]:
+                        - generic "Quotes are delayed by 10 min" [ref=e1406]: D
+                        - generic [ref=e1407]: USD
+                    - generic [ref=e1408]:
+                      - generic [ref=e1409]: −0.00285
+                      - generic [ref=e1410]: −0.41%
+                  - generic [ref=e1411]: Market open
+                  - generic [ref=e1418]:
+                    - generic [ref=e1419]: Forward curve
+                    - table [ref=e1422]:
+                      - row [ref=e1423]:
+                        - cell [ref=e1424]
+                        - cell [ref=e1428]
+                        - cell
+                      - row [ref=e1432]:
+                        - cell [ref=e1433]
+                        - cell [ref=e1436]
+                        - cell
+                  - button "More info" [ref=e1441]
+                  - generic [ref=e1442]:
+                    - generic [ref=e1443]: Contract highlights
+                    - generic [ref=e1445]:
+                      - generic [ref=e1446]:
+                        - generic [ref=e1447]: Volume
+                        - generic [ref=e1449]: ‪67.42 K‬
+                      - generic [ref=e1450]:
+                        - generic [ref=e1451]: Open interest
+                        - generic [ref=e1453]: ‪237.31 K‬
+                      - generic [ref=e1454]:
+                        - generic [ref=e1455]: Contract size
+                        - generic [ref=e1457]: "100000"
+                      - generic [ref=e1458]:
+                        - generic [ref=e1459]: Front month
+                        - generic [ref=e1461]: 6AU2026
+                  - generic [ref=e1462]:
+                    - generic [ref=e1463]: Performance
+                    - generic [ref=e1465]:
+                      - generic [ref=e1466]:
+                        - generic [ref=e1467]: 0.46%
+                        - generic [ref=e1468]: 1W
+                      - generic [ref=e1469]:
+                        - generic [ref=e1470]: 1.24%
+                        - generic [ref=e1471]: 1M
+                      - generic [ref=e1472]:
+                        - generic [ref=e1473]: −2.77%
+                        - generic [ref=e1474]: 3M
+                      - generic [ref=e1475]:
+                        - generic [ref=e1476]: −0.78%
+                        - generic [ref=e1477]: 6M
+                      - generic [ref=e1478]:
+                        - generic [ref=e1479]: 4.75%
+                        - generic [ref=e1480]: YTD
+                      - generic [ref=e1481]:
+                        - generic [ref=e1482]: 8.65%
+                        - generic [ref=e1483]: 1Y
+                  - generic [ref=e1484]:
+                    - generic [ref=e1485]: Seasonals
+                    - table [ref=e1489]:
+                      - row [ref=e1490]:
+                        - cell
+                        - cell [ref=e1491]
+                        - cell
+                      - row [ref=e1495]:
+                        - cell
+                        - cell [ref=e1496]
+                        - cell
+                    - generic [ref=e1500]:
+                      - generic [ref=e1501]: "2026"
+                      - generic [ref=e1503]: "2025"
+                      - generic [ref=e1505]: "2024"
+                  - button "More seasonals" [ref=e1508]
+                  - generic [ref=e1509]:
+                    - generic [ref=e1510]: Technicals
+                    - generic [ref=e1511]:
+                      - generic [ref=e1512]:
+                        - generic [ref=e1513]: Neutral
+                        - generic [ref=e1514]:
+                          - generic [ref=e1515]: Sell
+                          - generic [ref=e1516]: Buy
+                        - generic [ref=e1517]:
+                          - generic [ref=e1518]: Strong sell
+                          - generic [ref=e1519]: Strong buy
+                      - generic [ref=e1531]:
+                        - generic [ref=e1532]: Strong sell
+                        - generic [ref=e1533]: Sell
+                        - generic [ref=e1534]: Neutral
+                        - generic [ref=e1535]: Buy
+                        - generic [ref=e1536]: Strong buy
+                  - button "More technicals" [ref=e1539]
+                  - generic [ref=e1540]:
+                    - generic [ref=e1541]: ATM IV term structure
+                    - generic [ref=e1543]:
+                      - generic [ref=e1554]:
+                        - generic [ref=e1555]: 1W
+                        - generic [ref=e1556]: 2W
+                        - generic [ref=e1557]: 1M
+                        - generic [ref=e1558]: 2M
+                        - generic [ref=e1559]: 3M
+                        - generic [ref=e1560]: 6M
+                        - generic [ref=e1561]: 9M
+                        - generic [ref=e1562]: 1Y
+                      - generic [ref=e1563]:
+                        - generic [ref=e1564]: ‪7.0%‬
+                        - generic [ref=e1565]: ‪7.4%‬
+                        - generic [ref=e1566]: ‪7.8%‬
+                        - generic [ref=e1567]: ‪8.2%‬
+                        - generic [ref=e1568]: ‪8.6%‬
+                  - generic [ref=e1569]:
+                    - generic [ref=e1570]: Volatility curve (28 days)
+                    - table [ref=e1573]:
+                      - row [ref=e1574]:
+                        - cell
+                        - cell [ref=e1575]
+                        - cell [ref=e1579]
+                      - row [ref=e1583]:
+                        - cell
+                        - cell [ref=e1584]
+                        - cell [ref=e1588]
+                  - button "More on options" [ref=e1592]
+                  - generic [ref=e1594]:
+                    - text: Browse community
+                    - generic [ref=e1598]: posts
+        - text: – – –
+      - generic "Hide Tab" [ref=e1043]
+    - generic "Trading panel"
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list

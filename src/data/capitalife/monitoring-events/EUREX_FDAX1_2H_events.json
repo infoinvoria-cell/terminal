@@ -5,10 +5,10 @@
   "timeframe": "2H",
   "source": "engine_futures",
   "hasStrategy": true,
-  "generatedAt": "2026-07-30T14:30:15Z",
+  "generatedAt": "2026-07-30T20:00:11Z",
   "dateRange": {
-    "first": "2024-10-10T00:00:00",
-    "last": "2026-07-30T14:00:00"
+    "first": "2024-10-10T04:00:00",
+    "last": "2026-07-30T18:00:00"
   },
   "barPolicy": {
     "excludeFormingIntradayBar": true,
@@ -6173,13 +6173,13 @@
     {
       "direction": "long",
       "entryTime": "2026-07-30T10:00:00Z",
-      "exitTime": "2026-07-30T14:00:00Z",
+      "exitTime": "2026-07-30T18:00:00Z",
       "entry": 25616.0,
-      "sl": 25507.085714285713,
+      "sl": 25617.0,
       "tp": 25942.742857142857,
-      "exit": 25689.0,
+      "exit": 25762.0,
       "exitReason": "end_of_data",
-      "pnl": 67.03
+      "pnl": 134.05
     }
   ]
 }

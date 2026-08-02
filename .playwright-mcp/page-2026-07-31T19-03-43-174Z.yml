@@ -1,0 +1,216 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - 'button "Logged in as jg_fxtrading Active layout: Data" [ref=e7]'
+      - generic [ref=e8]: "15"
+    - toolbar [ref=e12]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]:
+            - button "SPY" [ref=e19]
+            - button "Switch data type" [ref=e21]
+          - button "Compare symbols" [ref=e25]
+        - generic [ref=e33]:
+          - radiogroup [ref=e34]:
+            - radio "1 minute" [ref=e35]:
+              - generic [ref=e36]: 1m
+            - radio "5 minutes" [ref=e38]:
+              - generic [ref=e39]: 5m
+            - radio "15 minutes" [ref=e41]:
+              - generic [ref=e42]: 15m
+            - radio "30 minutes" [ref=e44]:
+              - generic [ref=e45]: 30m
+            - radio "1 hour" [ref=e47]:
+              - generic [ref=e48]: 1h
+            - radio "2 hours" [ref=e50]:
+              - generic [ref=e51]: 2h
+            - radio "4 hours" [ref=e53]:
+              - generic [ref=e54]: 4h
+            - radio "1 day" [checked] [ref=e56]:
+              - generic [ref=e57]: D
+            - radio "1 week" [ref=e59]:
+              - generic [ref=e60]: W
+            - radio "1 month" [ref=e62]:
+              - generic [ref=e63]: M
+          - button "Chart interval" [ref=e65]
+        - generic [ref=e74]:
+          - radiogroup [ref=e75]:
+            - radio "Candles" [checked] [ref=e76]
+            - radio "Heikin Ashi" [ref=e83]
+          - button "Bar's style" [ref=e90]
+        - generic [ref=e98]:
+          - generic [ref=e99]:
+            - button "Indicators, metrics, and strategies" [ref=e100]
+            - button "Favorite indicators" [ref=e105]
+          - button "Indicator templates" [ref=e112]
+        - generic [ref=e119]:
+          - button "Create alert" [ref=e120]
+          - button "Bar replay" [ref=e125]
+        - generic [ref=e132]:
+          - button [disabled] [ref=e133]
+          - button [disabled] [ref=e137]
+        - generic [ref=e141]:
+          - button "Layout setup" [ref=e142]
+          - generic [ref=e145]:
+            - button "All changes saved" [disabled] [ref=e146]:
+              - generic [ref=e148]:
+                - generic [ref=e149]: Data
+                - generic: Save
+            - button "Manage layouts" [ref=e151]
+            - link "⚔️Copy Trading JG 2" [ref=e157]:
+              - /url: https://www.tradingview.com/chart/W0GEb5M7/
+            - link "🍎Swing Stocks Strategien" [ref=e160]:
+              - /url: https://www.tradingview.com/chart/4Hn8TX6E/
+            - link "📊SCANNER" [ref=e163]:
+              - /url: https://www.tradingview.com/chart/lrY2G4rE/
+            - link "🧐invest" [ref=e166]:
+              - /url: https://www.tradingview.com/chart/gVBhfGn8/
+        - generic [ref=e171]:
+          - button "Quick search" [ref=e172]
+          - button "Settings" [ref=e177]
+          - button "Fullscreen mode" [ref=e183]
+          - button "Take a snapshot" [ref=e187]
+        - generic [ref=e194]:
+          - button "Share your idea with the trade community"
+          - generic "Share your idea with the trade community" [ref=e195]
+    - toolbar [ref=e201]:
+      - generic [ref=e205]:
+        - generic [ref=e206]:
+          - generic [ref=e209]:
+            - button "Cross" [ref=e211]
+            - button "Cursors" [pressed] [ref=e217]
+          - generic [ref=e223]:
+            - button "Trendline" [ref=e225]
+            - button "Trend tools" [ref=e231]
+          - generic [ref=e237]:
+            - button "Fib retracement" [ref=e239]
+            - button "Gann and Fibonacci tools" [ref=e248]
+          - generic [ref=e254]:
+            - button "XABCD pattern" [ref=e256]
+            - button "Patterns" [ref=e262]
+          - generic [ref=e268]:
+            - button "Long position" [ref=e270]
+            - button "Forecasting and measurement tools" [ref=e274]
+          - generic [ref=e280]:
+            - button "Brush" [ref=e282]
+            - button "Geometric shapes" [ref=e288]
+          - generic [ref=e294]:
+            - button "Text" [ref=e296]
+            - button "Annotation tools" [ref=e300]
+          - generic [ref=e305]:
+            - button "Icon" [ref=e307]
+            - button "Icons" [ref=e311]
+        - generic [ref=e315]:
+          - button "Measure" [ref=e316]
+          - button "Zoom in" [ref=e320]
+        - generic [ref=e327]:
+          - generic [ref=e330]:
+            - button "Magnet mode snaps drawings placed near price bars to the closest OHLC value" [ref=e332]
+            - button "Magnets" [ref=e338]
+          - button "Keep drawing" [ref=e342]
+          - button "Lock all drawings" [ref=e346]
+          - generic [ref=e351]:
+            - button "Hide all indicators" [ref=e353]
+            - button "Hide options" [ref=e357]
+          - generic [ref=e362]:
+            - button "New drawings will not be synced" [ref=e364]
+            - button "Sync drawings options" [ref=e368]
+        - generic [ref=e374]:
+          - button "Remove objects" [ref=e376]
+          - button "Remove options" [ref=e380]
+        - button "Show Favorite Drawing Tools Toolbar" [ref=e386]
+    - generic [ref=e390]:
+      - 'region "Chart #1" [ref=e393]':
+        - generic [ref=e397]:
+          - generic:
+            - generic:
+              - toolbar:
+                - generic:
+                  - generic [ref=e398]:
+                    - generic "Change symbol" [ref=e399]:
+                      - generic [ref=e400]: S
+                      - button "Change symbol" [ref=e404]: SPY
+                    - text: · ·
+                  - generic:
+                    - generic:
+                      - button "Flag symbol"
+                      - button "More"
+                  - button "NYSE Arca by Cboe One" [ref=e406]
+          - generic "Chart for BATS:SPY, 1 day" [ref=e417]
+      - toolbar [ref=e431]:
+        - button [ref=e434]
+        - generic [ref=e440]:
+          - button "Timezone" [ref=e443]:
+            - generic [ref=e444]: 21:03:42 UTC+2
+          - button "Adjust data for dividends" [pressed] [ref=e448]:
+            - generic [ref=e449]: ADJ
+    - text: – – –
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list

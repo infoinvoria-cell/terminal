@@ -1,0 +1,389 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - 'button "Logged in as jg_fxtrading Active layout: Data" [ref=e2746]'
+      - generic [ref=e8]: "26"
+    - toolbar [ref=e12]:
+      - generic [ref=e18]:
+        - button "SPY" [ref=e2732]
+        - button [ref=e799]
+    - toolbar [ref=e224]:
+      - generic [ref=e228]:
+        - generic [ref=e229]:
+          - generic [ref=e232]:
+            - button "Cross" [ref=e234]
+            - button "Cursors" [pressed] [ref=e240]
+          - generic [ref=e246]:
+            - button "Trendline" [ref=e248]
+            - button "Trend tools" [ref=e254]
+          - generic [ref=e260]:
+            - button "Fib retracement" [ref=e262]
+            - button "Gann and Fibonacci tools" [ref=e271]
+          - generic [ref=e277]:
+            - button "XABCD pattern" [ref=e279]
+            - button "Patterns" [ref=e285]
+          - generic [ref=e291]:
+            - button "Long position" [ref=e293]
+            - button "Forecasting and measurement tools" [ref=e297]
+          - generic [ref=e303]:
+            - button "Brush" [ref=e305]
+            - button "Geometric shapes" [ref=e311]
+          - generic [ref=e317]:
+            - button "Text" [ref=e319]
+            - button "Annotation tools" [ref=e323]
+          - generic [ref=e328]:
+            - button "Icon" [ref=e330]
+            - button "Icons" [ref=e334]
+        - generic [ref=e338]:
+          - button "Measure" [ref=e339]
+          - button "Zoom in" [ref=e343]
+        - generic [ref=e350]:
+          - generic [ref=e353]:
+            - button "Magnet mode snaps drawings placed near price bars to the closest OHLC value" [ref=e355]
+            - button "Magnets" [ref=e361]
+          - button "Keep drawing" [ref=e365]
+          - button "Lock all drawings" [ref=e369]
+          - generic [ref=e374]:
+            - button "Hide all indicators" [ref=e376]
+            - button "Hide options" [ref=e380]
+          - generic [ref=e385]:
+            - button "New drawings will not be synced" [ref=e387]
+            - button "Sync drawings options" [ref=e391]
+        - generic [ref=e397]:
+          - button "Remove objects" [ref=e399]
+          - button "Remove options" [ref=e403]
+    - generic [ref=e413]:
+      - 'region "Chart #1" [ref=e416]':
+        - generic [ref=e420]:
+          - generic:
+            - generic:
+              - toolbar:
+                - generic:
+                  - generic [ref=e421]:
+                    - generic [ref=e2877]:
+                      - generic [ref=e423]: S
+                      - button "Change symbol" [ref=e2751]: SPY
+                    - text: · ·
+                  - generic [ref=e2930]:
+                    - button "Flag symbol" [ref=e2931]
+                    - button "More" [ref=e2937]
+                  - button "NYSE Arca by Cboe One" [ref=e2753]
+          - generic "Chart for BATS:SPY, 1 day" [ref=e2742]
+      - toolbar [ref=e656]:
+        - button [ref=e792]
+        - generic [ref=e683]:
+          - button "Timezone" [ref=e686]:
+            - generic [ref=e687]: 19:56:10 UTC+2
+          - button "Adjust data for dividends" [pressed] [ref=e2744]:
+            - generic [ref=e2745]: ADJ
+    - text: – – –
+    - generic [ref=e3115]:
+      - generic [ref=e3116]:
+        - generic [ref=e3117]:
+          - generic [ref=e3118]: S
+          - generic [ref=e3123]:
+            - generic [ref=e3124]: SPDR S&P 500 ETF TRUST
+            - generic [ref=e3125]: • Table view
+        - button "Back to chart" [ref=e3126]
+      - generic [ref=e3133]:
+        - button "Download data" [active] [ref=e3135]
+        - grid "Table view" [ref=e3144]:
+          - rowgroup [ref=e3145]:
+            - row [ref=e3146]:
+              - columnheader "Date · 1D" [ref=e3147]
+              - columnheader "SPY · NYSE Arca" [ref=e3149]:
+                - generic [ref=e3151]:
+                  - generic [ref=e3152]: SPY · NYSE Arca
+                  - button "NYSE Arca by Cboe One" [ref=e3155]
+            - row [ref=e3159]:
+              - columnheader "Open" [ref=e3160]
+              - columnheader "High" [ref=e3162]
+              - columnheader "Low" [ref=e3164]
+              - columnheader "Close" [ref=e3166]
+          - rowgroup [ref=e3168]:
+            - row [ref=e3612]:
+              - rowheader "Fri Jul 31, 2026" [ref=e3170]
+              - gridcell "744.68" [ref=e3172]
+              - gridcell "746.50" [ref=e3174]
+              - gridcell "737.68" [ref=e3176]
+              - gridcell "745.64" [ref=e3613]
+            - row [ref=e3180]:
+              - rowheader "Thu Jul 30, 2026" [ref=e3181]
+              - gridcell "736.05" [ref=e3183]
+              - gridcell "742.45" [ref=e3185]
+              - gridcell "734.59" [ref=e3187]
+              - gridcell "741.69" [ref=e3189]
+            - row [ref=e3191]:
+              - rowheader "Wed Jul 29, 2026" [ref=e3192]
+              - gridcell "739.97" [ref=e3194]
+              - gridcell "742.68" [ref=e3196]
+              - gridcell "729.10" [ref=e3198]
+              - gridcell "729.46" [ref=e3200]
+            - row [ref=e3202]:
+              - rowheader "Tue Jul 28, 2026" [ref=e3203]
+              - gridcell "739.19" [ref=e3205]
+              - gridcell "742.79" [ref=e3207]
+              - gridcell "735.98" [ref=e3209]
+              - gridcell "740.86" [ref=e3211]
+            - row [ref=e3213]:
+              - rowheader "Mon Jul 27, 2026" [ref=e3214]
+              - gridcell "744.91" [ref=e3216]
+              - gridcell "745.53" [ref=e3218]
+              - gridcell "735.87" [ref=e3220]
+              - gridcell "739.09" [ref=e3222]
+            - row [ref=e3224]:
+              - rowheader "Fri Jul 24, 2026" [ref=e3225]
+              - gridcell "738.51" [ref=e3227]
+              - gridcell "743.72" [ref=e3229]
+              - gridcell "737.29" [ref=e3231]
+              - gridcell "738.93" [ref=e3233]
+            - row [ref=e3235]:
+              - rowheader "Thu Jul 23, 2026" [ref=e3236]
+              - gridcell "739.37" [ref=e3238]
+              - gridcell "742.56" [ref=e3240]
+              - gridcell "735.21" [ref=e3242]
+              - gridcell "738.18" [ref=e3244]
+            - row [ref=e3246]:
+              - rowheader "Wed Jul 22, 2026" [ref=e3247]
+              - gridcell "746.62" [ref=e3249] [cursor=pointer]
+              - gridcell "750.02" [ref=e3251] [cursor=pointer]
+              - gridcell "746.37" [ref=e3253] [cursor=pointer]
+              - gridcell "747.41" [ref=e3255] [cursor=pointer]
+            - row [ref=e3257]:
+              - rowheader "Tue Jul 21, 2026" [ref=e3258]
+              - gridcell "746.29" [ref=e3260]
+              - gridcell "749.04" [ref=e3262]
+              - gridcell "744.18" [ref=e3264]
+              - gridcell "748.28" [ref=e3266]
+            - row [ref=e3268]:
+              - rowheader "Mon Jul 20, 2026" [ref=e3269]
+              - gridcell "747.06" [ref=e3271]
+              - gridcell "748.73" [ref=e3273]
+              - gridcell "741.51" [ref=e3275]
+              - gridcell "742.09" [ref=e3277]
+            - row [ref=e3279]:
+              - rowheader "Fri Jul 17, 2026" [ref=e3280]
+              - gridcell "742.08" [ref=e3282]
+              - gridcell "747.29" [ref=e3284]
+              - gridcell "740.80" [ref=e3286]
+              - gridcell "743.29" [ref=e3288]
+            - row [ref=e3290]:
+              - rowheader "Thu Jul 16, 2026" [ref=e3291]
+              - gridcell "752.76" [ref=e3293]
+              - gridcell "754.57" [ref=e3295]
+              - gridcell "747.88" [ref=e3297]
+              - gridcell "750.72" [ref=e3299]
+            - row [ref=e3301]:
+              - rowheader "Wed Jul 15, 2026" [ref=e3302]
+              - gridcell "754.24" [ref=e3304]
+              - gridcell "755.58" [ref=e3306]
+              - gridcell "750.20" [ref=e3308]
+              - gridcell "754.81" [ref=e3310]
+            - row [ref=e3312]:
+              - rowheader "Tue Jul 14, 2026" [ref=e3313]
+              - gridcell "750.91" [ref=e3315]
+              - gridcell "753.34" [ref=e3317]
+              - gridcell "748.66" [ref=e3319]
+              - gridcell "751.83" [ref=e3321]
+            - row [ref=e3323]:
+              - rowheader "Mon Jul 13, 2026" [ref=e3324]
+              - gridcell "752.47" [ref=e3326]
+              - gridcell "753.91" [ref=e3328]
+              - gridcell "748.00" [ref=e3330]
+              - gridcell "749.17" [ref=e3332]
+            - row [ref=e3334]:
+              - rowheader "Fri Jul 10, 2026" [ref=e3335]
+              - gridcell "752.05" [ref=e3337]
+              - gridcell "755.42" [ref=e3339]
+              - gridcell "748.10" [ref=e3341]
+              - gridcell "754.95" [ref=e3343]
+            - row [ref=e3345]:
+              - rowheader "Thu Jul 09, 2026" [ref=e3346]
+              - gridcell "747.35" [ref=e3348]
+              - gridcell "751.97" [ref=e3350]
+              - gridcell "745.59" [ref=e3352]
+              - gridcell "751.71" [ref=e3354]
+            - row [ref=e3356]:
+              - rowheader "Wed Jul 08, 2026" [ref=e3357]
+              - gridcell "743.16" [ref=e3359]
+              - gridcell "746.15" [ref=e3361]
+              - gridcell "739.51" [ref=e3363]
+              - gridcell "745.40" [ref=e3365]
+            - row [ref=e3367]:
+              - rowheader "Tue Jul 07, 2026" [ref=e3368]
+              - gridcell "750.22" [ref=e3370]
+              - gridcell "750.96" [ref=e3372]
+              - gridcell "745.21" [ref=e3374]
+              - gridcell "747.71" [ref=e3376]
+            - row [ref=e3378]:
+              - rowheader "Mon Jul 06, 2026" [ref=e3379]
+              - gridcell "748.74" [ref=e3381]
+              - gridcell "752.41" [ref=e3383]
+              - gridcell "747.41" [ref=e3385]
+              - gridcell "751.28" [ref=e3387]
+            - row [ref=e3389]:
+              - rowheader "Thu Jul 02, 2026" [ref=e3390]
+              - gridcell "747.40" [ref=e3392]
+              - gridcell "751.31" [ref=e3394]
+              - gridcell "740.03" [ref=e3396]
+              - gridcell "744.78" [ref=e3398]
+            - row [ref=e3400]:
+              - rowheader "Wed Jul 01, 2026" [ref=e3401]
+              - gridcell "745.00" [ref=e3403]
+              - gridcell "749.44" [ref=e3405]
+              - gridcell "742.38" [ref=e3407]
+              - gridcell "745.76" [ref=e3409]
+            - row [ref=e3411]:
+              - rowheader "Tue Jun 30, 2026" [ref=e3412]
+              - gridcell "741.29" [ref=e3414]
+              - gridcell "748.02" [ref=e3416]
+              - gridcell "740.89" [ref=e3418]
+              - gridcell "746.77" [ref=e3420]
+            - row [ref=e3422]:
+              - rowheader "Mon Jun 29, 2026" [ref=e3423]
+              - gridcell "736.53" [ref=e3425]
+              - gridcell "741.56" [ref=e3427]
+              - gridcell "732.09" [ref=e3429]
+              - gridcell "741.00" [ref=e3431]
+            - row [ref=e3433]:
+              - rowheader "Fri Jun 26, 2026" [ref=e3434]
+              - gridcell "728.95" [ref=e3436]
+              - gridcell "736.53" [ref=e3438]
+              - gridcell "716.58" [ref=e3440]
+              - gridcell "728.99" [ref=e3442]
+            - row [ref=e3444]:
+              - rowheader "Thu Jun 25, 2026" [ref=e3445]
+              - gridcell "738.91" [ref=e3447]
+              - gridcell "739.37" [ref=e3449]
+              - gridcell "729.60" [ref=e3451]
+              - gridcell "734.30" [ref=e3453]
+            - row [ref=e3455]:
+              - rowheader "Wed Jun 24, 2026" [ref=e3456]
+              - gridcell "735.17" [ref=e3458]
+              - gridcell "739.95" [ref=e3460]
+              - gridcell "730.84" [ref=e3462]
+              - gridcell "733.24" [ref=e3464]
+            - row [ref=e3466]:
+              - rowheader "Tue Jun 23, 2026" [ref=e3467]
+              - gridcell "733.81" [ref=e3469]
+              - gridcell "739.63" [ref=e3471]
+              - gridcell "732.30" [ref=e3473]
+              - gridcell "733.58" [ref=e3475]
+            - row [ref=e3477]:
+              - rowheader "Mon Jun 22, 2026" [ref=e3478]
+              - gridcell "747.70" [ref=e3480]
+              - gridcell "750.18" [ref=e3482]
+              - gridcell "743.13" [ref=e3484]
+              - gridcell "744.39" [ref=e3486]
+            - row [ref=e3488]:
+              - rowheader "Thu Jun 18, 2026" [ref=e3489]
+              - gridcell "747.76" [ref=e3491]
+              - gridcell "748.23" [ref=e3493]
+              - gridcell "743.86" [ref=e3495]
+              - gridcell "746.74" [ref=e3497]
+            - row [ref=e3499]:
+              - rowheader "Wed Jun 17, 2026" [ref=e3500]
+              - gridcell "749.36" [ref=e3502]
+              - gridcell "750.22" [ref=e3504]
+              - gridcell "737.32" [ref=e3506]
+              - gridcell "739.06" [ref=e3508]
+            - row [ref=e3510]:
+              - rowheader "Tue Jun 16, 2026" [ref=e3511]
+              - gridcell "752.61" [ref=e3513]
+              - gridcell "753.50" [ref=e3515]
+              - gridcell "747.95" [ref=e3517]
+              - gridcell "748.40" [ref=e3519]
+            - row [ref=e3521]:
+              - rowheader "Mon Jun 15, 2026" [ref=e3522]
+              - gridcell "749.92" [ref=e3524]
+              - gridcell "754.74" [ref=e3526]
+              - gridcell "749.83" [ref=e3528]
+              - gridcell "752.89" [ref=e3530]
+            - row [ref=e3532]:
+              - rowheader "Fri Jun 12, 2026" [ref=e3533]
+              - gridcell "738.81" [ref=e3535]
+              - gridcell "742.53" [ref=e3537]
+              - gridcell "733.14" [ref=e3539]
+              - gridcell "739.84" [ref=e3541]
+            - row [ref=e3543]:
+              - rowheader "Thu Jun 11, 2026" [ref=e3544]
+              - gridcell "726.89" [ref=e3546]
+              - gridcell "738.10" [ref=e3548]
+              - gridcell "722.54" [ref=e3550]
+              - gridcell "735.86" [ref=e3552]
+            - row [ref=e3554]:
+              - rowheader "Wed Jun 10, 2026" [ref=e3555]
+              - gridcell "731.51" [ref=e3557]
+              - gridcell "736.48" [ref=e3559]
+              - gridcell "723.47" [ref=e3561]
+              - gridcell "723.57" [ref=e3563]
+            - row [ref=e3565]
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list

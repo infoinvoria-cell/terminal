@@ -1,0 +1,438 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - 'button "Logged in as jg_fxtrading Active layout: Data" [ref=e7]'
+      - generic [ref=e8]: "11"
+    - toolbar [ref=e12]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]:
+            - button "ES1!" [ref=e19]
+            - button "Switch data type" [ref=e21]
+          - button "Compare symbols" [ref=e25]
+        - generic [ref=e33]:
+          - radiogroup [ref=e34]:
+            - radio "1 minute" [ref=e35]:
+              - generic [ref=e36]: 1m
+            - radio "5 minutes" [ref=e38]:
+              - generic [ref=e39]: 5m
+            - radio "15 minutes" [ref=e41]:
+              - generic [ref=e42]: 15m
+            - radio "30 minutes" [checked] [ref=e44]:
+              - generic [ref=e45]: 30m
+            - radio "1 hour" [ref=e47]:
+              - generic [ref=e48]: 1h
+            - radio "2 hours" [ref=e50]:
+              - generic [ref=e51]: 2h
+            - radio "4 hours" [ref=e53]:
+              - generic [ref=e54]: 4h
+            - radio "1 day" [ref=e56]:
+              - generic [ref=e57]: D
+            - radio "1 week" [ref=e59]:
+              - generic [ref=e60]: W
+            - radio "1 month" [ref=e62]:
+              - generic [ref=e63]: M
+          - button "Chart interval" [ref=e65]
+        - generic [ref=e74]:
+          - radiogroup [ref=e75]:
+            - radio "Candles" [checked] [ref=e76]
+            - radio "Heikin Ashi" [ref=e83]
+          - button "Bar's style" [ref=e90]
+        - generic [ref=e98]:
+          - generic [ref=e99]:
+            - button "Indicators, metrics, and strategies" [ref=e100]
+            - button "Favorite indicators" [ref=e105]
+          - button "Indicator templates" [ref=e112]
+        - generic [ref=e119]:
+          - button "Create alert" [ref=e120]
+          - button "Bar replay" [ref=e125]
+        - generic [ref=e132]:
+          - button [disabled] [ref=e133]
+          - button [disabled] [ref=e137]
+        - generic [ref=e141]:
+          - button "Layout setup" [ref=e142]
+          - generic [ref=e145]:
+            - button "All changes saved" [disabled] [ref=e146]:
+              - generic [ref=e148]:
+                - generic [ref=e149]: Data
+                - generic: Save
+            - button "Manage layouts" [ref=e151]
+            - link "⚔️Copy Trading JG 2" [ref=e157]:
+              - /url: https://www.tradingview.com/chart/W0GEb5M7/
+            - link "🍎Swing Stocks Strategien" [ref=e160]:
+              - /url: https://www.tradingview.com/chart/4Hn8TX6E/
+            - link "📊SCANNER" [ref=e163]:
+              - /url: https://www.tradingview.com/chart/lrY2G4rE/
+            - link "🧐invest" [ref=e166]:
+              - /url: https://www.tradingview.com/chart/gVBhfGn8/
+        - generic [ref=e171]:
+          - button "Quick search" [ref=e172]
+          - button "Settings" [ref=e177]
+          - button "Fullscreen mode" [ref=e183]
+          - button "Take a snapshot" [ref=e187]
+        - button [ref=e197]
+        - generic [ref=e208]:
+          - button "Share your idea with the trade community"
+          - generic "Share your idea with the trade community" [ref=e209]
+    - toolbar [ref=e215]:
+      - generic [ref=e219]:
+        - generic [ref=e220]:
+          - generic [ref=e223]:
+            - button "Cross" [ref=e225]
+            - button "Cursors" [pressed] [ref=e231]
+          - generic [ref=e237]:
+            - button "Trendline" [ref=e239]
+            - button "Trend tools" [ref=e245]
+          - generic [ref=e251]:
+            - button "Fib retracement" [ref=e253]
+            - button "Gann and Fibonacci tools" [ref=e262]
+          - generic [ref=e268]:
+            - button "XABCD pattern" [ref=e270]
+            - button "Patterns" [ref=e276]
+          - generic [ref=e282]:
+            - button "Long position" [ref=e284]
+            - button "Forecasting and measurement tools" [ref=e288]
+          - generic [ref=e294]:
+            - button "Brush" [ref=e296]
+            - button "Geometric shapes" [ref=e302]
+          - generic [ref=e308]:
+            - button "Text" [ref=e310]
+            - button "Annotation tools" [ref=e314]
+          - generic [ref=e319]:
+            - button "Icon" [ref=e321]
+            - button "Icons" [ref=e325]
+        - generic [ref=e329]:
+          - button "Measure" [ref=e330]
+          - button "Zoom in" [ref=e334]
+        - generic [ref=e341]:
+          - generic [ref=e344]:
+            - button "Magnet mode snaps drawings placed near price bars to the closest OHLC value" [ref=e346]
+            - button "Magnets" [ref=e352]
+          - button "Keep drawing" [ref=e356]
+          - button "Lock all drawings" [ref=e360]
+          - generic [ref=e365]:
+            - button "Hide all indicators" [ref=e367]
+            - button "Hide options" [ref=e371]
+          - generic [ref=e376]:
+            - button "New drawings will not be synced" [ref=e378]
+            - button "Sync drawings options" [ref=e382]
+        - generic [ref=e388]:
+          - button "Remove objects" [ref=e390]
+          - button "Remove options" [ref=e394]
+        - button "Show Favorite Drawing Tools Toolbar" [ref=e400]
+    - generic [ref=e404]:
+      - 'region "Chart #1" [ref=e407]':
+        - generic [ref=e411]:
+          - generic:
+            - generic:
+              - toolbar:
+                - generic:
+                  - generic [ref=e412]:
+                    - generic "Change symbol" [ref=e413]:
+                      - generic [ref=e414]: E
+                      - button "Change symbol" [ref=e418]: ES1!
+                    - text: · ·
+                  - generic:
+                    - generic:
+                      - button "Flag symbol"
+                      - button "More"
+                  - button "Data is delayed" [ref=e420]
+          - generic "Chart for CME_MINI_DL:ES1!, 30 minutes" [ref=e425]
+      - toolbar [ref=e439]:
+        - button [ref=e442]
+        - generic [ref=e448]:
+          - button "Timezone" [ref=e451]:
+            - generic [ref=e452]: 16:31:59 UTC+2
+          - button "Electronic trading hours" [ref=e455]: ETH
+    - generic [ref=e457]:
+      - toolbar [ref=e462]:
+        - button "Watchlist, details, and news" [pressed] [ref=e463]
+        - button "Alerts" [ref=e468]:
+          - img "15 unread alert notifications" [ref=e474]: "15"
+        - button "Object tree and data window" [ref=e475]
+        - button "Chats" [ref=e479]
+        - button "Pine" [ref=e485]
+        - button "Community" [ref=e490]
+        - button "Notifications" [ref=e497]:
+          - img [ref=e502]: "9"
+        - button "Products" [ref=e503]
+        - button "Help Center" [ref=e508]
+      - generic [ref=e513]:
+        - generic [ref=e514]:
+          - generic [ref=e515]:
+            - generic [ref=e518]:
+              - button "Claude" [ref=e520]
+              - generic [ref=e530]:
+                - button "Add symbol" [ref=e531]
+                - button "Advanced view" [ref=e535]
+                - button "Settings" [ref=e539]
+            - generic [ref=e544]:
+              - toolbar [ref=e545]:
+                - button "Swing Aktiv" [ref=e546]
+                - button "Swing Stocks - Screener" [ref=e552]
+                - button "🌍Assets - JG" [ref=e558]
+                - button "Swing Attraktiv" [ref=e561]
+                - button "SwingStocks" [ref=e567]:
+                  - generic [ref=e568]: S
+                - button "🪐Capitalife Valuation" [ref=e569]
+              - generic [ref=e573]:
+                - generic [ref=e575]:
+                  - button [ref=e577]
+                  - button "Symbol" [ref=e582]
+                  - button "Last" [ref=e584]
+                  - button "Chg" [ref=e586]
+                  - button "Chg%" [ref=e588]
+                - generic [ref=e593]:
+                  - generic [ref=e600]:
+                    - generic [ref=e601]: "6"
+                    - generic [ref=e605]: 6A1!
+                  - generic [ref=e616]:
+                    - generic [ref=e617]: A
+                    - generic [ref=e621]: AUDUSD
+                  - generic [ref=e632]:
+                    - generic [ref=e633]: G
+                    - generic [ref=e637]: GBPUSD
+                  - generic [ref=e648]:
+                    - generic [ref=e649]: "6"
+                    - generic [ref=e653]: 6B1!
+                  - generic [ref=e664]:
+                    - generic [ref=e665]: F
+                    - generic [ref=e669]: FDAX1!
+                  - generic [ref=e680]:
+                    - generic [ref=e681]: "Y"
+                    - generic [ref=e685]: YM1!
+                  - generic [ref=e696]:
+                    - generic [ref=e697]: E
+                    - generic [ref=e701]: EURUSD
+                  - generic [ref=e712]:
+                    - generic [ref=e713]: "6"
+                    - generic [ref=e717]: 6E1!
+                  - generic [ref=e728]:
+                    - generic [ref=e729]: G
+                    - generic [ref=e733]: GC1!
+                  - generic [ref=e744]:
+                    - generic [ref=e745]: H
+                    - generic [ref=e749]: HG1!
+                  - generic [ref=e760]:
+                    - generic [ref=e761]: "N"
+                    - generic [ref=e765]: NQ1!
+                  - generic [ref=e776]:
+                    - generic [ref=e777]: G
+                    - generic [ref=e781]: GLD
+                  - generic [ref=e792]:
+                    - generic [ref=e793]: "6"
+                    - generic [ref=e797]: 6S1!
+          - generic [ref=e806]:
+            - generic [ref=e808]:
+              - generic [ref=e809]: E
+              - generic [ref=e814]: ES1!
+              - generic [ref=e815]:
+                - button "Metrics" [ref=e816]
+                - generic "Add note" [ref=e820]
+                - generic "Settings" [ref=e825]
+            - generic:
+              - generic:
+                - generic:
+                  - generic [ref=e829]:
+                    - generic [ref=e831]:
+                      - link "S&P 500 E-mini Futures" [ref=e832] [cursor=pointer]:
+                        - /url: https://www.tradingview.com/symbols/CME_MINI-ES1!/
+                      - text: CME
+                    - generic [ref=e838]: Futures
+                  - generic [ref=e840]:
+                    - generic [ref=e841]:
+                      - generic [ref=e842]: 7,444.25
+                      - generic [ref=e843]:
+                        - generic "Quotes are delayed by 10 min" [ref=e844]: D
+                        - generic [ref=e845]: USD
+                    - generic [ref=e846]:
+                      - generic [ref=e847]: −28.25
+                      - generic [ref=e848]: −0.38%
+                  - generic [ref=e849]: Market open
+                  - generic [ref=e856]:
+                    - generic [ref=e857]: Forward curve
+                    - table [ref=e860]:
+                      - row [ref=e861]:
+                        - cell [ref=e862]
+                        - cell [ref=e866]
+                        - cell
+                      - row [ref=e870]:
+                        - cell [ref=e871]
+                        - cell [ref=e874]
+                        - cell
+                  - button "More info" [ref=e879]
+                  - generic [ref=e880]:
+                    - generic [ref=e881]: Contract highlights
+                    - generic [ref=e883]:
+                      - generic [ref=e884]:
+                        - generic [ref=e885]: Volume
+                        - generic [ref=e887]: ‪630.12 K‬
+                      - generic [ref=e888]:
+                        - generic [ref=e889]: Open interest
+                        - generic [ref=e891]: ‪2.03 M‬
+                      - generic [ref=e892]:
+                        - generic [ref=e893]: Contract size
+                        - generic [ref=e895]: "50"
+                      - generic [ref=e896]:
+                        - generic [ref=e897]: Front month
+                        - generic [ref=e899]: ESU2026
+                  - generic [ref=e900]:
+                    - generic [ref=e901]: Performance
+                    - generic [ref=e903]:
+                      - generic [ref=e904]:
+                        - generic [ref=e905]: −0.11%
+                        - generic [ref=e906]: 1W
+                      - generic [ref=e907]:
+                        - generic [ref=e908]: −1.34%
+                        - generic [ref=e909]: 1M
+                      - generic [ref=e910]:
+                        - generic [ref=e911]: 2.57%
+                        - generic [ref=e912]: 3M
+                      - generic [ref=e913]:
+                        - generic [ref=e914]: 6.43%
+                        - generic [ref=e915]: 6M
+                      - generic [ref=e916]:
+                        - generic [ref=e917]: 7.83%
+                        - generic [ref=e918]: YTD
+                      - generic [ref=e919]:
+                        - generic [ref=e920]: 15.64%
+                        - generic [ref=e921]: 1Y
+                  - generic [ref=e922]:
+                    - generic [ref=e923]: Seasonals
+                    - table [ref=e927]:
+                      - row [ref=e928]:
+                        - cell
+                        - cell [ref=e929]
+                        - cell
+                      - row [ref=e933]:
+                        - cell
+                        - cell [ref=e934]
+                        - cell
+                    - generic [ref=e938]:
+                      - generic [ref=e939]: "2026"
+                      - generic [ref=e941]: "2025"
+                      - generic [ref=e943]: "2024"
+                  - button "More seasonals" [ref=e946]
+                  - generic [ref=e947]:
+                    - generic [ref=e948]: Technicals
+                    - generic [ref=e949]:
+                      - generic [ref=e950]:
+                        - generic [ref=e951]: Neutral
+                        - generic [ref=e952]:
+                          - generic [ref=e953]: Sell
+                          - generic [ref=e954]: Buy
+                        - generic [ref=e955]:
+                          - generic [ref=e956]: Strong sell
+                          - generic [ref=e957]: Strong buy
+                      - generic [ref=e969]:
+                        - generic [ref=e970]: Strong sell
+                        - generic [ref=e971]: Sell
+                        - generic [ref=e972]: Neutral
+                        - generic [ref=e973]: Buy
+                        - generic [ref=e974]: Strong buy
+                  - button "More technicals" [ref=e977]
+                  - generic [ref=e978]:
+                    - generic [ref=e979]: ATM IV term structure
+                    - generic [ref=e981]:
+                      - generic [ref=e992]:
+                        - generic [ref=e993]: 1W
+                        - generic [ref=e994]: 2W
+                        - generic [ref=e995]: 1M
+                        - generic [ref=e996]: 2M
+                        - generic [ref=e997]: 3M
+                        - generic [ref=e998]: 6M
+                        - generic [ref=e999]: 9M
+                        - generic [ref=e1000]: 1Y
+                      - generic [ref=e1001]:
+                        - generic [ref=e1002]: ‪10.0%‬
+                        - generic [ref=e1003]: ‪11.6%‬
+                        - generic [ref=e1004]: ‪13.2%‬
+                        - generic [ref=e1005]: ‪14.8%‬
+                        - generic [ref=e1006]: ‪16.4%‬
+                  - generic [ref=e1007]:
+                    - generic [ref=e1008]: Volatility curve (31 days)
+                    - table [ref=e1011]:
+                      - row [ref=e1012]:
+                        - cell
+                        - cell [ref=e1013]
+                        - cell [ref=e1017]
+                      - row [ref=e1021]:
+                        - cell
+                        - cell [ref=e1022]
+                        - cell [ref=e1026]
+                  - button "More on options" [ref=e1030]
+                  - generic [ref=e1032]:
+                    - text: Browse community
+                    - generic [ref=e1036]: posts
+        - text: – – –
+      - generic "Hide Tab" [ref=e1043]
+    - generic "Trading panel"
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list

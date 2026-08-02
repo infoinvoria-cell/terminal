@@ -1,0 +1,91 @@
+[1mdiff --git a/src/data/capitalife/monitoring-events/CME_6B1_30M_events.json b/src/data/capitalife/monitoring-events/CME_6B1_30M_events.json[m
+[1mindex bdc3758..1b42150 100644[m
+[1m--- a/src/data/capitalife/monitoring-events/CME_6B1_30M_events.json[m
+[1m+++ b/src/data/capitalife/monitoring-events/CME_6B1_30M_events.json[m
+[36m@@ -5,10 +5,10 @@[m
+   "timeframe": "30M",[m
+   "source": "engine_futures",[m
+   "hasStrategy": true,[m
+[31m-  "generatedAt": "2026-07-30T14:30:16Z",[m
+[32m+[m[32m  "generatedAt": "2026-07-30T16:30:13Z",[m
+   "dateRange": {[m
+[31m-    "first": "2026-02-27T09:00:00",[m
+[31m-    "last": "2026-07-30T14:00:00"[m
+[32m+[m[32m    "first": "2026-02-27T11:00:00",[m
+[32m+[m[32m    "last": "2026-07-30T16:00:00"[m
+   },[m
+   "barPolicy": {[m
+     "excludeFormingIntradayBar": true,[m
+[1mdiff --git a/src/data/capitalife/monitoring-events/CME_6E1_30M_events.json b/src/data/capitalife/monitoring-events/CME_6E1_30M_events.json[m
+[1mindex 2a18c49..4547308 100644[m
+[1m--- a/src/data/capitalife/monitoring-events/CME_6E1_30M_events.json[m
+[1m+++ b/src/data/capitalife/monitoring-events/CME_6E1_30M_events.json[m
+[36m@@ -5,10 +5,10 @@[m
+   "timeframe": "30M",[m
+   "source": "engine_futures",[m
+   "hasStrategy": true,[m
+[31m-  "generatedAt": "2026-07-30T14:30:16Z",[m
+[32m+[m[32m  "generatedAt": "2026-07-30T16:30:13Z",[m
+   "dateRange": {[m
+[31m-    "first": "2026-02-27T09:00:00",[m
+[31m-    "last": "2026-07-30T14:00:00"[m
+[32m+[m[32m    "first": "2026-02-27T11:00:00",[m
+[32m+[m[32m    "last": "2026-07-30T16:00:00"[m
+   },[m
+   "barPolicy": {[m
+     "excludeFormingIntradayBar": true,[m
+[1mdiff --git a/src/data/capitalife/monitoring-events/EUREX_FDAX1_1H_events.json b/src/data/capitalife/monitoring-events/EUREX_FDAX1_1H_events.json[m
+[1mindex ee15843..f5391f4 100644[m
+[1m--- a/src/data/capitalife/monitoring-events/EUREX_FDAX1_1H_events.json[m
+[1m+++ b/src/data/capitalife/monitoring-events/EUREX_FDAX1_1H_events.json[m
+[36m@@ -5,10 +5,10 @@[m
+   "timeframe": "1H",[m
+   "source": "engine_futures",[m
+   "hasStrategy": true,[m
+[31m-  "generatedAt": "2026-07-30T14:30:15Z",[m
+[32m+[m[32m  "generatedAt": "2026-07-30T16:30:13Z",[m
+   "dateRange": {[m
+[31m-    "first": "2025-08-27T11:00:00",[m
+[31m-    "last": "2026-07-30T14:00:00"[m
+[32m+[m[32m    "first": "2025-08-27T13:00:00",[m
+[32m+[m[32m    "last": "2026-07-30T16:00:00"[m
+   },[m
+   "barPolicy": {[m
+     "excludeFormingIntradayBar": true,[m
+[1mdiff --git a/src/data/capitalife/monitoring-events/EUREX_FDAX1_2H_events.json b/src/data/capitalife/monitoring-events/EUREX_FDAX1_2H_events.json[m
+[1mindex fb1e9c8..4e7a447 100644[m
+[1m--- a/src/data/capitalife/monitoring-events/EUREX_FDAX1_2H_events.json[m
+[1m+++ b/src/data/capitalife/monitoring-events/EUREX_FDAX1_2H_events.json[m
+[36m@@ -5,10 +5,10 @@[m
+   "timeframe": "2H",[m
+   "source": "engine_futures",[m
+   "hasStrategy": true,[m
+[31m-  "generatedAt": "2026-07-30T14:30:15Z",[m
+[32m+[m[32m  "generatedAt": "2026-07-30T16:30:12Z",[m
+   "dateRange": {[m
+[31m-    "first": "2024-10-10T00:00:00",[m
+[31m-    "last": "2026-07-30T14:00:00"[m
+[32m+[m[32m    "first": "2024-10-10T02:00:00",[m
+[32m+[m[32m    "last": "2026-07-30T16:00:00"[m
+   },[m
+   "barPolicy": {[m
+     "excludeFormingIntradayBar": true,[m
+[36m@@ -6173,13 +6173,13 @@[m
+     {[m
+       "direction": "long",[m
+       "entryTime": "2026-07-30T10:00:00Z",[m
+[31m-      "exitTime": "2026-07-30T14:00:00Z",[m
+[32m+[m[32m      "exitTime": "2026-07-30T16:00:00Z",[m
+       "entry": 25616.0,[m
+[31m-      "sl": 25507.085714285713,[m
+[32m+[m[32m      "sl": 25617.0,[m
+       "tp": 25942.742857142857,[m
+[31m-      "exit": 25689.0,[m
+[32m+[m[32m      "exit": 25713.0,[m
+       "exitReason": "end_of_data",[m
+[31m-      "pnl": 67.03[m
+[32m+[m[32m      "pnl": 89.06[m
+     }[m
+   ][m
+ }[m
+\ No newline at end of file[m

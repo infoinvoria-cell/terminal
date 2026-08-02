@@ -239,9 +239,10 @@ const ANOMALY: StrategyRow[] = [
 const INTRADAY: StrategyRow[] = [
   {
     id: "eurusd_30m", ticker: "6E1!", label: "EUR/USD Futures · 6E", group: "Intraday",
-    engine: "SL 13pip · TP 3.0R · BE 1R · 08–12:30 UTC", pillar: "intraday", weight: 20,
+    engine: "Liquidity Sweep · ATR SL · TP 3R · BE 1R · 07–10:30 UTC", pillar: "intraday", weight: 20,
     sharpeOos: 1.535, cagr: "+21.4%", maxDd: "−18.7%", calmar: 1.145, pf: 1.325, trades: 1358, wfOos: "7/8",
     status: "active", exchange: "CME", intradayId: "EUR30m", codexGroup: "intraday", codexSymbol: "EURUSD_30M",
+    isNotes: "TV-Parity 80.7% (988/1224) · Backtrader: 268 trades (regime), PF 1.097, Sharpe +0.09 · APPROVED_LIVE 2026-08-01",
   },
   {
     id: "dax_1h", ticker: "DAX 1H / MT", label: "DAX 1H", group: "Intraday",

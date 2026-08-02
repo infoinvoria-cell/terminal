@@ -61,12 +61,21 @@ export interface SignalData {
   entry?:           number;
   sl?:              number;
   tp?:              number;
+  atr?:             number;
+  close?:           number;
+  regime_active?:   boolean;
   ema_fast_val?:    number;
   ema_slow_val?:    number;
   last_cross_bars?: number;
   last_cross_date?: string;
   timestamp?:       string;
   error?:           string;
+  status?:          string;
+  parity?:          string;
+  bt_trades?:       number;
+  bt_sharpe?:       number;
+  bt_pf?:           number;
+  bt_win_rate?:     number;
 }
 
 export interface BacktestMetrics {

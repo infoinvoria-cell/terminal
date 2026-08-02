@@ -1,0 +1,308 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - 'button "Logged in as jg_fxtrading Active layout: Data" [ref=e2746]'
+      - generic [ref=e8]: "26"
+    - toolbar [ref=e12]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]:
+            - button "SPY" [ref=e2732]
+            - button [ref=e799]
+          - button "Compare symbols" [ref=e25]
+        - generic [ref=e33]:
+          - radiogroup [ref=e34]:
+            - radio "1 minute" [ref=e35]:
+              - generic [ref=e36]: 1m
+            - radio "5 minutes" [ref=e38]:
+              - generic [ref=e39]: 5m
+            - radio "15 minutes" [ref=e41]:
+              - generic [ref=e42]: 15m
+            - radio "30 minutes" [ref=e44]:
+              - generic [ref=e45]: 30m
+            - radio "1 hour" [ref=e47]:
+              - generic [ref=e48]: 1h
+            - radio "2 hours" [ref=e50]:
+              - generic [ref=e51]: 2h
+            - radio "4 hours" [ref=e53]:
+              - generic [ref=e54]: 4h
+            - radio "1 day" [checked] [ref=e56]:
+              - generic [ref=e57]: D
+            - radio "1 week" [ref=e59]:
+              - generic [ref=e60]: W
+            - radio "1 month" [ref=e62]:
+              - generic [ref=e63]: M
+          - button "Chart interval" [ref=e65]
+        - generic [ref=e74]:
+          - radiogroup [ref=e75]:
+            - radio "Candles" [checked] [ref=e76]
+            - radio "Heikin Ashi" [ref=e83]
+          - button "Bar's style" [ref=e90]
+        - generic [ref=e98]:
+          - generic [ref=e99]:
+            - button "Indicators, metrics, and strategies" [ref=e100]
+            - button "Favorite indicators" [ref=e105]
+          - button "Indicator templates" [ref=e112]
+        - generic [ref=e119]:
+          - button "Create alert" [ref=e120]
+          - button "Bar replay" [ref=e800]
+        - generic [ref=e140]:
+          - button "Undo adjust data for dividends" [ref=e2748]
+          - button [disabled] [ref=e145]
+        - generic [ref=e149]:
+          - button "Layout setup" [ref=e150]
+          - generic [ref=e153]:
+            - button "Save all charts for all symbols and intervals on your layout" [ref=e2749]:
+              - generic [ref=e156]:
+                - generic [ref=e157]: Data
+                - generic [ref=e806]: Save
+            - button "Manage layouts" [ref=e160]
+            - link "⚔️Copy Trading JG 2" [ref=e166]:
+              - /url: https://www.tradingview.com/chart/W0GEb5M7/
+            - link "🍎Swing Stocks Strategien" [ref=e169]:
+              - /url: https://www.tradingview.com/chart/4Hn8TX6E/
+            - link "📊SCANNER" [ref=e172]:
+              - /url: https://www.tradingview.com/chart/lrY2G4rE/
+            - link "🧐invest" [ref=e175]:
+              - /url: https://www.tradingview.com/chart/gVBhfGn8/
+        - generic [ref=e180]:
+          - button "Quick search" [ref=e181]
+          - button "Settings" [ref=e186]
+          - button "Fullscreen mode" [ref=e192]
+          - button "Take a snapshot" [ref=e196]
+        - generic [ref=e217]:
+          - button "Share your idea with the trade community"
+          - generic "Share your idea with the trade community" [ref=e218]
+    - toolbar [ref=e224]:
+      - generic [ref=e228]:
+        - generic [ref=e229]:
+          - generic [ref=e232]:
+            - button "Cross" [ref=e234]
+            - button "Cursors" [pressed] [ref=e240]
+          - generic [ref=e246]:
+            - button "Trendline" [ref=e248]
+            - button "Trend tools" [ref=e254]
+          - generic [ref=e260]:
+            - button "Fib retracement" [ref=e262]
+            - button "Gann and Fibonacci tools" [ref=e271]
+          - generic [ref=e277]:
+            - button "XABCD pattern" [ref=e279]
+            - button "Patterns" [ref=e285]
+          - generic [ref=e291]:
+            - button "Long position" [ref=e293]
+            - button "Forecasting and measurement tools" [ref=e297]
+          - generic [ref=e303]:
+            - button "Brush" [ref=e305]
+            - button "Geometric shapes" [ref=e311]
+          - generic [ref=e317]:
+            - button "Text" [ref=e319]
+            - button "Annotation tools" [ref=e323]
+          - generic [ref=e328]:
+            - button "Icon" [ref=e330]
+            - button "Icons" [ref=e334]
+        - generic [ref=e338]:
+          - button "Measure" [ref=e339]
+          - button "Zoom in" [ref=e343]
+        - generic [ref=e350]:
+          - generic [ref=e353]:
+            - button "Magnet mode snaps drawings placed near price bars to the closest OHLC value" [ref=e355]
+            - button "Magnets" [ref=e361]
+          - button "Keep drawing" [ref=e365]
+          - button "Lock all drawings" [ref=e369]
+          - generic [ref=e374]:
+            - button "Hide all indicators" [ref=e376]
+            - button "Hide options" [ref=e380]
+          - generic [ref=e385]:
+            - button "New drawings will not be synced" [ref=e387]
+            - button "Sync drawings options" [ref=e391]
+        - generic [ref=e397]:
+          - button "Remove objects" [ref=e399]
+          - button "Remove options" [ref=e403]
+        - button "Show Favorite Drawing Tools Toolbar" [ref=e409]
+    - generic [ref=e413]:
+      - 'region "Chart #1" [ref=e416]':
+        - generic [ref=e420]:
+          - generic:
+            - generic:
+              - toolbar:
+                - generic:
+                  - generic [ref=e421]:
+                    - generic "Change symbol" [ref=e2750]:
+                      - generic [ref=e423]: S
+                      - button "Change symbol" [ref=e2751]: SPY
+                    - text: · ·
+                  - generic:
+                    - generic:
+                      - button "Flag symbol"
+                      - button "More"
+                  - button "NYSE Arca by Cboe One" [ref=e2753]
+          - generic "Chart for BATS:SPY, 1 day" [ref=e2742]
+      - toolbar [ref=e656]:
+        - button [ref=e792]
+        - generic [ref=e683]:
+          - button "Timezone" [ref=e686]:
+            - generic [ref=e687]: 19:48:38 UTC+2
+          - button "Adjust data for dividends" [pressed] [ref=e2744]:
+            - generic [ref=e2745]: ADJ
+    - text: – – –
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+              - generic:
+                - log:
+                  - list
+    - table [ref=e2760]:
+      - rowgroup [ref=e2761]:
+        - row [ref=e2762]:
+          - cell [ref=e2763]
+          - cell "Reset chart view Alt + R" [ref=e2769]:
+            - generic [ref=e2770]:
+              - generic [ref=e2771]: Reset chart view
+              - generic [ref=e2772]: Alt + R
+        - row:
+          - cell
+        - row [ref=e2773]:
+          - cell [ref=e2774]
+          - cell [ref=e2776]
+        - row [ref=e2778]:
+          - cell [ref=e2779]
+          - cell "Copy price 742.66" [ref=e2780]
+        - row:
+          - cell
+        - row [ref=e2783]:
+          - cell [ref=e2784]
+          - cell "Paste Ctrl + V" [ref=e2785]:
+            - generic [ref=e2786]:
+              - generic [ref=e2787]: Paste
+              - generic [ref=e2788]: Ctrl + V
+        - row:
+          - cell
+        - row [ref=e2789]:
+          - cell [ref=e2790]
+          - cell [ref=e2792]
+        - row [ref=e2794]:
+          - cell [ref=e2795]
+          - cell "Add alert on SPY at 742.66… Alt + A" [ref=e2800]:
+            - generic [ref=e2801]:
+              - generic [ref=e2802]: Add alert on SPY at 742.66…
+              - generic [ref=e2803]: Alt + A
+        - row:
+          - cell
+        - row [ref=e2804]:
+          - cell [ref=e2805]
+          - cell "Buy 1 SPY @ 742.66 limit Alt + Shift + B" [ref=e2809]:
+            - generic [ref=e2810]:
+              - generic [ref=e2811]: Buy 1 SPY @ 742.66 limit
+              - generic [ref=e2812]: Alt + Shift + B
+        - row:
+          - cell
+        - row [ref=e2813]:
+          - cell [ref=e2814]
+          - cell "Sell 1 SPY @ 742.66 stop" [ref=e2818]
+        - row:
+          - cell
+        - row [ref=e2821]:
+          - cell [ref=e2822]
+          - cell "Add order on SPY at 742.66… Shift + T" [ref=e2826]:
+            - generic [ref=e2827]:
+              - generic [ref=e2828]: Add order on SPY at 742.66…
+              - generic [ref=e2829]: Shift + T
+        - row:
+          - cell
+        - row [ref=e2830]:
+          - cell [ref=e2831]
+          - cell [ref=e2833]
+        - row [ref=e2835]:
+          - cell [ref=e2836]
+          - cell "Lock vertical cursor line by time" [ref=e2837]
+        - row:
+          - cell
+        - row [ref=e2840]:
+          - cell [ref=e2841]
+          - cell [ref=e2843]
+        - row [ref=e2845]:
+          - cell [ref=e2846]
+          - cell "Table view" [ref=e2847]
+        - row:
+          - cell
+        - row [ref=e2850]:
+          - cell [ref=e2851]
+          - cell "Object tree…" [ref=e2852]
+        - row:
+          - cell
+        - row [ref=e2855]:
+          - cell [ref=e2856]
+          - cell "Chart template" [ref=e2857]
+        - row:
+          - cell
+        - row [ref=e2863]:
+          - cell [ref=e2864]
+          - cell [ref=e2866]
+        - row [ref=e2868]:
+          - cell [ref=e2869]
+          - cell "Settings…" [ref=e2874]
+        - row:
+          - cell
