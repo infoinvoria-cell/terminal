@@ -1,14 +1,15 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
+import React from "react";
 import {
   getDeepValidatedPatterns,
   getDeepDetailById,
-  getRevalidationById,
   getNextSignals,
   gradeColor,
   gradeBg,
+  getRevalidationById,
   type DeepValidationPattern,
   type DeepDetailResult,
   type RevalidationResult,
@@ -216,7 +217,7 @@ const LIVE_STATUS: Record<string, { tier: number; status: string; label: string;
 };
 
 const LIVE_PATTERNS = SLEEVE_PATTERNS.filter(p =>
-  p.reval != null && p.validationId != null && !DUPLICATE_IDS.has(p.validationId)
+  p.validationId != null && !DUPLICATE_IDS.has(p.validationId)
 );
 
 /* ─── Countdown hook — uses calStart (calendar day 1-365) ──────────── */
@@ -722,16 +723,14 @@ function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => 
   const dirColor = isLong ? "rgba(232,234,239,0.80)" : C_GOLD;
   const detail   = p.validationId ? getDeepDetailById(p.validationId) : undefined;
   const gc       = p.deepGrade ? gradeColor(p.deepGrade) : C_WHITE;
-  const gb       = p.deepGrade ? gradeBg(p.deepGrade) : "transparent";
   const C_PASS   = "#22C55E";
   const C_FAIL   = "#EF4444";
-  const C_SCORE  = "#C9A84C";
-  const CARD     = { borderBottom: `1px solid ${C_BORDER}`, padding: "12px 0" } as const;
+  const C_WARN   = "#F59E0B";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 0, padding: "14px 18px", flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden", fontFamily: FONT, background: "#090909" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "16px 18px", flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden", fontFamily: FONT, background: "#090909" }}>
 
-      {/* ── A) HEADER ── */}
+      {/* ── HEADER ── */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <AssetIcon assetId={p.assetId} iconAssetId={p.iconAssetId} symbol={p.symbol} name={p.name} size={44} />
@@ -757,151 +756,96 @@ function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => 
         </div>
       </div>
 
-      {/* ── B0) BACKTRADER ENGINE METRICS ── */}
-      {detail && (detail as any).backtrader_metrics && (() => {
-        const bt = (detail as any).backtrader_metrics as { sharpe: number; calmar: number; win_rate: number; profit_factor: number; cagr: number; max_dd: number; trades: number; total_pnl: number; oos_sharpe: number; oos_win_rate: number };
-        return (
-          <div style={{ ...CARD, flexShrink: 0 }}>
-            <SectionLabel>Backtrader Engine — Echte Backtestzahlen</SectionLabel>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 14 }}>
-              {[
-                { label: "Sharpe", value: bt.sharpe.toFixed(2), color: bt.sharpe >= 1 ? "#22C55E" : bt.sharpe < 0 ? "#EF4444" : "#F5F5F5" },
-                { label: "Calmar", value: bt.calmar.toFixed(2), color: bt.calmar >= 1 ? "#22C55E" : bt.calmar < 0 ? "#EF4444" : "#F5F5F5" },
-                { label: "Win Rate", value: `${bt.win_rate.toFixed(1)}%`, color: bt.win_rate >= 70 ? "#22C55E" : "#F5F5F5" },
-                { label: "Profit Factor", value: bt.profit_factor.toFixed(2), color: bt.profit_factor >= 2 ? "#22C55E" : "#F5F5F5" },
-              ].map(k => (
-                <div key={k.label}>
-                  <div style={{ fontSize: 9, color: "#6B7280", textTransform: "uppercase" as const, letterSpacing: "0.07em", marginBottom: 5, fontFamily: FONT }}>{k.label}</div>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums", letterSpacing: "-0.5px" }}>{k.value}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
-              {[
-                { label: "CAGR", value: `${bt.cagr.toFixed(1)}%`, color: bt.cagr > 0 ? "#F5F5F5" : "#EF4444" },
-                { label: "Max DD", value: `${bt.max_dd.toFixed(1)}%`, color: "#EF4444" },
-                { label: "Trades", value: `${bt.trades}`, color: "#F5F5F5" },
-                { label: "OOS Sharpe", value: bt.oos_sharpe.toFixed(2), color: bt.oos_sharpe >= 1 ? "#22C55E" : bt.oos_sharpe < 0 ? "#EF4444" : "#F5F5F5" },
-              ].map(k => (
-                <div key={k.label}>
-                  <div style={{ fontSize: 9, color: "#6B7280", textTransform: "uppercase" as const, letterSpacing: "0.07em", marginBottom: 5, fontFamily: FONT }}>{k.label}</div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      })()}
 
-      {/* ── REVALIDATION RESULTS ── */}
-      {p.reval && (() => {
-        const rv = p.reval;
-        const C_PASS = "#22C55E";
-        const C_WARN = "#F0883E";
-        const mmColor = rv.median_mean_ratio >= 0.7 ? C_PASS : rv.median_mean_ratio >= 0.5 ? C_WARN : "#EF4444";
+      {/* ── METRICS ── */}
+      {((): React.ReactNode => {
+        const bt = detail && (detail as any).backtrader_metrics ? (detail as any).backtrader_metrics as { sharpe: number; calmar: number; win_rate: number; profit_factor: number; cagr: number; max_dd: number; trades: number; oos_sharpe: number; oos_win_rate: number } : null;
+        const KC: React.CSSProperties = { background: "linear-gradient(to bottom, #19191d, #111214)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12, padding: "10px 12px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 68 };
+        const KL: React.CSSProperties = { fontSize: 8, fontWeight: 600, color: "#71717a", textTransform: "uppercase", letterSpacing: "0.10em", fontFamily: FONT };
+        const KV: React.CSSProperties = { fontSize: 17, fontWeight: 700, lineHeight: 1, fontVariantNumeric: "tabular-nums", fontFamily: FONT };
+        const metrics = bt ? [
+          { label: "Sharpe",       value: bt.sharpe.toFixed(2),          color: bt.sharpe >= 1 ? C_PASS : bt.sharpe < 0 ? C_FAIL : "#ffffff" },
+          { label: "Calmar",       value: bt.calmar.toFixed(2),          color: bt.calmar >= 1 ? C_PASS : bt.calmar < 0 ? C_FAIL : "#ffffff" },
+          { label: "Win Rate",     value: `${bt.win_rate.toFixed(1)}%`,  color: "#ffffff" },
+          { label: "Profit Factor",value: bt.profit_factor.toFixed(2),   color: "#ffffff" },
+          { label: "CAGR",         value: `${bt.cagr.toFixed(1)}%`,      color: bt.cagr > 0 ? "#ffffff" : C_FAIL },
+          { label: "Max Drawdown", value: `${bt.max_dd.toFixed(1)}%`,    color: C_FAIL },
+          { label: "OOS Sharpe",   value: bt.oos_sharpe.toFixed(2),      color: bt.oos_sharpe >= 1 ? C_PASS : bt.oos_sharpe < 0 ? C_FAIL : "#ffffff" },
+          { label: "Trades",       value: `${bt.trades}`,                 color: "#ffffff" },
+        ] : [
+          { label: "Win Rate IS",  value: `${(p.winRate * 100).toFixed(0)}%`,     color: "#ffffff" },
+          { label: "Win Rate OOS", value: `${(p.oosWinRate * 100).toFixed(0)}%`,  color: "#ffffff" },
+          { label: "Profit Factor",value: p.profitFactor.toFixed(1),               color: "#ffffff" },
+          { label: "Sortino",      value: p.sortino.toFixed(2),                    color: p.sortino >= 1 ? C_PASS : "#ffffff" },
+          { label: "Max DD",       value: `${(p.maxDrawdown * 100).toFixed(0)}%`,  color: C_FAIL },
+          { label: "Avg Return",   value: `${(p.avgReturn * 100).toFixed(2)}%`,    color: p.avgReturn >= 0 ? "#ffffff" : C_FAIL },
+          { label: "Trades",       value: `${p.nObs}`,                             color: "#ffffff" },
+          { label: "WF Score",     value: p.wfStrictPct != null ? `${p.wfStrictPct.toFixed(0)}%` : "—", color: "#ffffff" },
+        ];
         return (
-          <div style={{ ...CARD, flexShrink: 0 }}>
-            <SectionLabel>Re-Validierung — Robustheitsprüfung</SectionLabel>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 14 }}>
-              {[
-                { label: "Historie", value: `${rv.n_years} Jahre`, color: rv.has_20y ? "#22C55E" : "#EF4444" },
-                { label: "Win Rate", value: `${rv.win_rate.toFixed(1)}%`, color: rv.win_rate >= 75 ? "#22C55E" : "#F5F5F5" },
-                { label: "Med/Mean", value: rv.median_mean_ratio.toFixed(2), color: mmColor },
-                { label: "Skewness", value: rv.skewness.toFixed(2), color: Math.abs(rv.skewness) > 1.5 ? C_WARN : "#F5F5F5" },
-              ].map(k => (
-                <div key={k.label}>
-                  <div style={{ fontSize: 9, color: "#6B7280", textTransform: "uppercase" as const, letterSpacing: "0.07em", marginBottom: 5, fontFamily: FONT }}>{k.label}</div>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums", letterSpacing: "-0.5px" }}>{k.value}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 12 }}>
-              {[
-                { label: "RWF Folds", value: `${rv.rolling_wf_positive}/${rv.rolling_wf_folds}`, color: rv.rolling_wf_pct >= 80 ? "#22C55E" : C_WARN },
-                { label: "RWF Rate", value: `${rv.rolling_wf_pct.toFixed(0)}%`, color: rv.rolling_wf_pct >= 80 ? "#22C55E" : C_WARN },
-                { label: "Param Robust", value: `${rv.param_pct.toFixed(0)}%`, color: rv.param_pct >= 80 ? "#22C55E" : C_WARN },
-                { label: "Param Var.", value: `${rv.param_positive}/${rv.param_total}`, color: rv.param_robust ? "#22C55E" : "#EF4444" },
-              ].map(k => (
-                <div key={k.label}>
-                  <div style={{ fontSize: 9, color: "#6B7280", textTransform: "uppercase" as const, letterSpacing: "0.07em", marginBottom: 5, fontFamily: FONT }}>{k.label}</div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-              <StatusPill pass={rv.has_20y} label={rv.has_20y ? "20+ JAHRE" : "<20 JAHRE"} />
-              <StatusPill pass={rv.rolling_wf_pass} label={rv.rolling_wf_pass ? "RWF PASS" : "RWF FAIL"} />
-              <StatusPill pass={rv.param_robust} label={rv.param_robust ? "ROBUST" : "FRAGIL"} />
-              <StatusPill pass={!rv.outlier_concern} label={rv.outlier_concern ? "OUTLIER" : "CLEAN"} />
-              <StatusPill pass={rv.profitable_without_best} label={rv.profitable_without_best ? "OHNE BEST OK" : "BEST-ABHÄNGIG"} />
-              <StatusPill pass={rv.profitable_without_top2} label={rv.profitable_without_top2 ? "OHNE TOP2 OK" : "TOP2-ABHÄNGIG"} />
-            </div>
-            {rv.issues.length > 0 && (
-              <div style={{ marginTop: 8, fontSize: 10, color: C_WARN, fontStyle: "italic" }}>
-                {rv.issues.join(", ")}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, flexShrink: 0 }}>
+            {metrics.map(m => (
+              <div key={m.label} style={KC}>
+                <div style={KL}>{m.label}</div>
+                <div style={{ ...KV, color: m.color }}>{m.value}</div>
               </div>
-            )}
+            ))}
           </div>
         );
       })()}
 
-      {/* ── B) BACKTRADER VALIDATION — 7 Tests ── */}
+      {/* ── 7-TEST CHIPS ── */}
       {detail && (
-        <div style={{ ...CARD, flexShrink: 0 }}>
-          <SectionLabel>Backtrader Validation — 7 Tests</SectionLabel>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10, fontFamily: FONT }}>
-            <thead>
-              <tr style={{ borderBottom: `1px solid ${C_BORDER}` }}>
-                {["Test", "Ergebnis", "Status"].map(h => (
-                  <th key={h} style={{ textAlign: "left", padding: "4px 6px", fontSize: 8, fontWeight: 700, color: "#7c8798", textTransform: "uppercase" as const, letterSpacing: "0.06em" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                { test: "Walk-Forward (streng)", value: `${detail.t1_wf_strict.wf_strict_pct.toFixed(1)}%`, pass: detail.t1_wf_strict.pass },
-                { test: "Bonferroni Korrektur", value: detail.t2_bonferroni.significant ? `p=${detail.t2_bonferroni.p_bonferroni.toFixed(3)}` : `p=${detail.t2_bonferroni.p_raw.toFixed(3)}`, pass: detail.t2_bonferroni.significant, label: detail.t2_bonferroni.significant ? "SIGNIFIKANT" : "FAIL" },
-                { test: "Parameter-Stabilität", value: `${detail.t3_stability.stability_pct.toFixed(0)}%`, pass: detail.t3_stability.pass, label: detail.t3_stability.robust ? "ROBUST" : "FAIL" },
-                { test: "Dekaden-Stabilität", value: `${detail.t6_decades.decades_profitable}/${detail.t6_decades.total}`, pass: detail.t6_decades.pass },
-                { test: "Forward Test 2023-26", value: `Sharpe ${detail.t7_forward.sharpe >= 0 ? "+" : ""}${detail.t7_forward.sharpe.toFixed(2)}`, pass: detail.t7_forward.pass },
-                { test: "Kosten-Sensitivität", value: `BE ${detail.t5_costs.break_even_range}`, pass: detail.t5_costs.pass },
-                { test: "Regime-Abhängigkeit", value: `${detail.t4_regime.regimes_positive}/${detail.t4_regime.total_regimes}`, pass: detail.t4_regime.pass },
-              ].map(r => (
-                <tr key={r.test} style={{ borderBottom: `1px solid rgba(255,255,255,0.03)` }}>
-                  <td style={{ padding: "5px 6px", color: C_WHITE, fontWeight: 600 }}>{r.test}</td>
-                  <td style={{ padding: "5px 6px", color: C_TEXT2, fontVariantNumeric: "tabular-nums" }}>{r.value}</td>
-                  <td style={{ padding: "5px 6px" }}><StatusPill pass={r.pass} label={r.label} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, flexShrink: 0 }}>
+          {[
+            { label: "Walk-Forward", pass: detail.t1_wf_strict.pass,          value: `${detail.t1_wf_strict.wf_strict_pct.toFixed(0)}%` },
+            { label: "Bonferroni",   pass: detail.t2_bonferroni.significant,  value: `p=${detail.t2_bonferroni.p_bonferroni.toFixed(3)}` },
+            { label: "Param Stab.", pass: detail.t3_stability.pass,           value: `${detail.t3_stability.stability_pct.toFixed(0)}%` },
+            { label: "Dekaden",     pass: detail.t6_decades.pass,             value: `${detail.t6_decades.decades_profitable}/${detail.t6_decades.total}` },
+            { label: "Forward",     pass: detail.t7_forward.pass,             value: detail.t7_forward.sharpe.toFixed(2) },
+            { label: "Kosten",      pass: detail.t5_costs.pass,               value: detail.t5_costs.break_even_range },
+            { label: "Regime",      pass: detail.t4_regime.pass,              value: `${detail.t4_regime.regimes_positive}/${detail.t4_regime.total_regimes}` },
+          ].map(t => (
+            <div key={t.label} style={{
+              display: "flex", alignItems: "center", gap: 5,
+              padding: "5px 10px", borderRadius: 8,
+              background: "rgba(255,255,255,0.03)",
+              border: `1px solid ${t.pass ? "rgba(34,197,94,0.2)" : "rgba(239,68,68,0.18)"}`,
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: t.pass ? C_PASS : C_FAIL, display: "inline-block", flexShrink: 0 }} />
+              <span style={{ fontSize: 9, fontWeight: 600, color: "#8d8f98", fontFamily: FONT }}>{t.label}</span>
+              <span style={{ fontSize: 9, fontWeight: 700, color: t.pass ? "#e8edf3" : C_FAIL, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{t.value}</span>
+            </div>
+          ))}
         </div>
       )}
 
-      {/* ── C) EQUITY CURVE (fold PnL as cumulative line) ── */}
+      {/* ── WF EQUITY CHART ── */}
       {detail && detail.t1_wf_strict.fold_details.length > 0 && (() => {
         const folds = detail.t1_wf_strict.fold_details;
         const eq: number[] = [0];
         for (const f of folds) eq.push(eq[eq.length - 1] + f.pnl);
-        const max = Math.max(...eq.map(Math.abs), 1);
-        const W = 400; const H = 60;
+        const maxAbs = Math.max(...eq.map(Math.abs), 1);
+        const W = 400; const H = 72;
         const pts = eq.map((v, i) => {
           const x = (i / (eq.length - 1)) * W;
-          const y = H / 2 - (v / max) * (H / 2 - 4);
+          const y = H / 2 - (v / maxAbs) * (H / 2 - 6);
           return `${x.toFixed(1)},${y.toFixed(1)}`;
         }).join(" ");
-        const fillId = `eq-detail-${p.id}`;
+        const fillId = `wf-eq-${p.id}`;
         return (
-          <div style={{ ...CARD, flexShrink: 0 }}>
-            <SectionLabel>Walk-Forward Equity (OOS Folds)</SectionLabel>
+          <div style={{ flexShrink: 0 }}>
+            <div style={{ fontSize: 8, fontWeight: 600, color: "#71717a", textTransform: "uppercase" as const, letterSpacing: "0.10em", marginBottom: 8, fontFamily: FONT }}>
+              Walk-Forward — {detail.t1_wf_strict.positive_folds}/{detail.t1_wf_strict.folds} positive Folds
+            </div>
             <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{ display: "block" }}>
               <defs>
                 <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="rgba(232,237,243,0.14)" />
-                  <stop offset="100%" stopColor="rgba(232,237,243,0.01)" />
+                  <stop offset="0%" stopColor="rgba(232,237,243,0.12)" />
+                  <stop offset="100%" stopColor="rgba(232,237,243,0.00)" />
                 </linearGradient>
               </defs>
-              <line x1={0} y1={H / 2} x2={W} y2={H / 2} stroke="rgba(255,255,255,0.08)" strokeWidth={0.5} strokeDasharray="3 5" />
+              <line x1={0} y1={H / 2} x2={W} y2={H / 2} stroke="rgba(255,255,255,0.06)" strokeWidth={0.5} strokeDasharray="4 6" />
               <polygon points={`0,${H / 2} ${pts} ${W},${H / 2}`} fill={`url(#${fillId})`} />
               <polyline points={pts} fill="none" stroke="#e8edf3" strokeWidth={1.6} strokeLinejoin="round" />
             </svg>
@@ -909,206 +853,9 @@ function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => 
         );
       })()}
 
-      {/* ── D) WALK-FORWARD FOLDS ── */}
-      {detail && (
-        <div style={{ ...CARD, flexShrink: 0 }}>
-          <SectionLabel>Walk-Forward Folds ({detail.t1_wf_strict.positive_folds}/{detail.t1_wf_strict.folds} positiv)</SectionLabel>
-          <div style={{ maxHeight: 160, overflowY: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 9, fontFamily: FONT }}>
-              <thead>
-                <tr style={{ borderBottom: `1px solid ${C_BORDER}` }}>
-                  {["Fold", "OOS Periode", "Sharpe", "PnL", "Trades", ""].map(h => (
-                    <th key={h} style={{ textAlign: "left", padding: "3px 4px", fontSize: 7, fontWeight: 700, color: "#7c8798", textTransform: "uppercase" as const, letterSpacing: "0.06em" }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {detail.t1_wf_strict.fold_details.map((f, i) => {
-                  const pos = f.positive === true;
-                  return (
-                    <tr key={i} style={{ borderBottom: `1px solid rgba(255,255,255,0.03)` }}>
-                      <td style={{ padding: "3px 4px", color: C_TEXT3, fontVariantNumeric: "tabular-nums" }}>{i + 1}</td>
-                      <td style={{ padding: "3px 4px", color: C_TEXT2 }}>{f.oos_start.slice(0, 4)}–{f.oos_end.slice(0, 4)}</td>
-                      <td style={{ padding: "3px 4px", color: pos ? C_PASS : C_FAIL, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{f.sharpe >= 0 ? "+" : ""}{f.sharpe.toFixed(2)}</td>
-                      <td style={{ padding: "3px 4px", color: pos ? C_WHITE : C_FAIL, fontVariantNumeric: "tabular-nums" }}>{f.pnl >= 0 ? "+" : ""}{(f.pnl / 1000).toFixed(1)}k</td>
-                      <td style={{ padding: "3px 4px", color: C_TEXT3 }}>{f.trades}</td>
-                      <td style={{ padding: "3px 4px" }}><span style={{ fontSize: 8, color: pos ? C_PASS : C_FAIL }}>{pos ? "●" : "●"}</span></td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* ── E) REGIME / STRESS TESTS ── */}
-      {detail && (
-        <div style={{ ...CARD, flexShrink: 0 }}>
-          <SectionLabel>Regime-Abhängigkeit ({detail.t4_regime.regimes_positive}/{detail.t4_regime.total_regimes} positiv)</SectionLabel>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 9, fontFamily: FONT }}>
-            <thead>
-              <tr style={{ borderBottom: `1px solid ${C_BORDER}` }}>
-                {["Regime", "Sharpe", "PnL", "Trades", ""].map(h => (
-                  <th key={h} style={{ textAlign: "left", padding: "3px 4px", fontSize: 7, fontWeight: 700, color: "#7c8798", textTransform: "uppercase" as const, letterSpacing: "0.06em" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(detail.t4_regime.regimes).map(([regime, rd]) => {
-                const label: Record<string, string> = { high_vol: "High Vol", low_vol: "Low Vol", trend_up: "Trend Up", trend_down: "Trend Down" };
-                return (
-                  <tr key={regime} style={{ borderBottom: `1px solid rgba(255,255,255,0.03)` }}>
-                    <td style={{ padding: "3px 4px", color: C_WHITE, fontWeight: 600 }}>{label[regime] ?? regime}</td>
-                    <td style={{ padding: "3px 4px", color: rd.positive ? C_PASS : C_FAIL, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{rd.sharpe.toFixed(2)}</td>
-                    <td style={{ padding: "3px 4px", color: C_TEXT2, fontVariantNumeric: "tabular-nums" }}>{rd.trades > 0 ? `${(rd.pnl / 1000).toFixed(1)}k` : "—"}</td>
-                    <td style={{ padding: "3px 4px", color: C_TEXT3 }}>{rd.trades}</td>
-                    <td style={{ padding: "3px 4px" }}><StatusPill pass={rd.positive} /></td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* ── F) DEKADEN-STABILITÄT ── */}
-      {detail && (
-        <div style={{ ...CARD, flexShrink: 0 }}>
-          <SectionLabel>Dekaden-Stabilität ({detail.t6_decades.decades_profitable}/{detail.t6_decades.total})</SectionLabel>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 9, fontFamily: FONT }}>
-            <thead>
-              <tr style={{ borderBottom: `1px solid ${C_BORDER}` }}>
-                {["Periode", "Sharpe", "WR", "PnL", "Trades", ""].map(h => (
-                  <th key={h} style={{ textAlign: "left", padding: "3px 4px", fontSize: 7, fontWeight: 700, color: "#7c8798", textTransform: "uppercase" as const, letterSpacing: "0.06em" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(detail.t6_decades.decades).map(([period, dd]) => (
-                <tr key={period} style={{ borderBottom: `1px solid rgba(255,255,255,0.03)` }}>
-                  <td style={{ padding: "3px 4px", color: C_WHITE, fontWeight: 600 }}>{period}</td>
-                  <td style={{ padding: "3px 4px", color: dd.profitable ? C_PASS : C_FAIL, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{dd.sharpe.toFixed(2)}</td>
-                  <td style={{ padding: "3px 4px", color: C_TEXT2, fontVariantNumeric: "tabular-nums" }}>{dd.win_rate.toFixed(0)}%</td>
-                  <td style={{ padding: "3px 4px", color: C_TEXT2, fontVariantNumeric: "tabular-nums" }}>{(dd.pnl / 1000).toFixed(1)}k</td>
-                  <td style={{ padding: "3px 4px", color: C_TEXT3 }}>{dd.trades}</td>
-                  <td style={{ padding: "3px 4px" }}><StatusPill pass={dd.profitable} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* ── G) KOSTEN-ANALYSE ── */}
-      {detail && (
-        <div style={{ ...CARD, flexShrink: 0 }}>
-          <SectionLabel>Kosten-Sensitivität (Break-Even: {detail.t5_costs.break_even_range})</SectionLabel>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 9, fontFamily: FONT }}>
-            <thead>
-              <tr style={{ borderBottom: `1px solid ${C_BORDER}` }}>
-                {["Kosten", "Sharpe", "PnL", ""].map(h => (
-                  <th key={h} style={{ textAlign: "left", padding: "3px 4px", fontSize: 7, fontWeight: 700, color: "#7c8798", textTransform: "uppercase" as const, letterSpacing: "0.06em" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(detail.t5_costs.cost_levels).map(([level, cl]) => (
-                <tr key={level} style={{ borderBottom: `1px solid rgba(255,255,255,0.03)` }}>
-                  <td style={{ padding: "3px 4px", color: C_WHITE, fontWeight: 600 }}>{level}</td>
-                  <td style={{ padding: "3px 4px", color: cl.profitable ? C_WHITE : C_FAIL, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{cl.sharpe.toFixed(2)}</td>
-                  <td style={{ padding: "3px 4px", color: C_TEXT2, fontVariantNumeric: "tabular-nums" }}>{(cl.pnl / 1000).toFixed(0)}k</td>
-                  <td style={{ padding: "3px 4px" }}><StatusPill pass={cl.profitable} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* ── FORWARD TEST ── */}
-      {detail && (
-        <div style={{ ...CARD, flexShrink: 0 }}>
-          <SectionLabel>Forward Test 2023–2026</SectionLabel>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
-            {[
-              { label: "Sharpe", value: detail.t7_forward.sharpe.toFixed(2), color: detail.t7_forward.pass ? "#22C55E" : "#EF4444" },
-              { label: "Win Rate", value: `${detail.t7_forward.win_rate.toFixed(0)}%`, color: detail.t7_forward.win_rate >= 50 ? "#F5F5F5" : "#EF4444" },
-              { label: "PnL", value: `${(detail.t7_forward.pnl / 1000).toFixed(1)}k`, color: detail.t7_forward.pnl >= 0 ? "#F5F5F5" : "#EF4444" },
-              { label: "Profit Factor", value: detail.t7_forward.profit_factor.toFixed(2), color: detail.t7_forward.profit_factor >= 1 ? "#F5F5F5" : "#EF4444" },
-            ].map(k => (
-              <div key={k.label}>
-                <div style={{ fontSize: 9, color: "#6B7280", textTransform: "uppercase" as const, letterSpacing: "0.07em", marginBottom: 5, fontFamily: FONT }}>{k.label}</div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── BONFERRONI DETAIL ── */}
-      {detail && (
-        <div style={{ ...CARD, flexShrink: 0 }}>
-          <SectionLabel>Bonferroni Korrektur (500 Random-Entry Sims)</SectionLabel>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
-            {[
-              { label: "Real Sharpe", value: detail.t2_bonferroni.real_sharpe.toFixed(2), color: "#F5F5F5" },
-              { label: "Random Ø", value: detail.t2_bonferroni.random_sharpe_mean.toFixed(2), color: C_TEXT2 },
-              { label: "p (Bonf.)", value: detail.t2_bonferroni.p_bonferroni.toFixed(3), color: detail.t2_bonferroni.significant ? "#22C55E" : "#EF4444" },
-            ].map(k => (
-              <div key={k.label}>
-                <div style={{ fontSize: 9, color: "#6B7280", textTransform: "uppercase" as const, letterSpacing: "0.07em", marginBottom: 5, fontFamily: FONT }}>{k.label}</div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── PARAMETER-STABILITÄT ── */}
-      {detail && (
-        <div style={{ ...CARD, flexShrink: 0 }}>
-          <SectionLabel>Parameter-Stabilität ({detail.t3_stability.positive_variants}/{detail.t3_stability.n_variants} positiv — {detail.t3_stability.stability_pct.toFixed(0)}%)</SectionLabel>
-          <div style={{ fontSize: 10, color: C_TEXT2, lineHeight: 1.6 }}>
-            Entry ±1–3 Tage × Hold ±2,5 Tage → {detail.t3_stability.n_variants} Varianten getestet.
-            <span style={{ color: detail.t3_stability.robust ? C_PASS : C_FAIL, fontWeight: 700 }}>
-              {" "}{detail.t3_stability.robust ? "Robust — Edge ist nicht parameter-abhängig." : "Fragil — Edge hängt von exakten Parametern ab."}
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* Fallback if no deep detail available */}
-      {!detail && (
-        <>
-          <div style={{ ...CARD, flexShrink: 0 }}>
-            <SectionLabel>Basis-Kennzahlen</SectionLabel>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
-              {[
-                { label: "Win Rate", value: `${(p.winRate * 100).toFixed(0)}%`, color: C_WHITE },
-                { label: "Profit Factor", value: p.profitFactor.toFixed(1), color: C_WHITE },
-                { label: "Max DD", value: `${(p.maxDrawdown * 100).toFixed(0)}%`, color: C_TEXT2 },
-                { label: "Trades", value: String(p.nObs), color: C_TEXT2 },
-              ].map(k => (
-                <div key={k.label}>
-                  <div style={{ fontSize: 7, color: C_TEXT3, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 3 }}>{k.label}</div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: k.color, fontFamily: FONT }}>{k.value}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div style={{ ...CARD, flex: 1, minHeight: 50, display: "flex", flexDirection: "column" }}>
-            <SectionLabel>Trade-Verlauf (illustrativ)</SectionLabel>
-            <div style={{ flex: 1, minHeight: 0, display: "flex", alignItems: "center" }}>
-              <ReturnBars returns={p.fakeReturns} width={280} height={54} />
-            </div>
-          </div>
-        </>
-      )}
     </div>
   );
 }
-
 /* ─── Next Signal Banner ───────────────────────────────────────────── */
 function NextSignalBanner() {
   const signals = useMemo(() => getNextSignals(), []);
@@ -1169,7 +916,6 @@ function PortfolioView() {
   const patterns = SLEEVE_PATTERNS;
   const avgWr    = patterns.reduce((s, p) => s + p.winRate, 0) / patterns.length;
   const avgOos   = patterns.reduce((s, p) => s + p.oosWinRate, 0) / patterns.length;
-  const avgSort  = patterns.reduce((s, p) => s + p.sortino, 0) / patterns.length;
   const total    = patterns.reduce((s, p) => s + p.nObs, 0);
   const bon      = patterns.filter(p => p.tier === "bonferroni").length;
   const equity   = useMemo(() => buildPortfolioEquity(), []);
@@ -1177,51 +923,44 @@ function PortfolioView() {
   let pk = equity[0]; let maxDd = 0;
   for (const v of equity) { if (v > pk) pk = v; const dd = (v / pk) - 1; if (dd < maxDd) maxDd = dd; }
 
+  const KC: React.CSSProperties = {
+    background: "linear-gradient(to bottom, #19191d, #111214)",
+    border: "1px solid rgba(255,255,255,0.07)",
+    borderRadius: 12, padding: "12px 14px",
+    display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 72,
+  };
+  const KL: React.CSSProperties = { fontSize: 8, fontWeight: 600, color: "#71717a", textTransform: "uppercase", letterSpacing: "0.10em", fontFamily: FONT };
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1, minHeight: 0, overflow: "hidden" }}>
-      {/* KPI strip */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, flexShrink: 0 }}>
-        <KpiBox label="Muster"         value={`${patterns.length}`}                              sub={`${bon} Bonferroni`} />
-        <KpiBox label="Ø IS Win Rate"  value={`${(avgWr * 100).toFixed(1)}%`}                   sub="In-Sample" />
-        <KpiBox label="Ø OOS Win Rate" value={`${(avgOos * 100).toFixed(1)}%`}                  sub="Out-of-Sample" />
-        <KpiBox label="Ø Sortino"      value={avgSort.toFixed(2)}                               sub="Risikoadjustiert" />
-        <KpiBox label="Gesamt n"       value={`${total}`}                                        sub="Hist. Trades" />
-        <KpiBox label="Portfolio Ret." value={`${finalRet >= 0 ? "+" : ""}${finalRet.toFixed(1)}%`} sub="Illustrativ" valueColor={finalRet >= 0 ? "#eef2f7" : C_GOLD} />
-        <KpiBox label="Max Drawdown"   value={`${(maxDd * 100).toFixed(1)}%`}                   sub="Portfolio" valueColor={C_GOLD} />
+    <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "14px 16px", flex: 1, minHeight: 0, overflow: "hidden" }}>
+
+      {/* ── KPI STRIP (Analytics gradient cards) ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8, flexShrink: 0 }}>
+        {[
+          { label: "Muster",        value: `${patterns.length}`,                               sub: `${bon} Bonferroni`,  color: "#ffffff" },
+          { label: "Ø IS Win Rate", value: `${(avgWr * 100).toFixed(1)}%`,                    sub: "In-Sample",          color: "#ffffff" },
+          { label: "Ø OOS Win Rate",value: `${(avgOos * 100).toFixed(1)}%`,                   sub: "Out-of-Sample",      color: "#ffffff" },
+          { label: "Portfolio Ret.",value: `${finalRet >= 0 ? "+" : ""}${finalRet.toFixed(1)}%`, sub: "Illustrativ",     color: finalRet >= 0 ? "#ffffff" : "#EF4444" },
+          { label: "Max Drawdown",  value: `${(maxDd * 100).toFixed(1)}%`,                    sub: `${total} Trades`,    color: "#EF4444" },
+        ].map(m => (
+          <div key={m.label} style={KC}>
+            <div style={KL}>{m.label}</div>
+            <div>
+              <div style={{ fontSize: 20, fontWeight: 700, lineHeight: 1, fontVariantNumeric: "tabular-nums", color: m.color, fontFamily: FONT }}>{m.value}</div>
+              <div style={{ fontSize: 8, color: "rgba(255,255,255,0.30)", marginTop: 4, fontFamily: FONT }}>{m.sub}</div>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* Charts + list */}
-      <div style={{ display: "flex", gap: 8, flex: 1, minHeight: 0 }}>
-        <div style={{ flex: 2, minWidth: 0, display: "flex", flexDirection: "column", gap: 6 }}>
-          <div style={{ borderRadius: 8, padding: "10px 12px", flex: 3, minHeight: 0, display: "flex", flexDirection: "column", border: `1px solid ${C_BORDER}` }}>
-            <div style={{ flex: 1, minHeight: 0 }}>
-              <EquityLine equity={equity} width={600} height={100} />
-            </div>
-          </div>
-          <div style={{ borderRadius: 8, padding: "8px 12px", flex: 1, minHeight: 0, display: "flex", flexDirection: "column", border: `1px solid ${C_BORDER}` }}>
-            <div style={{ flex: 1, minHeight: 0 }}>
-              <DrawdownLine equity={equity} width={600} height={44} />
-            </div>
-          </div>
-        </div>
+      {/* ── EQUITY CHART ── */}
+      <div style={{ flex: 3, minHeight: 0, border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12, overflow: "hidden" }}>
+        <EquityLine equity={equity} width={600} height={120} />
+      </div>
 
-        {/* Muster list */}
-        <div style={{ flex: 1, minWidth: 0, border: `1px solid ${C_BORDER}`, borderRadius: 8, padding: "10px 12px", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-          <div style={{ fontSize: 7.5, color: "#6B7280", textTransform: "uppercase" as const, letterSpacing: "0.08em", marginBottom: 8, flexShrink: 0 }}>Muster-Übersicht</div>
-          <div style={{ flex: 1, overflowY: "auto" }}>
-            {patterns.map(p => {
-              return (
-                <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 2, padding: "4px 0 4px 8px", borderLeft: `2px solid ${C_GOLD}40` }}>
-                  <span style={{ fontSize: 9.5, fontWeight: 800, color: C_WHITE, width: 32, flexShrink: 0, letterSpacing: "0.01em" }}>{p.symbol.replace("1!", "")}</span>
-                  <ReturnBars returns={p.fakeReturns.slice(0, 12)} width={68} height={16} />
-                  <span style={{ fontSize: 7.5, color: C_TEXT3, flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.window}</span>
-                  <span style={{ fontSize: 9, fontWeight: 700, color: C_TEXT2, flexShrink: 0 }}>{(p.oosWinRate * 100).toFixed(0)}%</span>
-                </div>
-              );
-            })}
-            <div style={{ fontSize: 7, color: C_TEXT3, marginTop: 6, paddingLeft: 10 }}>Illustrativ · IS-Kennzahlen</div>
-          </div>
-        </div>
+      {/* ── DRAWDOWN CHART ── */}
+      <div style={{ flex: 1, minHeight: 0, border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12, overflow: "hidden" }}>
+        <DrawdownLine equity={equity} width={600} height={52} />
       </div>
     </div>
   );
