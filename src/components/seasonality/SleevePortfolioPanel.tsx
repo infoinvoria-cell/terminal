@@ -301,45 +301,33 @@ function WrDonut({ pct, size = 64 }: { pct: number; size?: number }) {
   );
 }
 
-/* ─── Cumulative equity card-line — avg label at exact last-point Y ── */
+/* ─── Cumulative equity sparkline — full card width, no label inside SVG ── */
 function CardEquityLine({ returns: rets, id, avgReturn }: {
   returns: number[]; id: string; avgReturn: number;
 }) {
   const eq: number[] = [0];
   for (const r of rets) eq.push(eq[eq.length - 1] + r * 100);
-  const W = 148; const H = 42; const VW = W + 50;
+  const W = 200; const H = 40;
   const min = Math.min(...eq); const max = Math.max(...eq);
   const rng = max - min || 0.1;
-  // y=0 → top of chart, y=H → bottom (max maps to top, min maps to bottom)
   const points = eq.map((v, i) => ({
     x: (i / (eq.length - 1)) * W,
     y: H - ((v - min) / rng) * H,
   }));
   const pts = points.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
-  const lastY = points[points.length - 1].y;
-  const baseY = H - ((0 - min) / rng) * H;
-  const clampedBase = Math.min(H, Math.max(0, baseY));
-  const lineC = avgReturn >= 0 ? "#e8edf3" : "#d6b867";
+  const baseY = Math.min(H, Math.max(0, H - ((0 - min) / rng) * H));
   const fillId = `cf-${id}`;
-  const avgLabel = `${avgReturn >= 0 ? "+" : ""}${(avgReturn * 100).toFixed(1)}%`;
 
   return (
-    <svg viewBox={`0 0 ${VW} ${H}`} width="100%" height={H} style={{ display: "block" }}>
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} preserveAspectRatio="none" style={{ display: "block" }}>
       <defs>
         <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={lineC} stopOpacity="0.18" />
-          <stop offset="100%" stopColor={lineC} stopOpacity="0.00" />
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.12" />
+          <stop offset="100%" stopColor="#ffffff" stopOpacity="0.00" />
         </linearGradient>
       </defs>
-      <line x1={0} y1={clampedBase} x2={W} y2={clampedBase}
-        stroke="rgba(255,255,255,0.07)" strokeWidth={0.5} strokeDasharray="3 5" />
-      <polygon points={`0,${clampedBase} ${pts} ${W},${clampedBase}`} fill={`url(#${fillId})`} />
-      <polyline points={pts} fill="none" stroke={lineC} strokeWidth={1.8} strokeLinejoin="round" />
-      <circle cx={W} cy={lastY} r={2.5} fill={lineC} />
-      <text x={W + 4} y={lastY} dominantBaseline="central"
-        fill="#C9A84C" fontSize={9} fontWeight={700} fontFamily={FONT}>
-        {avgLabel}
-      </text>
+      <polygon points={`0,${baseY} ${pts} ${W},${baseY}`} fill={`url(#${fillId})`} />
+      <polyline points={pts} fill="none" stroke="#e8edf3" strokeWidth={1.5} strokeLinejoin="round" />
     </svg>
   );
 }
@@ -562,33 +550,18 @@ function LiveDot({ validationId }: { validationId?: string }) {
   );
 }
 
-/* ─── Grid card — 1:1 Referenz-Layout, kompakt ──────────────────────── */
+/* ─── Grid card — clean layout, no badge, no dot, no circle ─────────── */
 function SleeveCard({ p, selected, onActivate, onDetail }: {
   p: SleevePattern;
   selected: boolean;
   onActivate: () => void;
   onDetail: () => void;
 }) {
-  const isLong    = p.direction === "LONG";
-  const dirColor  = isLong ? "#22C55E" : "#EF4444";
+  const isLong   = p.direction === "LONG";
   const countdown = usePatternCountdown(p.calStart);
   const [detailHov, setDetailHov] = useState(false);
-  const activeLiveEst = useMemo<number | null>(() => {
-    if (countdown !== "Aktiv") return null;
-    const todayCal = todayCalendarDay();
-    const daysElapsed = Math.max(0, todayCal - p.calStart);
-    const windowTd = Math.max(1, p.endSlot - p.startSlot);
-    const tradingElapsed = daysElapsed * (252 / 365);
-    const progress = Math.min(1, tradingElapsed / windowTd);
-    const idx = Math.max(1, Math.round(progress * p.fakeReturns.length));
-    return p.fakeReturns.slice(0, idx).reduce((s, r) => s + r * 100, 0);
-  }, [countdown, p.calStart, p.endSlot, p.startSlot, p.fakeReturns]);
-
   const ls = p.validationId ? LIVE_STATUS[p.validationId] : undefined;
   const isRejected = ls?.tier === 4;
-  const cardBg = selected
-    ? `radial-gradient(ellipse 120% 90% at 115% 120%, rgba(216,188,103,0.14) 0%, transparent 55%), ${C_CARD}`
-    : C_CARD;
   const avgLabel = `${p.avgReturn >= 0 ? "+" : ""}${(p.avgReturn * 100).toFixed(1)}% avg`;
 
   return (
@@ -597,61 +570,57 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
       onClick={onActivate}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onActivate(); }}
       style={{
-        background: cardBg,
-        border: selected ? "1px solid rgba(216,188,103,0.32)" : `1px solid ${C_BORDER}`,
+        background: "#0A0A0A",
+        border: selected ? "1px solid rgba(216,188,103,0.40)" : "1px solid #1A1A1A",
         borderRadius: 12,
-        padding: "8px 10px 6px",
+        padding: "10px 10px 8px",
         display: "flex", flexDirection: "column", gap: 0,
         cursor: "pointer", outline: "none",
         transition: "border-color 120ms",
         height: "100%", boxSizing: "border-box" as const,
         fontFamily: FONT, overflow: "hidden",
-        opacity: isRejected ? 0.45 : 1,
+        opacity: isRejected ? 0.40 : 1,
       }}
     >
-      {/* ── Row 1: Icon · Symbol + Name · LiveDot · WR Donut ── */}
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-        <AssetIcon assetId={p.assetId} iconAssetId={p.iconAssetId} symbol={p.symbol} name={p.name} size={28} />
+      {/* ── Row 1: Icon · Symbol+Name · Countdown ── */}
+      <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 5 }}>
+        <AssetIcon assetId={p.assetId} iconAssetId={p.iconAssetId} symbol={p.symbol} name={p.name} size={26} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13, fontWeight: 900, color: "#fff", lineHeight: 1, letterSpacing: "0.01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          <div style={{ fontSize: 12, fontWeight: 900, color: "#fff", lineHeight: 1.1, letterSpacing: "0.01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             {p.symbol.replace("1!", "!")}
-            <span style={{ fontSize: 9, fontWeight: 500, color: "rgba(255,255,255,0.38)", marginLeft: 5 }}>{p.name.split(" ")[0]}</span>
+          </div>
+          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {p.name.split(" ").slice(0, 2).join(" ")}
           </div>
         </div>
-        <LiveDot validationId={p.validationId} />
-        <WrDonut pct={p.winRate * 100} size={38} />
+        <span style={{ fontSize: 10, fontWeight: 700, color: countdown === "Aktiv" ? "#e8edf3" : "rgba(255,255,255,0.45)", flexShrink: 0, lineHeight: 1 }}>
+          {countdown || "—"}
+        </span>
       </div>
 
-      {/* ── Row 2: Datum ── */}
-      <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.82)", lineHeight: 1, marginBottom: 3 }}>
+      {/* ── Row 2: Window ── */}
+      <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.70)", lineHeight: 1, marginBottom: 8 }}>
         {p.window}
       </div>
 
-      {/* ── Row 3: Countdown ── */}
-      <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 4 }}>
-        <span style={{ fontSize: 9, fontWeight: 600, color: countdown === "Aktiv" ? "#e8edf3" : C_GOLD, lineHeight: 1 }}>
-          {countdown || "—"}
-        </span>
-        {activeLiveEst !== null && (
-          <span style={{ fontSize: 9, fontWeight: 800, lineHeight: 1, color: activeLiveEst >= 0 ? C_GOLD : "rgba(210,90,80,0.90)" }}>
-            {activeLiveEst >= 0 ? "+" : ""}{activeLiveEst.toFixed(1)}%
-          </span>
-        )}
-      </div>
-
-      {/* ── Row 4: Sparkline with inline avg label at last point ── */}
-      <div style={{ flex: 1, minHeight: 32, overflow: "hidden" }}>
+      {/* ── Row 3: Sparkline volle Breite ── */}
+      <div style={{ flex: 1, minHeight: 36, overflow: "hidden" }}>
         <CardEquityLine returns={p.fakeReturns} id={`p${p.id}`} avgReturn={p.avgReturn} />
       </div>
 
-      {/* ── Row 5: Direction ▲/▼ · Detail icon ── */}
-      <div style={{ marginTop: 4, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      {/* ── Row 4: Avg-Label unter Graph ── */}
+      <div style={{ fontSize: 10, color: "#6B7280", lineHeight: 1, marginTop: 4, marginBottom: 5 }}>
+        {avgLabel}
+      </div>
+
+      {/* ── Row 5: Direction · Detail icon ── */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <span style={{
-          display: "inline-flex", alignItems: "center", gap: 4,
-          fontSize: 10, fontWeight: 900, letterSpacing: "0.06em",
-          color: dirColor, lineHeight: 1,
+          display: "inline-flex", alignItems: "center", gap: 3,
+          fontSize: 9, fontWeight: 800, letterSpacing: "0.06em",
+          color: isLong ? "rgba(232,237,243,0.70)" : "rgba(216,188,103,0.70)", lineHeight: 1,
         }}>
-          <span style={{ fontSize: 8 }}>{isLong ? "▲" : "▼"}</span>
+          <span style={{ fontSize: 7 }}>{isLong ? "▲" : "▼"}</span>
           {p.direction}
         </span>
         <button
@@ -661,9 +630,9 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
           onMouseLeave={() => setDetailHov(false)}
           style={{
             display: "flex", alignItems: "center", justifyContent: "center",
-            width: 20, height: 20, borderRadius: 5, border: "none",
-            background: detailHov ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.04)",
-            color: detailHov ? "#e8edf3" : "rgba(255,255,255,0.25)",
+            width: 18, height: 18, borderRadius: 4, border: "none",
+            background: detailHov ? "rgba(255,255,255,0.10)" : "transparent",
+            color: detailHov ? "#e8edf3" : "rgba(255,255,255,0.22)",
             cursor: "pointer", flexShrink: 0, transition: "background 120ms, color 120ms",
           }}
         >
@@ -1305,7 +1274,7 @@ export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Pr
               {nextSignal && nextDays != null && (
                 <div style={{
                   display: "flex", alignItems: "center", gap: 7, flex: 1,
-                  background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)",
+                  background: "rgba(255,255,255,0.03)", border: "1px solid #1A1A1A",
                   borderRadius: 7, padding: "5px 10px",
                 }}>
                   <span style={{ fontSize: 8, fontWeight: 700, color: "#7c8798", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>Nächstes Signal</span>
@@ -1341,10 +1310,10 @@ export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Pr
               <div style={{
                 display: "flex", alignItems: "center", gap: 6,
                 padding: "5px 14px", margin: "0 14px 2px",
-                background: "rgba(245,158,11,0.05)", border: "1px solid rgba(245,158,11,0.14)",
+                background: "rgba(255,255,255,0.02)", border: "1px solid #1A1A1A",
                 borderRadius: 6, fontFamily: FONT, flexShrink: 0,
               }}>
-                <span style={{ fontSize: 10, color: "#F59E0B" }}>
+                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.45)" }}>
                   ⚠ {decCluster.length} Signale gleichzeitig im Dezember — Positionsgröße halbieren
                 </span>
               </div>
