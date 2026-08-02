@@ -10,6 +10,7 @@ import { useInterval } from "@/hooks/use-interval";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
 import SignalCard from "@/components/signal/SignalCard";
 import LiveWatchlistPanel from "@/components/signals/LiveWatchlistPanel";
+import LivePipelineView from "@/components/signals/LivePipelineView";
 import type {
   SignalCardFilter,
   SignalCardModel,
@@ -256,6 +257,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
   const firstCard = data.cards[0] ?? null;
   const [selectedCardId, setSelectedCardId] = useState<string | null>(firstCard?.id ?? null);
   const [showWatchlist, setShowWatchlist] = useState(false);
+  const [showPipeline, setShowPipeline] = useState(false);
   const [fullData, setFullData] = useState(false);
   const [ohlcBars, setOhlcBars] = useState<MonitoringChartData["bars"] | null>(null);
   const ohlcFetchRef = useRef<AbortController | null>(null);
@@ -344,6 +346,36 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
       overflow: "hidden",
       background: "#09090b",
     }}>
+      {/* ── Live Pipeline Fullscreen ───────────────────────────────────────── */}
+      {showPipeline && (
+        <LivePipelineView onClose={() => setShowPipeline(false)} />
+      )}
+
+      {/* ── Pipeline Button (top-right) ────────────────────────────────────── */}
+      <button
+        onClick={() => setShowPipeline(true)}
+        style={{
+          position: "absolute",
+          top: 14,
+          right: 18,
+          zIndex: 40,
+          background: "none",
+          border: "1px solid #C9A84C",
+          borderRadius: 6,
+          color: "#C9A84C",
+          fontSize: 11,
+          fontFamily: "Montserrat, sans-serif",
+          fontWeight: 600,
+          padding: "5px 12px",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          letterSpacing: "0.04em",
+        }}
+      >
+        ⚡ Live Pipeline
+      </button>
       {/* ── Pull tab: right edge, vertically centered ─────────────────────── */}
       <button
         onClick={() => setShowWatchlist((v) => !v)}
