@@ -391,19 +391,13 @@ function EquityLine({ equity, width, height }: { equity: number[]; width: number
     <svg viewBox={`0 0 ${width} ${height}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block" }}>
       <defs>
         <linearGradient id="eq-g" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor="rgba(244,245,247,0.16)" />
-          <stop offset="100%" stopColor="rgba(244,245,247,0.01)" />
+          <stop offset="0%"   stopColor="rgba(245,245,245,0.10)" />
+          <stop offset="100%" stopColor="rgba(245,245,245,0.00)" />
         </linearGradient>
       </defs>
-      {[0.25, 0.5, 0.75].map(f => (
-        <line key={f}
-          x1={0} y1={height - pad - f * (height - pad - 4)}
-          x2={width} y2={height - pad - f * (height - pad - 4)}
-          stroke="rgba(255,255,255,0.045)" strokeWidth={0.5} strokeDasharray="3 5" />
-      ))}
       <polygon points={`0,${height - pad} ${pts} ${width},${height - pad}`} fill="url(#eq-g)" />
-      <polyline points={pts} fill="none" stroke="#e6e7ea" strokeWidth={1.8} strokeLinejoin="round" />
-      <circle cx={lastX} cy={lastY} r={2.5} fill="#e6e7ea" />
+      <polyline points={pts} fill="none" stroke="#F5F5F5" strokeWidth={1.5} strokeLinejoin="round" />
+      <circle cx={lastX} cy={lastY} r={2.5} fill="#F5F5F5" />
       <text x={6} y={13} fill="rgba(255,255,255,0.28)" fontFamily={FONT} fontSize={9}>Portfolio Equity (illustrativ)</text>
       <text x={width - 6} y={13} fill={pct >= 0 ? C_GOLD : "rgba(172,96,104,0.90)"} fontFamily={FONT} fontSize={11} fontWeight="700" textAnchor="end">
         {pct >= 0 ? "+" : ""}{pct.toFixed(1)}%
@@ -428,13 +422,13 @@ function DrawdownLine({ equity, width, height }: { equity: number[]; width: numb
     <svg viewBox={`0 0 ${width} ${height}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block" }}>
       <defs>
         <linearGradient id="dd-g" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0%"   stopColor="rgba(124,58,67,0.30)" />
-          <stop offset="100%" stopColor="rgba(124,58,67,0.04)" />
+          <stop offset="0%"   stopColor="rgba(239,68,68,0.15)" />
+          <stop offset="100%" stopColor="rgba(239,68,68,0.00)" />
         </linearGradient>
       </defs>
       <line x1={0} y1={4} x2={width} y2={4} stroke="rgba(255,255,255,0.16)" strokeWidth={0.5} strokeDasharray="5 4" />
       <polygon points={`0,4 ${pts} ${width},4`} fill="url(#dd-g)" />
-      <polyline points={pts} fill="none" stroke="rgba(172,96,104,0.86)" strokeWidth={1.45} strokeLinejoin="round" />
+      <polyline points={pts} fill="none" stroke="#EF4444" strokeWidth={1} strokeLinejoin="round" />
       <text x={6} y={height - 4} fill="rgba(255,255,255,0.28)" fontFamily={FONT} fontSize={9}>Drawdown</text>
       <text x={width - 6} y={height - 4} fill={C_GOLD} fontFamily={FONT} fontSize={10} fontWeight="700" textAnchor="end">
         {(maxDd * 100).toFixed(1)}%
@@ -713,11 +707,10 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 /* ─── Status pill ──────────────────────────────────────────────────── */
 function StatusPill({ pass, label }: { pass: boolean; label?: string }) {
-  const bg = pass ? "rgba(34,197,94,0.12)" : "rgba(239,68,68,0.12)";
   const color = pass ? "#22C55E" : "#EF4444";
   const text = label ?? (pass ? "PASS" : "FAIL");
   return (
-    <span style={{ fontSize: 9, fontWeight: 700, color, background: bg, padding: "1px 6px", borderRadius: 4, fontFamily: FONT }}>
+    <span style={{ fontSize: 9, fontWeight: 700, color, border: `1px solid ${pass ? "rgba(34,197,94,0.35)" : "rgba(239,68,68,0.35)"}`, padding: "1px 6px", borderRadius: 4, fontFamily: FONT }}>
       {text}
     </span>
   );
@@ -733,10 +726,10 @@ function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => 
   const C_PASS   = "#22C55E";
   const C_FAIL   = "#EF4444";
   const C_SCORE  = "#C9A84C";
-  const CARD     = { background: "rgba(255,255,255,0.025)", border: `1px solid ${C_BORDER}`, borderRadius: 8, padding: "10px 12px" } as const;
+  const CARD     = { borderBottom: `1px solid ${C_BORDER}`, padding: "12px 0" } as const;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "14px 16px", flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden", fontFamily: FONT }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 0, padding: "14px 18px", flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden", fontFamily: FONT, background: "#090909" }}>
 
       {/* ── A) HEADER ── */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexShrink: 0 }}>
@@ -745,7 +738,7 @@ function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => 
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
               <span style={{ fontSize: 18, fontWeight: 900, color: C_WHITE, letterSpacing: "0.01em" }}>{p.symbol.replace("1!", "!")}</span>
-              <span style={{ fontSize: 8, fontWeight: 700, color: dirColor, background: `${dirColor}18`, padding: "1px 5px", borderRadius: 3 }}>{p.direction}</span>
+              <span style={{ fontSize: 8, fontWeight: 700, color: dirColor, border: `1px solid ${dirColor}40`, padding: "1px 5px", borderRadius: 3 }}>{p.direction}</span>
             </div>
             <div style={{ fontSize: 10, color: C_TEXT2 }}>{p.name} · {p.window}</div>
           </div>
@@ -770,29 +763,29 @@ function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => 
         return (
           <div style={{ ...CARD, flexShrink: 0 }}>
             <SectionLabel>Backtrader Engine — Echte Backtestzahlen</SectionLabel>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 8 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 14 }}>
               {[
-                { label: "Sharpe", value: bt.sharpe.toFixed(2), color: bt.sharpe >= 0.5 ? C_PASS : C_SCORE },
-                { label: "Calmar", value: bt.calmar.toFixed(2), color: bt.calmar >= 1 ? C_PASS : C_SCORE },
-                { label: "Win Rate", value: `${bt.win_rate.toFixed(1)}%`, color: bt.win_rate >= 70 ? C_PASS : C_WHITE },
-                { label: "Profit Factor", value: bt.profit_factor.toFixed(2), color: bt.profit_factor >= 2 ? C_PASS : C_WHITE },
+                { label: "Sharpe", value: bt.sharpe.toFixed(2), color: bt.sharpe >= 1 ? "#22C55E" : bt.sharpe < 0 ? "#EF4444" : "#F5F5F5" },
+                { label: "Calmar", value: bt.calmar.toFixed(2), color: bt.calmar >= 1 ? "#22C55E" : bt.calmar < 0 ? "#EF4444" : "#F5F5F5" },
+                { label: "Win Rate", value: `${bt.win_rate.toFixed(1)}%`, color: bt.win_rate >= 70 ? "#22C55E" : "#F5F5F5" },
+                { label: "Profit Factor", value: bt.profit_factor.toFixed(2), color: bt.profit_factor >= 2 ? "#22C55E" : "#F5F5F5" },
               ].map(k => (
                 <div key={k.label}>
-                  <div style={{ fontSize: 7, color: C_TEXT3, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 3 }}>{k.label}</div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
+                  <div style={{ fontSize: 9, color: "#6B7280", textTransform: "uppercase" as const, letterSpacing: "0.07em", marginBottom: 5, fontFamily: FONT }}>{k.label}</div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums", letterSpacing: "-0.5px" }}>{k.value}</div>
                 </div>
               ))}
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
               {[
-                { label: "CAGR", value: `${bt.cagr.toFixed(1)}%`, color: bt.cagr > 0 ? C_PASS : C_FAIL },
-                { label: "Max DD", value: `${bt.max_dd.toFixed(1)}%`, color: C_FAIL },
-                { label: "Trades", value: `${bt.trades}`, color: C_WHITE },
-                { label: "OOS Sharpe", value: bt.oos_sharpe.toFixed(2), color: bt.oos_sharpe > 0 ? C_PASS : C_FAIL },
+                { label: "CAGR", value: `${bt.cagr.toFixed(1)}%`, color: bt.cagr > 0 ? "#F5F5F5" : "#EF4444" },
+                { label: "Max DD", value: `${bt.max_dd.toFixed(1)}%`, color: "#EF4444" },
+                { label: "Trades", value: `${bt.trades}`, color: "#F5F5F5" },
+                { label: "OOS Sharpe", value: bt.oos_sharpe.toFixed(2), color: bt.oos_sharpe >= 1 ? "#22C55E" : bt.oos_sharpe < 0 ? "#EF4444" : "#F5F5F5" },
               ].map(k => (
                 <div key={k.label}>
-                  <div style={{ fontSize: 7, color: C_TEXT3, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 3 }}>{k.label}</div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
+                  <div style={{ fontSize: 9, color: "#6B7280", textTransform: "uppercase" as const, letterSpacing: "0.07em", marginBottom: 5, fontFamily: FONT }}>{k.label}</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
                 </div>
               ))}
             </div>
@@ -809,29 +802,29 @@ function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => 
         return (
           <div style={{ ...CARD, flexShrink: 0 }}>
             <SectionLabel>Re-Validierung — Robustheitsprüfung</SectionLabel>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 14 }}>
               {[
-                { label: "Historie", value: `${rv.n_years} Jahre`, color: rv.has_20y ? C_PASS : "#EF4444" },
-                { label: "Win Rate", value: `${rv.win_rate.toFixed(1)}%`, color: rv.win_rate >= 75 ? C_PASS : C_WHITE },
+                { label: "Historie", value: `${rv.n_years} Jahre`, color: rv.has_20y ? "#22C55E" : "#EF4444" },
+                { label: "Win Rate", value: `${rv.win_rate.toFixed(1)}%`, color: rv.win_rate >= 75 ? "#22C55E" : "#F5F5F5" },
                 { label: "Med/Mean", value: rv.median_mean_ratio.toFixed(2), color: mmColor },
-                { label: "Skewness", value: rv.skewness.toFixed(2), color: Math.abs(rv.skewness) > 1.5 ? C_WARN : C_WHITE },
+                { label: "Skewness", value: rv.skewness.toFixed(2), color: Math.abs(rv.skewness) > 1.5 ? C_WARN : "#F5F5F5" },
               ].map(k => (
                 <div key={k.label}>
-                  <div style={{ fontSize: 7, color: C_TEXT3, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 3 }}>{k.label}</div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
+                  <div style={{ fontSize: 9, color: "#6B7280", textTransform: "uppercase" as const, letterSpacing: "0.07em", marginBottom: 5, fontFamily: FONT }}>{k.label}</div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums", letterSpacing: "-0.5px" }}>{k.value}</div>
                 </div>
               ))}
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 12 }}>
               {[
-                { label: "RWF Folds", value: `${rv.rolling_wf_positive}/${rv.rolling_wf_folds}`, color: rv.rolling_wf_pct >= 80 ? C_PASS : C_WARN },
-                { label: "RWF Rate", value: `${rv.rolling_wf_pct.toFixed(0)}%`, color: rv.rolling_wf_pct >= 80 ? C_PASS : C_WARN },
-                { label: "Param Robust", value: `${rv.param_pct.toFixed(0)}%`, color: rv.param_pct >= 80 ? C_PASS : C_WARN },
-                { label: "Param Var.", value: `${rv.param_positive}/${rv.param_total}`, color: rv.param_robust ? C_PASS : "#EF4444" },
+                { label: "RWF Folds", value: `${rv.rolling_wf_positive}/${rv.rolling_wf_folds}`, color: rv.rolling_wf_pct >= 80 ? "#22C55E" : C_WARN },
+                { label: "RWF Rate", value: `${rv.rolling_wf_pct.toFixed(0)}%`, color: rv.rolling_wf_pct >= 80 ? "#22C55E" : C_WARN },
+                { label: "Param Robust", value: `${rv.param_pct.toFixed(0)}%`, color: rv.param_pct >= 80 ? "#22C55E" : C_WARN },
+                { label: "Param Var.", value: `${rv.param_positive}/${rv.param_total}`, color: rv.param_robust ? "#22C55E" : "#EF4444" },
               ].map(k => (
                 <div key={k.label}>
-                  <div style={{ fontSize: 7, color: C_TEXT3, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 3 }}>{k.label}</div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
+                  <div style={{ fontSize: 9, color: "#6B7280", textTransform: "uppercase" as const, letterSpacing: "0.07em", marginBottom: 5, fontFamily: FONT }}>{k.label}</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
                 </div>
               ))}
             </div>
@@ -1037,16 +1030,16 @@ function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => 
       {detail && (
         <div style={{ ...CARD, flexShrink: 0 }}>
           <SectionLabel>Forward Test 2023–2026</SectionLabel>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
             {[
-              { label: "Sharpe", value: detail.t7_forward.sharpe.toFixed(2), color: detail.t7_forward.pass ? C_PASS : C_FAIL },
-              { label: "Win Rate", value: `${detail.t7_forward.win_rate.toFixed(0)}%`, color: detail.t7_forward.win_rate >= 50 ? C_WHITE : C_FAIL },
-              { label: "PnL", value: `${(detail.t7_forward.pnl / 1000).toFixed(1)}k`, color: detail.t7_forward.pnl >= 0 ? C_WHITE : C_FAIL },
-              { label: "Profit Factor", value: detail.t7_forward.profit_factor.toFixed(2), color: detail.t7_forward.profit_factor >= 1 ? C_WHITE : C_FAIL },
+              { label: "Sharpe", value: detail.t7_forward.sharpe.toFixed(2), color: detail.t7_forward.pass ? "#22C55E" : "#EF4444" },
+              { label: "Win Rate", value: `${detail.t7_forward.win_rate.toFixed(0)}%`, color: detail.t7_forward.win_rate >= 50 ? "#F5F5F5" : "#EF4444" },
+              { label: "PnL", value: `${(detail.t7_forward.pnl / 1000).toFixed(1)}k`, color: detail.t7_forward.pnl >= 0 ? "#F5F5F5" : "#EF4444" },
+              { label: "Profit Factor", value: detail.t7_forward.profit_factor.toFixed(2), color: detail.t7_forward.profit_factor >= 1 ? "#F5F5F5" : "#EF4444" },
             ].map(k => (
               <div key={k.label}>
-                <div style={{ fontSize: 7, color: C_TEXT3, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 3 }}>{k.label}</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
+                <div style={{ fontSize: 9, color: "#6B7280", textTransform: "uppercase" as const, letterSpacing: "0.07em", marginBottom: 5, fontFamily: FONT }}>{k.label}</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
               </div>
             ))}
           </div>
@@ -1057,15 +1050,15 @@ function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => 
       {detail && (
         <div style={{ ...CARD, flexShrink: 0 }}>
           <SectionLabel>Bonferroni Korrektur (500 Random-Entry Sims)</SectionLabel>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
             {[
-              { label: "Real Sharpe", value: detail.t2_bonferroni.real_sharpe.toFixed(2), color: C_SCORE },
+              { label: "Real Sharpe", value: detail.t2_bonferroni.real_sharpe.toFixed(2), color: "#F5F5F5" },
               { label: "Random Ø", value: detail.t2_bonferroni.random_sharpe_mean.toFixed(2), color: C_TEXT2 },
-              { label: "p (Bonf.)", value: detail.t2_bonferroni.p_bonferroni.toFixed(3), color: detail.t2_bonferroni.significant ? C_PASS : C_FAIL },
+              { label: "p (Bonf.)", value: detail.t2_bonferroni.p_bonferroni.toFixed(3), color: detail.t2_bonferroni.significant ? "#22C55E" : "#EF4444" },
             ].map(k => (
               <div key={k.label}>
-                <div style={{ fontSize: 7, color: C_TEXT3, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 3 }}>{k.label}</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
+                <div style={{ fontSize: 9, color: "#6B7280", textTransform: "uppercase" as const, letterSpacing: "0.07em", marginBottom: 5, fontFamily: FONT }}>{k.label}</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
               </div>
             ))}
           </div>
@@ -1157,18 +1150,15 @@ function NextSignalBanner() {
 function KpiBox({ label, value, sub, valueColor = "#eef2f7" }: { label: string; value: string; sub: string; valueColor?: string }) {
   return (
     <div style={{
-      background: "rgba(12,14,18,0.92)",
-      border: "1px solid rgba(232,237,244,0.12)",
-      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
-      backdropFilter: "blur(8px)",
-      borderRadius: 10, padding: "10px 14px",
+      borderBottom: "1px solid #1A1A1A",
+      padding: "8px 4px 10px",
       display: "flex", flexDirection: "column", justifyContent: "space-between",
       fontFamily: FONT,
     }}>
-      <div style={{ fontSize: 8, fontWeight: 700, color: "#7c8798", textTransform: "uppercase" as const, letterSpacing: "0.10em", marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 8, fontWeight: 700, color: "#6B7280", textTransform: "uppercase" as const, letterSpacing: "0.10em", marginBottom: 5 }}>{label}</div>
       <div>
-        <div style={{ fontSize: 20, fontWeight: 800, color: valueColor, lineHeight: 1, letterSpacing: "-0.3px", fontVariantNumeric: "tabular-nums" }}>{value}</div>
-        <div style={{ fontSize: 8, color: "rgba(255,255,255,0.28)", marginTop: 4 }}>{sub}</div>
+        <div style={{ fontSize: 18, fontWeight: 800, color: valueColor, lineHeight: 1, letterSpacing: "-0.3px", fontVariantNumeric: "tabular-nums" }}>{value}</div>
+        <div style={{ fontSize: 8, color: "rgba(255,255,255,0.25)", marginTop: 3 }}>{sub}</div>
       </div>
     </div>
   );
@@ -1203,12 +1193,12 @@ function PortfolioView() {
       {/* Charts + list */}
       <div style={{ display: "flex", gap: 8, flex: 1, minHeight: 0 }}>
         <div style={{ flex: 2, minWidth: 0, display: "flex", flexDirection: "column", gap: 6 }}>
-          <div style={{ background: C_CARD, border: `1px solid ${C_BORDER}`, borderRadius: 10, padding: "10px 12px", flex: 3, minHeight: 0, display: "flex", flexDirection: "column" }}>
+          <div style={{ borderRadius: 8, padding: "10px 12px", flex: 3, minHeight: 0, display: "flex", flexDirection: "column", border: `1px solid ${C_BORDER}` }}>
             <div style={{ flex: 1, minHeight: 0 }}>
               <EquityLine equity={equity} width={600} height={100} />
             </div>
           </div>
-          <div style={{ background: C_CARD, border: `1px solid ${C_BORDER}`, borderRadius: 10, padding: "8px 12px", flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+          <div style={{ borderRadius: 8, padding: "8px 12px", flex: 1, minHeight: 0, display: "flex", flexDirection: "column", border: `1px solid ${C_BORDER}` }}>
             <div style={{ flex: 1, minHeight: 0 }}>
               <DrawdownLine equity={equity} width={600} height={44} />
             </div>
@@ -1216,14 +1206,12 @@ function PortfolioView() {
         </div>
 
         {/* Muster list */}
-        <div style={{ flex: 1, minWidth: 0, background: C_CARD, border: `1px solid ${C_BORDER}`, borderRadius: 10, padding: "10px 12px", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-          <div style={{ fontSize: 7.5, color: C_TEXT3, textTransform: "uppercase" as const, letterSpacing: "0.07em", marginBottom: 8, flexShrink: 0 }}>Muster-Übersicht</div>
+        <div style={{ flex: 1, minWidth: 0, border: `1px solid ${C_BORDER}`, borderRadius: 8, padding: "10px 12px", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+          <div style={{ fontSize: 7.5, color: "#6B7280", textTransform: "uppercase" as const, letterSpacing: "0.08em", marginBottom: 8, flexShrink: 0 }}>Muster-Übersicht</div>
           <div style={{ flex: 1, overflowY: "auto" }}>
             {patterns.map(p => {
-              const dirC = p.direction === "LONG" ? "rgba(232,234,239,0.55)" : C_GOLD;
               return (
-                <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 6, paddingBottom: 5, borderBottom: `1px solid rgba(255,255,255,0.04)` }}>
-                  <div style={{ width: 5, height: 5, borderRadius: "50%", background: dirC, flexShrink: 0 }} />
+                <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 2, padding: "4px 0 4px 8px", borderLeft: `2px solid ${C_GOLD}40` }}>
                   <span style={{ fontSize: 9.5, fontWeight: 800, color: C_WHITE, width: 32, flexShrink: 0, letterSpacing: "0.01em" }}>{p.symbol.replace("1!", "")}</span>
                   <ReturnBars returns={p.fakeReturns.slice(0, 12)} width={68} height={16} />
                   <span style={{ fontSize: 7.5, color: C_TEXT3, flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.window}</span>
@@ -1231,7 +1219,7 @@ function PortfolioView() {
                 </div>
               );
             })}
-            <div style={{ fontSize: 7, color: C_TEXT3, marginTop: 4 }}>Illustrativ · IS-Kennzahlen</div>
+            <div style={{ fontSize: 7, color: C_TEXT3, marginTop: 6, paddingLeft: 10 }}>Illustrativ · IS-Kennzahlen</div>
           </div>
         </div>
       </div>
