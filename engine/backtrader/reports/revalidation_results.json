@@ -1,0 +1,152 @@
+[
+  {
+    "id": "EEM_L_1220_5",
+    "asset": "EEM", "direction": "LONG", "entry_month": 12, "entry_day": 20, "holding_days": 5,
+    "n_years": 23, "has_20y": true, "win_rate": 91.3,
+    "mean_ret_pct": 1.50, "median_ret_pct": 1.61, "median_mean_ratio": 1.07, "skewness": -0.50,
+    "profitable_without_best": true, "profitable_without_top2": true, "outlier_concern": false,
+    "rolling_wf_folds": 4, "rolling_wf_positive": 4, "rolling_wf_pct": 100.0, "rolling_wf_pass": true,
+    "param_positive": 21, "param_total": 21, "param_pct": 100.0, "param_robust": true,
+    "grade": "A+", "verdict": "LIVE-TAUGLICH", "issues": []
+  },
+  {
+    "id": "ES1_L_1025_30",
+    "asset": "ES1", "direction": "LONG", "entry_month": 10, "entry_day": 25, "holding_days": 30,
+    "n_years": 29, "has_20y": true, "win_rate": 82.8,
+    "mean_ret_pct": 5.78, "median_ret_pct": 5.68, "median_mean_ratio": 0.98, "skewness": 0.36,
+    "profitable_without_best": true, "profitable_without_top2": true, "outlier_concern": false,
+    "rolling_wf_folds": 6, "rolling_wf_positive": 6, "rolling_wf_pct": 100.0, "rolling_wf_pass": true,
+    "param_positive": 35, "param_total": 35, "param_pct": 100.0, "param_robust": true,
+    "grade": "A+", "verdict": "LIVE-TAUGLICH", "issues": []
+  },
+  {
+    "id": "RB1_L_0205_14",
+    "asset": "RB1", "direction": "LONG", "entry_month": 2, "entry_day": 5, "holding_days": 14,
+    "n_years": 42, "has_20y": true, "win_rate": 85.7,
+    "mean_ret_pct": 59.94, "median_ret_pct": 21.85, "median_mean_ratio": 0.36, "skewness": 1.79,
+    "profitable_without_best": true, "profitable_without_top2": true, "outlier_concern": true,
+    "rolling_wf_folds": 10, "rolling_wf_positive": 10, "rolling_wf_pct": 100.0, "rolling_wf_pass": true,
+    "param_positive": 35, "param_total": 35, "param_pct": 100.0, "param_robust": true,
+    "grade": "A", "verdict": "LIVE-TAUGLICH", "issues": ["OUTLIER_DRIVEN"]
+  },
+  {
+    "id": "RB1_L_1210_45",
+    "asset": "RB1", "direction": "LONG", "entry_month": 12, "entry_day": 10, "holding_days": 45,
+    "n_years": 42, "has_20y": true, "win_rate": 88.1,
+    "mean_ret_pct": 343.49, "median_ret_pct": 86.19, "median_mean_ratio": 0.25, "skewness": 1.99,
+    "profitable_without_best": true, "profitable_without_top2": true, "outlier_concern": true,
+    "rolling_wf_folds": 10, "rolling_wf_positive": 10, "rolling_wf_pct": 100.0, "rolling_wf_pass": true,
+    "param_positive": 35, "param_total": 35, "param_pct": 100.0, "param_robust": true,
+    "grade": "A", "verdict": "LIVE-TAUGLICH", "issues": ["OUTLIER_DRIVEN"]
+  },
+  {
+    "id": "PL1_L_1220_21",
+    "asset": "PL1", "direction": "LONG", "entry_month": 12, "entry_day": 20, "holding_days": 21,
+    "n_years": 41, "has_20y": true, "win_rate": 75.6,
+    "mean_ret_pct": 13.76, "median_ret_pct": 9.68, "median_mean_ratio": 0.70, "skewness": 3.35,
+    "profitable_without_best": true, "profitable_without_top2": true, "outlier_concern": false,
+    "rolling_wf_folds": 10, "rolling_wf_positive": 10, "rolling_wf_pct": 100.0, "rolling_wf_pass": true,
+    "param_positive": 35, "param_total": 35, "param_pct": 100.0, "param_robust": true,
+    "grade": "A+", "verdict": "LIVE-TAUGLICH", "issues": []
+  },
+  {
+    "id": "ZC1_L_1125_21",
+    "asset": "ZC1", "direction": "LONG", "entry_month": 11, "entry_day": 25, "holding_days": 21,
+    "n_years": 56, "has_20y": true, "win_rate": 78.6,
+    "mean_ret_pct": 12.36, "median_ret_pct": 7.54, "median_mean_ratio": 0.61, "skewness": 0.72,
+    "profitable_without_best": true, "profitable_without_top2": true, "outlier_concern": false,
+    "rolling_wf_folds": 15, "rolling_wf_positive": 14, "rolling_wf_pct": 93.0, "rolling_wf_pass": true,
+    "param_positive": 35, "param_total": 35, "param_pct": 100.0, "param_robust": true,
+    "grade": "A+", "verdict": "LIVE-TAUGLICH", "issues": []
+  },
+  {
+    "id": "PL1_L_1220_18",
+    "asset": "PL1", "direction": "LONG", "entry_month": 12, "entry_day": 20, "holding_days": 18,
+    "n_years": 41, "has_20y": true, "win_rate": 82.9,
+    "mean_ret_pct": 9.95, "median_ret_pct": 7.23, "median_mean_ratio": 0.73, "skewness": 1.21,
+    "profitable_without_best": true, "profitable_without_top2": true, "outlier_concern": false,
+    "rolling_wf_folds": 10, "rolling_wf_positive": 10, "rolling_wf_pct": 100.0, "rolling_wf_pass": true,
+    "param_positive": 35, "param_total": 35, "param_pct": 100.0, "param_robust": true,
+    "grade": "A+", "verdict": "LIVE-TAUGLICH", "issues": []
+  },
+  {
+    "id": "ZW1_L_0810_10",
+    "asset": "ZW1", "direction": "LONG", "entry_month": 8, "entry_day": 10, "holding_days": 10,
+    "n_years": 56, "has_20y": true, "win_rate": 83.9,
+    "mean_ret_pct": 12.63, "median_ret_pct": 10.30, "median_mean_ratio": 0.82, "skewness": 1.29,
+    "profitable_without_best": true, "profitable_without_top2": true, "outlier_concern": false,
+    "rolling_wf_folds": 15, "rolling_wf_positive": 13, "rolling_wf_pct": 87.0, "rolling_wf_pass": true,
+    "param_positive": 35, "param_total": 35, "param_pct": 100.0, "param_robust": true,
+    "grade": "A+", "verdict": "LIVE-TAUGLICH", "issues": []
+  },
+  {
+    "id": "ZW1_L_0810_8",
+    "asset": "ZW1", "direction": "LONG", "entry_month": 8, "entry_day": 10, "holding_days": 8,
+    "n_years": 56, "has_20y": true, "win_rate": 80.4,
+    "mean_ret_pct": 10.65, "median_ret_pct": 7.57, "median_mean_ratio": 0.71, "skewness": 1.45,
+    "profitable_without_best": true, "profitable_without_top2": true, "outlier_concern": false,
+    "rolling_wf_folds": 15, "rolling_wf_positive": 13, "rolling_wf_pct": 87.0, "rolling_wf_pass": true,
+    "param_positive": 31, "param_total": 35, "param_pct": 88.6, "param_robust": true,
+    "grade": "A+", "verdict": "LIVE-TAUGLICH", "issues": []
+  },
+  {
+    "id": "ZC1_L_1125_10",
+    "asset": "ZC1", "direction": "LONG", "entry_month": 11, "entry_day": 25, "holding_days": 10,
+    "n_years": 56, "has_20y": true, "win_rate": 82.1,
+    "mean_ret_pct": 6.26, "median_ret_pct": 5.44, "median_mean_ratio": 0.87, "skewness": 0.10,
+    "profitable_without_best": true, "profitable_without_top2": true, "outlier_concern": false,
+    "rolling_wf_folds": 15, "rolling_wf_positive": 14, "rolling_wf_pct": 93.0, "rolling_wf_pass": true,
+    "param_positive": 35, "param_total": 35, "param_pct": 100.0, "param_robust": true,
+    "grade": "A+", "verdict": "LIVE-TAUGLICH", "issues": []
+  },
+  {
+    "id": "SPY_L_1025_30",
+    "asset": "SPY", "direction": "LONG", "entry_month": 10, "entry_day": 25, "holding_days": 30,
+    "n_years": 33, "has_20y": true, "win_rate": 81.8,
+    "mean_ret_pct": 6.27, "median_ret_pct": 5.98, "median_mean_ratio": 0.95, "skewness": 0.92,
+    "profitable_without_best": true, "profitable_without_top2": true, "outlier_concern": false,
+    "rolling_wf_folds": 7, "rolling_wf_positive": 7, "rolling_wf_pct": 100.0, "rolling_wf_pass": true,
+    "param_positive": 35, "param_total": 35, "param_pct": 100.0, "param_robust": true,
+    "grade": "A+", "verdict": "LIVE-TAUGLICH", "issues": []
+  },
+  {
+    "id": "NVDA_L_0810_14",
+    "asset": "NVDA", "direction": "LONG", "entry_month": 8, "entry_day": 10, "holding_days": 14,
+    "n_years": 27, "has_20y": true, "win_rate": 81.5,
+    "mean_ret_pct": 21.31, "median_ret_pct": 22.66, "median_mean_ratio": 1.06, "skewness": -0.74,
+    "profitable_without_best": true, "profitable_without_top2": true, "outlier_concern": false,
+    "rolling_wf_folds": 5, "rolling_wf_positive": 5, "rolling_wf_pct": 100.0, "rolling_wf_pass": true,
+    "param_positive": 35, "param_total": 35, "param_pct": 100.0, "param_robust": true,
+    "grade": "A+", "verdict": "LIVE-TAUGLICH", "issues": []
+  },
+  {
+    "id": "EEM_L_1215_10",
+    "asset": "EEM", "direction": "LONG", "entry_month": 12, "entry_day": 15, "holding_days": 10,
+    "n_years": 23, "has_20y": true, "win_rate": 82.6,
+    "mean_ret_pct": 2.46, "median_ret_pct": 2.39, "median_mean_ratio": 0.97, "skewness": 0.07,
+    "profitable_without_best": true, "profitable_without_top2": true, "outlier_concern": false,
+    "rolling_wf_folds": 4, "rolling_wf_positive": 3, "rolling_wf_pct": 75.0, "rolling_wf_pass": true,
+    "param_positive": 34, "param_total": 35, "param_pct": 97.1, "param_robust": true,
+    "grade": "A+", "verdict": "LIVE-TAUGLICH", "issues": []
+  },
+  {
+    "id": "PA1_L_1220_30",
+    "asset": "PA1", "direction": "LONG", "entry_month": 12, "entry_day": 20, "holding_days": 30,
+    "n_years": 41, "has_20y": true, "win_rate": 75.6,
+    "mean_ret_pct": 29.10, "median_ret_pct": 8.84, "median_mean_ratio": 0.30, "skewness": 0.50,
+    "profitable_without_best": true, "profitable_without_top2": true, "outlier_concern": true,
+    "rolling_wf_folds": 10, "rolling_wf_positive": 8, "rolling_wf_pct": 80.0, "rolling_wf_pass": true,
+    "param_positive": 35, "param_total": 35, "param_pct": 100.0, "param_robust": true,
+    "grade": "A", "verdict": "LIVE-TAUGLICH", "issues": ["OUTLIER_DRIVEN"]
+  },
+  {
+    "id": "PA1_L_1220_21",
+    "asset": "PA1", "direction": "LONG", "entry_month": 12, "entry_day": 20, "holding_days": 21,
+    "n_years": 41, "has_20y": true, "win_rate": 82.9,
+    "mean_ret_pct": 21.67, "median_ret_pct": 12.06, "median_mean_ratio": 0.56, "skewness": -0.71,
+    "profitable_without_best": true, "profitable_without_top2": true, "outlier_concern": false,
+    "rolling_wf_folds": 10, "rolling_wf_positive": 8, "rolling_wf_pct": 80.0, "rolling_wf_pass": true,
+    "param_positive": 35, "param_total": 35, "param_pct": 100.0, "param_robust": true,
+    "grade": "A+", "verdict": "LIVE-TAUGLICH", "issues": []
+  }
+]

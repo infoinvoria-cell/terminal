@@ -1,0 +1,48 @@
+{
+  "model": "Core Invest Active Alpha 2",
+  "version": "2.0-demo-audit",
+  "reference_nav": 25000.0,
+  "fee": {
+    "rate": 0.25,
+    "crystallization": "quarterly",
+    "hwm": "perpetual post-fee"
+  },
+  "factor_allocator": {
+    "core_spy": 0.4,
+    "core_qqq": 0.2,
+    "floor_total": 0.3,
+    "topk": 2,
+    "risk_adjust": true,
+    "satellite_cap": 0.25
+  },
+  "risk_multiplier": 1.4,
+  "long_exposure_cap": 1.6,
+  "financing_spread": 0.015,
+  "etf_cost_one_way": 0.0005,
+  "managed_futures": {
+    "red": 0.45,
+    "neutral": 0.95,
+    "green": 1.3,
+    "qgreen": 0.6,
+    "satellite": 0.0,
+    "topk": 2,
+    "def_mode": 0,
+    "macro_mode": 1,
+    "season": 1,
+    "dd_mode": 0,
+    "trend_family": "6_12_18",
+    "fut_risk": 0.0225,
+    "strength": 0.8,
+    "max_contracts": 3,
+    "max_fut": 4,
+    "market_cap": 0.8,
+    "gross_fut_cap": 1.0,
+    "margin_cap": 0.1,
+    "etf_cost_bps": 5.0,
+    "slip_ticks": 0.5,
+    "roll_ticks": 1.0,
+    "borrow_spread": 0.015
+  },
+  "selection_note": "Factor and risk families ranked on data through 2020; 2021-2026 used only as observed diagnostic.",
+  "hard_limit": "Vendor Benchmark-Guard schedule builder source missing."
+}

@@ -1,0 +1,16 @@
+test_large_nav_scales_but_caps (test_demo.DemoTests.test_large_nav_scales_but_caps) ... ok
+test_live_permissions_false (test_demo.DemoTests.test_live_permissions_false) ... ok
+test_live_ports_blocked (test_demo.DemoTests.test_live_ports_blocked) ... ok
+test_mid_nav_no_futures (test_demo.DemoTests.test_mid_nav_no_futures) ... ok
+test_mock_reconciles (test_demo.DemoTests.test_mock_reconciles) ... ok
+test_no_fractional_quantity_in_orders (test_demo.DemoTests.test_no_fractional_quantity_in_orders) ... ok
+test_order_sequence_reductions_first (test_demo.DemoTests.test_order_sequence_reductions_first) ... ok
+test_plan_hash (test_demo.DemoTests.test_plan_hash) ... ok
+test_plan_validation (test_demo.DemoTests.test_plan_validation) ... ok
+test_small_nav_no_futures (test_demo.DemoTests.test_small_nav_no_futures) ... ok
+test_whole_shares_and_cap (test_demo.DemoTests.test_whole_shares_and_cap) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 3.846s
+
+OK

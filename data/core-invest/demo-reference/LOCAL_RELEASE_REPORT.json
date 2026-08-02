@@ -1,0 +1,55 @@
+{
+  "release": "Core Invest Demo Forward Ready 1",
+  "version": "1.0.0-demo-execution",
+  "decision": "READY_FOR_IBKR_WHATIF",
+  "plan_hash": "041048198778f997bcc2d08635b10df0be9189788b25953fdd3d1b92a0e3ad69",
+  "as_of": "2026-07-31",
+  "local_tests": {
+    "passed": 11,
+    "failed": 0,
+    "mock_execution": "PASS",
+    "manifest": "PASS"
+  },
+  "current_25k": {
+    "whole_share_gross": 1.3983488,
+    "stock_shares": {
+      "IWM": 5,
+      "MTUM": 7,
+      "QQQ": 10,
+      "QUAL": 9,
+      "RSP": 10,
+      "SPY": 19,
+      "USMV": 22,
+      "VLUE": 21
+    },
+    "futures": {
+      "MJY": -1
+    }
+  },
+  "locally_closed": [
+    "plan/reference hashes",
+    "whole-share sizing",
+    "NAV tiers",
+    "fresh-25k futures cap",
+    "order sequencing",
+    "mock fills",
+    "position reconciliation logic",
+    "SQLite audit",
+    "live-port block",
+    "paper confirmation block",
+    "concrete FUT resolver",
+    "WhatIf and margin gates"
+  ],
+  "broker_session_required": [
+    "official ibapi installed",
+    "IBKR WhatIf response",
+    "paper fills",
+    "real contract roll",
+    "reconnect test"
+  ],
+  "not_represented_as_closed": [
+    "independent re-derivation of legacy guard builder",
+    "new OOS performance evidence",
+    "customer-money/legal/compliance release"
+  ]
+}

@@ -1,0 +1,14 @@
+usage: run_ibkr_demo.py [-h] [--mode {whatif,paper}] [--confirm CONFIRM]
+                        [--host HOST] [--port PORT] [--client-id CLIENT_ID]
+                        --account ACCOUNT [--nav NAV] [--plan PLAN]
+
+options:
+  -h, --help            show this help message and exit
+  --mode {whatif,paper}
+  --confirm CONFIRM
+  --host HOST
+  --port PORT
+  --client-id CLIENT_ID
+  --account ACCOUNT
+  --nav NAV
+  --plan PLAN

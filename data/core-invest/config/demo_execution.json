@@ -1,0 +1,98 @@
+{
+  "concentration": {
+    "absolute_single_etf_cap_nav": 0.6,
+    "core_assets": [
+      "SPY",
+      "QQQ"
+    ],
+    "max_financing_nav": 0.5,
+    "satellite_cap_nav": 0.25
+  },
+  "execution_policy": {
+    "available_funds_floor_nav": 0.2,
+    "blocked_live_ports": [
+      7496,
+      4001
+    ],
+    "default_mode": "whatif",
+    "futures_commission_per_contract": 1.25,
+    "futures_slippage_ticks": 0.5,
+    "kill_switch_file": "state/KILL_SWITCH",
+    "localhost_only": true,
+    "margin_hard_cap_nav": 0.75,
+    "max_plan_age_business_days": 3,
+    "minimum_order_notional_usd": 50.0,
+    "paper_ports": [
+      7497,
+      4002
+    ],
+    "paper_requires_confirmation": "PAPER",
+    "position_reconciliation_tolerance_contracts": 0,
+    "position_reconciliation_tolerance_shares": 0,
+    "risk_reductions_before_increases": true,
+    "stock_commission_min": 1.0,
+    "stock_commission_per_share": 0.005,
+    "stock_quantity_mode": "whole_shares_only",
+    "stock_slippage_bps": 1.0,
+    "transmit_live_enabled": false
+  },
+  "nav_tiers": [
+    {
+      "max_active_futures": 0,
+      "max_contracts_per_market": 0,
+      "max_etf_long": 1.0,
+      "max_futures_groups": 0,
+      "max_nav": 14999.99,
+      "min_nav": 0
+    },
+    {
+      "max_active_futures": 0,
+      "max_contracts_per_market": 0,
+      "max_etf_long": 1.2,
+      "max_futures_groups": 0,
+      "max_nav": 24999.99,
+      "min_nav": 15000
+    },
+    {
+      "max_active_futures": 1,
+      "max_contracts_per_market": 1,
+      "max_etf_long": 1.4,
+      "max_futures_groups": 1,
+      "max_nav": 49999.99,
+      "min_nav": 25000
+    },
+    {
+      "max_active_futures": 2,
+      "max_contracts_per_market": 2,
+      "max_etf_long": 1.5,
+      "max_futures_groups": 2,
+      "max_nav": 99999.99,
+      "min_nav": 50000
+    },
+    {
+      "max_active_futures": 3,
+      "max_contracts_per_market": 4,
+      "max_etf_long": 1.5,
+      "max_futures_groups": 3,
+      "max_nav": 1000000000000000.0,
+      "min_nav": 100000
+    }
+  ],
+  "package": "Core Invest Demo Forward Ready 1",
+  "reference_nav": 25000.0,
+  "research_limitations": {
+    "continuous_futures_are_signal_proxies": true,
+    "legacy_guard_builder_reconstructed": false,
+    "new_true_oos_start": "2026-08-01",
+    "reference_schedule_frozen_and_hashed": true
+  },
+  "roll_policy": {
+    "candidate_expiries": 3,
+    "close_old_before_open_new": true,
+    "hard_roll_business_days": 8,
+    "leader_confirmation_runs": 2,
+    "volume_lookback_days": 5
+  },
+  "strategy_reference": "Core Invest Active Alpha 2",
+  "version": "1.0.0-demo-execution"
+}

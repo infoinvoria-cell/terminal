@@ -1,0 +1,128 @@
+{
+  "full": {
+    "CAGR": 0.14662229929938886,
+    "Volatility": 0.22298389485502443,
+    "Sharpe": 0.6633035337895363,
+    "Sortino": 0.9063139081509228,
+    "Max Drawdown": -0.2832877092843197,
+    "Calmar": 0.5175738109846214,
+    "Beta": 0.8537359698181903,
+    "Correlation": 0.7569824184470882,
+    "Upside Capture": 1.1555336507532876,
+    "Downside Capture": 1.1435376141302651,
+    "Final Multiple": 11.968935622172285
+  },
+  "spy": {
+    "CAGR": 0.11733553078969061,
+    "Volatility": 0.1977132204445524,
+    "Sharpe": 0.5896657517417762,
+    "Sortino": 0.8307614189691673,
+    "Max Drawdown": -0.506988886257986,
+    "Calmar": 0.23143610041578572,
+    "Beta": 0.9999999999999998,
+    "Correlation": 1.0,
+    "Upside Capture": 1.0,
+    "Downside Capture": 1.0,
+    "Final Multiple": 7.484940309575501
+  },
+  "recent_2021_2026": {
+    "CAGR": 0.16354229405635845,
+    "Volatility": 0.23212905033593403,
+    "Sharpe": 0.6263727918516386,
+    "Sortino": 0.8576982813495152,
+    "Max Drawdown": -0.283287709284319,
+    "Calmar": 0.5773010571814846,
+    "Beta": 1.050261458077342,
+    "Correlation": 0.7603262708224393,
+    "Upside Capture": 1.2210599070085553,
+    "Downside Capture": 1.230145330771421,
+    "Final Multiple": 2.319831940028616
+  },
+  "rolling_5y": 0.6956521739130435,
+  "rolling_10y": 0.8365384615384616,
+  "current_plan": {
+    "portfolio": "Core Invest Active Alpha 2",
+    "as_of": "2026-07-31",
+    "reference_nav": 25000.0,
+    "mode": "DEMO_LOCKED_WHATIF_ONLY",
+    "etf_weights": {
+      "SPY": 0.5599999999999999,
+      "QQQ": 0.27999999999999997,
+      "RSP": 0.08399999999999999,
+      "IWM": 0.06393291345896898,
+      "QUAL": 0.08399999999999999,
+      "MTUM": 0.08399999999999999,
+      "VLUE": 0.160067086541031,
+      "USMV": 0.08399999999999999
+    },
+    "cash_financing_weight": -0.3999999999999999,
+    "futures": {
+      "6J": -2
+    },
+    "gross_long_exposure": 1.4,
+    "risk_multiplier": 1.4,
+    "long_exposure_cap": 1.6
+  },
+  "gates": [
+    [
+      "Multi-asset active construction",
+      "PASS",
+      "8 ETF positions plus long/short managed-futures sleeve; non-core cap 25%."
+    ],
+    [
+      "Full-sample investor-net CAGR >= SPY",
+      "PASS",
+      "Core 14.66%; SPY 11.73%."
+    ],
+    [
+      "2021-2026 investor-net CAGR >= SPY",
+      "PASS",
+      "Core 16.35%; SPY 14.77%."
+    ],
+    [
+      "Rolling 5Y outperformance >=60%",
+      "PASS",
+      "69.6% across 161 monthly windows."
+    ],
+    [
+      "Rolling 10Y outperformance >=60%",
+      "PASS",
+      "83.7% across 104 monthly windows."
+    ],
+    [
+      "Maximum drawdown <=30%",
+      "PASS",
+      "-28.33%."
+    ],
+    [
+      "Long ETF exposure <=160%",
+      "PASS",
+      "Max 160.00%."
+    ],
+    [
+      "Cost stress viable",
+      "PASS",
+      "3x/5% net CAGR 12.18%."
+    ],
+    [
+      "Historical signal source reproducible",
+      "FAIL",
+      "Benchmark-Guard base schedule is vendored, but its original builder source was not included in the prior package."
+    ],
+    [
+      "Backtrader order-level parity",
+      "FAIL",
+      "Feed/date parity script included; order-level fill/cost parity must run locally."
+    ],
+    [
+      "IBKR Paper fills and roll",
+      "FAIL",
+      "What-If/Paper test and at least one real contract roll remain required."
+    ],
+    [
+      "Customer-money release",
+      "FAIL",
+      "Requires forward evidence, complete signal-source rebuild, execution reconciliation and legal/compliance approval."
+    ]
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "overall": "READY_FOR_IBKR_WHATIF",
+  "as_of": "2026-08-02",
+  "plan_business_age": 0,
+  "checks": [
+    {
+      "check": "Plan and frozen reference hashes",
+      "status": "PASS",
+      "detail": "plan_hash=041048198778f997bcc2d08635b10df0be9189788b25953fdd3d1b92a0e3ad69; warnings=['Legacy guard builder not independently re-derived; reference schedule is frozen and hashed.']"
+    },
+    {
+      "check": "Package manifest",
+      "status": "PASS",
+      "detail": "all files match"
+    },
+    {
+      "check": "Python version",
+      "status": "PASS",
+      "detail": "3.13.5"
+    },
+    {
+      "check": "Official IBKR TWS API",
+      "status": "EXTERNAL_REQUIRED",
+      "detail": "Install official Python API from TWS/IB Gateway on terminal host"
+    },
+    {
+      "check": "Backtrader optional parity",
+      "status": "EXTERNAL_REQUIRED",
+      "detail": "Install on terminal host for adapter-level parity; mock order parity is local"
+    },
+    {
+      "check": "IBKR WhatIf",
+      "status": "EXTERNAL_REQUIRED",
+      "detail": "Requires paper TWS/Gateway session and account"
+    },
+    {
+      "check": "IBKR Paper fills",
+      "status": "EXTERNAL_REQUIRED",
+      "detail": "Run after WhatIf sign-off"
+    },
+    {
+      "check": "Futures roll",
+      "status": "EXTERNAL_REQUIRED",
+      "detail": "Must observe or stage one concrete MJY expiry roll"
+    },
+    {
+      "check": "Economic builder provenance",
+      "status": "WARN",
+      "detail": "Legacy guard builder is not independently re-derived; immutable schedule/config hashes are locked for execution reference"
+    }
+  ]
+}

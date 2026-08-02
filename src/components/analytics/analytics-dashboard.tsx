@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useEffectEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useEffectEvent } from "react";
 import Image from "next/image";
 import { Layers, TrendingUp } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -1729,6 +1729,305 @@ function LiveControlPanel({
   );
 }
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+type ScenarioStatus = "idle" | "QUEUED" | "RUNNING" | "COMPLETE" | "FAILED" | "CANCELLED";
+type RebalanceMode  = "auto_cash" | "proportional" | "manual";
+interface ScenarioRun { runId: string; status: ScenarioStatus; phase: string; metrics?: Record<string, number>; }
+interface ScenarioEquityCurves { performance: Array<{date:string;value:number}>; drawdown: Array<{date:string;value:number}>; benchmark: Array<{date:string;value:number}>; }
+interface DraftRisk { exposure_cap: number; financing_spread: number; fee_rate: number; }
+
+const ETF_TICKERS = ["SPY","QQQ","RSP","IWM","QUAL","MTUM","VLUE","USMV","EFA","EEM","GLD","IEF","BIL"] as const;
+const BASELINE_RISK: DraftRisk = { exposure_cap: 1.60, financing_spread: 0.015, fee_rate: 0.25 };
+// Canonical Core Invest v2.0 ETF weights (gross ~1.4x)
+const CI_ETF_DEFAULTS: Record<string, number> = {
+  SPY: 0.56, QQQ: 0.28, RSP: 0.084, IWM: 0.0639,
+  QUAL: 0.084, MTUM: 0.084, VLUE: 0.1601, USMV: 0.084,
+};
+
+function InvestControlPanel({
+  dataset,
+  onScenarioResult,
+  onResetScenario,
+}: {
+  dataset: AnalyticsDataset;
+  onScenarioResult: (ec: ScenarioEquityCurves, annual: unknown, metrics: Record<string, number>, run: ScenarioRun) => void;
+  onResetScenario: () => void;
+}) {
+  const [activeTab,     setActiveTab]     = useState<"allocation"|"risk"|"scenario">("allocation");
+  const [draftWeights,  setDraftWeights]  = useState<Record<string, number>>({});
+  const [draftRisk,     setDraftRisk]     = useState<DraftRisk>({ ...BASELINE_RISK });
+  const [rebalMode,     setRebalMode]     = useState<RebalanceMode>("auto_cash");
+  const [scenarioRun,   setScenarioRun]   = useState<ScenarioRun | null>(null);
+  const [scenarioActive,setScenarioActive]= useState(false);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const baselineWeights = useMemo<Record<string,number>>(() => {
+    if (dataset.etfWeights && Object.keys(dataset.etfWeights).length > 0) return dataset.etfWeights as Record<string,number>;
+    const w: Record<string,number> = {};
+    for (const g of dataset.groups) {
+      if ((ETF_TICKERS as readonly string[]).includes(g.id) && (g.weight ?? 0) > 0) w[g.id] = g.weight ?? 0;
+    }
+    return Object.keys(w).length > 0 ? w : CI_ETF_DEFAULTS;
+  }, [dataset]);
+
+  const activeEtfs = ETF_TICKERS.filter(t => Math.abs(baselineWeights[t] ?? 0) > 0.001 || Math.abs(draftWeights[t] ?? 0) > 0.001);
+  const col1 = activeEtfs.slice(0, Math.ceil(activeEtfs.length / 2));
+  const col2 = activeEtfs.slice(Math.ceil(activeEtfs.length / 2));
+
+  const effectiveW = useMemo(() => {
+    const m: Record<string,number> = { ...baselineWeights };
+    for (const [t,w] of Object.entries(draftWeights)) m[t] = w;
+    return m;
+  }, [baselineWeights, draftWeights]);
+
+  const longSum  = activeEtfs.filter(t => t !== "BIL").reduce((s,t) => s + Math.max(0, effectiveW[t] ?? 0), 0);
+  const shortSum = activeEtfs.filter(t => t !== "BIL").reduce((s,t) => s + Math.max(0, -(effectiveW[t] ?? 0)), 0);
+  const cashW    = effectiveW["BIL"] ?? 0;
+  const grossW   = longSum + shortSum;
+  const netW     = longSum - shortSum;
+  const capHard  = 1.60;
+  const overCap  = grossW > capHard + 0.001;
+
+  const hasChanges =
+    Object.keys(draftWeights).some(t => Math.abs((draftWeights[t] ?? 0) - (baselineWeights[t] ?? 0)) > 0.0005) ||
+    draftRisk.exposure_cap !== BASELINE_RISK.exposure_cap ||
+    draftRisk.financing_spread !== BASELINE_RISK.financing_spread ||
+    draftRisk.fee_rate !== BASELINE_RISK.fee_rate;
+
+  const isRunning  = scenarioRun?.status === "QUEUED" || scenarioRun?.status === "RUNNING";
+  const isComplete = scenarioRun?.status === "COMPLETE";
+
+  const stopPolling = useCallback(() => {
+    if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+  }, []);
+
+  const pollStatus = useCallback(async (runId: string) => {
+    try {
+      const res = await fetch(`/api/core-invest/scenarios/${runId}`);
+      if (!res.ok) return;
+      const data = await res.json() as { status: {run_id:string;status:ScenarioStatus;phase:string}; result?: {metrics:Record<string,number>}; equityCurves?: ScenarioEquityCurves; annualReturns?: unknown };
+      const st = data.status;
+      setScenarioRun({ runId, status: st.status, phase: st.phase, metrics: data.result?.metrics });
+      if (st.status === "COMPLETE") {
+        stopPolling();
+        if (data.result && data.equityCurves) {
+          onScenarioResult(data.equityCurves, data.annualReturns, data.result.metrics, { runId, status: "COMPLETE", phase: "Complete", metrics: data.result.metrics });
+          setScenarioActive(true);
+        }
+        setActiveTab("scenario");
+      } else if (st.status === "FAILED" || st.status === "CANCELLED") {
+        stopPolling(); setActiveTab("scenario");
+      }
+    } catch { /* keep polling */ }
+  }, [stopPolling, onScenarioResult]);
+
+  const handleRun = useCallback(async () => {
+    stopPolling(); setScenarioActive(false);
+    setScenarioRun({ runId: "…", status: "QUEUED", phase: "Queued" });
+    setActiveTab("scenario");
+    try {
+      const res = await fetch("/api/core-invest/scenarios", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ draft_weights: draftWeights, risk_params: { ...draftRisk }, rebalance_mode: rebalMode }) });
+      if (!res.ok) { const e = await res.json() as {error?:string}; setScenarioRun({ runId:"error", status:"FAILED", phase: e.error ?? "Request failed" }); return; }
+      const { run_id } = await res.json() as { run_id: string };
+      setScenarioRun({ runId: run_id, status: "QUEUED", phase: "Queued" });
+      void pollStatus(run_id);
+      pollRef.current = setInterval(() => void pollStatus(run_id), 1500);
+    } catch (e) { setScenarioRun({ runId:"error", status:"FAILED", phase: String(e) }); }
+  }, [draftWeights, draftRisk, rebalMode, stopPolling, pollStatus]);
+
+  const handleCancel = useCallback(async () => {
+    if (!scenarioRun?.runId || scenarioRun.runId === "error" || scenarioRun.runId === "…") return;
+    stopPolling();
+    try { await fetch(`/api/core-invest/scenarios/${scenarioRun.runId}`, { method:"POST" }); } catch { /* ignore */ }
+    setScenarioRun(prev => prev ? { ...prev, status:"CANCELLED", phase:"Cancelled" } : null);
+  }, [scenarioRun, stopPolling]);
+
+  const handleReset = useCallback(() => { setDraftWeights({}); setDraftRisk({ ...BASELINE_RISK }); }, []);
+
+  useEffect(() => () => stopPolling(), [stopPolling]);
+
+  // ── Row for one ETF ──
+  function AssetRow({ ticker }: { ticker: string }) {
+    const base  = baselineWeights[ticker] ?? 0;
+    const draft = draftWeights[ticker] ?? base;
+    const delta = draft - base;
+    const pct   = +(draft * 100).toFixed(2);
+    return (
+      <div className="flex items-center gap-0.5 h-[28px]">
+        <span className="w-[22px] shrink-0 text-[9.5px] font-bold text-zinc-200 [font-family:var(--font-montserrat),sans-serif]">{ticker}</span>
+        <span className="w-[18px] shrink-0 text-right text-[8px] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">{Math.round(base*100)}</span>
+        <button type="button" onClick={() => setDraftWeights(p => ({ ...p, [ticker]: Math.max(-0.5, (p[ticker] ?? base) - 0.01) }))}
+          className="flex h-[28px] w-[26px] shrink-0 items-center justify-center rounded border border-white/[0.10] text-zinc-400 hover:text-white text-[13px] [font-family:var(--font-montserrat),sans-serif]">−</button>
+        <input type="number" value={pct} step={1} min={-50} max={250}
+          onChange={e => { const v = parseFloat(e.target.value); if (!isNaN(v)) setDraftWeights(p => ({ ...p, [ticker]: Math.round(v*100)/10000 })); }}
+          className={cn("min-w-[68px] flex-1 h-[28px] rounded border bg-white/[0.05] px-1 text-center text-[12px] font-semibold text-white [font-family:var(--font-montserrat),sans-serif] focus:outline-none focus:border-[#e2ca7a]/40",
+            Math.abs(delta) > 0.0005 ? "border-[#e2ca7a]/20 bg-[#e2ca7a]/[0.04]" : "border-white/[0.10]")} />
+        <button type="button" onClick={() => setDraftWeights(p => ({ ...p, [ticker]: Math.min(2.5, (p[ticker] ?? base) + 0.01) }))}
+          className="flex h-[28px] w-[26px] shrink-0 items-center justify-center rounded border border-white/[0.10] text-zinc-400 hover:text-white text-[13px] [font-family:var(--font-montserrat),sans-serif]">+</button>
+        <span className="w-[24px] shrink-0 text-right text-[9px] font-bold [font-family:var(--font-montserrat),sans-serif]"
+          style={{ color: Math.abs(delta) < 0.0005 ? "#3f3f46" : delta > 0 ? "#22C55E" : "#EF4444" }}>
+          {Math.abs(delta) < 0.0005 ? "—" : `${delta>0?"+":""}${Math.round(delta*100)}%`}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-[14px] border border-white/[0.06] bg-gradient-to-b from-[#19191d] to-[#111214]">
+
+      {/* Header */}
+      <div className="flex shrink-0 items-center justify-between border-b border-white/[0.05] px-3 py-2">
+        <p className="text-[9.5px] font-bold uppercase tracking-[0.18em] text-[#e2ca7a]/80 [font-family:var(--font-montserrat),sans-serif]">Control Panel</p>
+        <div className="flex gap-1.5">
+          {scenarioActive && <span className="rounded-[3px] border border-[#e2ca7a]/30 bg-[#e2ca7a]/10 px-1.5 py-0.5 text-[7.5px] font-bold uppercase text-[#e2ca7a] [font-family:var(--font-montserrat),sans-serif]">SCENARIO</span>}
+          {hasChanges && !isRunning && <span className="rounded-[3px] border border-zinc-600/40 bg-zinc-700/20 px-1.5 py-0.5 text-[7.5px] font-bold uppercase text-zinc-400 [font-family:var(--font-montserrat),sans-serif]">DRAFT</span>}
+          {isRunning && <span className="flex items-center gap-1 rounded-[3px] border border-[#e2ca7a]/20 bg-[#e2ca7a]/5 px-1.5 py-0.5 text-[7.5px] font-bold uppercase text-[#e2ca7a] [font-family:var(--font-montserrat),sans-serif]"><span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#e2ca7a]" />RUNNING</span>}
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex shrink-0 gap-0.5 border-b border-white/[0.05] px-2 py-1">
+        {(["allocation","risk","scenario"] as const).map(t => (
+          <button key={t} type="button" onClick={() => setActiveTab(t)}
+            className={cn("flex-1 rounded-[4px] py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] [font-family:var(--font-montserrat),sans-serif]",
+              activeTab === t ? "bg-[#e2ca7a]/10 text-[#e2ca7a] border border-[#e2ca7a]/20" : "border border-transparent text-zinc-600 hover:text-zinc-400")}>
+            {t === "allocation" ? "Allocation" : t === "risk" ? "Risk" : "Scenario"}
+          </button>
+        ))}
+      </div>
+
+      {/* Body: left (tab content) + right (exposure + actions) */}
+      <div className="flex min-h-0 flex-1 overflow-hidden px-3 py-2 gap-0">
+
+        {/* LEFT: tab content */}
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden pr-3">
+
+          {activeTab === "allocation" && (
+            <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-hidden">
+              {/* Rebalance mode */}
+              <div className="flex shrink-0 gap-1">
+                {(["auto_cash","proportional","manual"] as RebalanceMode[]).map(m => (
+                  <button key={m} type="button" onClick={() => setRebalMode(m)}
+                    className={cn("flex-1 rounded-[4px] py-[4px] text-[8.5px] font-bold uppercase tracking-[0.09em] [font-family:var(--font-montserrat),sans-serif]",
+                      rebalMode === m ? "bg-[#e2ca7a]/10 text-[#e2ca7a] border border-[#e2ca7a]/20" : "border border-white/[0.07] text-zinc-600 hover:text-zinc-400")}>
+                    {m === "auto_cash" ? "Auto Cash" : m === "proportional" ? "Prop." : "Manual"}
+                  </button>
+                ))}
+              </div>
+              {/* 2-column asset grid */}
+              <div className="flex min-h-0 flex-1 gap-2 overflow-hidden">
+                {[col1, col2].map((col, ci) => (
+                  <div key={ci} className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-hidden">
+                    {col.map(ticker => <AssetRow key={ticker} ticker={ticker} />)}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "risk" && (
+            <div className="flex min-h-0 flex-1 flex-col justify-around gap-2 overflow-hidden py-1">
+              {([
+                { label:"Exposure Cap",     key:"exposure_cap"     as const, unit:"x"  as const, base:1.60,  min:0.5,  max:3.0,  step:0.05  },
+                { label:"Financing Spread", key:"financing_spread" as const, unit:"%" as const, base:0.015, min:0,    max:0.1,  step:0.001 },
+                { label:"Perf Fee",         key:"fee_rate"         as const, unit:"%" as const, base:0.25,  min:0,    max:0.5,  step:0.01  },
+              ] as const).map(({ label, key, unit, base, min, max, step }) => {
+                const toD = (v:number) => unit === "%" ? +(v*100).toFixed(1) : +v.toFixed(2);
+                const frD = (v:number) => unit === "%" ? v/100 : v;
+                const draft = draftRisk[key];
+                const delta = draft - base;
+                return (
+                  <div key={key} className="space-y-1.5">
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-[10px] font-bold text-zinc-300 [font-family:var(--font-montserrat),sans-serif]">{label}</span>
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-[8px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">base {toD(base)}{unit}</span>
+                        {Math.abs(delta) > 1e-6 && <span className="text-[10px] font-bold [font-family:var(--font-montserrat),sans-serif]" style={{color:delta>0?"#22C55E":"#EF4444"}}>{delta>0?"+":""}{toD(delta)}{unit}</span>}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input type="range" min={toD(min)} max={toD(max)} step={toD(step)} value={toD(draft)} onChange={e => setDraftRisk(p => ({...p,[key]:frD(parseFloat(e.target.value))}))} className="flex-1 h-1.5 cursor-pointer accent-[#e2ca7a]" />
+                      <input type="number" min={toD(min)} max={toD(max)} step={toD(step)} value={toD(draft)} onChange={e=>{const v=frD(parseFloat(e.target.value));if(!isNaN(v)&&v>=min&&v<=max)setDraftRisk(p=>({...p,[key]:v}));}} className="w-[58px] h-[28px] rounded border border-white/[0.10] bg-white/[0.05] px-1 text-center text-[12px] font-semibold text-white [font-family:var(--font-montserrat),sans-serif] focus:outline-none" />
+                      <span className="w-4 text-[9px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">{unit}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {activeTab === "scenario" && (
+            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden py-1">
+              {!scenarioRun ? (
+                <p className="text-[9px] italic text-zinc-600 [font-family:var(--font-montserrat),sans-serif] mt-2 text-center">Adjust weights or risk params, then Run Scenario.</p>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between">
+                    <span className={cn("text-[9px] font-bold uppercase [font-family:var(--font-montserrat),sans-serif]",
+                      isRunning?"text-[#e2ca7a]":isComplete?"text-[#22C55E]":"text-[#EF4444]")}>{scenarioRun.status}</span>
+                    <span className="text-[8px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">{scenarioRun.runId}</span>
+                  </div>
+                  {isRunning && (
+                    <div className="space-y-1">
+                      <div className="text-[8.5px] text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">{scenarioRun.phase || "Waiting…"}</div>
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                        <div className="h-full rounded-full bg-[#e2ca7a]/60 transition-all" style={{width:`${Math.min(95,20)}%`}} />
+                      </div>
+                    </div>
+                  )}
+                  {isComplete && scenarioRun.metrics && (
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                      {([["CAGR",`${scenarioRun.metrics.cagr_pct?.toFixed(2)}%`],["Max DD",`${scenarioRun.metrics.max_drawdown_pct?.toFixed(1)}%`],["Sharpe",`${scenarioRun.metrics.sharpe?.toFixed(2)}`],["Vol",`${scenarioRun.metrics.volatility_pct?.toFixed(1)}%`]] as [string,string][]).map(([k,v])=>(
+                        <div key={k} className="flex justify-between items-baseline">
+                          <span className="text-[8.5px] text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">{k}</span>
+                          <span className="text-[11px] font-bold text-zinc-100 [font-family:var(--font-montserrat),sans-serif]">{v}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {isComplete && <p className="mt-auto text-[8px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">SCENARIO · UNSAVED · {scenarioRun.runId}</p>}
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT: Exposure + always-visible actions */}
+        <div className="flex w-[148px] shrink-0 flex-col gap-2 border-l border-white/[0.05] pl-3">
+          <div className="space-y-1">
+            <p className="text-[8px] font-bold uppercase tracking-[0.14em] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">Exposure</p>
+            {([["Long",longSum,"#e2ca7a"],["Gross",grossW,overCap?"#EF4444":"#e2ca7a"],["Net",netW,"#a1a1aa"],["Cash",cashW,"#3B82F6"]] as [string,number,string][]).map(([l,v,c])=>(
+              <div key={l} className="flex items-center justify-between gap-1">
+                <span className="text-[8.5px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">{l}</span>
+                <span className="text-[10px] font-bold [font-family:var(--font-montserrat),sans-serif]" style={{color:c}}>{Math.round(v*100)}%</span>
+              </div>
+            ))}
+            <div className="border-t border-white/[0.05] pt-1">
+              <div className="flex items-center justify-between gap-1">
+                <span className="text-[8.5px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">{overCap?"OVER":"Room"}</span>
+                <span className="text-[10px] font-bold [font-family:var(--font-montserrat),sans-serif]" style={{color:overCap?"#EF4444":"#52525b"}}>{overCap?`+${Math.round((grossW-capHard)*100)}%`:`${Math.round((capHard-grossW)*100)}%`}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Actions — always visible */}
+          <div className="mt-auto space-y-1.5 border-t border-white/[0.05] pt-2">
+            <button type="button" onClick={handleReset} className="w-full rounded-[5px] border border-white/[0.10] py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] text-zinc-400 hover:text-zinc-200 [font-family:var(--font-montserrat),sans-serif]">Reset</button>
+            {isRunning
+              ? <button type="button" onClick={handleCancel} className="w-full rounded-[5px] border border-[#EF4444]/30 py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] text-[#EF4444]/80 [font-family:var(--font-montserrat),sans-serif]">Cancel</button>
+              : <button type="button" onClick={handleRun} disabled={!hasChanges} className={cn("w-full rounded-[5px] border py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] [font-family:var(--font-montserrat),sans-serif]",hasChanges?"border-[#e2ca7a]/30 bg-[#e2ca7a]/10 text-[#e2ca7a] hover:bg-[#e2ca7a]/20":"border-white/[0.06] text-zinc-700 cursor-not-allowed")}>Run Scenario</button>
+            }
+            {isComplete && <>
+              <button type="button" onClick={() => setScenarioActive(v => !v)} className="w-full rounded-[5px] border border-white/[0.10] py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] text-zinc-400 hover:text-zinc-200 [font-family:var(--font-montserrat),sans-serif]">{scenarioActive?"View Base":"View Scen."}</button>
+              <button type="button" onClick={() => { setScenarioActive(false); onResetScenario(); }} className="w-full rounded-[5px] border border-white/[0.10] py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] text-zinc-400 hover:text-zinc-200 [font-family:var(--font-montserrat),sans-serif]">Close</button>
+            </>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ControlPanel({
   dataset,
   startFilter,
@@ -1956,6 +2255,23 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
   });
   const [combinedWsWeight, setCombinedWsWeight] = useState(50);
 
+  // Scenario state for Core Invest
+  const [scenarioCurves,  setScenarioCurves]  = useState<ScenarioEquityCurves | null>(null);
+  const [scenarioAnnual,  setScenarioAnnual]  = useState<Array<{label:string;value:number;spy?:number;partial?:boolean}>|null>(null);
+  const [scenarioMetrics, setScenarioMetrics] = useState<Record<string,number>|null>(null);
+  const [scenarioActive,  setScenarioActive]  = useState(false);
+
+  const handleScenarioResult = useCallback((curves: ScenarioEquityCurves, annual: unknown, metrics: Record<string,number>, _run: ScenarioRun) => {
+    setScenarioCurves(curves);
+    setScenarioAnnual(annual as Array<{label:string;value:number;spy?:number;partial?:boolean}>|null);
+    setScenarioMetrics(metrics);
+    setScenarioActive(true);
+  }, []);
+
+  const handleResetScenario = useCallback(() => {
+    setScenarioCurves(null); setScenarioAnnual(null); setScenarioMetrics(null); setScenarioActive(false);
+  }, []);
+
   useEffect(() => {
     try { localStorage.setItem("ws-weights", JSON.stringify(wsWeights)); } catch { /* ignore */ }
   }, [wsWeights]);
@@ -2067,14 +2383,27 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, mode]);
 
+  // Active dataset: merges scenario curves when scenario is active on invest tab
+  const activeDataset = useMemo(() => {
+    if (tab !== "invest" || !scenarioActive || !scenarioCurves) return dataset;
+    return {
+      ...dataset,
+      performanceSeries: scenarioCurves.performance,
+      drawdownSeries:    scenarioCurves.drawdown,
+      benchmarkSeries:   scenarioCurves.benchmark ?? dataset.benchmarkSeries,
+      annualReturns:     scenarioAnnual ?? dataset.annualReturns,
+      metrics: scenarioMetrics ? { ...dataset.metrics, ...Object.fromEntries(Object.entries(scenarioMetrics).map(([k,v])=>[k,v])) } : dataset.metrics,
+    };
+  }, [tab, scenarioActive, scenarioCurves, scenarioAnnual, scenarioMetrics, dataset]);
+
   const visiblePerformanceSeries =
-    lineMode === "assets" && activeGroups.length && Object.keys(dataset.groupSeries).length
-      ? aggregateGroupSeries(dataset.groupSeries, activeGroups)
-      : dataset.performanceSeries;
+    lineMode === "assets" && activeGroups.length && Object.keys(activeDataset.groupSeries).length
+      ? aggregateGroupSeries(activeDataset.groupSeries, activeGroups)
+      : activeDataset.performanceSeries;
 
   const filteredPerformanceSeries = rebaseSeries(filterSeries(visiblePerformanceSeries, startFilter));
   const filteredAnnualReturns = tab === "invest"
-    ? dataset.annualReturns
+    ? activeDataset.annualReturns
     : dataset.annualReturns.filter((item) => {
         if (startFilter === "Max") return true;
         if (startFilter === "2008") return Number(item.label.slice(0, 4)) >= 2008;
@@ -2092,10 +2421,10 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
       <TopTabs tab={tab} mode={mode} onTabChange={setTab} onModeChange={setMode} />
 
       <div className="flex-1 min-h-0 overflow-y-auto xl:overflow-hidden pr-1">
-        <div className="grid min-h-full grid-cols-12 gap-4 xl:h-full xl:grid-rows-[minmax(0,5fr)_minmax(0,3fr)_minmax(0,3fr)]">
+        <div className="grid min-h-full grid-cols-12 gap-4 xl:h-full xl:grid-rows-[minmax(0,5fr)_minmax(0,3fr)_minmax(0,4fr)]">
           <div className="col-span-12 xl:col-span-8">
             <PerformanceCard
-              dataset={dataset}
+              dataset={activeDataset}
               startFilter={startFilter}
               lineMode={lineMode}
               benchmarkEnabled={benchmarkEnabled}
@@ -2112,7 +2441,7 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
           </div>
 
           <div className="col-span-12 xl:col-span-8">
-            <DrawdownCard dataset={dataset} visibleSeries={filteredPerformanceSeries} benchmarkEnabled={benchmarkEnabled} lineMode={lineMode} />
+            <DrawdownCard dataset={activeDataset} visibleSeries={filteredPerformanceSeries} benchmarkEnabled={benchmarkEnabled} lineMode={lineMode} />
           </div>
 
           <div className="col-span-12 xl:col-span-4">
@@ -2151,17 +2480,11 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
                 onReset={() => setCombinedWsWeight(50)}
               />
             ) : tab === "invest" ? (
-              <Card>
-                <CardHeader title="Core Invest" />
-                <div className="flex flex-1 flex-col justify-center gap-2 px-4 py-3">
-                  <p className="text-[12px] font-semibold text-zinc-200 [font-family:var(--font-montserrat),sans-serif]">
-                    Validation blockiert
-                  </p>
-                  <p className="text-[10px] leading-relaxed text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">
-                    Vier Strategy-Sleeves besitzen keine exakte Trade-by-Trade-Parität. Deshalb werden weder eine Aggregatkurve noch Live-Kennzahlen oder Rebalancing-Empfehlungen berechnet.
-                  </p>
-                </div>
-              </Card>
+              <InvestControlPanel
+                dataset={dataset}
+                onScenarioResult={handleScenarioResult}
+                onResetScenario={handleResetScenario}
+              />
             ) : tab === "whiteSwan" && mode === "backtest" ? (
               <WsLiveControlPanel
                 weights={wsWeights}

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core-invest/analytics-snapshot.schema.json",
+  "title": "Core Invest Analytics Snapshot",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "generated_at",
+    "strategy",
+    "performance",
+    "rolling_validation",
+    "allocation",
+    "release_gates",
+    "approval",
+    "alerts"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "strategy": {
+      "type": "object"
+    },
+    "performance": {
+      "type": "object"
+    },
+    "rolling_validation": {
+      "type": "object"
+    },
+    "allocation": {
+      "type": "object"
+    },
+    "annual_performance": {
+      "type": "array"
+    },
+    "cost_stress": {
+      "type": "array"
+    },
+    "release_gates": {
+      "type": "array"
+    },
+    "approval": {
+      "type": "object"
+    },
+    "alerts": {
+      "type": "array"
+    }
+  }
+}

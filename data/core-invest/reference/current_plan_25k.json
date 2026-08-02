@@ -1,0 +1,23 @@
+{
+  "portfolio": "Core Invest Active Alpha 2",
+  "as_of": "2026-07-31",
+  "reference_nav": 25000.0,
+  "mode": "DEMO_LOCKED_WHATIF_ONLY",
+  "etf_weights": {
+    "SPY": 0.5599999999999999,
+    "QQQ": 0.27999999999999997,
+    "RSP": 0.08399999999999999,
+    "IWM": 0.06393291345896898,
+    "QUAL": 0.08399999999999999,
+    "MTUM": 0.08399999999999999,
+    "VLUE": 0.160067086541031,
+    "USMV": 0.08399999999999999
+  },
+  "cash_financing_weight": -0.3999999999999999,
+  "futures": {
+    "6J": -2
+  },
+  "gross_long_exposure": 1.4,
+  "risk_multiplier": 1.4,
+  "long_exposure_cap": 1.6
+}

@@ -1,0 +1,101 @@
+[
+  {
+    "id": "core-invest-overview",
+    "title": "Core Invest",
+    "source": "strategy",
+    "priority": 1,
+    "fields": [
+      "mode",
+      "as_of",
+      "reference_nav",
+      "execution_release"
+    ]
+  },
+  {
+    "id": "key-stats",
+    "title": "Key Stats",
+    "source": "performance",
+    "priority": 2,
+    "fields": [
+      "CAGR",
+      "Volatility",
+      "Sharpe",
+      "Max Drawdown",
+      "Beta",
+      "Correlation",
+      "Final Multiple"
+    ]
+  },
+  {
+    "id": "current-allocation",
+    "title": "Aktuelle Allokation",
+    "source": "allocation",
+    "priority": 3,
+    "chart": "donut+table"
+  },
+  {
+    "id": "signals-regime",
+    "title": "Signale & Regime",
+    "source": "signal_snapshot",
+    "priority": 4,
+    "status": "terminal implementation must populate"
+  },
+  {
+    "id": "rolling-validation",
+    "title": "Rolling Walk-forward",
+    "source": "rolling_validation",
+    "priority": 5,
+    "chart": "rolling-alpha"
+  },
+  {
+    "id": "equity-drawdown",
+    "title": "Equity & Drawdown",
+    "source": "reference daily_equity_curves.csv",
+    "priority": 6,
+    "chart": "dual-line"
+  },
+  {
+    "id": "attribution",
+    "title": "Sleeve Attribution",
+    "source": "terminal attribution stream",
+    "priority": 7,
+    "status": "must be implemented from daily sleeve P&L"
+  },
+  {
+    "id": "fees-hwm",
+    "title": "Fee & High-Water-Mark",
+    "source": "quarterly_fee_ledger.csv",
+    "priority": 8
+  },
+  {
+    "id": "execution",
+    "title": "IBKR Ausführung",
+    "source": "execution events",
+    "priority": 9,
+    "fields": [
+      "whatif",
+      "orders",
+      "fills",
+      "reconciliation",
+      "margin"
+    ]
+  },
+  {
+    "id": "data-health",
+    "title": "Datenstatus",
+    "source": "asset_universe.csv + data hashes",
+    "priority": 10
+  },
+  {
+    "id": "release-gates",
+    "title": "Release Gates",
+    "source": "release_gates",
+    "priority": 11
+  },
+  {
+    "id": "alerts",
+    "title": "Alerts",
+    "source": "alerts",
+    "priority": 12
+  }
+]

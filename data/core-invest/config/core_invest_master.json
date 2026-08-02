@@ -1,0 +1,38 @@
+{
+  "product_name": "Core Invest",
+  "integration_release": "terminal-master-integration-1.0",
+  "generated_at": "2026-08-02T10:46:20.513513+00:00",
+  "reference_research": {
+    "model": "Core Invest Active Alpha 2",
+    "version": "2.0-demo-audit",
+    "config_path": "02_RESEARCH_REFERENCE/Core_Invest_Active_Alpha_2/config/active_alpha_2.json",
+    "historical_long_exposure_cap": 1.6,
+    "status": "frozen historical reference; not customer-money approval"
+  },
+  "demo_execution": {
+    "package": "Core Invest Demo Forward Ready 1",
+    "version": "1.0.0-demo-execution",
+    "config_path": "02_RESEARCH_REFERENCE/Core_Invest_Demo_Forward_Ready_1/config/execution_config.json",
+    "mode": "WHATIF_THEN_PAPER",
+    "live_enabled": false,
+    "customer_money_enabled": false
+  },
+  "reference_nav": 25000,
+  "fee": {
+    "rate": 0.25,
+    "crystallization": "quarterly",
+    "hwm": "perpetual post-fee"
+  },
+  "data_paths": {
+    "canonical_csv_dir": "01_DATA/canonical",
+    "asset_catalog": "01_DATA/catalog/asset_universe.csv"
+  },
+  "analytics_contract": "06_ANALYTICS_INTEGRATION/schemas/analytics_snapshot.schema.json",
+  "obsidian_moc": "07_OBSIDIAN_VAULT/00 Core Invest MOC.md",
+  "known_hard_limits": [
+    "Historical Benchmark-Guard schedule is frozen and hashed, but its original builder was not included in the predecessor package.",
+    "Continuous futures are research signal/P&L proxies; live execution must qualify concrete contracts.",
+    "The true new out-of-sample period begins 2026-08-01.",
+    "Paper fills are execution tests, not proof of live slippage or future alpha."
+  ]
+}

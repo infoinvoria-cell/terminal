@@ -1,0 +1,77 @@
+{
+  "approval": {
+    "customer_money_allowed": false,
+    "live_allowed": false,
+    "paper_allowed_after_whatif_signoff": true,
+    "research_frozen": true,
+    "whatif_allowed": true
+  },
+  "as_of": "2026-07-31",
+  "cash_financing_weight": -0.3999999999999999,
+  "etf_weights": {
+    "IWM": 0.06393291345896898,
+    "MTUM": 0.08399999999999999,
+    "QQQ": 0.27999999999999997,
+    "QUAL": 0.08399999999999999,
+    "RSP": 0.08399999999999999,
+    "SPY": 0.5599999999999999,
+    "USMV": 0.08399999999999999,
+    "VLUE": 0.160067086541031
+  },
+  "execution_caps": {
+    "max_active_futures": 1,
+    "max_contracts_per_market": 1,
+    "max_etf_long": 1.4,
+    "max_futures_groups": 1
+  },
+  "execution_release": "Core Invest Demo Forward Ready 1",
+  "futures_targets": [
+    {
+      "exchange": "CME",
+      "group": "FX",
+      "live_symbol": "MJY",
+      "margin_proxy": 475.0,
+      "multiplier": 1250000,
+      "note": "Execution cap reduced from research -2 standard-to-micro proxy to one fresh-account MJY contract.",
+      "signal_price": 0.0063085,
+      "signal_root": "6J",
+      "target_contracts_at_25k": -1,
+      "tick": 1e-06
+    }
+  ],
+  "generated_at": "2026-08-02T10:20:03.091998+00:00",
+  "gross_long_exposure": 1.4,
+  "mode": "DEMO_FORWARD_EXECUTION",
+  "plan_hash": "041048198778f997bcc2d08635b10df0be9189788b25953fdd3d1b92a0e3ad69",
+  "price_snapshot": {
+    "IWM": 291.86,
+    "MTUM": 301.79,
+    "QQQ": 688.755,
+    "QUAL": 219.52,
+    "RSP": 215.53,
+    "SPY": 746.31,
+    "USMV": 98.05,
+    "VLUE": 191.97
+  },
+  "price_snapshot_date": "2026-07-31",
+  "reference_nav": 25000.0,
+  "research_reference_hashes": {
+    "active_alpha_2_research_config.json": "b352e71fcdbd1af9446cdc7b4bebde32c0f6c9127d35c9ceefb38acbf4815072",
+    "daily_futures_contracts.csv": "add6783f52486e3a164f8ad49547fa5588095451803d195601d98e9f87046e15",
+    "daily_target_weights.csv": "9e8f6ed18f7205efadb140be0449d05fc5df0a3f80c8af83c426b5d404c34163",
+    "research_summary.json": "42c68b437853fc8a40465bf75c6ed5cee26e752db528678bf1844617db4708c3"
+  },
+  "source_files": {
+    "6J": "6J1_1D.csv",
+    "IWM": "IWM_1D(1).csv",
+    "MTUM": "MTUM_1D(1).csv",
+    "QQQ": "QQQ_1D(1).csv",
+    "QUAL": "QUAL_1D(1).csv",
+    "RSP": "RSP_1D(1).csv",
+    "SPY": "SPY_1D(1).csv",
+    "USMV": "USMV_1D.csv",
+    "VLUE": "VLUE_1D.csv"
+  },
+  "strategy_id": "core-invest-active-alpha-2",
+  "strategy_version": "2.0-demo-audit"
+}

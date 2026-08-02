@@ -1,0 +1,179 @@
+{
+  "plan_hash": "041048198778f997bcc2d08635b10df0be9189788b25953fdd3d1b92a0e3ad69",
+  "nav": 25000.0,
+  "warnings": [
+    "Legacy guard builder not independently re-derived; reference schedule is frozen and hashed."
+  ],
+  "meta": {
+    "tier": {
+      "max_active_futures": 1,
+      "max_contracts_per_market": 1,
+      "max_etf_long": 1.4,
+      "max_futures_groups": 1,
+      "max_nav": 49999.99,
+      "min_nav": 25000
+    },
+    "scaled_weights": {
+      "IWM": 0.06393291345896898,
+      "MTUM": 0.08399999999999999,
+      "QQQ": 0.27999999999999997,
+      "QUAL": 0.08399999999999999,
+      "RSP": 0.08399999999999999,
+      "SPY": 0.5599999999999999,
+      "USMV": 0.08399999999999999,
+      "VLUE": 0.160067086541031
+    },
+    "target_gross_weight": 1.4,
+    "whole_share_gross": 1.3983488,
+    "target_stock_shares": {
+      "IWM": 5,
+      "MTUM": 7,
+      "QQQ": 10,
+      "QUAL": 9,
+      "RSP": 10,
+      "SPY": 19,
+      "USMV": 22,
+      "VLUE": 21
+    },
+    "target_futures": {
+      "MJY": -1
+    }
+  },
+  "orders": [
+    {
+      "sequence_class": 2,
+      "asset": "MJY",
+      "security_type": "FUT",
+      "action": "SELL",
+      "quantity": 1,
+      "target_quantity": -1,
+      "current_quantity": 0,
+      "reference_price": null,
+      "target_weight": null,
+      "reason": "micro_futures_target",
+      "live_symbol": "MJY",
+      "exchange": "CME",
+      "group": "FX"
+    },
+    {
+      "sequence_class": 2,
+      "asset": "IWM",
+      "security_type": "STK",
+      "action": "BUY",
+      "quantity": 5,
+      "target_quantity": 5,
+      "current_quantity": 0,
+      "reference_price": 291.86,
+      "target_weight": 0.06393291345896898,
+      "reason": "whole_share_rebalance",
+      "live_symbol": null,
+      "exchange": null,
+      "group": null
+    },
+    {
+      "sequence_class": 2,
+      "asset": "MTUM",
+      "security_type": "STK",
+      "action": "BUY",
+      "quantity": 7,
+      "target_quantity": 7,
+      "current_quantity": 0,
+      "reference_price": 301.79,
+      "target_weight": 0.08399999999999999,
+      "reason": "whole_share_rebalance",
+      "live_symbol": null,
+      "exchange": null,
+      "group": null
+    },
+    {
+      "sequence_class": 2,
+      "asset": "QQQ",
+      "security_type": "STK",
+      "action": "BUY",
+      "quantity": 10,
+      "target_quantity": 10,
+      "current_quantity": 0,
+      "reference_price": 688.755,
+      "target_weight": 0.27999999999999997,
+      "reason": "whole_share_rebalance",
+      "live_symbol": null,
+      "exchange": null,
+      "group": null
+    },
+    {
+      "sequence_class": 2,
+      "asset": "QUAL",
+      "security_type": "STK",
+      "action": "BUY",
+      "quantity": 9,
+      "target_quantity": 9,
+      "current_quantity": 0,
+      "reference_price": 219.52,
+      "target_weight": 0.08399999999999999,
+      "reason": "whole_share_rebalance",
+      "live_symbol": null,
+      "exchange": null,
+      "group": null
+    },
+    {
+      "sequence_class": 2,
+      "asset": "RSP",
+      "security_type": "STK",
+      "action": "BUY",
+      "quantity": 10,
+      "target_quantity": 10,
+      "current_quantity": 0,
+      "reference_price": 215.53,
+      "target_weight": 0.08399999999999999,
+      "reason": "whole_share_rebalance",
+      "live_symbol": null,
+      "exchange": null,
+      "group": null
+    },
+    {
+      "sequence_class": 2,
+      "asset": "SPY",
+      "security_type": "STK",
+      "action": "BUY",
+      "quantity": 19,
+      "target_quantity": 19,
+      "current_quantity": 0,
+      "reference_price": 746.31,
+      "target_weight": 0.5599999999999999,
+      "reason": "whole_share_rebalance",
+      "live_symbol": null,
+      "exchange": null,
+      "group": null
+    },
+    {
+      "sequence_class": 2,
+      "asset": "USMV",
+      "security_type": "STK",
+      "action": "BUY",
+      "quantity": 22,
+      "target_quantity": 22,
+      "current_quantity": 0,
+      "reference_price": 98.05,
+      "target_weight": 0.08399999999999999,
+      "reason": "whole_share_rebalance",
+      "live_symbol": null,
+      "exchange": null,
+      "group": null
+    },
+    {
+      "sequence_class": 2,
+      "asset": "VLUE",
+      "security_type": "STK",
+      "action": "BUY",
+      "quantity": 21,
+      "target_quantity": 21,
+      "current_quantity": 0,
+      "reference_price": 191.97,
+      "target_weight": 0.160067086541031,
+      "reason": "whole_share_rebalance",
+      "live_symbol": null,
+      "exchange": null,
+      "group": null
+    }
+  ]
+}

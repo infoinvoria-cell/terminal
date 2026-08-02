@@ -1,0 +1,10 @@
+{
+  "factor_family_trials": 96,
+  "risk_overlay_trials": 15,
+  "total_structured_trials": 111,
+  "pre2021_monthly_alpha_t_stat": 1.0907981396099948,
+  "raw_one_sided_p": 0.13854962336446158,
+  "bonferroni_p": 1.0,
+  "cscv_pbo_risk_overlay_family": 0.9325396825396826,
+  "interpretation": "No statistically reliable alpha proof after multiple-testing correction; high model-selection risk."
+}

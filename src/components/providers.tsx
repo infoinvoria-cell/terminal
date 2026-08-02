@@ -11,6 +11,23 @@ import { SentinelSessionProvider } from "@/components/sentinel/sentinel-session-
 
 const LAST_PAGE_KEY = "fmd_last_page";
 
+// Fire once on app mount: ping Flask, auto-start if offline (local dev only).
+function FlaskAutoStart() {
+  useEffect(() => {
+    fetch("/api/start-services")
+      .then((r) => r.json() as Promise<{ ok: boolean }>)
+      .then((d) => {
+        if (!d.ok) {
+          fetch("/api/start-services", { method: "POST" }).catch(() => null);
+        }
+      })
+      .catch(() => {
+        fetch("/api/start-services", { method: "POST" }).catch(() => null);
+      });
+  }, []);
+  return null;
+}
+
 function RouteTracker() {
   const pathname = usePathname();
   useEffect(() => {
@@ -26,6 +43,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
   const { user } = useUser();
   return (
     <SentinelSessionProvider key={user?.id ?? "anon"} userId={user?.id}>
+      <FlaskAutoStart />
       <RouteTracker />
       {children}
       <SentinelButler />

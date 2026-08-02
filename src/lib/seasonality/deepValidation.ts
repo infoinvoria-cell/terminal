@@ -223,3 +223,9 @@ export function getNextSignals(): { id: string; name: string; asset: string; dir
     .filter(Boolean)
     .sort((a: any, b: any) => a.days_away - b.days_away) as any[];
 }
+
+export type RevalidationResult = Record<string, unknown>;
+
+export function getRevalidationById(_id: string): RevalidationResult | undefined {
+  return undefined;
+}

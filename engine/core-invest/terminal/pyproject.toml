@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "core-invest-terminal"
+version = "1.0.0"
+description = "Core Invest Analytics, Backtrader and IBKR demo integration facade"
+requires-python = ">=3.11"
+dependencies = [
+  "pandas>=2.1",
+  "numpy>=1.26",
+  "jsonschema>=4.20",
+]
+
+[project.optional-dependencies]
+research = ["matplotlib>=3.8", "scipy>=1.11", "scikit-learn>=1.3"]
+backtrader = ["backtrader>=1.9.78.123"]
+ibkr = ["ibapi"]
+test = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

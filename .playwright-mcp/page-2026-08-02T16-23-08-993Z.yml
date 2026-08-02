@@ -1,0 +1,96 @@
+- generic [active] [ref=f1e1]:
+  - button "Open Next.js Dev Tools" [ref=f1e567] [cursor=pointer]:
+    - generic [ref=f1e570]:
+      - text: Compiling
+      - generic [ref=f1e571]:
+        - generic [ref=f1e572]: .
+        - generic [ref=f1e573]: .
+        - generic [ref=f1e574]: .
+  - alert [ref=f1e15]: Capitalife Mobile
+  - generic [ref=f1e576]:
+    - banner [ref=f1e577]:
+      - button "Seite neu laden" [ref=f1e578] [cursor=pointer]:
+        - img "Capitalife" [ref=f1e580]
+      - generic [ref=f1e581]: Willkommen, Joris
+      - button "Suche" [ref=f1e582] [cursor=pointer]
+      - button "User wechseln" [ref=f1e586] [cursor=pointer]:
+        - img "Joris G." [ref=f1e588]
+    - main [ref=f1e589]:
+      - generic [ref=f1e590]:
+        - generic [ref=f1e591]:
+          - paragraph [ref=f1e592]: HOME
+          - heading "Portfolio" [level=1] [ref=f1e593]
+        - generic [ref=f1e595]:
+          - generic [ref=f1e596]:
+            - generic [ref=f1e597]:
+              - paragraph [ref=f1e598]: Risk Adj. AuM
+              - button [ref=f1e599] [cursor=pointer]
+            - paragraph [ref=f1e603]: EUR 0
+          - generic [ref=f1e604]:
+            - paragraph [ref=f1e606]: Total Return
+            - paragraph [ref=f1e607]: +97.2%
+          - generic [ref=f1e608]:
+            - paragraph [ref=f1e610]: Max Drawdown
+            - paragraph [ref=f1e611]: "-11.76%"
+          - generic [ref=f1e612]:
+            - paragraph [ref=f1e614]: Annualized
+            - paragraph [ref=f1e615]: 35.2%
+        - generic [ref=f1e616]:
+          - button "Portfolio" [ref=f1e617] [cursor=pointer]
+          - button "Risk" [ref=f1e622] [cursor=pointer]
+          - button "Trades" [ref=f1e625] [cursor=pointer]
+          - button "Quant" [ref=f1e630] [cursor=pointer]
+        - generic [ref=f1e635]:
+          - generic [ref=f1e636]:
+            - paragraph [ref=f1e637]: Calmar
+            - paragraph [ref=f1e639]: —
+          - generic [ref=f1e640]:
+            - paragraph [ref=f1e641]: Best Month
+            - paragraph [ref=f1e643]: —
+          - generic [ref=f1e644]:
+            - paragraph [ref=f1e645]: Worst Month
+            - paragraph [ref=f1e647]: —
+          - generic [ref=f1e648]:
+            - paragraph [ref=f1e649]: Pos. Months
+            - paragraph [ref=f1e651]: —
+          - generic [ref=f1e652]:
+            - paragraph [ref=f1e653]: Assets
+            - paragraph [ref=f1e655]: "35"
+          - generic [ref=f1e656]:
+            - paragraph [ref=f1e657]: Strategies
+            - paragraph [ref=f1e659]: "56"
+          - generic [ref=f1e660]:
+            - paragraph [ref=f1e661]: Approaches
+            - paragraph [ref=f1e663]: "10"
+          - generic [ref=f1e664]:
+            - paragraph [ref=f1e665]: Sleeves
+            - paragraph [ref=f1e667]: "5"
+        - generic [ref=f1e669]:
+          - generic [ref=f1e670]: intern berechnet
+          - generic [ref=f1e672]:
+            - generic [ref=f1e673]: "Quelle: historisch"
+            - generic [ref=f1e674]: "Status: nur historische Basis"
+            - generic [ref=f1e675]: "Letzter Sync: noch keiner"
+        - generic [ref=f1e676]:
+          - paragraph [ref=f1e677]: Performance Overview
+          - generic [ref=f1e679]:
+            - generic [ref=f1e680]:
+              - button "1D" [ref=f1e681] [cursor=pointer]
+              - button "1W" [ref=f1e682] [cursor=pointer]
+              - button "1M" [ref=f1e683] [cursor=pointer]
+              - button "3M" [ref=f1e684] [cursor=pointer]
+              - button "1Y" [ref=f1e685] [cursor=pointer]
+            - generic [ref=f1e687]:
+              - button "Bar" [ref=f1e688] [cursor=pointer]
+              - button "Line" [ref=f1e689] [cursor=pointer]
+              - button "Table" [ref=f1e690] [cursor=pointer]
+    - navigation "Mobile Navigation" [ref=f1e692]:
+      - link "Home" [ref=f1e693] [cursor=pointer]:
+        - /url: /m/home
+      - link "Monitoring" [ref=f1e698] [cursor=pointer]:
+        - /url: /m/monitoring
+      - button "Alle Seiten" [ref=f1e703] [cursor=pointer]
+      - link "Signale" [ref=f1e708] [cursor=pointer]:
+        - /url: /m/signale
+      - link "Sentinel" [ref=f1e715] [cursor=pointer]:
+        - /url: /m/sentinel

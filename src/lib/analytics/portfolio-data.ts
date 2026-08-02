@@ -47,6 +47,7 @@ export type AnalyticsDataset = {
   strategyBars: AnalyticsBar[];
   metrics: Record<string, number | string>;
   notes: string[];
+  etfWeights?: Record<string, number>;
 };
 
 function formatIsoDate(value: string | null | undefined) {

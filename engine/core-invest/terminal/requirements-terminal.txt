@@ -1,0 +1,9 @@
+pandas
+numpy
+jsonschema
+matplotlib
+scipy
+scikit-learn
+backtrader
+ibapi
+pytest

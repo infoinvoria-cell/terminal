@@ -1,0 +1,64 @@
+{
+  "run_id": "0440f8798f22",
+  "strategy_version": "v2.0-demo-audit",
+  "scenario_label": "SCENARIO \u2013 nicht gespeichert",
+  "config": {
+    "strategy_version": "v2.0-demo-audit",
+    "start_date": "2008-05-29",
+    "end_date": "2026-07-31",
+    "initial_nav": 25000,
+    "draft_weights": {
+      "SPY": 0.61
+    },
+    "rebalance_mode": "auto_cash",
+    "risk_params": {
+      "exposure_cap": 1.6,
+      "financing_spread": 0.015,
+      "fee_rate": 0.25
+    },
+    "code_version": "local"
+  },
+  "config_hash": "f347c38599b0657e",
+  "metrics": {
+    "total_return_pct": 1094.88,
+    "cagr_pct": 14.65,
+    "volatility_pct": 22.76,
+    "sharpe": 0.64,
+    "sortino": 0.83,
+    "calmar": 0.47,
+    "max_drawdown_pct": -30.85,
+    "positive_months_pct": 61.2,
+    "beta_to_spy": 0.89,
+    "correlation_to_spy": 0.77,
+    "worst_year_pct": -25.74,
+    "data_points": 4572
+  },
+  "period": {
+    "start": "2008-05-29",
+    "end": "2026-07-31"
+  },
+  "last_weights": {
+    "SPY": 0.61,
+    "QQQ": 0.28,
+    "RSP": 0.084,
+    "IWM": 0.0639,
+    "EFA": 0.0,
+    "EEM": 0.0,
+    "QUAL": 0.084,
+    "MTUM": 0.084,
+    "VLUE": 0.1601,
+    "USMV": 0.084,
+    "GLD": 0.0,
+    "IEF": 0.0,
+    "BIL": -0.45
+  },
+  "exposure": {
+    "gross_long": 1.45,
+    "gross_short": 0.0,
+    "net": 1.45,
+    "cash_bil": -0.45
+  },
+  "started_at": "2026-08-02T15:32:48.418153",
+  "completed_at": "2026-08-02T15:32:49.293399",
+  "data_source": "C:\\Users\\joris\\Documents\\Capitalife Terminal\\data\\core-invest\\reference"
+}

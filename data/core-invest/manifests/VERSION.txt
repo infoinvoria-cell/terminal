@@ -1,0 +1,3 @@
+Core Invest Terminal Master Integration
+Version: 1.0.0
+Mode: research + whatif + paper; live blocked

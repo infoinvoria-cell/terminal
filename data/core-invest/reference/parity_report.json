@@ -1,0 +1,7 @@
+{
+  "rows": 4572,
+  "gross_index_max_abs_error": 7.048583938740194e-11,
+  "net_index_max_abs_error": 1.4165379980113357e-10,
+  "spy_index_max_abs_error": 5.684341886080802e-14,
+  "pass": true
+}

@@ -1,0 +1,138 @@
+{
+  "status": "PASS",
+  "plan_hash": "041048198778f997bcc2d08635b10df0be9189788b25953fdd3d1b92a0e3ad69",
+  "ending_nav_after_commissions_only": 24990.75,
+  "positions": {
+    "stocks": {
+      "IWM": 5,
+      "MTUM": 7,
+      "QQQ": 10,
+      "QUAL": 9,
+      "RSP": 10,
+      "SPY": 19,
+      "USMV": 22,
+      "VLUE": 21
+    },
+    "futures": {
+      "MJY": -1
+    }
+  },
+  "meta": {
+    "tier": {
+      "max_active_futures": 1,
+      "max_contracts_per_market": 1,
+      "max_etf_long": 1.4,
+      "max_futures_groups": 1,
+      "max_nav": 49999.99,
+      "min_nav": 25000
+    },
+    "scaled_weights": {
+      "IWM": 0.06393291345896898,
+      "MTUM": 0.08399999999999999,
+      "QQQ": 0.27999999999999997,
+      "QUAL": 0.08399999999999999,
+      "RSP": 0.08399999999999999,
+      "SPY": 0.5599999999999999,
+      "USMV": 0.08399999999999999,
+      "VLUE": 0.160067086541031
+    },
+    "target_gross_weight": 1.4,
+    "whole_share_gross": 1.3983488,
+    "target_stock_shares": {
+      "IWM": 5,
+      "MTUM": 7,
+      "QQQ": 10,
+      "QUAL": 9,
+      "RSP": 10,
+      "SPY": 19,
+      "USMV": 22,
+      "VLUE": 21
+    },
+    "target_futures": {
+      "MJY": -1
+    }
+  },
+  "fills": [
+    {
+      "asset": "IWM",
+      "security_type": "STK",
+      "action": "BUY",
+      "quantity": 5,
+      "price": 291.889186,
+      "commission": 1.0,
+      "slippage": 0.029186
+    },
+    {
+      "asset": "MJY",
+      "security_type": "FUT",
+      "action": "SELL",
+      "quantity": 1,
+      "price": 0.0,
+      "commission": 1.25,
+      "slippage": 0.625
+    },
+    {
+      "asset": "MTUM",
+      "security_type": "STK",
+      "action": "BUY",
+      "quantity": 7,
+      "price": 301.820179,
+      "commission": 1.0,
+      "slippage": 0.030179
+    },
+    {
+      "asset": "QQQ",
+      "security_type": "STK",
+      "action": "BUY",
+      "quantity": 10,
+      "price": 688.8238755,
+      "commission": 1.0,
+      "slippage": 0.0688755
+    },
+    {
+      "asset": "QUAL",
+      "security_type": "STK",
+      "action": "BUY",
+      "quantity": 9,
+      "price": 219.541952,
+      "commission": 1.0,
+      "slippage": 0.021952
+    },
+    {
+      "asset": "RSP",
+      "security_type": "STK",
+      "action": "BUY",
+      "quantity": 10,
+      "price": 215.551553,
+      "commission": 1.0,
+      "slippage": 0.021553
+    },
+    {
+      "asset": "SPY",
+      "security_type": "STK",
+      "action": "BUY",
+      "quantity": 19,
+      "price": 746.3846309999999,
+      "commission": 1.0,
+      "slippage": 0.07463099999999999
+    },
+    {
+      "asset": "USMV",
+      "security_type": "STK",
+      "action": "BUY",
+      "quantity": 22,
+      "price": 98.059805,
+      "commission": 1.0,
+      "slippage": 0.009805
+    },
+    {
+      "asset": "VLUE",
+      "security_type": "STK",
+      "action": "BUY",
+      "quantity": 21,
+      "price": 191.989197,
+      "commission": 1.0,
+      "slippage": 0.019197
+    }
+  ]
+}

@@ -1,0 +1,191 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e7] [cursor=pointer]
+  - alert [ref=e11]: Trading Engine - Capitalife Terminal
+  - generic [ref=e59]:
+    - complementary [ref=e60]:
+      - button "Capitalife home" [ref=e62]:
+        - img "Capitalife" [ref=e63]
+        - img "Capitalife" [ref=e64]
+      - navigation "Primary" [ref=e65]:
+        - button "Home" [ref=e66]
+        - button "Sentinel" [ref=e70]
+        - link "Brain Graph" [ref=e73] [cursor=pointer]:
+          - /url: /brain
+        - link "Globe" [ref=e79] [cursor=pointer]:
+          - /url: /globe
+      - navigation "Tools" [ref=e85]:
+        - link "Trading Engine" [ref=e86] [cursor=pointer]:
+          - /url: /engine
+        - link "Signale" [ref=e89] [cursor=pointer]:
+          - /url: /signal
+        - link "Monitoring" [ref=e95] [cursor=pointer]:
+          - /url: /monitoring
+        - button "Analytics" [ref=e98]
+        - link "Komponenten" [ref=e101] [cursor=pointer]:
+          - /url: /komponenten
+        - link "Seasonality" [ref=e106] [cursor=pointer]:
+          - /url: /komponenten/seasonality
+      - navigation "Manager" [ref=e110]:
+        - link "Bibel" [ref=e111] [cursor=pointer]:
+          - /url: /about
+        - button "Manager" [ref=e114]
+        - button "Investors" [ref=e119]
+        - link "Onboarding" [ref=e123] [cursor=pointer]:
+          - /url: /onboarding
+        - button "Vermittler" [ref=e129]
+        - link "Partnerprogramm" [ref=e135] [cursor=pointer]:
+          - /url: /partner
+      - generic [ref=e141]:
+        - button "Mobile Preview" [ref=e144] [cursor=pointer]
+        - button "Header einblenden" [ref=e148]
+        - link "Settings" [ref=e153] [cursor=pointer]:
+          - /url: /settings
+        - generic "Next.js" [ref=e158]: "N"
+    - generic [ref=e161]:
+      - generic [ref=e162]:
+        - generic [ref=e163]:
+          - generic:
+            - generic [ref=e164]:
+              - generic [ref=e165]: 6E
+              - generic [ref=e166]: 30m
+              - generic [ref=e168]: Liquidity Sweep · ATR SL · TP 3R
+              - generic [ref=e319]: APPROVED LIVE
+              - generic [ref=e320]: Parity 80.7%
+            - generic [ref=e169]:
+              - generic [ref=e170]: FLAT
+              - button "</>" [ref=e172] [cursor=pointer]
+              - button "⚙" [ref=e175] [cursor=pointer]
+          - generic [ref=e178]:
+            - button "1W" [ref=e179] [cursor=pointer]
+            - button "1M" [ref=e180] [cursor=pointer]
+            - button "3M" [ref=e181] [cursor=pointer]
+            - button "6M" [ref=e182] [cursor=pointer]
+            - button "1Y" [ref=e183] [cursor=pointer]
+            - button "All" [ref=e184] [cursor=pointer]
+          - table [ref=e360]:
+            - row [ref=e361]:
+              - cell
+              - cell [ref=e362]
+              - cell [ref=e364]
+        - generic [ref=e186]:
+          - generic [ref=e187]:
+            - button "Overview" [ref=e188] [cursor=pointer]
+            - button "Performance" [ref=e189] [cursor=pointer]
+            - button "Trades" [ref=e190] [cursor=pointer]
+            - button "Settings" [ref=e191] [cursor=pointer]
+            - generic [ref=e192]: 2.000 Kerzen geladen
+            - button "Run Backtest" [ref=e366] [cursor=pointer]
+          - generic [ref=e194]: Engine offline
+      - generic [ref=e226]:
+        - generic [ref=e228]:
+          - generic [ref=e229]: Strategy
+          - button "EUR/USD 30M 6E" [ref=e230] [cursor=pointer]:
+            - generic [ref=e231]:
+              - generic [ref=e232]: EUR/USD 30M
+              - generic [ref=e233]: 6E
+          - button "DAX 1H FDAX1!" [ref=e234] [cursor=pointer]:
+            - generic [ref=e235]:
+              - generic [ref=e236]: DAX 1H
+              - generic [ref=e237]: FDAX1!
+          - button "DAX 2H FDAX1!" [ref=e238] [cursor=pointer]:
+            - generic [ref=e239]:
+              - generic [ref=e240]: DAX 2H
+              - generic [ref=e241]: FDAX1!
+          - button "Gold Friday GC1!" [ref=e242] [cursor=pointer]:
+            - generic [ref=e243]:
+              - generic [ref=e244]: Gold Friday
+              - generic [ref=e245]: GC1!
+          - button "Gold Thursday GLD" [ref=e246] [cursor=pointer]:
+            - generic [ref=e247]:
+              - generic [ref=e248]: Gold Thursday
+              - generic [ref=e249]: GLD
+          - button "Dow Jones YM1!" [ref=e250] [cursor=pointer]:
+            - generic [ref=e251]:
+              - generic [ref=e252]: Dow Jones
+              - generic [ref=e253]: YM1!
+        - generic [ref=e254]:
+          - generic [ref=e255]: Asset Type
+          - generic [ref=e256]:
+            - generic [ref=e257] [cursor=pointer]: Futures
+            - generic [ref=e258] [cursor=pointer]: CFD
+        - generic [ref=e259]:
+          - generic [ref=e260]: Date Range
+          - generic [ref=e261]:
+            - generic [ref=e262] [cursor=pointer]: 1Y
+            - generic [ref=e263] [cursor=pointer]: 3Y
+            - generic [ref=e264] [cursor=pointer]: 5Y
+            - generic [ref=e265] [cursor=pointer]: Max
+          - generic [ref=e266]:
+            - generic [ref=e267]: From
+            - textbox [ref=e268]: 2007-01-01
+          - generic [ref=e269]:
+            - generic [ref=e270]: To
+            - textbox [ref=e271]: 2026-08-02
+        - generic [ref=e272]:
+          - generic [ref=e273]: Parameters
+          - generic [ref=e274]:
+            - generic [ref=e275]: FO Pips
+            - spinbutton [ref=e276]: "0.00012"
+          - generic [ref=e277]:
+            - generic [ref=e278]:
+              - generic [ref=e279]: SL ATR Mult
+              - generic [ref=e280]: "1.2"
+            - slider [ref=e281] [cursor=pointer]: "1.2"
+          - generic [ref=e282]:
+            - generic [ref=e283]:
+              - generic [ref=e284]: TP CRV
+              - generic [ref=e285]: "3"
+            - slider [ref=e286] [cursor=pointer]: "3"
+          - generic [ref=e287]:
+            - generic [ref=e288]:
+              - generic [ref=e289]: Session Start
+              - generic [ref=e290]: "7"
+            - slider [ref=e291] [cursor=pointer]: "7"
+          - generic [ref=e292]:
+            - generic [ref=e293]:
+              - generic [ref=e294]: Session End
+              - generic [ref=e295]: "11"
+            - slider [ref=e296] [cursor=pointer]: "11"
+          - generic [ref=e297]:
+            - generic [ref=e298]:
+              - generic [ref=e299]: Flip Threshold
+              - generic [ref=e300]: "0.55"
+            - slider [ref=e301] [cursor=pointer]: "0.55"
+          - generic [ref=e302]:
+            - generic [ref=e303]:
+              - generic [ref=e304]: Spec Threshold
+              - generic [ref=e305]: "0.7"
+            - slider [ref=e306] [cursor=pointer]: "0.7"
+        - generic [ref=e307]:
+          - generic [ref=e308]: Live Signal
+          - generic [ref=e309]: FLAT
+          - generic [ref=e329]:
+            - generic [ref=e330]:
+              - generic [ref=e331]: Close
+              - generic [ref=e332]: "1.15246"
+            - generic [ref=e333]:
+              - generic [ref=e334]: ATR
+              - generic [ref=e335]: "0.00123"
+            - generic [ref=e336]:
+              - generic [ref=e337]: Regime
+              - generic [ref=e338]: Active
+          - generic [ref=e339]:
+            - generic [ref=e340]:
+              - generic [ref=e341]: Entry
+              - generic [ref=e342]: "1.1525"
+            - generic [ref=e343]:
+              - generic [ref=e344]: SL
+              - generic [ref=e345]: "1.1512"
+            - generic [ref=e346]:
+              - generic [ref=e347]: TP
+              - generic [ref=e348]: "1.1561"
+          - generic [ref=e349]:
+            - generic [ref=e350]:
+              - generic [ref=e351]: BT Trades
+              - generic [ref=e352]: "0"
+            - generic [ref=e353]:
+              - generic [ref=e354]: Sharpe
+              - generic [ref=e355]: "0.000"
+            - generic [ref=e356]:
+              - generic [ref=e357]: PF
+              - generic [ref=e358]: "0.000"
