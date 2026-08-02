@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { SignalCardModel } from "@/lib/signals/signal-types";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -18,33 +18,36 @@ interface PipelineStatus {
 
 interface PipelineSignal {
   strategy: string;
-  symbol: string;
+  symbol:   string;
   direction: "LONG" | "SHORT";
   entry: number;
-  sl: number;
-  tp: number;
-  countdown?: string;
+  sl:    number;
+  tp:    number;
+  countdown?:    string;
   triggered_at?: string;
-  atr?: number;
-  regime?: string;
-  session?: string;
-  last_cross?: string;
-  parity?: number;
+  atr?:          number;
+  regime?:       string;
+  session?:      string;
+  last_cross?:   string;
+  parity?:       number;
 }
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 
-const FL = "Montserrat, sans-serif";   // labels
-const FN = "Nunito, sans-serif";        // numbers
+const FL = "Montserrat, sans-serif";
+const FN = "Nunito, sans-serif";
 const GOLD  = "#C9A84C";
 const RED   = "#EF4444";
 const GREEN = "#22C55E";
-const DIM   = "#4A5568";
-const DIM2  = "#2D3748";
-const CARD  = "#080808";
-const BORDER_IDLE = "#1C1C1C";
+const DIM   = "#9CA3AF";   // lighter than before
+const DIM2  = "#4B5563";
+const CARD  = "#111111";
+const CARD2 = "#1A1A1A";
+const BG    = "#090909";
+const BORDER = "#1A1A1A";
+const SEP    = "#1F1F1F";
 
-// ── Mock fallback ──────────────────────────────────────────────────────────────
+// ── Mock ───────────────────────────────────────────────────────────────────────
 
 const MOCK: PipelineStatus = {
   marktdaten: { status: "online",  last_bar: new Date().toISOString(), bars_today: 47 },
@@ -52,23 +55,21 @@ const MOCK: PipelineStatus = {
   terminal:    { status: "online", active_signals: 3, portfolio_value: 1_250_000 },
   ibkr:        { status: "idle",   mode: "paper", account: "DU123456", buying_power: 48_200 },
   boerse:      { status: "idle",   exchange: "CME", market_hours: "08:00–17:00 CT", last_exec: "–" },
-  signals: [
-    {
-      strategy: "EUR 30M Master Regime",
-      symbol: "6E",
-      direction: "SHORT",
-      entry: 1.1525,
-      sl: 1.1512,
-      tp: 1.1564,
-      countdown: "34:01",
-      triggered_at: new Date().toISOString(),
-      atr: 0.00123,
-      regime: "Active",
-      session: "07:00–11:00 UTC",
-      last_cross: "2026-05-12",
-      parity: 80.7,
-    },
-  ],
+  signals: [{
+    strategy:    "EUR 30M Master Regime",
+    symbol:      "6E",
+    direction:   "SHORT",
+    entry:       1.1525,
+    sl:          1.1512,
+    tp:          1.1564,
+    countdown:   "34:01",
+    triggered_at: new Date().toISOString(),
+    atr:         0.00123,
+    regime:      "Active",
+    session:     "07:00–11:00 UTC",
+    last_cross:  "2026-05-12",
+    parity:      80.7,
+  }],
 };
 
 const DELAY = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -85,188 +86,49 @@ function fmtEur(n?: number) {
 
 // ── Status dot ─────────────────────────────────────────────────────────────────
 
-function StatusDot({ status }: { status: ComponentStatus }) {
-  const c = status === "online" ? GREEN : status === "calculating" ? GOLD : status === "error" ? RED : DIM;
-  const anim = status === "online" ? "plsDot 1.6s ease-in-out infinite" : status === "calculating" ? "blkDot 1s ease-in-out infinite" : "none";
+function Dot({ status, size = 8 }: { status: ComponentStatus; size?: number }) {
+  const c = status === "online" ? GREEN : status === "calculating" ? GOLD : status === "error" ? RED : DIM2;
+  const anim = status === "online" ? "lp-pulse 1.8s ease-in-out infinite"
+             : status === "calculating" ? "lp-blink 1s ease-in-out infinite"
+             : "none";
   return (
     <span style={{
-      display: "inline-block", width: 7, height: 7, borderRadius: "50%",
-      background: c, flexShrink: 0,
-      boxShadow: status !== "idle" ? `0 0 5px ${c}99` : "none",
+      display: "inline-block",
+      width: size, height: size,
+      borderRadius: "50%",
+      background: c,
+      flexShrink: 0,
+      boxShadow: status !== "idle" ? `0 0 6px ${c}` : "none",
       animation: anim,
     }} />
   );
 }
 
-// ── SVG Connector (horizontal, between columns) ────────────────────────────────
+// ── KV row ─────────────────────────────────────────────────────────────────────
 
-function SvgConnector({ active }: { active: boolean }) {
+function KV({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
-    <div style={{
-      display: "flex",
-      alignItems: "flex-start",
-      paddingTop: 52,
-      width: 40,
-      flexShrink: 0,
-    }}>
-      <div style={{ position: "relative", width: 40, height: 16, display: "flex", alignItems: "center" }}>
-        <svg width={40} height={2} style={{ display: "block" }}>
-          <line
-            x1={0} y1={1} x2={40} y2={1}
-            stroke={active ? GOLD : "#1A1A1A"}
-            strokeWidth={active ? 1.5 : 1}
-            strokeDasharray={active ? "none" : "4 4"}
-          />
-        </svg>
-        {active && (
-          <div style={{
-            position: "absolute",
-            top: "50%",
-            transform: "translateY(-50%)",
-            width: 7, height: 7,
-            borderRadius: "50%",
-            background: GOLD,
-            boxShadow: `0 0 6px ${GOLD}`,
-            animation: "flowDot 0.9s linear infinite",
-          }} />
-        )}
-      </div>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+      <span style={{ fontSize: 12, color: DIM, fontFamily: FL }}>{label}</span>
+      <span style={{ fontSize: 14, color: color ?? "#F5F5F5", fontFamily: FN, fontVariantNumeric: "tabular-nums", fontWeight: 600 }}>{value}</span>
     </div>
   );
 }
 
-// ── KV row (label + value) ─────────────────────────────────────────────────────
-
-function KVRow({ label, value, valueColor }: { label: string; value: string; valueColor?: string }) {
-  return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-      <span style={{ fontSize: 9.5, color: DIM, fontFamily: FL }}>{label}</span>
-      <span style={{ fontSize: 10, color: valueColor ?? "#D1D5DB", fontFamily: FN, fontVariantNumeric: "tabular-nums" }}>{value}</span>
-    </div>
-  );
+function Divider() {
+  return <div style={{ height: 1, background: SEP, margin: "10px 0" }} />;
 }
 
-// ── Column body content ────────────────────────────────────────────────────────
+// ── Sub-card ───────────────────────────────────────────────────────────────────
 
-function ColBody({
-  col,
-  flowStep,
-  ps,
-}: {
-  col: { id: string };
-  flowStep: number;
-  ps: PipelineStatus;
-}) {
-  const id = col.id;
-
-  if (id === "backtrader") {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <DataCard>
-          <div style={{ fontSize: 9, color: DIM, fontFamily: FL, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.07em" }}>Engine Info</div>
-          <KVRow label="Version" value={ps.backtrader.engine_v ?? "–"} />
-          <KVRow label="Letzte Berechnung" value={fmtTime(ps.backtrader.last_calc)} />
-        </DataCard>
-        {(flowStep === 2 || flowStep > 2) && (
-          <DataCard active={flowStep === 2}>
-            <div style={{ fontSize: 9, color: DIM, fontFamily: FL, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.07em" }}>Signal Output</div>
-            {flowStep === 2 ? (
-              <div style={{ fontSize: 11, color: GOLD, fontFamily: FL, animation: "blkDot 1s ease-in-out infinite" }}>
-                Berechne Signal…
-              </div>
-            ) : (
-              <>
-                <div style={{ fontSize: 11, color: GREEN, fontFamily: FL, marginBottom: 6 }}>✓ Signal berechnet</div>
-                <KVRow label="Signal" value={ps.backtrader.last_signal ?? ps.signals[0]?.direction ?? "–"} valueColor={GREEN} />
-              </>
-            )}
-          </DataCard>
-        )}
-      </div>
-    );
-  }
-
-  if (id === "terminal") {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <DataCard>
-          <div style={{ fontSize: 9, color: DIM, fontFamily: FL, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.07em" }}>Dashboard KPIs</div>
-          <KVRow label="Aktive Signale" value={String(ps.terminal.active_signals ?? 0)} />
-          <KVRow label="Portfolio Value" value={fmtEur(ps.terminal.portfolio_value)} valueColor={GOLD} />
-          <KVRow label="Status" value="Online" valueColor={GREEN} />
-        </DataCard>
-        {flowStep > 3 && ps.signals[0] && (
-          <DataCard>
-            <div style={{ fontSize: 9, color: DIM, fontFamily: FL, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.07em" }}>Signal Preview</div>
-            <div style={{
-              fontSize: 13, fontWeight: 800,
-              color: ps.signals[0].direction === "SHORT" ? RED : GREEN,
-              fontFamily: FN, marginBottom: 4,
-            }}>
-              {ps.signals[0].direction === "SHORT" ? "▼ SHORT" : "▲ LONG"} {ps.signals[0].symbol}
-            </div>
-            <KVRow label="Entry" value={ps.signals[0].entry.toFixed(4)} />
-          </DataCard>
-        )}
-      </div>
-    );
-  }
-
-  if (id === "ibkr") {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <DataCard>
-          <div style={{ fontSize: 9, color: DIM, fontFamily: FL, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.07em" }}>TWS Verbindung</div>
-          <KVRow label="Modus" value={ps.ibkr.mode === "paper" ? "Paper Trading" : "Live"} valueColor={ps.ibkr.mode === "paper" ? GOLD : GREEN} />
-          <KVRow label="Account" value={ps.ibkr.account ?? "–"} />
-          <KVRow label="Buying Power" value={fmtEur(ps.ibkr.buying_power)} />
-        </DataCard>
-        {flowStep > 4 && (
-          <DataCard>
-            <div style={{ fontSize: 9, color: DIM, fontFamily: FL, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.07em" }}>Order Queue</div>
-            <div style={{ fontSize: 10, color: GOLD, fontFamily: FL }}>📤 Order übermittelt</div>
-            {ps.signals[0] && (
-              <KVRow label="Instrument" value={ps.signals[0].symbol} />
-            )}
-          </DataCard>
-        )}
-      </div>
-    );
-  }
-
-  if (id === "boerse") {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <DataCard>
-          <div style={{ fontSize: 9, color: DIM, fontFamily: FL, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.07em" }}>Börsen-Info</div>
-          <KVRow label="Exchange" value={ps.boerse.exchange ?? "CME"} />
-          <KVRow label="Market Hours" value={ps.boerse.market_hours ?? "–"} />
-          <KVRow label="Letzte Ausführung" value={ps.boerse.last_exec ?? "–"} />
-        </DataCard>
-        {flowStep >= 6 && (
-          <DataCard>
-            <div style={{ fontSize: 9, color: DIM, fontFamily: FL, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.07em" }}>Execution</div>
-            <div style={{ fontSize: 11, color: GREEN, fontFamily: FL, marginBottom: 4 }}>✓ Order ausgeführt</div>
-            <KVRow label="Slippage" value="0.1 pip" />
-            <KVRow label="PnL" value="+0.00 €" valueColor={GREEN} />
-          </DataCard>
-        )}
-      </div>
-    );
-  }
-
-  return null;
-}
-
-// ── Reusable data card ─────────────────────────────────────────────────────────
-
-function DataCard({ children, active }: { children: React.ReactNode; active?: boolean }) {
+function SubCard({ children, gold }: { children: React.ReactNode; gold?: boolean }) {
   return (
     <div style={{
-      background: CARD,
-      border: `1px solid ${active ? `${GOLD}55` : BORDER_IDLE}`,
-      borderRadius: 8,
-      padding: "10px 12px",
+      background: CARD2,
+      border: `1px solid ${gold ? `${GOLD}44` : BORDER}`,
+      borderRadius: 10,
+      padding: "14px 16px",
+      marginBottom: 10,
       transition: "border-color 0.3s",
     }}>
       {children}
@@ -274,120 +136,119 @@ function DataCard({ children, active }: { children: React.ReactNode; active?: bo
   );
 }
 
-// ── Signal card ────────────────────────────────────────────────────────────────
+function SubLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ fontSize: 10, color: DIM2, fontFamily: FL, letterSpacing: "0.08em", textTransform: "uppercase" as const, marginBottom: 10 }}>
+      {children}
+    </div>
+  );
+}
 
-function PipelineSignalCard({ signal, isActive }: { signal: PipelineSignal; isActive: boolean }) {
+// ── Signal card (column 1) ─────────────────────────────────────────────────────
+
+function SignalCard({ signal, active }: { signal: PipelineSignal; active: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const isShort = signal.direction === "SHORT";
   const dirColor = isShort ? RED : GREEN;
-  const tpPct = ((signal.tp - signal.entry) / signal.entry * 100).toFixed(2);
-  const slPct = ((signal.sl - signal.entry) / signal.entry * 100).toFixed(2);
+  const tpPct  = ((signal.tp - signal.entry) / signal.entry * 100).toFixed(2);
+  const slPct  = ((signal.sl - signal.entry) / signal.entry * 100).toFixed(2);
   const tpPips = Math.abs((signal.tp - signal.entry) * 10000).toFixed(0);
   const slPips = Math.abs((signal.sl - signal.entry) * 10000).toFixed(0);
 
   return (
     <div style={{
-      background: CARD,
-      border: `1px solid ${isActive ? GOLD : BORDER_IDLE}`,
-      borderRadius: 8,
+      background: CARD2,
+      border: `1px solid ${active ? GOLD : BORDER}`,
+      borderRadius: 12,
       overflow: "hidden",
-      boxShadow: isActive ? `0 0 14px rgba(201,168,76,0.2)` : "none",
+      boxShadow: active ? `0 0 18px rgba(201,168,76,0.18)` : "none",
       transition: "border-color 0.35s, box-shadow 0.35s",
-      marginBottom: 8,
+      marginBottom: 10,
     }}>
-      {/* Direction stripe */}
-      <div style={{ height: 2, background: dirColor, opacity: 0.7 }} />
+      {/* direction stripe */}
+      <div style={{ height: 3, background: dirColor, opacity: 0.8 }} />
 
-      {/* Header */}
-      <div style={{ padding: "10px 12px 6px", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
-            <span style={{ fontSize: 14, fontWeight: 800, color: "#F0F0F0", fontFamily: FN, fontVariantNumeric: "tabular-nums" }}>
-              {signal.symbol}
-            </span>
-            {/* Direction pill */}
-            <span style={{
-              fontSize: 9, fontWeight: 700, fontFamily: FL,
-              color: dirColor, letterSpacing: "0.06em",
-              border: `1px solid ${dirColor}55`,
-              borderRadius: 3, padding: "1px 5px",
-            }}>
-              {isShort ? "▼" : "▲"} {signal.direction}
-            </span>
-          </div>
-          <div style={{ fontSize: 9.5, color: DIM, fontFamily: FL, maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {signal.strategy}
-          </div>
-        </div>
-        {signal.countdown && (
-          <div style={{ textAlign: "right", flexShrink: 0 }}>
-            <div style={{ fontSize: 12, fontWeight: 800, color: GOLD, fontFamily: FN, letterSpacing: "0.04em", fontVariantNumeric: "tabular-nums" }}>
-              {signal.countdown}
+      <div style={{ padding: "14px 16px 0" }}>
+        {/* header row */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+              <span style={{ fontSize: 18, fontWeight: 800, color: "#F5F5F5", fontFamily: FN, fontVariantNumeric: "tabular-nums" }}>
+                {signal.symbol}
+              </span>
+              <span style={{
+                fontSize: 11, fontWeight: 700, color: dirColor,
+                border: `1px solid ${dirColor}44`, borderRadius: 4,
+                padding: "2px 7px", fontFamily: FL, letterSpacing: "0.05em",
+              }}>
+                {isShort ? "▼" : "▲"} {signal.direction}
+              </span>
             </div>
-            <div style={{ fontSize: 9, color: DIM, fontFamily: FL }}>
-              {signal.triggered_at ? fmtTime(signal.triggered_at) : ""}
+            <div style={{ fontSize: 12, color: DIM, fontFamily: FL }}>
+              {signal.strategy}
             </div>
           </div>
-        )}
-      </div>
+          {signal.countdown && (
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: GOLD, fontFamily: FN, fontVariantNumeric: "tabular-nums" }}>
+                {signal.countdown}
+              </div>
+              <div style={{ fontSize: 11, color: DIM, fontFamily: FL }}>
+                {fmtTime(signal.triggered_at)}
+              </div>
+            </div>
+          )}
+        </div>
 
-      {/* TP / SL row */}
-      <div style={{ padding: "4px 12px 8px", display: "flex", gap: 16, alignItems: "flex-end" }}>
-        <div>
-          <div style={{ fontSize: 9, color: GREEN, fontFamily: FL, marginBottom: 1 }}>TP +{tpPct}%</div>
-          <div style={{ fontSize: 10, fontWeight: 700, color: GREEN, fontFamily: FN, fontVariantNumeric: "tabular-nums" }}>
-            +{tpPips} pip
-          </div>
-        </div>
-        <div>
-          <div style={{ fontSize: 9, color: RED, fontFamily: FL, marginBottom: 1 }}>SL {slPct}%</div>
-          <div style={{ fontSize: 10, fontWeight: 700, color: RED, fontFamily: FN, fontVariantNumeric: "tabular-nums" }}>
-            −{slPips} pip
-          </div>
-        </div>
-        <div style={{ flex: 1 }} />
-        <div style={{ fontSize: 9.5, color: DIM2, fontFamily: FN, fontVariantNumeric: "tabular-nums" }}>
+        {/* Entry */}
+        <div style={{ fontSize: 15, fontWeight: 700, color: GOLD, fontFamily: FN, fontVariantNumeric: "tabular-nums", marginBottom: 10 }}>
           {signal.entry.toFixed(4)}
         </div>
+
+        {/* TP / SL */}
+        <div style={{ display: "flex", gap: 20, marginBottom: 10 }}>
+          <div>
+            <div style={{ fontSize: 11, color: GREEN, fontFamily: FL, marginBottom: 3 }}>Take Profit</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: GREEN, fontFamily: FN }}>+{tpPct}% · +{tpPips} pip</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 11, color: RED, fontFamily: FL, marginBottom: 3 }}>Stop Loss</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: RED, fontFamily: FN }}>{slPct}% · −{slPips} pip</div>
+          </div>
+        </div>
       </div>
 
-      {/* Footer */}
+      {/* footer */}
       <div style={{
-        padding: "5px 12px",
-        borderTop: `1px solid ${BORDER_IDLE}`,
-        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "8px 16px",
+        borderTop: `1px solid ${SEP}`,
+        display: "flex", justifyContent: "space-between", alignItems: "center",
       }}>
-        <div style={{ fontSize: 9, color: DIM2, fontFamily: FL }}>📈 Chart</div>
-        <button
-          onClick={() => setExpanded(!expanded)}
-          style={{
-            background: "none", border: "none",
-            color: DIM, fontSize: 9.5, fontFamily: FL,
-            cursor: "pointer", display: "flex", alignItems: "center", gap: 3,
-            padding: "2px 0", letterSpacing: "0.04em",
-          }}
-        >
-          Detail {expanded ? "▲" : "▼"}
+        <span style={{ fontSize: 11, color: DIM2, fontFamily: FL }}>📈 Chart öffnen</span>
+        <button onClick={() => setExpanded(!expanded)} style={{
+          background: "none", border: "none", cursor: "pointer",
+          fontSize: 11, color: DIM, fontFamily: FL, display: "flex", alignItems: "center", gap: 4,
+        }}>
+          Details {expanded ? "▲" : "▼"}
         </button>
       </div>
 
-      {/* Expanded detail */}
+      {/* expanded */}
       {expanded && (
-        <div style={{ padding: "10px 12px 12px", borderTop: `1px solid ${BORDER_IDLE}` }}>
+        <div style={{ padding: "12px 16px 14px", borderTop: `1px solid ${SEP}` }}>
           {([
-            ["Entry",     signal.entry.toFixed(4)],
-            ["SL",        `${signal.sl.toFixed(4)} (−${slPips} Pips)`],
-            ["TP",        `${signal.tp.toFixed(4)} (+${tpPips} Pips)`],
-            ...(signal.atr       ? [["ATR",          signal.atr.toFixed(5)]]       : []),
-            ...(signal.regime    ? [["Regime",        signal.regime]]               : []),
-            ...(signal.session   ? [["Session",       signal.session]]              : []),
-            ...(signal.last_cross ? [["Letzter Cross", signal.last_cross]]          : []),
-            ...(signal.parity    ? [["Parity",        `${signal.parity.toFixed(1)} %`]] : []),
-            ["Strategie",  signal.strategy],
-          ] as [string, string][]).map(([lbl, val]) => (
-            <div key={lbl} style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-              <span style={{ fontSize: 10, color: DIM, fontFamily: FL }}>{lbl}</span>
-              <span style={{ fontSize: 10, color: "#D1D5DB", fontFamily: FN, fontVariantNumeric: "tabular-nums", textAlign: "right", maxWidth: "58%" }}>{val}</span>
+            ["Entry",          signal.entry.toFixed(4)],
+            ["SL",             `${signal.sl.toFixed(4)} (−${slPips} Pips)`],
+            ["TP",             `${signal.tp.toFixed(4)} (+${tpPips} Pips)`],
+            ...(signal.atr       ? [["ATR",           signal.atr.toFixed(5)]]       : []),
+            ...(signal.regime    ? [["Regime",         signal.regime]]               : []),
+            ...(signal.session   ? [["Session",        signal.session]]              : []),
+            ...(signal.last_cross ? [["Letzter Cross", signal.last_cross]]           : []),
+            ...(signal.parity    ? [["Parity",         `${signal.parity.toFixed(1)} %`]] : []),
+          ] as [string, string][]).map(([l, v]) => (
+            <div key={l} style={{ display: "flex", justifyContent: "space-between", marginBottom: 7 }}>
+              <span style={{ fontSize: 12, color: DIM, fontFamily: FL }}>{l}</span>
+              <span style={{ fontSize: 13, color: "#F5F5F5", fontFamily: FN, fontVariantNumeric: "tabular-nums" }}>{v}</span>
             </div>
           ))}
         </div>
@@ -396,74 +257,98 @@ function PipelineSignalCard({ signal, isActive }: { signal: PipelineSignal; isAc
   );
 }
 
-// ── Column wrapper ─────────────────────────────────────────────────────────────
+// ── Column body content (cols 2–5) ─────────────────────────────────────────────
 
-function PipelineColumn({
-  col,
-  status,
-  flowStep,
-  index,
-  ps,
-}: {
-  col: typeof COLUMNS[number];
-  status: ComponentStatus;
-  flowStep: number;
-  index: number;
-  ps: PipelineStatus;
-}) {
-  const isActive = flowStep >= index;
-  const isFirst  = col.id === "marktdaten";
+function ColContent({ id, flowStep, ps }: { id: string; flowStep: number; ps: PipelineStatus }) {
 
-  const statusLabel = status === "online" ? "Online" : status === "calculating" ? "Berechnung" : status === "error" ? "Fehler" : "Wartet";
-  const statusColor = status === "online" ? GREEN   : status === "calculating" ? GOLD        : status === "error" ? RED     : DIM;
-
-  return (
-    <div style={{
-      width: isFirst ? 300 : undefined,
-      flex: isFirst ? "0 0 300px" : 1,
-      display: "flex",
-      flexDirection: "column",
-      gap: 0,
-      minWidth: 0,
-    }}>
-      {/* Column header card */}
-      <div style={{
-        background: CARD,
-        border: `1px solid ${isActive ? `${GOLD}44` : BORDER_IDLE}`,
-        borderLeft: `2px solid ${isActive ? statusColor : BORDER_IDLE}`,
-        borderRadius: 8,
-        padding: "10px 12px",
-        marginBottom: 10,
-        transition: "border-color 0.4s",
-      }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: isActive ? "#E5E7EB" : "#6B7280", fontFamily: FL }}>
-            {col.title}
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <StatusDot status={status} />
-            <span style={{ fontSize: 9, color: statusColor, fontFamily: FL }}>{statusLabel}</span>
-          </div>
-        </div>
-        <div style={{ fontSize: 9.5, color: DIM, fontFamily: FL }}>{col.sub}</div>
-      </div>
-
-      {/* Column body */}
-      <div style={{ flex: 1, overflowY: "auto", paddingBottom: 8, paddingRight: 2 }}>
-        {isFirst
-          ? ps.signals.map((sig, i) => (
-              <PipelineSignalCard key={i} signal={sig} isActive={isActive} />
-            ))
-          : <ColBody col={col} flowStep={flowStep} ps={ps} />
-        }
-      </div>
+  if (id === "backtrader") return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+      <SubCard>
+        <SubLabel>Engine Info</SubLabel>
+        <KV label="Version"          value={ps.backtrader.engine_v ?? "–"} />
+        <KV label="Letzte Berechnung" value={fmtTime(ps.backtrader.last_calc)} />
+      </SubCard>
+      {flowStep >= 2 && (
+        <SubCard gold={flowStep === 2}>
+          <SubLabel>Signal Output</SubLabel>
+          {flowStep === 2
+            ? <div style={{ fontSize: 13, color: GOLD, fontFamily: FL, animation: "lp-blink 1s ease-in-out infinite" }}>Berechne Signal…</div>
+            : <>
+                <div style={{ fontSize: 13, color: GREEN, fontFamily: FL, marginBottom: 8 }}>✓ Signal berechnet</div>
+                <KV label="Signal" value={ps.backtrader.last_signal ?? ps.signals[0]?.direction ?? "–"} color={GREEN} />
+              </>
+          }
+        </SubCard>
+      )}
     </div>
   );
+
+  if (id === "terminal") return (
+    <div>
+      <SubCard>
+        <SubLabel>Dashboard KPIs</SubLabel>
+        <KV label="Aktive Signale"   value={String(ps.terminal.active_signals ?? 0)} />
+        <Divider />
+        <KV label="Portfolio Value"  value={fmtEur(ps.terminal.portfolio_value)} color={GOLD} />
+        <KV label="Status"           value="Online" color={GREEN} />
+      </SubCard>
+      {flowStep > 3 && ps.signals[0] && (
+        <SubCard gold>
+          <SubLabel>Signal Preview</SubLabel>
+          <div style={{ fontSize: 18, fontWeight: 800, color: ps.signals[0].direction === "SHORT" ? RED : GREEN, fontFamily: FN, marginBottom: 8 }}>
+            {ps.signals[0].direction === "SHORT" ? "▼ SHORT" : "▲ LONG"} {ps.signals[0].symbol}
+          </div>
+          <KV label="Entry" value={ps.signals[0].entry.toFixed(4)} />
+        </SubCard>
+      )}
+    </div>
+  );
+
+  if (id === "ibkr") return (
+    <div>
+      <SubCard>
+        <SubLabel>TWS Verbindung</SubLabel>
+        <KV label="Modus"         value={ps.ibkr.mode === "paper" ? "Paper Trading" : "Live"} color={ps.ibkr.mode === "paper" ? GOLD : GREEN} />
+        <KV label="Account"       value={ps.ibkr.account ?? "–"} />
+        <Divider />
+        <KV label="Buying Power"  value={fmtEur(ps.ibkr.buying_power)} />
+      </SubCard>
+      {flowStep > 4 && (
+        <SubCard gold>
+          <SubLabel>Order Queue</SubLabel>
+          <div style={{ fontSize: 13, color: GOLD, fontFamily: FL, marginBottom: 8 }}>📤 Order übermittelt</div>
+          {ps.signals[0] && <KV label="Instrument" value={ps.signals[0].symbol} />}
+        </SubCard>
+      )}
+    </div>
+  );
+
+  if (id === "boerse") return (
+    <div>
+      <SubCard>
+        <SubLabel>Börsen-Info</SubLabel>
+        <KV label="Exchange"          value={ps.boerse.exchange ?? "CME"} />
+        <KV label="Market Hours"      value={ps.boerse.market_hours ?? "–"} />
+        <Divider />
+        <KV label="Letzte Ausführung" value={ps.boerse.last_exec ?? "–"} />
+      </SubCard>
+      {flowStep >= 6 && (
+        <SubCard>
+          <SubLabel>Execution</SubLabel>
+          <div style={{ fontSize: 13, color: GREEN, fontFamily: FL, marginBottom: 8 }}>✓ Order ausgeführt</div>
+          <KV label="Slippage" value="0.1 pip" />
+          <KV label="PnL"      value="+0.00 €" color={GREEN} />
+        </SubCard>
+      )}
+    </div>
+  );
+
+  return null;
 }
 
-// ── Columns config ─────────────────────────────────────────────────────────────
+// ── Column definitions ─────────────────────────────────────────────────────────
 
-const COLUMNS = [
+const COLS = [
   { id: "marktdaten", title: "Marktdaten",      sub: "Live OHLC Feed" },
   { id: "backtrader", title: "Backtrader",       sub: "Signal Engine"  },
   { id: "terminal",   title: "Terminal",         sub: "Dashboard"      },
@@ -471,37 +356,68 @@ const COLUMNS = [
   { id: "boerse",     title: "Börse / Accounts", sub: "CME / EUREX"    },
 ] as const;
 
-type ColumnId = typeof COLUMNS[number]["id"];
+type ColId = typeof COLS[number]["id"];
 
-// ── Simulation done banner ─────────────────────────────────────────────────────
+// ── Connector ─────────────────────────────────────────────────────────────────
 
-function SimDoneBanner({ ms, onClose }: { ms: number; onClose: () => void }) {
+function Connector({ active }: { active: boolean }) {
   return (
     <div style={{
-      position: "absolute",
-      bottom: 36, left: "50%", transform: "translateX(-50%)",
-      background: "#050505",
-      border: `1px solid ${GREEN}`,
-      borderRadius: 10,
-      padding: "14px 28px",
-      zIndex: 100,
-      textAlign: "center",
-      minWidth: 300,
-      boxShadow: `0 0 24px rgba(34,197,94,0.15)`,
+      width: 32, flexShrink: 0,
+      display: "flex", alignItems: "flex-start",
+      paddingTop: 46,
     }}>
-      <div style={{ fontSize: 13, color: GREEN, fontFamily: FL, fontWeight: 700, marginBottom: 6 }}>
+      <div style={{ position: "relative", width: "100%", height: 24, display: "flex", alignItems: "center" }}>
+        {/* line */}
+        <div style={{
+          position: "absolute", left: 0, right: 0, height: 2,
+          background: active ? GOLD : "transparent",
+          borderTop: active ? "none" : `2px dashed #2A2A2A`,
+          opacity: active ? 0.85 : 1,
+          transition: "background 0.4s, border 0.4s",
+        }} />
+        {/* travelling dot */}
+        {active && (
+          <div style={{
+            position: "absolute",
+            width: 8, height: 8,
+            borderRadius: "50%",
+            background: GOLD,
+            boxShadow: `0 0 8px ${GOLD}, 0 0 14px ${GOLD}55`,
+            top: "50%", transform: "translateY(-50%)",
+            animation: "lp-flow 0.9s linear infinite",
+          }} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Sim done ──────────────────────────────────────────────────────────────────
+
+function SimBanner({ ms, onClose }: { ms: number; onClose: () => void }) {
+  return (
+    <div style={{
+      position: "absolute", bottom: 40, left: "50%", transform: "translateX(-50%)",
+      background: "#0E0E0E",
+      border: `1px solid ${GREEN}`,
+      borderRadius: 12,
+      padding: "18px 32px",
+      zIndex: 200, textAlign: "center", minWidth: 320,
+      boxShadow: `0 0 30px rgba(34,197,94,0.12)`,
+    }}>
+      <div style={{ fontSize: 15, fontWeight: 700, color: GREEN, fontFamily: FL, marginBottom: 6 }}>
         ✓ Simulation abgeschlossen
       </div>
-      <div style={{ fontSize: 11, color: DIM, fontFamily: FL, marginBottom: 2 }}>
-        Geschätzte Ausführungszeit: {(ms / 1000).toFixed(1)} s
+      <div style={{ fontSize: 12, color: DIM, fontFamily: FL, marginBottom: 4 }}>
+        Gesamtzeit: <strong style={{ color: "#F5F5F5" }}>{(ms / 1000).toFixed(1)} s</strong>
       </div>
-      <div style={{ fontSize: 10, color: DIM2, fontFamily: FL, marginBottom: 10 }}>
-        Marktdaten→Signal: 0.3s · Signal→Terminal: 0.2s · TWS→Börse: 0.5s
+      <div style={{ fontSize: 11, color: DIM2, fontFamily: FL, marginBottom: 14 }}>
+        Marktdaten → Signal: 0.3s · Terminal: 0.2s · TWS → Börse: 0.5s
       </div>
       <button onClick={onClose} style={{
-        background: "none", border: `1px solid ${BORDER_IDLE}`,
-        borderRadius: 6, color: DIM, fontSize: 10, fontFamily: FL,
-        cursor: "pointer", padding: "4px 14px",
+        background: "none", border: `1px solid #2A2A2A`, borderRadius: 7,
+        color: DIM, fontSize: 11, fontFamily: FL, cursor: "pointer", padding: "5px 16px",
       }}>
         Schließen
       </button>
@@ -509,7 +425,35 @@ function SimDoneBanner({ ms, onClose }: { ms: number; onClose: () => void }) {
   );
 }
 
-// ── Main ───────────────────────────────────────────────────────────────────────
+// ── Hdr button ────────────────────────────────────────────────────────────────
+
+function HdrBtn({
+  children, active, color, onClick, disabled,
+}: {
+  children: React.ReactNode;
+  active?: boolean;
+  color?: string;
+  onClick?: () => void;
+  disabled?: boolean;
+}) {
+  const c = color ?? "#9CA3AF";
+  return (
+    <button onClick={onClick} disabled={disabled} style={{
+      padding: "5px 14px", borderRadius: 6,
+      background: active ? `${c}18` : "none",
+      border: `1px solid ${active ? c : "#2C2C2C"}`,
+      color: disabled ? "#4B5563" : (active ? c : "#9CA3AF"),
+      fontSize: 11, fontFamily: FL, fontWeight: 600, letterSpacing: "0.04em",
+      cursor: disabled ? "not-allowed" : "pointer",
+      display: "flex", alignItems: "center", gap: 6,
+      transition: "background 0.2s, border-color 0.2s, color 0.2s",
+    }}>
+      {children}
+    </button>
+  );
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
 
 export interface LivePipelineViewProps {
   onClose: () => void;
@@ -517,14 +461,13 @@ export interface LivePipelineViewProps {
 }
 
 export default function LivePipelineView({ onClose }: LivePipelineViewProps) {
-  const [ps, setPs]               = useState<PipelineStatus>(MOCK);
-  const [flowStep, setFlowStep]   = useState(0);
-  const [simMode, setSimMode]     = useState(false);
+  const [ps, setPs]             = useState<PipelineStatus>(MOCK);
+  const [flowStep, setFlowStep] = useState(0);
+  const [simMode, setSimMode]   = useState(false);
   const [simRunning, setSimRunning] = useState(false);
-  const [simDone, setSimDone]     = useState(false);
-  const [simMs, setSimMs]         = useState(0);
+  const [simDone, setSimDone]   = useState(false);
+  const [simMs, setSimMs]       = useState(0);
 
-  // Poll /api/pipeline-status every 30s
   useEffect(() => {
     const load = async () => {
       try {
@@ -537,14 +480,13 @@ export default function LivePipelineView({ onClose }: LivePipelineViewProps) {
     return () => clearInterval(id);
   }, []);
 
-  // ESC to close
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
   }, [onClose]);
 
-  const runSimulation = useCallback(async () => {
+  const runSim = useCallback(async () => {
     if (simRunning) return;
     setSimRunning(true); setSimDone(false);
     const t0 = Date.now();
@@ -558,9 +500,9 @@ export default function LivePipelineView({ onClose }: LivePipelineViewProps) {
     setSimDone(true); setSimRunning(false);
   }, [simRunning]);
 
-  const resetSim = () => { setFlowStep(0); setSimDone(false); setSimRunning(false); };
+  const reset = () => { setFlowStep(0); setSimDone(false); setSimRunning(false); };
 
-  const colStatuses: Record<ColumnId, ComponentStatus> = {
+  const statuses: Record<ColId, ComponentStatus> = {
     marktdaten: flowStep >= 1 ? "online"      : ps.marktdaten.status,
     backtrader: flowStep === 2 ? "calculating" : flowStep > 2 ? "online" : ps.backtrader.status,
     terminal:   flowStep >= 3 ? "online"      : ps.terminal.status,
@@ -568,129 +510,150 @@ export default function LivePipelineView({ onClose }: LivePipelineViewProps) {
     boerse:     flowStep >= 5 ? "online"      : ps.boerse.status,
   };
 
+  const statusLabel = (s: ComponentStatus) =>
+    s === "online" ? "Online" : s === "calculating" ? "Berechnung" : s === "error" ? "Fehler" : "Wartet";
+
+  const statusColor = (s: ComponentStatus) =>
+    s === "online" ? GREEN : s === "calculating" ? GOLD : s === "error" ? RED : DIM2;
+
   return (
     <>
       <style>{`
-        @keyframes plsDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.45;transform:scale(0.65)} }
-        @keyframes blkDot { 0%,100%{opacity:1} 50%{opacity:0.15} }
-        @keyframes flowDot { 0%{left:0%;opacity:1} 100%{left:100%;opacity:0} }
+        @keyframes lp-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.6)} }
+        @keyframes lp-blink { 0%,100%{opacity:1} 50%{opacity:0.15} }
+        @keyframes lp-flow  { 0%{left:0%;opacity:1} 100%{left:calc(100% - 8px);opacity:0} }
+        .lp-scroll::-webkit-scrollbar { width: 3px }
+        .lp-scroll::-webkit-scrollbar-track { background: transparent }
+        .lp-scroll::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 2px }
       `}</style>
 
       <div style={{
         position: "fixed", top: 0, bottom: 0, right: 0, left: 55,
         width: "calc(100vw - 55px)",
         zIndex: 9000,
-        background: "#040303",
+        background: BG,
         display: "flex", flexDirection: "column",
         fontFamily: FL, overflow: "hidden",
       }}>
 
-        {/* ── Header ── */}
+        {/* ── Header ───────────────────────────────────────────────────────── */}
         <div style={{
-          flexShrink: 0, height: 46,
-          borderBottom: `1px solid ${BORDER_IDLE}`,
+          flexShrink: 0, height: 52,
+          borderBottom: `1px solid ${BORDER}`,
           display: "flex", alignItems: "center",
-          padding: "0 20px", gap: 10,
+          padding: "0 24px", gap: 10,
+          background: "#0C0C0C",
         }}>
-          {/* Mode buttons */}
-          <button
-            onClick={() => { setSimMode(false); resetSim(); }}
-            style={{
-              padding: "4px 12px", borderRadius: 5, cursor: "pointer",
-              background: !simMode ? "rgba(34,197,94,0.1)" : "none",
-              border: `1px solid ${!simMode ? GREEN : "#2A2A2A"}`,
-              color: !simMode ? GREEN : DIM,
-              fontSize: 10, fontFamily: FL,
-              display: "flex", alignItems: "center", gap: 5,
-            }}
+          {/* LIVE */}
+          <HdrBtn
+            active={!simMode} color={GREEN}
+            onClick={() => { setSimMode(false); reset(); }}
           >
-            <StatusDot status={!simMode ? "online" : "idle"} /> LIVE
-          </button>
-          <button
-            onClick={() => setSimMode(true)}
-            style={{
-              padding: "4px 12px", borderRadius: 5, cursor: "pointer",
-              background: simMode ? "rgba(201,168,76,0.1)" : "none",
-              border: `1px solid ${simMode ? GOLD : "#2A2A2A"}`,
-              color: simMode ? GOLD : DIM,
-              fontSize: 10, fontFamily: FL,
-            }}
-          >
-            ⚡ SIMULIEREN
-          </button>
+            <Dot status={!simMode ? "online" : "idle"} size={7} />
+            LIVE
+          </HdrBtn>
 
-          {/* Sim controls */}
+          {/* SIMULIEREN */}
+          <HdrBtn active={simMode} color={GOLD} onClick={() => setSimMode(true)}>
+            ⚡ SIMULIEREN
+          </HdrBtn>
+
           {simMode && (
             <>
-              <div style={{ width: 1, height: 20, background: BORDER_IDLE }} />
-              <button
-                onClick={runSimulation}
+              <div style={{ width: 1, height: 22, background: BORDER }} />
+              <HdrBtn
+                active color={GOLD}
+                onClick={runSim}
                 disabled={simRunning}
-                style={{
-                  padding: "4px 14px", borderRadius: 5, cursor: simRunning ? "not-allowed" : "pointer",
-                  background: simRunning ? "none" : "rgba(201,168,76,0.12)",
-                  border: `1px solid ${simRunning ? "#2A2A2A" : GOLD}`,
-                  color: simRunning ? DIM : GOLD,
-                  fontSize: 10, fontFamily: FL,
-                }}
               >
                 {simRunning ? "Läuft…" : "▶ Signal auslösen"}
-              </button>
+              </HdrBtn>
               {flowStep > 0 && !simRunning && (
-                <button onClick={resetSim} style={{
-                  padding: "4px 10px", borderRadius: 5, cursor: "pointer",
-                  background: "none", border: `1px solid ${BORDER_IDLE}`,
-                  color: DIM, fontSize: 10, fontFamily: FL,
-                }}>
-                  ↺ Reset
-                </button>
+                <HdrBtn onClick={reset}>↺ Reset</HdrBtn>
               )}
             </>
           )}
 
           <div style={{ flex: 1 }} />
 
-          <span style={{ fontSize: 10, color: DIM, fontFamily: FL, letterSpacing: "0.06em" }}>
-            ⚡ LIVE PIPELINE
+          <span style={{ fontSize: 11, color: "#3A3A3A", fontFamily: FL, letterSpacing: "0.10em", textTransform: "uppercase" as const }}>
+            Live Pipeline
           </span>
 
           <button onClick={onClose} style={{
-            background: "none", border: `1px solid ${BORDER_IDLE}`, borderRadius: 6,
-            color: DIM, fontSize: 13, cursor: "pointer",
-            width: 28, height: 28,
+            background: "none", border: `1px solid #2C2C2C`, borderRadius: 7,
+            color: DIM, fontSize: 14, cursor: "pointer",
+            width: 30, height: 30,
             display: "flex", alignItems: "center", justifyContent: "center",
+            transition: "border-color 0.2s, color 0.2s",
           }}>
             ✕
           </button>
         </div>
 
-        {/* ── 5-column layout ── */}
+        {/* ── Column grid ──────────────────────────────────────────────────── */}
         <div style={{
-          flex: 1,
-          display: "flex",
-          alignItems: "stretch",
-          padding: "16px 16px 16px",
-          gap: 0,
-          overflow: "hidden",
-          position: "relative",
+          flex: 1, display: "flex", alignItems: "stretch",
+          padding: "24px", gap: 0,
+          overflow: "hidden", position: "relative",
         }}>
-          {COLUMNS.map((col, i) => (
-            <div key={col.id} style={{ display: "flex", minWidth: 0 }}>
-              <PipelineColumn
-                col={col}
-                status={colStatuses[col.id]}
-                flowStep={flowStep}
-                index={i + 1}
-                ps={ps}
-              />
-              {i < COLUMNS.length - 1 && (
-                <SvgConnector active={flowStep > i + 1} />
-              )}
-            </div>
-          ))}
+          {COLS.map((col, i) => {
+            const st = statuses[col.id];
+            const sc = statusColor(st);
+            return (
+              <div key={col.id} style={{ display: "flex", flex: 1, minWidth: 0 }}>
+                {/* Column card */}
+                <div style={{
+                  flex: 1,
+                  background: CARD,
+                  border: `1px solid ${flowStep >= i + 1 ? `${GOLD}2A` : BORDER}`,
+                  borderLeft: `2px solid ${flowStep >= i + 1 ? sc : "#1F1F1F"}`,
+                  borderRadius: 12,
+                  display: "flex", flexDirection: "column",
+                  overflow: "hidden",
+                  transition: "border-color 0.4s",
+                }}>
+                  {/* Column header */}
+                  <div style={{
+                    padding: "16px 18px 14px",
+                    borderBottom: `1px solid ${SEP}`,
+                    flexShrink: 0,
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: flowStep >= i + 1 ? "#F5F5F5" : "#6B7280", fontFamily: FL, transition: "color 0.4s" }}>
+                        {col.title}
+                      </span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                        <Dot status={st} size={8} />
+                        <span style={{ fontSize: 11, color: sc, fontFamily: FL, fontWeight: 600 }}>
+                          {statusLabel(st)}
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ fontSize: 11, color: DIM2, fontFamily: FL }}>{col.sub}</div>
+                  </div>
+
+                  {/* Column body */}
+                  <div className="lp-scroll" style={{ flex: 1, overflowY: "auto", padding: "16px 14px 12px" }}>
+                    {col.id === "marktdaten"
+                      ? ps.signals.map((sig, j) => (
+                          <SignalCard key={j} signal={sig} active={flowStep >= 1} />
+                        ))
+                      : <ColContent id={col.id} flowStep={flowStep} ps={ps} />
+                    }
+                  </div>
+                </div>
+
+                {/* Connector */}
+                {i < COLS.length - 1 && (
+                  <Connector active={flowStep > i + 1} />
+                )}
+              </div>
+            );
+          })}
 
           {simDone && (
-            <SimDoneBanner ms={simMs} onClose={() => { setSimDone(false); resetSim(); }} />
+            <SimBanner ms={simMs} onClose={() => { setSimDone(false); reset(); }} />
           )}
         </div>
       </div>
