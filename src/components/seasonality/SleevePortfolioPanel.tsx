@@ -301,51 +301,43 @@ function WrDonut({ pct, size = 64 }: { pct: number; size?: number }) {
   );
 }
 
-/* ─── Cumulative equity card-line — avg label at last point's Y ────── */
+/* ─── Cumulative equity card-line — avg label at exact last-point Y ── */
 function CardEquityLine({ returns: rets, id, avgReturn }: {
   returns: number[]; id: string; avgReturn: number;
 }) {
   const eq: number[] = [0];
   for (const r of rets) eq.push(eq[eq.length - 1] + r * 100);
-  const W = 200; const H = 42;
-  const padTop = 6; const padBot = 6;
-  const LABEL_W = 52; // space reserved right side for label
-  const chartW = W - LABEL_W;
+  const W = 148; const H = 42; const VW = W + 50;
   const min = Math.min(...eq); const max = Math.max(...eq);
   const rng = max - min || 0.1;
-  const pts = eq.map((v, i) => {
-    const x = (i / (eq.length - 1)) * chartW;
-    const y = padTop + (1 - (v - min) / rng) * (H - padTop - padBot);
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  }).join(" ");
+  // y=0 → top of chart, y=H → bottom (max maps to top, min maps to bottom)
+  const points = eq.map((v, i) => ({
+    x: (i / (eq.length - 1)) * W,
+    y: H - ((v - min) / rng) * H,
+  }));
+  const pts = points.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+  const lastY = points[points.length - 1].y;
+  const baseY = H - ((0 - min) / rng) * H;
+  const clampedBase = Math.min(H, Math.max(0, baseY));
   const lineC = avgReturn >= 0 ? "#e8edf3" : "#d6b867";
   const fillId = `cf-${id}`;
-  const lastVal = eq[eq.length - 1];
-  const lastY = padTop + (1 - (lastVal - min) / rng) * (H - padTop - padBot);
-  const base  = padTop + (1 - (0 - min) / rng) * (H - padTop - padBot);
-  const clampedBase = Math.min(H - padBot, Math.max(padTop, base));
   const avgLabel = `${avgReturn >= 0 ? "+" : ""}${(avgReturn * 100).toFixed(1)}%`;
-  // Clamp label Y so it stays readable
-  const labelY = Math.min(H - padBot, Math.max(padTop + 4, lastY));
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{ display: "block" }}>
+    <svg viewBox={`0 0 ${VW} ${H}`} width="100%" height={H} style={{ display: "block" }}>
       <defs>
         <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={lineC} stopOpacity="0.18" />
           <stop offset="100%" stopColor={lineC} stopOpacity="0.00" />
         </linearGradient>
       </defs>
-      <line x1={0} y1={clampedBase} x2={chartW} y2={clampedBase}
+      <line x1={0} y1={clampedBase} x2={W} y2={clampedBase}
         stroke="rgba(255,255,255,0.07)" strokeWidth={0.5} strokeDasharray="3 5" />
-      <polygon points={`0,${clampedBase} ${pts} ${chartW},${clampedBase}`} fill={`url(#${fillId})`} />
+      <polygon points={`0,${clampedBase} ${pts} ${W},${clampedBase}`} fill={`url(#${fillId})`} />
       <polyline points={pts} fill="none" stroke={lineC} strokeWidth={1.8} strokeLinejoin="round" />
-      <circle cx={chartW} cy={lastY} r={2.5} fill={lineC} />
-      {/* Connector line to label */}
-      <line x1={chartW + 2} y1={lastY} x2={chartW + 6} y2={labelY}
-        stroke={lineC} strokeWidth={0.7} strokeOpacity={0.5} />
-      <text x={chartW + 8} y={labelY} dominantBaseline="central"
-        fill={lineC} fontSize={8} fontWeight={700} fontFamily={FONT}>
+      <circle cx={W} cy={lastY} r={2.5} fill={lineC} />
+      <text x={W + 4} y={lastY} dominantBaseline="central"
+        fill="#C9A84C" fontSize={9} fontWeight={700} fontFamily={FONT}>
         {avgLabel}
       </text>
     </svg>
@@ -1262,7 +1254,7 @@ interface Props {
 
 export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Props) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [showAll, setShowAll] = useState(false);
+  const [showAll, setShowAll] = useState(true);
   const selected = useMemo(() => SLEEVE_PATTERNS.find(p => p.id === selectedId) ?? null, [selectedId]);
 
   function activatePattern(p: SleevePattern) {
