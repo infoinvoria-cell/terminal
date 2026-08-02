@@ -1243,16 +1243,20 @@ export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Pr
       {mode !== "grid" && <NextSignalBanner />}
 
       {mode === "grid" && (() => {
-        const sorted = [...SLEEVE_PATTERNS].sort((a, b) => {
-          const today = todayCalendarDay();
-          const dA = ((a.calStart - today) + 365) % 365;
-          const dB = ((b.calStart - today) + 365) % 365;
-          return dA - dB;
-        });
+        const UNIQUE_IDS = new Set([
+          "ZW1_L_0810_10", "NVDA_L_0810_14", "SPY_L_1025_30",
+          "ZC1_L_1125_10", "EEM_L_1220_5",   "PL1_L_1220_18",
+          "PA1_L_1220_21", "RB1_L_0205_14",  "RB1_L_1210_45",
+          "SB1_L_0924_10",
+        ]);
+        const today = todayCalendarDay();
+        const sorted = SLEEVE_PATTERNS
+          .filter(p => p.validationId != null && UNIQUE_IDS.has(p.validationId))
+          .sort((a, b) => ((a.calStart - today) + 365) % 365 - ((b.calStart - today) + 365) % 365);
 
         return (
-          <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "auto" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gridAutoRows: "1fr", gap: 12, padding: "12px 14px", flex: 1 }}>
+          <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gridTemplateRows: "repeat(2, 1fr)", gap: 12, padding: "12px 14px", flex: 1 }}>
               {sorted.map(p => (
                 <SleeveCard key={p.id} p={p} selected={selectedId === p.id}
                   onActivate={() => activatePattern(p)}
