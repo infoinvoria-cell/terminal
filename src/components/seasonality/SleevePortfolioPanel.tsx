@@ -1223,7 +1223,6 @@ interface Props {
 
 export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Props) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [showAll, setShowAll] = useState(true);
   const selected = useMemo(() => SLEEVE_PATTERNS.find(p => p.id === selectedId) ?? null, [selectedId]);
 
   function activatePattern(p: SleevePattern) {
@@ -1244,86 +1243,22 @@ export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Pr
       {mode !== "grid" && <NextSignalBanner />}
 
       {mode === "grid" && (() => {
-        const base = [...LIVE_PATTERNS].sort((a, b) => {
+        const sorted = [...SLEEVE_PATTERNS].sort((a, b) => {
           const today = todayCalendarDay();
           const dA = ((a.calStart - today) + 365) % 365;
           const dB = ((b.calStart - today) + 365) % 365;
           return dA - dB;
         });
-        const sorted = showAll ? base : base.filter(p => {
-          const ls = p.validationId ? LIVE_STATUS[p.validationId] : undefined;
-          return !ls || ls.tier <= 2;
-        });
-        const nextSignal = base.find(p => {
-          const ls = p.validationId ? LIVE_STATUS[p.validationId] : undefined;
-          return ls && ls.tier <= 2;
-        });
-        const nextDays = nextSignal ? ((nextSignal.calStart - todayCalendarDay()) + 365) % 365 : null;
-        const decCluster = base.filter(p => {
-          const m = p.validationId?.match(/_(\d{2})\d{2}_/);
-          return m && parseInt(m[1]) === 12;
-        });
 
         return (
           <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "auto" }}>
-            {/* Top bar: Nächstes Signal + Toggle */}
-            <div style={{
-              display: "flex", alignItems: "center", gap: 10,
-              padding: "8px 14px 0", flexShrink: 0, flexWrap: "wrap",
-            }}>
-              {nextSignal && nextDays != null && (
-                <div style={{
-                  display: "flex", alignItems: "center", gap: 7, flex: 1,
-                  background: "rgba(255,255,255,0.03)", border: "1px solid #1A1A1A",
-                  borderRadius: 7, padding: "5px 10px",
-                }}>
-                  <span style={{ fontSize: 8, fontWeight: 700, color: "#7c8798", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>Nächstes Signal</span>
-                  <span style={{ fontSize: 12, fontWeight: 900, color: "#22C55E" }}>{nextSignal.symbol.replace("1!", "!")}</span>
-                  <span style={{ fontSize: 10, color: "rgba(255,255,255,0.50)" }}>{nextSignal.window}</span>
-                  <span style={{ fontSize: 11, fontWeight: 800, color: nextDays === 0 ? "#22C55E" : C_GOLD }}>
-                    {nextDays === 0 ? "Heute" : `in ${nextDays} Tagen`}
-                  </span>
-                </div>
-              )}
-              <button type="button" onClick={() => setShowAll(v => !v)} style={{
-                padding: "4px 10px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.12)",
-                background: showAll ? "rgba(216,188,103,0.10)" : "transparent",
-                color: showAll ? C_GOLD : "rgba(255,255,255,0.40)",
-                fontSize: 9, fontWeight: 700, cursor: "pointer", letterSpacing: "0.05em",
-                fontFamily: FONT, flexShrink: 0,
-              }}>
-                {showAll ? "Alle" : "Nur Live"}
-              </button>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gridAutoRows: "1fr", gap: 12, padding: "10px 14px 8px", flex: 1 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gridAutoRows: "1fr", gap: 12, padding: "12px 14px", flex: 1 }}>
               {sorted.map(p => (
                 <SleeveCard key={p.id} p={p} selected={selectedId === p.id}
                   onActivate={() => activatePattern(p)}
                   onDetail={() => openDetail(p)}
                 />
               ))}
-            </div>
-
-            {/* Dezember-Cluster Warnung */}
-            {decCluster.length >= 3 && (
-              <div style={{
-                display: "flex", alignItems: "center", gap: 6,
-                padding: "5px 14px", margin: "0 14px 2px",
-                background: "rgba(255,255,255,0.02)", border: "1px solid #1A1A1A",
-                borderRadius: 6, fontFamily: FONT, flexShrink: 0,
-              }}>
-                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.45)" }}>
-                  ⚠ {decCluster.length} Signale gleichzeitig im Dezember — Positionsgröße halbieren
-                </span>
-              </div>
-            )}
-
-            {/* Q4-Bias Hinweis */}
-            <div style={{ padding: "3px 14px 8px", fontFamily: FONT, flexShrink: 0, textAlign: "center" }}>
-              <span style={{ fontSize: 9, color: "rgba(255,255,255,0.22)" }}>
-                70% der Muster im Q4 — Kapitalallokation beachten
-              </span>
             </div>
           </div>
         );
