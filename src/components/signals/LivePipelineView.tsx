@@ -329,11 +329,11 @@ function ColContent({ id, flowStep, ps }: { id: string; flowStep: number; ps: Pi
 // ── Column definitions ─────────────────────────────────────────────────────────
 
 const COLS = [
-  { id: "marktdaten", title: "Marktdaten",      sub: "Live OHLC Feed" },
-  { id: "backtrader", title: "Backtrader",       sub: "Signal Engine"  },
-  { id: "terminal",   title: "Terminal",         sub: "Dashboard"      },
-  { id: "ibkr",       title: "IBKR TWS",         sub: "Order Router"   },
-  { id: "boerse",     title: "Börse / Accounts", sub: "CME / EUREX"    },
+  { id: "marktdaten", title: "Marktdaten",      sub: "Live OHLC Feed", logo: "/CAPITALIFE_ICON.png",   logoFilter: undefined,                     logoRadius: 0  },
+  { id: "backtrader", title: "Backtrader",       sub: "Signal Engine",  logo: "/logos/backtrader.png", logoFilter: "brightness(0) invert(1)",     logoRadius: 0  },
+  { id: "terminal",   title: "Terminal",         sub: "Dashboard",      logo: "/CAPITALIFE_ICON.png",  logoFilter: undefined,                     logoRadius: 0  },
+  { id: "ibkr",       title: "IBKR TWS",         sub: "Order Router",   logo: "/logos/ibkr.jpg",       logoFilter: undefined,                     logoRadius: 4  },
+  { id: "boerse",     title: "Börse / Accounts", sub: "CME / EUREX",    logo: "/logos/cme.png",        logoFilter: "brightness(0) invert(1)",     logoRadius: 0  },
 ] as const;
 
 type ColId = typeof COLS[number]["id"];
@@ -622,7 +622,19 @@ export default function LivePipelineView({ onClose }: LivePipelineViewProps) {
                 }}>
                   {/* Column header */}
                   <div style={{ padding: "14px 16px 12px", borderBottom: `1px solid ${SEP}`, flexShrink: 0 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={col.logo}
+                        alt={col.title}
+                        style={{
+                          width: 20, height: 20, objectFit: "contain", flexShrink: 0,
+                          borderRadius: col.logoRadius,
+                          filter: col.logoFilter ?? undefined,
+                          opacity: isLit ? 1 : 0.3,
+                          transition: "opacity 0.4s",
+                        }}
+                      />
                       <span style={{
                         fontSize: 13, fontWeight: 700, fontFamily: FL,
                         color: isLit ? "#F5F5F5" : "#5A5A5A",
@@ -630,14 +642,14 @@ export default function LivePipelineView({ onClose }: LivePipelineViewProps) {
                       }}>
                         {col.title}
                       </span>
-                      <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                      <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 5 }}>
                         <Dot status={st} size={7} />
                         <span style={{ fontSize: 10, color: sc, fontFamily: FL, fontWeight: 600 }}>
                           {statusLabel(st)}
                         </span>
                       </div>
                     </div>
-                    <div style={{ fontSize: 10, color: DIM2, fontFamily: FL }}>{col.sub}</div>
+                    <div style={{ fontSize: 10, color: DIM2, fontFamily: FL, paddingLeft: 28 }}>{col.sub}</div>
                   </div>
 
                   {/* Column body */}
