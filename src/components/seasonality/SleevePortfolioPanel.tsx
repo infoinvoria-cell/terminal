@@ -233,13 +233,10 @@ function usePatternCountdown(calStart: number): string {
     const tick = () => {
       const today = todayCalendarDay();
       let daysAway = calStart - today;
-      if (daysAway < -14) daysAway += 365; // wrap to next year if >2 weeks past
+      if (daysAway < -14) daysAway += 365;
       if (daysAway < 0) { setDisplay("Aktiv"); return; }
       if (daysAway === 0) { setDisplay("Heute"); return; }
-      const now = new Date();
-      const h = Math.max(0, 18 - now.getHours());
-      const m = now.getMinutes();
-      if (daysAway > 0) setDisplay(`${daysAway} Tage : ${h} Std : ${m} min`);
+      setDisplay(`in ${daysAway} Tagen`);
     };
     tick();
     timer.current = setInterval(tick, 60_000);
@@ -304,29 +301,32 @@ function WrDonut({ pct, size = 64 }: { pct: number; size?: number }) {
   );
 }
 
-/* ─── Cumulative equity card-line — with avg label ───────────────────── */
+/* ─── Cumulative equity card-line — avg label at last point's Y ────── */
 function CardEquityLine({ returns: rets, id, avgReturn }: {
   returns: number[]; id: string; avgReturn: number;
 }) {
   const eq: number[] = [0];
   for (const r of rets) eq.push(eq[eq.length - 1] + r * 100);
-  const W = 240; const H = 42;
-  const padTop = 4; const padBot = 3;
+  const W = 200; const H = 42;
+  const padTop = 6; const padBot = 6;
+  const LABEL_W = 52; // space reserved right side for label
+  const chartW = W - LABEL_W;
   const min = Math.min(...eq); const max = Math.max(...eq);
   const rng = max - min || 0.1;
   const pts = eq.map((v, i) => {
-    const x = (i / (eq.length - 1)) * W;
+    const x = (i / (eq.length - 1)) * chartW;
     const y = padTop + (1 - (v - min) / rng) * (H - padTop - padBot);
     return `${x.toFixed(1)},${y.toFixed(1)}`;
   }).join(" ");
   const lineC = avgReturn >= 0 ? "#e8edf3" : "#d6b867";
   const fillId = `cf-${id}`;
   const lastVal = eq[eq.length - 1];
-  const lastX = W;
   const lastY = padTop + (1 - (lastVal - min) / rng) * (H - padTop - padBot);
   const base  = padTop + (1 - (0 - min) / rng) * (H - padTop - padBot);
   const clampedBase = Math.min(H - padBot, Math.max(padTop, base));
-  const avgLabel = `${avgReturn >= 0 ? "+" : ""}${(avgReturn * 100).toFixed(1)}% avg`;
+  const avgLabel = `${avgReturn >= 0 ? "+" : ""}${(avgReturn * 100).toFixed(1)}%`;
+  // Clamp label Y so it stays readable
+  const labelY = Math.min(H - padBot, Math.max(padTop + 4, lastY));
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{ display: "block" }}>
@@ -336,12 +336,18 @@ function CardEquityLine({ returns: rets, id, avgReturn }: {
           <stop offset="100%" stopColor={lineC} stopOpacity="0.00" />
         </linearGradient>
       </defs>
-      {/* avg label rendered outside SVG — keep chart area clean */}
-      <line x1={0} y1={clampedBase} x2={W} y2={clampedBase}
+      <line x1={0} y1={clampedBase} x2={chartW} y2={clampedBase}
         stroke="rgba(255,255,255,0.07)" strokeWidth={0.5} strokeDasharray="3 5" />
-      <polygon points={`0,${clampedBase} ${pts} ${W},${clampedBase}`} fill={`url(#${fillId})`} />
-      <polyline points={pts} fill="none" stroke={lineC} strokeWidth={2} strokeLinejoin="round" />
-      <circle cx={lastX} cy={lastY} r={3} fill={lineC} />
+      <polygon points={`0,${clampedBase} ${pts} ${chartW},${clampedBase}`} fill={`url(#${fillId})`} />
+      <polyline points={pts} fill="none" stroke={lineC} strokeWidth={1.8} strokeLinejoin="round" />
+      <circle cx={chartW} cy={lastY} r={2.5} fill={lineC} />
+      {/* Connector line to label */}
+      <line x1={chartW + 2} y1={lastY} x2={chartW + 6} y2={labelY}
+        stroke={lineC} strokeWidth={0.7} strokeOpacity={0.5} />
+      <text x={chartW + 8} y={labelY} dominantBaseline="central"
+        fill={lineC} fontSize={8} fontWeight={700} fontFamily={FONT}>
+        {avgLabel}
+      </text>
     </svg>
   );
 }
@@ -548,21 +554,19 @@ function DetailIcon() {
   );
 }
 
-/* ─── Live status badge — top right corner ─────────────────────────── */
-function LiveBadge({ validationId }: { validationId?: string }) {
+/* ─── Live status dot — small 6px dot next to WrDonut ──────────────── */
+function LiveDot({ validationId }: { validationId?: string }) {
   if (!validationId) return null;
   const ls = LIVE_STATUS[validationId];
-  if (!ls) return null;
+  if (!ls || ls.tier === 4) return null;
   return (
     <span style={{
-      position: "absolute" as const, top: 6, right: 6, zIndex: 2,
-      fontSize: 7, fontWeight: 800, letterSpacing: "0.06em",
-      padding: "2px 6px", borderRadius: 4,
-      color: ls.color, background: ls.bg,
-      fontFamily: FONT,
-    }}>
-      {ls.label}
-    </span>
+      display: "inline-block",
+      width: 6, height: 6, borderRadius: "50%",
+      background: ls.color,
+      flexShrink: 0, alignSelf: "center",
+      boxShadow: `0 0 4px ${ls.color}80`,
+    }} />
   );
 }
 
@@ -611,11 +615,9 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
         height: "100%", boxSizing: "border-box" as const,
         fontFamily: FONT, overflow: "hidden",
         opacity: isRejected ? 0.45 : 1,
-        position: "relative" as const,
       }}
     >
-      <LiveBadge validationId={p.validationId} />
-      {/* ── Row 1: Icon · Symbol + Name · WR Donut ── */}
+      {/* ── Row 1: Icon · Symbol + Name · LiveDot · WR Donut ── */}
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
         <AssetIcon assetId={p.assetId} iconAssetId={p.iconAssetId} symbol={p.symbol} name={p.name} size={28} />
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -624,6 +626,7 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
             <span style={{ fontSize: 9, fontWeight: 500, color: "rgba(255,255,255,0.38)", marginLeft: 5 }}>{p.name.split(" ")[0]}</span>
           </div>
         </div>
+        <LiveDot validationId={p.validationId} />
         <WrDonut pct={p.winRate * 100} size={38} />
       </div>
 
@@ -644,14 +647,9 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
         )}
       </div>
 
-      {/* ── Row 4: Sparkline + Avg label beside it ── */}
-      <div style={{ flex: 1, minHeight: 32, display: "flex", alignItems: "flex-end", gap: 4, overflow: "hidden" }}>
-        <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
-          <CardEquityLine returns={p.fakeReturns} id={`p${p.id}`} avgReturn={p.avgReturn} />
-        </div>
-        <span style={{ fontSize: 8, fontWeight: 700, color: p.avgReturn >= 0 ? "#e8edf3" : C_GOLD, whiteSpace: "nowrap", lineHeight: 1, flexShrink: 0, paddingBottom: 2 }}>
-          {avgLabel}
-        </span>
+      {/* ── Row 4: Sparkline with inline avg label at last point ── */}
+      <div style={{ flex: 1, minHeight: 32, overflow: "hidden" }}>
+        <CardEquityLine returns={p.fakeReturns} id={`p${p.id}`} avgReturn={p.avgReturn} />
       </div>
 
       {/* ── Row 5: Direction ▲/▼ · Detail icon ── */}
@@ -1264,6 +1262,7 @@ interface Props {
 
 export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Props) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [showAll, setShowAll] = useState(false);
   const selected = useMemo(() => SLEEVE_PATTERNS.find(p => p.id === selectedId) ?? null, [selectedId]);
 
   function activatePattern(p: SleevePattern) {
@@ -1284,42 +1283,59 @@ export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Pr
       {mode !== "grid" && <NextSignalBanner />}
 
       {mode === "grid" && (() => {
-        const sorted = [...LIVE_PATTERNS].sort((a, b) => {
+        const base = [...LIVE_PATTERNS].sort((a, b) => {
           const today = todayCalendarDay();
           const dA = ((a.calStart - today) + 365) % 365;
           const dB = ((b.calStart - today) + 365) % 365;
           return dA - dB;
         });
-        const nextSignal = sorted.find(p => {
+        const sorted = showAll ? base : base.filter(p => {
+          const ls = p.validationId ? LIVE_STATUS[p.validationId] : undefined;
+          return !ls || ls.tier <= 2;
+        });
+        const nextSignal = base.find(p => {
           const ls = p.validationId ? LIVE_STATUS[p.validationId] : undefined;
           return ls && ls.tier <= 2;
         });
-        const nextDays = nextSignal ? (() => {
-          const today = todayCalendarDay();
-          const d = ((nextSignal.calStart - today) + 365) % 365;
-          return d;
-        })() : null;
+        const nextDays = nextSignal ? ((nextSignal.calStart - todayCalendarDay()) + 365) % 365 : null;
+        const decCluster = base.filter(p => {
+          const m = p.validationId?.match(/_(\d{2})\d{2}_/);
+          return m && parseInt(m[1]) === 12;
+        });
 
         return (
           <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "auto" }}>
-            {/* Nächstes Signal Banner */}
-            {nextSignal && nextDays != null && (
-              <div style={{
-                display: "flex", alignItems: "center", gap: 8,
-                padding: "6px 14px", margin: "10px 14px 0",
-                background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)",
-                borderRadius: 8, fontFamily: FONT, flexShrink: 0,
+            {/* Top bar: Nächstes Signal + Toggle */}
+            <div style={{
+              display: "flex", alignItems: "center", gap: 10,
+              padding: "8px 14px 0", flexShrink: 0, flexWrap: "wrap",
+            }}>
+              {nextSignal && nextDays != null && (
+                <div style={{
+                  display: "flex", alignItems: "center", gap: 7, flex: 1,
+                  background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)",
+                  borderRadius: 7, padding: "5px 10px",
+                }}>
+                  <span style={{ fontSize: 8, fontWeight: 700, color: "#7c8798", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>Nächstes Signal</span>
+                  <span style={{ fontSize: 12, fontWeight: 900, color: "#22C55E" }}>{nextSignal.symbol.replace("1!", "!")}</span>
+                  <span style={{ fontSize: 10, color: "rgba(255,255,255,0.50)" }}>{nextSignal.window}</span>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: nextDays === 0 ? "#22C55E" : C_GOLD }}>
+                    {nextDays === 0 ? "Heute" : `in ${nextDays} Tagen`}
+                  </span>
+                </div>
+              )}
+              <button type="button" onClick={() => setShowAll(v => !v)} style={{
+                padding: "4px 10px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.12)",
+                background: showAll ? "rgba(216,188,103,0.10)" : "transparent",
+                color: showAll ? C_GOLD : "rgba(255,255,255,0.40)",
+                fontSize: 9, fontWeight: 700, cursor: "pointer", letterSpacing: "0.05em",
+                fontFamily: FONT, flexShrink: 0,
               }}>
-                <span style={{ fontSize: 8, fontWeight: 700, color: "#7c8798", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>Nächstes Signal</span>
-                <span style={{ fontSize: 12, fontWeight: 900, color: "#22C55E" }}>{nextSignal.symbol.replace("1!", "!")}</span>
-                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.55)" }}>{nextSignal.window}</span>
-                <span style={{ fontSize: 11, fontWeight: 800, color: nextDays === 0 ? "#22C55E" : C_GOLD }}>
-                  {nextDays === 0 ? "Heute" : nextDays < 0 ? "Aktiv" : `in ${nextDays} Tagen`}
-                </span>
-              </div>
-            )}
+                {showAll ? "Alle" : "Nur Live"}
+              </button>
+            </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gridAutoRows: "1fr", gap: 12, padding: "12px 14px 8px", flex: 1 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gridAutoRows: "1fr", gap: 12, padding: "10px 14px 8px", flex: 1 }}>
               {sorted.map(p => (
                 <SleeveCard key={p.id} p={p} selected={selectedId === p.id}
                   onActivate={() => activatePattern(p)}
@@ -1329,33 +1345,23 @@ export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Pr
             </div>
 
             {/* Dezember-Cluster Warnung */}
-            {(() => {
-              const decCluster = sorted.filter(p => {
-                const m = p.validationId?.match(/_(\d{2})\d{2}_/);
-                return m && parseInt(m[1]) === 12;
-              });
-              if (decCluster.length < 3) return null;
-              return (
-                <div style={{
-                  display: "flex", alignItems: "center", gap: 6,
-                  padding: "5px 14px", margin: "0 14px 4px",
-                  background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.15)",
-                  borderRadius: 6, fontFamily: FONT, flexShrink: 0,
-                }}>
-                  <span style={{ fontSize: 10, color: "#F59E0B" }}>
-                    ⚠ {decCluster.length} Signale gleichzeitig im Dezember — Positionsgröße halbieren
-                  </span>
-                </div>
-              );
-            })()}
+            {decCluster.length >= 3 && (
+              <div style={{
+                display: "flex", alignItems: "center", gap: 6,
+                padding: "5px 14px", margin: "0 14px 2px",
+                background: "rgba(245,158,11,0.05)", border: "1px solid rgba(245,158,11,0.14)",
+                borderRadius: 6, fontFamily: FONT, flexShrink: 0,
+              }}>
+                <span style={{ fontSize: 10, color: "#F59E0B" }}>
+                  ⚠ {decCluster.length} Signale gleichzeitig im Dezember — Positionsgröße halbieren
+                </span>
+              </div>
+            )}
 
             {/* Q4-Bias Hinweis */}
-            <div style={{
-              padding: "4px 14px 10px", fontFamily: FONT, flexShrink: 0,
-              textAlign: "center",
-            }}>
-              <span style={{ fontSize: 9, color: "rgba(255,255,255,0.25)" }}>
-                70% der Muster im Q4 — Kapitalallokation beachten · 10 einzigartige Muster nach Duplikat-Bereinigung
+            <div style={{ padding: "3px 14px 8px", fontFamily: FONT, flexShrink: 0, textAlign: "center" }}>
+              <span style={{ fontSize: 9, color: "rgba(255,255,255,0.22)" }}>
+                70% der Muster im Q4 — Kapitalallokation beachten
               </span>
             </div>
           </div>
