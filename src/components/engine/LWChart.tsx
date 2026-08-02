@@ -65,11 +65,11 @@ export default function LWChart({ data, trades = [], emaFastData = [], emaSlowDa
 
     const series = chart.addSeries(CandlestickSeries, {
       upColor: '#F5F5F5',
-      downColor: '#EF4444',
+      downColor: '#C9A84C',
       borderUpColor: '#F5F5F5',
-      borderDownColor: '#EF4444',
+      borderDownColor: '#C9A84C',
       wickUpColor: '#999999',
-      wickDownColor: '#EF4444',
+      wickDownColor: '#C9A84C',
     })
 
     const emaFastSeries = chart.addSeries(LineSeries, {
@@ -126,7 +126,7 @@ export default function LWChart({ data, trades = [], emaFastData = [], emaSlowDa
         const allMarkers = trades.map(t => ({
           time: toSec(t.time) as UTCTimestamp,
           position: t.dir === 'long' ? 'belowBar' as const : 'aboveBar' as const,
-          color: t.win ? '#F5F5F5' : '#EF4444',
+          color: t.win ? '#F5F5F5' : '#C9A84C',
           shape: t.dir === 'long' ? 'arrowUp' as const : 'arrowDown' as const,
           text: t.pnlPips != null ? `${t.pnlPips > 0 ? '+' : ''}${t.pnlPips.toFixed(0)}p` : `${t.win ? '+' : ''}${(t.pnlPct * 100).toFixed(0)}%`,
           size: 1,
