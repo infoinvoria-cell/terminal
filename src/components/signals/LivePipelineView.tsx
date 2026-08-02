@@ -100,32 +100,37 @@ function StatusDot({ status }: { status: ComponentStatus }) {
 
 // ── SVG Connector (horizontal, between columns) ────────────────────────────────
 
-function SvgConnector({ active, step }: { active: boolean; step: number }) {
-  const W = 36, H = 24, CY = H / 2;
+function SvgConnector({ active }: { active: boolean }) {
   return (
-    <div style={{ width: W, flexShrink: 0, display: "flex", alignItems: "flex-start", paddingTop: 52 }}>
-      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} overflow="visible">
-        {/* idle: dashed line */}
-        {!active && (
-          <line x1={2} y1={CY} x2={W - 2} y2={CY}
-            stroke={BORDER_IDLE} strokeWidth={1} strokeDasharray="4 5" />
-        )}
-        {/* active: solid gold line + travelling dot */}
+    <div style={{
+      display: "flex",
+      alignItems: "flex-start",
+      paddingTop: 52,
+      width: 40,
+      flexShrink: 0,
+    }}>
+      <div style={{ position: "relative", width: 40, height: 16, display: "flex", alignItems: "center" }}>
+        <svg width={40} height={2} style={{ display: "block" }}>
+          <line
+            x1={0} y1={1} x2={40} y2={1}
+            stroke={active ? GOLD : "#1A1A1A"}
+            strokeWidth={active ? 1.5 : 1}
+            strokeDasharray={active ? "none" : "4 4"}
+          />
+        </svg>
         {active && (
-          <>
-            <line x1={2} y1={CY} x2={W - 2} y2={CY}
-              stroke={GOLD} strokeWidth={1.5} opacity={0.7} />
-            <circle r={3.5} fill={GOLD} style={{ filter: `drop-shadow(0 0 4px ${GOLD})` }}>
-              <animateMotion
-                key={step}
-                dur="0.7s"
-                repeatCount="indefinite"
-                path={`M 2,${CY} L ${W - 2},${CY}`}
-              />
-            </circle>
-          </>
+          <div style={{
+            position: "absolute",
+            top: "50%",
+            transform: "translateY(-50%)",
+            width: 7, height: 7,
+            borderRadius: "50%",
+            background: GOLD,
+            boxShadow: `0 0 6px ${GOLD}`,
+            animation: "flowDot 0.9s linear infinite",
+          }} />
         )}
-      </svg>
+      </div>
     </div>
   );
 }
@@ -568,10 +573,13 @@ export default function LivePipelineView({ onClose }: LivePipelineViewProps) {
       <style>{`
         @keyframes plsDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.45;transform:scale(0.65)} }
         @keyframes blkDot { 0%,100%{opacity:1} 50%{opacity:0.15} }
+        @keyframes flowDot { 0%{left:0%;opacity:1} 100%{left:100%;opacity:0} }
       `}</style>
 
       <div style={{
-        position: "fixed", inset: 0, zIndex: 9000,
+        position: "fixed", top: 0, bottom: 0, right: 0, left: 55,
+        width: "calc(100vw - 55px)",
+        zIndex: 9000,
         background: "#040303",
         display: "flex", flexDirection: "column",
         fontFamily: FL, overflow: "hidden",
@@ -676,7 +684,7 @@ export default function LivePipelineView({ onClose }: LivePipelineViewProps) {
                 ps={ps}
               />
               {i < COLUMNS.length - 1 && (
-                <SvgConnector active={flowStep > i + 1} step={flowStep} />
+                <SvgConnector active={flowStep > i + 1} />
               )}
             </div>
           ))}
