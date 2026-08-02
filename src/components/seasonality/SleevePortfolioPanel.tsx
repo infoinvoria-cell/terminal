@@ -5,11 +5,13 @@ import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons
 import {
   getDeepValidatedPatterns,
   getDeepDetailById,
+  getRevalidationById,
   getNextSignals,
   gradeColor,
   gradeBg,
   type DeepValidationPattern,
   type DeepDetailResult,
+  type RevalidationResult,
 } from "@/lib/seasonality/deepValidation";
 
 /* ─── Design tokens — SignalCard / terminal exact ───────────────────── */
@@ -55,6 +57,7 @@ export interface SleevePattern {
   paramStabilityPct?: number;
   decadesProfitable?: number;
   forwardPass?: boolean;
+  reval?: RevalidationResult;
 }
 
 function makeFakeReturns(wr: number, avg: number, n = 32): number[] {
@@ -119,6 +122,20 @@ function buildDeepSleevePatterns(): SleevePattern[] {
     CT1: { assetId: "cotton", category: "Agrar" },
     ES1: { assetId: "es1", category: "Indizes" },
     KC1: { assetId: "kc1", category: "Agrar" },
+    RB1: { assetId: "rb1", category: "Energie" },
+    PL1: { assetId: "pl1", category: "Metalle" },
+    PA1: { assetId: "pa1", category: "Metalle" },
+    SPY: { assetId: "spy", category: "ETF" },
+    EEM: { assetId: "eem", category: "ETF" },
+    EFA: { assetId: "efa", category: "ETF" },
+    NVDA: { assetId: "nvda", category: "Aktien" },
+    FDAX1: { assetId: "fdax1", category: "Indizes" },
+    YM1: { assetId: "ym1", category: "Indizes" },
+    NQ1: { assetId: "nq1", category: "Indizes" },
+    NG1: { assetId: "ng1", category: "Energie" },
+    GC1: { assetId: "gc1", category: "Metalle" },
+    GLD: { assetId: "gld", category: "ETF" },
+    TLT: { assetId: "tlt", category: "Bonds" },
   };
 
   const result: SleevePattern[] = deepPatterns.map((dp, i) => {
@@ -171,6 +188,7 @@ function buildDeepSleevePatterns(): SleevePattern[] {
       paramStabilityPct: dp.param_stability_pct,
       decadesProfitable: dp.decades_profitable,
       forwardPass: dp.forward_pass,
+      reval: getRevalidationById(dp.id),
     };
   });
 
@@ -179,6 +197,27 @@ function buildDeepSleevePatterns(): SleevePattern[] {
 }
 
 export const SLEEVE_PATTERNS: SleevePattern[] = buildDeepSleevePatterns();
+
+const DUPLICATE_IDS = new Set([
+  "ZW1_L_0810_8", "ZC1_L_1125_21", "PL1_L_1220_21",
+  "EEM_L_1215_10", "PA1_L_1220_30", "ES1_L_1025_30",
+]);
+
+const LIVE_STATUS: Record<string, { tier: number; status: string; label: string; color: string; bg: string }> = {
+  "SPY_L_1025_30":  { tier: 1, status: "LIVE_READY",   label: "LIVE",   color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
+  "NVDA_L_0810_14": { tier: 1, status: "LIVE_READY",   label: "LIVE",   color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
+  "EEM_L_1220_5":   { tier: 1, status: "LIVE_READY",   label: "LIVE",   color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
+  "ZW1_L_0810_10":  { tier: 1, status: "LIVE_READY",   label: "LIVE",   color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
+  "ZC1_L_1125_10":  { tier: 1, status: "LIVE_READY",   label: "LIVE",   color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
+  "PL1_L_1220_18":  { tier: 2, status: "CONDITIONAL",  label: "COND.",  color: "#D8BC67", bg: "rgba(216,188,103,0.14)" },
+  "RB1_L_0205_14":  { tier: 2, status: "CONDITIONAL",  label: "COND.",  color: "#D8BC67", bg: "rgba(216,188,103,0.14)" },
+  "PA1_L_1220_21":  { tier: 4, status: "REJECTED",     label: "REJECT", color: "#EF4444", bg: "rgba(239,68,68,0.12)" },
+  "RB1_L_1210_45":  { tier: 4, status: "REJECTED",     label: "REJECT", color: "#EF4444", bg: "rgba(239,68,68,0.12)" },
+};
+
+const LIVE_PATTERNS = SLEEVE_PATTERNS.filter(p =>
+  p.reval != null && p.validationId != null && !DUPLICATE_IDS.has(p.validationId)
+);
 
 /* ─── Countdown hook — uses calStart (calendar day 1-365) ──────────── */
 function todayCalendarDay(): number {
@@ -271,8 +310,8 @@ function CardEquityLine({ returns: rets, id, avgReturn }: {
 }) {
   const eq: number[] = [0];
   for (const r of rets) eq.push(eq[eq.length - 1] + r * 100);
-  const W = 300; const H = 60;
-  const padTop = 18; const padBot = 4; // top pad leaves room for the fixed label
+  const W = 240; const H = 42;
+  const padTop = 4; const padBot = 3;
   const min = Math.min(...eq); const max = Math.max(...eq);
   const rng = max - min || 0.1;
   const pts = eq.map((v, i) => {
@@ -297,9 +336,7 @@ function CardEquityLine({ returns: rets, id, avgReturn }: {
           <stop offset="100%" stopColor={lineC} stopOpacity="0.00" />
         </linearGradient>
       </defs>
-      {/* avg label — fixed top-right, always visible */}
-      <text x={W - 2} y={12} textAnchor="end" fill={lineC}
-        fontSize={11} fontWeight="700" fontFamily={FONT}>{avgLabel}</text>
+      {/* avg label rendered outside SVG — keep chart area clean */}
       <line x1={0} y1={clampedBase} x2={W} y2={clampedBase}
         stroke="rgba(255,255,255,0.07)" strokeWidth={0.5} strokeDasharray="3 5" />
       <polygon points={`0,${clampedBase} ${pts} ${W},${clampedBase}`} fill={`url(#${fillId})`} />
@@ -511,34 +548,52 @@ function DetailIcon() {
   );
 }
 
+/* ─── Live status badge — top right corner ─────────────────────────── */
+function LiveBadge({ validationId }: { validationId?: string }) {
+  if (!validationId) return null;
+  const ls = LIVE_STATUS[validationId];
+  if (!ls) return null;
+  return (
+    <span style={{
+      position: "absolute" as const, top: 6, right: 6, zIndex: 2,
+      fontSize: 7, fontWeight: 800, letterSpacing: "0.06em",
+      padding: "2px 6px", borderRadius: 4,
+      color: ls.color, background: ls.bg,
+      fontFamily: FONT,
+    }}>
+      {ls.label}
+    </span>
+  );
+}
+
 /* ─── Grid card — 1:1 Referenz-Layout, kompakt ──────────────────────── */
 function SleeveCard({ p, selected, onActivate, onDetail }: {
   p: SleevePattern;
   selected: boolean;
-  onActivate: () => void;   // karte klicken = im chart aktivieren
-  onDetail: () => void;     // detail-icon klicken = detail-panel öffnen
+  onActivate: () => void;
+  onDetail: () => void;
 }) {
   const isLong    = p.direction === "LONG";
   const dirColor  = isLong ? "#22C55E" : "#EF4444";
   const countdown = usePatternCountdown(p.calStart);
   const [detailHov, setDetailHov] = useState(false);
-  // Live-Schätzung für aktive Muster (historische Avg-Kurve an aktueller Position)
   const activeLiveEst = useMemo<number | null>(() => {
     if (countdown !== "Aktiv") return null;
     const todayCal = todayCalendarDay();
     const daysElapsed = Math.max(0, todayCal - p.calStart);
     const windowTd = Math.max(1, p.endSlot - p.startSlot);
-    // Kalender→Trading: ~252/365 ≈ 0.69
     const tradingElapsed = daysElapsed * (252 / 365);
     const progress = Math.min(1, tradingElapsed / windowTd);
     const idx = Math.max(1, Math.round(progress * p.fakeReturns.length));
     return p.fakeReturns.slice(0, idx).reduce((s, r) => s + r * 100, 0);
   }, [countdown, p.calStart, p.endSlot, p.startSlot, p.fakeReturns]);
 
-  const isGradeD = p.deepGrade === "D";
+  const ls = p.validationId ? LIVE_STATUS[p.validationId] : undefined;
+  const isRejected = ls?.tier === 4;
   const cardBg = selected
     ? `radial-gradient(ellipse 120% 90% at 115% 120%, rgba(216,188,103,0.14) 0%, transparent 55%), ${C_CARD}`
     : C_CARD;
+  const avgLabel = `${p.avgReturn >= 0 ? "+" : ""}${(p.avgReturn * 100).toFixed(1)}% avg`;
 
   return (
     <div
@@ -548,62 +603,65 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
       style={{
         background: cardBg,
         border: selected ? "1px solid rgba(216,188,103,0.32)" : `1px solid ${C_BORDER}`,
-        borderRadius: 16,
-        padding: "12px 14px 10px",
+        borderRadius: 12,
+        padding: "8px 10px 6px",
         display: "flex", flexDirection: "column", gap: 0,
         cursor: "pointer", outline: "none",
-        transition: "border-color 120ms, opacity 120ms",
+        transition: "border-color 120ms",
         height: "100%", boxSizing: "border-box" as const,
         fontFamily: FONT, overflow: "hidden",
-        opacity: isGradeD ? 0.4 : 1,
+        opacity: isRejected ? 0.45 : 1,
+        position: "relative" as const,
       }}
     >
-      {/* ── Row 1: Asset icon · Symbol + Name · WR Donut ── */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-        <AssetIcon assetId={p.assetId} iconAssetId={p.iconAssetId} symbol={p.symbol} name={p.name} size={36} />
+      <LiveBadge validationId={p.validationId} />
+      {/* ── Row 1: Icon · Symbol + Name · WR Donut ── */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+        <AssetIcon assetId={p.assetId} iconAssetId={p.iconAssetId} symbol={p.symbol} name={p.name} size={28} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 16, fontWeight: 900, color: "#fff", lineHeight: 1, letterSpacing: "0.01em" }}>
+          <div style={{ fontSize: 13, fontWeight: 900, color: "#fff", lineHeight: 1, letterSpacing: "0.01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             {p.symbol.replace("1!", "!")}
-            <span style={{ fontSize: 11, fontWeight: 500, color: "rgba(255,255,255,0.38)", marginLeft: 6 }}>{p.name.split(" ")[0]}</span>
+            <span style={{ fontSize: 9, fontWeight: 500, color: "rgba(255,255,255,0.38)", marginLeft: 5 }}>{p.name.split(" ")[0]}</span>
           </div>
         </div>
-        <WrDonut pct={p.oosWinRate * 100} size={48} />
+        <WrDonut pct={p.winRate * 100} size={38} />
       </div>
 
-      {/* ── Row 2: Muster-Datum ── */}
-      <div style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.82)", lineHeight: 1, marginBottom: 7, letterSpacing: "-0.1px" }}>
+      {/* ── Row 2: Datum ── */}
+      <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.82)", lineHeight: 1, marginBottom: 3 }}>
         {p.window}
       </div>
 
-      {/* ── Row 3: Countdown / Aktiv + Live-Schätzung ── */}
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: countdown === "Aktiv" ? "#e8edf3" : C_GOLD, lineHeight: 1, letterSpacing: "0.01em" }}>
+      {/* ── Row 3: Countdown ── */}
+      <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 4 }}>
+        <span style={{ fontSize: 9, fontWeight: 600, color: countdown === "Aktiv" ? "#e8edf3" : C_GOLD, lineHeight: 1 }}>
           {countdown || "—"}
         </span>
         {activeLiveEst !== null && (
-          <span style={{
-            fontSize: 11, fontWeight: 800, lineHeight: 1, letterSpacing: "0.02em",
-            color: activeLiveEst >= 0 ? C_GOLD : "rgba(210,90,80,0.90)",
-          }}>
+          <span style={{ fontSize: 9, fontWeight: 800, lineHeight: 1, color: activeLiveEst >= 0 ? C_GOLD : "rgba(210,90,80,0.90)" }}>
             {activeLiveEst >= 0 ? "+" : ""}{activeLiveEst.toFixed(1)}%
           </span>
         )}
       </div>
 
-
-      {/* ── Row 4: Performance-Chart — kein eigener Border ── */}
-      <div style={{ flex: 1, minHeight: 50, overflow: "hidden" }}>
-        <CardEquityLine returns={p.fakeReturns} id={`p${p.id}`} avgReturn={p.avgReturn} />
+      {/* ── Row 4: Sparkline + Avg label beside it ── */}
+      <div style={{ flex: 1, minHeight: 32, display: "flex", alignItems: "flex-end", gap: 4, overflow: "hidden" }}>
+        <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
+          <CardEquityLine returns={p.fakeReturns} id={`p${p.id}`} avgReturn={p.avgReturn} />
+        </div>
+        <span style={{ fontSize: 8, fontWeight: 700, color: p.avgReturn >= 0 ? "#e8edf3" : C_GOLD, whiteSpace: "nowrap", lineHeight: 1, flexShrink: 0, paddingBottom: 2 }}>
+          {avgLabel}
+        </span>
       </div>
 
-      {/* ── Row 5: Richtung links · Detail-Icon rechts ── */}
-      <div style={{ marginTop: 8, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      {/* ── Row 5: Direction ▲/▼ · Detail icon ── */}
+      <div style={{ marginTop: 4, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <span style={{
-          display: "inline-flex", alignItems: "center", gap: 5,
-          fontSize: 13, fontWeight: 900, letterSpacing: "0.06em",
+          display: "inline-flex", alignItems: "center", gap: 4,
+          fontSize: 10, fontWeight: 900, letterSpacing: "0.06em",
           color: dirColor, lineHeight: 1,
         }}>
-          <span style={{ fontSize: 10 }}>{isLong ? "▲" : "▼"}</span>
+          <span style={{ fontSize: 8 }}>{isLong ? "▲" : "▼"}</span>
           {p.direction}
         </span>
         <button
@@ -613,9 +671,9 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
           onMouseLeave={() => setDetailHov(false)}
           style={{
             display: "flex", alignItems: "center", justifyContent: "center",
-            width: 24, height: 24, borderRadius: 6, border: "none",
-            background: detailHov ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.05)",
-            color: detailHov ? "#e8edf3" : "rgba(255,255,255,0.40)",
+            width: 20, height: 20, borderRadius: 5, border: "none",
+            background: detailHov ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.04)",
+            color: detailHov ? "#e8edf3" : "rgba(255,255,255,0.25)",
             cursor: "pointer", flexShrink: 0, transition: "background 120ms, color 120ms",
           }}
         >
@@ -719,6 +777,94 @@ function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => 
           </button>
         </div>
       </div>
+
+      {/* ── B0) BACKTRADER ENGINE METRICS ── */}
+      {detail && (detail as any).backtrader_metrics && (() => {
+        const bt = (detail as any).backtrader_metrics as { sharpe: number; calmar: number; win_rate: number; profit_factor: number; cagr: number; max_dd: number; trades: number; total_pnl: number; oos_sharpe: number; oos_win_rate: number };
+        return (
+          <div style={{ ...CARD, flexShrink: 0 }}>
+            <SectionLabel>Backtrader Engine — Echte Backtestzahlen</SectionLabel>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 8 }}>
+              {[
+                { label: "Sharpe", value: bt.sharpe.toFixed(2), color: bt.sharpe >= 0.5 ? C_PASS : C_SCORE },
+                { label: "Calmar", value: bt.calmar.toFixed(2), color: bt.calmar >= 1 ? C_PASS : C_SCORE },
+                { label: "Win Rate", value: `${bt.win_rate.toFixed(1)}%`, color: bt.win_rate >= 70 ? C_PASS : C_WHITE },
+                { label: "Profit Factor", value: bt.profit_factor.toFixed(2), color: bt.profit_factor >= 2 ? C_PASS : C_WHITE },
+              ].map(k => (
+                <div key={k.label}>
+                  <div style={{ fontSize: 7, color: C_TEXT3, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 3 }}>{k.label}</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+              {[
+                { label: "CAGR", value: `${bt.cagr.toFixed(1)}%`, color: bt.cagr > 0 ? C_PASS : C_FAIL },
+                { label: "Max DD", value: `${bt.max_dd.toFixed(1)}%`, color: C_FAIL },
+                { label: "Trades", value: `${bt.trades}`, color: C_WHITE },
+                { label: "OOS Sharpe", value: bt.oos_sharpe.toFixed(2), color: bt.oos_sharpe > 0 ? C_PASS : C_FAIL },
+              ].map(k => (
+                <div key={k.label}>
+                  <div style={{ fontSize: 7, color: C_TEXT3, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 3 }}>{k.label}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ── REVALIDATION RESULTS ── */}
+      {p.reval && (() => {
+        const rv = p.reval;
+        const C_PASS = "#22C55E";
+        const C_WARN = "#F0883E";
+        const mmColor = rv.median_mean_ratio >= 0.7 ? C_PASS : rv.median_mean_ratio >= 0.5 ? C_WARN : "#EF4444";
+        return (
+          <div style={{ ...CARD, flexShrink: 0 }}>
+            <SectionLabel>Re-Validierung — Robustheitsprüfung</SectionLabel>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 10 }}>
+              {[
+                { label: "Historie", value: `${rv.n_years} Jahre`, color: rv.has_20y ? C_PASS : "#EF4444" },
+                { label: "Win Rate", value: `${rv.win_rate.toFixed(1)}%`, color: rv.win_rate >= 75 ? C_PASS : C_WHITE },
+                { label: "Med/Mean", value: rv.median_mean_ratio.toFixed(2), color: mmColor },
+                { label: "Skewness", value: rv.skewness.toFixed(2), color: Math.abs(rv.skewness) > 1.5 ? C_WARN : C_WHITE },
+              ].map(k => (
+                <div key={k.label}>
+                  <div style={{ fontSize: 7, color: C_TEXT3, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 3 }}>{k.label}</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 10 }}>
+              {[
+                { label: "RWF Folds", value: `${rv.rolling_wf_positive}/${rv.rolling_wf_folds}`, color: rv.rolling_wf_pct >= 80 ? C_PASS : C_WARN },
+                { label: "RWF Rate", value: `${rv.rolling_wf_pct.toFixed(0)}%`, color: rv.rolling_wf_pct >= 80 ? C_PASS : C_WARN },
+                { label: "Param Robust", value: `${rv.param_pct.toFixed(0)}%`, color: rv.param_pct >= 80 ? C_PASS : C_WARN },
+                { label: "Param Var.", value: `${rv.param_positive}/${rv.param_total}`, color: rv.param_robust ? C_PASS : "#EF4444" },
+              ].map(k => (
+                <div key={k.label}>
+                  <div style={{ fontSize: 7, color: C_TEXT3, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 3 }}>{k.label}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: k.color, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              <StatusPill pass={rv.has_20y} label={rv.has_20y ? "20+ JAHRE" : "<20 JAHRE"} />
+              <StatusPill pass={rv.rolling_wf_pass} label={rv.rolling_wf_pass ? "RWF PASS" : "RWF FAIL"} />
+              <StatusPill pass={rv.param_robust} label={rv.param_robust ? "ROBUST" : "FRAGIL"} />
+              <StatusPill pass={!rv.outlier_concern} label={rv.outlier_concern ? "OUTLIER" : "CLEAN"} />
+              <StatusPill pass={rv.profitable_without_best} label={rv.profitable_without_best ? "OHNE BEST OK" : "BEST-ABHÄNGIG"} />
+              <StatusPill pass={rv.profitable_without_top2} label={rv.profitable_without_top2 ? "OHNE TOP2 OK" : "TOP2-ABHÄNGIG"} />
+            </div>
+            {rv.issues.length > 0 && (
+              <div style={{ marginTop: 8, fontSize: 10, color: C_WARN, fontStyle: "italic" }}>
+                {rv.issues.join(", ")}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* ── B) BACKTRADER VALIDATION — 7 Tests ── */}
       {detail && (
@@ -1113,7 +1259,7 @@ type Mode = "grid" | "detail" | "portfolio";
 interface Props {
   mode: Mode;
   onModeChange: (m: Mode) => void;
-  onSelectPattern?: (assetId: string, startSlot: number, direction: "LONG" | "SHORT") => void;
+  onSelectPattern?: (assetId: string, startSlot: number, direction: "LONG" | "SHORT", holdingDays?: number) => void;
 }
 
 export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Props) {
@@ -1122,14 +1268,13 @@ export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Pr
 
   function activatePattern(p: SleevePattern) {
     setSelectedId(p.id);
-    onSelectPattern?.(p.assetId, p.startSlot, p.direction);
-    // no mode change — card stays in grid, just activates in main chart
+    onSelectPattern?.(p.assetId, p.startSlot, p.direction, p.endSlot - p.startSlot);
   }
 
   function openDetail(p: SleevePattern) {
     setSelectedId(p.id);
     onModeChange("detail");
-    onSelectPattern?.(p.assetId, p.startSlot, p.direction);
+    onSelectPattern?.(p.assetId, p.startSlot, p.direction, p.endSlot - p.startSlot);
   }
 
   return (
@@ -1138,16 +1283,84 @@ export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Pr
       {/* Next Signal Banner — only in detail/portfolio, not grid */}
       {mode !== "grid" && <NextSignalBanner />}
 
-      {mode === "grid" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gridTemplateRows: "1fr 1fr", gap: 14, flex: 1, minHeight: 0, overflow: "hidden", padding: "12px 14px 14px" }}>
-          {SLEEVE_PATTERNS.slice(0, 10).map(p => (
-            <SleeveCard key={p.id} p={p} selected={selectedId === p.id}
-              onActivate={() => openDetail(p)}
-              onDetail={() => openDetail(p)}
-            />
-          ))}
-        </div>
-      )}
+      {mode === "grid" && (() => {
+        const sorted = [...LIVE_PATTERNS].sort((a, b) => {
+          const today = todayCalendarDay();
+          const dA = ((a.calStart - today) + 365) % 365;
+          const dB = ((b.calStart - today) + 365) % 365;
+          return dA - dB;
+        });
+        const nextSignal = sorted.find(p => {
+          const ls = p.validationId ? LIVE_STATUS[p.validationId] : undefined;
+          return ls && ls.tier <= 2;
+        });
+        const nextDays = nextSignal ? (() => {
+          const today = todayCalendarDay();
+          const d = ((nextSignal.calStart - today) + 365) % 365;
+          return d;
+        })() : null;
+
+        return (
+          <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "auto" }}>
+            {/* Nächstes Signal Banner */}
+            {nextSignal && nextDays != null && (
+              <div style={{
+                display: "flex", alignItems: "center", gap: 8,
+                padding: "6px 14px", margin: "10px 14px 0",
+                background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)",
+                borderRadius: 8, fontFamily: FONT, flexShrink: 0,
+              }}>
+                <span style={{ fontSize: 8, fontWeight: 700, color: "#7c8798", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>Nächstes Signal</span>
+                <span style={{ fontSize: 12, fontWeight: 900, color: "#22C55E" }}>{nextSignal.symbol.replace("1!", "!")}</span>
+                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.55)" }}>{nextSignal.window}</span>
+                <span style={{ fontSize: 11, fontWeight: 800, color: nextDays === 0 ? "#22C55E" : C_GOLD }}>
+                  {nextDays === 0 ? "Heute" : nextDays < 0 ? "Aktiv" : `in ${nextDays} Tagen`}
+                </span>
+              </div>
+            )}
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gridAutoRows: "1fr", gap: 12, padding: "12px 14px 8px", flex: 1 }}>
+              {sorted.map(p => (
+                <SleeveCard key={p.id} p={p} selected={selectedId === p.id}
+                  onActivate={() => activatePattern(p)}
+                  onDetail={() => openDetail(p)}
+                />
+              ))}
+            </div>
+
+            {/* Dezember-Cluster Warnung */}
+            {(() => {
+              const decCluster = sorted.filter(p => {
+                const m = p.validationId?.match(/_(\d{2})\d{2}_/);
+                return m && parseInt(m[1]) === 12;
+              });
+              if (decCluster.length < 3) return null;
+              return (
+                <div style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  padding: "5px 14px", margin: "0 14px 4px",
+                  background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.15)",
+                  borderRadius: 6, fontFamily: FONT, flexShrink: 0,
+                }}>
+                  <span style={{ fontSize: 10, color: "#F59E0B" }}>
+                    ⚠ {decCluster.length} Signale gleichzeitig im Dezember — Positionsgröße halbieren
+                  </span>
+                </div>
+              );
+            })()}
+
+            {/* Q4-Bias Hinweis */}
+            <div style={{
+              padding: "4px 14px 10px", fontFamily: FONT, flexShrink: 0,
+              textAlign: "center",
+            }}>
+              <span style={{ fontSize: 9, color: "rgba(255,255,255,0.25)" }}>
+                70% der Muster im Q4 — Kapitalallokation beachten · 10 einzigartige Muster nach Duplikat-Bereinigung
+              </span>
+            </div>
+          </div>
+        );
+      })()}
 
       {mode === "detail" && (
         <div style={{ display: "flex", flex: 1, minHeight: 0, gap: 0, overflow: "hidden" }}>
@@ -1158,7 +1371,7 @@ export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Pr
           </div>
           <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
             {selected
-              ? <DetailPanel p={selected} onGoToChart={() => onSelectPattern?.(selected.assetId, selected.startSlot, selected.direction)} />
+              ? <DetailPanel p={selected} onGoToChart={() => onSelectPattern?.(selected.assetId, selected.startSlot, selected.direction, selected.endSlot - selected.startSlot)} />
               : <div style={{ padding: 20, fontSize: 10, color: C_TEXT3 }}>Muster auswählen</div>
             }
           </div>
