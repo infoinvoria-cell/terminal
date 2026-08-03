@@ -92,7 +92,7 @@ const PARAM_DEFS: Record<Strategy, ParamDef[]> = {
   ],
 };
 const DEFAULT_PARAMS: Record<Strategy, Params> = {
-  EUR_30M: { fo_pips: 0.00012, sl_atr_mult: 1.5, tp_crv: 3.0, session_start_h: 7, session_end_h: 11, flip_threshold: 0.55, spec_threshold: 0.7, min_candle_size: 0.0008, max_candle_size: 0.005, engulfing_only: 1, use_regime: 1 },
+  EUR_30M: { fo_pips: 0.00012, sl_atr_mult: 1.5, tp_crv: 3.0, session_start_h: 7, session_end_h: 11, flip_threshold: 0.55, spec_threshold: 0.7, min_candle_size: 0.0008, max_candle_size: 0.005, engulfing_only: 1, use_regime: 0 },
   DAX_1H:  { ema_fast: 20, ema_slow: 50, sl_pts: 35,      tp_pts: 126,     direction: "both", session_start: 8,  session_end: 17 },
   DAX_2H:  { ema_fast: 4,  ema_slow: 20, sl_pts: 50,      tp_pts: 150,     direction: "both", session_start: 8,  session_end: 18 },
   GC_FRI:  { atr_len: 14, sl_mult: 0.75, rr: 1.25 },
