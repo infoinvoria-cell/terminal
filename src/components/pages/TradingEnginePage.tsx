@@ -292,7 +292,7 @@ export default function TradingEnginePage() {
       if (BT_STRATEGIES.has(strategy)) {
         const btAsset = assetType === "cfd" ? "spot" : assetType;
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 300_000);
+        const timeout = setTimeout(() => controller.abort(), 600_000);
         setBtPhase("Berechne Signal...");
         const r = await fetch("http://localhost:5000/backtest", {
           method: "POST", headers: { "Content-Type": "application/json" },
@@ -326,7 +326,7 @@ export default function TradingEnginePage() {
       if (!data.error) setCached(ck, data);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      setResult({ metrics: {} as BacktestResult["metrics"], equity: [], drawdown: [], trades: [], error: msg.includes("abort") || msg.includes("Abort") ? "Backtest-Timeout — Engine neu starten" : "Engine offline" });
+      setResult({ metrics: {} as BacktestResult["metrics"], equity: [], drawdown: [], trades: [], error: msg.includes("abort") || msg.includes("Abort") ? "Engine-Timeout — start_all.bat neu starten" : "Engine offline" });
     } finally { setRunning(false); setBtPhase(""); }
   }, [strategy, assetType, params, startDate, endDate]);
 
@@ -450,12 +450,13 @@ export default function TradingEnginePage() {
         input[type=date]::-webkit-calendar-picker-indicator{filter:invert(0.4);cursor:pointer}
         select option{background:${BG}}
 
-        .e-root{display:flex;height:100%;width:100%;background:#000;overflow:hidden;color:${TXT};font-family:var(--font-text);gap:10px;padding:10px}
+        .e-root{display:flex;height:100%;width:100%;background:transparent;overflow:hidden;color:${TXT};font-family:var(--font-text);gap:10px;padding:10px;padding-left:6px}
         .e-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
         .e-chart-wrap{flex:55%;min-height:0;background:${BG};border:1px solid #1e1e1e;border-radius:10px;display:flex;flex-direction:column;overflow:hidden}
-        .e-chart-header{height:36px;flex-shrink:0;display:flex;align-items:center;padding:0 12px;gap:8px;border-bottom:1px solid ${BORDER}}
-        .e-chart-body{flex:1;position:relative;min-height:0;overflow:hidden}
+        .e-chart-body{flex:1;position:relative;min-height:0;overflow:visible}
         .e-chart-footer{height:28px;flex-shrink:0;display:flex;align-items:center;padding:0 10px;gap:3px;border-top:1px solid ${BORDER}}
+        .chart-overlay-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:rgba(10,10,12,0.75);border:1px solid #2a2a2a;border-radius:6px;color:#888;cursor:pointer;transition:color .15s,border-color .15s;backdrop-filter:blur(4px)}
+        .chart-overlay-btn:hover,.chart-overlay-btn.active{color:${GOLD};border-color:rgba(201,168,76,0.4)}
         .e-tester-wrap{flex:45%;min-height:0;background:${BG};border:1px solid #1e1e1e;border-radius:10px;display:flex;flex-direction:column;overflow:hidden}
 
         .e-sidebar{width:${sidebar.w}px;flex-shrink:0;overflow-y:auto;overflow-x:hidden;position:relative;display:flex;flex-direction:column;gap:10px}
@@ -531,49 +532,51 @@ export default function TradingEnginePage() {
         <div className="e-main">
           {/* Chart */}
           <div className="e-chart-wrap">
-            {/* Header — icon · symbol · interval · buttons only */}
-            <div className="e-chart-header">
-              <Image src={meta.icon} alt="" width={18} height={18} style={{ borderRadius: 4, flexShrink: 0 }} />
-              <span style={{ fontSize: 13, fontWeight: 700, color: TXT }}>{assetSym}</span>
-              <span style={{ fontSize: 10, color: FAINT }}>{meta.interval}</span>
-              <div style={{ flex: 1 }} />
-              <button className={`icon-btn${codePanel ? " active" : ""}`} onClick={() => setCodePanel(p => !p)} title="Strategy Code">
-                <span style={{ fontFamily: "monospace", fontSize: 11, lineHeight: 1 }}>{"</>"}</span>
-              </button>
-              <div style={{ position: "relative" }}>
-                <button className="icon-btn" onClick={() => setShowSettings(s => !s)} title="Engine Settings">
-                  <span style={{ fontSize: 13, lineHeight: 1 }}>⚙</span>
-                  <div style={{ width: 5, height: 5, borderRadius: "50%", background: online ? GOLD : FAINT, position: "absolute", top: 3, right: 3 }} />
-                </button>
-                {showSettings && (
-                  <div className="settings-drop">
-                    <div style={{ fontSize: 10, color: DIM, marginBottom: 8, letterSpacing: ".06em", textTransform: "uppercase" }}>Engine Status</div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: online ? TXT : FAINT }} />
-                      <span style={{ fontSize: 11, color: online ? TXT : DIM }}>{online ? "Online" : "Offline"}</span>
-                    </div>
-                    {online && (
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: ibkrOk ? GOLD : FAINT }} />
-                        <span style={{ fontSize: 11, color: MUT }}>IBKR {ibkrOk ? `connected${health?.paper_mode ? " (Paper)" : ""}` : "disconnected"}</span>
-                      </div>
-                    )}
-                    {!online && <div style={{ fontSize: 10, color: DIM, marginTop: 6 }}>Start Desktop\start.bat</div>}
-                    <div style={{ borderTop: `1px solid ${BORDER}`, marginTop: 8, paddingTop: 8, fontSize: 10, color: FAINT }}>localhost:5000</div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Chart body */}
+            {/* Chart body — overlays float inside the canvas */}
             <div className="e-chart-body">
+              {/* Symbol + interval overlay — top-left */}
+              <div style={{ position: "absolute", top: 8, left: 12, zIndex: 10, display: "flex", alignItems: "center", gap: 6, pointerEvents: "none" }}>
+                <Image src={meta.icon} alt="" width={16} height={16} style={{ borderRadius: 3 }} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#fff", textShadow: "0 1px 4px rgba(0,0,0,0.8)" }}>{assetSym}</span>
+                <span style={{ fontSize: 11, color: "#666" }}>{meta.interval}</span>
+              </div>
+              {/* Buttons overlay — top-right, inside Y-axis area */}
+              <div style={{ position: "absolute", top: 8, right: 70, zIndex: 10, display: "flex", gap: 4 }}>
+                <button className={`chart-overlay-btn${codePanel ? " active" : ""}`} onClick={() => setCodePanel(p => !p)} title="Strategy Code">
+                  <span style={{ fontFamily: "monospace", fontSize: 11, lineHeight: 1 }}>{"</>"}</span>
+                </button>
+                <div style={{ position: "relative" }}>
+                  <button className="chart-overlay-btn" onClick={() => setShowSettings(s => !s)} title="Engine Settings">
+                    <span style={{ fontSize: 12, lineHeight: 1 }}>⚙</span>
+                    <div style={{ width: 4, height: 4, borderRadius: "50%", background: online ? GOLD : FAINT, position: "absolute", top: 4, right: 4 }} />
+                  </button>
+                  {showSettings && (
+                    <div className="settings-drop" style={{ top: 34 }}>
+                      <div style={{ fontSize: 10, color: DIM, marginBottom: 8, letterSpacing: ".06em", textTransform: "uppercase" }}>Engine Status</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: online ? TXT : FAINT }} />
+                        <span style={{ fontSize: 11, color: online ? TXT : DIM }}>{online ? "Online" : "Offline"}</span>
+                      </div>
+                      {online && (
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: ibkrOk ? GOLD : FAINT }} />
+                          <span style={{ fontSize: 11, color: MUT }}>IBKR {ibkrOk ? `connected${health?.paper_mode ? " (Paper)" : ""}` : "disconnected"}</span>
+                        </div>
+                      )}
+                      {!online && <div style={{ fontSize: 10, color: DIM, marginTop: 6 }}>Start Desktop\start.bat</div>}
+                      <div style={{ borderTop: `1px solid ${BORDER}`, marginTop: 8, paddingTop: 8, fontSize: 10, color: FAINT }}>localhost:5000</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {hasData ? (
                 <ChartComponent data={bars} trades={chartTrades} emaFastData={emaFastData} emaSlowData={emaSlowData}
                   showEma={meta.useEma && (showEmaFast || showEmaSlow)} showEmaFast={showEmaFast} showEmaSlow={showEmaSlow} visibleDays={chartDays}
                   priceLines={signal.direction !== "flat" ? [
-                    ...(signal.entry != null ? [{ price: signal.entry, color: "#C9A84C", label: "Entry" }] : []),
-                    ...(signal.sl != null    ? [{ price: signal.sl,    color: GOLD, label: "SL" }] : []),
-                    ...(signal.tp != null    ? [{ price: signal.tp,    color: TXT,  label: "TP" }] : []),
+                    ...(signal.entry != null ? [{ price: signal.entry, color: GOLD,  label: "Entry" }] : []),
+                    ...(signal.sl != null    ? [{ price: signal.sl,    color: GOLD,  label: "SL" }] : []),
+                    ...(signal.tp != null    ? [{ price: signal.tp,    color: "#888", label: "TP" }] : []),
                   ] : []} />
               ) : (
                 <NoData text={online ? "Loading chart data..." : "Start engine to load chart"} />

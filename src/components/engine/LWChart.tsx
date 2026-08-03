@@ -1,6 +1,9 @@
-﻿'use client'
+'use client'
 import { useEffect, useRef } from 'react'
-import { createChart, CandlestickSeries, LineSeries, createSeriesMarkers, type UTCTimestamp, type IChartApi } from 'lightweight-charts'
+import {
+  createChart, CandlestickSeries, LineSeries, createSeriesMarkers,
+  type UTCTimestamp, type IChartApi, type ISeriesApi, type IPriceLine,
+} from 'lightweight-charts'
 
 interface OhlcBar { time: number; open: number; high: number; low: number; close: number }
 interface Trade { time: number; win: boolean; dir: string; pnlPct: number; pnlPips?: number }
@@ -18,26 +21,34 @@ interface Props {
   priceLines?: PriceLine[]
 }
 
-function toSec(t: number): number {
-  if (t > 1e10) return Math.floor(t / 1000)
-  return t
-}
+function toSec(t: number): number { return t > 1e10 ? Math.floor(t / 1000) : t }
 
-export default function LWChart({ data, trades = [], emaFastData = [], emaSlowData = [], showEma = false, showEmaFast = true, showEmaSlow = true, visibleDays = 90, priceLines = [] }: Props) {
-  const ref = useRef<HTMLDivElement>(null)
+export default function LWChart({
+  data, trades = [], emaFastData = [], emaSlowData = [],
+  showEma = false, showEmaFast = true, showEmaSlow = true,
+  visibleDays = 7, priceLines = [],
+}: Props) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const chartRef     = useRef<IChartApi | null>(null)
+  const candleRef    = useRef<ISeriesApi<'Candlestick'> | null>(null)
+  const emaFastRef   = useRef<ISeriesApi<'Line'> | null>(null)
+  const emaSlowRef   = useRef<ISeriesApi<'Line'> | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const markerRef    = useRef<{ setMarkers: (m: any[]) => void } | null>(null)
+  const plRefs       = useRef<IPriceLine[]>([])
+  const visTimer     = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // ── Chart created ONCE — never recreated on data changes ───────────────
   useEffect(() => {
-    if (!ref.current) return
-    const container = ref.current
-    const w = container.clientWidth || 800
-    const h = container.clientHeight || 400
+    const container = containerRef.current
+    if (!container) return
 
     const chart = createChart(container, {
-      width: w,
-      height: h,
+      width:  container.clientWidth  || 800,
+      height: container.clientHeight || 400,
       layout: {
-        background: { color: '#090909' },
-        textColor: '#9CA3AF',
+        background: { color: 'transparent' },
+        textColor: '#888888',
         fontSize: 10,
         attributionLogo: false,
         fontFamily: 'var(--font-text)',
@@ -48,11 +59,11 @@ export default function LWChart({ data, trades = [], emaFastData = [], emaSlowDa
       },
       crosshair: {
         mode: 0,
-        vertLine: { color: '#333333', width: 1, style: 3, labelBackgroundColor: '#1F1F1F' },
-        horzLine: { color: '#333333', width: 1, style: 3, labelBackgroundColor: '#1F1F1F' },
+        vertLine: { color: '#333333', width: 1, style: 3, labelBackgroundColor: '#1A1A1A' },
+        horzLine: { color: '#333333', width: 1, style: 3, labelBackgroundColor: '#1A1A1A' },
       },
       handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: true },
-      handleScale: { mouseWheel: true, pinch: true, axisPressedMouseMove: { time: true, price: true } },
+      handleScale:  { mouseWheel: true, pinch: true, axisPressedMouseMove: { time: true, price: true } },
       timeScale: {
         borderColor: '#2A2A2A',
         borderVisible: true,
@@ -64,107 +75,139 @@ export default function LWChart({ data, trades = [], emaFastData = [], emaSlowDa
       rightPriceScale: {
         borderColor: '#2A2A2A',
         borderVisible: true,
-        scaleMargins: { top: 0.1, bottom: 0.1 },
+        scaleMargins: { top: 0.08, bottom: 0.08 },
         autoScale: true,
       },
     })
 
-    let chartInstance: IChartApi | null = chart
+    chartRef.current = chart
 
-    const ro = new ResizeObserver(entries => {
-      const e = entries[0]
-      if (e && chartInstance) {
-        chartInstance.resize(e.contentRect.width, e.contentRect.height)
-      }
-    })
-    ro.observe(container)
-
-    const series = chart.addSeries(CandlestickSeries, {
-      upColor: '#C9A84C',
-      downColor: '#555555',
-      borderUpColor: '#C9A84C',
-      borderDownColor: '#555555',
-      wickUpColor: '#A08040',
-      wickDownColor: '#444444',
+    const candles = chart.addSeries(CandlestickSeries, {
+      upColor:        '#FFFFFF',
+      downColor:      '#C9A84C',
+      borderUpColor:  '#FFFFFF',
+      borderDownColor:'#C9A84C',
+      wickUpColor:    '#BBBBBB',
+      wickDownColor:  '#A08040',
       priceLineVisible: false,
       lastValueVisible: true,
     })
+    candleRef.current = candles
 
-    const emaFastSeries = chart.addSeries(LineSeries, {
-      color: '#C9A84C', lineWidth: 1, priceLineVisible: false, lastValueVisible: false,
+    const emaFast = chart.addSeries(LineSeries, { color: '#C9A84C', lineWidth: 1, priceLineVisible: false, lastValueVisible: false })
+    const emaSlow = chart.addSeries(LineSeries, { color: '#555555', lineWidth: 1, priceLineVisible: false, lastValueVisible: false })
+    emaFastRef.current = emaFast
+    emaSlowRef.current = emaSlow
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    markerRef.current = createSeriesMarkers(candles, []) as any
+
+    // ResizeObserver — debounced 150ms to avoid resize thrash
+    let resizeTimer: ReturnType<typeof setTimeout> | null = null
+    const ro = new ResizeObserver(entries => {
+      const e = entries[0]
+      if (!e || !chartRef.current) return
+      if (resizeTimer) clearTimeout(resizeTimer)
+      resizeTimer = setTimeout(() => {
+        chartRef.current?.resize(e.contentRect.width, e.contentRect.height)
+      }, 150)
     })
-    const emaSlowSeries = chart.addSeries(LineSeries, {
-      color: '#555555', lineWidth: 1, priceLineVisible: false, lastValueVisible: false,
-    })
-
-    const markerApi = createSeriesMarkers(series, [])
-
-    if (data?.length) {
-      const normalized = data.map(d => ({
-        time: (d.time > 1e10 ? Math.floor(d.time / 1000) : d.time) as UTCTimestamp,
-        open:  Number(d.open),
-        high:  Number(d.high),
-        low:   Number(d.low),
-        close: Number(d.close),
-      })).filter(d =>
-        d.open > 0 && d.high > 0 && d.low > 0 && d.close > 0 &&
-        d.high >= d.low &&
-        d.high >= d.open &&
-        d.high >= d.close
-      )
-
-      series.setData(normalized)
-
-      for (const pl of priceLines) {
-        series.createPriceLine({
-          price: pl.price,
-          color: pl.color,
-          lineWidth: 1,
-          lineStyle: 2,
-          axisLabelVisible: true,
-          title: pl.label,
-        })
-      }
-
-      const lastT = normalized[normalized.length - 1].time as number
-      const firstT = normalized[0].time as number
-      setTimeout(() => {
-        if (!chartInstance) return
-        try {
-          const from = visibleDays === null ? firstT : lastT - visibleDays * 86400
-          chartInstance.timeScale().setVisibleRange({
-            from: from as UTCTimestamp,
-            to: (lastT + 86400) as UTCTimestamp,
-          })
-        } catch { /* ignore if chart unmounted */ }
-      }, 300)
-
-      if (trades.length) {
-        const allMarkers = trades.map(t => ({
-          time: toSec(t.time) as UTCTimestamp,
-          position: t.dir === 'long' ? 'belowBar' as const : 'aboveBar' as const,
-          color: t.win ? '#F5F5F5' : '#9CA3AF',
-          shape: t.dir === 'long' ? 'arrowUp' as const : 'arrowDown' as const,
-          text: t.pnlPips != null ? `${t.pnlPips > 0 ? '+' : ''}${t.pnlPips.toFixed(0)}p` : `${t.win ? '+' : ''}${(t.pnlPct * 100).toFixed(0)}%`,
-          size: 1,
-        }))
-        markerApi.setMarkers(allMarkers)
-      }
-    }
-
-    emaFastSeries.applyOptions({ visible: showEma && showEmaFast })
-    emaSlowSeries.applyOptions({ visible: showEma && showEmaSlow })
-    if (showEma && emaFastData.length) {
-      emaFastSeries.setData(emaFastData.map(d => ({ ...d, time: toSec(d.time) as UTCTimestamp })))
-      emaSlowSeries.setData(emaSlowData.map(d => ({ ...d, time: toSec(d.time) as UTCTimestamp })))
-    }
+    ro.observe(container)
 
     return () => {
       ro.disconnect()
-      chartInstance = null
+      if (resizeTimer)        clearTimeout(resizeTimer)
+      if (visTimer.current)   clearTimeout(visTimer.current)
+      chartRef.current   = null
+      candleRef.current  = null
+      emaFastRef.current = null
+      emaSlowRef.current = null
+      markerRef.current  = null
+      plRefs.current     = []
       try { chart.remove() } catch { /* ignore */ }
     }
-  }, [data, trades, emaFastData, emaSlowData, showEma, showEmaFast, showEmaSlow, visibleDays, priceLines])
+  }, []) // ← empty deps: chart created ONCE
 
-  return <div ref={ref} style={{ position: 'absolute', inset: 0 }} />
+  // ── Candle data — only reruns when bars change ─────────────────────────
+  useEffect(() => {
+    const candles = candleRef.current
+    const chart   = chartRef.current
+    if (!candles || !chart || !data?.length) return
+
+    const normalized = data.map(d => ({
+      time:  toSec(d.time) as UTCTimestamp,
+      open:  Number(d.open),
+      high:  Number(d.high),
+      low:   Number(d.low),
+      close: Number(d.close),
+    })).filter(d => d.open > 0 && d.high >= d.low && d.high >= d.open && d.high >= d.close)
+
+    candles.setData(normalized)
+
+    // rightOffset MUST be set AFTER setData — otherwise it gets overridden
+    chart.timeScale().applyOptions({ rightOffset: 8 })
+
+    // Set visible range after a short delay (LWC needs data to be processed)
+    if (visTimer.current) clearTimeout(visTimer.current)
+    visTimer.current = setTimeout(() => {
+      if (!chartRef.current) return
+      const lastT  = normalized[normalized.length - 1].time as number
+      const firstT = normalized[0].time as number
+      const from   = visibleDays === null ? firstT : lastT - visibleDays * 86400
+      try {
+        chartRef.current.timeScale().setVisibleRange({
+          from: from as UTCTimestamp,
+          to:   (lastT + 86400) as UTCTimestamp,
+        })
+      } catch { /* chart may have been removed */ }
+    }, 300)
+  }, [data, visibleDays])
+
+  // ── Price lines — updated when signal changes (independent of data) ────
+  useEffect(() => {
+    const candles = candleRef.current
+    if (!candles || !data.length) return
+    for (const pl of plRefs.current) {
+      try { candles.removePriceLine(pl) } catch { /* ignore */ }
+    }
+    plRefs.current = []
+    for (const pl of priceLines) {
+      plRefs.current.push(candles.createPriceLine({
+        price: pl.price, color: pl.color, lineWidth: 1,
+        lineStyle: 2, axisLabelVisible: true, title: pl.label,
+      }))
+    }
+  }, [priceLines, data.length])
+
+  // ── Trade markers ──────────────────────────────────────────────────────
+  useEffect(() => {
+    const api = markerRef.current
+    if (!api) return
+    if (!trades.length) { api.setMarkers([]); return }
+    api.setMarkers(trades.map(t => ({
+      time:     toSec(t.time) as UTCTimestamp,
+      position: t.dir === 'long' ? 'belowBar' : 'aboveBar',
+      color:    t.win ? '#F5F5F5' : '#9CA3AF',
+      shape:    t.dir === 'long' ? 'arrowUp' : 'arrowDown',
+      text:     t.pnlPips != null
+        ? `${t.pnlPips > 0 ? '+' : ''}${t.pnlPips.toFixed(0)}p`
+        : `${t.win ? '+' : ''}${(t.pnlPct * 100).toFixed(0)}%`,
+      size: 1,
+    })))
+  }, [trades])
+
+  // ── EMA series visibility + data ───────────────────────────────────────
+  useEffect(() => {
+    if (!emaFastRef.current || !emaSlowRef.current) return
+    emaFastRef.current.applyOptions({ visible: showEma && showEmaFast })
+    emaSlowRef.current.applyOptions({ visible: showEma && showEmaSlow })
+    if (showEma && emaFastData.length) {
+      emaFastRef.current.setData(emaFastData.map(d => ({ ...d, time: toSec(d.time) as UTCTimestamp })))
+      if (emaSlowData.length) {
+        emaSlowRef.current.setData(emaSlowData.map(d => ({ ...d, time: toSec(d.time) as UTCTimestamp })))
+      }
+    }
+  }, [emaFastData, emaSlowData, showEma, showEmaFast, showEmaSlow])
+
+  return <div ref={containerRef} style={{ position: 'absolute', inset: 0, background: '#0a0a0c' }} />
 }
