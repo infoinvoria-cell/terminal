@@ -254,7 +254,7 @@ export default function TradingEnginePage() {
   const [codePanel, setCodePanel] = useState(false);
   const [strategyCode, setStrategyCode] = useState("");
   const [testerTab,  setTesterTab]  = useState<TesterTab>("overview");
-  const [chartDays,  setChartDays]  = useState<number | null>(90);
+  const [chartDays,  setChartDays]  = useState<number | null>(7);
   const [sortCol,    setSortCol]    = useState<string>("#");
   const [sortAsc,    setSortAsc]    = useState(false);
   const [showEmaFast, setShowEmaFast] = useState(true);
@@ -292,7 +292,7 @@ export default function TradingEnginePage() {
       if (BT_STRATEGIES.has(strategy)) {
         const btAsset = assetType === "cfd" ? "spot" : assetType;
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 120_000);
+        const timeout = setTimeout(() => controller.abort(), 300_000);
         setBtPhase("Berechne Signal...");
         const r = await fetch("http://localhost:5000/backtest", {
           method: "POST", headers: { "Content-Type": "application/json" },
@@ -326,7 +326,7 @@ export default function TradingEnginePage() {
       if (!data.error) setCached(ck, data);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      setResult({ metrics: {} as BacktestResult["metrics"], equity: [], drawdown: [], trades: [], error: msg.includes("abort") || msg.includes("Abort") ? "Timeout (120s) — reduce date range" : "Engine offline" });
+      setResult({ metrics: {} as BacktestResult["metrics"], equity: [], drawdown: [], trades: [], error: msg.includes("abort") || msg.includes("Abort") ? "Backtest-Timeout — Engine neu starten" : "Engine offline" });
     } finally { setRunning(false); setBtPhase(""); }
   }, [strategy, assetType, params, startDate, endDate]);
 
@@ -442,6 +442,7 @@ export default function TradingEnginePage() {
     <>
       <style>{`
         @keyframes espin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
         input[type=range]{-webkit-appearance:none;height:2px;background:${BORDER};border-radius:2px;outline:none;width:100%;cursor:pointer}
         input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:${GOLD};cursor:pointer}
         input[type=number]{-moz-appearance:textfield}
@@ -449,17 +450,21 @@ export default function TradingEnginePage() {
         input[type=date]::-webkit-calendar-picker-indicator{filter:invert(0.4);cursor:pointer}
         select option{background:${BG}}
 
-        .e-root{display:flex;height:100%;width:100%;background:${GAP};overflow:hidden;color:${TXT};font-family:var(--font-text);gap:2px}
-        .e-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-        .e-chart-wrap{flex:55%;min-height:0;background:${BG};position:relative;overflow:hidden}
-        .e-tester-wrap{flex:45%;min-height:0;background:${BG};display:flex;flex-direction:column;overflow:hidden}
+        .e-root{display:flex;height:100%;width:100%;background:#000;overflow:hidden;color:${TXT};font-family:var(--font-text);gap:10px;padding:10px}
+        .e-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
+        .e-chart-wrap{flex:55%;min-height:0;background:${BG};border:1px solid #1e1e1e;border-radius:10px;display:flex;flex-direction:column;overflow:hidden}
+        .e-chart-header{height:36px;flex-shrink:0;display:flex;align-items:center;padding:0 12px;gap:8px;border-bottom:1px solid ${BORDER}}
+        .e-chart-body{flex:1;position:relative;min-height:0;overflow:hidden}
+        .e-chart-footer{height:28px;flex-shrink:0;display:flex;align-items:center;padding:0 10px;gap:3px;border-top:1px solid ${BORDER}}
+        .e-tester-wrap{flex:45%;min-height:0;background:${BG};border:1px solid #1e1e1e;border-radius:10px;display:flex;flex-direction:column;overflow:hidden}
 
-        .e-sidebar{width:${sidebar.w}px;flex-shrink:0;background:${BG};overflow-y:auto;overflow-x:hidden;position:relative}
+        .e-sidebar{width:${sidebar.w}px;flex-shrink:0;overflow-y:auto;overflow-x:hidden;position:relative;display:flex;flex-direction:column;gap:10px}
         .e-sidebar-resize{position:absolute;top:0;left:0;width:3px;height:100%;cursor:col-resize;z-index:5}
         .e-sidebar-resize:hover{background:${GOLD}40}
-        .e-sidebar-section{padding:12px 14px}
+        .e-sidebar-card{background:${BG};border:1px solid #1e1e1e;border-radius:10px;padding:12px 14px;flex-shrink:0}
+        .e-sidebar-card-scroll{background:${BG};border:1px solid #1e1e1e;border-radius:10px;padding:12px 14px;flex:1;overflow-y:auto;min-height:0}
 
-        .e-codepanel{width:${codeW.w}px;flex-shrink:0;background:${BG};display:flex;flex-direction:column;overflow:hidden;position:relative}
+        .e-codepanel{width:${codeW.w}px;flex-shrink:0;background:${BG};border:1px solid #1e1e1e;border-radius:10px;display:flex;flex-direction:column;overflow:hidden;position:relative}
         .e-code-resize{position:absolute;top:0;left:0;width:3px;height:100%;cursor:col-resize;z-index:5}
         .e-code-resize:hover{background:${GOLD}40}
 
@@ -472,10 +477,17 @@ export default function TradingEnginePage() {
 
         .e-charts-col{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid ${BORDER};padding:4px 2px 4px 6px;flex:1;min-width:0}
         .e-kpi-col{overflow-y:auto;padding:10px 8px;display:flex;flex-direction:column;gap:8px;width:240px;flex-shrink:0}
-        .kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:${BORDER}}
-        .kpi-tile{background:${BG};padding:10px 10px 8px;display:flex;flex-direction:column;gap:4px}
-        .kpi-tile-label{font-size:8px;font-weight:600;color:${FAINT};letter-spacing:.1em;text-transform:uppercase;font-family:var(--font-text)}
-        .kpi-tile-value{font-size:20px;font-weight:700;font-family:var(--font-numbers);font-variant-numeric:tabular-nums;line-height:1}
+
+        .kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:${BORDER};border-radius:8px;overflow:hidden}
+        .kpi-tile{background:#0f0f0f;padding:14px 12px 10px;display:flex;flex-direction:column;gap:5px;border:1px solid transparent;transition:border-color .2s;cursor:default}
+        .kpi-tile:hover{border-color:rgba(201,168,76,0.25)}
+        .kpi-tile-label{font-size:8px;font-weight:600;color:#888;letter-spacing:.1em;text-transform:uppercase;font-family:var(--font-text)}
+        .kpi-tile-value{font-size:22px;font-weight:600;font-family:var(--font-numbers);font-variant-numeric:tabular-nums;line-height:1;color:${TXT}}
+        .kpi-skel-label{height:7px;width:45%;border-radius:2px;background:linear-gradient(90deg,#1a1a1a 25%,#282828 50%,#1a1a1a 75%);background-size:200% 100%;animation:shimmer 1.4s infinite}
+        .kpi-skel-value{height:22px;width:65%;border-radius:3px;margin-top:5px;background:linear-gradient(90deg,#1a1a1a 25%,#282828 50%,#1a1a1a 75%);background-size:200% 100%;animation:shimmer 1.4s infinite .12s}
+
+        .icon-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:1px solid ${BORDER};border-radius:5px;background:none;color:#888;cursor:pointer;transition:color .15s,border-color .15s;flex-shrink:0}
+        .icon-btn:hover,.icon-btn.active{color:${GOLD};border-color:rgba(201,168,76,0.35)}
 
         .sl{font-size:9px;font-weight:600;color:${FAINT};letter-spacing:.12em;text-transform:uppercase;margin:0 0 8px}
         .strat-btn{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:11.5px;color:${MUT};background:none;border:1px solid transparent;width:100%;text-align:left;transition:all .15s;margin-bottom:2px}
@@ -492,7 +504,7 @@ export default function TradingEnginePage() {
         .trade-tbl th:hover{color:${MUT}}
         .trade-tbl td{padding:4px 8px;font-size:11px;font-family:var(--font-numbers)}
 
-        .tf-btn{padding:3px 8px;font-size:10px;font-weight:600;color:${DIM};background:none;border:1px solid transparent;border-radius:4px;cursor:pointer;transition:all .15s}
+        .tf-btn{padding:2px 7px;font-size:10px;font-weight:600;color:${DIM};background:none;border:1px solid transparent;border-radius:4px;cursor:pointer;transition:all .15s}
         .tf-btn:hover{color:${MUT};border-color:${BORDER}}
         .tf-btn.on{color:${TXT};background:rgba(255,255,255,0.04);border-color:${BORDER}}
 
@@ -506,7 +518,7 @@ export default function TradingEnginePage() {
         .tbtn:hover{color:${TXT};border-color:rgba(255,255,255,0.12)}
         .tbtn.active{color:${GOLD};border-color:rgba(201,168,76,0.3)}
 
-        .settings-drop{position:absolute;top:36px;right:8px;background:${BG};border:1px solid ${BORDER};border-radius:8px;padding:12px 16px;z-index:20;min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,0.6)}
+        .settings-drop{position:absolute;top:32px;right:0;background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:12px 16px;z-index:20;min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,0.7)}
 
         .pill{padding:3px 10px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid transparent}
         .pill.on{color:${TXT};background:rgba(255,255,255,0.06);border-color:${BORDER}}
@@ -519,88 +531,61 @@ export default function TradingEnginePage() {
         <div className="e-main">
           {/* Chart */}
           <div className="e-chart-wrap">
-            <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 5, display: "flex", alignItems: "center", height: 36, padding: "0 10px", gap: 6, background: `linear-gradient(180deg, ${BG} 0%, transparent 100%)`, pointerEvents: "none" }}>
-              <div style={{ pointerEvents: "auto", display: "flex", alignItems: "center", gap: 8 }}>
-                <Image src={meta.icon} alt="" width={18} height={18} style={{ borderRadius: 4 }} />
-                <span style={{ fontSize: 13, fontWeight: 700, color: TXT }}>{assetSym}</span>
-                <span style={{ fontSize: 10, color: DIM }}>{meta.interval}</span>
-                {meta.engine && (
-                  <>
-                    <span style={{ width: 1, height: 12, background: BORDER, margin: "0 4px" }} />
-                    <span style={{ fontSize: 9, color: DIM }}>{meta.engine}</span>
-                  </>
-                )}
-                {signal.status && (
-                  <>
-                    <span style={{ width: 1, height: 12, background: BORDER, margin: "0 4px" }} />
-                    <span style={{ fontSize: 9, fontWeight: 600, color: TXT, padding: "2px 8px", borderRadius: 3, background: "rgba(255,255,255,0.06)", letterSpacing: ".04em" }}>
-                      {signal.status === "APPROVED_LIVE" ? "APPROVED" : signal.status}
-                    </span>
-                    {signal.parity && (
-                      <span style={{ fontSize: 9, color: MUT }}>Parity {signal.parity}</span>
-                    )}
-                  </>
-                )}
-                {meta.useEma && signal.ema_fast_val != null && (
-                  <>
-                    <span style={{ width: 1, height: 12, background: BORDER, margin: "0 4px" }} />
-                    <span style={{ fontSize: 10, color: GOLD_S, fontFamily: "var(--font-numbers)" }}>EMA {emaFast}: {signal.ema_fast_val.toFixed(5)}</span>
-                    <span style={{ fontSize: 10, color: FAINT, fontFamily: "var(--font-numbers)" }}>EMA {emaSlow}: {signal.ema_slow_val?.toFixed(5)}</span>
-                  </>
-                )}
-              </div>
+            {/* Header — icon · symbol · interval · buttons only */}
+            <div className="e-chart-header">
+              <Image src={meta.icon} alt="" width={18} height={18} style={{ borderRadius: 4, flexShrink: 0 }} />
+              <span style={{ fontSize: 13, fontWeight: 700, color: TXT }}>{assetSym}</span>
+              <span style={{ fontSize: 10, color: FAINT }}>{meta.interval}</span>
               <div style={{ flex: 1 }} />
-              <div style={{ pointerEvents: "auto", display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: sigColor }}>{sigLabel}</span>
-                {running && <div style={{ width: 10, height: 10, border: `1.5px solid ${GOLD}`, borderTopColor: "transparent", borderRadius: "50%", animation: "espin .7s linear infinite" }} />}
-                <button className={`tbtn${codePanel ? " active" : ""}`} onClick={() => setCodePanel(p => !p)}>
-                  <span style={{ fontFamily: "monospace", fontSize: 11 }}>{"</>"}</span>
+              <button className={`icon-btn${codePanel ? " active" : ""}`} onClick={() => setCodePanel(p => !p)} title="Strategy Code">
+                <span style={{ fontFamily: "monospace", fontSize: 11, lineHeight: 1 }}>{"</>"}</span>
+              </button>
+              <div style={{ position: "relative" }}>
+                <button className="icon-btn" onClick={() => setShowSettings(s => !s)} title="Engine Settings">
+                  <span style={{ fontSize: 13, lineHeight: 1 }}>⚙</span>
+                  <div style={{ width: 5, height: 5, borderRadius: "50%", background: online ? GOLD : FAINT, position: "absolute", top: 3, right: 3 }} />
                 </button>
-                <div style={{ position: "relative" }}>
-                  <button className="tbtn" onClick={() => setShowSettings(s => !s)} style={{ position: "relative" }}>
-                    <span style={{ fontSize: 11 }}>&#9881;</span>
-                    <div style={{ width: 5, height: 5, borderRadius: "50%", background: online ? TXT : FAINT, position: "absolute", top: 2, right: 2 }} />
-                  </button>
-                  {showSettings && (
-                    <div className="settings-drop">
-                      <div style={{ fontSize: 10, color: DIM, marginBottom: 8, letterSpacing: ".06em", textTransform: "uppercase" }}>Engine Status</div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: online ? TXT : FAINT }} />
-                        <span style={{ fontSize: 11, color: online ? TXT : DIM }}>{online ? "Online" : "Offline"}</span>
-                      </div>
-                      {online && (
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: ibkrOk ? GOLD : FAINT }} />
-                          <span style={{ fontSize: 11, color: MUT }}>IBKR {ibkrOk ? `connected${health?.paper_mode ? " (Paper)" : ""}` : "disconnected"}</span>
-                        </div>
-                      )}
-                      {!online && <div style={{ fontSize: 10, color: DIM, marginTop: 6 }}>Start Desktop\start.bat</div>}
-                      <div style={{ borderTop: `1px solid ${BORDER}`, marginTop: 8, paddingTop: 8, fontSize: 10, color: FAINT }}>localhost:5000</div>
+                {showSettings && (
+                  <div className="settings-drop">
+                    <div style={{ fontSize: 10, color: DIM, marginBottom: 8, letterSpacing: ".06em", textTransform: "uppercase" }}>Engine Status</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: online ? TXT : FAINT }} />
+                      <span style={{ fontSize: 11, color: online ? TXT : DIM }}>{online ? "Online" : "Offline"}</span>
                     </div>
-                  )}
-                </div>
+                    {online && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: ibkrOk ? GOLD : FAINT }} />
+                        <span style={{ fontSize: 11, color: MUT }}>IBKR {ibkrOk ? `connected${health?.paper_mode ? " (Paper)" : ""}` : "disconnected"}</span>
+                      </div>
+                    )}
+                    {!online && <div style={{ fontSize: 10, color: DIM, marginTop: 6 }}>Start Desktop\start.bat</div>}
+                    <div style={{ borderTop: `1px solid ${BORDER}`, marginTop: 8, paddingTop: 8, fontSize: 10, color: FAINT }}>localhost:5000</div>
+                  </div>
+                )}
               </div>
             </div>
 
-            <div style={{ position: "absolute", bottom: 8, left: 10, zIndex: 5, display: "flex", gap: 2 }}>
-              {TIMEFRAMES.map(tf => (
-                <button key={tf.label} className={`tf-btn${chartDays === tf.days ? " on" : ""}`} onClick={() => setChartDays(tf.days)}>{tf.label}</button>
-              ))}
-            </div>
-
-            {hasData ? (
-              <div style={{ position: "relative", width: "100%", height: "100%" }}>
+            {/* Chart body */}
+            <div className="e-chart-body">
+              {hasData ? (
                 <ChartComponent data={bars} trades={chartTrades} emaFastData={emaFastData} emaSlowData={emaSlowData}
                   showEma={meta.useEma && (showEmaFast || showEmaSlow)} showEmaFast={showEmaFast} showEmaSlow={showEmaSlow} visibleDays={chartDays}
                   priceLines={signal.direction !== "flat" ? [
                     ...(signal.entry != null ? [{ price: signal.entry, color: "#C9A84C", label: "Entry" }] : []),
-                    ...(signal.sl != null    ? [{ price: signal.sl,    color: "#EF4444", label: "SL" }] : []),
-                    ...(signal.tp != null    ? [{ price: signal.tp,    color: "#22C55E", label: "TP" }] : []),
+                    ...(signal.sl != null    ? [{ price: signal.sl,    color: GOLD, label: "SL" }] : []),
+                    ...(signal.tp != null    ? [{ price: signal.tp,    color: TXT,  label: "TP" }] : []),
                   ] : []} />
-              </div>
-            ) : (
-              <NoData text={online ? "Loading chart data..." : "Start engine to load chart"} />
-            )}
+              ) : (
+                <NoData text={online ? "Loading chart data..." : "Start engine to load chart"} />
+              )}
+            </div>
+
+            {/* Timeframe footer */}
+            <div className="e-chart-footer">
+              {TIMEFRAMES.map(tf => (
+                <button key={tf.label} className={`tf-btn${chartDays === tf.days ? " on" : ""}`} onClick={() => setChartDays(tf.days)}>{tf.label}</button>
+              ))}
+            </div>
           </div>
 
           {/* Tester */}
@@ -622,7 +607,7 @@ export default function TradingEnginePage() {
             <div className="e-tester-body">
               {result?.error ? (
                 <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <span style={{ fontSize: 11, color: RED }}>{result.error}</span>
+                  <span style={{ fontSize: 11, color: DIM }}>{result.error}</span>
                 </div>
               ) : testerTab === "overview" ? (
                 <>
@@ -657,15 +642,25 @@ export default function TradingEnginePage() {
                   </div>
                   <div className="e-kpi-col">
                     {/* Primary tiles — 2-column grid */}
-                    <div className="kpi-grid" style={{ border: `1px solid ${BORDER}` }}>
+                    <div className="kpi-grid">
                       {(["cagr","maxDD","profitFactor","sharpe","trades","winRate"] as const).map(key => {
                         const kpi = KPIS.find(k => k.key === key)!;
                         const val = metrics?.[key] ?? 0;
-                        const col = hasResult ? kpi.color(val) : FAINT;
+                        const col = running ? FAINT
+                          : !hasResult ? FAINT
+                          : key === "cagr" ? (val > 0 ? GOLD : TXT)
+                          : TXT;
                         return (
                           <div key={key} className="kpi-tile">
                             <span className="kpi-tile-label">{kpi.label}</span>
-                            <span className="kpi-tile-value" style={{ color: col }}>{hasResult ? kpi.fmt(val) : "—"}</span>
+                            {running ? (
+                              <>
+                                <div className="kpi-skel-label" />
+                                <div className="kpi-skel-value" />
+                              </>
+                            ) : (
+                              <span className="kpi-tile-value" style={{ color: col }}>{hasResult ? kpi.fmt(val) : "—"}</span>
+                            )}
                           </div>
                         );
                       })}
@@ -677,7 +672,7 @@ export default function TradingEnginePage() {
                       return (
                         <div key={key} className="kpi-row">
                           <span className="kpi-label">{kpi.label}</span>
-                          <span className="kpi-value" style={{ color: hasResult ? kpi.color(val) : FAINT }}>{hasResult ? kpi.fmt(val) : "—"}</span>
+                          <span className="kpi-value" style={{ color: TXT }}>{hasResult ? kpi.fmt(val) : "—"}</span>
                         </div>
                       );
                     })}
@@ -781,7 +776,8 @@ export default function TradingEnginePage() {
         <div className="e-sidebar">
           <div className="e-sidebar-resize" onMouseDown={sidebar.onMouseDown} />
 
-          <div className="e-sidebar-section">
+          {/* Card 1: Strategy + Asset Type */}
+          <div className="e-sidebar-card">
             <div className="sl">Strategy</div>
             {(Object.keys(STRATEGIES) as Strategy[]).map(id => (
               <button key={id} onClick={() => setStrategy(id)} className={`strat-btn${strategy === id ? " on" : ""}`}>
@@ -794,53 +790,53 @@ export default function TradingEnginePage() {
                 </div>
               </button>
             ))}
-          </div>
-
-          <div className="e-sidebar-section">
-            <div className="sl">Asset Type</div>
-            <div style={{ display: "flex", gap: 6 }}>
-              <span onClick={() => setAssetType("futures")} className={`pill${assetType === "futures" ? " on" : ""}`}>Futures</span>
-              <span onClick={() => setAssetType("cfd")} className={`pill${assetType === "cfd" ? " on" : ""}`}>CFD</span>
-            </div>
-          </div>
-
-          <div className="e-sidebar-section">
-            <div className="sl">Date Range</div>
-            <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
-              {([1, 3, 5, null] as (number | null)[]).map(y => (
-                <span key={y ?? "max"} onClick={() => setZeitraum(y)} className="pill" style={{ cursor: "pointer" }}>{y ? `${y}Y` : "Max"}</span>
-              ))}
-            </div>
-            {([["From", startDate, setStartDate], ["To", endDate, setEndDate]] as [string, string, (v: string) => void][]).map(([lbl, val, setter]) => (
-              <div key={lbl} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                <span style={{ fontSize: 9, color: FAINT, width: 28, flexShrink: 0 }}>{lbl}</span>
-                <input type="date" value={val} onChange={e => setter(e.target.value)}
-                  style={{ flex: 1, fontSize: 9, background: "none", border: "none", borderBottom: `1px solid ${BORDER}`, color: MUT, outline: "none", padding: "2px 0", fontFamily: "var(--font-numbers)" }} />
+            <div style={{ marginTop: 12, paddingTop: 10, borderTop: `1px solid ${BORDER}` }}>
+              <div className="sl">Asset Type</div>
+              <div style={{ display: "flex", gap: 6 }}>
+                <span onClick={() => setAssetType("futures")} className={`pill${assetType === "futures" ? " on" : ""}`}>Futures</span>
+                <span onClick={() => setAssetType("cfd")} className={`pill${assetType === "cfd" ? " on" : ""}`}>CFD</span>
               </div>
-            ))}
-          </div>
-
-          {meta.useEma && (
-            <div className="e-sidebar-section">
-              <div className="sl">Indicators</div>
-              {[["EMA Fast", showEmaFast, setShowEmaFast, GOLD_S, String(params.ema_fast)], ["EMA Slow", showEmaSlow, setShowEmaSlow, MUT, String(params.ema_slow)]].map(([label, checked, setter, col, val]) => (
-                <div key={label as string} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
-                  <input type="checkbox" checked={checked as boolean} onChange={e => (setter as (v: boolean) => void)(e.target.checked)} style={{ accentColor: GOLD, width: 13, height: 13, cursor: "pointer" }} />
-                  <span style={{ fontSize: 10.5, color: (checked as boolean) ? (col as string) : DIM, flex: 1 }}>{label as string}</span>
-                  <span style={{ fontSize: 11, color: TXT, fontFamily: "var(--font-numbers)", fontWeight: 600 }}>{val as string}</span>
+            </div>
+            <div style={{ marginTop: 12, paddingTop: 10, borderTop: `1px solid ${BORDER}` }}>
+              <div className="sl">Date Range</div>
+              <div style={{ display: "flex", gap: 5, marginBottom: 8 }}>
+                {([1, 3, 5, null] as (number | null)[]).map(y => (
+                  <span key={y ?? "max"} onClick={() => setZeitraum(y)} className="pill" style={{ cursor: "pointer" }}>{y ? `${y}Y` : "Max"}</span>
+                ))}
+              </div>
+              {([["From", startDate, setStartDate], ["To", endDate, setEndDate]] as [string, string, (v: string) => void][]).map(([lbl, val, setter]) => (
+                <div key={lbl} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                  <span style={{ fontSize: 9, color: FAINT, width: 28, flexShrink: 0 }}>{lbl}</span>
+                  <input type="date" value={val} onChange={e => setter(e.target.value)}
+                    style={{ flex: 1, fontSize: 9, background: "none", border: "none", borderBottom: `1px solid ${BORDER}`, color: MUT, outline: "none", padding: "2px 0", fontFamily: "var(--font-numbers)" }} />
                 </div>
               ))}
             </div>
-          )}
+          </div>
 
-          <div className="e-sidebar-section" style={{ flex: 1 }}>
+          {/* Card 2: Parameters */}
+          <div className="e-sidebar-card-scroll">
+            {meta.useEma && (
+              <>
+                <div className="sl">Indicators</div>
+                {[["EMA Fast", showEmaFast, setShowEmaFast, GOLD_S, String(params.ema_fast)], ["EMA Slow", showEmaSlow, setShowEmaSlow, MUT, String(params.ema_slow)]].map(([label, checked, setter, col, val]) => (
+                  <div key={label as string} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
+                    <input type="checkbox" checked={checked as boolean} onChange={e => (setter as (v: boolean) => void)(e.target.checked)} style={{ accentColor: GOLD, width: 13, height: 13, cursor: "pointer" }} />
+                    <span style={{ fontSize: 10.5, color: (checked as boolean) ? (col as string) : DIM, flex: 1 }}>{label as string}</span>
+                    <span style={{ fontSize: 11, color: TXT, fontFamily: "var(--font-numbers)", fontWeight: 600 }}>{val as string}</span>
+                  </div>
+                ))}
+                <div style={{ marginTop: 10, marginBottom: 8, borderTop: `1px solid ${BORDER}` }} />
+              </>
+            )}
             <div className="sl">Parameters</div>
             {PARAM_DEFS[strategy].map(def => (
               <ParamRow key={`${strategy}-${def.key}`} def={def} value={params[def.key] ?? ""} onChange={v => setP(def.key, v)} />
             ))}
           </div>
 
-          <div className="e-sidebar-section">
+          {/* Card 3: Live Signal */}
+          <div className="e-sidebar-card">
             <div className="sl">Live Signal</div>
             <div style={{ fontSize: 14, fontWeight: 700, color: sigColor, letterSpacing: ".02em", marginBottom: 6 }}>{sigLabel}</div>
             {signal.atr != null && (

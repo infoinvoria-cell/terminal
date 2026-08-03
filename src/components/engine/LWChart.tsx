@@ -58,7 +58,7 @@ export default function LWChart({ data, trades = [], emaFastData = [], emaSlowDa
         borderVisible: true,
         timeVisible: true,
         secondsVisible: false,
-        rightOffset: 5,
+        rightOffset: 8,
         minBarSpacing: 2,
       },
       rightPriceScale: {
@@ -80,12 +80,14 @@ export default function LWChart({ data, trades = [], emaFastData = [], emaSlowDa
     ro.observe(container)
 
     const series = chart.addSeries(CandlestickSeries, {
-      upColor: '#F5F5F5',
-      downColor: '#C9A84C',
-      borderUpColor: '#F5F5F5',
-      borderDownColor: '#C9A84C',
-      wickUpColor: '#9CA3AF',
-      wickDownColor: '#9CA3AF',
+      upColor: '#C9A84C',
+      downColor: '#555555',
+      borderUpColor: '#C9A84C',
+      borderDownColor: '#555555',
+      wickUpColor: '#A08040',
+      wickDownColor: '#444444',
+      priceLineVisible: false,
+      lastValueVisible: true,
     })
 
     const emaFastSeries = chart.addSeries(LineSeries, {
