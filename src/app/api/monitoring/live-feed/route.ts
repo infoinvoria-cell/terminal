@@ -86,7 +86,32 @@ export async function GET() {
       }
     }
 
-    // Merge all sources — priority: live_quotes > tv_cache > invest_ohlc
+    // 4. monitoring_ohlc — CI sleeve futures not in invest_ohlc (HG1!, 6S1!)
+    const CI_SLEEVE_FUTURES = ["HG1!", "6S1!"];
+    const { data: monRows } = await db
+      .from("monitoring_ohlc")
+      .select("asset,date,open,close")
+      .in("asset", CI_SLEEVE_FUTURES)
+      .eq("timeframe", "D")
+      .gt("close", 0)
+      .order("date", { ascending: false })
+      .limit(CI_SLEEVE_FUTURES.length * 3);
+
+    for (const row of monRows ?? []) {
+      const sym = String(row.asset);
+      if (ohlcMap.has(sym) || liveMap.has(sym) || tvMap.has(sym)) continue;
+      const close = Number(row.close);
+      const open = Number(row.open);
+      if (close > 0) {
+        ohlcMap.set(sym, {
+          price: close,
+          changePct: open > 0 ? ((close - open) / open) * 100 : null,
+          date: String(row.date).slice(0, 10),
+        });
+      }
+    }
+
+    // Merge all sources — priority: live_quotes > tv_cache > invest_ohlc/monitoring_ohlc
     const allSymbols = new Set([
       ...tvMap.keys(),
       ...liveMap.keys(),

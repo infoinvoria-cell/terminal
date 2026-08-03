@@ -128,7 +128,7 @@ const TICKER_VON: Record<string, string> = {
   "6E1!": "13.01.2003", "6B1!": "01.01.2003", "6S1!": "01.01.2003", "6J1!": "01.01.2003",
   "GOOGL": "19.08.2004", "AAPL": "12.12.1980", "MSFT": "13.03.1986", "NVDA": "22.01.1999",
   "META": "18.05.2012", "AMZN": "15.05.1997",
-  "QQQ": "10.03.1999", "SPY": "22.01.1993", "GLD": "18.11.2004",
+  "QQQ": "10.03.1999", "SPY": "22.01.1993", "GLD": "18.11.2004", "SPMO": "12.10.2015",
   "ZARUSD": "01.01.2003", "SEKUSD": "01.01.2003", "BRLUSD": "01.01.2003",
 };
 
@@ -208,14 +208,14 @@ function fmtDateTime(iso: string | null): string {
 // Von date: firstDate from API, then OHLC cache first bar, then TICKER_VON lookup, then barCount estimate
 function estimateVon(item: LiveFeedItem, ticker?: string): string {
   if (item.firstDate) return fmtDate(item.firstDate);
-  // check OHLC cache for first bar date
   if (ticker) {
     const sym = toOhlcSymbol(ticker);
-    const cached = OHLC_CACHE.get(sym + ":1D");
-    if (cached?.bars?.length) return fmtDate(cached.bars[0].time); // full DD.MM.YYYY
-    // known static lookup (already DD.MM.YYYY)
-    const von = TICKER_VON[sym] ?? TICKER_VON[ticker.split(" ")[0]] ?? null;
+    // TICKER_VON has actual inception dates — preferred over OHLC cache (which may have limited history)
+    // Check original ticker first (e.g. GLD=18.11.2004) before aliased OHLC symbol (GC1!=01.01.1975)
+    const von = TICKER_VON[ticker.split(" ")[0]] ?? TICKER_VON[sym] ?? null;
     if (von) return von;
+    const cached = OHLC_CACHE.get(sym + ":1D");
+    if (cached?.bars?.length) return fmtDate(cached.bars[0].time);
   }
   if (item.lastDate && item.barCount && item.barCount > 0) {
     const last = new Date(item.lastDate);
@@ -1151,7 +1151,7 @@ export default function StrategyMasterTable() {
         </div>
         <button
           onClick={() => setLiveCols(v => !v)}
-          title={liveCols ? "Live ausblenden" : "Live einblenden"}
+          title={liveCols ? `${portfolio === "ci" ? "Daten" : "Live"} ausblenden` : `${portfolio === "ci" ? "Daten" : "Live"} einblenden`}
           style={{
             display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
             fontFamily: "var(--font-text),sans-serif", fontSize: 10, fontWeight: 600,
