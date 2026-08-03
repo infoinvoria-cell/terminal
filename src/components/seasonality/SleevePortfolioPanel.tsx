@@ -118,6 +118,7 @@ function buildDeepSleevePatterns(): SleevePattern[] {
     ZW1: { assetId: "wheat", category: "Agrar" },
     ZC1: { assetId: "zc1", category: "Agrar" },
     ZS1: { assetId: "zs1", category: "Agrar" },
+    ZM1: { assetId: "zm1", iconAssetId: "zs1", category: "Agrar" },
     IWM: { assetId: "iwm", category: "Indizes" },
     CL1: { assetId: "cl1", category: "Energie" },
     CC1: { assetId: "cocoa", category: "Agrar" },
@@ -127,6 +128,7 @@ function buildDeepSleevePatterns(): SleevePattern[] {
     RB1: { assetId: "rb1", category: "Energie" },
     PL1: { assetId: "pl1", category: "Metalle" },
     PA1: { assetId: "pa1", category: "Metalle" },
+    HG1: { assetId: "hg1", category: "Metalle" },
     SPY: { assetId: "spy", category: "ETF" },
     EEM: { assetId: "eem", category: "ETF" },
     EFA: { assetId: "efa", category: "ETF" },
@@ -156,7 +158,9 @@ function buildDeepSleevePatterns(): SleevePattern[] {
         ? `${monthNames[entry.month] ?? entry.month} ${entry.day} - ${monthNames[endDay.month] ?? endDay.month} ${endDay.day}`
         : `${monthNames[entry.month] ?? entry.month} ${entry.day} - ${endDay?.day ?? entry.day + 10}`
       : dp.name;
-    const avgRet = dp.direction === "LONG" ? Math.abs(dp.cagr / 100) * 0.3 : -Math.abs(dp.cagr / 100) * 0.3;
+    // Per-trade return estimate from WR edge — cagr field is inconsistently scaled across patterns
+    const edge = Math.max(0, dp.win_rate / 100 - 0.50);
+    const avgRet = (dp.direction === "LONG" ? 1 : -1) * Math.max(0.012, edge * 0.10 + 0.012);
 
     return {
       id: 100 + i,
@@ -619,8 +623,8 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
   }, [countdown, p.calStart, p.endSlot, p.startSlot, p.fakeReturns]);
 
   const cardBg = selected
-    ? `radial-gradient(ellipse 120% 90% at 115% 120%, rgba(216,188,103,0.14) 0%, transparent 55%), linear-gradient(160deg, #181c24 0%, #111318 100%)`
-    : `linear-gradient(160deg, #181c24 0%, #111318 100%)`;
+    ? `radial-gradient(ellipse 120% 90% at 115% 120%, rgba(216,188,103,0.12) 0%, transparent 55%), #0d0f15`
+    : `#0d0f15`;
 
   return (
     <div
@@ -1147,7 +1151,6 @@ interface Props {
 
 export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Props) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [showAll, setShowAll] = useState(false);
   const selected = useMemo(() => SLEEVE_PATTERNS.find(p => p.id === selectedId) ?? null, [selectedId]);
 
   function activatePattern(p: SleevePattern) {
@@ -1169,51 +1172,27 @@ export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Pr
 
       {mode === "grid" && (() => {
         const today = todayCalendarDay();
-        const gridPatterns = showAll
-          ? SLEEVE_PATTERNS
-              .filter(p => p.validationId != null && !DUPLICATE_IDS.has(p.validationId))
-              .sort((a, b) => ((a.calStart - today) + 365) % 365 - ((b.calStart - today) + 365) % 365)
-          : LIVE_PATTERNS;
+        // 12 LIVE patterns sorted by next occurrence (soonest first)
+        const gridPatterns = SLEEVE_PATTERNS
+          .filter(p => p.validationId != null && LIVE_IDS.has(p.validationId))
+          .sort((a, b) => ((a.calStart - today) + 365) % 365 - ((b.calStart - today) + 365) % 365);
 
         return (
-          <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden" }}>
-            {/* Toggle header */}
-            <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-              <button
-                type="button"
-                onClick={() => setShowAll(false)}
-                style={{
-                  padding: "3px 10px", borderRadius: 5, border: "none", cursor: "pointer",
-                  fontSize: 9, fontWeight: 700, fontFamily: FONT,
-                  background: !showAll ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.04)",
-                  color: !showAll ? "#22C55E" : "rgba(255,255,255,0.35)",
-                  transition: "all 120ms",
-                }}
-              >
-                ● Live (7)
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowAll(true)}
-                style={{
-                  padding: "3px 10px", borderRadius: 5, border: "none", cursor: "pointer",
-                  fontSize: 9, fontWeight: 700, fontFamily: FONT,
-                  background: showAll ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.04)",
-                  color: showAll ? "rgba(255,255,255,0.70)" : "rgba(255,255,255,0.30)",
-                  transition: "all 120ms",
-                }}
-              >
-                Alle ({SLEEVE_PATTERNS.filter(p => p.validationId && !DUPLICATE_IDS.has(p.validationId)).length})
-              </button>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(175px, 1fr))", gap: 12, padding: "12px 14px", flex: 1, alignContent: "start" }}>
-              {gridPatterns.map(p => (
-                <SleeveCard key={p.id} p={p} selected={selectedId === p.id}
-                  onActivate={() => activatePattern(p)}
-                  onDetail={() => openDetail(p)}
-                />
-              ))}
-            </div>
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(6, 1fr)",
+            gap: 10,
+            padding: "12px 14px",
+            alignContent: "start",
+            overflowY: "auto",
+            flex: 1,
+          }}>
+            {gridPatterns.map(p => (
+              <SleeveCard key={p.id} p={p} selected={selectedId === p.id}
+                onActivate={() => activatePattern(p)}
+                onDetail={() => openDetail(p)}
+              />
+            ))}
           </div>
         );
       })()}

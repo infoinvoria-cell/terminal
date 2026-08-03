@@ -947,7 +947,7 @@ export function SeasonalResearchDashboard({ onSwitchToLegacy: _unused }: Props) 
   // Track wfView from Tester for full-width strategy engine layout
   const [activeWfView, setActiveWfView] = useState<string>(() => {
     const ws = readWorkspaceState();
-    return ws.wfView ?? "tester";
+    return ws.wfView ?? "sleeve_portfolio";
   });
   // Both strategy_engine and filter_lab use the same full-width engineZone layout
   const isStrategyEngine = activeWfView === "strategy_engine" || activeWfView === "filter_lab";
