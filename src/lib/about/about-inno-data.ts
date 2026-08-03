@@ -357,17 +357,20 @@ export const INNO_IBKR_ROWS: InnoIbkrReadinessRow[] = [
   ibkrRow("Core Invest / CHF", "Swiss Franc", "FX Future", "6S (kein Continuous Contract)", "CME / Mapping offen", "Offen", "Multiplikator, Verfall und Roll offen"),
 ];
 
+// WS v2.0 · 12 LIVE patterns · Rolling WF validated 2026-08-03
 export const INNO_SEASONAL_PATTERNS: InnoSeasonalPatternEvidence[] = [
-  seasonalEvidence("fdax1_sea", "FDAX1! M11D15 Long", "src/lib/components/ws-strategy-data.ts", true),
-  seasonalEvidence("ct1_sea", "CT1! M01D03 Long", "src/lib/components/ws-strategy-data.ts", true),
-  seasonalEvidence("oj1_sea", "OJ1! M06D28 Long", "src/lib/components/ws-strategy-data.ts", false),
-  seasonalEvidence("sb1_sea_s", "SB1! M02D25 Short", "src/lib/components/ws-strategy-data.ts", true),
-  seasonalEvidence("es1_sea", "ES1! M11D15 Long", "src/lib/components/ws-strategy-data.ts", true),
-  seasonalEvidence("sb1_sea_l", "SB1! M09D24 Long", "src/lib/components/ws-strategy-data.ts", false),
-  seasonalEvidence("zc1_sea", "ZC1! M03D29 Long", "src/lib/components/ws-strategy-data.ts", true),
-  missingSeasonalEvidence("expected_missing_8", "Erwartetes Muster 8 (nicht spezifiziert)"),
-  missingSeasonalEvidence("expected_missing_9", "Erwartetes Muster 9 (nicht spezifiziert)"),
-  missingSeasonalEvidence("expected_missing_10", "Erwartetes Muster 10 (nicht spezifiziert)"),
+  seasonalEvidence("spy_sea",  "SPY M10D25 Long +30d",   "src/lib/components/ws-strategy-data.ts", true),
+  seasonalEvidence("zm1_sea",  "ZM1! M10D01 Long +22d",  "src/lib/components/ws-strategy-data.ts", true),
+  seasonalEvidence("sb1_sea_l","SB1! M09D24 Long +10d",  "src/lib/components/ws-strategy-data.ts", true),
+  seasonalEvidence("eem_sea",  "EEM M12D20 Long +5d",    "src/lib/components/ws-strategy-data.ts", true),
+  seasonalEvidence("hg1_sea",  "HG1! M02D01 Long +20d",  "src/lib/components/ws-strategy-data.ts", true),
+  seasonalEvidence("gc1_sea",  "GC1! M01D08 Long +25d",  "src/lib/components/ws-strategy-data.ts", true),
+  seasonalEvidence("cl1_sea",  "CL1! M02D01 Long +120d", "src/lib/components/ws-strategy-data.ts", true),
+  seasonalEvidence("zc1_sea",  "ZC1! M07D14 Short +18d", "src/lib/components/ws-strategy-data.ts", true),
+  seasonalEvidence("zw1_sea",  "ZW1! M12D01 Long +20d",  "src/lib/components/ws-strategy-data.ts", true),
+  seasonalEvidence("zs1_sea",  "ZS1! M07D15 Short +16d", "src/lib/components/ws-strategy-data.ts", true),
+  seasonalEvidence("cc1_sea",  "CC1! M04D02 Long +16d",  "src/lib/components/ws-strategy-data.ts", true),
+  seasonalEvidence("iwm_sea",  "IWM M05D25 Long +5d",    "src/lib/components/ws-strategy-data.ts", true),
 ];
 
 function ibkrRow(

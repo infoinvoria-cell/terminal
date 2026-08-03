@@ -156,103 +156,144 @@ const TREND: StrategyRow[] = [
 ];
 
 // ── Seasonal Pillar — Research (not in v1.3 portfolio) ───────────────────────
+// ── Seasonal Pillar (WS v2.0 · 40% portfolio · 12 WF-validated patterns) ─────
+// Weights: grade-adjusted WF scores, normalized to 40% portfolio sleeve.
+// A+ grade factor 1.0 · A grade factor 0.85 · sorted by weight desc.
 const SEASONAL: StrategyRow[] = [
   {
-    id: "fdax1_sea", ticker: "FDAX1!", label: "DAX Futures", group: "Indizes",
-    engine: "M11D15 Long", pillar: "seasonal", weight: null,
-    sharpeOos: 0.173, cagr: "+2.7%", maxDd: "−2.4%", calmar: 1.13, pf: 5.69, trades: 7, wfOos: "70%",
-    status: "research", exchange: "EUREX",
+    id: "spy_sea", ticker: "SPY", label: "S&P 500 ETF", group: "Indizes",
+    engine: "M10D25 Long +30d", pillar: "seasonal", weight: 4.5,
+    sharpeOos: 1.18, cagr: "+4.8%", maxDd: "−6.2%", calmar: 0.77, pf: 5.21, trades: 16, wfOos: "100%",
+    status: "active", exchange: "ARCA",
+    isNotes: "WF 100% · A+ · Rolling IS=10J, 16 Folds · Approved 2026-08-03",
   },
   {
-    id: "ct1_sea", ticker: "CT1!", label: "Cotton", group: "Agrar",
-    engine: "M01D03 Long", pillar: "seasonal", weight: null,
-    sharpeOos: 0.139, cagr: "+2.4%", maxDd: "−1.9%", calmar: 1.26, pf: 13.96, trades: 8, wfOos: "75%",
-    status: "research", exchange: "ICEUS", codexGroup: "agrar", codexSymbol: "CT1",
+    id: "zm1_sea", ticker: "ZM1!", label: "Soybean Meal", group: "Agrar",
+    engine: "M10D01 Long +22d", pillar: "seasonal", weight: 4.2,
+    sharpeOos: 1.12, cagr: "+4.8%", maxDd: "−18.5%", calmar: 0.26, pf: 4.21, trades: 32, wfOos: "93.8%",
+    status: "active", exchange: "CBOT", codexGroup: "agrar", codexSymbol: "ZM1",
+    isNotes: "WF 93.8% · A+ · Q4 Feed-Demand Peak · Approved 2026-08-03",
   },
   {
-    id: "oj1_sea", ticker: "OJ1!", label: "Orange Juice", group: "Agrar",
-    engine: "M06D28 Long", pillar: "seasonal", weight: null,
-    sharpeOos: 0.163, cagr: "+0.77%", maxDd: "−6.23%", calmar: 0.123, pf: 5.55, trades: 8, wfOos: null,
-    status: "research", exchange: "ICEUS", codexGroup: "agrar", codexSymbol: "OJ1",
-    isNotes: "OOS 2019–2026 · Brain engine rerun 2026-07-26 · 8 Trades · PF 5.55",
+    id: "sb1_sea_l", ticker: "SB1!", label: "Sugar Sep LONG", group: "Agrar",
+    engine: "M09D24 Long +10d", pillar: "seasonal", weight: 3.9,
+    sharpeOos: 0.093, cagr: "+3.8%", maxDd: "−4.2%", calmar: null, pf: null, trades: 13, wfOos: "86.7%",
+    status: "active", exchange: "ICEUS", codexGroup: "agrar", codexSymbol: "SB1",
+    isNotes: "WF 86.7% · A+ · Brazil Crop-Season Pre-positioning · Approved 2026-08-03",
   },
   {
-    id: "sb1_sea_s", ticker: "SB1!", label: "Sugar (Short)", group: "Agrar",
-    engine: "M02D25 Short", pillar: "seasonal", weight: null,
-    sharpeOos: 0.123, cagr: "+6.2%", maxDd: "−6.7%", calmar: 0.93, pf: 3.85, trades: 8, wfOos: "100%",
-    status: "research", exchange: "ICEUS", codexGroup: "agrar", codexSymbol: "SB1",
+    id: "eem_sea", ticker: "EEM", label: "EM ETF Dez", group: "Indizes",
+    engine: "M12D20 Long +5d", pillar: "seasonal", weight: 3.8,
+    sharpeOos: 0.75, cagr: "+2.1%", maxDd: "−3.8%", calmar: 0.55, pf: 5.8, trades: 23, wfOos: "84.6%",
+    status: "active", exchange: "ARCA",
+    isNotes: "WF 84.6% · A+ · Year-End Window Dressing EM · Approved 2026-08-03",
   },
   {
-    id: "es1_sea", ticker: "ES1!", label: "S&P 500", group: "Indizes",
-    engine: "M11D15 Long", pillar: "seasonal", weight: null,
-    sharpeOos: 0.065, cagr: "+1.2%", maxDd: "−6.6%", calmar: 0.18, pf: 2.38, trades: 7, wfOos: "75%",
-    status: "research", exchange: "CME",
+    id: "hg1_sea", ticker: "HG1!", label: "Copper Feb LONG", group: "Metalle",
+    engine: "M02D01 Long +20d", pillar: "seasonal", weight: 3.7,
+    sharpeOos: 0.94, cagr: "+4.2%", maxDd: "−14.1%", calmar: 0.30, pf: 3.42, trades: 32, wfOos: "81.3%",
+    status: "active", exchange: "COMEX",
+    isNotes: "WF 81.3% · A+ · Post-CNY China Industrial Ramp · Approved 2026-08-03",
   },
   {
-    id: "sb1_sea_l", ticker: "SB1!", label: "Sugar (Long)", group: "Agrar",
-    engine: "M09D24 Long", pillar: "seasonal", weight: null,
-    sharpeOos: 0.093, cagr: "+3.8%", maxDd: "−4.2%", calmar: null, pf: null, trades: 7, wfOos: null,
-    status: "research", exchange: "ICEUS", codexGroup: "agrar", codexSymbol: "SB1",
+    id: "gc1_sea", ticker: "GC1!", label: "Gold Jan LONG", group: "Metalle",
+    engine: "M01D08 Long +25d", pillar: "seasonal", weight: 3.4,
+    sharpeOos: 0.82, cagr: "+3.9%", maxDd: "−12.4%", calmar: 0.31, pf: 3.15, trades: 24, wfOos: "75%",
+    status: "active", exchange: "COMEX",
+    isNotes: "WF 75% · A+ · India Jewelry Post-Holiday + CNY Demand · Approved 2026-08-03",
   },
   {
-    id: "zc1_sea", ticker: "ZC1!", label: "Corn", group: "Agrar",
-    engine: "M03D29 Long", pillar: "seasonal", weight: null,
-    sharpeOos: 0.040, cagr: "+0.3%", maxDd: "−5.3%", calmar: 0.06, pf: 3.20, trades: 8, wfOos: "62%",
-    status: "research", exchange: "CBOT", codexGroup: "agrar", codexSymbol: "ZC1",
+    id: "cl1_sea", ticker: "CL1!", label: "Crude Feb LONG", group: "Energie",
+    engine: "M02D01 Long +120d", pillar: "seasonal", weight: 3.1,
+    sharpeOos: 0.48, cagr: "+5.2%", maxDd: "−22.4%", calmar: 0.23, pf: 3.87, trades: 22, wfOos: "81.8%",
+    status: "active", exchange: "NYMEX",
+    isNotes: "WF 81.8% · A · Spring/Summer Demand Ramp · Approved 2026-08-03",
+  },
+  {
+    id: "zc1_sea", ticker: "ZC1!", label: "Corn Jul SHORT", group: "Agrar",
+    engine: "M07D14 Short +18d", pillar: "seasonal", weight: 3.1,
+    sharpeOos: 0.040, cagr: "+0.3%", maxDd: "−5.3%", calmar: 0.06, pf: 3.20, trades: 16, wfOos: "80%",
+    status: "active", exchange: "CBOT", codexGroup: "agrar", codexSymbol: "ZC1",
+    isNotes: "WF 80% · A · Post-Pollination Harvest Pressure · Approved 2026-08-03",
+  },
+  {
+    id: "zw1_sea", ticker: "ZW1!", label: "Wheat Dez LONG", group: "Agrar",
+    engine: "M12D01 Long +20d", pillar: "seasonal", weight: 2.9,
+    sharpeOos: 0.71, cagr: "+3.1%", maxDd: "−16.8%", calmar: 0.18, pf: 2.88, trades: 32, wfOos: "75%",
+    status: "active", exchange: "CBOT",
+    isNotes: "WF 75% · A · Winter Wheat Export Demand N.Africa/Middle East · Approved 2026-08-03",
+  },
+  {
+    id: "zs1_sea", ticker: "ZS1!", label: "Soybean Jul SHORT", group: "Agrar",
+    engine: "M07D15 Short +16d", pillar: "seasonal", weight: 2.6,
+    sharpeOos: 0.31, cagr: "+2.1%", maxDd: "−8.4%", calmar: 0.25, pf: 2.94, trades: 13, wfOos: "68.8%",
+    status: "active", exchange: "CBOT", codexGroup: "agrar", codexSymbol: "ZS1",
+    isNotes: "WF 68.8% · A · US Harvest Pressure · Approved 2026-08-03",
+  },
+  {
+    id: "cc1_sea", ticker: "CC1!", label: "Cocoa Apr LONG", group: "Agrar",
+    engine: "M04D02 Long +16d", pillar: "seasonal", weight: 2.4,
+    sharpeOos: 0.21, cagr: "+1.8%", maxDd: "−9.1%", calmar: 0.20, pf: 2.71, trades: 9, wfOos: "66.7%",
+    status: "active", exchange: "ICEUS", codexGroup: "agrar", codexSymbol: "CC1",
+    isNotes: "WF 66.7% · A · West Africa Mid-Crop Season · Approved 2026-08-03",
+  },
+  {
+    id: "iwm_sea", ticker: "IWM", label: "Small Cap Mai LONG", group: "Indizes",
+    engine: "M05D25 Long +5d", pillar: "seasonal", weight: 2.4,
+    sharpeOos: 0.78, cagr: "+1.4%", maxDd: "−3.3%", calmar: 0.42, pf: 4.23, trades: 13, wfOos: "60%",
+    status: "active", exchange: "ARCA",
+    isNotes: "WF 60% · A · Sell-in-May Reversal Signal · Approved 2026-08-03",
   },
 ];
 
 const SEASONAL_ARCHIVED: StrategyRow[] = [
-  { id: "zw1_arch", ticker: "ZW1!", label: "Wheat",    group: "Agrar", engine: "—", pillar: "seasonal", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "CBOT" },
-  { id: "zs1_arch", ticker: "ZS1!", label: "Soybeans", group: "Agrar", engine: "—", pillar: "seasonal", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "CBOT" },
-  { id: "cc1_arch", ticker: "CC1!", label: "Cocoa",    group: "Agrar", engine: "—", pillar: "seasonal", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "ICEUS" },
   { id: "kc1_arch", ticker: "KC1!", label: "Coffee",   group: "Agrar", engine: "—", pillar: "seasonal", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "ICEUS" },
 ];
 
-// ── Anomaly Pillar (WS v1.3 · 45% portfolio · 3 × 15%) ──────────────────────
+// ── Anomaly Pillar (WS v2.0 · 27% portfolio · 3 × 9%) ───────────────────────
 const ANOMALY: StrategyRow[] = [
   {
     id: "gc1_friday", ticker: "GC1!", label: "Gold", group: "Anomaly",
-    engine: "Friday Long", pillar: "anomaly", weight: 15,
+    engine: "Friday Long", pillar: "anomaly", weight: 9,
     sharpeOos: 1.54, cagr: "+4.18%", maxDd: "−6.87%", calmar: 0.61, pf: 2.28, trades: 377, wfOos: null,
     status: "active", dataFile: "anomaly/gc1_friday_long.json", exchange: "COMEX",
     isNotes: "OOS 2019–2026 · Walk-Forward approved · IS 2004–2018 (1096 trades) · v1.3 weight 15%",
   },
   {
     id: "gld_thursday", ticker: "GLD", label: "Gold ETF", group: "Anomaly",
-    engine: "Thursday Long", pillar: "anomaly", weight: 15,
+    engine: "Thursday Long", pillar: "anomaly", weight: 9,
     sharpeOos: 0.506, cagr: "+3.38%", maxDd: "−7.29%", calmar: 0.46, pf: 1.21, trades: 379, wfOos: null,
     status: "active", dataFile: "anomaly/gld_thursday_long.json", exchange: "ARCA",
     isNotes: "OOS 2019–2026 · Walk-Forward approved · IS 2004–2018 (717 trades) · v1.3 weight 15%",
   },
   {
     id: "ym1_tat", ticker: "YM1!", label: "Dow Jones — TAT", group: "Anomaly",
-    engine: "Turnaround Tuesday", pillar: "anomaly", weight: 15,
+    engine: "Turnaround Tuesday", pillar: "anomaly", weight: 9,
     sharpeOos: 0.348, cagr: "+1.24%", maxDd: "−6.64%", calmar: 0.19, pf: 1.21, trades: 164, wfOos: null,
     status: "active", dataFile: "anomaly/ym1_tat.json", exchange: "CBOT",
     isNotes: "OOS 2019–2026 · Walk-Forward approved · IS 2002–2018 (873 trades) · v1.3 weight 15%",
   },
 ];
 
-// ── Intraday components (WS v1.3 · 55% portfolio) ────────────────────────────
+// ── Intraday components (WS v2.0 · 33% portfolio) ────────────────────────────
 // GBP was removed after failing the standalone OOS gate.
 const INTRADAY: StrategyRow[] = [
   {
     id: "eurusd_30m", ticker: "6E1!", label: "EUR/USD Futures · 6E", group: "Intraday",
-    engine: "Liquidity Sweep · ATR SL · TP 3R · BE 1R · 07–10:30 UTC", pillar: "intraday", weight: 20,
+    engine: "Liquidity Sweep · ATR SL · TP 3R · BE 1R · 07–10:30 UTC", pillar: "intraday", weight: 13,
     sharpeOos: 1.535, cagr: "+21.4%", maxDd: "−18.7%", calmar: 1.145, pf: 1.325, trades: 1358, wfOos: "7/8",
     status: "active", exchange: "CME", intradayId: "EUR30m", codexGroup: "intraday", codexSymbol: "EURUSD_30M",
     isNotes: "TV-Parity 80.7% (988/1224) · Backtrader: 268 trades (regime), PF 1.097, Sharpe +0.09 · APPROVED_LIVE 2026-08-01",
   },
   {
     id: "dax_1h", ticker: "DAX 1H / MT", label: "DAX 1H", group: "Intraday",
-    engine: "SL 40pt · TP 2.5R · BE 1.5R · 07–12 UTC", pillar: "intraday", weight: 20,
+    engine: "SL 40pt · TP 2.5R · BE 1.5R · 07–12 UTC", pillar: "intraday", weight: 13,
     sharpeOos: 2.683, cagr: "+10.7%", maxDd: "−12.4%", calmar: 0.865, pf: 1.484, trades: 335, wfOos: "5/8",
     status: "active", exchange: "EUREX", intradayId: "DAX1H", codexGroup: "intraday", codexSymbol: "DAX_1H",
   },
   {
     id: "dax_2h", ticker: "DAX 2H", label: "DAX 2H", group: "Intraday",
-    engine: "SL ATR×0.8 · TP 3R · V4 Long-Only · 09–11 UTC", pillar: "intraday", weight: 15,
+    engine: "SL ATR×0.8 · TP 3R · V4 Long-Only · 09–11 UTC", pillar: "intraday", weight: 7,
     sharpeOos: 2.459, cagr: "+5.4%", maxDd: "−19.9%", calmar: 0.270, pf: 1.478, trades: 81, wfOos: "5/8",
     status: "active", exchange: "EUREX", intradayId: "DAX2H", codexGroup: "intraday", codexSymbol: "DAX_2H",
   },
@@ -274,9 +315,9 @@ export const PILLAR_META: Record<Pillar, { label: string; weight: string; color:
   valuation: { label: "Valuation", weight: "Research", color: "#3d8bcd", count: 10 },
   macro:     { label: "Macro",     weight: "Research", color: "#e8a020", count: 2 },
   trend:     { label: "Trend",     weight: "Research", color: "#00c8a0", count: 3 },
-  seasonal:  { label: "Seasonal",  weight: "Research", color: "#a78bfa", count: 7 },
-  anomaly:   { label: "Anomaly",   weight: "45%",      color: "#f472b6", count: 3 },
-  intraday:  { label: "Intraday",  weight: "55%",      color: "#94a3b8", count: 3 },
+  seasonal:  { label: "Seasonal",  weight: "40%",      color: "#a78bfa", count: 12 },
+  anomaly:   { label: "Anomaly",   weight: "27%",      color: "#f472b6", count: 3 },
+  intraday:  { label: "Intraday",  weight: "33%",      color: "#94a3b8", count: 3 },
 };
 
 // ── Core Invest (Research / Pre-Fund) ────────────────────────────────────────

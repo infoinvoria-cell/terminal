@@ -205,7 +205,7 @@ const DUPLICATE_IDS = new Set([
   "EEM_L_1215_10", "PA1_L_1220_30", "ES1_L_1025_30",
 ]);
 
-// Final 7 LIVE patterns — approved 2026-08-03
+// Final 12 LIVE patterns — approved 2026-08-03
 const LIVE_IDS = new Set([
   "SB1_L_0924_10",
   "SPY_L_1025_30",
@@ -214,16 +214,26 @@ const LIVE_IDS = new Set([
   "CC1_L_0402_16",
   "ZS1_S_0715_16",
   "IWM_L_0525_5",
+  "EEM_L_1220_5",
+  "GC1_L_0108_25",
+  "ZM1_L_1001_22",
+  "HG1_L_0201_20",
+  "ZW1_L_1201_20",
 ]);
 
-// Prescribed display order for LIVE view
+// Prescribed display order for LIVE view (by WF weight descending)
 const LIVE_ORDER = [
-  "SB1_L_0924_10",
   "SPY_L_1025_30",
-  "ZC1_S_0714_18",
+  "ZM1_L_1001_22",
+  "SB1_L_0924_10",
+  "EEM_L_1220_5",
+  "HG1_L_0201_20",
+  "GC1_L_0108_25",
   "CL1_L_0201_120",
-  "CC1_L_0402_16",
+  "ZC1_S_0714_18",
+  "ZW1_L_1201_20",
   "ZS1_S_0715_16",
+  "CC1_L_0402_16",
   "IWM_L_0525_5",
 ];
 
@@ -235,9 +245,14 @@ const LIVE_STATUS: Record<string, { tier: number; status: string; label: string;
   "CC1_L_0402_16":   { tier: 1, status: "LIVE", label: "LIVE", color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
   "ZS1_S_0715_16":   { tier: 1, status: "LIVE", label: "LIVE", color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
   "IWM_L_0525_5":    { tier: 1, status: "LIVE", label: "LIVE", color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
+  "EEM_L_1220_5":    { tier: 1, status: "LIVE", label: "LIVE", color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
+  "GC1_L_0108_25":   { tier: 1, status: "LIVE", label: "LIVE", color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
+  "ZM1_L_1001_22":   { tier: 1, status: "LIVE", label: "LIVE", color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
+  "HG1_L_0201_20":   { tier: 1, status: "LIVE", label: "LIVE", color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
+  "ZW1_L_1201_20":   { tier: 1, status: "LIVE", label: "LIVE", color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
 };
 
-// LIVE_PATTERNS — 7 approved, in prescribed order
+// LIVE_PATTERNS — 12 approved, in prescribed order
 const LIVE_PATTERNS = (() => {
   const byId = new Map(
     SLEEVE_PATTERNS.filter(p => p.validationId && LIVE_IDS.has(p.validationId))

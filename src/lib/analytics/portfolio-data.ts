@@ -26,6 +26,10 @@ export type AssetMeta = {
   displayPoints: number;
   maxDailyReturnPct: number;
   priceColumn: string;
+  returnType: "total_return" | "price_return" | "unknown";
+  adjustmentMethod: string;
+  validationStatus: "empirically_validated" | "source_confirmed" | "unvalidated";
+  provenanceStatus: "confirmed" | "primary_export_record_missing";
 };
 
 export type AnalyticsDataset = {
@@ -79,12 +83,12 @@ function formatAssetStatusSummary(statuses: Record<string, { status: string }>) 
 }
 
 const WHITE_SWAN_GROUPS = [
-  { id: "GC1 Friday Long", label: "GC1 Friday Long", assets: 1, strategies: 1, weight: 0.198 },
-  { id: "GLD Thursday Long", label: "GLD Thursday Long", assets: 1, strategies: 1, weight: 0.198 },
-  { id: "YM1 TAT", label: "YM1 TAT", assets: 1, strategies: 1, weight: 0.198 },
-  { id: "UKX Valuation", label: "UKX Valuation", assets: 1, strategies: 1, weight: 0.198 },
-  { id: "CT1 Macro A", label: "CT1 Macro A", assets: 1, strategies: 1, weight: 0.108 },
-  { id: "NQ1 Trend LO", label: "NQ1 Trend LO", assets: 1, strategies: 1, weight: 0.100 },
+  // WS v2.0 — 40% Seasonal + 27% Anomaly + 33% Intraday
+  { id: "Seasonal Sleeve", label: "Seasonal (12)", assets: 12, strategies: 12, weight: 0.40 },
+  { id: "Intraday MT v3-F", label: "Intraday (3)", assets: 3, strategies: 3, weight: 0.33 },
+  { id: "GC1 Friday Long", label: "GC1 Friday Long", assets: 1, strategies: 1, weight: 0.09 },
+  { id: "GLD Thursday Long", label: "GLD Thursday Long", assets: 1, strategies: 1, weight: 0.09 },
+  { id: "YM1 TAT", label: "YM1 TAT", assets: 1, strategies: 1, weight: 0.09 },
 ] as const;
 
 const COMBINED_GROUPS = [...WHITE_SWAN_GROUPS, { id: "Invest", label: "Invest", assets: 1, strategies: 1, weight: null }] as const;

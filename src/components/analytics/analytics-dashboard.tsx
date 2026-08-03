@@ -89,49 +89,52 @@ const LIVE_ORIGINAL_WEIGHTS: Record<string, number> = { SPY: 5, SPMO: 5, QQQ: 45
 const LIVE_ASSET_SYMBOLS = ["SPY", "SPMO", "QQQ", "GLD", "WHITE_SWAN_NAS_EMA", "COPPER_HG", "CHF_6S"] as const;
 const LIVE_ASSET_LABELS: Record<string, string> = { SPY: "SPY", SPMO: "SPMO", QQQ: "QQQ passive", GLD: "GLD", WHITE_SWAN_NAS_EMA: "QQQ Pine 1", COPPER_HG: "Copper/HG", CHF_6S: "CHF/6S" };
 
-// ── White Swan v1.1 constants ─────────────────────────────────────────────────
+// ── White Swan v2.0 constants ─────────────────────────────────────────────────
+// Seasonal (40%) + Intraday (33%) + Anomaly (27%)
+// Seasonal sleeve has no single backtest file — filtered from live chart by stratMonthlyR check.
 const WS_STRATEGY_IDS = [
+  "Seasonal Sleeve",
   "GC1 Friday Long", "GLD Thursday Long", "YM1 TAT",
-  "UKX Valuation", "CT1 Macro A", "NQ1 Trend LO",
   "Intraday MT v3-F",
+  "UKX Valuation", "CT1 Macro A", "NQ1 Trend LO",
   "NVDA Valuation", "ZARUSD Valuation", "GC1 Valuation",
   "MSFT Valuation", "BRLUSD Valuation", "SEKUSD Valuation",
 ] as const;
-// The analytics control covers a selected 77% subset of the 100% component
-// registry. Keep the real subtotal visible; buildScopedWsDataset normalizes only
-// when calculating an explicitly user-selected scenario.
 const WS_FROZEN_WEIGHTS: Record<string, number> = {
-  "GC1 Friday Long":   2,   // Anomaly — v1.2 approved, IS+OOS WF validated
-  "GLD Thursday Long": 2,   // Anomaly — v1.2 approved
-  "YM1 TAT":           4,   // Anomaly — v1.2 highest weight (best diversification)
-  "UKX Valuation":     2,   // Valuation
-  "CT1 Macro A":       9,   // Macro
-  "NQ1 Trend LO":      3,   // Trend
-  "Intraday MT v3-F":  32,  // three White Swan components: EUR 14 / DAX1H 14 / DAX2H 4
-  "NVDA Valuation":    3,   // Valuation
-  "ZARUSD Valuation":  3,   // Valuation
-  "GC1 Valuation":     3,   // Valuation
-  "MSFT Valuation":    2,   // Valuation
-  "BRLUSD Valuation":  2,   // Valuation
-  "SEKUSD Valuation":  2,   // Valuation
+  "Seasonal Sleeve":   40,  // 12 WF-validated seasonal patterns · v2.0 · 40%
+  "GC1 Friday Long":   9,   // Anomaly — WF approved
+  "GLD Thursday Long": 9,   // Anomaly — WF approved
+  "YM1 TAT":           9,   // Anomaly — WF approved
+  "Intraday MT v3-F":  33,  // EUR 13% / DAX1H 13% / DAX2H 7%
+  "UKX Valuation":     0,   // Research
+  "CT1 Macro A":       0,   // Research
+  "NQ1 Trend LO":      0,   // Research
+  "NVDA Valuation":    0,   // Research
+  "ZARUSD Valuation":  0,   // Research
+  "GC1 Valuation":     0,   // Research
+  "MSFT Valuation":    0,   // Research
+  "BRLUSD Valuation":  0,   // Research
+  "SEKUSD Valuation":  0,   // Research
 };
 // All portfolio strategies enabled by default (anomaly now fully in portfolio)
 const WS_DEFAULT_ENABLED: Record<string, boolean> = {
+  "Seasonal Sleeve":   true,
   "GC1 Friday Long":   true,
   "GLD Thursday Long": true,
   "YM1 TAT":           true,
-  "UKX Valuation":     true,
-  "CT1 Macro A":       true,
-  "NQ1 Trend LO":      true,
   "Intraday MT v3-F":  true,
-  "NVDA Valuation":    true,
-  "ZARUSD Valuation":  true,
-  "GC1 Valuation":     true,
-  "MSFT Valuation":    true,
-  "BRLUSD Valuation":  true,
-  "SEKUSD Valuation":  true,
+  "UKX Valuation":     false,
+  "CT1 Macro A":       false,
+  "NQ1 Trend LO":      false,
+  "NVDA Valuation":    false,
+  "ZARUSD Valuation":  false,
+  "GC1 Valuation":     false,
+  "MSFT Valuation":    false,
+  "BRLUSD Valuation":  false,
+  "SEKUSD Valuation":  false,
 };
 const WS_STRATEGY_SHORT: Record<string, string> = {
+  "Seasonal Sleeve":   "Seasonal",
   "GC1 Friday Long":   "GC1 Friday",
   "GLD Thursday Long": "GLD Thursday",
   "YM1 TAT":           "YM1 TAT",
@@ -1319,9 +1322,11 @@ function PerformanceCard({
           )}
         </div>
       </div>
-      {lineMode === "assets" && commonStartDate && (
-        <div className="px-4 pb-1 text-[9px] text-zinc-500 [font-family:var(--font-text),sans-serif]">
-          Common period from {commonStartDate}
+      {lineMode === "assets" && (
+        <div className="flex items-baseline gap-3 px-4 pb-1 text-[9px] text-zinc-500 [font-family:var(--font-text),sans-serif]">
+          <span className="font-semibold tracking-wide text-zinc-400">TOTAL RETURN*</span>
+          {commonStartDate && <span>Common period from {commonStartDate}</span>}
+          <span className="ml-auto italic">* Dividendenadjustierung empirisch validiert. Primärer TradingView-Exportnachweis steht aus.</span>
         </div>
       )}
       <PerformanceLegend dataset={dataset} lineMode={lineMode} visibleGroups={visibleGroups} allAssetGroups={allAssetGroups} primaryAsset={primaryAsset} onPrimaryAsset={onPrimaryAsset} onToggleGroup={onToggleGroup} onSelectAll={onSelectAll} onClear={onClear} />
