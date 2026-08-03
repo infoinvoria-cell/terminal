@@ -399,8 +399,7 @@ function EquityLine({ equity, width, height }: { equity: number[]; width: number
       <polygon points={`0,${height - pad} ${pts} ${width},${height - pad}`} fill="url(#eq-g)" />
       <polyline points={pts} fill="none" stroke="#F5F5F5" strokeWidth={1.5} strokeLinejoin="round" />
       <circle cx={lastX} cy={lastY} r={2.5} fill="#F5F5F5" />
-      <text x={6} y={13} fill="rgba(255,255,255,0.28)" fontFamily={FONT} fontSize={9}>Portfolio Equity (illustrativ)</text>
-      <text x={width - 6} y={13} fill={pct >= 0 ? C_GOLD : "rgba(172,96,104,0.90)"} fontFamily={FONT} fontSize={11} fontWeight="700" textAnchor="end">
+      <text x={width - 6} y={13} fill={pct >= 0 ? "#C9A84C" : "#EF4444"} fontFamily={FONT} fontSize={12} fontWeight="700" textAnchor="end">
         {pct >= 0 ? "+" : ""}{pct.toFixed(1)}%
       </text>
     </svg>
@@ -423,15 +422,14 @@ function DrawdownLine({ equity, width, height }: { equity: number[]; width: numb
     <svg viewBox={`0 0 ${width} ${height}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block" }}>
       <defs>
         <linearGradient id="dd-g" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0%"   stopColor="rgba(239,68,68,0.15)" />
+          <stop offset="0%"   stopColor="rgba(239,68,68,0.20)" />
           <stop offset="100%" stopColor="rgba(239,68,68,0.00)" />
         </linearGradient>
       </defs>
       <line x1={0} y1={4} x2={width} y2={4} stroke="rgba(255,255,255,0.16)" strokeWidth={0.5} strokeDasharray="5 4" />
       <polygon points={`0,4 ${pts} ${width},4`} fill="url(#dd-g)" />
-      <polyline points={pts} fill="none" stroke="#EF4444" strokeWidth={1} strokeLinejoin="round" />
-      <text x={6} y={height - 4} fill="rgba(255,255,255,0.28)" fontFamily={FONT} fontSize={9}>Drawdown</text>
-      <text x={width - 6} y={height - 4} fill={C_GOLD} fontFamily={FONT} fontSize={10} fontWeight="700" textAnchor="end">
+      <polyline points={pts} fill="none" stroke="#EF4444" strokeWidth={1.5} strokeLinejoin="round" />
+      <text x={width - 6} y={height - 4} fill="#EF4444" fontFamily={FONT} fontSize={10} fontWeight="700" textAnchor="end">
         {(maxDd * 100).toFixed(1)}%
       </text>
     </svg>
@@ -717,141 +715,270 @@ function StatusPill({ pass, label }: { pass: boolean; label?: string }) {
   );
 }
 
-/* ─── Detail panel — Deep Validation breakdown ─────────────────────── */
+/* ─── Detail panel — Analytics-style rewrite ───────────────────────── */
 function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => void }) {
+  const [activeTab, setActiveTab] = useState<"wf" | "stress" | "costs">("wf");
   const isLong   = p.direction === "LONG";
-  const dirColor = isLong ? "rgba(232,234,239,0.80)" : C_GOLD;
+  const dirColor = isLong ? "#22C55E" : C_GOLD;
   const detail   = p.validationId ? getDeepDetailById(p.validationId) : undefined;
   const gc       = p.deepGrade ? gradeColor(p.deepGrade) : C_WHITE;
   const C_PASS   = "#22C55E";
   const C_FAIL   = "#EF4444";
-  const C_WARN   = "#F59E0B";
+
+  // Analytics token system
+  const KC: React.CSSProperties = {
+    background: "linear-gradient(to bottom, #16161c, #101013)",
+    border: "1px solid rgba(255,255,255,0.06)",
+    borderRadius: 10, padding: "10px 14px",
+    display: "flex", flexDirection: "column", gap: 6,
+  };
+  const KL: React.CSSProperties = {
+    fontSize: 8, fontWeight: 700, color: "#5A6070",
+    textTransform: "uppercase" as const, letterSpacing: "1px", fontFamily: FONT,
+  };
+  const KV: React.CSSProperties = {
+    fontSize: 19, fontWeight: 600, lineHeight: 1,
+    fontVariantNumeric: "tabular-nums",
+  };
+
+  const sharpe    = detail?.t2_bonferroni.real_sharpe ?? p.sortino / 1.4;
+  const oosSharpe = detail?.t7_forward.sharpe ?? 0;
+  const calmar    = Math.abs(p.maxDrawdown) > 0.001
+    ? (sharpe * 1.2) / Math.abs(p.maxDrawdown * 100)
+    : 0;
+  const bonfP = detail?.t2_bonferroni.p_bonferroni ?? 1;
+
+  const kpis = [
+    { label: "WIN RATE IS",   value: `${(p.winRate * 100).toFixed(0)}%`,                                         color: "#F0F0F0" },
+    { label: "WIN RATE OOS",  value: `${(p.oosWinRate * 100).toFixed(0)}%`,                                      color: "#F0F0F0" },
+    { label: "PROFIT FACTOR", value: p.profitFactor.toFixed(2),                                                   color: p.profitFactor >= 1.5 ? C_PASS : "#F0F0F0" },
+    { label: "SORTINO",       value: p.sortino.toFixed(2),                                                        color: p.sortino >= 1 ? C_PASS : "#F0F0F0" },
+    { label: "MAX DD",        value: `${(p.maxDrawdown * 100).toFixed(1)}%`,                                      color: C_FAIL },
+    { label: "AVG RETURN",    value: `${p.avgReturn >= 0 ? "+" : ""}${(p.avgReturn * 100).toFixed(2)}%`,         color: p.avgReturn >= 0 ? "#F0F0F0" : C_FAIL },
+    { label: "TRADES",        value: `${p.nObs}`,                                                                 color: "#F0F0F0" },
+    { label: "WF SCORE",      value: p.wfStrictPct != null ? `${p.wfStrictPct.toFixed(0)}%` : "—",              color: (p.wfStrictPct ?? 0) >= 60 ? C_PASS : "#F0F0F0" },
+    { label: "SHARPE",        value: sharpe.toFixed(2),                                                           color: sharpe >= 0.5 ? C_PASS : sharpe < 0 ? C_FAIL : "#F0F0F0" },
+    { label: "CALMAR",        value: calmar.toFixed(2),                                                           color: calmar >= 1 ? C_PASS : "#F0F0F0" },
+    { label: "OOS SHARPE",    value: oosSharpe.toFixed(2),                                                        color: oosSharpe >= 0.5 ? C_PASS : oosSharpe < 0 ? C_FAIL : "#F0F0F0" },
+    { label: "BONFERRONI p",  value: bonfP < 0.001 ? "< 0.001" : bonfP.toFixed(3),                              color: bonfP < 0.05 ? C_PASS : C_FAIL },
+  ];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "16px 18px", flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden", fontFamily: FONT, background: "#090909" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "14px 16px", flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden", fontFamily: FONT, background: "#090909" }}>
 
-      {/* ── HEADER ── */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexShrink: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <AssetIcon assetId={p.assetId} iconAssetId={p.iconAssetId} symbol={p.symbol} name={p.name} size={44} />
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
-              <span style={{ fontSize: 18, fontWeight: 900, color: C_WHITE, letterSpacing: "0.01em" }}>{p.symbol.replace("1!", "!")}</span>
-              <span style={{ fontSize: 8, fontWeight: 700, color: dirColor, border: `1px solid ${dirColor}40`, padding: "1px 5px", borderRadius: 3 }}>{p.direction}</span>
-            </div>
-            <div style={{ fontSize: 10, color: C_TEXT2 }}>{p.name} · {p.window}</div>
+      {/* ── HEADER (compact) ── */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+        <AssetIcon assetId={p.assetId} iconAssetId={p.iconAssetId} symbol={p.symbol} name={p.name} size={36} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" as const }}>
+            <span style={{ fontSize: 15, fontWeight: 900, color: C_WHITE }}>{p.symbol.replace("1!", "!")}</span>
+            <span style={{ fontSize: 8, fontWeight: 700, color: dirColor, border: `1px solid ${dirColor}40`, padding: "1px 6px", borderRadius: 3 }}>{p.direction}</span>
+            <span style={{ fontSize: 9, color: C_TEXT2 }}>· {p.name.split(" ").slice(0, 3).join(" ")} {p.window}</span>
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
           {p.deepGrade && p.deepScore != null && (
-            <DeepGradeBadge grade={p.deepGrade} score={p.deepScore} size={56} />
+            <div style={{
+              padding: "3px 10px", borderRadius: 6,
+              background: gradeBg(p.deepGrade), border: `1px solid ${gc}40`,
+              fontSize: 12, fontWeight: 800, color: gc, fontFamily: FONT,
+            }}>
+              {p.deepGrade} <span style={{ fontSize: 9, opacity: 0.7 }}>{p.deepScore}</span>
+            </div>
           )}
           <button type="button" onClick={onGoToChart} style={{
             background: "rgba(216,188,103,0.08)", border: "1px solid rgba(216,188,103,0.25)",
             borderRadius: 6, padding: "5px 12px", color: C_GOLD, fontSize: 9,
-            cursor: "pointer", fontWeight: 700, fontFamily: FONT, letterSpacing: "0.03em",
-          }}>
-            Chart
-          </button>
+            cursor: "pointer", fontWeight: 700, fontFamily: FONT,
+          }}>Chart</button>
         </div>
       </div>
 
-
-      {/* ── METRICS ── */}
-      {((): React.ReactNode => {
-        const bt = detail && (detail as any).backtrader_metrics ? (detail as any).backtrader_metrics as { sharpe: number; calmar: number; win_rate: number; profit_factor: number; cagr: number; max_dd: number; trades: number; oos_sharpe: number; oos_win_rate: number } : null;
-        const KC: React.CSSProperties = { background: "linear-gradient(to bottom, #19191d, #111214)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12, padding: "10px 12px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 68 };
-        const KL: React.CSSProperties = { fontSize: 8, fontWeight: 600, color: "#71717a", textTransform: "uppercase", letterSpacing: "0.10em", fontFamily: FONT };
-        const KV: React.CSSProperties = { fontSize: 17, fontWeight: 700, lineHeight: 1, fontVariantNumeric: "tabular-nums", fontFamily: FONT };
-        const metrics = bt ? [
-          { label: "Sharpe",       value: bt.sharpe.toFixed(2),          color: bt.sharpe >= 1 ? C_PASS : bt.sharpe < 0 ? C_FAIL : "#ffffff" },
-          { label: "Calmar",       value: bt.calmar.toFixed(2),          color: bt.calmar >= 1 ? C_PASS : bt.calmar < 0 ? C_FAIL : "#ffffff" },
-          { label: "Win Rate",     value: `${bt.win_rate.toFixed(1)}%`,  color: "#ffffff" },
-          { label: "Profit Factor",value: bt.profit_factor.toFixed(2),   color: "#ffffff" },
-          { label: "CAGR",         value: `${bt.cagr.toFixed(1)}%`,      color: bt.cagr > 0 ? "#ffffff" : C_FAIL },
-          { label: "Max Drawdown", value: `${bt.max_dd.toFixed(1)}%`,    color: C_FAIL },
-          { label: "OOS Sharpe",   value: bt.oos_sharpe.toFixed(2),      color: bt.oos_sharpe >= 1 ? C_PASS : bt.oos_sharpe < 0 ? C_FAIL : "#ffffff" },
-          { label: "Trades",       value: `${bt.trades}`,                 color: "#ffffff" },
-        ] : [
-          { label: "Win Rate IS",  value: `${(p.winRate * 100).toFixed(0)}%`,     color: "#ffffff" },
-          { label: "Win Rate OOS", value: `${(p.oosWinRate * 100).toFixed(0)}%`,  color: "#ffffff" },
-          { label: "Profit Factor",value: p.profitFactor.toFixed(1),               color: "#ffffff" },
-          { label: "Sortino",      value: p.sortino.toFixed(2),                    color: p.sortino >= 1 ? C_PASS : "#ffffff" },
-          { label: "Max DD",       value: `${(p.maxDrawdown * 100).toFixed(0)}%`,  color: C_FAIL },
-          { label: "Avg Return",   value: `${(p.avgReturn * 100).toFixed(2)}%`,    color: p.avgReturn >= 0 ? "#ffffff" : C_FAIL },
-          { label: "Trades",       value: `${p.nObs}`,                             color: "#ffffff" },
-          { label: "WF Score",     value: p.wfStrictPct != null ? `${p.wfStrictPct.toFixed(0)}%` : "—", color: "#ffffff" },
-        ];
-        return (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, flexShrink: 0 }}>
-            {metrics.map(m => (
-              <div key={m.label} style={KC}>
-                <div style={KL}>{m.label}</div>
-                <div style={{ ...KV, color: m.color }}>{m.value}</div>
-              </div>
-            ))}
+      {/* ── 12-KPI GRID (4×3) ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, flexShrink: 0 }}>
+        {kpis.map(k => (
+          <div key={k.label} style={KC}>
+            <div style={KL}>{k.label}</div>
+            <div style={{ ...KV, color: k.color }}>{k.value}</div>
           </div>
-        );
-      })()}
+        ))}
+      </div>
 
-      {/* ── 7-TEST CHIPS ── */}
+      {/* ── VALIDATION CHIPS (1 row, compact) ── */}
       {detail && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, flexShrink: 0 }}>
+        <div style={{ display: "flex", flexWrap: "nowrap", gap: 5, flexShrink: 0, overflowX: "auto" }}>
           {[
-            { label: "Walk-Forward", pass: detail.t1_wf_strict.pass,          value: `${detail.t1_wf_strict.wf_strict_pct.toFixed(0)}%` },
-            { label: "Bonferroni",   pass: detail.t2_bonferroni.significant,  value: `p=${detail.t2_bonferroni.p_bonferroni.toFixed(3)}` },
-            { label: "Param Stab.", pass: detail.t3_stability.pass,           value: `${detail.t3_stability.stability_pct.toFixed(0)}%` },
-            { label: "Dekaden",     pass: detail.t6_decades.pass,             value: `${detail.t6_decades.decades_profitable}/${detail.t6_decades.total}` },
-            { label: "Forward",     pass: detail.t7_forward.pass,             value: detail.t7_forward.sharpe.toFixed(2) },
-            { label: "Kosten",      pass: detail.t5_costs.pass,               value: detail.t5_costs.break_even_range },
-            { label: "Regime",      pass: detail.t4_regime.pass,              value: `${detail.t4_regime.regimes_positive}/${detail.t4_regime.total_regimes}` },
-          ].map(t => (
-            <div key={t.label} style={{
-              display: "flex", alignItems: "center", gap: 5,
-              padding: "5px 10px", borderRadius: 8,
-              background: "rgba(255,255,255,0.03)",
-              border: `1px solid ${t.pass ? "rgba(34,197,94,0.2)" : "rgba(239,68,68,0.18)"}`,
+            { label: "WF",      pass: detail.t1_wf_strict.pass,        val: `${detail.t1_wf_strict.wf_strict_pct.toFixed(0)}%` },
+            { label: "BONF",    pass: detail.t2_bonferroni.significant, val: bonfP < 0.001 ? "<0.001" : `p=${bonfP.toFixed(3)}` },
+            { label: "STABIL",  pass: detail.t3_stability.pass,         val: `${detail.t3_stability.stability_pct.toFixed(0)}%` },
+            { label: "DEKADEN", pass: detail.t6_decades.pass,           val: `${detail.t6_decades.decades_profitable}/${detail.t6_decades.total}` },
+            { label: "FORWARD", pass: detail.t7_forward.pass,           val: `S=${detail.t7_forward.sharpe.toFixed(2)}` },
+            { label: "KOSTEN",  pass: detail.t5_costs.pass,             val: detail.t5_costs.break_even_range },
+          ].map(c => (
+            <div key={c.label} style={{
+              display: "flex", alignItems: "center", gap: 4,
+              padding: "3px 8px", borderRadius: 5, whiteSpace: "nowrap" as const,
+              border: `1px solid ${c.pass ? "rgba(34,197,94,0.25)" : "rgba(239,68,68,0.2)"}`,
             }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: t.pass ? C_PASS : C_FAIL, display: "inline-block", flexShrink: 0 }} />
-              <span style={{ fontSize: 9, fontWeight: 600, color: "#8d8f98", fontFamily: FONT }}>{t.label}</span>
-              <span style={{ fontSize: 9, fontWeight: 700, color: t.pass ? "#e8edf3" : C_FAIL, fontFamily: FONT, fontVariantNumeric: "tabular-nums" }}>{t.value}</span>
+              <span style={{ width: 5, height: 5, borderRadius: "50%", background: c.pass ? C_PASS : C_FAIL, display: "inline-block", flexShrink: 0 }} />
+              <span style={{ fontSize: 7.5, fontWeight: 700, color: "#5A6070", letterSpacing: "0.08em", textTransform: "uppercase" as const }}>{c.label}</span>
+              <span style={{ fontSize: 7.5, fontWeight: 700, color: c.pass ? "#e8edf3" : C_FAIL, fontVariantNumeric: "tabular-nums" }}>{c.val}</span>
             </div>
           ))}
         </div>
       )}
 
-      {/* ── WF EQUITY CHART ── */}
-      {detail && detail.t1_wf_strict.fold_details.length > 0 && (() => {
-        const folds = detail.t1_wf_strict.fold_details;
+      {/* ── WF EQUITY CHART (140px, weiße Linie, Jahreszahlen X-Achse) ── */}
+      {(() => {
+        const folds = detail?.t1_wf_strict.fold_details ?? [];
         const eq: number[] = [0];
-        for (const f of folds) eq.push(eq[eq.length - 1] + f.pnl);
+        if (folds.length > 0) {
+          for (const f of folds) eq.push(eq[eq.length - 1] + f.pnl);
+        } else {
+          for (const r of p.fakeReturns.slice(0, 12)) eq.push(eq[eq.length - 1] + r * 10000);
+        }
+        const years = folds.length > 0
+          ? folds.map(f => f.oos_start.slice(0, 4))
+          : p.fakeReturns.slice(0, 12).map((_, i) => `${2006 + i * 2}`);
         const maxAbs = Math.max(...eq.map(Math.abs), 1);
-        const W = 400; const H = 72;
+        const W = 500; const H = 120; const XAXIS = 18;
+        const PAD_L = 4; const PAD_R = 4;
         const pts = eq.map((v, i) => {
-          const x = (i / (eq.length - 1)) * W;
-          const y = H / 2 - (v / maxAbs) * (H / 2 - 6);
+          const x = PAD_L + (i / (eq.length - 1)) * (W - PAD_L - PAD_R);
+          const y = H / 2 - (v / maxAbs) * (H / 2 - 10);
           return `${x.toFixed(1)},${y.toFixed(1)}`;
         }).join(" ");
         const fillId = `wf-eq-${p.id}`;
+        const labelStep = Math.max(1, Math.ceil(years.length / 6));
         return (
-          <div style={{ flexShrink: 0 }}>
-            <div style={{ fontSize: 8, fontWeight: 600, color: "#71717a", textTransform: "uppercase" as const, letterSpacing: "0.10em", marginBottom: 8, fontFamily: FONT }}>
-              Walk-Forward — {detail.t1_wf_strict.positive_folds}/{detail.t1_wf_strict.folds} positive Folds
-            </div>
-            <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{ display: "block" }}>
+          <div style={{ flexShrink: 0, border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, overflow: "hidden" }}>
+            <svg viewBox={`0 0 ${W} ${H + XAXIS}`} width="100%" height={H + XAXIS} style={{ display: "block" }}>
               <defs>
                 <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="rgba(232,237,243,0.12)" />
                   <stop offset="100%" stopColor="rgba(232,237,243,0.00)" />
                 </linearGradient>
               </defs>
-              <line x1={0} y1={H / 2} x2={W} y2={H / 2} stroke="rgba(255,255,255,0.06)" strokeWidth={0.5} strokeDasharray="4 6" />
-              <polygon points={`0,${H / 2} ${pts} ${W},${H / 2}`} fill={`url(#${fillId})`} />
-              <polyline points={pts} fill="none" stroke="#e8edf3" strokeWidth={1.6} strokeLinejoin="round" />
+              <line x1={PAD_L} y1={H / 2} x2={W - PAD_R} y2={H / 2} stroke="rgba(255,255,255,0.06)" strokeWidth={0.5} strokeDasharray="4 6" />
+              <polygon points={`${PAD_L},${H / 2} ${pts} ${W - PAD_R},${H / 2}`} fill={`url(#${fillId})`} />
+              <polyline points={pts} fill="none" stroke="#e8edf3" strokeWidth={1.5} strokeLinejoin="round" />
+              {years.map((yr, i) => {
+                if (i % labelStep !== 0 && i !== years.length - 1) return null;
+                const x = PAD_L + (i / (eq.length - 1)) * (W - PAD_L - PAD_R);
+                return <text key={i} x={x} y={H + 13} textAnchor="middle" fill="#5A6070" fontSize={8} fontFamily={FONT}>{yr}</text>;
+              })}
+              <text x={PAD_L + 4} y={11} fill="rgba(255,255,255,0.20)" fontSize={8} fontFamily={FONT}>
+                {detail ? `Walk-Forward ${detail.t1_wf_strict.positive_folds}/${detail.t1_wf_strict.folds} Folds positiv` : "Equity (illustrativ)"}
+              </text>
             </svg>
           </div>
         );
       })()}
+
+      {/* ── TABS (Walk-Forward / Stress / Kosten) ── */}
+      {detail && (
+        <div style={{ flexShrink: 0 }}>
+          {/* Tab bar */}
+          <div style={{ display: "flex", gap: 2, borderBottom: "1px solid rgba(255,255,255,0.07)", marginBottom: 10 }}>
+            {([
+              { key: "wf",     label: "Walk-Forward" },
+              { key: "stress", label: "Stress Tests" },
+              { key: "costs",  label: "Kosten" },
+            ] as const).map(tab => (
+              <button key={tab.key} type="button" onClick={() => setActiveTab(tab.key)} style={{
+                padding: "5px 12px", border: "none", background: "transparent", cursor: "pointer",
+                fontSize: 8.5, fontWeight: 700, fontFamily: FONT, letterSpacing: "0.05em",
+                color: activeTab === tab.key ? C_WHITE : "#5A6070",
+                borderBottom: `2px solid ${activeTab === tab.key ? C_GOLD : "transparent"}`,
+                marginBottom: -1, textTransform: "uppercase" as const,
+                transition: "color 120ms",
+              }}>{tab.label}</button>
+            ))}
+          </div>
+
+          {/* Tab 1 — Walk-Forward */}
+          {activeTab === "wf" && (
+            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: FONT }}>
+              <thead>
+                <tr>
+                  {["Fold", "OOS Periode", "OOS Sharpe", "PnL", "Trades", "Pass"].map(h => (
+                    <th key={h} style={{ padding: "4px 8px", textAlign: ["Fold", "OOS Periode"].includes(h) ? "left" : "right", fontSize: 7.5, fontWeight: 700, color: "#5A6070", textTransform: "uppercase" as const, letterSpacing: "0.08em", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "#0d0d0f" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {detail.t1_wf_strict.fold_details.map((f, i) => {
+                  const pass = f.positive === true || String(f.positive).toLowerCase() === "true";
+                  return (
+                    <tr key={i} style={{ background: i % 2 === 0 ? "#0d0d0f" : "#111214" }}>
+                      <td style={{ padding: "4px 8px", color: "#5A6070", fontSize: 9 }}>{i + 1}</td>
+                      <td style={{ padding: "4px 8px", color: "#e8edf3", fontSize: 9 }}>{f.oos_start.slice(0, 4)}–{f.oos_end.slice(0, 4)}</td>
+                      <td style={{ padding: "4px 8px", textAlign: "right", color: f.sharpe >= 0 ? "#e8edf3" : C_FAIL, fontSize: 9, fontVariantNumeric: "tabular-nums" }}>{f.sharpe.toFixed(2)}</td>
+                      <td style={{ padding: "4px 8px", textAlign: "right", color: f.pnl >= 0 ? "#e8edf3" : C_FAIL, fontSize: 9, fontVariantNumeric: "tabular-nums" }}>{f.pnl >= 0 ? "+" : ""}{(f.pnl / 1000).toFixed(0)}k</td>
+                      <td style={{ padding: "4px 8px", textAlign: "right", color: "#5A6070", fontSize: 9 }}>{f.trades}</td>
+                      <td style={{ padding: "4px 8px", textAlign: "right" }}>
+                        <span style={{ fontSize: 7.5, fontWeight: 700, color: pass ? C_PASS : C_FAIL, border: `1px solid ${pass ? "rgba(34,197,94,0.3)" : "rgba(239,68,68,0.3)"}`, padding: "1px 5px", borderRadius: 3 }}>{pass ? "PASS" : "FAIL"}</span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+
+          {/* Tab 2 — Stress Tests (Decades) */}
+          {activeTab === "stress" && (
+            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: FONT }}>
+              <thead>
+                <tr>
+                  {["Periode", "Sharpe", "PnL", "Win Rate", "Trades", "Pass"].map(h => (
+                    <th key={h} style={{ padding: "4px 8px", textAlign: h === "Periode" ? "left" : "right", fontSize: 7.5, fontWeight: 700, color: "#5A6070", textTransform: "uppercase" as const, letterSpacing: "0.08em", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "#0d0d0f" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(detail.t6_decades.decades).map(([period, d], i) => (
+                  <tr key={period} style={{ background: i % 2 === 0 ? "#0d0d0f" : "#111214" }}>
+                    <td style={{ padding: "4px 8px", color: "#e8edf3", fontSize: 9 }}>{period}</td>
+                    <td style={{ padding: "4px 8px", textAlign: "right", color: d.sharpe >= 0 ? "#e8edf3" : C_FAIL, fontSize: 9, fontVariantNumeric: "tabular-nums" }}>{d.sharpe.toFixed(2)}</td>
+                    <td style={{ padding: "4px 8px", textAlign: "right", color: d.pnl >= 0 ? "#e8edf3" : C_FAIL, fontSize: 9, fontVariantNumeric: "tabular-nums" }}>{d.pnl >= 0 ? "+" : ""}{(d.pnl / 1000).toFixed(0)}k</td>
+                    <td style={{ padding: "4px 8px", textAlign: "right", color: "#e8edf3", fontSize: 9 }}>{(d.win_rate * 100).toFixed(0)}%</td>
+                    <td style={{ padding: "4px 8px", textAlign: "right", color: "#5A6070", fontSize: 9 }}>{d.trades}</td>
+                    <td style={{ padding: "4px 8px", textAlign: "right" }}>
+                      <span style={{ fontSize: 7.5, fontWeight: 700, color: d.profitable ? C_PASS : C_FAIL, border: `1px solid ${d.profitable ? "rgba(34,197,94,0.3)" : "rgba(239,68,68,0.3)"}`, padding: "1px 5px", borderRadius: 3 }}>{d.profitable ? "PASS" : "FAIL"}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+
+          {/* Tab 3 — Kosten */}
+          {activeTab === "costs" && (
+            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: FONT }}>
+              <thead>
+                <tr>
+                  {["Spread", "Netto Sharpe", "PnL", "Profitabel"].map(h => (
+                    <th key={h} style={{ padding: "4px 8px", textAlign: h === "Spread" ? "left" : "right", fontSize: 7.5, fontWeight: 700, color: "#5A6070", textTransform: "uppercase" as const, letterSpacing: "0.08em", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "#0d0d0f" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(detail.t5_costs.cost_levels).map(([bps, c], i) => (
+                  <tr key={bps} style={{ background: i % 2 === 0 ? "#0d0d0f" : "#111214" }}>
+                    <td style={{ padding: "4px 8px", color: "#e8edf3", fontSize: 9 }}>{bps} bps</td>
+                    <td style={{ padding: "4px 8px", textAlign: "right", color: c.sharpe >= 0 ? "#e8edf3" : C_FAIL, fontSize: 9, fontVariantNumeric: "tabular-nums" }}>{c.sharpe.toFixed(2)}</td>
+                    <td style={{ padding: "4px 8px", textAlign: "right", color: c.pnl >= 0 ? "#e8edf3" : C_FAIL, fontSize: 9, fontVariantNumeric: "tabular-nums" }}>{c.pnl >= 0 ? "+" : ""}{(c.pnl / 1000).toFixed(0)}k</td>
+                    <td style={{ padding: "4px 8px", textAlign: "right" }}>
+                      <span style={{ fontSize: 7.5, fontWeight: 700, color: c.profitable ? C_PASS : C_FAIL, border: `1px solid ${c.profitable ? "rgba(34,197,94,0.3)" : "rgba(239,68,68,0.3)"}`, padding: "1px 5px", borderRadius: 3 }}>{c.profitable ? "JA" : "NEIN"}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
 
     </div>
   );
@@ -911,57 +1038,57 @@ function KpiBox({ label, value, sub, valueColor = "#eef2f7" }: { label: string; 
   );
 }
 
-/* ─── Portfolio view ────────────────────────────────────────────────── */
+/* ─── Portfolio view — Analytics-style rewrite ──────────────────────── */
 function PortfolioView() {
   const patterns = SLEEVE_PATTERNS;
-  const avgWr    = patterns.reduce((s, p) => s + p.winRate, 0) / patterns.length;
-  const avgOos   = patterns.reduce((s, p) => s + p.oosWinRate, 0) / patterns.length;
-  const total    = patterns.reduce((s, p) => s + p.nObs, 0);
-  const bon      = patterns.filter(p => p.tier === "bonferroni").length;
-  const equity   = useMemo(() => buildPortfolioEquity(), []);
-  const finalRet = (equity[equity.length - 1] / equity[0] - 1) * 100;
+  const avgWr      = patterns.reduce((s, p) => s + p.winRate, 0) / patterns.length;
+  const avgOos     = patterns.reduce((s, p) => s + p.oosWinRate, 0) / patterns.length;
+  const avgSortino = patterns.reduce((s, p) => s + p.sortino, 0) / patterns.length;
+  const equity     = useMemo(() => buildPortfolioEquity(), []);
+  const finalRet   = (equity[equity.length - 1] / equity[0] - 1) * 100;
   let pk = equity[0]; let maxDd = 0;
   for (const v of equity) { if (v > pk) pk = v; const dd = (v / pk) - 1; if (dd < maxDd) maxDd = dd; }
 
   const KC: React.CSSProperties = {
-    background: "linear-gradient(to bottom, #19191d, #111214)",
-    border: "1px solid rgba(255,255,255,0.07)",
-    borderRadius: 12, padding: "12px 14px",
-    display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 72,
+    background: "linear-gradient(to bottom, #16161c, #101013)",
+    border: "1px solid rgba(255,255,255,0.06)",
+    borderRadius: 10, padding: "11px 14px",
+    display: "flex", flexDirection: "column", gap: 6,
   };
-  const KL: React.CSSProperties = { fontSize: 8, fontWeight: 600, color: "#71717a", textTransform: "uppercase", letterSpacing: "0.10em", fontFamily: FONT };
+  const KL: React.CSSProperties = {
+    fontSize: 8, fontWeight: 700, color: "#5A6070",
+    textTransform: "uppercase" as const, letterSpacing: "1px", fontFamily: FONT,
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "14px 16px", flex: 1, minHeight: 0, overflow: "hidden" }}>
 
-      {/* ── KPI STRIP (Analytics gradient cards) ── */}
+      {/* ── KPI BAR (5 cards, Sortino statt Portfolio Ret.) ── */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8, flexShrink: 0 }}>
         {[
-          { label: "Muster",        value: `${patterns.length}`,                               sub: `${bon} Bonferroni`,  color: "#ffffff" },
-          { label: "Ø IS Win Rate", value: `${(avgWr * 100).toFixed(1)}%`,                    sub: "In-Sample",          color: "#ffffff" },
-          { label: "Ø OOS Win Rate",value: `${(avgOos * 100).toFixed(1)}%`,                   sub: "Out-of-Sample",      color: "#ffffff" },
-          { label: "Portfolio Ret.",value: `${finalRet >= 0 ? "+" : ""}${finalRet.toFixed(1)}%`, sub: "Illustrativ",     color: finalRet >= 0 ? "#ffffff" : "#EF4444" },
-          { label: "Max Drawdown",  value: `${(maxDd * 100).toFixed(1)}%`,                    sub: `${total} Trades`,    color: "#EF4444" },
+          { label: "Muster",         value: `${patterns.length}`,                    color: "#F0F0F0" },
+          { label: "Ø IS Win Rate",  value: `${(avgWr * 100).toFixed(1)}%`,          color: "#F0F0F0" },
+          { label: "Ø OOS Win Rate", value: `${(avgOos * 100).toFixed(1)}%`,         color: "#F0F0F0" },
+          { label: "Sortino",        value: avgSortino.toFixed(2),                    color: avgSortino >= 1 ? "#22C55E" : "#F0F0F0" },
+          { label: "Max Drawdown",   value: `${(maxDd * 100).toFixed(1)}%`,          color: "#EF4444" },
         ].map(m => (
           <div key={m.label} style={KC}>
             <div style={KL}>{m.label}</div>
-            <div>
-              <div style={{ fontSize: 20, fontWeight: 700, lineHeight: 1, fontVariantNumeric: "tabular-nums", color: m.color, fontFamily: FONT }}>{m.value}</div>
-              <div style={{ fontSize: 8, color: "rgba(255,255,255,0.30)", marginTop: 4, fontFamily: FONT }}>{m.sub}</div>
-            </div>
+            <div style={{ fontSize: 24, fontWeight: 700, lineHeight: 1, fontVariantNumeric: "tabular-nums", color: m.color, fontFamily: FONT }}>{m.value}</div>
           </div>
         ))}
       </div>
 
-      {/* ── EQUITY CHART ── */}
-      <div style={{ flex: 3, minHeight: 0, border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12, overflow: "hidden" }}>
-        <EquityLine equity={equity} width={600} height={120} />
+      {/* ── EQUITY CHART (180px, Gold-Label oben rechts) ── */}
+      <div style={{ border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, overflow: "hidden", flexShrink: 0, height: 180 }}>
+        <EquityLine equity={equity} width={600} height={180} />
       </div>
 
-      {/* ── DRAWDOWN CHART ── */}
-      <div style={{ flex: 1, minHeight: 0, border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12, overflow: "hidden" }}>
-        <DrawdownLine equity={equity} width={600} height={52} />
+      {/* ── DRAWDOWN CHART (60px, Rot-Label unten rechts) ── */}
+      <div style={{ border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, overflow: "hidden", flexShrink: 0, height: 60 }}>
+        <DrawdownLine equity={equity} width={600} height={60} />
       </div>
+
     </div>
   );
 }

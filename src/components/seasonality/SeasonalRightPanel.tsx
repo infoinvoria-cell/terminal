@@ -630,7 +630,7 @@ export const SeasonalRightPanel = memo(function SeasonalRightPanel({
     ? "Validated deployment pattern"
     : isWfFailedDisplay
       ? "No deployable local variant"
-      : "Not tested";
+      : kpiSource ? "Basis KPIs" : "Kein Muster gewählt";
   const statusColor = isWfValidatedDisplay ? C_WHITE : isWfFailedDisplay ? C_GOLD : C_TEXT_2;
 
   const validatedOosReturns = useMemo(
