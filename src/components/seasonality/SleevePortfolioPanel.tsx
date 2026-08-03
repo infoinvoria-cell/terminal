@@ -515,8 +515,8 @@ function KpiCell({ label, value, valueColor = "#eef2f7" }: { label: string; valu
   return (
     <div style={{
       padding: "5px 7px", borderRadius: 8,
-      border: "1px solid rgba(232,237,244,0.12)",
-      background: "rgba(12,14,18,0.85)",
+      border: "1px solid #1A1A1A",
+      background: "#0D0D0D",
       boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
     }}>
       <div style={{ fontSize: 7, fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase" as const, color: "#7c8798", lineHeight: 1, marginBottom: 3 }}>
@@ -727,8 +727,8 @@ function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => 
 
   // Analytics token system
   const KC: React.CSSProperties = {
-    background: "linear-gradient(to bottom, #16161c, #101013)",
-    border: "1px solid rgba(255,255,255,0.06)",
+    background: "#0D0D0D",
+    border: "1px solid #1A1A1A",
     borderRadius: 10, padding: "10px 14px",
     display: "flex", flexDirection: "column", gap: 6,
   };
@@ -841,7 +841,7 @@ function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => 
           ? folds.map(f => f.oos_start.slice(0, 4))
           : p.fakeReturns.slice(0, 12).map((_, i) => `${2006 + i * 2}`);
         const maxAbs = Math.max(...eq.map(Math.abs), 1);
-        const W = 500; const H = 120; const XAXIS = 18;
+        const W = 500; const H = 160; const XAXIS = 18;
         const PAD_L = 4; const PAD_R = 4;
         const pts = eq.map((v, i) => {
           const x = PAD_L + (i / (eq.length - 1)) * (W - PAD_L - PAD_R);
@@ -851,7 +851,7 @@ function DetailPanel({ p, onGoToChart }: { p: SleevePattern; onGoToChart: () => 
         const fillId = `wf-eq-${p.id}`;
         const labelStep = Math.max(1, Math.ceil(years.length / 6));
         return (
-          <div style={{ flexShrink: 0, border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, overflow: "hidden" }}>
+          <div style={{ flexShrink: 0, width: "100%", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, overflow: "hidden" }}>
             <svg viewBox={`0 0 ${W} ${H + XAXIS}`} width="100%" height={H + XAXIS} style={{ display: "block" }}>
               <defs>
                 <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
@@ -1050,8 +1050,8 @@ function PortfolioView() {
   for (const v of equity) { if (v > pk) pk = v; const dd = (v / pk) - 1; if (dd < maxDd) maxDd = dd; }
 
   const KC: React.CSSProperties = {
-    background: "linear-gradient(to bottom, #16161c, #101013)",
-    border: "1px solid rgba(255,255,255,0.06)",
+    background: "#0D0D0D",
+    border: "1px solid #1A1A1A",
     borderRadius: 10, padding: "11px 14px",
     display: "flex", flexDirection: "column", gap: 6,
   };
@@ -1080,13 +1080,13 @@ function PortfolioView() {
       </div>
 
       {/* ── EQUITY CHART (180px, Gold-Label oben rechts) ── */}
-      <div style={{ border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, overflow: "hidden", flexShrink: 0, height: 180 }}>
-        <EquityLine equity={equity} width={600} height={180} />
+      <div style={{ border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, overflow: "hidden", flexShrink: 0, width: "100%", height: 220 }}>
+        <EquityLine equity={equity} width={600} height={220} />
       </div>
 
-      {/* ── DRAWDOWN CHART (60px, Rot-Label unten rechts) ── */}
-      <div style={{ border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, overflow: "hidden", flexShrink: 0, height: 60 }}>
-        <DrawdownLine equity={equity} width={600} height={60} />
+      {/* ── DRAWDOWN CHART (70px, Rot-Label unten rechts) ── */}
+      <div style={{ border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, overflow: "hidden", flexShrink: 0, width: "100%", height: 70 }}>
+        <DrawdownLine equity={equity} width={600} height={70} />
       </div>
 
     </div>
