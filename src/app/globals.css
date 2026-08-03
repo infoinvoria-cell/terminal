@@ -196,3 +196,19 @@ body {
 *::-webkit-scrollbar-thumb {
   background: transparent;
 }
+
+nextjs-portal,
+[data-next-badge-root],
+[data-next-mark],
+[data-nextjs-toast],
+[data-nextjs-dialog-overlay],
+[data-nextjs-dev-tools-button],
+[data-nextjs-terminal],
+#__next-build-watcher,
+#nextjs__container,
+#nextjs__dock {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}

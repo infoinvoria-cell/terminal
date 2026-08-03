@@ -471,7 +471,11 @@ export default function TradingEnginePage() {
         .e-tab.on{color:${TXT};border-bottom-color:${GOLD}}
 
         .e-charts-col{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid ${BORDER};padding:4px 2px 4px 6px;flex:1;min-width:0}
-        .e-kpi-col{overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:0;width:220px;flex-shrink:0}
+        .e-kpi-col{overflow-y:auto;padding:10px 8px;display:flex;flex-direction:column;gap:8px;width:240px;flex-shrink:0}
+        .kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:${BORDER}}
+        .kpi-tile{background:${BG};padding:10px 10px 8px;display:flex;flex-direction:column;gap:4px}
+        .kpi-tile-label{font-size:8px;font-weight:600;color:${FAINT};letter-spacing:.1em;text-transform:uppercase;font-family:var(--font-text)}
+        .kpi-tile-value{font-size:20px;font-weight:700;font-family:var(--font-numbers);font-variant-numeric:tabular-nums;line-height:1}
 
         .sl{font-size:9px;font-weight:600;color:${FAINT};letter-spacing:.12em;text-transform:uppercase;margin:0 0 8px}
         .strat-btn{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:11.5px;color:${MUT};background:none;border:1px solid transparent;width:100%;text-align:left;transition:all .15s;margin-bottom:2px}
@@ -642,7 +646,7 @@ export default function TradingEnginePage() {
                               <XAxis dataKey="x" tick={{ fontSize: 7, fill: FAINT }} tickLine={false} axisLine={false} interval={Math.max(1, Math.floor(ddData.length / 8))} tickFormatter={v => String(v).slice(0, 4)} />
                               <YAxis domain={["auto", 0]} tick={{ fontSize: 8, fill: DIM, fontFamily: 'var(--font-numbers)' }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} width={50} tickFormatter={v => `${Number(v).toFixed(1)}%`} />
                               <Tooltip contentStyle={{ background: BG, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 9 }} formatter={(v: unknown) => [`${Number(v).toFixed(2)}%`, "Drawdown"]} />
-                              <Area type="monotone" dataKey="dd" stroke="#EF4444" fill="rgba(239,68,68,0.15)" strokeWidth={1} dot={false} />
+                              <Area type="monotone" dataKey="dd" stroke={GOLD} fill="rgba(201,168,76,0.12)" strokeWidth={1} dot={false} />
                             </AreaChart>
                           </ResponsiveContainer>
                         </div>
@@ -652,17 +656,33 @@ export default function TradingEnginePage() {
                     )}
                   </div>
                   <div className="e-kpi-col">
-                    {KPIS.map(kpi => {
-                      const val = metrics?.[kpi.key] ?? 0;
+                    {/* Primary tiles — 2-column grid */}
+                    <div className="kpi-grid" style={{ border: `1px solid ${BORDER}` }}>
+                      {(["cagr","maxDD","profitFactor","sharpe","trades","winRate"] as const).map(key => {
+                        const kpi = KPIS.find(k => k.key === key)!;
+                        const val = metrics?.[key] ?? 0;
+                        const col = hasResult ? kpi.color(val) : FAINT;
+                        return (
+                          <div key={key} className="kpi-tile">
+                            <span className="kpi-tile-label">{kpi.label}</span>
+                            <span className="kpi-tile-value" style={{ color: col }}>{hasResult ? kpi.fmt(val) : "—"}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {/* Secondary rows */}
+                    {(["calmar","avgWin"] as const).map(key => {
+                      const kpi = KPIS.find(k => k.key === key)!;
+                      const val = metrics?.[key] ?? 0;
                       return (
-                        <div key={kpi.key} className="kpi-row">
+                        <div key={key} className="kpi-row">
                           <span className="kpi-label">{kpi.label}</span>
                           <span className="kpi-value" style={{ color: hasResult ? kpi.color(val) : FAINT }}>{hasResult ? kpi.fmt(val) : "—"}</span>
                         </div>
                       );
                     })}
                     {STRATEGY_VALIDATION[strategy] && (
-                      <div style={{ borderTop: `1px solid ${BORDER}`, marginTop: 6, paddingTop: 8, display: "flex", flexDirection: "column", gap: 3 }}>
+                      <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: 8, display: "flex", flexDirection: "column", gap: 3 }}>
                         <span style={{ fontSize: 8, color: FAINT, letterSpacing: ".08em", textTransform: "uppercase", fontFamily: "var(--font-text)", marginBottom: 2 }}>Validierung</span>
                         {STRATEGY_VALIDATION[strategy]!.map(b => {
                           const valCol = b.status === "pending" ? FAINT : b.status === "fail" ? GOLD : TXT;
