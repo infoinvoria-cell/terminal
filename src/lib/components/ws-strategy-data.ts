@@ -320,9 +320,25 @@ export const PILLAR_META: Record<Pillar, { label: string; weight: string; color:
   intraday:  { label: "Intraday",  weight: "33%",      color: "#94a3b8", count: 3 },
 };
 
-// ── Core Invest (Research / Pre-Fund) ────────────────────────────────────────
-export type CIPillar = "etf_core" | "ci_sleeve";
-export type CIStatus = "historical_reference" | "research" | "partial_validation" | "parity_partial" | "parity_pending" | "rejected" | "validiert";
+// ── Core Invest Active Alpha 2 (Final, 2026-08-02) ───────────────────────────
+// Version: Active Alpha 2 · Stand: 2026-08-02
+// Sleeve 1: ETF Factor (8 ETFs, 140% gross, -40% BIL cash-financing)
+// Sleeve 2: Managed Futures Overlay (12 roots, trend L/S)
+// Sleeve 3: Risk Scaling (1.4× multiplier, 1.6× long cap)
+// Final ablation: CAGR 14.66% · Vol 22.30% · MaxDD -28.33% · Sharpe 0.663
+// Source: Brain/05_Portfolios/Core_Invest/ — updated 2026-08-02
+
+export type CIPillar = "etf_factor" | "managed_futures";
+export type CIStatus =
+  | "historical_reference"
+  | "research"
+  | "partial_validation"
+  | "parity_partial"
+  | "parity_pending"
+  | "rejected"
+  | "validiert"
+  | "active_overlay"
+  | "live_position";
 
 export interface CoreInvestRow {
   id: string;
@@ -332,11 +348,11 @@ export interface CoreInvestRow {
   engine: string;
   pillar: CIPillar;
   weight: number;
-  sharpe: number;
+  sharpe: number | null;
   pf: number | null;
   cagr: string | null;
   maxDd: string | null;
-  calmar: number;
+  calmar: number | null;
   trades: number | null;
   winRate: string | null;
   totalReturn: string | null;
@@ -344,62 +360,91 @@ export interface CoreInvestRow {
   notes?: string;
 }
 
-// v2.0 weights: ETF-Core 80% (QQQ 45%, GLD 25%, SPMO 5%, SPY 5%) + Sleeves 20% (4×5%)
-// Weights frozen 2026-07-20. Strategy sleeves are active TV-reference sleeves;
-// exact Python/TradingView trade parity remains a separate validation layer.
-export const CI_STRATEGIES: CoreInvestRow[] = [
+// ── Sleeve 1: ETF Factor ──────────────────────────────────────────────────────
+// Brutto-Long 140% + BIL -40% = Net 100%
+const CI_ETF_FACTOR: CoreInvestRow[] = [
   {
-    id: "qqq_etf_ci", ticker: "QQQ", label: "Nasdaq 100 ETF (passiv)", group: "ETF-Core",
-    engine: "Buy & Hold", pillar: "etf_core", weight: 45,
-    sharpe: 0.81, pf: 1.00, cagr: "+15.74%", maxDd: "-53.55%", calmar: 0.29, trades: 1, winRate: "100% Hold", totalReturn: "+1728.90%", status: "historical_reference",
-    notes: "TradingView OHLC 2006-08-18 bis 2026-07-07; Buy-and-hold Referenzposition.",
-  },
-  {
-    id: "gld_ci", ticker: "GLD", label: "Gold ETF", group: "ETF-Core",
-    engine: "Crisis Protection / Portfolio Hedge", pillar: "etf_core", weight: 25,
-    sharpe: 0.63, pf: 1.00, cagr: "+9.60%", maxDd: "-45.56%", calmar: 0.21, trades: 1, winRate: "100% Hold", totalReturn: "+518.43%", status: "historical_reference",
-    notes: "TradingView OHLC 2006-08-18 bis 2026-07-07; Buy-and-hold Hedge-Position.",
-  },
-  {
-    id: "spmo_ci", ticker: "SPMO", label: "Invesco S&P 500 Momentum", group: "ETF-Core",
-    engine: "Momentum / Alpha", pillar: "etf_core", weight: 5,
-    sharpe: 0.92, pf: 1.00, cagr: "+18.04%", maxDd: "-31.31%", calmar: 0.58, trades: 1, winRate: "100% Hold", totalReturn: "+493.17%", status: "historical_reference",
-    notes: "TradingView OHLC 2015-10-12 bis 2026-07-07; Buy-and-hold Momentum-Position.",
-  },
-  {
-    id: "spy_ci", ticker: "SPY", label: "S&P 500 ETF", group: "ETF-Core",
-    engine: "Buy & Hold / Benchmark", pillar: "etf_core", weight: 5,
+    id: "spy_aa2", ticker: "SPY", label: "S&P 500 ETF", group: "ETF Factor",
+    engine: "Buy & Hold", pillar: "etf_factor", weight: 56,
     sharpe: 0.56, pf: 1.00, cagr: "+9.17%", maxDd: "-56.47%", calmar: 0.16, trades: 1, winRate: "100% Hold", totalReturn: "+472.12%", status: "historical_reference",
-    notes: "TradingView OHLC 2006-08-18 bis 2026-07-07; Buy-and-hold Benchmark.",
+    notes: "S&P 500 Core; 56% Zielgewicht; historische B&H-Referenz ab 1993.",
   },
   {
-    id: "qqq_pine1", ticker: "QQQ", label: "QQQ Pine 1", group: "Strategy Sleeve",
-    engine: "SMA(400) + SMA(5) - Long/Cash - TP 2% - SL 25%", pillar: "ci_sleeve", weight: 10,
-    sharpe: 1.18, pf: 1.602, cagr: "+3.44%", maxDd: "-8.71%", calmar: 0.40, trades: 642, winRate: "69.31%", totalReturn: "+95.19%", status: "validiert",
-    notes: "TradingView-Referenz: 642 Trades, PF 1.602, MaxDD 8.71%, +95.19%; Engine-Parität bestätigt (next_open + intrabar SL/TP).",
+    id: "qqq_aa2", ticker: "QQQ", label: "Nasdaq 100 ETF", group: "ETF Factor",
+    engine: "Buy & Hold", pillar: "etf_factor", weight: 28,
+    sharpe: 0.81, pf: 1.00, cagr: "+15.74%", maxDd: "-53.55%", calmar: 0.29, trades: 1, winRate: "100% Hold", totalReturn: "+1728.90%", status: "historical_reference",
+    notes: "Growth/Nasdaq Core; 28% Zielgewicht.",
   },
   {
-    id: "hg1_ci", ticker: "HG1!", label: "Copper / HG", group: "Strategy Sleeve",
-    engine: "Pine 2 EMA - Long/Cash - TP 4% - SL 2%", pillar: "ci_sleeve", weight: 5,
-    sharpe: 1.36, pf: 2.082, cagr: "+9.23%", maxDd: "-40.43%", calmar: 0.23, trades: 88, winRate: "30.68%", totalReturn: "+483.82%", status: "validiert",
-    notes: "TradingView-Referenz: 88 Trades, PF 2.082, MaxDD 40.43%, +483.82%; Engine-Parität bestätigt (EMA20/50, next_open, intrabar SL/TP).",
+    id: "vlue_aa2", ticker: "VLUE", label: "iShares MSCI USA Value Factor", group: "ETF Factor",
+    engine: "Buy & Hold", pillar: "etf_factor", weight: 16,
+    sharpe: null, pf: 1.00, cagr: null, maxDd: null, calmar: null, trades: 1, winRate: "100% Hold", totalReturn: null, status: "historical_reference",
+    notes: "Value Factor; 16% Zielgewicht; inception 2013.",
   },
   {
-    id: "6s1_ci", ticker: "6S1!", label: "CHF / Swiss Franc", group: "Strategy Sleeve",
-    engine: "Pine 2 EMA - Long/Cash - TP 4% - SL 2%", pillar: "ci_sleeve", weight: 5,
-    sharpe: 0.42, pf: 1.266, cagr: "+0.84%", maxDd: "-23.66%", calmar: 0.04, trades: 65, winRate: "32.31%", totalReturn: "+17.92%", status: "validiert",
-    notes: "TradingView-Referenz: 65 Trades, PF 1.266, MaxDD 23.66%, +17.92%; Engine-Parität bestätigt (EMA20/50, next_open, intrabar SL/TP).",
+    id: "rsp_aa2", ticker: "RSP", label: "Invesco S&P 500 Equal Weight", group: "ETF Factor",
+    engine: "Buy & Hold", pillar: "etf_factor", weight: 8.4,
+    sharpe: null, pf: 1.00, cagr: null, maxDd: null, calmar: null, trades: 1, winRate: "100% Hold", totalReturn: null, status: "historical_reference",
+    notes: "Equal Weight S&P 500; 8.4% Zielgewicht; inception 2003.",
+  },
+  {
+    id: "qual_aa2", ticker: "QUAL", label: "iShares MSCI USA Quality Factor", group: "ETF Factor",
+    engine: "Buy & Hold", pillar: "etf_factor", weight: 8.4,
+    sharpe: null, pf: 1.00, cagr: null, maxDd: null, calmar: null, trades: 1, winRate: "100% Hold", totalReturn: null, status: "historical_reference",
+    notes: "Quality Factor; 8.4% Zielgewicht; inception 2013.",
+  },
+  {
+    id: "mtum_aa2", ticker: "MTUM", label: "iShares MSCI USA Momentum Factor", group: "ETF Factor",
+    engine: "Buy & Hold", pillar: "etf_factor", weight: 8.4,
+    sharpe: null, pf: 1.00, cagr: null, maxDd: null, calmar: null, trades: 1, winRate: "100% Hold", totalReturn: null, status: "historical_reference",
+    notes: "Momentum Factor; 8.4% Zielgewicht; inception 2013.",
+  },
+  {
+    id: "usmv_aa2", ticker: "USMV", label: "iShares MSCI USA Min Vol Factor", group: "ETF Factor",
+    engine: "Buy & Hold", pillar: "etf_factor", weight: 8.4,
+    sharpe: null, pf: 1.00, cagr: null, maxDd: null, calmar: null, trades: 1, winRate: "100% Hold", totalReturn: null, status: "historical_reference",
+    notes: "Low Volatility Factor; 8.4% Zielgewicht; inception 2011.",
+  },
+  {
+    id: "iwm_aa2", ticker: "IWM", label: "iShares Russell 2000 Small Cap", group: "ETF Factor",
+    engine: "Buy & Hold", pillar: "etf_factor", weight: 6.4,
+    sharpe: null, pf: 1.00, cagr: null, maxDd: null, calmar: null, trades: 1, winRate: "100% Hold", totalReturn: null, status: "historical_reference",
+    notes: "Small Cap Factor; 6.4% Zielgewicht; inception 2000.",
+  },
+  {
+    id: "bil_aa2", ticker: "BIL", label: "T-Bill ETF (Cash-Finanzierung)", group: "ETF Factor",
+    engine: "Cash Financing (Short)", pillar: "etf_factor", weight: -40,
+    sharpe: null, pf: null, cagr: null, maxDd: null, calmar: null, trades: null, winRate: "Short", totalReturn: null, status: "historical_reference",
+    notes: "-40% BIL: Cash-Finanzierung für 140% Brutto-Long-Exposure; kein direktes Return-Asset.",
   },
 ];
 
+// ── Sleeve 2: Managed Futures Overlay ────────────────────────────────────────
+// 12 Roots, trendbasiert Long/Short. Live-Position 2026-07-31: 6J short 2 Kontrakte.
+// Execution via Micro-Kontrakte (MES, MNQ, M6E, MJY, M6B, MSF, 1OZ, MHG, MCL, MNG, MZC, MZS).
+const CI_MF_OVERLAY: CoreInvestRow[] = [
+  { id: "es_aa2",  ticker: "ES1!",  label: "S&P 500 Futures (MES)",   group: "Equity",      engine: "Trend Long/Short", pillar: "managed_futures", weight: 0, sharpe: null, pf: null, cagr: null, maxDd: null, calmar: null, trades: null, winRate: null, totalReturn: null, status: "research", notes: "Equity Overlay; Micro: MES. Teil des Managed Futures Overlay." },
+  { id: "nq_aa2",  ticker: "NQ1!",  label: "Nasdaq Futures (MNQ)",    group: "Equity",      engine: "Trend Long/Short", pillar: "managed_futures", weight: 0, sharpe: null, pf: null, cagr: null, maxDd: null, calmar: null, trades: null, winRate: null, totalReturn: null, status: "research", notes: "Equity Overlay; Micro: MNQ." },
+  { id: "6e_aa2",  ticker: "6E1!",  label: "EUR/USD Futures (M6E)",   group: "FX",          engine: "Trend Long/Short", pillar: "managed_futures", weight: 0, sharpe: null, pf: null, cagr: null, maxDd: null, calmar: null, trades: null, winRate: null, totalReturn: null, status: "research", notes: "FX Overlay; Micro: M6E." },
+  { id: "6j_aa2",  ticker: "6J1!",  label: "JPY/USD Futures (MJY)",   group: "FX",          engine: "Trend Long/Short", pillar: "managed_futures", weight: 0, sharpe: null, pf: null, cagr: null, maxDd: null, calmar: null, trades: null, winRate: null, totalReturn: null, status: "live_position", notes: "FX Overlay; Micro: MJY. LIVE: short 2 Kontrakte (2026-07-31)." },
+  { id: "6b_aa2",  ticker: "6B1!",  label: "GBP/USD Futures (M6B)",   group: "FX",          engine: "Trend Long/Short", pillar: "managed_futures", weight: 0, sharpe: null, pf: null, cagr: null, maxDd: null, calmar: null, trades: null, winRate: null, totalReturn: null, status: "research", notes: "FX Overlay; Micro: M6B." },
+  { id: "6s_aa2",  ticker: "6S1!",  label: "CHF/USD Futures (MSF)",   group: "FX",          engine: "Trend Long/Short", pillar: "managed_futures", weight: 0, sharpe: null, pf: null, cagr: null, maxDd: null, calmar: null, trades: null, winRate: null, totalReturn: null, status: "research", notes: "FX Overlay; Micro: MSF." },
+  { id: "gc_aa2",  ticker: "GC1!",  label: "Gold Futures (1OZ)",      group: "Metals",      engine: "Trend Long/Short", pillar: "managed_futures", weight: 0, sharpe: null, pf: null, cagr: null, maxDd: null, calmar: null, trades: null, winRate: null, totalReturn: null, status: "research", notes: "Metals Overlay; 1OZ (scaled proxy)." },
+  { id: "hg_aa2",  ticker: "HG1!",  label: "Copper Futures (MHG)",    group: "Metals",      engine: "Trend Long/Short", pillar: "managed_futures", weight: 0, sharpe: null, pf: null, cagr: null, maxDd: null, calmar: null, trades: null, winRate: null, totalReturn: null, status: "research", notes: "Metals Overlay; Micro: MHG." },
+  { id: "cl_aa2",  ticker: "CL1!",  label: "Crude Oil Futures (MCL)", group: "Energy",      engine: "Trend Long/Short", pillar: "managed_futures", weight: 0, sharpe: null, pf: null, cagr: null, maxDd: null, calmar: null, trades: null, winRate: null, totalReturn: null, status: "research", notes: "Energy Overlay; Micro: MCL." },
+  { id: "ng_aa2",  ticker: "NG1!",  label: "Nat. Gas Futures (MNG)",  group: "Energy",      engine: "Trend Long/Short", pillar: "managed_futures", weight: 0, sharpe: null, pf: null, cagr: null, maxDd: null, calmar: null, trades: null, winRate: null, totalReturn: null, status: "research", notes: "Energy Overlay; Micro: MNG." },
+  { id: "zc_aa2",  ticker: "ZC1!",  label: "Corn Futures (MZC)",      group: "Agriculture", engine: "Trend Long/Short", pillar: "managed_futures", weight: 0, sharpe: null, pf: null, cagr: null, maxDd: null, calmar: null, trades: null, winRate: null, totalReturn: null, status: "research", notes: "Agriculture Overlay; MZC (synthetic history)." },
+  { id: "zs_aa2",  ticker: "ZS1!",  label: "Soybean Futures (MZS)",   group: "Agriculture", engine: "Trend Long/Short", pillar: "managed_futures", weight: 0, sharpe: null, pf: null, cagr: null, maxDd: null, calmar: null, trades: null, winRate: null, totalReturn: null, status: "research", notes: "Agriculture Overlay; MZS (synthetic history)." },
+];
+
+export const CI_STRATEGIES: CoreInvestRow[] = [...CI_ETF_FACTOR, ...CI_MF_OVERLAY];
+
 export const CI_META: Record<CIPillar, { label: string; weight: string; color: string }> = {
-  etf_core:  { label: "ETF-Core",        weight: "80%", color: "#3d8bcd" },
-  ci_sleeve: { label: "Strategy Sleeve", weight: "20%", color: "#a78bfa" },
+  etf_factor:      { label: "ETF Factor Sleeve", weight: "140% gross / 100% net", color: "#3d8bcd" },
+  managed_futures: { label: "Managed Futures Overlay", weight: "12 Roots L/S",    color: "#a78bfa" },
 };
 
 // ── Canonical portfolio KPIs (OOS 2019–2026, frozen) ────────────────────────
-// No verified aggregate exists for the current WS v1.3 blend.
-// Never display KPIs from older strategy runs as current portfolio KPIs.
 export const WS_PORTFOLIO_KPIS = {
   sharpe:     "nicht validiert",
   cagr:       "nicht validiert",
@@ -409,24 +454,28 @@ export const WS_PORTFOLIO_KPIS = {
   version:    "v1.3",
 } as const;
 
-// OOS metrics — Core Invest v2.0 (ohne QQQ_PINE_2_EMA, Pine1 10%).
-// Recalculated 2026-07-30 with RF=0%, daily close-to-close returns, 2019-01-02 to 2026-07-07.
-// Status: APPROVED_LIVE.
+// Final ablation KPIs — Core Invest Active Alpha 2 (2026-08-02)
+// Source: Brain/05_Portfolios/Core_Invest/Core Invest Strategy.md
+// Period: full backtest; Status: Research / Pre-Fund
 export const CI_PORTFOLIO_KPIS = {
-  sharpe:     "1.153",
-  cagr:       "+17.69%",
-  maxDd:      "−22.49%",
-  calmar:     "0.786",
-  components: "8",
+  sharpe:     "0.663",
+  cagr:       "+14.66%",
+  maxDd:      "−28.33%",
+  calmar:     "0.517",
+  components: "21",
+  version:    "Active Alpha 2",
 } as const;
 
-// Core Invest v2.0 canonical allocation weights (decimals, must sum to 1.0)
+// Active Alpha 2 canonical ETF Factor target weights (gross, decimals)
+// Managed Futures Overlay: dynamic L/S per signal — no fixed weight
 export const CI_WEIGHTS = {
-  QQQ_PASSIVE: 0.45,
-  GLD:         0.25,
-  SPMO:        0.05,
-  SPY:         0.05,
-  QQQ_PINE_1:  0.10,
-  COPPER_HG:   0.05,
-  CHF_6S:      0.05,
+  SPY:  0.56,
+  QQQ:  0.28,
+  VLUE: 0.16,
+  RSP:  0.084,
+  QUAL: 0.084,
+  MTUM: 0.084,
+  USMV: 0.084,
+  IWM:  0.064,
+  BIL:  -0.40,  // cash financing
 } as const;

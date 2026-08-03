@@ -5,34 +5,63 @@ import { getAnalyticsDataset } from "@/lib/analytics/portfolio-data";
 import { toMobileUrl } from "@/components/dashboard/sidebar";
 import { desktopToMobile, mobileToDesktop } from "@/components/mobile/MobileRedirect";
 import { CI_PORTFOLIO_KPIS, CI_STRATEGIES, CI_WEIGHTS } from "@/lib/components/ws-strategy-data";
-import { CORE_INVEST_MODEL, getCoreInvestWeightTotal } from "@/lib/core-invest/core-invest-model";
+import { CORE_INVEST_MODEL, getCoreInvestWeightTotal, CORE_INVEST_ETF_SYMBOLS, CORE_INVEST_MF_SYMBOLS } from "@/lib/core-invest/core-invest-model";
 import { validateAndRepairOhlc } from "@/lib/market-data/ohlc-quality";
 import type { CapalifeData } from "@/lib/capitalife-data";
 
-describe("Core Invest source-of-truth consistency", () => {
-  it("keeps the frozen eight-component allocation at 100 percent", () => {
-    expect(CORE_INVEST_MODEL.components).toHaveLength(8);
-    expect(getCoreInvestWeightTotal()).toBeCloseTo(1, 12);
-    expect(CORE_INVEST_MODEL.components.map((row) => row.id).sort()).toEqual(Object.keys(config.weights).sort());
-    expect(CORE_INVEST_MODEL.components.map((row) => row.id).sort()).toEqual(Object.keys(CI_WEIGHTS).sort());
-    for (const component of CORE_INVEST_MODEL.components) {
-      expect(component.weight).toBe(config.weights[component.id as keyof typeof config.weights]);
-      expect(component.weight).toBe(CI_WEIGHTS[component.id as keyof typeof CI_WEIGHTS]);
+describe("Core Invest Active Alpha 2 source-of-truth consistency", () => {
+  it("has ETF Factor Sleeve with 9 entries (8 ETFs + BIL) summing to 100% net", () => {
+    expect(CORE_INVEST_MODEL.etfFactorSleeve).toHaveLength(9);
+    // Net exposure = 140% gross - 40% BIL = 100%
+    expect(getCoreInvestWeightTotal()).toBeCloseTo(1.0, 8);
+    // ETF symbols correct count (BIL excluded)
+    expect(CORE_INVEST_ETF_SYMBOLS).toHaveLength(8);
+  });
+
+  it("has Managed Futures Overlay with 12 roots", () => {
+    expect(CORE_INVEST_MODEL.managedFuturesOverlay).toHaveLength(12);
+    expect(CORE_INVEST_MF_SYMBOLS).toHaveLength(12);
+  });
+
+  it("has correct Active Alpha 2 ablation KPIs", () => {
+    expect(CORE_INVEST_MODEL.ablationKpis.sharpe).toBeCloseTo(0.663, 3);
+    expect(CORE_INVEST_MODEL.ablationKpis.netCagrPct).toBeCloseTo(14.66, 2);
+    expect(CORE_INVEST_MODEL.ablationKpis.maxDrawdownPct).toBeCloseTo(-28.33, 2);
+    // Portfolio KPI display values match Brain source
+    expect(CI_PORTFOLIO_KPIS.version).toBe("Active Alpha 2");
+    expect(CI_PORTFOLIO_KPIS.cagr).toBe("+14.66%");
+    expect(CI_PORTFOLIO_KPIS.sharpe).toBe("0.663");
+  });
+
+  it("has ETF weights matching config and CI_WEIGHTS", () => {
+    const etfSleeveWeights = config.etf_factor_sleeve.weights;
+    const configEtfSymbols = Object.keys(etfSleeveWeights).sort();
+    const ciWeightsSymbols = Object.keys(CI_WEIGHTS).sort();
+    expect(configEtfSymbols).toEqual(ciWeightsSymbols);
+    for (const sym of configEtfSymbols) {
+      const cfgW = etfSleeveWeights[sym as keyof typeof etfSleeveWeights];
+      const ciW  = CI_WEIGHTS[sym as keyof typeof CI_WEIGHTS];
+      expect(cfgW).toBeCloseTo(ciW as number, 6);
     }
   });
 
-  it("does not expose rejected aggregate metrics as validated KPIs", () => {
-    expect(CORE_INVEST_MODEL.validation.aggregateBacktestValid).toBe(false);
+  it("does not expose rejected aggregate metrics as validated live KPIs", () => {
     expect(CORE_INVEST_MODEL.validation.rollingWalkForwardValid).toBe(false);
     expect(CORE_INVEST_MODEL.validation.liveReady).toBe(false);
-    expect(CORE_INVEST_MODEL.validation.liveReadyComponents).toBe(0);
-    expect(CORE_INVEST_MODEL.validation.historicalSeriesReady).toBe(4);
-    expect(CORE_INVEST_MODEL.components.every((row) => row.liveReady === false)).toBe(true);
-    expect(CORE_INVEST_MODEL.components.every((row) => row.ibkrMappingStatus === "offen")).toBe(true);
-    expect(CI_PORTFOLIO_KPIS.cagr).toBe("nicht validiert");
-    expect(CI_PORTFOLIO_KPIS.sharpe).toBe("nicht validiert");
+    expect(CORE_INVEST_MODEL.validation.realLiveDataVerified).toBe(false);
+    // No live_validated rows in CI_STRATEGIES
     expect(CI_STRATEGIES.some((row) => String(row.status) === "live_validated")).toBe(false);
-    expect(CI_STRATEGIES.filter((row) => row.status === "historical_reference")).toHaveLength(4);
+  });
+
+  it("has CI_STRATEGIES with correct sleeve structure", () => {
+    const etfRows = CI_STRATEGIES.filter((r) => r.pillar === "etf_factor");
+    const mfRows  = CI_STRATEGIES.filter((r) => r.pillar === "managed_futures");
+    expect(etfRows).toHaveLength(9);   // 8 ETFs + BIL
+    expect(mfRows).toHaveLength(12);   // 12 MF roots
+    // All ETF rows are historical_reference
+    expect(etfRows.every((r) => r.status === "historical_reference")).toBe(true);
+    // BIL is included as cash financing
+    expect(etfRows.some((r) => r.ticker === "BIL" && r.weight === -40)).toBe(true);
   });
 
   it("keeps the seasonal evidence register at seven found and three explicit gaps", () => {
@@ -55,11 +84,10 @@ describe("Core Invest source-of-truth consistency", () => {
       const dataset = getAnalyticsDataset("invest", mode, undefined, data);
       expect(dataset.performanceSeries).toEqual([]);
       expect(dataset.metrics.status).toBe("Validation blockiert");
-      expect(dataset.metrics.components).toBe("8");
     }
   });
 
-  it("keeps Core Invest separate in the INNO preparation", () => {
+  it("keeps Core Invest separate in the INNO preparation with correct track-record label", () => {
     const card = INNO_STRATEGY_CARDS.find((row) => row.id === "core-invest");
     expect(card).toBeDefined();
     expect(card?.rows.some((row) => row.key === "Track-Record-Status" && row.value.includes("Kein Live-Track-Record"))).toBe(true);

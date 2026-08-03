@@ -5,8 +5,10 @@ import { createSupabaseServiceClient } from "@/lib/supabase-server";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-// CI ETFs tracked in invest_ohlc (Supabase) — fill gaps from TradingView worker
-const CI_ETF_SYMBOLS = ["SPY","QQQ","GLD","IEF","BIL","RSP","IWM","EFA","EEM","QUAL","MTUM","VLUE","USMV","SPMO"];
+// CI ETF Factor Sleeve (Active Alpha 2) — tracked in invest_ohlc
+const CI_ETF_SYMBOLS = ["SPY","QQQ","VLUE","RSP","QUAL","MTUM","USMV","IWM","BIL",
+  // Legacy/extended list kept for historical coverage
+  "GLD","IEF","EFA","EEM","SPMO"];
 
 export interface LiveFeedResponseItem {
   symbol: string;
@@ -86,8 +88,8 @@ export async function GET() {
       }
     }
 
-    // 4. monitoring_ohlc — CI sleeve futures not in invest_ohlc (HG1!, 6S1!)
-    const CI_SLEEVE_FUTURES = ["HG1!", "6S1!"];
+    // 4. monitoring_ohlc — CI Managed Futures Overlay (Active Alpha 2, alle 12 Roots)
+    const CI_SLEEVE_FUTURES = ["ES1!","NQ1!","6E1!","6J1!","6B1!","6S1!","GC1!","HG1!","CL1!","NG1!","ZC1!","ZS1!"];
     const { data: monRows } = await db
       .from("monitoring_ohlc")
       .select("asset,date,open,close")
