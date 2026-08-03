@@ -38,6 +38,10 @@ const TICKER_ICON: Record<string, string> = {
   "SEKUSD": AI + "flag_sek.webp", "ZARUSD": AI + "flag_zar.jpg",
   "BRLUSD": AI + "flag_brl.jpg",  "NOKUSD": AI + "flag_nok.webp",
   "MXNUSD": AI + "flag_mxn.png",  "CLPUSD": AI + "flag_clp.webp",
+  // seasonal sleeve — fallbacks for assets without dedicated icons
+  "ZM1!":  AI + "soybeans.png",   // Soybean Meal → soybeans
+  "EEM":   AI + "es_s&p.png",     // EM ETF → ETF icon
+  "IWM":   AI + "es_s&p.png",     // Small Cap ETF → ETF icon
 };
 
 function TickerIcon({ ticker }: { ticker: string }) {
@@ -1196,7 +1200,7 @@ export default function StrategyMasterTable() {
                     <Th label="Ticker"  k="ticker"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
                     <Th label="Asset"   k="label"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" />
                     <Th label="Pillar"  k="pillar"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={`n ${pillars}`} />
-                    <Th label="Gew."    k="weight"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={weightSum > 0 ? `Σ ${weightSum}%` : undefined} />
+                    <Th label="Gew."    k="weight"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={weightSum > 0 ? `Σ ${Math.round(weightSum)}%` : undefined} />
                     <Th label="Sharpe"  k="sharpeOos" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={showComponentAggregates && avgSharpe ? `∅ ${avgSharpe}` : undefined} />
                     <Th label="CAGR"    k="cagr"      sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={showComponentAggregates && avgCagr ? `∅ ${avgCagr}` : undefined} />
                     <Th label="Max DD"  k="maxDd"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={showComponentAggregates && avgDd ? `∅ ${avgDd}` : undefined} />
@@ -1256,7 +1260,7 @@ export default function StrategyMasterTable() {
                     <td style={{ padding: "5px 8px", color: "rgba(255,255,255,0.35)", fontSize: 10, textAlign: "left" }}>{row.label}</td>
                     <td style={{ padding: "5px 8px", fontSize: 9, color: "rgba(255,255,255,0.22)", letterSpacing: ".04em", textAlign: "left" }}>{row.pillarLabel}</td>
                     <td style={{ padding: "5px 8px", textAlign: "left", color: row.weight ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.15)", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>
-                      {row.weight != null ? `${row.weight}%` : "—"}
+                      {row.weight != null ? `${Math.round(row.weight)}%` : "—"}
                     </td>
                     <td style={{ padding: "5px 8px", textAlign: "left", fontWeight: 700, fontVariantNumeric: "tabular-nums", color: numColor(row.sharpeOos) }}>
                       {row.sharpeOos != null ? fmtN(row.sharpeOos) : "—"}
