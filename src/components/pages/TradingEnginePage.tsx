@@ -135,10 +135,8 @@ function setCached(key: string, data: BacktestResult) {
   try { localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() })); } catch {}
 }
 function valColor(v: number): string {
-  if (v > 0) return TXT;
-  if (v < -25) return RED;
   if (v < 0) return GOLD;
-  return MUT;
+  return TXT;
 }
 
 type BadgeStatus = "ok" | "warn" | "fail" | "pending";
@@ -154,14 +152,14 @@ const STRATEGY_VALIDATION: Partial<Record<Strategy, ValidationBadge[]>> = {
 };
 
 const KPIS: { key: string; label: string; fmt: (v: number) => string; color: (v: number) => string }[] = [
-  { key: "cagr",         label: "CAGR",    fmt: v => `${v > 0 ? "+" : ""}${v.toFixed(1)}%`, color: v => v > 5 ? "#22C55E" : v > 0 ? GOLD : RED },
-  { key: "sharpe",       label: "Sharpe",  fmt: v => v.toFixed(2),  color: v => v > 1 ? "#22C55E" : v > 0.5 ? GOLD : RED },
-  { key: "maxDD",        label: "Max DD",  fmt: v => `${v.toFixed(1)}%`, color: v => v > -10 ? "#22C55E" : v > -25 ? GOLD : RED },
-  { key: "calmar",       label: "Calmar",  fmt: v => v.toFixed(2),  color: v => v > 1 ? "#22C55E" : v > 0.5 ? GOLD : RED },
+  { key: "cagr",         label: "CAGR",    fmt: v => `${v > 0 ? "+" : ""}${v.toFixed(1)}%`, color: v => v < 0 ? GOLD : TXT },
+  { key: "sharpe",       label: "Sharpe",  fmt: v => v.toFixed(2),  color: v => v < 0 ? GOLD : TXT },
+  { key: "maxDD",        label: "Max DD",  fmt: v => `${v.toFixed(1)}%`, color: v => v < -30 ? GOLD : TXT },
+  { key: "calmar",       label: "Calmar",  fmt: v => v.toFixed(2),  color: () => TXT },
   { key: "trades",       label: "Trades",  fmt: v => String(Math.round(v)), color: () => TXT },
-  { key: "winRate",      label: "Win %",   fmt: v => `${v.toFixed(1)}%`, color: v => v > 55 ? "#22C55E" : v > 45 ? GOLD : RED },
-  { key: "profitFactor", label: "PF",      fmt: v => v.toFixed(2),  color: v => v > 1.5 ? "#22C55E" : v > 1 ? GOLD : RED },
-  { key: "avgWin",       label: "Avg Win", fmt: v => `+${v.toFixed(2)}%`, color: () => "#22C55E" },
+  { key: "winRate",      label: "Win %",   fmt: v => `${v.toFixed(1)}%`, color: () => TXT },
+  { key: "profitFactor", label: "PF",      fmt: v => v.toFixed(2),  color: v => v < 1 ? GOLD : TXT },
+  { key: "avgWin",       label: "Avg Win", fmt: v => `+${v.toFixed(2)}%`, color: () => TXT },
 ];
 
 const PERF_ROWS: { key: string; label: string; fmt: (v: number) => string }[] = [
@@ -283,7 +281,7 @@ export default function TradingEnginePage() {
 
   const BT_STRATEGIES = new Set<Strategy>(["EUR_30M"]);
 
-  const BT_VERSION = "v2";
+  const BT_VERSION = "v3";
   const runBacktest = useCallback(async () => {
     const ck = `bt_${strategy}_${assetType}_${BT_VERSION}_${JSON.stringify(params)}_${startDate}_${endDate}`;
     const cached = getCached(ck);
@@ -296,7 +294,7 @@ export default function TradingEnginePage() {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 120_000);
         setBtPhase("Berechne Signal...");
-        const r = await fetch("http://localhost:5000/bt/backtest", {
+        const r = await fetch("http://localhost:5000/backtest", {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ strategy, asset_type: btAsset, params, start_date: startDate, end_date: endDate }),
           signal: controller.signal,
@@ -531,8 +529,8 @@ export default function TradingEnginePage() {
                 {signal.status && (
                   <>
                     <span style={{ width: 1, height: 12, background: BORDER, margin: "0 4px" }} />
-                    <span style={{ fontSize: 9, fontWeight: 700, color: signal.status === "APPROVED_LIVE" ? "#22C55E" : GOLD, padding: "2px 8px", borderRadius: 3, background: signal.status === "APPROVED_LIVE" ? "rgba(74,222,128,0.1)" : GOLD_DIM }}>
-                      {signal.status === "APPROVED_LIVE" ? "APPROVED LIVE" : signal.status}
+                    <span style={{ fontSize: 9, fontWeight: 600, color: TXT, padding: "2px 8px", borderRadius: 3, background: "rgba(255,255,255,0.06)", letterSpacing: ".04em" }}>
+                      {signal.status === "APPROVED_LIVE" ? "APPROVED" : signal.status}
                     </span>
                     {signal.parity && (
                       <span style={{ fontSize: 9, color: MUT }}>Parity {signal.parity}</span>
@@ -557,18 +555,18 @@ export default function TradingEnginePage() {
                 <div style={{ position: "relative" }}>
                   <button className="tbtn" onClick={() => setShowSettings(s => !s)} style={{ position: "relative" }}>
                     <span style={{ fontSize: 11 }}>&#9881;</span>
-                    <div style={{ width: 5, height: 5, borderRadius: "50%", background: online ? "#22C55E" : GOLD, position: "absolute", top: 2, right: 2 }} />
+                    <div style={{ width: 5, height: 5, borderRadius: "50%", background: online ? TXT : FAINT, position: "absolute", top: 2, right: 2 }} />
                   </button>
                   {showSettings && (
                     <div className="settings-drop">
                       <div style={{ fontSize: 10, color: DIM, marginBottom: 8, letterSpacing: ".06em", textTransform: "uppercase" }}>Engine Status</div>
                       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: online ? "#22C55E" : GOLD }} />
-                        <span style={{ fontSize: 11, color: online ? TXT : MUT }}>{online ? "Online" : "Offline"}</span>
+                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: online ? TXT : FAINT }} />
+                        <span style={{ fontSize: 11, color: online ? TXT : DIM }}>{online ? "Online" : "Offline"}</span>
                       </div>
                       {online && (
                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: ibkrOk ? "#22C55E" : GOLD }} />
+                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: ibkrOk ? GOLD : FAINT }} />
                           <span style={{ fontSize: 11, color: MUT }}>IBKR {ibkrOk ? `connected${health?.paper_mode ? " (Paper)" : ""}` : "disconnected"}</span>
                         </div>
                       )}
@@ -667,11 +665,11 @@ export default function TradingEnginePage() {
                       <div style={{ borderTop: `1px solid ${BORDER}`, marginTop: 6, paddingTop: 8, display: "flex", flexDirection: "column", gap: 3 }}>
                         <span style={{ fontSize: 8, color: FAINT, letterSpacing: ".08em", textTransform: "uppercase", fontFamily: "var(--font-text)", marginBottom: 2 }}>Validierung</span>
                         {STRATEGY_VALIDATION[strategy]!.map(b => {
-                          const col = b.status === "ok" ? "#22C55E" : b.status === "fail" ? RED : b.status === "pending" ? FAINT : GOLD;
+                          const valCol = b.status === "pending" ? FAINT : b.status === "fail" ? GOLD : TXT;
                           return (
-                            <div key={b.label} title={b.tooltip ?? ""} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "2px 6px", borderRadius: 3, border: `1px solid ${col}33`, cursor: b.tooltip ? "help" : "default" }}>
-                              <span style={{ fontSize: 9, letterSpacing: ".06em", textTransform: "uppercase", fontFamily: "var(--font-text)", color: FAINT }}>{b.label}</span>
-                              <span style={{ fontSize: 9, fontWeight: 700, fontFamily: "var(--font-text)", color: col }}>{b.value}</span>
+                            <div key={b.label} title={b.tooltip ?? ""} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "3px 0", borderBottom: `1px solid ${BORDER}`, cursor: b.tooltip ? "help" : "default" }}>
+                              <span style={{ fontSize: 9, letterSpacing: ".05em", textTransform: "uppercase", fontFamily: "var(--font-text)", color: FAINT }}>{b.label}</span>
+                              <span style={{ fontSize: 10, fontWeight: 600, fontFamily: "var(--font-numbers)", color: valCol }}>{b.value}</span>
                             </div>
                           );
                         })}
@@ -712,8 +710,8 @@ export default function TradingEnginePage() {
                             <td style={{ fontWeight: 600, color: dir === "short" ? GOLD : TXT, fontSize: 10 }}>{dir === "short" ? "S" : "L"}</td>
                             <td style={{ color: MUT }}>{t.entry?.toFixed(4)}</td>
                             <td style={{ color: MUT }}>{t.exit?.toFixed(4) ?? "—"}</td>
-                            <td style={{ textAlign: "right", color: (t.pnl_pips ?? 0) >= 0 ? TXT : GOLD }}>{t.pnl_pips != null ? `${(t.pnl_pips ?? 0) > 0 ? "+" : ""}${t.pnl_pips.toFixed(0)}p` : "—"}</td>
-                            <td style={{ textAlign: "right", color: t.win ? TXT : GOLD, fontWeight: 600 }}>{t.win ? "+" : ""}{(t.pnl_pct * 100).toFixed(2)}%</td>
+                            <td style={{ textAlign: "right", color: MUT }}>{t.pnl_pips != null ? `${(t.pnl_pips ?? 0) > 0 ? "+" : ""}${t.pnl_pips.toFixed(0)}p` : "—"}</td>
+                            <td style={{ textAlign: "right", color: (t.pnl_pct ?? 0) >= 0 ? TXT : GOLD, fontWeight: 500 }}>{(t.pnl_pct ?? 0) >= 0 ? "+" : ""}{(t.pnl_pct * 100).toFixed(2)}%</td>
                           </tr>);
                         })}
                       </tbody></table>
@@ -830,7 +828,7 @@ export default function TradingEnginePage() {
                 {([
                   ["Close", signal.close?.toFixed(5), TXT],
                   ["ATR", signal.atr?.toFixed(5), MUT],
-                  ["Regime", signal.regime_active ? "Active" : "Off", signal.regime_active ? "#22C55E" : DIM],
+                  ["Regime", signal.regime_active ? "Active" : "Off", signal.regime_active ? TXT : DIM],
                 ] as [string, string | undefined, string][]).filter(([, v]) => v).map(([l, v, col]) => (
                   <div key={l} style={{ display: "flex", justifyContent: "space-between" }}>
                     <span style={{ fontSize: 9, color: FAINT }}>{l}</span>
