@@ -92,7 +92,7 @@ const PARAM_DEFS: Record<Strategy, ParamDef[]> = {
   ],
 };
 const DEFAULT_PARAMS: Record<Strategy, Params> = {
-  EUR_30M: { fo_pips: 0.00012, sl_atr_mult: 1.2, tp_crv: 3.0, session_start_h: 7, session_end_h: 11, flip_threshold: 0.55, spec_threshold: 0.7, min_candle_size: 0.0008, max_candle_size: 0.005, engulfing_only: 1, use_regime: 1 },
+  EUR_30M: { fo_pips: 0.00012, sl_atr_mult: 1.5, tp_crv: 3.0, session_start_h: 7, session_end_h: 11, flip_threshold: 0.55, spec_threshold: 0.7, min_candle_size: 0.0008, max_candle_size: 0.005, engulfing_only: 1, use_regime: 1 },
   DAX_1H:  { ema_fast: 20, ema_slow: 50, sl_pts: 35,      tp_pts: 126,     direction: "both", session_start: 8,  session_end: 17 },
   DAX_2H:  { ema_fast: 4,  ema_slow: 20, sl_pts: 50,      tp_pts: 150,     direction: "both", session_start: 8,  session_end: 18 },
   GC_FRI:  { atr_len: 14, sl_mult: 0.75, rr: 1.25 },
@@ -644,7 +644,7 @@ export default function TradingEnginePage() {
                               <XAxis dataKey="x" tick={{ fontSize: 7, fill: FAINT }} tickLine={false} axisLine={false} interval={Math.max(1, Math.floor(ddData.length / 8))} tickFormatter={v => String(v).slice(0, 4)} />
                               <YAxis domain={["auto", 0]} tick={{ fontSize: 8, fill: DIM, fontFamily: 'var(--font-numbers)' }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} width={50} tickFormatter={v => `${Number(v).toFixed(1)}%`} />
                               <Tooltip contentStyle={{ background: BG, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 9 }} formatter={(v: unknown) => [`${Number(v).toFixed(2)}%`, "Drawdown"]} />
-                              <Area type="monotone" dataKey="dd" stroke="#C9A84C" fill="rgba(201,168,76,0.2)" strokeWidth={1} dot={false} />
+                              <Area type="monotone" dataKey="dd" stroke="#EF4444" fill="rgba(239,68,68,0.15)" strokeWidth={1} dot={false} />
                             </AreaChart>
                           </ResponsiveContainer>
                         </div>
