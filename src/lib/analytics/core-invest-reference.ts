@@ -117,7 +117,7 @@ type AssetSeriesBundle = {
 
 function parseAssetReturnSeries(startDate: string): AssetSeriesBundle {
   // Step 1: Build raw price maps — only real price observations, no filling.
-  // col[0]=date, col[4]=adjusted close (split-adjusted from data source).
+  // col[0]=date, col[4]=close (header: time,open,high,low,close — no adjusted-close column).
   const allPrices = new Map<string, Map<string, number>>();
   for (const ticker of CORE_INVEST_ETFS) {
     const filepath = join(CANONICAL_DIR, `${ticker}.csv`);
@@ -160,7 +160,9 @@ function parseAssetReturnSeries(startDate: string): AssetSeriesBundle {
         if (dr > maxDailyReturnPct) maxDailyReturnPct = dr;
       }
       prevPrice = price;
-      const cumReturn = Number(((price / basePrice - 1) * 100).toFixed(4));
+      // No toFixed rounding — store full float precision so display and full
+      // series produce bit-identical final returns for the same last date/price.
+      const cumReturn = (price / basePrice - 1) * 100;
       series.push({ date, value: cumReturn });
     }
 
@@ -172,7 +174,11 @@ function parseAssetReturnSeries(startDate: string): AssetSeriesBundle {
       fullPoints: series.length,
       displayPoints: 0, // filled below
       maxDailyReturnPct: Number(maxDailyReturnPct.toFixed(4)),
-      priceColumn: "col[4] adjusted close",
+      priceColumn: "col[4] close",
+      returnType: "total_return",
+      adjustmentMethod: "backward_adjusted_splits_and_dividends",
+      validationStatus: "empirically_validated",
+      provenanceStatus: "primary_export_record_missing",
     };
   }
 
@@ -207,7 +213,9 @@ function parseAssetReturnSeries(startDate: string): AssetSeriesBundle {
       if (date < inceptionDate) continue; // pre-inception: genuine null gap
       const price = prices.get(date);
       if (price === undefined) continue;  // no trade on this date: null gap (no carry-forward)
-      const cumReturn = Number(((price / basePrice - 1) * 100).toFixed(2));
+      // Same formula as fullSeries — no toFixed here either.
+      // Ensures display final return is bit-identical to full final return.
+      const cumReturn = (price / basePrice - 1) * 100;
       series.push({ date, value: cumReturn });
     }
 

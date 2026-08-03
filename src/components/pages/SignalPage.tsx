@@ -126,11 +126,13 @@ function SectionPanel({
   logo,
   selectedCardId,
   onSelect,
+  livePositions,
 }: {
   section: SignalPageSection;
   logo: string;
   selectedCardId: string | null;
   onSelect: (card: SignalCardModel) => void;
+  livePositions?: Set<string>;
 }) {
   const [filter, setFilter] = useState<SignalCardFilter>("open");
 
@@ -189,12 +191,29 @@ function SectionPanel({
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 8, paddingBottom: 24 }}>
               {visible.map((card) => (
-                <SignalCard
-                  key={card.id}
-                  card={card}
-                  active={selectedCardId === card.id}
-                  onSelect={onSelect}
-                />
+                <div key={card.id} style={{ position: "relative" }}>
+                  <SignalCard
+                    card={card}
+                    active={selectedCardId === card.id}
+                    onSelect={onSelect}
+                  />
+                  {livePositions?.has(card.assetSymbol) && (
+                    <div title="Live-bestätigt (forward_signals)" style={{
+                      position: "absolute", top: 6, right: 6,
+                      display: "flex", alignItems: "center", gap: 3,
+                      background: "rgba(0,200,100,0.12)",
+                      border: "1px solid rgba(0,200,100,0.3)",
+                      borderRadius: 4,
+                      padding: "1px 5px",
+                      fontSize: 8, fontWeight: 700, letterSpacing: "0.06em",
+                      color: "#00c864",
+                      pointerEvents: "none",
+                    }}>
+                      <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#00c864", display: "inline-block" }} />
+                      LIVE
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           )}
@@ -261,6 +280,22 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
   const [fullData, setFullData] = useState(false);
   const [ohlcBars, setOhlcBars] = useState<MonitoringChartData["bars"] | null>(null);
   const ohlcFetchRef = useRef<AbortController | null>(null);
+  const [livePositions, setLivePositions] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const r = await fetch("/api/signals/live");
+        if (!r.ok) return;
+        const d = await r.json() as { items?: Array<{ symbol: string; inPosition: boolean }> };
+        const open = new Set<string>((d.items ?? []).filter((i) => i.inPosition).map((i) => i.symbol));
+        setLivePositions(open);
+      } catch { /* ignore */ }
+    };
+    void load();
+    const id = setInterval(() => void load(), 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   const selectedCard = useMemo(
     () => data.cards.find((c) => c.id === selectedCardId) ?? firstCard,
@@ -450,6 +485,7 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
             logo="/branding/capitalife-favicon.png"
             selectedCardId={selectedCardId}
             onSelect={(c) => setSelectedCardId(c.id)}
+            livePositions={livePositions}
           />
         )}
 

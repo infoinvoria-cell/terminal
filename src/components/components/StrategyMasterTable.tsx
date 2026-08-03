@@ -402,7 +402,7 @@ function CandleChart({ ticker, timeframe = "1D", refreshSecs = 30 }: { ticker: s
     fetch("/api/monitoring/live-state")
       .then(r => r.json())
       .then((d: unknown) => {
-        const trades: LiveTrade[] = Array.isArray(d) ? (d as LiveTrade[]) : ((d as { trades?: LiveTrade[] }).trades ?? []);
+        const trades: LiveTrade[] = Array.isArray(d) ? (d as LiveTrade[]) : ((d as { openTrades?: LiveTrade[]; trades?: LiveTrade[] }).openTrades ?? (d as { trades?: LiveTrade[] }).trades ?? []);
         const base = ticker.split(" ")[0].replace("1!", "").toUpperCase();
         const match = trades.find(t => {
           const ts = (t.symbol ?? "").replace("1!", "").toUpperCase();
@@ -978,7 +978,7 @@ export default function StrategyMasterTable() {
     fetch("/api/monitoring/live-state")
       .then(r => r.json())
       .then((d: unknown) => {
-        const trades: LiveTrade[] = Array.isArray(d) ? (d as LiveTrade[]) : ((d as { trades?: LiveTrade[] }).trades ?? []);
+        const trades: LiveTrade[] = Array.isArray(d) ? (d as LiveTrade[]) : ((d as { openTrades?: LiveTrade[]; trades?: LiveTrade[] }).openTrades ?? (d as { trades?: LiveTrade[] }).trades ?? []);
         setLiveTrades(trades);
       })
       .catch(() => {});
@@ -1006,7 +1006,7 @@ export default function StrategyMasterTable() {
       fetch("/api/monitoring/live-state")
         .then(r => r.json())
         .then((d: unknown) => {
-          const trades: LiveTrade[] = Array.isArray(d) ? (d as LiveTrade[]) : ((d as { trades?: LiveTrade[] }).trades ?? []);
+          const trades: LiveTrade[] = Array.isArray(d) ? (d as LiveTrade[]) : ((d as { openTrades?: LiveTrade[]; trades?: LiveTrade[] }).openTrades ?? (d as { trades?: LiveTrade[] }).trades ?? []);
           setLiveTrades(trades);
         })
         .catch(() => {});
