@@ -145,7 +145,7 @@ type BadgeStatus = "ok" | "warn" | "fail" | "pending";
 interface ValidationBadge { label: string; value: string; status: BadgeStatus; tooltip?: string }
 const STRATEGY_VALIDATION: Partial<Record<Strategy, ValidationBadge[]>> = {
   EUR_30M: [
-    { label: "Parity",       value: "80.7%",    status: "ok",   tooltip: "Spot/CFD-Parität: 328T / PF=1.144 / Sharpe=0.208" },
+    { label: "Basis",        value: "PF 1.35",  status: "ok",   tooltip: "2007-2026: 204 Trades, PF=1.346, WR=41.7%, MaxDD=-21.4%, CAGR=2.06%" },
     { label: "Param Stabil", value: "68%",      status: "ok",   tooltip: "17/25 SL×TP-Varianten profitabel. sl>=1.0 durchgehend robust." },
     { label: "Dekaden",      value: "2/4",      status: "fail", tooltip: "WARN: 2011-2015 PF=0.928, 2016-2020 PF=0.625. Low-Vol-Phase problematisch." },
     { label: "WF",           value: "ausstehend", status: "pending", tooltip: "Walk-Forward noch nicht berechnet" },
