@@ -141,6 +141,18 @@ function valColor(v: number): string {
   return MUT;
 }
 
+type BadgeStatus = "ok" | "warn" | "fail" | "pending";
+interface ValidationBadge { label: string; value: string; status: BadgeStatus; tooltip?: string }
+const STRATEGY_VALIDATION: Partial<Record<Strategy, ValidationBadge[]>> = {
+  EUR_30M: [
+    { label: "Parity",       value: "80.7%",   status: "ok",      tooltip: "Spot/CFD-Parität: Beide Datenquellen übereinstimmend" },
+    { label: "WF",           value: "Grade B", status: "warn",    tooltip: "Walk-Forward: OOS-Performance ~40-60% von IS" },
+    { label: "Random Test",  value: "p<0.05",  status: "ok",      tooltip: "Sub-Sample Test: Edge statistisch signifikant" },
+    { label: "Param Stabil", value: "72%",     status: "ok",      tooltip: "72% der SL/TP-Varianten profitabel" },
+    { label: "Dekaden",      value: "3/4",     status: "ok",      tooltip: "Profitabel in 3 von 4 Dekaden (2007–2026)" },
+  ],
+};
+
 const KPIS: { key: string; label: string; fmt: (v: number) => string; color: (v: number) => string }[] = [
   { key: "cagr",         label: "CAGR",    fmt: v => `${v > 0 ? "+" : ""}${v.toFixed(1)}%`, color: v => v > 5 ? "#22C55E" : v > 0 ? GOLD : RED },
   { key: "sharpe",       label: "Sharpe",  fmt: v => v.toFixed(2),  color: v => v > 1 ? "#22C55E" : v > 0.5 ? GOLD : RED },
@@ -647,6 +659,20 @@ export default function TradingEnginePage() {
                         </div>
                       );
                     })}
+                    {STRATEGY_VALIDATION[strategy] && (
+                      <div style={{ borderTop: `1px solid ${BORDER}`, marginTop: 6, paddingTop: 8, display: "flex", flexDirection: "column", gap: 3 }}>
+                        <span style={{ fontSize: 8, color: FAINT, letterSpacing: ".08em", textTransform: "uppercase", fontFamily: "var(--font-montserrat,system-ui)", marginBottom: 2 }}>Validierung</span>
+                        {STRATEGY_VALIDATION[strategy]!.map(b => {
+                          const col = b.status === "ok" ? "#22C55E" : b.status === "fail" ? RED : b.status === "pending" ? FAINT : GOLD;
+                          return (
+                            <div key={b.label} title={b.tooltip ?? ""} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "2px 6px", borderRadius: 3, border: `1px solid ${col}33`, cursor: b.tooltip ? "help" : "default" }}>
+                              <span style={{ fontSize: 9, letterSpacing: ".06em", textTransform: "uppercase", fontFamily: "var(--font-montserrat,system-ui)", color: FAINT }}>{b.label}</span>
+                              <span style={{ fontSize: 9, fontWeight: 700, fontFamily: "var(--font-montserrat,system-ui)", color: col }}>{b.value}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </>
               ) : testerTab === "performance" ? (
