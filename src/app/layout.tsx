@@ -1,9 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Montserrat, Nunito } from "next/font/google";
 import { ClientProviders } from "@/components/providers";
-
-import IntroAnimation from "@/components/intro/IntroAnimation";
 import { MobileRedirect } from "@/components/mobile/MobileRedirect";
+import { EngineStatusProvider } from "@/components/engine/EngineStatusProvider";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -48,7 +47,7 @@ export default function RootLayout({
       <body className="h-full overflow-hidden bg-[#0c0d10] text-white">
         {/* --header-height default set in globals.css :root — no inline style needed */}
         <MobileRedirect />
-        <IntroAnimation />
+        <EngineStatusProvider />
         <ClientProviders initialHeaderHidden={true}>
           {children}
         </ClientProviders>

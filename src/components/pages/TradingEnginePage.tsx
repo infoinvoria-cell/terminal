@@ -283,8 +283,9 @@ export default function TradingEnginePage() {
 
   const BT_STRATEGIES = new Set<Strategy>(["EUR_30M"]);
 
+  const BT_VERSION = "v2";
   const runBacktest = useCallback(async () => {
-    const ck = `bt_${strategy}_${assetType}_${JSON.stringify(params)}_${startDate}_${endDate}`;
+    const ck = `bt_${strategy}_${assetType}_${BT_VERSION}_${JSON.stringify(params)}_${startDate}_${endDate}`;
     const cached = getCached(ck);
     if (cached) { setResult(cached); return; }
     setRunning(true); setBtPhase("Lade Daten...");
@@ -292,13 +293,16 @@ export default function TradingEnginePage() {
       let data: BacktestResult;
       if (BT_STRATEGIES.has(strategy)) {
         const btAsset = assetType === "cfd" ? "spot" : assetType;
-        setBtPhase("Berechne Trades...");
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 120_000);
+        setBtPhase("Berechne Signal...");
         const r = await fetch("http://localhost:5000/bt/backtest", {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ strategy, asset_type: btAsset, params, start_date: startDate, end_date: endDate }),
-          signal: AbortSignal.timeout(60_000),
+          signal: controller.signal,
         });
-        setBtPhase("Erstelle Equity Curve...");
+        clearTimeout(timeout);
+        setBtPhase("Fertig ✓");
         const raw = await r.json();
         if (raw.error) {
           data = { metrics: {} as BacktestResult["metrics"], equity: [], drawdown: [], trades: [], error: raw.error };
@@ -324,7 +328,7 @@ export default function TradingEnginePage() {
       if (!data.error) setCached(ck, data);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      setResult({ metrics: {} as BacktestResult["metrics"], equity: [], drawdown: [], trades: [], error: msg.includes("Timeout") || msg.includes("60000") ? "Timeout — reduce date range" : "Engine offline" });
+      setResult({ metrics: {} as BacktestResult["metrics"], equity: [], drawdown: [], trades: [], error: msg.includes("abort") || msg.includes("Abort") ? "Timeout (120s) — reduce date range" : "Engine offline" });
     } finally { setRunning(false); setBtPhase(""); }
   }, [strategy, assetType, params, startDate, endDate]);
 
