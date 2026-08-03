@@ -145,11 +145,11 @@ type BadgeStatus = "ok" | "warn" | "fail" | "pending";
 interface ValidationBadge { label: string; value: string; status: BadgeStatus; tooltip?: string }
 const STRATEGY_VALIDATION: Partial<Record<Strategy, ValidationBadge[]>> = {
   EUR_30M: [
-    { label: "Parity",       value: "80.7%",   status: "ok",      tooltip: "Spot/CFD-Parität: Beide Datenquellen übereinstimmend" },
-    { label: "WF",           value: "Grade B", status: "warn",    tooltip: "Walk-Forward: OOS-Performance ~40-60% von IS" },
-    { label: "Random Test",  value: "p<0.05",  status: "ok",      tooltip: "Sub-Sample Test: Edge statistisch signifikant" },
-    { label: "Param Stabil", value: "72%",     status: "ok",      tooltip: "72% der SL/TP-Varianten profitabel" },
-    { label: "Dekaden",      value: "3/4",     status: "ok",      tooltip: "Profitabel in 3 von 4 Dekaden (2007–2026)" },
+    { label: "Parity",       value: "80.7%",    status: "ok",   tooltip: "Spot/CFD-Parität: 328T / PF=1.144 / Sharpe=0.208" },
+    { label: "Param Stabil", value: "68%",      status: "ok",   tooltip: "17/25 SL×TP-Varianten profitabel. sl>=1.0 durchgehend robust." },
+    { label: "Dekaden",      value: "2/4",      status: "fail", tooltip: "WARN: 2011-2015 PF=0.928, 2016-2020 PF=0.625. Low-Vol-Phase problematisch." },
+    { label: "WF",           value: "ausstehend", status: "pending", tooltip: "Walk-Forward noch nicht berechnet" },
+    { label: "Status",       value: "CONDITIONAL", status: "warn", tooltip: "PF+Param OK, aber Dekaden 2/4 → kein APPROVED_LIVE" },
   ],
 };
 
