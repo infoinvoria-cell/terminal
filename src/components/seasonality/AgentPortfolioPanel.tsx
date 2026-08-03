@@ -1,12 +1,12 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { AGENT_PATTERNS, AGENT_PORTFOLIO_GENERATED, AGENT_PORTFOLIO_N, type AgentPattern } from "@/lib/seasonality/agentPortfolioData";
 
 const C_WHITE  = "#F0F3F7";
-const C_GOLD   = "#DCC476";
-const C_MUTED  = "#9AAAB8";
-const C_DIM    = "#7A8898";
+const C_GOLD   = "#C9A84C";
+const C_MUTED  = "#9CA3AF";
+const C_DIM    = "#5A6070";
 const C_BG     = "#060606";
 const C_BORDER = "rgba(255,255,255,0.07)";
 const C_HOVER  = "rgba(255,255,255,0.04)";
@@ -21,7 +21,7 @@ function fmt(v: number, d = 2) {
 
 function TierBadge({ tier }: { tier: AgentPattern["tier"] }) {
   const colors: Record<string, { bg: string; color: string; label: string }> = {
-    bonferroni: { bg: "rgba(100,220,130,0.15)", color: "#64DC82", label: "Tier 1" },
+    bonferroni: { bg: "rgba(34,197,94,0.12)", color: "#22C55E", label: "Tier 1" },
     fdr:        { bg: "rgba(220,196,118,0.15)", color: C_GOLD,    label: "Tier 2" },
     watchlist:  { bg: "rgba(154,170,184,0.12)", color: C_MUTED,   label: "Research" },
   };
@@ -43,7 +43,7 @@ function DirBadge({ dir }: { dir: string }) {
     <span style={{
       fontSize: 7.5, fontWeight: 700, padding: "1px 4px", borderRadius: 3,
       background: isLong ? "rgba(100,200,140,0.12)" : "rgba(220,196,118,0.12)",
-      color: isLong ? "#64DC82" : C_GOLD,
+      color: isLong ? "#22C55E" : C_GOLD,
       letterSpacing: "0.03em", textTransform: "uppercase", flexShrink: 0,
     }}>
       {isLong ? "L" : "S"}
@@ -130,7 +130,7 @@ function DetailPanel({ p }: { p: AgentPattern }) {
         background: C_BG, borderRadius: 6, padding: "8px 10px",
       }}>
         <StatCell label="IS Win Rate" value={pct(p.is_win_rate, 0)} color={C_WHITE} />
-        <StatCell label="OOS Win Rate" value={pct(p.oos_win_rate, 0)} color={p.oos_win_rate >= 0.70 ? "#64DC82" : C_MUTED} />
+        <StatCell label="OOS Win Rate" value={pct(p.oos_win_rate, 0)} color={p.oos_win_rate >= 0.70 ? "#22C55E" : C_MUTED} />
         <StatCell label="Ø Return" value={fmt(p.avg_return, 2)} color={p.avg_return >= 0 ? C_WHITE : C_GOLD} />
         <StatCell label="Beobacht." value={String(p.n_obs)} />
       </div>
@@ -140,10 +140,10 @@ function DetailPanel({ p }: { p: AgentPattern }) {
         display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8,
         background: C_BG, borderRadius: 6, padding: "8px 10px",
       }}>
-        <StatCell label="Robustheit" value={pct(p.robustness_score, 0)} color={p.robustness_score >= 0.9 ? "#64DC82" : C_MUTED} />
-        <StatCell label="Profit Factor" value={p.profit_factor.toFixed(1)} color={p.profit_factor >= 5 ? "#64DC82" : C_WHITE} />
-        <StatCell label="Max DD" value={pct(p.max_drawdown, 1)} color={p.max_drawdown < 0.05 ? "#64DC82" : C_MUTED} />
-        <StatCell label="Dekaden" value={p.decade_consistent ? "✓ stabil" : "–"} color={p.decade_consistent ? "#64DC82" : C_DIM} />
+        <StatCell label="Robustheit" value={pct(p.robustness_score, 0)} color={p.robustness_score >= 0.9 ? "#22C55E" : C_MUTED} />
+        <StatCell label="Profit Factor" value={p.profit_factor.toFixed(1)} color={p.profit_factor >= 5 ? "#22C55E" : C_WHITE} />
+        <StatCell label="Max DD" value={pct(p.max_drawdown, 1)} color={p.max_drawdown < 0.05 ? "#22C55E" : C_MUTED} />
+        <StatCell label="Dekaden" value={p.decade_consistent ? "✓ stabil" : "–"} color={p.decade_consistent ? "#22C55E" : C_DIM} />
       </div>
 
       {/* Regime */}
@@ -166,7 +166,7 @@ function DetailPanel({ p }: { p: AgentPattern }) {
         background: "rgba(100,220,130,0.05)", border: "1px solid rgba(100,220,130,0.15)",
         borderRadius: 5, padding: "7px 10px",
       }}>
-        <div style={{ fontSize: 7.5, color: "#64DC82", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>
+        <div style={{ fontSize: 7.5, color: "#22C55E", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>
           Nächstes Signal
         </div>
         <div style={{ display: "flex", gap: 20 }}>

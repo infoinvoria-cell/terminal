@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Layers3, Star, Zap } from "lucide-react";
 import type { MonitoringPrimaryTabId } from "@/config/monitoringTabConfig";
@@ -13,9 +13,9 @@ type TabIconProps = {
 const ICON_SIZE = 18;
 
 const STATUS_DOT: Record<string, { color: string; title: string }> = {
-  ok:      { color: "#4ade80", title: "Alle Daten geladen" },
-  partial: { color: "#f59e0b", title: "Teilweise geladen" },
-  missing: { color: "#f87171", title: "Daten fehlen" },
+  ok:      { color: "#22C55E", title: "Alle Daten geladen" },
+  partial: { color: "#C9A84C", title: "Teilweise geladen" },
+  missing: { color: "#EF4444", title: "Daten fehlen" },
   loading: { color: "#737373", title: "Lädt…" },
 };
 

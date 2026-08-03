@@ -129,14 +129,30 @@ body { padding-left: var(--mobile-preview-left); transition: padding-left 220ms 
   --header-height: 0px;
   --background: #090909;
   --foreground: #F5F5F5;
-  --color-bg:       #090909;
-  --color-surface:  #111111;
-  --color-border:   #1A1A1A;
-  --color-text:     #F5F5F5;
-  --color-muted:    #6B7280;
-  --color-gold:     #C9A84C;
-  --color-positive: #22C55E;
-  --color-negative: #EF4444;
+  --color-bg:        #090909;
+  --color-surface:   #0D0D0D;
+  --color-surface2:  #111111;
+  --color-border:    #1A1A1A;
+  --color-border2:   #2A2A2A;
+  --color-text:      #F0F0F0;
+  --color-text2:     #9CA3AF;
+  --color-muted:     #5A6070;
+  --color-gold:      #C9A84C;
+  --color-positive:  #22C55E;
+  --color-negative:  #EF4444;
+
+  /* Font system — uses Next.js injected CSS vars with fallbacks */
+  --font-numbers: var(--font-nunito, 'Nunito', sans-serif);
+  --font-text:    var(--font-montserrat, 'Montserrat', sans-serif);
+}
+
+/* Font utility classes */
+.num {
+  font-family: var(--font-numbers);
+  font-variant-numeric: tabular-nums;
+}
+.lbl {
+  font-family: var(--font-text);
 }
 
 @theme inline {
@@ -153,6 +169,11 @@ body {
     rgba(34, 36, 42, 0.4),
     transparent 58%
   );
+}
+
+.dashboard-content-shell > * {
+  min-height: 0;
+  flex: 1 1 auto;
 }
 
 /* Scrollbars are hidden everywhere (dark/invisible) — scrolling still works.

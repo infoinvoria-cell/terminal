@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type { TrackRecordOverview } from "@/lib/track-record/types";
 
@@ -44,7 +44,7 @@ export function TrackRecordStatusStrip({ overview, compact = false }: Props) {
               color: badgeColor(badge),
               fontSize: compact ? 10 : 11,
               fontWeight: 600,
-              fontFamily: "var(--font-montserrat,sans-serif)",
+              fontFamily: "var(--font-text)",
               background: "rgba(255,255,255,0.03)",
             }}
           >
@@ -62,7 +62,7 @@ export function TrackRecordStatusStrip({ overview, compact = false }: Props) {
           flexWrap: "wrap",
           color: "#9ca3af",
           fontSize: compact ? 10 : 11,
-          fontFamily: "var(--font-montserrat,sans-serif)",
+          fontFamily: "var(--font-text)",
         }}
       >
         <span>Quelle: {syncRows.map((row) => row.provider).join(", ") || "historisch"}</span>
@@ -92,7 +92,7 @@ function formatIso(value: string) {
 
 function badgeColor(badge: string) {
   if (badge === "Daten veraltet") return "#f0c674";
-  if (badge === "Quellenabweichung") return "#f59e9e";
+  if (badge === "Quellenabweichung") return "#EF4444";
   if (badge === "Broker") return "#ffffff";
   return "#d7dbe3";
 }

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 /**
  * Core Invest Control Panel
  * Layout: left = tab content (allocation 2-col grid / risk / scenario)
@@ -73,18 +73,18 @@ function AssetRow({
   return (
     <div className={cn("flex items-center gap-1 h-[27px]", isBil && "opacity-55")}>
       {/* Ticker */}
-      <span className="w-[26px] shrink-0 text-[10px] font-bold text-zinc-200 [font-family:var(--font-montserrat),sans-serif]">
+      <span className="w-[26px] shrink-0 text-[10px] font-bold text-zinc-200 [font-family:var(--font-text),sans-serif]">
         {ticker}
       </span>
       {/* Baseline */}
-      <span className="w-[22px] shrink-0 text-right text-[8.5px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">
+      <span className="w-[22px] shrink-0 text-right text-[8.5px] text-zinc-600 [font-family:var(--font-text),sans-serif]">
         {pctBase}%
       </span>
       {/* − */}
       <button
         type="button"
         onClick={onDec}
-        className="flex h-[27px] w-[22px] shrink-0 items-center justify-center rounded border border-white/[0.10] text-zinc-400 hover:border-white/25 hover:text-white text-[13px] leading-none [font-family:var(--font-montserrat),sans-serif]"
+        className="flex h-[27px] w-[22px] shrink-0 items-center justify-center rounded border border-white/[0.10] text-zinc-400 hover:border-white/25 hover:text-white text-[13px] leading-none [font-family:var(--font-text),sans-serif]"
       >−</button>
       {/* Input */}
       <input
@@ -98,19 +98,19 @@ function AssetRow({
           if (!isNaN(v)) onChange(Math.round(v * 100) / 10000);
         }}
         className={cn(
-          "min-w-[60px] flex-1 h-[27px] rounded border bg-white/[0.05] px-1 text-center text-[12px] font-semibold text-white [font-family:var(--font-montserrat),sans-serif] focus:outline-none focus:border-[#e2ca7a]/40",
-          Math.abs(delta) > 0.0005 ? "border-[#e2ca7a]/20 bg-[#e2ca7a]/[0.04]" : "border-white/[0.10]",
+          "min-w-[60px] flex-1 h-[27px] rounded border bg-white/[0.05] px-1 text-center text-[12px] font-semibold text-white [font-family:var(--font-text),sans-serif] focus:outline-none focus:border-[#C9A84C]/40",
+          Math.abs(delta) > 0.0005 ? "border-[#C9A84C]/20 bg-[#C9A84C]/[0.04]" : "border-white/[0.10]",
         )}
       />
       {/* + */}
       <button
         type="button"
         onClick={onInc}
-        className="flex h-[27px] w-[22px] shrink-0 items-center justify-center rounded border border-white/[0.10] text-zinc-400 hover:border-white/25 hover:text-white text-[13px] leading-none [font-family:var(--font-montserrat),sans-serif]"
+        className="flex h-[27px] w-[22px] shrink-0 items-center justify-center rounded border border-white/[0.10] text-zinc-400 hover:border-white/25 hover:text-white text-[13px] leading-none [font-family:var(--font-text),sans-serif]"
       >+</button>
       {/* Delta */}
       <span
-        className="w-[26px] shrink-0 text-right text-[9px] font-bold [font-family:var(--font-montserrat),sans-serif]"
+        className="w-[26px] shrink-0 text-right text-[9px] font-bold [font-family:var(--font-text),sans-serif]"
         style={{ color: Math.abs(delta) < 0.0005 ? "#3f3f46" : delta > 0 ? "#22C55E" : "#EF4444" }}
       >
         {Math.abs(delta) < 0.0005 ? "—" : `${delta > 0 ? "+" : ""}${Math.round(delta * 100)}%`}
@@ -139,8 +139,8 @@ function ExposurePanel({
 
   const Row = ({ label, value, color }: { label: string; value: string; color?: string }) => (
     <div className="flex items-center justify-between gap-1">
-      <span className="text-[8.5px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">{label}</span>
-      <span className="text-[10px] font-bold [font-family:var(--font-montserrat),sans-serif]" style={{ color: color ?? "#a1a1aa" }}>
+      <span className="text-[8.5px] text-zinc-600 [font-family:var(--font-text),sans-serif]">{label}</span>
+      <span className="text-[10px] font-bold [font-family:var(--font-text),sans-serif]" style={{ color: color ?? "#a1a1aa" }}>
         {value}
       </span>
     </div>
@@ -155,8 +155,8 @@ function ExposurePanel({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "w-full rounded-[5px] py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] transition-all [font-family:var(--font-montserrat),sans-serif]",
-        variant === "gold"  && !disabled && "border border-[#e2ca7a]/30 bg-[#e2ca7a]/10 text-[#e2ca7a] hover:bg-[#e2ca7a]/20",
+        "w-full rounded-[5px] py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] transition-all [font-family:var(--font-text),sans-serif]",
+        variant === "gold"  && !disabled && "border border-[#C9A84C]/30 bg-[#C9A84C]/10 text-[#C9A84C] hover:bg-[#C9A84C]/20",
         variant === "gold"  && disabled  && "border border-white/[0.06] text-zinc-700 cursor-not-allowed",
         variant === "ghost"             && "border border-white/[0.10] text-zinc-400 hover:text-zinc-200 hover:border-white/20",
         variant === "danger"            && "border border-[#EF4444]/30 text-[#EF4444]/80 hover:text-[#EF4444]",
@@ -168,11 +168,11 @@ function ExposurePanel({
     <div className="flex w-[148px] shrink-0 flex-col gap-2 border-l border-white/[0.05] pl-3">
       {/* Exposure rows */}
       <div className="space-y-1">
-        <p className="text-[8px] font-bold uppercase tracking-[0.14em] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">Exposure</p>
-        <Row label="Long"  value={`${Math.round(draftLong  * 100)}%`} color="#e2ca7a" />
-        <Row label="Gross" value={`${Math.round(draftGross * 100)}%`} color={isOverCap ? "#EF4444" : "#e2ca7a"} />
+        <p className="text-[8px] font-bold uppercase tracking-[0.14em] text-zinc-700 [font-family:var(--font-text),sans-serif]">Exposure</p>
+        <Row label="Long"  value={`${Math.round(draftLong  * 100)}%`} color="#C9A84C" />
+        <Row label="Gross" value={`${Math.round(draftGross * 100)}%`} color={isOverCap ? "#EF4444" : "#C9A84C"} />
         <Row label="Net"   value={`${Math.round(draftNet   * 100)}%`} />
-        <Row label="Cash"  value={`${Math.round(draftCash  * 100)}%`} color="#3B82F6" />
+        <Row label="Cash"  value={`${Math.round(draftCash  * 100)}%`} color="#9CA3AF" />
         <div className="border-t border-white/[0.05] pt-1">
           <Row
             label={isOverCap ? "OVER CAP" : "Cap room"}
@@ -184,7 +184,7 @@ function ExposurePanel({
 
       {/* Run status */}
       {runStatus && (
-        <p className="text-[8px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif] border-t border-white/[0.05] pt-1">
+        <p className="text-[8px] text-zinc-600 [font-family:var(--font-text),sans-serif] border-t border-white/[0.05] pt-1">
           {runStatus}
         </p>
       )}
@@ -243,9 +243,9 @@ function AllocationContent({
             type="button"
             onClick={() => onRebalanceModeChange(m)}
             className={cn(
-              "flex-1 rounded-[4px] py-[4px] text-[8.5px] font-bold uppercase tracking-[0.09em] transition-colors [font-family:var(--font-montserrat),sans-serif]",
+              "flex-1 rounded-[4px] py-[4px] text-[8.5px] font-bold uppercase tracking-[0.09em] transition-colors [font-family:var(--font-text),sans-serif]",
               rebalanceMode === m
-                ? "bg-[#e2ca7a]/10 text-[#e2ca7a] border border-[#e2ca7a]/20"
+                ? "bg-[#C9A84C]/10 text-[#C9A84C] border border-[#C9A84C]/20"
                 : "border border-white/[0.07] text-zinc-600 hover:text-zinc-400",
             )}
           >
@@ -310,13 +310,13 @@ function RiskContent({
           <div key={key} className="space-y-1.5">
             <div className="flex items-baseline justify-between">
               <div>
-                <span className="text-[10px] font-bold text-zinc-300 [font-family:var(--font-montserrat),sans-serif]">{label}</span>
-                <span className="ml-2 text-[8px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">{desc}</span>
+                <span className="text-[10px] font-bold text-zinc-300 [font-family:var(--font-text),sans-serif]">{label}</span>
+                <span className="ml-2 text-[8px] text-zinc-600 [font-family:var(--font-text),sans-serif]">{desc}</span>
               </div>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-[8.5px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">base {bv}{unit}</span>
+                <span className="text-[8.5px] text-zinc-600 [font-family:var(--font-text),sans-serif]">base {bv}{unit}</span>
                 {Math.abs(delta) > 1e-6 && (
-                  <span className="text-[10px] font-bold [font-family:var(--font-montserrat),sans-serif]"
+                  <span className="text-[10px] font-bold [font-family:var(--font-text),sans-serif]"
                     style={{ color: delta > 0 ? "#22C55E" : "#EF4444" }}>
                     {delta > 0 ? "+" : ""}{toDisp(delta)}{unit}
                   </span>
@@ -328,7 +328,7 @@ function RiskContent({
                 type="range"
                 min={toDisp(min)} max={toDisp(max)} step={toDisp(step)} value={dv}
                 onChange={e => onRiskChange(key, fromDisp(parseFloat(e.target.value)))}
-                className="flex-1 h-1.5 cursor-pointer accent-[#e2ca7a]"
+                className="flex-1 h-1.5 cursor-pointer accent-[#C9A84C]"
               />
               <input
                 type="number"
@@ -337,9 +337,9 @@ function RiskContent({
                   const v = fromDisp(parseFloat(e.target.value));
                   if (!isNaN(v) && v >= min && v <= max) onRiskChange(key, v);
                 }}
-                className="w-[58px] h-[27px] rounded border border-white/[0.10] bg-white/[0.05] px-1 text-center text-[12px] font-semibold text-white [font-family:var(--font-montserrat),sans-serif] focus:border-[#e2ca7a]/40 focus:outline-none"
+                className="w-[58px] h-[27px] rounded border border-white/[0.10] bg-white/[0.05] px-1 text-center text-[12px] font-semibold text-white [font-family:var(--font-text),sans-serif] focus:border-[#C9A84C]/40 focus:outline-none"
               />
-              <span className="w-4 text-[9px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">{unit}</span>
+              <span className="w-4 text-[9px] text-zinc-600 [font-family:var(--font-text),sans-serif]">{unit}</span>
             </div>
           </div>
         );
@@ -354,7 +354,7 @@ function ScenarioContent({ run }: { run: ScenarioRun | null }) {
   if (!run) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p className="text-[9px] italic text-zinc-600 [font-family:var(--font-montserrat),sans-serif] text-center px-2">
+        <p className="text-[9px] italic text-zinc-600 [font-family:var(--font-text),sans-serif] text-center px-2">
           Adjust weights or risk params, then click Run Scenario.
         </p>
       </div>
@@ -372,27 +372,27 @@ function ScenarioContent({ run }: { run: ScenarioRun | null }) {
       {/* Status header */}
       <div className="flex items-center justify-between">
         <span className={cn(
-          "text-[9px] font-bold uppercase tracking-[0.12em] [font-family:var(--font-montserrat),sans-serif]",
-          isRunning  ? "text-[#e2ca7a]" : isComplete ? "text-[#22C55E]" : "text-[#EF4444]",
+          "text-[9px] font-bold uppercase tracking-[0.12em] [font-family:var(--font-text),sans-serif]",
+          isRunning  ? "text-[#C9A84C]" : isComplete ? "text-[#22C55E]" : "text-[#EF4444]",
         )}>
           {run.status}
         </span>
-        <span className="text-[8px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">{run.runId}</span>
+        <span className="text-[8px] text-zinc-600 [font-family:var(--font-text),sans-serif]">{run.runId}</span>
       </div>
 
       {/* Progress bar */}
       {isRunning && (
         <div className="space-y-1">
-          <div className="text-[8.5px] text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">{run.phase || "Waiting…"}</div>
+          <div className="text-[8.5px] text-zinc-500 [font-family:var(--font-text),sans-serif]">{run.phase || "Waiting…"}</div>
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
-            <div className="h-full rounded-full bg-[#e2ca7a]/60 transition-all duration-500" style={{ width: `${phasePct}%` }} />
+            <div className="h-full rounded-full bg-[#C9A84C]/60 transition-all duration-500" style={{ width: `${phasePct}%` }} />
           </div>
         </div>
       )}
 
       {/* Failed message */}
       {isFailed && (
-        <p className="text-[8.5px] text-[#EF4444] [font-family:var(--font-montserrat),sans-serif]">{run.phase}</p>
+        <p className="text-[8.5px] text-[#EF4444] [font-family:var(--font-text),sans-serif]">{run.phase}</p>
       )}
 
       {/* Complete: metric grid */}
@@ -407,8 +407,8 @@ function ScenarioContent({ run }: { run: ScenarioRun | null }) {
             ["Vol",          `${run.metrics.volatility_pct?.toFixed(1)}%`],
           ] as [string, string][]).map(([k, v]) => (
             <div key={k} className="flex justify-between items-baseline">
-              <span className="text-[8.5px] text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">{k}</span>
-              <span className="text-[11px] font-bold text-zinc-100 [font-family:var(--font-montserrat),sans-serif]">{v}</span>
+              <span className="text-[8.5px] text-zinc-500 [font-family:var(--font-text),sans-serif]">{k}</span>
+              <span className="text-[11px] font-bold text-zinc-100 [font-family:var(--font-text),sans-serif]">{v}</span>
             </div>
           ))}
         </div>
@@ -416,7 +416,7 @@ function ScenarioContent({ run }: { run: ScenarioRun | null }) {
 
       {/* Label */}
       {isComplete && (
-        <p className="mt-auto text-[8px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">
+        <p className="mt-auto text-[8px] text-zinc-600 [font-family:var(--font-text),sans-serif]">
           SCENARIO · UNSAVED · {run.runId}
         </p>
       )}
@@ -562,23 +562,23 @@ export function InvestControlPanel({ dataset, onScenarioResult, onResetScenario 
 
       {/* ── Header ── */}
       <div className="flex shrink-0 items-center justify-between border-b border-white/[0.05] px-3 py-2">
-        <p className="text-[9.5px] font-bold uppercase tracking-[0.18em] text-[#e2ca7a]/80 [font-family:var(--font-montserrat),sans-serif]">
+        <p className="text-[9.5px] font-bold uppercase tracking-[0.18em] text-[#C9A84C]/80 [font-family:var(--font-text),sans-serif]">
           Control Panel
         </p>
         <div className="flex gap-1.5">
           {scenarioActive && (
-            <span className="rounded-[3px] border border-[#e2ca7a]/30 bg-[#e2ca7a]/10 px-1.5 py-0.5 text-[7.5px] font-bold uppercase tracking-[0.1em] text-[#e2ca7a] [font-family:var(--font-montserrat),sans-serif]">
+            <span className="rounded-[3px] border border-[#C9A84C]/30 bg-[#C9A84C]/10 px-1.5 py-0.5 text-[7.5px] font-bold uppercase tracking-[0.1em] text-[#C9A84C] [font-family:var(--font-text),sans-serif]">
               SCENARIO
             </span>
           )}
           {hasChanges && !isRunning && (
-            <span className="rounded-[3px] border border-zinc-600/40 bg-zinc-700/20 px-1.5 py-0.5 text-[7.5px] font-bold uppercase tracking-[0.1em] text-zinc-400 [font-family:var(--font-montserrat),sans-serif]">
+            <span className="rounded-[3px] border border-zinc-600/40 bg-zinc-700/20 px-1.5 py-0.5 text-[7.5px] font-bold uppercase tracking-[0.1em] text-zinc-400 [font-family:var(--font-text),sans-serif]">
               DRAFT
             </span>
           )}
           {isRunning && (
-            <span className="flex items-center gap-1 rounded-[3px] border border-[#e2ca7a]/20 bg-[#e2ca7a]/5 px-1.5 py-0.5 text-[7.5px] font-bold uppercase tracking-[0.1em] text-[#e2ca7a] [font-family:var(--font-montserrat),sans-serif]">
-              <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#e2ca7a]" />
+            <span className="flex items-center gap-1 rounded-[3px] border border-[#C9A84C]/20 bg-[#C9A84C]/5 px-1.5 py-0.5 text-[7.5px] font-bold uppercase tracking-[0.1em] text-[#C9A84C] [font-family:var(--font-text),sans-serif]">
+              <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#C9A84C]" />
               RUNNING
             </span>
           )}
@@ -593,9 +593,9 @@ export function InvestControlPanel({ dataset, onScenarioResult, onResetScenario 
             type="button"
             onClick={() => setActiveTab(tab)}
             className={cn(
-              "flex-1 rounded-[4px] py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] transition-colors [font-family:var(--font-montserrat),sans-serif]",
+              "flex-1 rounded-[4px] py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] transition-colors [font-family:var(--font-text),sans-serif]",
               activeTab === tab
-                ? "bg-[#e2ca7a]/10 text-[#e2ca7a] border border-[#e2ca7a]/20"
+                ? "bg-[#C9A84C]/10 text-[#C9A84C] border border-[#C9A84C]/20"
                 : "border border-transparent text-zinc-600 hover:text-zinc-400",
             )}
           >

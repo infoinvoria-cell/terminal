@@ -8,7 +8,7 @@ import LiveSignalCard, { type LiveSignalColors } from "@/components/monitoring/L
 
 export type LiveSignalNavTarget = { tabId: MonitoringPrimaryTabId; itemKey: string; tradeId: string };
 
-const DEFAULT_LIVE_COLORS: LiveSignalColors = { entry: "#3b82f6", sl: "#ff3b46", tp: "#22c55e" };
+const DEFAULT_LIVE_COLORS: LiveSignalColors = { entry: "#C9A84C", sl: "#ff3b46", tp: "#22c55e" };
 
 type Props = {
   feed: LiveSignalsFeed;
@@ -68,7 +68,7 @@ export default function LiveSignalsPanel({ feed, onSelectSignal, colors = DEFAUL
         .lsp-cat { font-size: calc(18px * var(--lsc-scale, 1)); font-weight: 800; letter-spacing: 0.01em; margin: calc(8px * var(--lsc-scale, 1)) 2px 3px; line-height: 1.1; }
         .lsp-cat-label { color: #d7dde6; }
         .lsp-cat-num { font-weight: 900; }
-        .lsp-num-open { color: #4ea1ff; }
+        .lsp-num-open { color: #F0F0F0; }
         .lsp-num-closed { color: #f4f7fb; }
         .lsp-list { display: grid; gap: calc(12px * var(--lsc-scale, 1)); }
         .lsp-cat-empty { font-size: 12px; color: #6b7380; padding: 2px 2px 8px; }
