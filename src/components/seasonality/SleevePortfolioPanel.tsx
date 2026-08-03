@@ -7,6 +7,7 @@ import {
   getDeepValidatedPatterns,
   getDeepDetailById,
   getNextSignals,
+  getLivePatternIds,
   gradeColor,
   gradeBg,
   getRevalidationById,
@@ -204,21 +205,46 @@ const DUPLICATE_IDS = new Set([
   "EEM_L_1215_10", "PA1_L_1220_30", "ES1_L_1025_30",
 ]);
 
+// Final 7 LIVE patterns — approved 2026-08-03
+const LIVE_IDS = new Set([
+  "SB1_L_0924_10",
+  "SPY_L_1025_30",
+  "ZC1_S_0714_18",
+  "CL1_L_0201_120",
+  "CC1_L_0402_16",
+  "ZS1_S_0715_16",
+  "IWM_L_0525_5",
+]);
+
+// Prescribed display order for LIVE view
+const LIVE_ORDER = [
+  "SB1_L_0924_10",
+  "SPY_L_1025_30",
+  "ZC1_S_0714_18",
+  "CL1_L_0201_120",
+  "CC1_L_0402_16",
+  "ZS1_S_0715_16",
+  "IWM_L_0525_5",
+];
+
 const LIVE_STATUS: Record<string, { tier: number; status: string; label: string; color: string; bg: string }> = {
-  "SPY_L_1025_30":  { tier: 1, status: "LIVE_READY",   label: "LIVE",   color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
-  "NVDA_L_0810_14": { tier: 1, status: "LIVE_READY",   label: "LIVE",   color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
-  "EEM_L_1220_5":   { tier: 1, status: "LIVE_READY",   label: "LIVE",   color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
-  "ZW1_L_0810_10":  { tier: 1, status: "LIVE_READY",   label: "LIVE",   color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
-  "ZC1_L_1125_10":  { tier: 1, status: "LIVE_READY",   label: "LIVE",   color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
-  "PL1_L_1220_18":  { tier: 2, status: "CONDITIONAL",  label: "COND.",  color: "#D8BC67", bg: "rgba(216,188,103,0.14)" },
-  "RB1_L_0205_14":  { tier: 2, status: "CONDITIONAL",  label: "COND.",  color: "#D8BC67", bg: "rgba(216,188,103,0.14)" },
-  "PA1_L_1220_21":  { tier: 4, status: "REJECTED",     label: "REJECT", color: "#EF4444", bg: "rgba(239,68,68,0.12)" },
-  "RB1_L_1210_45":  { tier: 4, status: "REJECTED",     label: "REJECT", color: "#EF4444", bg: "rgba(239,68,68,0.12)" },
+  "SB1_L_0924_10":   { tier: 1, status: "LIVE", label: "LIVE", color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
+  "SPY_L_1025_30":   { tier: 1, status: "LIVE", label: "LIVE", color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
+  "ZC1_S_0714_18":   { tier: 1, status: "LIVE", label: "LIVE", color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
+  "CL1_L_0201_120":  { tier: 1, status: "LIVE", label: "LIVE", color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
+  "CC1_L_0402_16":   { tier: 1, status: "LIVE", label: "LIVE", color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
+  "ZS1_S_0715_16":   { tier: 1, status: "LIVE", label: "LIVE", color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
+  "IWM_L_0525_5":    { tier: 1, status: "LIVE", label: "LIVE", color: "#22C55E", bg: "rgba(34,197,94,0.14)" },
 };
 
-const LIVE_PATTERNS = SLEEVE_PATTERNS.filter(p =>
-  p.validationId != null && !DUPLICATE_IDS.has(p.validationId)
-);
+// LIVE_PATTERNS — 7 approved, in prescribed order
+const LIVE_PATTERNS = (() => {
+  const byId = new Map(
+    SLEEVE_PATTERNS.filter(p => p.validationId && LIVE_IDS.has(p.validationId))
+      .map(p => [p.validationId!, p])
+  );
+  return LIVE_ORDER.map(id => byId.get(id)).filter(Boolean) as SleevePattern[];
+})();
 
 /* ─── Countdown hook — uses calStart (calendar day 1-365) ──────────── */
 function todayCalendarDay(): number {
@@ -540,19 +566,18 @@ function DetailIcon() {
   );
 }
 
-/* ─── Live status dot — small 6px dot next to WrDonut ──────────────── */
-function LiveDot({ validationId }: { validationId?: string }) {
+/* ─── Live/Paper status dot ─────────────────────────────────────────── */
+function LiveDot({ validationId, size = 6 }: { validationId?: string; size?: number }) {
   if (!validationId) return null;
-  const ls = LIVE_STATUS[validationId];
-  if (!ls || ls.tier === 4) return null;
+  const isLive = !!LIVE_STATUS[validationId];
+  const color  = isLive ? "#22C55E" : "rgba(255,255,255,0.22)";
   return (
     <span style={{
       display: "inline-block",
-      width: 6, height: 6, borderRadius: "50%",
-      background: ls.color,
-      flexShrink: 0, alignSelf: "center",
-      boxShadow: `0 0 4px ${ls.color}80`,
-    }} />
+      width: size, height: size, borderRadius: "50%",
+      background: color, flexShrink: 0, alignSelf: "center",
+      boxShadow: isLive ? `0 0 4px ${color}80` : "none",
+    }} title={isLive ? "LIVE" : "PAPER"} />
   );
 }
 
@@ -599,7 +624,7 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
         fontFamily: FONT, overflow: "hidden",
       }}
     >
-      {/* ── Row 1: Icon · Symbol + Name · WR Donut ── */}
+      {/* ── Row 1: Icon · Symbol + Name · Live dot · WR Donut ── */}
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
         <AssetIcon assetId={p.assetId} iconAssetId={p.iconAssetId} symbol={p.symbol} name={p.name} size={28} />
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -608,6 +633,7 @@ function SleeveCard({ p, selected, onActivate, onDetail }: {
             <span style={{ fontSize: 9, fontWeight: 500, color: "rgba(255,255,255,0.38)", marginLeft: 5 }}>{p.name.split(" ")[0]}</span>
           </div>
         </div>
+        <LiveDot validationId={p.validationId} size={7} />
         <WrDonut pct={p.winRate * 100} size={38} />
       </div>
 
@@ -681,7 +707,7 @@ function PatternListRow({ p, selected, onSelect }: { p: SleevePattern; selected:
         transition: "background 0.1s", flexShrink: 0, fontFamily: FONT,
       }}
     >
-      <div style={{ width: 6, height: 6, borderRadius: "50%", background: dirColor, flexShrink: 0 }} />
+      <LiveDot validationId={p.validationId} size={6} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 10, fontWeight: 800, color: C_WHITE, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", letterSpacing: "0.01em" }}>{p.symbol}</div>
         <div style={{ fontSize: 7.5, color: C_TEXT3, whiteSpace: "nowrap" }}>{p.window}</div>
@@ -995,26 +1021,28 @@ function NextSignalBanner() {
 
   return (
     <div style={{
-      display: "flex", alignItems: "center", gap: 10,
-      padding: "8px 14px",
-      background: "rgba(216,188,103,0.05)",
-      borderBottom: "1px solid rgba(216,188,103,0.12)",
+      display: "flex", alignItems: "center", gap: 8,
+      padding: "7px 14px",
+      background: isActive ? "rgba(34,197,94,0.04)" : "rgba(216,188,103,0.04)",
+      borderBottom: `1px solid ${isActive ? "rgba(34,197,94,0.12)" : "rgba(216,188,103,0.10)"}`,
       flexShrink: 0, fontFamily: FONT,
     }}>
-      <span style={{ fontSize: 7, fontWeight: 700, color: "#7c8798", textTransform: "uppercase" as const, letterSpacing: "0.10em" }}>
-        {isActive ? "AKTIVES SIGNAL" : "NÄCHSTES SIGNAL"}
+      <span style={{ fontSize: 8, fontWeight: 700, color: isActive ? "#22C55E" : "#7c8798", letterSpacing: "0.08em" }}>
+        ●
       </span>
-      <span style={{ fontSize: 13, fontWeight: 900, color: C_GOLD }}>
-        {next.asset}! {next.name.split(" ").slice(1).join(" ")}
+      <span style={{ fontSize: 12, fontWeight: 900, color: C_WHITE, letterSpacing: "0.01em" }}>
+        {next.asset}!
       </span>
-      <span style={{ fontSize: 9, fontWeight: 700, color: gc, background: gradeBg(next.deep_grade), padding: "1px 6px", borderRadius: 4 }}>
-        {next.deep_grade}
+      <span style={{ fontSize: 9, fontWeight: 700, color: next.direction === "LONG" ? "#22C55E" : C_GOLD, border: `1px solid ${next.direction === "LONG" ? "rgba(34,197,94,0.35)" : "rgba(216,188,103,0.35)"}`, padding: "1px 5px", borderRadius: 3 }}>
+        {next.direction}
       </span>
-      <span style={{ fontSize: 11, fontWeight: 600, color: C_TEXT2 }}>
-        — {dateLabel}
-      </span>
+      <span style={{ fontSize: 11, fontWeight: 500, color: C_TEXT2 }}>—</span>
+      <span style={{ fontSize: 11, fontWeight: 600, color: C_TEXT2 }}>{dateLabel}</span>
       <span style={{ fontSize: 11, fontWeight: 800, color: isActive ? "#22C55E" : C_GOLD }}>
-        {isActive ? "Aktiv" : `in ${next.days_away} Tagen`}
+        · {isActive ? "Aktiv" : `in ${next.days_away} Tagen`}
+      </span>
+      <span style={{ fontSize: 9, fontWeight: 700, color: gc, background: gradeBg(next.deep_grade), padding: "1px 7px", borderRadius: 4, marginLeft: 2 }}>
+        {next.deep_grade}
       </span>
     </div>
   );
@@ -1104,6 +1132,7 @@ interface Props {
 
 export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Props) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [showAll, setShowAll] = useState(false);
   const selected = useMemo(() => SLEEVE_PATTERNS.find(p => p.id === selectedId) ?? null, [selectedId]);
 
   function activatePattern(p: SleevePattern) {
@@ -1124,21 +1153,46 @@ export function SleevePortfolioPanel({ mode, onModeChange, onSelectPattern }: Pr
       {mode !== "grid" && <NextSignalBanner />}
 
       {mode === "grid" && (() => {
-        const UNIQUE_IDS = new Set([
-          "ZW1_L_0810_10", "NVDA_L_0810_14", "SPY_L_1025_30",
-          "ZC1_L_1125_10", "EEM_L_1220_5",   "PL1_L_1220_18",
-          "PA1_L_1220_21", "RB1_L_0205_14",  "RB1_L_1210_45",
-          "SB1_L_0924_10",
-        ]);
         const today = todayCalendarDay();
-        const sorted = SLEEVE_PATTERNS
-          .filter(p => p.validationId != null && UNIQUE_IDS.has(p.validationId))
-          .sort((a, b) => ((a.calStart - today) + 365) % 365 - ((b.calStart - today) + 365) % 365);
+        const gridPatterns = showAll
+          ? SLEEVE_PATTERNS
+              .filter(p => p.validationId != null && !DUPLICATE_IDS.has(p.validationId))
+              .sort((a, b) => ((a.calStart - today) + 365) % 365 - ((b.calStart - today) + 365) % 365)
+          : LIVE_PATTERNS;
 
         return (
           <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gridTemplateRows: "repeat(2, 1fr)", gap: 12, padding: "12px 14px", flex: 1 }}>
-              {sorted.map(p => (
+            {/* Toggle header */}
+            <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+              <button
+                type="button"
+                onClick={() => setShowAll(false)}
+                style={{
+                  padding: "3px 10px", borderRadius: 5, border: "none", cursor: "pointer",
+                  fontSize: 9, fontWeight: 700, fontFamily: FONT,
+                  background: !showAll ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.04)",
+                  color: !showAll ? "#22C55E" : "rgba(255,255,255,0.35)",
+                  transition: "all 120ms",
+                }}
+              >
+                ● Live (7)
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowAll(true)}
+                style={{
+                  padding: "3px 10px", borderRadius: 5, border: "none", cursor: "pointer",
+                  fontSize: 9, fontWeight: 700, fontFamily: FONT,
+                  background: showAll ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.04)",
+                  color: showAll ? "rgba(255,255,255,0.70)" : "rgba(255,255,255,0.30)",
+                  transition: "all 120ms",
+                }}
+              >
+                Alle ({SLEEVE_PATTERNS.filter(p => p.validationId && !DUPLICATE_IDS.has(p.validationId)).length})
+              </button>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(175px, 1fr))", gap: 12, padding: "12px 14px", flex: 1, alignContent: "start" }}>
+              {gridPatterns.map(p => (
                 <SleeveCard key={p.id} p={p} selected={selectedId === p.id}
                   onActivate={() => activatePattern(p)}
                   onDetail={() => openDetail(p)}

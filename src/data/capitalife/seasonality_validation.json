@@ -49,7 +49,9 @@
       "decades_profitable": 5,
       "forward_pass": true,
       "forward_sharpe": 0.73,
-      "forward_wr": 66.7
+      "forward_wr": 66.7,
+      "final_status": "LIVE",
+      "live_approved": true
     },
     {
       "id": "EEM_L_1220_5",
@@ -93,7 +95,9 @@
       "cost_pct_avg_win": 1.6,
       "rollover_ok": true,
       "liquidity_ok": true,
-      "detrended_profitable": true
+      "detrended_profitable": true,
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "ES1_L_1025_30",
@@ -133,7 +137,9 @@
       "live_ready": false,
       "live_tier": 0,
       "live_status": "DUPLICATE",
-      "duplicate_of": "SPY_L_1025_30"
+      "duplicate_of": "SPY_L_1025_30",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "RB1_L_0205_14",
@@ -176,7 +182,9 @@
       "live_status": "CONDITIONAL",
       "min_capital": 50000,
       "cost_pct_avg_win": 0.2,
-      "condition": "Nur mit >$50k Konto (IBKR Margin $7.5k)"
+      "condition": "Nur mit >$50k Konto (IBKR Margin $7.5k)",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "RB1_L_1210_45",
@@ -217,7 +225,9 @@
       "live_ready": false,
       "live_tier": 4,
       "live_status": "REJECTED",
-      "reject_reason": "Outlier-driven + $7.5k Margin + 45d Haltezeit"
+      "reject_reason": "Outlier-driven + $7.5k Margin + 45d Haltezeit",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "PL1_L_1220_21",
@@ -257,7 +267,9 @@
       "live_ready": false,
       "live_tier": 0,
       "live_status": "DUPLICATE",
-      "duplicate_of": "PL1_L_1220_18"
+      "duplicate_of": "PL1_L_1220_18",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "ZC1_L_1125_21",
@@ -297,7 +309,9 @@
       "live_ready": false,
       "live_tier": 0,
       "live_status": "DUPLICATE",
-      "duplicate_of": "ZC1_L_1125_10"
+      "duplicate_of": "ZC1_L_1125_10",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "PL1_L_1220_18",
@@ -339,7 +353,9 @@
       "live_status": "CONDITIONAL",
       "min_capital": 50000,
       "cost_pct_avg_win": 5.5,
-      "condition": "Nur mit >$50k Konto (PL Margin $3k, moderate Liquidität)"
+      "condition": "Nur mit >$50k Konto (PL Margin $3k, moderate Liquidität)",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "ZC1_L_1125_10",
@@ -383,7 +399,9 @@
       "cost_pct_avg_win": 9.6,
       "rollover_ok": true,
       "liquidity_ok": true,
-      "detrended_profitable": true
+      "detrended_profitable": true,
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "ZW1_L_0810_10",
@@ -427,7 +445,9 @@
       "cost_pct_avg_win": 2.4,
       "rollover_ok": true,
       "liquidity_ok": true,
-      "detrended_profitable": true
+      "detrended_profitable": true,
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "ZW1_L_0810_8",
@@ -467,7 +487,9 @@
       "live_ready": false,
       "live_tier": 0,
       "live_status": "DUPLICATE",
-      "duplicate_of": "ZW1_L_0810_10"
+      "duplicate_of": "ZW1_L_0810_10",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "ZC1_S_0714_18",
@@ -503,7 +525,9 @@
       "decades_profitable": 5,
       "forward_pass": true,
       "forward_sharpe": 4.02,
-      "forward_wr": 100.0
+      "forward_wr": 100.0,
+      "final_status": "LIVE",
+      "live_approved": true
     },
     {
       "id": "ZS1_S_0715_16",
@@ -539,7 +563,9 @@
       "decades_profitable": 5,
       "forward_pass": true,
       "forward_sharpe": 1.95,
-      "forward_wr": 100.0
+      "forward_wr": 100.0,
+      "final_status": "LIVE",
+      "live_approved": true
     },
     {
       "id": "ZC1_S_0605_16",
@@ -575,7 +601,9 @@
       "decades_profitable": 5,
       "forward_pass": true,
       "forward_sharpe": 2.14,
-      "forward_wr": 100.0
+      "forward_wr": 100.0,
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "IWM_L_0525_5",
@@ -611,7 +639,9 @@
       "decades_profitable": 4,
       "forward_pass": true,
       "forward_sharpe": 0.65,
-      "forward_wr": 66.7
+      "forward_wr": 66.7,
+      "final_status": "LIVE",
+      "live_approved": true
     },
     {
       "id": "CL1_L_0201_120",
@@ -647,7 +677,9 @@
       "decades_profitable": 5,
       "forward_pass": true,
       "forward_sharpe": 0.59,
-      "forward_wr": 75.0
+      "forward_wr": 75.0,
+      "final_status": "LIVE",
+      "live_approved": true
     },
     {
       "id": "ZC1_L_1110_16",
@@ -683,7 +715,9 @@
       "decades_profitable": 5,
       "forward_pass": true,
       "forward_sharpe": 1.43,
-      "forward_wr": 66.7
+      "forward_wr": 66.7,
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "CC1_L_0402_16",
@@ -719,7 +753,9 @@
       "decades_profitable": 4,
       "forward_pass": true,
       "forward_sharpe": 1.17,
-      "forward_wr": 75.0
+      "forward_wr": 75.0,
+      "final_status": "LIVE",
+      "live_approved": true
     },
     {
       "id": "SPY_L_1025_30",
@@ -763,7 +799,9 @@
       "cost_pct_avg_win": 0.4,
       "rollover_ok": true,
       "liquidity_ok": true,
-      "detrended_profitable": true
+      "detrended_profitable": true,
+      "final_status": "LIVE",
+      "live_approved": true
     },
     {
       "id": "NVDA_L_0810_14",
@@ -807,7 +845,9 @@
       "cost_pct_avg_win": 0.1,
       "rollover_ok": true,
       "liquidity_ok": true,
-      "detrended_profitable": true
+      "detrended_profitable": true,
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "EEM_L_1215_10",
@@ -847,7 +887,9 @@
       "live_ready": false,
       "live_tier": 0,
       "live_status": "DUPLICATE",
-      "duplicate_of": "EEM_L_1220_5"
+      "duplicate_of": "EEM_L_1220_5",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "ZW1_L_0815_10",
@@ -883,7 +925,9 @@
       "decades_profitable": 4,
       "forward_pass": true,
       "forward_sharpe": 1.32,
-      "forward_wr": 100.0
+      "forward_wr": 100.0,
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "ZC1_L_0219_10",
@@ -919,7 +963,9 @@
       "decades_profitable": 4,
       "forward_pass": "False",
       "forward_sharpe": -0.4,
-      "forward_wr": 50.0
+      "forward_wr": 50.0,
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "CT1_L_0103_12",
@@ -955,7 +1001,9 @@
       "decades_profitable": 5,
       "forward_pass": false,
       "forward_sharpe": 0.62,
-      "forward_wr": 50.0
+      "forward_wr": 50.0,
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "ES1_L_NovApr",
@@ -991,7 +1039,9 @@
       "decades_profitable": 4,
       "forward_pass": true,
       "forward_sharpe": 0.76,
-      "forward_wr": 66.7
+      "forward_wr": 66.7,
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "PA1_L_1220_30",
@@ -1032,7 +1082,9 @@
       "live_ready": false,
       "live_tier": 0,
       "live_status": "DUPLICATE",
-      "duplicate_of": "PA1_L_1220_21"
+      "duplicate_of": "PA1_L_1220_21",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "PA1_L_1220_21",
@@ -1073,7 +1125,9 @@
       "live_ready": false,
       "live_tier": 4,
       "live_status": "REJECTED",
-      "reject_reason": "Dünne Liquidität (~3k Kontrakte/Tag) + $15k Margin"
+      "reject_reason": "Dünne Liquidität (~3k Kontrakte/Tag) + $15k Margin",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "KC1_S_0430_18",
@@ -1109,7 +1163,9 @@
       "decades_profitable": 4,
       "forward_pass": true,
       "forward_sharpe": 0.96,
-      "forward_wr": 66.7
+      "forward_wr": 66.7,
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "ES1_L_SantaRally",
@@ -1145,7 +1201,9 @@
       "decades_profitable": 4,
       "forward_pass": "False",
       "forward_sharpe": -1.53,
-      "forward_wr": 33.3
+      "forward_wr": 33.3,
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "SB1_S_1130_10",
@@ -1181,7 +1239,9 @@
       "decades_profitable": 3,
       "forward_pass": false,
       "forward_sharpe": 0,
-      "forward_wr": 100.0
+      "forward_wr": 100.0,
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "ZS1_S_0608_14",
@@ -1207,7 +1267,9 @@
       "mc_p50_sharpe": 3.22,
       "mc_prob_loss_pct": 0.2,
       "brain_quality": 82,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "OJ1_L_0628_10",
@@ -1233,7 +1295,9 @@
       "mc_p50_sharpe": 1.92,
       "mc_prob_loss_pct": 4.2,
       "brain_quality": 76,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "HYG_L_1124_5",
@@ -1259,7 +1323,9 @@
       "mc_p50_sharpe": 2.26,
       "mc_prob_loss_pct": 0.4,
       "brain_quality": 0,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "PA1_L_0112_8",
@@ -1285,7 +1351,9 @@
       "mc_p50_sharpe": 1.93,
       "mc_prob_loss_pct": 4.0,
       "brain_quality": 0,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "COPX_L_1218_10",
@@ -1311,7 +1379,9 @@
       "mc_p50_sharpe": 2.45,
       "mc_prob_loss_pct": 1.0,
       "brain_quality": 0,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "PL1_L_0112_8",
@@ -1337,7 +1407,9 @@
       "mc_p50_sharpe": 2.09,
       "mc_prob_loss_pct": 1.0,
       "brain_quality": 0,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "ZM1_L_1001_22",
@@ -1363,7 +1435,9 @@
       "mc_p50_sharpe": 2.34,
       "mc_prob_loss_pct": 4.4,
       "brain_quality": 0,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "ZS1_L_1004_14",
@@ -1389,7 +1463,9 @@
       "mc_p50_sharpe": 3.74,
       "mc_prob_loss_pct": 0.0,
       "brain_quality": 83,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "OJ1_L_0501_18",
@@ -1415,7 +1491,9 @@
       "mc_p50_sharpe": 1.6,
       "mc_prob_loss_pct": 15.8,
       "brain_quality": 75,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "HG1_L_0102_60",
@@ -1441,7 +1519,9 @@
       "mc_p50_sharpe": 1.79,
       "mc_prob_loss_pct": 13.8,
       "brain_quality": 0,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "GC1_L_0801_130",
@@ -1467,7 +1547,9 @@
       "mc_p50_sharpe": 2.43,
       "mc_prob_loss_pct": 8.0,
       "brain_quality": 0,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "ZC1_S_1029_18",
@@ -1493,7 +1575,9 @@
       "mc_p50_sharpe": 0.4,
       "mc_prob_loss_pct": 42.2,
       "brain_quality": 88,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "KC1_L_0121_12",
@@ -1519,7 +1603,9 @@
       "mc_p50_sharpe": 0.59,
       "mc_prob_loss_pct": 39.0,
       "brain_quality": 76,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "SB1_S_0225_20",
@@ -1545,7 +1631,9 @@
       "mc_p50_sharpe": 0.14,
       "mc_prob_loss_pct": 59.8,
       "brain_quality": 85,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "CT1_S_0422_20",
@@ -1571,7 +1659,9 @@
       "mc_p50_sharpe": 0.09,
       "mc_prob_loss_pct": 56.2,
       "brain_quality": 75,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "OJ1_L_1112_10",
@@ -1597,7 +1687,9 @@
       "mc_p50_sharpe": 0.67,
       "mc_prob_loss_pct": 33.4,
       "brain_quality": 77,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "ZC1_L_0329_10",
@@ -1623,7 +1715,9 @@
       "mc_p50_sharpe": 0.22,
       "mc_prob_loss_pct": 45.6,
       "brain_quality": 78,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "DXY_S_0601_90",
@@ -1649,7 +1743,9 @@
       "mc_p50_sharpe": 0.39,
       "mc_prob_loss_pct": 40.6,
       "brain_quality": 0,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "ZW1_L_0401_16",
@@ -1675,7 +1771,9 @@
       "mc_p50_sharpe": 0.05,
       "mc_prob_loss_pct": 56.8,
       "brain_quality": 76,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "KC1_S_0309_14",
@@ -1701,7 +1799,9 @@
       "mc_p50_sharpe": 1.12,
       "mc_prob_loss_pct": 17.0,
       "brain_quality": 81,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "IWM_L_0102_20",
@@ -1727,7 +1827,9 @@
       "mc_p50_sharpe": 0.41,
       "mc_prob_loss_pct": 41.6,
       "brain_quality": 0,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "ZT1_S_0628_5",
@@ -1753,7 +1855,9 @@
       "mc_p50_sharpe": -6.18,
       "mc_prob_loss_pct": 100.0,
       "brain_quality": 0,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "BZ1_S_MoDi",
@@ -1779,7 +1883,9 @@
       "mc_p50_sharpe": -2.7,
       "mc_prob_loss_pct": 100.0,
       "brain_quality": 0,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "CL1_S_MoDi",
@@ -1805,7 +1911,9 @@
       "mc_p50_sharpe": -2.3,
       "mc_prob_loss_pct": 99.4,
       "brain_quality": 0,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "ZC1_S_0901_40",
@@ -1831,7 +1939,9 @@
       "mc_p50_sharpe": -1.33,
       "mc_prob_loss_pct": 93.4,
       "brain_quality": 0,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "SHY_L_0325_5",
@@ -1857,7 +1967,9 @@
       "mc_p50_sharpe": -4.38,
       "mc_prob_loss_pct": 100.0,
       "brain_quality": 0,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "ZN1_L_0825_5",
@@ -1883,7 +1995,9 @@
       "mc_p50_sharpe": -4.34,
       "mc_prob_loss_pct": 100.0,
       "brain_quality": 0,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "6S1_L_1225_5",
@@ -1909,7 +2023,9 @@
       "mc_p50_sharpe": -0.04,
       "mc_prob_loss_pct": 54.0,
       "brain_quality": 0,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "RB1_S_MoDi",
@@ -1935,7 +2051,9 @@
       "mc_p50_sharpe": -2.98,
       "mc_prob_loss_pct": 99.8,
       "brain_quality": 0,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     },
     {
       "id": "NG1_L_1001_60",
@@ -1961,7 +2079,9 @@
       "mc_p50_sharpe": -0.02,
       "mc_prob_loss_pct": 75.6,
       "brain_quality": 0,
-      "last_validated": "2026-08-01"
+      "last_validated": "2026-08-01",
+      "final_status": "PAPER",
+      "live_approved": false
     }
   ]
 }

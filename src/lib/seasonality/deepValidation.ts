@@ -36,6 +36,8 @@ export interface DeepValidationPattern {
   forward_pass?: boolean;
   forward_sharpe?: number;
   forward_wr?: number;
+  final_status?: "LIVE" | "PAPER" | "RESEARCH";
+  live_approved?: boolean;
 }
 
 export interface DeepValidationMeta {
@@ -66,6 +68,14 @@ export function getAllPatterns(): DeepValidationPattern[] {
 
 export function getDeepValidatedPatterns() {
   return deepValidated;
+}
+
+export function getLivePatterns(): DeepValidationPattern[] {
+  return patterns.filter(p => p.final_status === "LIVE" && p.live_approved === true);
+}
+
+export function getLivePatternIds(): Set<string> {
+  return new Set(getLivePatterns().map(p => p.id));
 }
 
 export function getDeepValidationMeta(): DeepValidationMeta {
@@ -200,8 +210,9 @@ export function getNextSignals(): { id: string; name: string; asset: string; dir
   const now = new Date();
   const todayCal = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 1).getTime()) / 86400000) + 1;
 
+  const liveIds = getLivePatternIds();
   return deepResults
-    .filter(p => p.deep_grade === "A+" || p.deep_grade === "A")
+    .filter(p => liveIds.has(p.id))
     .map(p => {
       const m = p.id.match(/_(\d{2})(\d{2})_(\d+)$/);
       if (!m) return null;
