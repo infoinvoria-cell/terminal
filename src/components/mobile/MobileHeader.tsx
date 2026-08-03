@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import Image from "next/image";
 import { useState } from "react";
 import { useUser, APP_USERS, type AppUser } from "@/context/user-context";
@@ -54,7 +54,7 @@ function Avatar({ user, size }: { user: AppUser | null; size: number }) {
         <span style={{
           fontSize: Math.round(size * 0.4), fontWeight: 700,
           color: "rgba(255,255,255,0.85)",
-          fontFamily: "var(--font-nunito,sans-serif)",
+          fontFamily: "var(--font-numbers)",
           lineHeight: 1, userSelect: "none",
         }}>
           {user?.name?.charAt(0) ?? "?"}
@@ -101,7 +101,7 @@ export function MobileHeader({ hidden }: { hidden: boolean }) {
         <span style={{
           flex: 1, fontSize: 13, fontWeight: 600,
           color: "rgba(255,255,255,0.82)",
-          fontFamily: "var(--font-montserrat,sans-serif)",
+          fontFamily: "var(--font-text)",
           letterSpacing: "-0.01em",
           whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
         }}>
@@ -149,7 +149,7 @@ export function MobileHeader({ hidden }: { hidden: boolean }) {
               fontSize: 9.5, fontWeight: 600,
               color: "rgba(255,255,255,0.28)",
               textTransform: "uppercase", letterSpacing: "0.07em",
-              fontFamily: "var(--font-montserrat,sans-serif)",
+              fontFamily: "var(--font-text)",
             }}>
               User wechseln
             </p>
@@ -181,7 +181,7 @@ export function MobileHeader({ hidden }: { hidden: boolean }) {
                       margin: 0,
                       fontSize: 13, fontWeight: active ? 700 : 500,
                       color: active ? "#ffffff" : "rgba(255,255,255,0.6)",
-                      fontFamily: "var(--font-montserrat,sans-serif)",
+                      fontFamily: "var(--font-text)",
                       whiteSpace: "nowrap",
                     }}>
                       {u.name}
@@ -189,7 +189,7 @@ export function MobileHeader({ hidden }: { hidden: boolean }) {
                     <p style={{
                       margin: 0, fontSize: 10,
                       color: active ? "rgba(255,255,255,0.38)" : "rgba(255,255,255,0.22)",
-                      fontFamily: "var(--font-montserrat,sans-serif)",
+                      fontFamily: "var(--font-text)",
                     }}>
                       {`User ${i + 1}`}{active ? " · Aktiv" : ""}
                     </p>
@@ -213,7 +213,7 @@ export function MobileHeader({ hidden }: { hidden: boolean }) {
             <IconSearch />
             <input autoFocus value={query} onChange={e => setQuery(e.target.value)}
               placeholder="Seite suchen…"
-              style={{ flex: 1, background: "none", border: "none", outline: "none", color: "#fff", fontSize: 16, fontFamily: "var(--font-montserrat,sans-serif)", fontWeight: 500 }} />
+              style={{ flex: 1, background: "none", border: "none", outline: "none", color: "#fff", fontSize: 16, fontFamily: "var(--font-text)", fontWeight: 500 }} />
             <button onClick={() => { setSearchOpen(false); setQuery(""); }}
               style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.45)", padding: 4, lineHeight: 0, WebkitTapHighlightColor: "transparent" }}>
               <IconX />
@@ -222,7 +222,7 @@ export function MobileHeader({ hidden }: { hidden: boolean }) {
           <div style={{ flex: 1, overflowY: "auto", padding: "8px 16px" }}>
             {filtered.map(p => (
               <a key={p.href} href={p.href} onClick={() => { setSearchOpen(false); setQuery(""); }}
-                style={{ display: "block", padding: "13px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.8)", textDecoration: "none", fontSize: 15, fontWeight: 600, fontFamily: "var(--font-montserrat,sans-serif)" }}>
+                style={{ display: "block", padding: "13px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.8)", textDecoration: "none", fontSize: 15, fontWeight: 600, fontFamily: "var(--font-text)" }}>
                 {p.label}
               </a>
             ))}

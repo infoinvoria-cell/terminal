@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo } from "react";
 import { buildExposure } from "@/lib/globe/exposure";
@@ -14,7 +14,7 @@ type Node = { id: string; label: string; type: "region" | "scenario" | "peer"; a
 
 const TYPE_COLOR: Record<Node["type"], string> = {
   region: "#9ca3af",
-  scenario: "#D4AF37",
+  scenario: "#C9A84C",
   peer: "#5eead4",
 };
 

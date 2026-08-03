@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 
 type KpiCardProps = {
   label: string;
@@ -24,18 +24,18 @@ export function KpiCard({
     <div
       title={title}
       className={cn(
-        "flex h-full min-h-[132px] flex-col justify-between rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] px-5 pb-6 pt-5 shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]",
+        "flex h-full min-h-[132px] flex-col justify-between rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1F1F1F] to-[#13131A] px-5 pb-6 pt-5 shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]",
         title && "cursor-help",
         className
       )}
     >
-      <p className="shrink-0 text-[14px] font-medium leading-snug text-[color:var(--dash-muted)] [font-family:var(--font-montserrat),sans-serif]">
+      <p className="shrink-0 text-[14px] font-medium leading-snug text-[color:var(--dash-muted)] [font-family:var(--font-text),sans-serif]">
         {label}
       </p>
       <div>
         <p
           className={cn(
-            "shrink-0 text-[30px] font-bold leading-none tracking-tight [font-family:var(--font-nunito),sans-serif]",
+            "shrink-0 text-[30px] font-bold leading-none tracking-tight [font-family:var(--font-numbers),sans-serif]",
             valueVariant === "negative"
               ? "text-zinc-400"
               : "text-white"
@@ -44,7 +44,7 @@ export function KpiCard({
           {value}
         </p>
         {subtitle ? (
-          <p className="mt-1 text-[11px] text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">
+          <p className="mt-1 text-[11px] text-zinc-500 [font-family:var(--font-text),sans-serif]">
             {subtitle}
           </p>
         ) : null}

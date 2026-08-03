@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, memo } from "react";
 import styles from "./seasonal.module.css";
@@ -18,7 +18,7 @@ import { AgentPortfolioPanel } from "./AgentPortfolioPanel";
 import { SleevePortfolioPanel } from "./SleevePortfolioPanel";
 
 const C_WHITE = "#F0F3F7";
-const C_GOLD = "#DCC476";
+const C_GOLD = "#C9A84C";
 const C_MUTED = "#9AAAB8";
 const C_DIM = "#7A8898";
 const OOS_BLOCK_YEARS = 2;
@@ -139,7 +139,7 @@ function PatternFamilyFoldsTable({ result }: { result: PatternFamilyWFResult }) 
           {blocks.map((block) => (
             <Fragment key={`block-${block.blockIndex}`}>
               <tr className="border-b border-[#111]">
-                <td className="py-1 pr-2 text-[#DCC476]">{String(block.blockIndex).padStart(2, "0")}</td>
+                <td className="py-1 pr-2 text-[#C9A84C]">{String(block.blockIndex).padStart(2, "0")}</td>
                 <td className="py-1 pr-2 text-[#9AAAB8]">
                   IS {block.trainingStartYear ?? "—"}-{block.trainingEndYear ?? "—"} · OOS {block.oosYears[0] ?? "—"}-{block.oosYears[block.oosYears.length - 1] ?? "—"}
                 </td>
@@ -669,7 +669,7 @@ export const SeasonalStrategyTester = memo(function SeasonalStrategyTester({
                 <div className="py-4 text-center text-[10px] text-[#9AAAB8]">Running strict local family walk-forward…</div>
               )}
               {pfwfError && (
-                <div className="rounded-[5px] border border-[rgba(255,255,255,0.08)] px-3 py-2 text-[10px] text-[#DCC476]">{pfwfError}</div>
+                <div className="rounded-[5px] border border-[rgba(255,255,255,0.08)] px-3 py-2 text-[10px] text-[#C9A84C]">{pfwfError}</div>
               )}
               {(selectedSummary || pfwfResult) && !pfwfLoading && (
                 <>

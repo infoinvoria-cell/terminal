@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { calcAP, formatEur, formatPct } from "@/lib/partner/partnerCalculations";
@@ -9,15 +9,15 @@ import { PartnerWhiteboardModal } from "@/components/partner/PartnerWhiteboardMo
 
 const C = {
   bg:     "#0c0d10",
-  card:   "linear-gradient(180deg, #1c1d20 0%, #141517 100%)",
+  card:   "linear-gradient(180deg, #1F1F1F 0%, #13131A 100%)",
   border: "rgba(255,255,255,0.06)",
-  gold:   "#e2ca7a",
+  gold:   "#C9A84C",
   text:   "#f4f5f7",
   muted:  "rgba(255,255,255,0.4)",
   dimmed: "rgba(255,255,255,0.18)",
-  green:  "#4ade80",
-  red:    "#f87171",
-  font:   "var(--font-montserrat, sans-serif)",
+  green:  "#22C55E",
+  red:    "#EF4444",
+  font:   "var(--font-text)",
 } as const;
 
 // ── Sub-components ────────────────────────────────────────────────────────────

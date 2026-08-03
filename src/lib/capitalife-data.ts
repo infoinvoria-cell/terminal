@@ -414,6 +414,9 @@ export type CapalifeData = {
   // the analytics route (server-side) so the raw 1.6MB source never reaches the
   // client; other pages leave it undefined.
   coreInvestPineBacktest?: import("@/lib/analytics/portfolio-data").AnalyticsDataset | null;
+  // Core-Invest datasets from local reference CSVs. Built server-side on analytics route only.
+  coreInvestReference?: import("@/lib/analytics/portfolio-data").AnalyticsDataset | null;
+  coreInvestShadowLive?: import("@/lib/analytics/portfolio-data").AnalyticsDataset | null;
 };
 
 export function getCapalifeData(): CapalifeData {

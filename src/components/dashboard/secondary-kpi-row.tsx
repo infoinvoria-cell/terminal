@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 import { deserializeTrades, compoundGains } from "@/lib/trades-analytics";
 import type { DashboardKpis, SerializedTrade } from "@/lib/trades-analytics";
 import type { CapalifeData } from "@/lib/capitalife-data";
@@ -56,26 +56,26 @@ function SecondaryCard({ label, value, delta, sub, title }: SecondaryCardProps) 
     <div
       title={title}
       className={cn(
-        "flex min-h-[118px] w-full min-w-0 flex-col justify-between rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] px-4 pb-5 pt-4 shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]",
+        "flex min-h-[118px] w-full min-w-0 flex-col justify-between rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1F1F1F] to-[#13131A] px-4 pb-5 pt-4 shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]",
         title && "cursor-help"
       )}
     >
-      <p className="shrink-0 text-[13px] font-medium leading-snug text-[color:var(--dash-muted)] [font-family:var(--font-montserrat),sans-serif]">
+      <p className="shrink-0 text-[13px] font-medium leading-snug text-[color:var(--dash-muted)] [font-family:var(--font-text),sans-serif]">
         {label}
       </p>
       <div className="flex min-h-0 w-full min-w-0 flex-col gap-0.5">
         <div className="flex w-full min-w-0 flex-row items-end justify-between gap-2">
-          <p className="min-w-0 flex-1 truncate text-[26px] font-bold leading-none tracking-tight text-white [font-family:var(--font-nunito),sans-serif]">
+          <p className="min-w-0 flex-1 truncate text-[26px] font-bold leading-none tracking-tight text-white [font-family:var(--font-numbers),sans-serif]">
             {value}
           </p>
           {delta ? (
             <div className="flex shrink-0 flex-col items-end justify-end pb-0.5">
               {neg ? (
-                <span className="text-right text-[11px] font-semibold tracking-tight text-zinc-500 [font-family:var(--font-nunito),sans-serif]">
+                <span className="text-right text-[11px] font-semibold tracking-tight text-zinc-500 [font-family:var(--font-numbers),sans-serif]">
                   {delta}
                 </span>
               ) : (
-                <span className="inline-flex max-w-[5.5rem] items-center gap-0.5 rounded-full border border-[#e2ca7a]/35 bg-transparent px-1.5 py-0.5 text-[11px] font-semibold leading-tight text-[#e2ca7a] [font-family:var(--font-nunito),sans-serif]">
+                <span className="inline-flex max-w-[5.5rem] items-center gap-0.5 rounded-full border border-[#C9A84C]/35 bg-transparent px-1.5 py-0.5 text-[11px] font-semibold leading-tight text-[#C9A84C] [font-family:var(--font-numbers),sans-serif]">
                   <span className="truncate">{delta}</span>
                 </span>
               )}
@@ -83,7 +83,7 @@ function SecondaryCard({ label, value, delta, sub, title }: SecondaryCardProps) 
           ) : null}
         </div>
         {sub ? (
-          <p className="text-[10px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">
+          <p className="text-[10px] text-zinc-600 [font-family:var(--font-text),sans-serif]">
             {sub}
           </p>
         ) : null}

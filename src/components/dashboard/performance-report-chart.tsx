@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import {
@@ -223,7 +223,7 @@ function ToolTip({
         borderRadius: 8,
         padding: "7px 12px",
         fontSize: 11,
-        fontFamily: "var(--font-montserrat,sans-serif)",
+        fontFamily: "var(--font-text)",
         boxShadow: "0 8px 24px rgba(0,0,0,0.6)",
         minWidth: 130,
       }}
@@ -252,7 +252,7 @@ function ToolTip({
 function MatrixTable({ data }: { data: CapalifeData }) {
   const kpis = getHomeTrackRecordKpis(data);
   const matrix = buildTableMatrix(data);
-  const terminalGold = "#e2ca7a";
+  const terminalGold = "#C9A84C";
   return (
     <div style={{ height: "100%", overflow: "auto" }}>
       <table
@@ -261,7 +261,7 @@ function MatrixTable({ data }: { data: CapalifeData }) {
           minWidth: 920,
           borderCollapse: "collapse",
           fontSize: 19,
-          fontFamily: "var(--font-montserrat,sans-serif)",
+          fontFamily: "var(--font-text)",
           color: "#e2e6ed",
         }}
       >
@@ -311,7 +311,7 @@ function MatrixTable({ data }: { data: CapalifeData }) {
 
 function ListTable({ rows, data }: { rows: Array<{ label: string; periodReturnPct: number }>; data: CapalifeData }) {
   const kpis = getHomeTrackRecordKpis(data);
-  const terminalGold = "#e2ca7a";
+  const terminalGold = "#C9A84C";
   return (
     <div style={{ height: "100%", overflow: "auto" }}>
       <table
@@ -319,7 +319,7 @@ function ListTable({ rows, data }: { rows: Array<{ label: string; periodReturnPc
           width: "100%",
           borderCollapse: "collapse",
           fontSize: 13,
-          fontFamily: "var(--font-montserrat,sans-serif)",
+          fontFamily: "var(--font-text)",
           color: "#e2e6ed",
         }}
       >
@@ -361,7 +361,7 @@ function Acc2Note({ lastDate }: { lastDate: string | null }) {
         left: 12,
         fontSize: 9,
         color: "#44474f",
-        fontFamily: "var(--font-montserrat,sans-serif)",
+        fontFamily: "var(--font-text)",
         pointerEvents: "none",
         userSelect: "none",
       }}
@@ -412,8 +412,8 @@ export function PerformanceReportChart({ trades, timeframe, view, capalifeData, 
             </linearGradient>
           </defs>
           <CartesianGrid vertical={false} strokeDasharray="3 5" stroke="rgba(255,255,255,0.04)" />
-          <XAxis dataKey="label" tick={{ fontSize: compact ? 9 : 11, fill: "#686b73", fontFamily: "var(--font-montserrat,sans-serif)" }} tickLine={false} axisLine={false} interval={lineInterval} />
-          <YAxis tick={{ fontSize: 11, fill: "#686b73", fontFamily: "var(--font-montserrat,sans-serif)" }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `${v >= 0 ? "+" : ""}${v}%`} />
+          <XAxis dataKey="label" tick={{ fontSize: compact ? 9 : 11, fill: "#686b73", fontFamily: "var(--font-text)" }} tickLine={false} axisLine={false} interval={lineInterval} />
+          <YAxis tick={{ fontSize: 11, fill: "#686b73", fontFamily: "var(--font-text)" }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `${v >= 0 ? "+" : ""}${v}%`} />
           <Tooltip content={<ToolTip />} cursor={{ stroke: "rgba(255,255,255,0.10)", strokeWidth: 1 }} />
           <ReferenceLine y={0} stroke="rgba(255,255,255,0.16)" strokeWidth={1} />
           <Area dataKey="cumulativePct" name="Cumulative %" stroke="#e6e7ea" strokeWidth={2.2} fill="url(#lineAreaFill)" dot={false} activeDot={{ r: 3.5, fill: "#e6e7ea", strokeWidth: 0 }} />
@@ -436,8 +436,8 @@ export function PerformanceReportChart({ trades, timeframe, view, capalifeData, 
           ))}
         </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 5" stroke="rgba(255,255,255,0.045)" />
-        <XAxis dataKey="label" tick={{ fontSize: compact ? 9 : 11, fill: "#686b73", fontFamily: "var(--font-montserrat,sans-serif)" }} tickLine={false} axisLine={false} interval={barInterval} />
-        <YAxis tick={{ fontSize: 11, fill: "#686b73", fontFamily: "var(--font-montserrat,sans-serif)" }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `${v > 0 ? "+" : ""}${v}%`} />
+        <XAxis dataKey="label" tick={{ fontSize: compact ? 9 : 11, fill: "#686b73", fontFamily: "var(--font-text)" }} tickLine={false} axisLine={false} interval={barInterval} />
+        <YAxis tick={{ fontSize: 11, fill: "#686b73", fontFamily: "var(--font-text)" }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `${v > 0 ? "+" : ""}${v}%`} />
         <Tooltip content={<ToolTip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
         <ReferenceLine y={0} stroke="rgba(255,255,255,0.16)" strokeWidth={1} />
         <Bar dataKey="returnPct" radius={[3, 3, 0, 0]} maxBarSize={14} name="Return %">

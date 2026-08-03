@@ -19,11 +19,9 @@ const GlobeApp = dynamic(() => import("@/components/globe/GlobeApp"), {
 export function GlobeShell() {
   return (
     <HomeDashboardProvider initialReportTrades={[]} initialBalanceRows={[]}>
-      <div className="flex h-[100dvh] min-h-0 overflow-hidden bg-[#0c0d10]">
-        <div className="relative z-10 flex-shrink-0">
-          <Sidebar />
-        </div>
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="relative flex h-[100dvh] min-h-0 min-w-0 overflow-hidden bg-[#0c0d10]">
+        <Sidebar />
+        <div className="absolute inset-0 z-0 flex min-h-0 min-w-0 flex-col overflow-hidden pl-[88px]">
           <Topbar sectionLabel="GLOBE" />
           <HeaderDivider />
           <div className="flex min-h-0 flex-1 overflow-hidden">

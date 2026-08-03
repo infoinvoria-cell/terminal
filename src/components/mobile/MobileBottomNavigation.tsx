@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -40,10 +40,10 @@ export function MobileBottomNavigation() {
             prefetch
             aria-label={label}
             aria-current={active ? "page" : undefined}
-            className={`group relative flex h-16 min-w-0 flex-1 flex-col items-center justify-center gap-1 font-[family-name:var(--font-nunito)] text-[9px] font-semibold tracking-[0.02em] [-webkit-tap-highlight-color:transparent] ${active ? "text-[#e2ca7a]" : "text-zinc-600 active:text-zinc-300"}`}
+            className={`group relative flex h-16 min-w-0 flex-1 flex-col items-center justify-center gap-1 font-[family-name:var(--font-numbers)] text-[9px] font-semibold tracking-[0.02em] [-webkit-tap-highlight-color:transparent] ${active ? "text-[#C9A84C]" : "text-zinc-600 active:text-zinc-300"}`}
           >
             {isCenter ? (
-              <span className={`absolute -top-3 grid h-[50px] w-[50px] place-items-center rounded-full border bg-[radial-gradient(circle_at_50%_30%,#202228,#0b0c0f_72%)] shadow-[0_7px_20px_rgba(0,0,0,0.62),0_0_0_5px_rgba(8,9,11,0.95)] ${active ? "border-[#e2ca7a]/60" : "border-[#e2ca7a]/30"}`}>
+              <span className={`absolute -top-3 grid h-[50px] w-[50px] place-items-center rounded-full border bg-[radial-gradient(circle_at_50%_30%,#202228,#0b0c0f_72%)] shadow-[0_7px_20px_rgba(0,0,0,0.62),0_0_0_5px_rgba(8,9,11,0.95)] ${active ? "border-[#C9A84C]/60" : "border-[#C9A84C]/30"}`}>
                 <Image
                   src="/Sentinel.png"
                   alt=""
@@ -56,7 +56,7 @@ export function MobileBottomNavigation() {
               <Icon className="h-5 w-5" strokeWidth={1.65} />
             ) : null}
             <span className={isCenter ? "mt-8" : undefined}>{label}</span>
-            {active && !isCenter ? <span className="absolute top-0 h-px w-7 bg-[#e2ca7a] shadow-[0_0_10px_rgba(226,202,122,0.55)]" /> : null}
+            {active && !isCenter ? <span className="absolute top-0 h-px w-7 bg-[#C9A84C] shadow-[0_0_10px_rgba(226,202,122,0.55)]" /> : null}
           </Link>
         );
       })}

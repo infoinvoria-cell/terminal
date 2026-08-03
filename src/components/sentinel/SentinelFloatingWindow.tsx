@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { X, Minus, Maximize2 } from "lucide-react";
@@ -221,7 +221,7 @@ export function SentinelFloatingWindow() {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/Sentinel.png" alt="" width={18} height={18} style={{ opacity: 0.7, objectFit: "contain" }} />
-          <span style={{ fontSize: 13, fontWeight: 600, color: "#ffffff", fontFamily: "var(--font-montserrat,sans-serif)", flex: 1 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: "#ffffff", fontFamily: "var(--font-text)", flex: 1 }}>
             Sentinel
           </span>
           {/* Snap position picker */}
@@ -235,7 +235,7 @@ export function SentinelFloatingWindow() {
                 onClick={() => { setSnapPos(sp); setPos(null); }}
                 style={{
                   width: 7, height: 7, borderRadius: 2, border: "none", cursor: "pointer", padding: 0,
-                  background: snapPos === sp ? "#e2ca7a" : "rgba(255,255,255,0.15)",
+                  background: snapPos === sp ? "#C9A84C" : "rgba(255,255,255,0.15)",
                   transition: "background 0.1s",
                 }}
               />

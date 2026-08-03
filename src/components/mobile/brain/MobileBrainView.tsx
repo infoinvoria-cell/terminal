@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 import { useEffect, useState } from "react";
 
-const GOLD = "#e2ca7a";
-const CARD_BG = "#1c1d20";
+const GOLD = "#C9A84C";
+const CARD_BG = "#1F1F1F";
 const CARD_BORDER = "rgba(255,255,255,0.06)";
 
 type BrainStatus = {
@@ -23,7 +23,7 @@ function StatCard({ label, value, sub }: { label: string; value: string | number
   return (
     <div style={{ flex: 1, background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 14, padding: "14px 16px" }}>
       <div style={{ fontSize: 11, color: "rgba(255,255,255,0.42)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</div>
-      <div style={{ fontSize: 22, fontWeight: 700, color: GOLD, fontFamily: "var(--font-montserrat), sans-serif", lineHeight: 1.1, marginTop: 3 }}>{value}</div>
+      <div style={{ fontSize: 22, fontWeight: 700, color: GOLD, fontFamily: "var(--font-text), sans-serif", lineHeight: 1.1, marginTop: 3 }}>{value}</div>
       {sub && <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>{sub}</div>}
     </div>
   );
@@ -64,7 +64,7 @@ export function MobileBrainView() {
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
       <header style={{ position: "sticky", top: 0, zIndex: 20, padding: "16px 16px 12px", background: "linear-gradient(#0c0d10 68%, rgba(12,13,16,0))" }}>
-        <h1 style={{ margin: 0, fontSize: 19, fontWeight: 700, color: "#fafafa", fontFamily: "var(--font-montserrat), sans-serif" }}>Brain</h1>
+        <h1 style={{ margin: 0, fontSize: 19, fontWeight: 700, color: "#fafafa", fontFamily: "var(--font-text), sans-serif" }}>Brain</h1>
         <p style={{ margin: "2px 0 0", fontSize: 11, color: "rgba(255,255,255,0.42)", fontWeight: 600 }}>Capitalife Knowledge Graph</p>
       </header>
 
@@ -91,7 +91,7 @@ export function MobileBrainView() {
               <div style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 14, overflow: "hidden" }}>
                 <div style={{ padding: "12px 14px 8px", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.42)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Systemstatus</div>
                 {data.changes.map((c, i) => {
-                  const dot = c.status === "ok" ? "#4ade80" : c.status === "partial" ? GOLD : "rgba(255,255,255,0.2)";
+                  const dot = c.status === "ok" ? "#22C55E" : c.status === "partial" ? GOLD : "rgba(255,255,255,0.2)";
                   return (
                     <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "9px 14px", borderTop: i === 0 ? "none" : `1px solid ${CARD_BORDER}` }}>
                       <span style={{ width: 7, height: 7, borderRadius: "50%", background: dot, flexShrink: 0, marginTop: 4, display: "inline-block" }} />

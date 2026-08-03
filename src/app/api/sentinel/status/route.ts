@@ -1,4 +1,13 @@
-export const runtime = "edge";
 import { NextResponse } from "next/server";
-export async function GET() { return NextResponse.json({ status: "ok" }); }
-export async function POST() { return NextResponse.json({ error: "unavailable in cloud preview" }, { status: 503 }); }
+import { getProviderStatuses } from "@/lib/sentinel/sentinel-router";
+
+export const runtime = "nodejs";
+
+export async function GET() {
+  try {
+    const status = await getProviderStatuses(null);
+    return NextResponse.json(status);
+  } catch (error) {
+    return NextResponse.json({ error: String(error) }, { status: 500 });
+  }
+}

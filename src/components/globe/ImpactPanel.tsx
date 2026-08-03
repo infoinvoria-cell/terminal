@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type { ImpactDirection } from "@/lib/globe/eventImpactMap";
 
@@ -33,9 +33,9 @@ function dirArrow(direction: ImpactDirection): string {
 }
 
 function dirColor(direction: ImpactDirection): string {
-  if (direction === "up") return "#4ade80";
-  if (direction === "down") return "#f87171";
-  return "#eab308";
+  if (direction === "up") return "#22C55E";
+  if (direction === "down") return "#EF4444";
+  return "#C9A84C";
 }
 
 export default function ImpactPanel({ data, onClose, onOpenChart, quotes }: Props) {
@@ -58,7 +58,7 @@ export default function ImpactPanel({ data, onClose, onOpenChart, quotes }: Prop
         <span className="text-[11px]">⚡</span>
         <span
           className="text-[10px] font-bold uppercase tracking-[0.08em]"
-          style={{ color: "#D4AF37" }}
+          style={{ color: "#C9A84C" }}
         >
           {data.regionLabel} Event Detected
         </span>
@@ -91,7 +91,7 @@ export default function ImpactPanel({ data, onClose, onOpenChart, quotes }: Prop
                 {t}
                 <span style={{ color, fontWeight: 700 }}>{arrow}</span>
                 {q && q.price > 0 && (
-                  <span className="ml-0.5 text-[9px] font-normal" style={{ color: chg >= 0 ? "#4ade80" : "#f87171" }}>
+                  <span className="ml-0.5 text-[9px] font-normal" style={{ color: chg >= 0 ? "#22C55E" : "#EF4444" }}>
                     {fmtPrice(q.price)}
                     {Number.isFinite(chg) && chg !== 0 ? ` ${chg >= 0 ? "+" : ""}${chg.toFixed(1)}%` : ""}
                   </span>

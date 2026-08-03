@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type { GlobePattern } from "@/app/api/globe/pattern-detection/route";
 
@@ -25,7 +25,7 @@ export default function GlobePatternAlerts({ patterns, onFocus, onDismiss }: Pro
           <button type="button" onClick={() => onFocus(p)} className="block w-full px-2.5 py-1.5 text-left">
             <div className="flex items-center gap-1.5">
               <span className="text-[11px]">{p.action === "alert" ? "🔴" : "⚡"}</span>
-              <span className="text-[10px] font-bold uppercase tracking-[0.06em]" style={{ color: p.action === "alert" ? "#f87171" : "#D4AF37" }}>
+              <span className="text-[10px] font-bold uppercase tracking-[0.06em]" style={{ color: p.action === "alert" ? "#EF4444" : "#C9A84C" }}>
                 {p.pattern}
               </span>
               <span className="ml-auto text-[9px] font-semibold text-white/40">{Math.round(p.confidence * 100)}%</span>
@@ -34,7 +34,7 @@ export default function GlobePatternAlerts({ patterns, onFocus, onDismiss }: Pro
               <div className="mt-0.5 truncate text-[9px] text-white/45">{p.affectedAssets.join(" · ")}</div>
             )}
             {p.note && (
-              <div className="mt-0.5 truncate text-[9px] font-semibold" style={{ color: "#4ade80" }}>
+              <div className="mt-0.5 truncate text-[9px] font-semibold" style={{ color: "#22C55E" }}>
                 📈 {p.note}
               </div>
             )}

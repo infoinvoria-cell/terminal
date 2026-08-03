@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Fragment, useMemo, useState, type FormEvent } from "react";
 import {
@@ -17,7 +17,7 @@ import type { NewInvestorInput } from "@/lib/manager-simulation";
 import { formatUsdCompact } from "@/lib/trades-analytics";
 
 const CARD_CLASS =
-  "rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]";
+  "rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1F1F1F] to-[#13131A] shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]";
 
 const DEFAULT_SPLIT = 50;
 
@@ -48,10 +48,10 @@ function createInvestorDraft(): InvestorDraft {
 function KpiCard({ label, value }: { label: string; value: string }) {
   return (
     <div className={`${CARD_CLASS} flex min-h-[102px] flex-col justify-between p-4`}>
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 [font-family:var(--font-text),sans-serif]">
         {label}
       </p>
-      <p className="text-2xl font-bold leading-none text-white [font-family:var(--font-nunito),sans-serif]">
+      <p className="text-2xl font-bold leading-none text-white [font-family:var(--font-numbers),sans-serif]">
         {value}
       </p>
     </div>
@@ -409,7 +409,7 @@ export function SubIbSystemDashboard() {
             <select
               value={selectedSubIbFilter}
               onChange={(event) => setSelectedSubIbFilter(event.target.value)}
-              className="h-9 rounded-lg border border-white/[0.08] bg-[#141517] px-3 text-xs text-zinc-300"
+              className="h-9 rounded-lg border border-white/[0.08] bg-[#13131A] px-3 text-xs text-zinc-300"
             >
               <option value="ALL">All</option>
               {subIBs.map((subIb) => (
@@ -427,7 +427,7 @@ export function SubIbSystemDashboard() {
             <select
               value={timeRange}
               onChange={(event) => setTimeRange(event.target.value as TimeRange)}
-              className="h-9 rounded-lg border border-white/[0.08] bg-[#141517] px-3 text-xs text-zinc-300"
+              className="h-9 rounded-lg border border-white/[0.08] bg-[#13131A] px-3 text-xs text-zinc-300"
             >
               <option value="ALL">All</option>
               <option value="3M">Last 3M</option>
@@ -440,9 +440,9 @@ export function SubIbSystemDashboard() {
         <button
           type="button"
           onClick={openCreateModal}
-          className="inline-flex items-center gap-1.5 rounded-full border border-[#e2ca7a]/40 bg-gradient-to-b from-[#1c1d20] to-[#141517] px-3.5 py-1.5 text-[12px] font-semibold text-white shadow-[inset_0_-1px_0_0_rgba(226,202,122,0.45)] transition-colors hover:border-[#e2ca7a]/55"
+          className="inline-flex items-center gap-1.5 rounded-full border border-[#C9A84C]/40 bg-gradient-to-b from-[#1F1F1F] to-[#13131A] px-3.5 py-1.5 text-[12px] font-semibold text-white shadow-[inset_0_-1px_0_0_rgba(226,202,122,0.45)] transition-colors hover:border-[#C9A84C]/55"
         >
-          <Plus className="h-4 w-4 text-[#e2ca7a]" strokeWidth={2} />
+          <Plus className="h-4 w-4 text-[#C9A84C]" strokeWidth={2} />
           New Sub-IB
         </button>
       </div>
@@ -467,14 +467,14 @@ export function SubIbSystemDashboard() {
                 const details = subIbDetails.get(row.subIbId);
                 return (
                   <Fragment key={row.subIbId}>
-                    <tr className="border-b border-white/[0.04] text-[13px] [font-family:var(--font-nunito),sans-serif]">
+                    <tr className="border-b border-white/[0.04] text-[13px] [font-family:var(--font-numbers),sans-serif]">
                       <td className="px-4 py-2.5 text-white">{row.name}</td>
                       <td className="px-4 py-2.5 text-zinc-300">{row.investorsCount}</td>
                       <td className="px-4 py-2.5 text-zinc-200">{formatUsdCompact(row.totalAum)}</td>
                       <td className="px-4 py-2.5 text-zinc-300">
                         {formatUsdCompact(row.generatedCommission)}
                       </td>
-                      <td className="px-4 py-2.5 text-[#e2ca7a]">
+                      <td className="px-4 py-2.5 text-[#C9A84C]">
                         {formatUsdCompact(row.theirShare)}
                       </td>
                       <td className="px-4 py-2.5 text-zinc-400">
@@ -501,7 +501,7 @@ export function SubIbSystemDashboard() {
                           <button
                             type="button"
                             onClick={() => openEditModal(row.subIbId)}
-                            className="inline-flex items-center gap-1 rounded-full border border-[#e2ca7a]/35 px-2.5 py-1 text-[11px] font-semibold text-[#e2ca7a] transition-colors hover:border-[#e2ca7a]/55"
+                            className="inline-flex items-center gap-1 rounded-full border border-[#C9A84C]/35 px-2.5 py-1 text-[11px] font-semibold text-[#C9A84C] transition-colors hover:border-[#C9A84C]/55"
                           >
                             <Pencil className="h-3.5 w-3.5" />
                             Edit
@@ -552,7 +552,7 @@ export function SubIbSystemDashboard() {
                                           <td className="px-1.5 py-1.5">
                                             {formatUsdCompact(investor.managerShare)}
                                           </td>
-                                          <td className="px-1.5 py-1.5 text-[#e2ca7a]">
+                                          <td className="px-1.5 py-1.5 text-[#C9A84C]">
                                             {formatUsdCompact(investor.subIbShare)}
                                           </td>
                                           <td className="px-1.5 py-1.5">
@@ -576,7 +576,7 @@ export function SubIbSystemDashboard() {
                                 <p className="text-[10px] uppercase tracking-wider text-zinc-500">
                                   Profit Split Contribution
                                 </p>
-                                <p className="mt-1 text-base font-semibold text-[#e2ca7a]">
+                                <p className="mt-1 text-base font-semibold text-[#C9A84C]">
                                   {formatUsdCompact(row.profitSplitContribution)}
                                 </p>
                               </div>
@@ -596,7 +596,7 @@ export function SubIbSystemDashboard() {
                                         )
                                       }
                                       contentStyle={{
-                                        background: "#1c1d20",
+                                        background: "#1F1F1F",
                                         border: "1px solid rgba(255,255,255,0.08)",
                                         borderRadius: 12,
                                       }}
@@ -604,7 +604,7 @@ export function SubIbSystemDashboard() {
                                     <Bar
                                       dataKey="managerShare"
                                       stackId="commission"
-                                      fill="#e2ca7a"
+                                      fill="#C9A84C"
                                       radius={[4, 4, 0, 0]}
                                     />
                                     <Bar
@@ -644,7 +644,7 @@ export function SubIbSystemDashboard() {
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-base font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+                <h3 className="text-base font-semibold text-white [font-family:var(--font-text),sans-serif]">
                   {modalMode.kind === "create" ? "New Sub-IB" : "Edit Sub-IB"}
                 </h3>
                 <p className="mt-1 text-xs text-zinc-500">
@@ -669,7 +669,7 @@ export function SubIbSystemDashboard() {
                 <input
                   value={name}
                   onChange={(event) => setName(event.target.value)}
-                  className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#141517] px-3 text-sm text-white outline-none transition-colors focus:border-[#e2ca7a]/45"
+                  className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#13131A] px-3 text-sm text-white outline-none transition-colors focus:border-[#C9A84C]/45"
                   placeholder="Sub-IB name"
                 />
               </label>
@@ -684,7 +684,7 @@ export function SubIbSystemDashboard() {
                   max={100}
                   value={splitPct}
                   onChange={(event) => setSplitPct(Number(event.target.value))}
-                  className="w-full accent-[#e2ca7a]"
+                  className="w-full accent-[#C9A84C]"
                 />
                 <p className="mt-1 text-xs text-zinc-400">
                   Manager {Math.round(100 - splitPct)}% / Sub-IB {Math.round(splitPct)}%
@@ -719,7 +719,7 @@ export function SubIbSystemDashboard() {
               {investorDrafts.map((draft, index) => (
                 <div
                   key={draft.id}
-                  className="grid gap-2 rounded-lg border border-white/[0.08] bg-[#141517] p-3 md:grid-cols-12"
+                  className="grid gap-2 rounded-lg border border-white/[0.08] bg-[#13131A] p-3 md:grid-cols-12"
                 >
                   <input
                     value={draft.name}
@@ -794,7 +794,7 @@ export function SubIbSystemDashboard() {
                 <button
                   type="submit"
                   disabled={!canSubmit}
-                  className="rounded-full border border-[#e2ca7a]/40 bg-gradient-to-b from-[#1c1d20] to-[#141517] px-4 py-2 text-xs font-semibold text-white shadow-[inset_0_-1px_0_0_rgba(226,202,122,0.45)] transition-colors hover:border-[#e2ca7a]/55 disabled:cursor-not-allowed disabled:opacity-45"
+                  className="rounded-full border border-[#C9A84C]/40 bg-gradient-to-b from-[#1F1F1F] to-[#13131A] px-4 py-2 text-xs font-semibold text-white shadow-[inset_0_-1px_0_0_rgba(226,202,122,0.45)] transition-colors hover:border-[#C9A84C]/55 disabled:cursor-not-allowed disabled:opacity-45"
                 >
                   {modalMode.kind === "create" ? "Create Sub-IB" : "Save Changes"}
                 </button>

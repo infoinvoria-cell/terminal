@@ -28,7 +28,7 @@ import {
 } from "@/lib/seasonality/deepValidation";
 
 const C_WHITE = "#F0F3F7";
-const C_GOLD = "#DCC476";
+const C_GOLD = "#C9A84C";
 const C_TEXT_2 = "#A8B4C4";
 const C_TEXT_3 = "#6A7785";
 const C_SOFT = "rgba(255,255,255,0.035)";

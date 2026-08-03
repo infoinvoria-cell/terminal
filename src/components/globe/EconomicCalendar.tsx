@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { MACRO_EVENTS, MACRO_TYPE_ICON as TYPE_ICON } from "@/lib/globe/macroEvents";
@@ -37,7 +37,7 @@ export default function EconomicCalendar({ onClose }: Props) {
     >
       <div className="flex items-center gap-1.5 px-2.5 py-2" style={{ borderBottom: "1px solid rgba(212,175,55,0.2)" }}>
         <span className="text-[11px]">📅</span>
-        <span className="text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: "#D4AF37" }}>Economic Calendar</span>
+        <span className="text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: "#C9A84C" }}>Economic Calendar</span>
         <button type="button" onClick={onClose} className="ml-auto text-[13px] leading-none text-white/40 transition hover:text-white/80" aria-label="Close">×</button>
       </div>
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto py-1">
@@ -59,7 +59,7 @@ export default function EconomicCalendar({ onClose }: Props) {
               <span
                 className="shrink-0 rounded px-1.5 py-[2px] text-[9px] font-bold tabular-nums"
                 style={{
-                  color: live ? "#4ade80" : imminent ? "#D4AF37" : "rgba(255,255,255,0.5)",
+                  color: live ? "#22C55E" : imminent ? "#C9A84C" : "rgba(255,255,255,0.5)",
                   background: live ? "rgba(74,222,128,0.14)" : imminent ? "rgba(212,175,55,0.12)" : "rgba(255,255,255,0.05)",
                 }}
               >

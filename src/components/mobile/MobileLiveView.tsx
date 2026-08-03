@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // data-mobile-version="live-desktop-parity-v3"
 import { useCallback, useEffect, useState } from "react";
 import { loadWave1Groups, type Wave1GroupId } from "@/lib/monitoring/wave1Data";
@@ -241,10 +241,10 @@ function Sparkline({ values }: { values: number[] }) {
 
 function statusColor(s: string): string {
   const sl = s.toLowerCase();
-  if (sl === "open") return "#4ade80";
+  if (sl === "open") return "#22C55E";
   if (sl === "exit_today") return "#facc15";
-  if (sl.includes("lx") || sl.includes("le")) return "#60a5fa";
-  if (sl.includes("watch")) return "#60a5fa";
+  if (sl.includes("lx") || sl.includes("le")) return "#9CA3AF";
+  if (sl.includes("watch")) return "#9CA3AF";
   return "rgba(255,255,255,0.45)";
 }
 
@@ -255,7 +255,7 @@ function dirLabel(d: "long" | "short" | null): string {
 
 function dirColor(d: "long" | "short" | null): string {
   if (!d) return "rgba(255,255,255,0.45)";
-  return d === "long" ? "#4ade80" : "#f87171";
+  return d === "long" ? "#22C55E" : "#EF4444";
 }
 
 function SignalCardComponent({ card, expanded, onToggle }: {
@@ -294,7 +294,7 @@ function SignalCardComponent({ card, expanded, onToggle }: {
               <span style={{ fontSize: 8.5, color: "rgba(255,255,255,0.32)" }}>{card.name}</span>
             )}
             {card.isOpen && (
-              <span style={{ fontSize: 7, fontWeight: 700, background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.3)", color: "#4ade80", borderRadius: 999, padding: "1px 6px", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              <span style={{ fontSize: 7, fontWeight: 700, background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.3)", color: "#22C55E", borderRadius: 999, padding: "1px 6px", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                 OPEN
               </span>
             )}
@@ -420,7 +420,7 @@ export function MobileLiveView() {
       style={{
         minHeight: 200, background: "#090a0c",
         color: "rgba(255,255,255,0.85)",
-        fontFamily: "var(--font-montserrat, system-ui, sans-serif)",
+        fontFamily: "var(--font-text)",
         padding: "10px 12px 20px",
       }}
     >
@@ -451,7 +451,7 @@ export function MobileLiveView() {
       {loading ? (
         <div style={{ textAlign: "center", color: "rgba(255,255,255,0.28)", fontSize: 11, padding: "24px 0" }}>Lade Signale…</div>
       ) : error ? (
-        <div style={{ textAlign: "center", color: "#f87171", fontSize: 11, padding: "24px 0" }}>{error}</div>
+        <div style={{ textAlign: "center", color: "#EF4444", fontSize: 11, padding: "24px 0" }}>{error}</div>
       ) : filtered.length === 0 ? (
         <div style={{ textAlign: "center", color: "rgba(255,255,255,0.28)", fontSize: 11, padding: "24px 0" }}>
           {filter === "open" ? "Keine offenen / heutigen Exit-Signale" : "Keine Signale in dieser Kategorie"}
@@ -459,8 +459,8 @@ export function MobileLiveView() {
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {([
-            { title: "Open", items: filtered.filter((c) => c.isOpen || c.isExitToday), color: "#4ade80" },
-            { title: "Watch / Closed", items: filtered.filter((c) => !c.isOpen && !c.isExitToday), color: "#60a5fa" },
+            { title: "Open", items: filtered.filter((c) => c.isOpen || c.isExitToday), color: "#22C55E" },
+            { title: "Watch / Closed", items: filtered.filter((c) => !c.isOpen && !c.isExitToday), color: "#9CA3AF" },
           ] as const)
             .filter((sec) => sec.items.length > 0)
             .map((sec) => (

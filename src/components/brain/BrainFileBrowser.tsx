@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { HomeDashboardProvider } from "@/context/home-dashboard-context";
@@ -11,8 +11,8 @@ const BG       = "#0c0d10";
 const PANEL    = "#111214";
 const CBORD    = "rgba(255,255,255,0.07)";
 const MUTED    = "#737373";
-const GOLD     = "#e2ca7a";
-const FONT     = "var(--font-montserrat), sans-serif";
+const GOLD     = "#C9A84C";
+const FONT     = "var(--font-text), sans-serif";
 
 // ── types ──────────────────────────────────────────────────────────────────────
 interface Entry { name: string; isDir: boolean; ext: string | null }
@@ -32,9 +32,9 @@ function renderMd(raw: string): string {
   return raw
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
     // code blocks
-    .replace(/```[\w]*\n([\s\S]*?)```/g, (_, c) => `<pre style="background:#1a1b1e;padding:12px 16px;border-radius:6px;overflow-x:auto;font-size:11px;font-family:monospace;color:#e2ca7a;border:1px solid rgba(255,255,255,0.08);margin:10px 0">${c}</pre>`)
+    .replace(/```[\w]*\n([\s\S]*?)```/g, (_, c) => `<pre style="background:#1a1b1e;padding:12px 16px;border-radius:6px;overflow-x:auto;font-size:11px;font-family:monospace;color:#C9A84C;border:1px solid rgba(255,255,255,0.08);margin:10px 0">${c}</pre>`)
     // inline code
-    .replace(/`([^`]+)`/g, `<code style="background:#1a1b1e;padding:2px 6px;border-radius:4px;font-size:11px;font-family:monospace;color:#e2ca7a">$1</code>`)
+    .replace(/`([^`]+)`/g, `<code style="background:#1a1b1e;padding:2px 6px;border-radius:4px;font-size:11px;font-family:monospace;color:#C9A84C">$1</code>`)
     // headers
     .replace(/^#{4} (.+)$/gm, `<h4 style="font-size:13px;font-weight:700;color:#fff;margin:18px 0 6px;letter-spacing:-.01em">$1</h4>`)
     .replace(/^#{3} (.+)$/gm, `<h3 style="font-size:14px;font-weight:700;color:#fff;margin:20px 0 7px;letter-spacing:-.01em">$1</h3>`)
@@ -46,18 +46,18 @@ function renderMd(raw: string): string {
     // horizontal rule
     .replace(/^---+$/gm, `<hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:20px 0"/>`)
     // blockquote
-    .replace(/^&gt; (.+)$/gm, `<blockquote style="border-left:3px solid #e2ca7a;margin:8px 0;padding:6px 14px;color:rgba(255,255,255,0.6);font-style:italic">$1</blockquote>`)
+    .replace(/^&gt; (.+)$/gm, `<blockquote style="border-left:3px solid #C9A84C;margin:8px 0;padding:6px 14px;color:rgba(255,255,255,0.6);font-style:italic">$1</blockquote>`)
     // checkboxes
     .replace(/^- \[x\] (.+)$/gm, `<div style="display:flex;gap:8px;align-items:flex-start;margin:3px 0"><span style="color:#6ee7b7;margin-top:2px">✓</span><span style="color:rgba(255,255,255,0.55);text-decoration:line-through">$1</span></div>`)
     .replace(/^- \[ \] (.+)$/gm, `<div style="display:flex;gap:8px;align-items:flex-start;margin:3px 0"><span style="color:rgba(255,255,255,0.2);margin-top:2px">☐</span><span style="color:rgba(255,255,255,0.75)">$1</span></div>`)
     // bullet lists
-    .replace(/^[-*] (.+)$/gm, `<div style="display:flex;gap:8px;align-items:flex-start;margin:3px 0"><span style="color:#e2ca7a;margin-top:5px;font-size:5px;flex-shrink:0">●</span><span>$1</span></div>`)
+    .replace(/^[-*] (.+)$/gm, `<div style="display:flex;gap:8px;align-items:flex-start;margin:3px 0"><span style="color:#C9A84C;margin-top:5px;font-size:5px;flex-shrink:0">●</span><span>$1</span></div>`)
     // numbered lists
-    .replace(/^(\d+)\. (.+)$/gm, `<div style="display:flex;gap:8px;align-items:flex-start;margin:3px 0"><span style="color:#e2ca7a;font-size:11px;font-weight:600;min-width:16px;text-align:right;flex-shrink:0">$1.</span><span>$2</span></div>`)
+    .replace(/^(\d+)\. (.+)$/gm, `<div style="display:flex;gap:8px;align-items:flex-start;margin:3px 0"><span style="color:#C9A84C;font-size:11px;font-weight:600;min-width:16px;text-align:right;flex-shrink:0">$1.</span><span>$2</span></div>`)
     // Obsidian [[wikilinks]]
-    .replace(/\[\[([^\]]+)\]\]/g, `<span style="color:#e2ca7a;border-bottom:1px dashed rgba(226,202,122,0.4);cursor:default" title="$1">$1</span>`)
+    .replace(/\[\[([^\]]+)\]\]/g, `<span style="color:#C9A84C;border-bottom:1px dashed rgba(226,202,122,0.4);cursor:default" title="$1">$1</span>`)
     // [text](url) links
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, `<a href="$2" style="color:#e2ca7a" target="_blank" rel="noopener">$1</a>`)
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, `<a href="$2" style="color:#C9A84C" target="_blank" rel="noopener">$1</a>`)
     // newlines → breaks (but not inside pre)
     .replace(/\n/g, "<br/>");
 }
@@ -169,7 +169,7 @@ function BrainBrowserInner() {
   const fmtDate = (iso: string) => new Date(iso).toLocaleString("de-DE", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" });
 
   return (
-    <div style={{ display: "flex", height: "calc(100vh - 56px)", background: BG, overflow: "hidden" }}>
+    <div style={{ display: "flex", flex: 1, minHeight: 0, minWidth: 0, background: BG, overflow: "hidden" }}>
       {/* ── Sidebar tree ─────────────────────────────────────────────────── */}
       <div style={{
         width: 260, flexShrink: 0, borderRight: `1px solid ${CBORD}`,
@@ -246,7 +246,7 @@ function BrainBrowserInner() {
           {!loading && fileContent && (
             <div>
               {isJson ? (
-                <pre style={{ fontFamily: "monospace", fontSize: 11, color: "#e2ca7a", background: "#111214", padding: 20, borderRadius: 8, overflow: "auto", border: `1px solid ${CBORD}`, lineHeight: 1.6 }}>
+                <pre style={{ fontFamily: "monospace", fontSize: 11, color: "#C9A84C", background: "#111214", padding: 20, borderRadius: 8, overflow: "auto", border: `1px solid ${CBORD}`, lineHeight: 1.6 }}>
                   {jsonFormatted}
                 </pre>
               ) : fileContent.ext === ".md" ? (
@@ -299,9 +299,9 @@ function BrainBrowserInner() {
 export function BrainFileBrowser() {
   return (
     <HomeDashboardProvider initialReportTrades={[]} initialBalanceRows={[]}>
-      <div style={{ display: "flex", height: "100vh", background: "#0c0d10", overflow: "hidden" }}>
+      <div style={{ position: "relative", display: "flex", height: "100vh", minWidth: 0, background: "#0c0d10", overflow: "hidden" }}>
         <Sidebar />
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0 }}>
+        <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0, paddingLeft: 88 }}>
           <Topbar sectionLabel="Brain Vault" />
           <HeaderDivider />
           <BrainBrowserInner />

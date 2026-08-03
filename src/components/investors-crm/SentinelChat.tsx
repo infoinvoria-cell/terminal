@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -40,7 +40,7 @@ const STEPS: QStep[] = [
 
 type ChatMsg = { from: "bot" | "user"; text: string };
 
-const GOLD = "#e2ca7a";
+const GOLD = "#C9A84C";
 
 export function SentinelChat({
   onClose,
@@ -118,7 +118,7 @@ export function SentinelChat({
   const inpS: React.CSSProperties = {
     flex: 1, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.14)",
     borderRadius: 12, padding: "11px 15px", color: "#fff", fontSize: 16,
-    fontFamily: "var(--font-montserrat,sans-serif)", outline: "none",
+    fontFamily: "var(--font-text)", outline: "none",
     touchAction: "manipulation", WebkitAppearance: "none", boxSizing: "border-box",
   };
 
@@ -157,8 +157,8 @@ export function SentinelChat({
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={GOLD} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 800, color: "#fff", fontFamily: "var(--font-montserrat,sans-serif)", lineHeight: 1.1 }}>Sentinel</div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-montserrat,sans-serif)" }}>Investor aufnehmen</div>
+            <div style={{ fontSize: 13, fontWeight: 800, color: "#fff", fontFamily: "var(--font-text)", lineHeight: 1.1 }}>Sentinel</div>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-text)" }}>Investor aufnehmen</div>
           </div>
           <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 18, cursor: "pointer", padding: "2px 6px", lineHeight: 1 }}>✕</button>
         </div>
@@ -173,7 +173,7 @@ export function SentinelChat({
               border: `1px solid ${m.from === "bot" ? "rgba(255,255,255,0.09)" : "rgba(226,202,122,0.28)"}`,
               borderRadius: m.from === "bot" ? "4px 15px 15px 15px" : "15px 4px 15px 15px",
               padding: "9px 13px", fontSize: 13.5, lineHeight: 1.45,
-              fontFamily: "var(--font-montserrat,sans-serif)",
+              fontFamily: "var(--font-text)",
               color: m.from === "bot" ? "rgba(255,255,255,0.9)" : GOLD,
               animation: "msgIn 200ms ease both",
               whiteSpace: "pre-wrap", wordBreak: "break-word",
@@ -190,14 +190,14 @@ export function SentinelChat({
               <button key={o} onClick={() => advance(o)} style={{
                 background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 16,
                 padding: "8px 13px", color: "rgba(255,255,255,0.85)", fontSize: 12.5, fontWeight: 600,
-                fontFamily: "var(--font-montserrat,sans-serif)", cursor: "pointer", touchAction: "manipulation", WebkitTapHighlightColor: "transparent",
+                fontFamily: "var(--font-text)", cursor: "pointer", touchAction: "manipulation", WebkitTapHighlightColor: "transparent",
               }}>{o}</button>
             ))}
             {current.optional && (
               <button onClick={() => advance(null)} style={{
                 background: "none", border: "1px dashed rgba(255,255,255,0.14)", borderRadius: 16,
                 padding: "8px 13px", color: "rgba(255,255,255,0.4)", fontSize: 12.5,
-                fontFamily: "var(--font-montserrat,sans-serif)", cursor: "pointer", touchAction: "manipulation",
+                fontFamily: "var(--font-text)", cursor: "pointer", touchAction: "manipulation",
               }}>Überspringen</button>
             )}
           </div>
@@ -220,14 +220,14 @@ export function SentinelChat({
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             </button>
             {current.optional && (
-              <button onClick={() => advance(null)} title="Überspringen" style={{ flexShrink: 0, height: 44, padding: "0 12px", borderRadius: 13, background: "none", border: "1px dashed rgba(255,255,255,0.14)", color: "rgba(255,255,255,0.4)", fontSize: 11, fontFamily: "var(--font-montserrat,sans-serif)", cursor: "pointer", touchAction: "manipulation" }}>Skip</button>
+              <button onClick={() => advance(null)} title="Überspringen" style={{ flexShrink: 0, height: 44, padding: "0 12px", borderRadius: 13, background: "none", border: "1px dashed rgba(255,255,255,0.14)", color: "rgba(255,255,255,0.4)", fontSize: 11, fontFamily: "var(--font-text)", cursor: "pointer", touchAction: "manipulation" }}>Skip</button>
             )}
           </div>
         )}
 
         {done && (
           <div style={{ padding: "12px 14px 16px", borderTop: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
-            <button onClick={onClose} style={{ width: "100%", background: "rgba(226,202,122,0.16)", border: "1px solid rgba(226,202,122,0.32)", borderRadius: 13, padding: "13px", color: GOLD, fontSize: 14, fontWeight: 800, fontFamily: "var(--font-montserrat,sans-serif)", cursor: "pointer" }}>Fertig</button>
+            <button onClick={onClose} style={{ width: "100%", background: "rgba(226,202,122,0.16)", border: "1px solid rgba(226,202,122,0.32)", borderRadius: 13, padding: "13px", color: GOLD, fontSize: 14, fontWeight: 800, fontFamily: "var(--font-text)", cursor: "pointer" }}>Fertig</button>
           </div>
         )}
       </div>

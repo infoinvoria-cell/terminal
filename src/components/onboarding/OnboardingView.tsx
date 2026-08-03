@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { MessageSquare } from "lucide-react";
@@ -23,7 +23,7 @@ export type Investor = {
   created_at: string;
 };
 
-const T = "var(--font-montserrat,sans-serif)";
+const T = "var(--font-text)";
 
 // ── Dropdown options ───────────────────────────────────────────────────────────
 
@@ -85,15 +85,15 @@ function estimateCapital(rows: Investor[]): string {
 
 const STATUS_COLOR: Record<string, { bg: string; text: string; border: string }> = {
   "Neu":                    { bg: "rgba(113,113,122,0.18)", text: "#a1a1aa", border: "rgba(113,113,122,0.35)" },
-  "Kontaktiert":            { bg: "rgba(59,130,246,0.18)",  text: "#60a5fa", border: "rgba(59,130,246,0.35)" },
+  "Kontaktiert":            { bg: "rgba(59,130,246,0.18)",  text: "#9CA3AF", border: "rgba(59,130,246,0.35)" },
   "Early Access gesendet":  { bg: "rgba(99,102,241,0.18)",  text: "#818cf8", border: "rgba(99,102,241,0.35)" },
   "Interesse bestätigt":    { bg: "rgba(6,182,212,0.18)",   text: "#22d3ee", border: "rgba(6,182,212,0.35)" },
   "Gespräch geplant":       { bg: "rgba(168,85,247,0.18)",  text: "#c084fc", border: "rgba(168,85,247,0.35)" },
   "Warm Commitment":        { bg: "rgba(245,158,11,0.18)",  text: "#fbbf24", border: "rgba(245,158,11,0.35)" },
   "Unterlagen ausstehend":  { bg: "rgba(249,115,22,0.18)",  text: "#fb923c", border: "rgba(249,115,22,0.35)" },
-  "Bereit für Onboarding":  { bg: "rgba(34,197,94,0.18)",   text: "#4ade80", border: "rgba(34,197,94,0.35)" },
+  "Bereit für Onboarding":  { bg: "rgba(34,197,94,0.18)",   text: "#22C55E", border: "rgba(34,197,94,0.35)" },
   "Später kontaktieren":    { bg: "rgba(63,63,70,0.35)",    text: "#71717a", border: "rgba(63,63,70,0.55)" },
-  "Abgesagt":               { bg: "rgba(239,68,68,0.18)",   text: "#f87171", border: "rgba(239,68,68,0.35)" },
+  "Abgesagt":               { bg: "rgba(239,68,68,0.18)",   text: "#EF4444", border: "rgba(239,68,68,0.35)" },
 };
 function StatusBadge({ s }: { s: string }) {
   const c = STATUS_COLOR[s] ?? STATUS_COLOR["Neu"];

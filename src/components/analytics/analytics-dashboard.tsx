@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useEffectEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { Layers, TrendingUp } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -305,6 +305,7 @@ function computeBenchmarkExtended(series: AnalyticsSeriesPoint[]) {
 const START_FILTERS: StartFilter[] = ["Max", "2008", "2015", "5Y", "3Y", "1Y", "YTD"];
 const GROUP_ORDER = ["Intraday", "Agrar", "Metalle", "Energy", "Indizes", "Aktien", "Forex", "Anomalien", "Invest"] as const;
 const GROUP_LINE_COLORS: Record<string, string> = {
+  // White Swan strategy groups
   Intraday: "#f3f4f6",
   Agrar: "#d7dbe3",
   Metalle: "#c9ccd3",
@@ -314,11 +315,27 @@ const GROUP_LINE_COLORS: Record<string, string> = {
   Forex: "#8f96a4",
   Anomalien: "#7f8696",
   Invest: "#e8eaef",
-  SPY: "#d4d8e0",
   SPMO: "#b0b5be",
-  QQQ: "#8d939f",
-  GLD: "#7a8090",
   WHITE_SWAN_NAS_EMA: "#e8d89a",
+  // Core Invest sleeve groups
+  "Core Gross": "#C9A84C",
+  ETF_FACTOR: "#d4d8e0",
+  DEFENSIVE: "#b8c2d0",
+  MANAGED_FUTURES: "#a0aab8",
+  // Core Invest ETF assets — stable white/grey/gold palette
+  SPY:  "#f0f0f2",
+  QQQ:  "#dcdfe6",
+  RSP:  "#c8cdd8",
+  IWM:  "#b4baca",
+  EFA:  "#a0a8bc",
+  EEM:  "#8c96ae",
+  QUAL: "#e8d48a",
+  MTUM: "#d8c478",
+  VLUE: "#c8b468",
+  USMV: "#b8a458",
+  GLD:  "#f0dc80",
+  IEF:  "#98a8c0",
+  BIL:  "#889ab2",
   benchmark: "#d8c071",
 };
 
@@ -457,7 +474,7 @@ function ChartTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border border-white/[0.08] bg-[#12131a]/95 px-3 py-2 text-[11px] shadow-xl [font-family:var(--font-montserrat),sans-serif]">
+    <div className="rounded-lg border border-white/[0.08] bg-[#12131a]/95 px-3 py-2 text-[11px] shadow-xl [font-family:var(--font-text),sans-serif]">
       <p className="mb-1 text-zinc-500">{String(label ?? "")}</p>
       {payload.map((entry) => (
         <p key={entry.name} style={{ color: entry.color }}>
@@ -473,10 +490,10 @@ function Card({ children, className }: { children: React.ReactNode; className?: 
   return (
     <div
       className={cn(
-        "flex h-full min-h-0 flex-col overflow-hidden rounded-[18px] border bg-[#17181b] shadow-[0_18px_45px_rgba(0,0,0,0.22)]",
+        "flex h-full min-h-0 flex-col overflow-hidden rounded-[18px] border bg-[#0d0f12] shadow-[0_18px_45px_rgba(0,0,0,0.30)]",
         className,
       )}
-      style={{ borderColor: "rgba(255,255,255,0.075)" }}
+      style={{ borderColor: "rgba(255,255,255,0.07)" }}
     >
       {children}
     </div>
@@ -497,8 +514,8 @@ function CardHeader({
   return (
     <div className={cn("flex items-start justify-between gap-3 px-4 py-3", bordered && "border-b border-white/[0.06]")}>
       <div>
-        <p className="text-[12px] font-medium tracking-[0.04em] text-[#8d8f98] [font-family:var(--font-montserrat),sans-serif]">{title}</p>
-        {subtitle ? <p className="mt-1 text-[10px] text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">{subtitle}</p> : null}
+        <p className="text-[12px] font-medium tracking-[0.04em] text-[#8d8f98] [font-family:var(--font-text),sans-serif]">{title}</p>
+        {subtitle ? <p className="mt-1 text-[10px] text-zinc-500 [font-family:var(--font-text),sans-serif]">{subtitle}</p> : null}
       </div>
       {right}
     </div>
@@ -507,7 +524,7 @@ function CardHeader({
 
 function EmptyHint({ message }: { message: string }) {
   return (
-    <div className="flex h-full items-center justify-center px-4 text-center text-[11px] text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">
+    <div className="flex h-full items-center justify-center px-4 text-center text-[11px] text-zinc-500 [font-family:var(--font-text),sans-serif]">
       {message}
     </div>
   );
@@ -532,7 +549,7 @@ function PillButton({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "shrink-0 rounded-full border [font-family:var(--font-montserrat),sans-serif] transition-colors",
+        "shrink-0 rounded-full border [font-family:var(--font-text),sans-serif] transition-colors",
         compact ? "px-2 py-0.5 text-[9px]" : "px-3 py-1 text-[10px]",
         active
           ? "border-white/40 bg-white/[0.06] text-white"
@@ -599,6 +616,7 @@ function buildKpiCards(
   }
 
   if (dataset.tab === "invest" && dataset.mode === "live") {
+    const isShadowLive = dataset.metrics.dataStatus === "SHADOW_LIVE";
     const pTotal = parseMetricNumber(dataset.metrics.totalReturnPct);
     const pCagr = parseMetricNumber(dataset.metrics.cagrPct);
     const pMaxDD = parseMetricNumber(dataset.metrics.maxDrawdownPct);
@@ -608,6 +626,26 @@ function buildKpiCards(
     const pCalmar = parseMetricNumber(dataset.metrics.calmar);
     const pPosM = parseMetricNumber(dataset.metrics.positiveMonthsPct);
     const bExt = inBenchmark ? computeBenchmarkExtended(benchmarkSeries) : null;
+    if (isShadowLive) {
+      // Shadow live: forward KPIs as pending, context backtest KPIs labeled as Context
+      return [
+        { label: "Forward Return", value: "pending" },
+        { label: "Forward CAGR", value: "pending" },
+        { label: "Forward Max DD", value: "pending" },
+        { label: "Forward Volatility", value: "pending" },
+        { label: "Forward Sharpe", value: "pending" },
+        { label: "Forward Days", value: "0" },
+        { label: "Context CAGR", value: formatPercent(pCagr), delta: "backtest", deltaNeutral: true },
+        { label: "Context Max DD", value: formatPercent(pMaxDD), delta: "backtest", deltaNeutral: true },
+        { label: "Context Sharpe", value: formatNumber(pSharpe), delta: "backtest", deltaNeutral: true },
+        { label: "Context Corr.", value: formatNumber(parseMetricNumber(dataset.metrics.correlationToSpy)) },
+        { label: "Broker", value: String(dataset.metrics.brokerStatus ?? "OFFLINE") },
+        { label: "Forward Start", value: String(dataset.metrics.shadowForwardStart ?? "Waiting for Market Data") },
+        { label: "Active Assets", value: String(dataset.metrics.activeAssets ?? "n/a") },
+        { label: "Market Data", value: String(dataset.metrics.latestMarketData ?? "n/a") },
+        { label: "Latest Signal", value: String(dataset.metrics.latestSignal ?? "n/a") },
+      ];
+    }
     return [
       deltaCard("Total Return", formatPercent(pTotal), pTotal, bTotal),
       deltaCard("CAGR", formatPercent(pCagr), pCagr, bCagr),
@@ -738,38 +776,43 @@ function buildKpiCards(
 
 function buildOverviewRows(dataset: AnalyticsDataset): Array<[string, string]> {
   if (dataset.tab === "invest" && dataset.mode === "live") {
+    const m = dataset.metrics;
+    const status = String(m.dataStatus ?? "SHADOW_LIVE");
     return [
-      ["Strategy", "Core Invest v2.0"],
-      ["Version", "v2.0 weights frozen 2026-07-20"],
-      ["ETF Core", "QQQ 45% · GLD 25% · SPMO 5% · SPY 5% (80%)"],
-      ["Sleeves", "20% Validation Cash · keine ungepruefte Ausfuehrung"],
-      ["OOS CAGR", `${CI_PORTFOLIO_KPIS.cagr} (2019–2026)`],
-      ["OOS Sharpe", CI_PORTFOLIO_KPIS.sharpe],
-      ["OOS MaxDD", CI_PORTFOLIO_KPIS.maxDd],
-      ["OOS Calmar", CI_PORTFOLIO_KPIS.calmar],
-      ["⚠ Parity", "Engine Parity partiell · Pine2-Sleeves ~15% Match"],
-      ["WF Beat", "nicht belastbar · Engine-Paritaet fehlt"],
-      ["Gate", "ETF CORE OK · SLEEVES CASH/PENDING"],
-      ["Execution", "none · Paper Trading only"],
+      ["Status", status],
+      ["Strategy", String(m.portfolioName ?? "Core Invest Active Alpha 2")],
+      ["Version", String(m.strategyVersion ?? "v2.0-demo-audit")],
+      ["Period", String(m.period ?? dataset.period.start ? `${dataset.period.start} – ${dataset.period.end}` : "n/a")],
+      ["Start NAV", String(m.startCapital ?? "n/a")],
+      ["Gross Exposure", String(m.grossLongExposure ?? "n/a")],
+      ["Exposure Cap", String(m.longExposureCap ?? "n/a")],
+      ["Fee Model", String(m.feeModel ?? "n/a")],
+      ["Gates", m.gatesTotal ? `${String(m.gatesPassed)} PASS · ${String(m.gatesFailed)} FAIL / ${String(m.gatesTotal)}` : "n/a"],
+      ["Broker", String(m.brokerStatus ?? "OFFLINE")],
+      ["Execution", String(m.executionStatus ?? "none")],
+      ["Mode", String(m.mode ?? "no live trading")],
     ];
   }
 
   if (dataset.tab === "invest" && dataset.mode === "backtest") {
-    const adaptiveStart = dataset.metrics.adaptiveStart ? String(dataset.metrics.adaptiveStart) : "n/a";
-    const fullCoreStart = dataset.metrics.fullCoreStart ? String(dataset.metrics.fullCoreStart) : "n/a";
+    const m = dataset.metrics;
+    const status = String(m.dataStatus ?? "REFERENCE_BACKTEST");
+    const isScenario = status === "SCENARIO";
+    const runId = m.runId ? String(m.runId) : null;
     return [
-      ["Strategy", "Core Invest v2.0"],
-      ["ETF Core", "QQQ 45% · GLD 25% · SPMO 5% · SPY 5% (80%)"],
-      ["Sleeves", "20% Validation Cash · HG/CHF rejected"],
-      ["IS (2000-2018)", "Approximation · SPMO-Proxy"],
-      ["OOS (2019-2026)", `CAGR ${CI_PORTFOLIO_KPIS.cagr} · Sh ${CI_PORTFOLIO_KPIS.sharpe} · DD ${CI_PORTFOLIO_KPIS.maxDd} · Cal ${CI_PORTFOLIO_KPIS.calmar}`],
-      ["⚠ Parity", "Engine Parity partiell · Pine2-Sleeves ~15% Match"],
-      ["WF Beat", "nicht belastbar · Engine-Paritaet fehlt"],
-      ["Gate", "ETF CORE OK · ACCOUNT BACKTEST PENDING"],
-      ["Adaptive Start", adaptiveStart],
-      ["Full-Core Start", fullCoreStart],
-      ["Market Data", "OHLC vorhanden · Strategy parity pending"],
-      ["Execution", "none · Paper Trading only"],
+      ["Status", isScenario && runId ? `SCENARIO · ${runId}` : status],
+      ["Strategy", String(m.portfolioName ?? "Core Invest Active Alpha 2")],
+      ["Version", String(m.strategyVersion ?? "v2.0-demo-audit")],
+      ["Period", String(m.period ?? (dataset.period.start ? `${dataset.period.start} – ${dataset.period.end}` : "n/a"))],
+      ["Start NAV", String(m.startCapital ?? "n/a")],
+      ["Gross Exposure", String(m.grossLongExposure ?? "n/a")],
+      ["Exposure Cap", String(m.longExposureCap ?? "n/a")],
+      ["Fee Model", String(m.feeModel ?? "n/a")],
+      ["SPY CAGR", m.spyCagrPct !== undefined ? formatPercent(parseMetricNumber(m.spyCagrPct)) : "n/a"],
+      ["Rolling 5Y", String(m.rolling5yOutperformance ?? "n/a")],
+      ["Rolling 10Y", String(m.rolling10yOutperformance ?? "n/a")],
+      ["Gates", m.gatesTotal ? `${String(m.gatesPassed)} PASS · ${String(m.gatesFailed)} FAIL / ${String(m.gatesTotal)}` : "n/a"],
+      ["Mode", String(m.mode ?? "no live trading")],
     ];
   }
 
@@ -890,7 +933,7 @@ function TopTabs({
             type="button"
             onClick={() => onTabChange(item.id)}
             className={cn(
-              "flex items-center gap-2 rounded-full border px-4 py-2 text-[13px] font-semibold transition-colors [font-family:var(--font-montserrat),sans-serif]",
+              "flex items-center gap-2 rounded-full border px-4 py-2 text-[13px] font-semibold transition-colors [font-family:var(--font-text),sans-serif]",
               tab === item.id
                 ? "border-white/40 bg-white/[0.06] text-white"
                 : "border-transparent text-zinc-500 hover:border-white/[0.08] hover:text-zinc-300",
@@ -915,7 +958,7 @@ function TopTabs({
             type="button"
             onClick={() => onModeChange(item)}
             className={cn(
-              "rounded-full border px-4 py-1.5 text-[11px] uppercase tracking-[0.08em] [font-family:var(--font-montserrat),sans-serif]",
+              "rounded-full border px-4 py-1.5 text-[11px] uppercase tracking-[0.08em] [font-family:var(--font-text),sans-serif]",
               mode === item
                 ? "border-white/40 bg-white/[0.06] text-white"
                 : "border-white/[0.08] text-zinc-500 hover:border-white/[0.14] hover:text-zinc-300",
@@ -929,42 +972,119 @@ function TopTabs({
   );
 }
 
+function Sp500Icon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="S&P 500">
+      <rect width="14" height="14" rx="3" fill="#1a1d21" />
+      <text x="7" y="10.5" textAnchor="middle" fontSize="7" fontWeight="700" fill="#d8c071" fontFamily="sans-serif">SP</text>
+    </svg>
+  );
+}
+
 function PerformanceLegend({
   dataset,
   lineMode,
   visibleGroups,
+  allAssetGroups,
+  primaryAsset,
+  onPrimaryAsset,
+  onToggleGroup,
+  onSelectAll,
+  onClear,
 }: {
   dataset: AnalyticsDataset;
   lineMode: LineMode;
   visibleGroups: string[];
+  allAssetGroups: string[];
+  primaryAsset: string | null;
+  onPrimaryAsset: (id: string) => void;
+  onToggleGroup: (id: string) => void;
+  onSelectAll: () => void;
+  onClear: () => void;
 }) {
-  const legendItems =
-    lineMode === "assets"
-      ? visibleGroups.map((group) => ({
-          key: group,
-          label: dataset.groups.find((item) => item.id === group)?.label ?? group,
-          color: GROUP_LINE_COLORS[group] ?? "#a1a1aa",
-        }))
-      : lineMode === "benchmark"
-        ? [
-            { key: "portfolio", label: "Portfolio", color: "#f3f4f6" },
-            { key: "benchmark", label: "SPY", color: GROUP_LINE_COLORS.benchmark },
-          ]
-        : [];
-
-  if (!legendItems.length) return null;
-
-  return (
-    <div className="flex flex-wrap gap-3 px-4 pb-2 text-[10px] text-zinc-400 [font-family:var(--font-montserrat),sans-serif]">
-      {legendItems.map((item) => (
-        <div key={item.key} className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-          <span>{item.label}</span>
+  if (lineMode === "assets") {
+    return (
+      <div className="flex flex-col gap-1 px-4 pb-2 text-[10px] text-zinc-400 [font-family:var(--font-text),sans-serif]">
+        <div className="flex items-center gap-2 mb-0.5">
+          <button
+            type="button"
+            onClick={onSelectAll}
+            className="rounded px-2 py-0.5 border border-white/10 hover:border-white/20 hover:text-zinc-200 transition-colors"
+          >
+            All
+          </button>
+          <button
+            type="button"
+            onClick={onClear}
+            className="rounded px-2 py-0.5 border border-white/10 hover:border-white/20 hover:text-zinc-200 transition-colors"
+          >
+            Clear
+          </button>
+          <span className="text-zinc-600 text-[9px]">★ = primary (KPIs / Drawdown / Annual)</span>
         </div>
-      ))}
-    </div>
-  );
+        <div className="flex flex-wrap gap-2">
+          {allAssetGroups.map((group) => {
+            const label = dataset.groups.find((item) => item.id === group)?.label ?? group;
+            const color = GROUP_LINE_COLORS[group] ?? "#a1a1aa";
+            const isPrimary = primaryAsset === group;
+            const isVisible = visibleGroups.includes(group);
+            return (
+              <span key={group} className="flex items-center">
+                <button
+                  type="button"
+                  onClick={() => isVisible ? onPrimaryAsset(group) : onToggleGroup(group)}
+                  title={isVisible ? (isPrimary ? "Primary (click to deselect primary)" : "Set as primary") : "Click to select"}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-l-full border px-2 py-0.5 transition-colors",
+                    isVisible
+                      ? isPrimary
+                        ? "border-white/20 bg-white/[0.06] text-white border-r-0"
+                        : "border-white/10 text-zinc-300 border-r-0"
+                      : "border-transparent rounded-full text-zinc-600 opacity-40",
+                  )}
+                >
+                  <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: isVisible ? color : "#555" }} />
+                  <span>{label}</span>
+                  {isPrimary && <span className="text-[9px] text-[#d8c071]">★</span>}
+                </button>
+                {isVisible && (
+                  <button
+                    type="button"
+                    onClick={() => onToggleGroup(group)}
+                    title="Deselect"
+                    className="rounded-r-full border border-l-0 border-white/10 px-1.5 py-0.5 text-[9px] text-zinc-600 hover:text-zinc-300 transition-colors"
+                  >
+                    ✕
+                  </button>
+                )}
+              </span>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  if (lineMode === "benchmark") {
+    const ciLabel = dataset.tab === "invest" ? "Core Invest" : "Portfolio";
+    return (
+      <div className="flex flex-wrap gap-4 px-4 pb-2 text-[10px] text-zinc-400 [font-family:var(--font-text),sans-serif]">
+        <div className="flex items-center gap-2">
+          <Image src="/CAPITALIFE_ICON.png" alt="Capitalife" width={14} height={14} className="rounded-sm opacity-90" />
+          <span style={{ color: "#f3f4f6" }}>{ciLabel}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Sp500Icon size={14} />
+          <span style={{ color: GROUP_LINE_COLORS.benchmark }}>S&amp;P 500</span>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 }
+
+type PeriodMode = "own" | "common";
 
 function PerformanceCard({
   dataset,
@@ -973,9 +1093,16 @@ function PerformanceCard({
   benchmarkEnabled,
   activeGroups,
   compounded,
+  primaryAsset,
+  periodMode,
   onStartFilter,
   onLineMode,
   onCompounded,
+  onPrimaryAsset,
+  onToggleGroup,
+  onSelectAll,
+  onClear,
+  onPeriodMode,
 }: {
   dataset: AnalyticsDataset;
   startFilter: StartFilter;
@@ -983,9 +1110,16 @@ function PerformanceCard({
   benchmarkEnabled: boolean;
   activeGroups: string[];
   compounded: boolean;
+  primaryAsset: string | null;
+  periodMode: PeriodMode;
   onStartFilter: (filter: StartFilter) => void;
   onLineMode: (mode: LineMode) => void;
   onCompounded: (v: boolean) => void;
+  onPrimaryAsset: (id: string) => void;
+  onToggleGroup: (id: string) => void;
+  onSelectAll: () => void;
+  onClear: () => void;
+  onPeriodMode: (m: PeriodMode) => void;
 }) {
   const baseSeries =
     lineMode === "assets" && Object.keys(dataset.groupSeries).length
@@ -997,18 +1131,59 @@ function PerformanceCard({
   const performanceSeries = compounded ? rawPerformanceSeries : toNonCompounded(rawPerformanceSeries);
   const benchmarkSeries = compounded ? rawBenchmarkSeries : toNonCompounded(rawBenchmarkSeries);
   const visibleGroups = activeGroups.filter((group) => dataset.groupSeries[group]?.length);
+  const allAssetGroups = dataset.groups.filter((g) => dataset.groupSeries[g.id]?.length).map((g) => g.id);
+
+  // Common Period start: latest inception date among all visible assets.
+  const commonStartDate = useMemo<string | null>(() => {
+    if (lineMode !== "assets" || periodMode !== "common" || !visibleGroups.length) return null;
+    let latest = "1900-01-01";
+    for (const g of visibleGroups) {
+      const inception = dataset.assetMeta?.[g]?.inceptionDate ?? dataset.groupSeries[g]?.[0]?.date ?? "1900-01-01";
+      if (inception > latest) latest = inception;
+    }
+    return latest;
+  }, [lineMode, periodMode, visibleGroups, dataset.assetMeta, dataset.groupSeries]);
+
+  // Dynamic Y-axis domain — from visible finite values after period filter.
+  const assetYDomain = useMemo<[number, number] | undefined>(() => {
+    if (lineMode !== "assets" || !visibleGroups.length) return undefined;
+    let minV = Infinity, maxV = -Infinity;
+    for (const group of visibleGroups) {
+      let raw = filterSeries(dataset.groupSeries[group] ?? [], startFilter);
+      if (commonStartDate) raw = raw.filter((p) => p.date >= commonStartDate);
+      const rebased = rebaseSeries(raw);
+      const data = compounded ? rebased : toNonCompounded(rebased);
+      for (const p of data) {
+        if (!Number.isFinite(p.value)) continue;
+        if (p.value < minV) minV = p.value;
+        if (p.value > maxV) maxV = p.value;
+      }
+    }
+    if (!isFinite(minV)) return undefined;
+    const pad = Math.max((maxV - minV) * 0.08, 5);
+    return [Math.floor(minV - pad), Math.ceil(maxV + pad)];
+  }, [lineMode, visibleGroups, dataset.groupSeries, dataset.assetMeta, startFilter, compounded, commonStartDate]);
 
   const chartData = useMemo(() => {
     const rows = new Map<string, Record<string, string | number>>();
-    for (const point of performanceSeries) {
-      rows.set(point.date, { date: point.date, portfolio: point.value });
+
+    if (lineMode !== "assets") {
+      for (const point of performanceSeries) {
+        rows.set(point.date, { date: point.date, portfolio: point.value });
+      }
     }
 
     if (lineMode === "assets") {
+      // Merge asset series into outer-join row map.
+      // connectNulls=false: rows without a value for a given asset leave that key absent,
+      // producing an authentic gap (no carry-forward at chart level either).
       for (const group of visibleGroups) {
-        const rawGroup = rebaseSeries(downsampleSeries(filterSeries(dataset.groupSeries[group], startFilter)));
-        const groupSeries = compounded ? rawGroup : toNonCompounded(rawGroup);
-        for (const point of groupSeries) {
+        let raw = filterSeries(dataset.groupSeries[group] ?? [], startFilter);
+        if (commonStartDate) raw = raw.filter((p) => p.date >= commonStartDate);
+        const rebased = rebaseSeries(raw);
+        const groupData = compounded ? rebased : toNonCompounded(rebased);
+        for (const point of groupData) {
+          if (!Number.isFinite(point.value)) continue;
           const row = rows.get(point.date) ?? { date: point.date };
           row[group] = point.value;
           rows.set(point.date, row);
@@ -1024,8 +1199,14 @@ function PerformanceCard({
       }
     }
 
-    return [...rows.values()].sort((left, right) => String(left.date).localeCompare(String(right.date)));
-  }, [benchmarkEnabled, benchmarkSeries, compounded, dataset.groupSeries, lineMode, performanceSeries, startFilter, visibleGroups]);
+    const sorted = [...rows.values()].sort((left, right) => String(left.date).localeCompare(String(right.date)));
+    // Row-level downsample after merge — preserves date alignment across all series.
+    if (lineMode === "assets" && sorted.length > 600) {
+      const step = Math.ceil(sorted.length / 600);
+      return sorted.filter((_, i) => i % step === 0 || i === sorted.length - 1);
+    }
+    return sorted;
+  }, [benchmarkEnabled, benchmarkSeries, compounded, dataset.groupSeries, lineMode, performanceSeries, startFilter, visibleGroups, commonStartDate]);
 
   return (
     <Card>
@@ -1044,6 +1225,13 @@ function PerformanceCard({
             <PillButton compact active={lineMode === "benchmark"} disabled={!dataset.benchmarkSeries.length} onClick={() => onLineMode("benchmark")}>BM</PillButton>
             <span className="mx-0.5 h-3 w-px shrink-0 bg-white/10" />
             <PillButton compact active={compounded} onClick={() => onCompounded(!compounded)}>Comp</PillButton>
+            {lineMode === "assets" && (
+              <>
+                <span className="mx-0.5 h-3 w-px shrink-0 bg-white/10" />
+                <PillButton compact active={periodMode === "own"} onClick={() => onPeriodMode("own")}>Own</PillButton>
+                <PillButton compact active={periodMode === "common"} onClick={() => onPeriodMode("common")}>Com</PillButton>
+              </>
+            )}
           </div>
         }
       />
@@ -1060,7 +1248,7 @@ function PerformanceCard({
                 </defs>
                 <CartesianGrid vertical={false} strokeDasharray="3 5" stroke="rgba(255,255,255,0.045)" />
                 <XAxis dataKey="date" tickFormatter={formatAxisDate} tick={{ fontSize: 9, fill: "#686b73" }} tickLine={false} axisLine={false} minTickGap={24} />
-                <YAxis tick={{ fontSize: 9, fill: "#686b73" }} tickLine={false} axisLine={false} tickFormatter={(value: number) => `${value > 0 ? "+" : ""}${value.toFixed(0)}%`} />
+                <YAxis width={44} tick={{ fontSize: 9, fill: "#686b73" }} tickLine={false} axisLine={false} tickFormatter={(value: number) => `${value > 0 ? "+" : ""}${value.toFixed(0)}%`} domain={assetYDomain ?? ["auto", "auto"]} />
                 <Tooltip content={<ChartTooltip />} cursor={{ stroke: "rgba(255,255,255,0.10)", strokeWidth: 1 }} />
                 <ReferenceLine y={0} stroke="rgba(255,255,255,0.16)" strokeWidth={1} />
                 {dataset.oosStartDate && dataset.mode !== "live" ? (
@@ -1086,7 +1274,7 @@ function PerformanceCard({
                     strokeWidth={1}
                     strokeDasharray="4 4"
                     label={(props: { viewBox?: { x?: number; y?: number } }) => (
-                      <text x={(props.viewBox?.x ?? 0) + 4} y={(props.viewBox?.y ?? 0) + 14} fill="#67e8f9" fontSize={9} fontFamily="var(--font-montserrat),sans-serif">QQQ Pine Fwd</text>
+                      <text x={(props.viewBox?.x ?? 0) + 4} y={(props.viewBox?.y ?? 0) + 14} fill="#67e8f9" fontSize={9} fontFamily="var(--font-text),sans-serif">QQQ Pine Fwd</text>
                     )}
                   />
                 ) : null}
@@ -1097,7 +1285,7 @@ function PerformanceCard({
                     strokeWidth={1}
                     strokeDasharray="4 4"
                     label={(props: { viewBox?: { x?: number; y?: number } }) => (
-                      <text x={(props.viewBox?.x ?? 0) + 4} y={(props.viewBox?.y ?? 0) + 14} fill="#6ee7b7" fontSize={9} fontFamily="var(--font-montserrat),sans-serif">Portfolio Live</text>
+                      <text x={(props.viewBox?.x ?? 0) + 4} y={(props.viewBox?.y ?? 0) + 14} fill="#6ee7b7" fontSize={9} fontFamily="var(--font-text),sans-serif">Portfolio Live</text>
                     )}
                   />
                 ) : null}
@@ -1110,8 +1298,9 @@ function PerformanceCard({
                       dataKey={group}
                       name={dataset.groups.find((item) => item.id === group)?.label ?? group}
                       stroke={GROUP_LINE_COLORS[group] ?? "#a1a1aa"}
-                      strokeWidth={1.1}
+                      strokeWidth={1.2}
                       dot={false}
+                      connectNulls={false}
                     />
                   ))}
                 {benchmarkEnabled || lineMode === "benchmark" ? (
@@ -1130,7 +1319,12 @@ function PerformanceCard({
           )}
         </div>
       </div>
-      <PerformanceLegend dataset={dataset} lineMode={lineMode} visibleGroups={visibleGroups} />
+      {lineMode === "assets" && commonStartDate && (
+        <div className="px-4 pb-1 text-[9px] text-zinc-500 [font-family:var(--font-text),sans-serif]">
+          Common period from {commonStartDate}
+        </div>
+      )}
+      <PerformanceLegend dataset={dataset} lineMode={lineMode} visibleGroups={visibleGroups} allAssetGroups={allAssetGroups} primaryAsset={primaryAsset} onPrimaryAsset={onPrimaryAsset} onToggleGroup={onToggleGroup} onSelectAll={onSelectAll} onClear={onClear} />
     </Card>
   );
 }
@@ -1139,21 +1333,21 @@ function KpiGrid({ cards }: { cards: KpiCard[] }) {
   return (
     <Card className="p-3">
       <div className="grid h-full min-h-0 grid-cols-2 gap-2 xl:grid-cols-3">
-        {cards.slice(0, 12).map((card) => (
+        {cards.slice(0, 15).map((card) => (
           <div
             key={card.label}
-            className="flex min-h-[88px] flex-col justify-between rounded-[16px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] px-3 py-2.5 shadow-[0_8px_20px_-8px_rgba(0,0,0,0.45)]"
+            className="flex min-h-[88px] flex-col justify-between rounded-[16px] border border-white/[0.07] bg-gradient-to-b from-[#141618] to-[#0d0f12] px-3 py-2.5 shadow-[0_8px_20px_-8px_rgba(0,0,0,0.55)]"
           >
-            <p className="text-[9px] font-medium uppercase tracking-[0.08em] text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">
+            <p className="text-[9px] font-medium uppercase tracking-[0.08em] text-zinc-500 [font-family:var(--font-text),sans-serif]">
               {card.label}
             </p>
             <div className="flex items-end justify-between gap-1">
-              <p className="line-clamp-2 text-[18px] font-bold leading-tight tracking-tight text-white [font-family:var(--font-nunito),sans-serif]">
+              <p className="line-clamp-2 text-[18px] font-bold leading-tight tracking-tight text-white [font-family:var(--font-numbers),sans-serif]">
                 {card.value}
               </p>
               {card.delta ? (
                 <p
-                  className="mb-0.5 text-[10px] font-semibold [font-family:var(--font-montserrat),sans-serif]"
+                  className="mb-0.5 text-[10px] font-semibold [font-family:var(--font-text),sans-serif]"
                   style={{ color: card.deltaNeutral ? "#71717a" : card.deltaGold ? "#d8c071" : "#b66a6a" }}
                 >
                   {card.delta}
@@ -1197,8 +1391,8 @@ function DrawdownCard({ dataset, visibleSeries, benchmarkEnabled, lineMode }: { 
               <AreaChart data={chartData} margin={{ top: 3, right: 10, bottom: 0, left: -12 }}>
                 <defs>
                   <linearGradient id="analytics-drawdown-fill" x1="0" y1="1" x2="0" y2="0">
-                    <stop offset="0%" stopColor="rgba(124,58,67,0.30)" />
-                    <stop offset="100%" stopColor="rgba(124,58,67,0.04)" />
+                    <stop offset="0%" stopColor="rgba(196,174,96,0.22)" />
+                    <stop offset="100%" stopColor="rgba(226,202,122,0.03)" />
                   </linearGradient>
                 </defs>
                 <CartesianGrid vertical={false} strokeDasharray="3 5" stroke="rgba(255,255,255,0.04)" />
@@ -1206,7 +1400,7 @@ function DrawdownCard({ dataset, visibleSeries, benchmarkEnabled, lineMode }: { 
                 <YAxis tick={{ fontSize: 8, fill: "#686b73" }} tickLine={false} axisLine={false} tickFormatter={(value: number) => `${value.toFixed(0)}%`} />
                 <Tooltip content={<ChartTooltip />} />
                 <ReferenceLine y={0} stroke="rgba(255,255,255,0.16)" strokeWidth={1} />
-                <Area type="monotone" dataKey="value" name="Drawdown" stroke="rgba(172,96,104,0.86)" strokeWidth={1.45} fill="url(#analytics-drawdown-fill)" dot={false} />
+                <Area type="monotone" dataKey="value" name="Drawdown" stroke="rgba(196,174,96,0.82)" strokeWidth={1.45} fill="url(#analytics-drawdown-fill)" dot={false} />
                 {hasBm && (
                   <Line type="monotone" dataKey="spy" name="SPY DD" stroke="#d8c071" strokeWidth={1.1} strokeDasharray="4 3" dot={false} />
                 )}
@@ -1237,7 +1431,7 @@ function BarsCard({ title, items }: { title: string; items: Array<{ label: strin
                 <ReferenceLine y={0} stroke="rgba(255,255,255,0.16)" strokeWidth={1} />
                 <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                   {items.map((item) => (
-                    <Cell key={item.label} fill={item.value >= 0 ? "rgba(232,234,239,0.88)" : "rgba(138,78,78,0.82)"} />
+                    <Cell key={item.label} fill={item.value >= 0 ? "rgba(232,234,239,0.88)" : "rgba(196,174,96,0.52)"} />
                   ))}
                 </Bar>
               </BarChart>
@@ -1278,13 +1472,13 @@ function OverviewCard({ rows }: { rows: Array<[string, string]> }) {
           ) : (
             <div key={item.left[0]} className="grid grid-cols-2 gap-x-4">
               <div className="grid grid-cols-[72px_minmax(0,1fr)] gap-2">
-                <p className="text-[9px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">{item.left[0]}</p>
-                <p className="line-clamp-1 text-[10px] text-zinc-200 [font-family:var(--font-montserrat),sans-serif]">{item.left[1]}</p>
+                <p className="text-[9px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-text),sans-serif]">{item.left[0]}</p>
+                <p className="line-clamp-1 text-[10px] text-zinc-200 [font-family:var(--font-text),sans-serif]">{item.left[1]}</p>
               </div>
               {item.right ? (
                 <div className="grid grid-cols-[72px_minmax(0,1fr)] gap-2">
-                  <p className="text-[9px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">{item.right[0]}</p>
-                  <p className="line-clamp-1 text-[10px] text-zinc-200 [font-family:var(--font-montserrat),sans-serif]">{item.right[1]}</p>
+                  <p className="text-[9px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-text),sans-serif]">{item.right[0]}</p>
+                  <p className="line-clamp-1 text-[10px] text-zinc-200 [font-family:var(--font-text),sans-serif]">{item.right[1]}</p>
                 </div>
               ) : <div />}
             </div>
@@ -1578,15 +1772,15 @@ function CombinedControlPanel({
   function AllocCell({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
     return (
       <div className="flex items-center gap-1 rounded-[8px] border border-white/[0.12] bg-white/[0.03] px-1.5 py-0.5">
-        <span className="min-w-0 flex-1 block truncate text-[8px] font-medium leading-tight text-zinc-200 [font-family:var(--font-montserrat),sans-serif]">
+        <span className="min-w-0 flex-1 block truncate text-[8px] font-medium leading-tight text-zinc-200 [font-family:var(--font-text),sans-serif]">
           {label}
         </span>
         <input
           type="number" min={0} max={100} step={5} value={value}
           onChange={e => onChange(Math.min(100, Math.max(0, Number(e.target.value))))}
-          className="w-7 rounded border border-white/[0.08] bg-white/[0.04] px-0.5 py-0.5 text-right text-[8px] text-white [font-family:var(--font-montserrat),sans-serif] focus:border-white/20 focus:outline-none"
+          className="w-7 rounded border border-white/[0.08] bg-white/[0.04] px-0.5 py-0.5 text-right text-[8px] text-white [font-family:var(--font-text),sans-serif] focus:border-white/20 focus:outline-none"
         />
-        <span className="text-[7px] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">%</span>
+        <span className="text-[7px] text-zinc-700 [font-family:var(--font-text),sans-serif]">%</span>
       </div>
     );
   }
@@ -1600,18 +1794,18 @@ function CombinedControlPanel({
           <AllocCell label="Core Invest" value={ciWeight} onChange={v => onWsWeightChange(100 - v)} />
         </div>
         <div className="flex items-center justify-between px-0.5 pt-0.5">
-          <span className="text-[8px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">
+          <span className="text-[8px] text-zinc-600 [font-family:var(--font-text),sans-serif]">
             Σ {wsWeight + ciWeight}%
           </span>
           <button
             type="button" onClick={onReset}
-            className="text-[8px] text-zinc-600 hover:text-zinc-300 [font-family:var(--font-montserrat),sans-serif] transition-colors"
+            className="text-[8px] text-zinc-600 hover:text-zinc-300 [font-family:var(--font-text),sans-serif] transition-colors"
           >
             ↺ Reset
           </button>
         </div>
         <div className="border-t border-white/[0.06] pt-1">
-          <p className="mb-0.5 text-[8px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">
+          <p className="mb-0.5 text-[8px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-text),sans-serif]">
             Gesamtrisiko (WS)
           </p>
           <div className="flex gap-1">
@@ -1622,7 +1816,7 @@ function CombinedControlPanel({
             ))}
           </div>
         </div>
-        <p className="mt-0.5 text-[7px] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">
+        <p className="mt-0.5 text-[7px] text-zinc-700 [font-family:var(--font-text),sans-serif]">
           Combined · Research Preview · not live
         </p>
       </div>
@@ -1675,12 +1869,12 @@ function LiveControlPanel({
           className="min-w-0 flex-1 text-left"
         >
           <span className={cn(
-            "block truncate text-[8px] font-medium leading-tight [font-family:var(--font-montserrat),sans-serif]",
+            "block truncate text-[8px] font-medium leading-tight [font-family:var(--font-text),sans-serif]",
             isOn ? "text-zinc-200" : "text-zinc-600",
           )}>
             {LIVE_ASSET_LABELS[sym]}
           </span>
-          <span className="text-[7px] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">
+          <span className="text-[7px] text-zinc-700 [font-family:var(--font-text),sans-serif]">
             {isOn ? "on" : "off"}
           </span>
         </button>
@@ -1692,9 +1886,9 @@ function LiveControlPanel({
           value={weights[sym] ?? 0}
           disabled={!isOn}
           onChange={(e) => onWeightChange(sym, Math.max(0, Number(e.target.value)))}
-          className="w-7 rounded border border-white/[0.08] bg-white/[0.04] px-0.5 py-0.5 text-right text-[8px] text-white disabled:opacity-30 [font-family:var(--font-montserrat),sans-serif] focus:border-white/20 focus:outline-none"
+          className="w-7 rounded border border-white/[0.08] bg-white/[0.04] px-0.5 py-0.5 text-right text-[8px] text-white disabled:opacity-30 [font-family:var(--font-text),sans-serif] focus:border-white/20 focus:outline-none"
         />
-        <span className="text-[7px] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">%</span>
+        <span className="text-[7px] text-zinc-700 [font-family:var(--font-text),sans-serif]">%</span>
       </div>
     );
   }
@@ -1710,18 +1904,18 @@ function LiveControlPanel({
           </div>
         ))}
         <div className="flex items-center justify-between px-0.5 pt-0.5">
-          <span className="text-[8px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">
+          <span className="text-[8px] text-zinc-600 [font-family:var(--font-text),sans-serif]">
             Σ {totalW.toFixed(1)}%
           </span>
           <button
             type="button"
             onClick={onReset}
-            className="text-[8px] text-zinc-600 hover:text-zinc-300 [font-family:var(--font-montserrat),sans-serif] transition-colors"
+            className="text-[8px] text-zinc-600 hover:text-zinc-300 [font-family:var(--font-text),sans-serif] transition-colors"
           >
             ↺ Reset
           </button>
         </div>
-        <p className="mt-0.5 text-[7px] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">
+        <p className="mt-0.5 text-[7px] text-zinc-700 [font-family:var(--font-text),sans-serif]">
           Core Invest v2.0 · PAPER_ONLY · Frozen 2026-07-20
         </p>
       </div>
@@ -1846,6 +2040,17 @@ function InvestControlPanel({
 
   useEffect(() => () => stopPolling(), [stopPolling]);
 
+  // Restart polling if a run is still active when component remounts (e.g. after Fast Refresh)
+  useEffect(() => {
+    const s = scenarioRun?.status;
+    if ((s === "QUEUED" || s === "RUNNING") && scenarioRun?.runId && scenarioRun.runId !== "…" && !pollRef.current) {
+      const runId = scenarioRun.runId;
+      void pollStatus(runId);
+      pollRef.current = setInterval(() => void pollStatus(runId), 1500);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // ── Row for one ETF ──
   function AssetRow({ ticker }: { ticker: string }) {
     const base  = baselineWeights[ticker] ?? 0;
@@ -1853,19 +2058,19 @@ function InvestControlPanel({
     const delta = draft - base;
     const pct   = +(draft * 100).toFixed(2);
     return (
-      <div className="flex items-center gap-0.5 h-[28px]">
-        <span className="w-[22px] shrink-0 text-[9.5px] font-bold text-zinc-200 [font-family:var(--font-montserrat),sans-serif]">{ticker}</span>
-        <span className="w-[18px] shrink-0 text-right text-[8px] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">{Math.round(base*100)}</span>
+      <div className="flex items-center gap-0.5 h-[30px]">
+        <span className="w-[24px] shrink-0 text-[11px] font-bold text-zinc-200 [font-family:var(--font-text),sans-serif]">{ticker}</span>
+        <span className="w-[18px] shrink-0 text-right text-[10px] text-zinc-600 [font-family:var(--font-text),sans-serif]">{Math.round(base*100)}</span>
         <button type="button" onClick={() => setDraftWeights(p => ({ ...p, [ticker]: Math.max(-0.5, (p[ticker] ?? base) - 0.01) }))}
-          className="flex h-[28px] w-[26px] shrink-0 items-center justify-center rounded border border-white/[0.10] text-zinc-400 hover:text-white text-[13px] [font-family:var(--font-montserrat),sans-serif]">−</button>
+          className="flex h-[30px] w-[26px] shrink-0 items-center justify-center rounded border border-white/[0.10] text-zinc-400 hover:text-white text-[13px] [font-family:var(--font-text),sans-serif]">−</button>
         <input type="number" value={pct} step={1} min={-50} max={250}
           onChange={e => { const v = parseFloat(e.target.value); if (!isNaN(v)) setDraftWeights(p => ({ ...p, [ticker]: Math.round(v*100)/10000 })); }}
-          className={cn("min-w-[68px] flex-1 h-[28px] rounded border bg-white/[0.05] px-1 text-center text-[12px] font-semibold text-white [font-family:var(--font-montserrat),sans-serif] focus:outline-none focus:border-[#e2ca7a]/40",
-            Math.abs(delta) > 0.0005 ? "border-[#e2ca7a]/20 bg-[#e2ca7a]/[0.04]" : "border-white/[0.10]")} />
+          className={cn("min-w-[72px] flex-1 h-[30px] rounded border bg-white/[0.05] px-1 text-center text-[12px] font-semibold text-white [font-family:var(--font-text),sans-serif] focus:outline-none focus:border-[#C9A84C]/40",
+            Math.abs(delta) > 0.0005 ? "border-[#C9A84C]/20 bg-[#C9A84C]/[0.04]" : "border-white/[0.10]")} />
         <button type="button" onClick={() => setDraftWeights(p => ({ ...p, [ticker]: Math.min(2.5, (p[ticker] ?? base) + 0.01) }))}
-          className="flex h-[28px] w-[26px] shrink-0 items-center justify-center rounded border border-white/[0.10] text-zinc-400 hover:text-white text-[13px] [font-family:var(--font-montserrat),sans-serif]">+</button>
-        <span className="w-[24px] shrink-0 text-right text-[9px] font-bold [font-family:var(--font-montserrat),sans-serif]"
-          style={{ color: Math.abs(delta) < 0.0005 ? "#3f3f46" : delta > 0 ? "#22C55E" : "#EF4444" }}>
+          className="flex h-[30px] w-[26px] shrink-0 items-center justify-center rounded border border-white/[0.10] text-zinc-400 hover:text-white text-[13px] [font-family:var(--font-text),sans-serif]">+</button>
+        <span className="w-[26px] shrink-0 text-right text-[10px] font-bold [font-family:var(--font-text),sans-serif]"
+          style={{ color: Math.abs(delta) < 0.0005 ? "#3f3f46" : delta > 0 ? "#22C55E" : "#c4ae60" }}>
           {Math.abs(delta) < 0.0005 ? "—" : `${delta>0?"+":""}${Math.round(delta*100)}%`}
         </span>
       </div>
@@ -1877,11 +2082,11 @@ function InvestControlPanel({
 
       {/* Header */}
       <div className="flex shrink-0 items-center justify-between border-b border-white/[0.05] px-3 py-2">
-        <p className="text-[9.5px] font-bold uppercase tracking-[0.18em] text-[#e2ca7a]/80 [font-family:var(--font-montserrat),sans-serif]">Control Panel</p>
+        <p className="text-[9.5px] font-bold uppercase tracking-[0.18em] text-[#C9A84C]/80 [font-family:var(--font-text),sans-serif]">Control Panel</p>
         <div className="flex gap-1.5">
-          {scenarioActive && <span className="rounded-[3px] border border-[#e2ca7a]/30 bg-[#e2ca7a]/10 px-1.5 py-0.5 text-[7.5px] font-bold uppercase text-[#e2ca7a] [font-family:var(--font-montserrat),sans-serif]">SCENARIO</span>}
-          {hasChanges && !isRunning && <span className="rounded-[3px] border border-zinc-600/40 bg-zinc-700/20 px-1.5 py-0.5 text-[7.5px] font-bold uppercase text-zinc-400 [font-family:var(--font-montserrat),sans-serif]">DRAFT</span>}
-          {isRunning && <span className="flex items-center gap-1 rounded-[3px] border border-[#e2ca7a]/20 bg-[#e2ca7a]/5 px-1.5 py-0.5 text-[7.5px] font-bold uppercase text-[#e2ca7a] [font-family:var(--font-montserrat),sans-serif]"><span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#e2ca7a]" />RUNNING</span>}
+          {scenarioActive && <span className="rounded-[3px] border border-[#C9A84C]/30 bg-[#C9A84C]/10 px-1.5 py-0.5 text-[7.5px] font-bold uppercase text-[#C9A84C] [font-family:var(--font-text),sans-serif]">SCENARIO</span>}
+          {hasChanges && !isRunning && <span className="rounded-[3px] border border-zinc-600/40 bg-zinc-700/20 px-1.5 py-0.5 text-[7.5px] font-bold uppercase text-zinc-400 [font-family:var(--font-text),sans-serif]">DRAFT</span>}
+          {isRunning && <span className="flex items-center gap-1 rounded-[3px] border border-[#C9A84C]/20 bg-[#C9A84C]/5 px-1.5 py-0.5 text-[7.5px] font-bold uppercase text-[#C9A84C] [font-family:var(--font-text),sans-serif]"><span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#C9A84C]" />RUNNING</span>}
         </div>
       </div>
 
@@ -1889,8 +2094,8 @@ function InvestControlPanel({
       <div className="flex shrink-0 gap-0.5 border-b border-white/[0.05] px-2 py-1">
         {(["allocation","risk","scenario"] as const).map(t => (
           <button key={t} type="button" onClick={() => setActiveTab(t)}
-            className={cn("flex-1 rounded-[4px] py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] [font-family:var(--font-montserrat),sans-serif]",
-              activeTab === t ? "bg-[#e2ca7a]/10 text-[#e2ca7a] border border-[#e2ca7a]/20" : "border border-transparent text-zinc-600 hover:text-zinc-400")}>
+            className={cn("flex-1 rounded-[4px] py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] [font-family:var(--font-text),sans-serif]",
+              activeTab === t ? "bg-[#C9A84C]/10 text-[#C9A84C] border border-[#C9A84C]/20" : "border border-transparent text-zinc-600 hover:text-zinc-400")}>
             {t === "allocation" ? "Allocation" : t === "risk" ? "Risk" : "Scenario"}
           </button>
         ))}
@@ -1908,8 +2113,8 @@ function InvestControlPanel({
               <div className="flex shrink-0 gap-1">
                 {(["auto_cash","proportional","manual"] as RebalanceMode[]).map(m => (
                   <button key={m} type="button" onClick={() => setRebalMode(m)}
-                    className={cn("flex-1 rounded-[4px] py-[4px] text-[8.5px] font-bold uppercase tracking-[0.09em] [font-family:var(--font-montserrat),sans-serif]",
-                      rebalMode === m ? "bg-[#e2ca7a]/10 text-[#e2ca7a] border border-[#e2ca7a]/20" : "border border-white/[0.07] text-zinc-600 hover:text-zinc-400")}>
+                    className={cn("flex-1 rounded-[4px] py-[4px] text-[8.5px] font-bold uppercase tracking-[0.09em] [font-family:var(--font-text),sans-serif]",
+                      rebalMode === m ? "bg-[#C9A84C]/10 text-[#C9A84C] border border-[#C9A84C]/20" : "border border-white/[0.07] text-zinc-600 hover:text-zinc-400")}>
                     {m === "auto_cash" ? "Auto Cash" : m === "proportional" ? "Prop." : "Manual"}
                   </button>
                 ))}
@@ -1939,16 +2144,16 @@ function InvestControlPanel({
                 return (
                   <div key={key} className="space-y-1.5">
                     <div className="flex items-baseline justify-between">
-                      <span className="text-[10px] font-bold text-zinc-300 [font-family:var(--font-montserrat),sans-serif]">{label}</span>
+                      <span className="text-[10px] font-bold text-zinc-300 [font-family:var(--font-text),sans-serif]">{label}</span>
                       <div className="flex items-baseline gap-1.5">
-                        <span className="text-[8px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">base {toD(base)}{unit}</span>
-                        {Math.abs(delta) > 1e-6 && <span className="text-[10px] font-bold [font-family:var(--font-montserrat),sans-serif]" style={{color:delta>0?"#22C55E":"#EF4444"}}>{delta>0?"+":""}{toD(delta)}{unit}</span>}
+                        <span className="text-[8px] text-zinc-600 [font-family:var(--font-text),sans-serif]">base {toD(base)}{unit}</span>
+                        {Math.abs(delta) > 1e-6 && <span className="text-[10px] font-bold [font-family:var(--font-text),sans-serif]" style={{color:delta>0?"#22C55E":"#c4ae60"}}>{delta>0?"+":""}{toD(delta)}{unit}</span>}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <input type="range" min={toD(min)} max={toD(max)} step={toD(step)} value={toD(draft)} onChange={e => setDraftRisk(p => ({...p,[key]:frD(parseFloat(e.target.value))}))} className="flex-1 h-1.5 cursor-pointer accent-[#e2ca7a]" />
-                      <input type="number" min={toD(min)} max={toD(max)} step={toD(step)} value={toD(draft)} onChange={e=>{const v=frD(parseFloat(e.target.value));if(!isNaN(v)&&v>=min&&v<=max)setDraftRisk(p=>({...p,[key]:v}));}} className="w-[58px] h-[28px] rounded border border-white/[0.10] bg-white/[0.05] px-1 text-center text-[12px] font-semibold text-white [font-family:var(--font-montserrat),sans-serif] focus:outline-none" />
-                      <span className="w-4 text-[9px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">{unit}</span>
+                      <input type="range" min={toD(min)} max={toD(max)} step={toD(step)} value={toD(draft)} onChange={e => setDraftRisk(p => ({...p,[key]:frD(parseFloat(e.target.value))}))} className="flex-1 h-1.5 cursor-pointer accent-[#C9A84C]" />
+                      <input type="number" min={toD(min)} max={toD(max)} step={toD(step)} value={toD(draft)} onChange={e=>{const v=frD(parseFloat(e.target.value));if(!isNaN(v)&&v>=min&&v<=max)setDraftRisk(p=>({...p,[key]:v}));}} className="w-[58px] h-[28px] rounded border border-white/[0.10] bg-white/[0.05] px-1 text-center text-[12px] font-semibold text-white [font-family:var(--font-text),sans-serif] focus:outline-none" />
+                      <span className="w-4 text-[9px] text-zinc-600 [font-family:var(--font-text),sans-serif]">{unit}</span>
                     </div>
                   </div>
                 );
@@ -1959,19 +2164,19 @@ function InvestControlPanel({
           {activeTab === "scenario" && (
             <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden py-1">
               {!scenarioRun ? (
-                <p className="text-[9px] italic text-zinc-600 [font-family:var(--font-montserrat),sans-serif] mt-2 text-center">Adjust weights or risk params, then Run Scenario.</p>
+                <p className="text-[9px] italic text-zinc-600 [font-family:var(--font-text),sans-serif] mt-2 text-center">Adjust weights or risk params, then Run Scenario.</p>
               ) : (
                 <>
                   <div className="flex items-center justify-between">
-                    <span className={cn("text-[9px] font-bold uppercase [font-family:var(--font-montserrat),sans-serif]",
-                      isRunning?"text-[#e2ca7a]":isComplete?"text-[#22C55E]":"text-[#EF4444]")}>{scenarioRun.status}</span>
-                    <span className="text-[8px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">{scenarioRun.runId}</span>
+                    <span className={cn("text-[9px] font-bold uppercase [font-family:var(--font-text),sans-serif]",
+                      isRunning?"text-[#C9A84C]":isComplete?"text-[#22C55E]":"text-[#EF4444]")}>{scenarioRun.status}</span>
+                    <span className="text-[8px] text-zinc-600 [font-family:var(--font-text),sans-serif]">{scenarioRun.runId}</span>
                   </div>
                   {isRunning && (
                     <div className="space-y-1">
-                      <div className="text-[8.5px] text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">{scenarioRun.phase || "Waiting…"}</div>
+                      <div className="text-[8.5px] text-zinc-500 [font-family:var(--font-text),sans-serif]">{scenarioRun.phase || "Waiting…"}</div>
                       <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
-                        <div className="h-full rounded-full bg-[#e2ca7a]/60 transition-all" style={{width:`${Math.min(95,20)}%`}} />
+                        <div className="h-full rounded-full bg-[#C9A84C]/60 transition-all" style={{width:`${Math.min(95,20)}%`}} />
                       </div>
                     </div>
                   )}
@@ -1979,13 +2184,13 @@ function InvestControlPanel({
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                       {([["CAGR",`${scenarioRun.metrics.cagr_pct?.toFixed(2)}%`],["Max DD",`${scenarioRun.metrics.max_drawdown_pct?.toFixed(1)}%`],["Sharpe",`${scenarioRun.metrics.sharpe?.toFixed(2)}`],["Vol",`${scenarioRun.metrics.volatility_pct?.toFixed(1)}%`]] as [string,string][]).map(([k,v])=>(
                         <div key={k} className="flex justify-between items-baseline">
-                          <span className="text-[8.5px] text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">{k}</span>
-                          <span className="text-[11px] font-bold text-zinc-100 [font-family:var(--font-montserrat),sans-serif]">{v}</span>
+                          <span className="text-[8.5px] text-zinc-500 [font-family:var(--font-text),sans-serif]">{k}</span>
+                          <span className="text-[11px] font-bold text-zinc-100 [font-family:var(--font-text),sans-serif]">{v}</span>
                         </div>
                       ))}
                     </div>
                   )}
-                  {isComplete && <p className="mt-auto text-[8px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">SCENARIO · UNSAVED · {scenarioRun.runId}</p>}
+                  {isComplete && <p className="mt-auto text-[8px] text-zinc-600 [font-family:var(--font-text),sans-serif]">SCENARIO · UNSAVED · {scenarioRun.runId}</p>}
                 </>
               )}
             </div>
@@ -1995,31 +2200,31 @@ function InvestControlPanel({
         {/* RIGHT: Exposure + always-visible actions */}
         <div className="flex w-[148px] shrink-0 flex-col gap-2 border-l border-white/[0.05] pl-3">
           <div className="space-y-1">
-            <p className="text-[8px] font-bold uppercase tracking-[0.14em] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">Exposure</p>
-            {([["Long",longSum,"#e2ca7a"],["Gross",grossW,overCap?"#EF4444":"#e2ca7a"],["Net",netW,"#a1a1aa"],["Cash",cashW,"#3B82F6"]] as [string,number,string][]).map(([l,v,c])=>(
+            <p className="text-[8px] font-bold uppercase tracking-[0.14em] text-zinc-700 [font-family:var(--font-text),sans-serif]">Exposure</p>
+            {([["Long",longSum,"#C9A84C"],["Gross",grossW,overCap?"#EF4444":"#C9A84C"],["Net",netW,"#a1a1aa"],["Cash",cashW,"#3B82F6"]] as [string,number,string][]).map(([l,v,c])=>(
               <div key={l} className="flex items-center justify-between gap-1">
-                <span className="text-[8.5px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">{l}</span>
-                <span className="text-[10px] font-bold [font-family:var(--font-montserrat),sans-serif]" style={{color:c}}>{Math.round(v*100)}%</span>
+                <span className="text-[8.5px] text-zinc-600 [font-family:var(--font-text),sans-serif]">{l}</span>
+                <span className="text-[10px] font-bold [font-family:var(--font-text),sans-serif]" style={{color:c}}>{Math.round(v*100)}%</span>
               </div>
             ))}
             <div className="border-t border-white/[0.05] pt-1">
               <div className="flex items-center justify-between gap-1">
-                <span className="text-[8.5px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">{overCap?"OVER":"Room"}</span>
-                <span className="text-[10px] font-bold [font-family:var(--font-montserrat),sans-serif]" style={{color:overCap?"#EF4444":"#52525b"}}>{overCap?`+${Math.round((grossW-capHard)*100)}%`:`${Math.round((capHard-grossW)*100)}%`}</span>
+                <span className="text-[8.5px] text-zinc-600 [font-family:var(--font-text),sans-serif]">{overCap?"OVER":"Room"}</span>
+                <span className="text-[10px] font-bold [font-family:var(--font-text),sans-serif]" style={{color:overCap?"#EF4444":"#52525b"}}>{overCap?`+${Math.round((grossW-capHard)*100)}%`:`${Math.round((capHard-grossW)*100)}%`}</span>
               </div>
             </div>
           </div>
 
           {/* Actions — always visible */}
           <div className="mt-auto space-y-1.5 border-t border-white/[0.05] pt-2">
-            <button type="button" onClick={handleReset} className="w-full rounded-[5px] border border-white/[0.10] py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] text-zinc-400 hover:text-zinc-200 [font-family:var(--font-montserrat),sans-serif]">Reset</button>
+            <button type="button" onClick={handleReset} className="w-full rounded-[5px] border border-white/[0.10] py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] text-zinc-400 hover:text-zinc-200 [font-family:var(--font-text),sans-serif]">Reset</button>
             {isRunning
-              ? <button type="button" onClick={handleCancel} className="w-full rounded-[5px] border border-[#EF4444]/30 py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] text-[#EF4444]/80 [font-family:var(--font-montserrat),sans-serif]">Cancel</button>
-              : <button type="button" onClick={handleRun} disabled={!hasChanges} className={cn("w-full rounded-[5px] border py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] [font-family:var(--font-montserrat),sans-serif]",hasChanges?"border-[#e2ca7a]/30 bg-[#e2ca7a]/10 text-[#e2ca7a] hover:bg-[#e2ca7a]/20":"border-white/[0.06] text-zinc-700 cursor-not-allowed")}>Run Scenario</button>
+              ? <button type="button" onClick={handleCancel} className="w-full rounded-[5px] border border-[#EF4444]/30 py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] text-[#EF4444]/80 [font-family:var(--font-text),sans-serif]">Cancel</button>
+              : <button type="button" onClick={handleRun} disabled={!hasChanges} className={cn("w-full rounded-[5px] border py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] [font-family:var(--font-text),sans-serif]",hasChanges?"border-[#C9A84C]/30 bg-[#C9A84C]/10 text-[#C9A84C] hover:bg-[#C9A84C]/20":"border-white/[0.06] text-zinc-700 cursor-not-allowed")}>Run Scenario</button>
             }
             {isComplete && <>
-              <button type="button" onClick={() => setScenarioActive(v => !v)} className="w-full rounded-[5px] border border-white/[0.10] py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] text-zinc-400 hover:text-zinc-200 [font-family:var(--font-montserrat),sans-serif]">{scenarioActive?"View Base":"View Scen."}</button>
-              <button type="button" onClick={() => { setScenarioActive(false); onResetScenario(); }} className="w-full rounded-[5px] border border-white/[0.10] py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] text-zinc-400 hover:text-zinc-200 [font-family:var(--font-montserrat),sans-serif]">Close</button>
+              <button type="button" onClick={() => setScenarioActive(v => !v)} className="w-full rounded-[5px] border border-white/[0.10] py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] text-zinc-400 hover:text-zinc-200 [font-family:var(--font-text),sans-serif]">{scenarioActive?"View Base":"View Scen."}</button>
+              <button type="button" onClick={() => { setScenarioActive(false); onResetScenario(); }} className="w-full rounded-[5px] border border-white/[0.10] py-[5px] text-[9px] font-bold uppercase tracking-[0.10em] text-zinc-400 hover:text-zinc-200 [font-family:var(--font-text),sans-serif]">Close</button>
             </>}
           </div>
         </div>
@@ -2059,7 +2264,7 @@ function ControlPanel({
       <CardHeader title="Control Panel" />
       <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 py-3">
         <div>
-          <p className="mb-2 text-[9px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">Zeitraum</p>
+          <p className="mb-2 text-[9px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-text),sans-serif]">Zeitraum</p>
           <div className="flex flex-wrap gap-2">
             {START_FILTERS.map((filter) => (
               <PillButton key={filter} active={startFilter === filter} onClick={() => onStartFilter(filter)}>
@@ -2069,7 +2274,7 @@ function ControlPanel({
           </div>
         </div>
         <div>
-          <p className="mb-2 text-[9px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">Linien</p>
+          <p className="mb-2 text-[9px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-text),sans-serif]">Linien</p>
           <div className="flex flex-wrap gap-2">
             <PillButton active={lineMode === "portfolio"} onClick={() => onLineMode("portfolio")}>
               Portfolio
@@ -2083,7 +2288,7 @@ function ControlPanel({
           </div>
         </div>
         <div className="min-h-0 flex-1">
-          <p className="mb-2 text-[9px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">
+          <p className="mb-2 text-[9px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-text),sans-serif]">
             {dataset.tab === "invest" ? "Assets" : "Gruppen"}
           </p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -2104,8 +2309,8 @@ function ControlPanel({
                         : "border-white/[0.06] text-zinc-300 hover:bg-white/[0.02]",
                   )}
                 >
-                  <span className="text-[10px] [font-family:var(--font-montserrat),sans-serif]">{group.label}</span>
-                  <span className="text-[10px] [font-family:var(--font-montserrat),sans-serif]">
+                  <span className="text-[10px] [font-family:var(--font-text),sans-serif]">{group.label}</span>
+                  <span className="text-[10px] [font-family:var(--font-text),sans-serif]">
                     {group.disabled ? "n/a" : active ? "on" : "off"}
                   </span>
                 </button>
@@ -2159,13 +2364,13 @@ function WsLiveControlPanel({
       )}>
         <button type="button" onClick={() => onToggle(id)} className="min-w-0 flex-1 text-left">
           <span className={cn(
-            "block truncate text-[8px] font-medium leading-tight [font-family:var(--font-montserrat),sans-serif]",
+            "block truncate text-[8px] font-medium leading-tight [font-family:var(--font-text),sans-serif]",
             isOn ? (isIntraday ? "text-amber-300" : "text-zinc-200") : "text-zinc-600",
           )}>
             {WS_STRATEGY_SHORT[id]}
           </span>
           <span className={cn(
-            "text-[7px] [font-family:var(--font-montserrat),sans-serif]",
+            "text-[7px] [font-family:var(--font-text),sans-serif]",
             isIntraday ? "text-amber-700" : "text-zinc-700",
           )}>
             {isIntraday ? "White Swan · EUR/DAX1H/DAX2H" : isOn ? "on" : "off"}
@@ -2176,9 +2381,9 @@ function WsLiveControlPanel({
           value={weights[id] ?? 0}
           disabled={!isOn}
           onChange={e => onWeightChange(id, Math.max(0, Number(e.target.value)))}
-          className="w-7 rounded border border-white/[0.08] bg-white/[0.04] px-0.5 py-0.5 text-right text-[8px] text-white disabled:opacity-30 [font-family:var(--font-montserrat),sans-serif] focus:border-white/20 focus:outline-none"
+          className="w-7 rounded border border-white/[0.08] bg-white/[0.04] px-0.5 py-0.5 text-right text-[8px] text-white disabled:opacity-30 [font-family:var(--font-text),sans-serif] focus:border-white/20 focus:outline-none"
         />
-        <span className="text-[7px] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">%</span>
+        <span className="text-[7px] text-zinc-700 [font-family:var(--font-text),sans-serif]">%</span>
       </div>
     );
   }
@@ -2200,18 +2405,18 @@ function WsLiveControlPanel({
         </div>
         {/* Footer */}
         <div className="flex items-center justify-between px-0.5 pt-0.5">
-          <span className="text-[8px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">
+          <span className="text-[8px] text-zinc-600 [font-family:var(--font-text),sans-serif]">
             Σ {totalW.toFixed(1)}%
           </span>
           <button
             type="button" onClick={onReset}
-            className="text-[8px] text-zinc-600 hover:text-zinc-300 [font-family:var(--font-montserrat),sans-serif] transition-colors"
+            className="text-[8px] text-zinc-600 hover:text-zinc-300 [font-family:var(--font-text),sans-serif] transition-colors"
           >
             ↺ Reset
           </button>
         </div>
         <div className="border-t border-white/[0.06] pt-1">
-          <p className="mb-0.5 text-[8px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">
+          <p className="mb-0.5 text-[8px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-text),sans-serif]">
             Gesamtrisiko
           </p>
           <div className="flex gap-1">
@@ -2222,7 +2427,7 @@ function WsLiveControlPanel({
             ))}
           </div>
         </div>
-        <p className="mt-0.5 text-[7px] text-zinc-700 [font-family:var(--font-montserrat),sans-serif]">
+        <p className="mt-0.5 text-[7px] text-zinc-700 [font-family:var(--font-text),sans-serif]">
           White Swan v1.1 · PAPER_ONLY · Frozen 2026-07-20
         </p>
       </div>
@@ -2238,6 +2443,7 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
   const [lineMode, setLineMode] = useState<LineMode>("portfolio");
   const [benchmarkEnabled, setBenchmarkEnabled] = useState(false);
   const [compounded, setCompounded] = useState(true);
+  const [periodMode, setPeriodMode] = useState<PeriodMode>("own");
   const [investWeights, setInvestWeights] = useState<Record<string, number>>({ ...LIVE_DEFAULT_WEIGHTS });
   const [investEnabled, setInvestEnabled] = useState<Record<string, boolean>>(
     Object.fromEntries(LIVE_ASSET_SYMBOLS.map((sym) => [sym, true]))
@@ -2258,18 +2464,34 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
   // Scenario state for Core Invest
   const [scenarioCurves,  setScenarioCurves]  = useState<ScenarioEquityCurves | null>(null);
   const [scenarioAnnual,  setScenarioAnnual]  = useState<Array<{label:string;value:number;spy?:number;partial?:boolean}>|null>(null);
-  const [scenarioMetrics, setScenarioMetrics] = useState<Record<string,number>|null>(null);
+  const [scenarioMetrics, setScenarioMetrics] = useState<Record<string,number|string>|null>(null);
   const [scenarioActive,  setScenarioActive]  = useState(false);
+  const [scenarioRunId,   setScenarioRunId]   = useState<string | null>(null);
 
-  const handleScenarioResult = useCallback((curves: ScenarioEquityCurves, annual: unknown, metrics: Record<string,number>, _run: ScenarioRun) => {
+  const handleScenarioResult = useCallback((curves: ScenarioEquityCurves, annual: unknown, metrics: Record<string,number>, run: ScenarioRun) => {
+    // Normalize Python snake_case keys to the camelCase keys buildKpiCards reads from
+    const m = metrics;
+    const normalized: Record<string, number | string> = { ...m };
+    if (m.total_return_pct !== undefined)   normalized.totalReturnPct          = m.total_return_pct;
+    if (m.cagr_pct !== undefined)           normalized.cagrPct                 = m.cagr_pct;
+    if (m.volatility_pct !== undefined)     normalized.annualizedVolatilityPct = m.volatility_pct;
+    if (m.max_drawdown_pct !== undefined)   normalized.maxDrawdownPct          = m.max_drawdown_pct;
+    if (m.positive_months_pct !== undefined) normalized.positiveMonthsPct      = m.positive_months_pct;
+    if (m.beta_to_spy !== undefined)        normalized.betaToSpy               = m.beta_to_spy;
+    if (m.correlation_to_spy !== undefined) normalized.correlationToSpy        = m.correlation_to_spy;
+    if (m.worst_year_pct !== undefined)     normalized.worstYearPct            = m.worst_year_pct;
+    if (m.data_points !== undefined)        normalized.dataPoints              = m.data_points;
+    // tradeCount: scenario runs don't have a separate trade list — show "Scenario"
+    normalized.tradeCount = "Scenario";
     setScenarioCurves(curves);
     setScenarioAnnual(annual as Array<{label:string;value:number;spy?:number;partial?:boolean}>|null);
-    setScenarioMetrics(metrics);
+    setScenarioMetrics(normalized);
+    setScenarioRunId(run.runId ?? null);
     setScenarioActive(true);
   }, []);
 
   const handleResetScenario = useCallback(() => {
-    setScenarioCurves(null); setScenarioAnnual(null); setScenarioMetrics(null); setScenarioActive(false);
+    setScenarioCurves(null); setScenarioAnnual(null); setScenarioMetrics(null); setScenarioRunId(null); setScenarioActive(false);
   }, []);
 
   useEffect(() => {
@@ -2368,14 +2590,47 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
     return baseDataset;
   }, [baseDataset, ciBaseForCombined, tab, mode, fsportfolio, investWeights, investEnabled, startFilter, wsWeights, wsEnabled, wsRiskMultiplier, combinedWsWeight, capalifeData.wsPortfolioEquity]);
   const [activeGroups, setActiveGroups] = useState<string[]>(dataset.groups.map((group) => group.id));
-  const refreshAnalytics = useEffectEvent(() => {
+  const [primaryAsset, setPrimaryAsset] = useState<string | null>(null);
+  const refreshAnalytics = useCallback(() => {
     if (tab === "invest") router.refresh();
-  });
+  }, [tab, router]);
   useGlobalRefresh(refreshAnalytics, { enabled: tab === "invest" });
 
+  const handlePrimaryAsset = useCallback((id: string) => {
+    setPrimaryAsset((prev) => (prev === id ? null : id));
+  }, []);
+
+  const handleToggleGroup = useCallback((id: string) => {
+    setActiveGroups((prev) => {
+      if (prev.includes(id)) {
+        setPrimaryAsset((p) => (p === id ? null : p));
+        return prev.filter((g) => g !== id);
+      }
+      return [...prev, id];
+    });
+  }, []);
+
+  const handleSelectAll = useCallback(() => {
+    setActiveGroups(dataset.groups.filter((g) => dataset.groupSeries[g.id]?.length).map((g) => g.id));
+  }, [dataset]);
+
+  const handleClearGroups = useCallback(() => {
+    setActiveGroups([]);
+    setPrimaryAsset(null);
+  }, []);
+
   useEffect(() => {
-    const defaults = dataset.groups.filter((group) => dataset.groupSeries[group.id]?.length).map((group) => group.id);
+    const allWithData = dataset.groups.filter((group) => dataset.groupSeries[group.id]?.length).map((group) => group.id);
+    // Default to SPY, QQQ, RSP for Core Invest asset mode; otherwise all groups
+    const DEFAULT_ASSET_SET = ["SPY", "QQQ", "RSP"];
+    const isInvest = dataset.tab === "invest";
+    const defaults = isInvest
+      ? DEFAULT_ASSET_SET.filter((id) => allWithData.includes(id)).length >= 2
+        ? DEFAULT_ASSET_SET.filter((id) => allWithData.includes(id))
+        : allWithData
+      : allWithData;
     setActiveGroups(defaults);
+    setPrimaryAsset(isInvest ? "SPY" : null);
     setStartFilter("Max");
     setLineMode(dataset.mode === "live" && dataset.tab === "invest" && !dataset.performanceSeries.length && defaults.length ? "assets" : "portfolio");
     setBenchmarkEnabled(false);
@@ -2385,16 +2640,103 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
 
   // Active dataset: merges scenario curves when scenario is active on invest tab
   const activeDataset = useMemo(() => {
-    if (tab !== "invest" || !scenarioActive || !scenarioCurves) return dataset;
+    if (tab !== "invest" || mode === "live" || !scenarioActive || !scenarioCurves) return dataset;
+    const scenarioOverrides: Record<string, number | string> = scenarioMetrics
+      ? Object.fromEntries(Object.entries(scenarioMetrics).map(([k, v]) => [k, v]))
+      : {};
+    if (scenarioRunId) {
+      scenarioOverrides.dataStatus = "SCENARIO";
+      scenarioOverrides.runId = scenarioRunId;
+    }
     return {
       ...dataset,
       performanceSeries: scenarioCurves.performance,
       drawdownSeries:    scenarioCurves.drawdown,
       benchmarkSeries:   scenarioCurves.benchmark ?? dataset.benchmarkSeries,
       annualReturns:     scenarioAnnual ?? dataset.annualReturns,
-      metrics: scenarioMetrics ? { ...dataset.metrics, ...Object.fromEntries(Object.entries(scenarioMetrics).map(([k,v])=>[k,v])) } : dataset.metrics,
+      metrics: { ...dataset.metrics, ...scenarioOverrides },
     };
-  }, [tab, scenarioActive, scenarioCurves, scenarioAnnual, scenarioMetrics, dataset]);
+  }, [tab, scenarioActive, scenarioCurves, scenarioAnnual, scenarioMetrics, scenarioRunId, dataset]);
+
+  // When in asset mode with a primary asset selected, compute KPIs from fullGroupSeries.
+  // fullGroupSeries contains all real trading days (not display-downsampled points).
+  const primaryAssetDataset = useMemo((): AnalyticsDataset | null => {
+    if (lineMode !== "assets") return null;
+    const assetId = primaryAsset ?? (activeGroups.find((g) => activeDataset.groupSeries[g]?.length) ?? null);
+    if (!assetId) return null;
+    // Prefer full daily series for KPI math; fall back to display series if unavailable.
+    const raw = activeDataset.fullGroupSeries?.[assetId] ?? activeDataset.groupSeries[assetId];
+    if (!raw?.length) return null;
+    const filtered = rebaseSeries(filterSeries(raw, startFilter));
+    if (filtered.length < 2) return null;
+    // Compute daily returns from cumulative % series
+    const dailyReturns: Record<string, number> = {};
+    for (let i = 1; i < filtered.length; i++) {
+      const prev = filtered[i - 1]!;
+      const curr = filtered[i]!;
+      const r = (1 + curr.value / 100) / (1 + prev.value / 100) - 1;
+      dailyReturns[curr.date] = r;
+    }
+    const daily = Object.values(dailyReturns);
+    const n = daily.length;
+    const totalReturn = filtered.at(-1)!.value;
+    const startDate = new Date(`${filtered[0]!.date}T00:00:00Z`);
+    const endDate = new Date(`${filtered.at(-1)!.date}T00:00:00Z`);
+    const years = Math.max(1 / 365, (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25));
+    const cagr = (Math.pow(1 + totalReturn / 100, 1 / years) - 1) * 100;
+    const avgR = n ? daily.reduce((s, v) => s + v, 0) / n : 0;
+    const variance = n ? daily.reduce((s, v) => s + (v - avgR) ** 2, 0) / n : 0;
+    const vol = Math.sqrt(variance) * Math.sqrt(252) * 100;
+    const downside = daily.filter((v) => v < 0);
+    const downVar = downside.length ? downside.reduce((s, v) => s + v ** 2, 0) / downside.length : 0;
+    const sortino = downVar > 0 ? (avgR * 252) / (Math.sqrt(downVar) * Math.sqrt(252)) : 0;
+    const sharpe = vol > 0 ? (cagr) / vol : 0;
+    // Drawdown from filtered series
+    const drawdownSeries = computeDrawdown(filtered);
+    const maxDD = drawdownSeries.reduce((mn, p) => Math.min(mn, p.value), 0);
+    const calmar = maxDD < 0 ? cagr / Math.abs(maxDD) : 0;
+    // Annual returns from cumulative series
+    const annualMap = new Map<string, { startVal: number; endVal: number }>();
+    for (const p of filtered) {
+      const year = p.date.slice(0, 4);
+      if (!annualMap.has(year)) annualMap.set(year, { startVal: p.value, endVal: p.value });
+      annualMap.get(year)!.endVal = p.value;
+    }
+    const annualReturns = [...annualMap.entries()].map(([year, { startVal, endVal }]) => ({
+      label: year,
+      value: Number(((((1 + endVal / 100) / (1 + startVal / 100)) - 1) * 100).toFixed(2)),
+    }));
+    // Monthly returns
+    const monthlyReturns = (activeDataset.monthlyReturns.length ? activeDataset.monthlyReturns : []);
+    const posMonths = annualReturns.filter((b) => b.value >= 0).length;
+    const metrics: Record<string, number | string> = {
+      ...activeDataset.metrics,
+      totalReturnPct: Number(totalReturn.toFixed(2)),
+      cagrPct: Number(cagr.toFixed(2)),
+      maxDrawdownPct: Number(maxDD.toFixed(2)),
+      annualizedVolatilityPct: Number(vol.toFixed(2)),
+      sharpe: Number(sharpe.toFixed(2)),
+      sortino: Number(sortino.toFixed(2)),
+      calmar: Number(calmar.toFixed(2)),
+      positiveMonthsPct: annualReturns.length ? Number(((posMonths / annualReturns.length) * 100).toFixed(1)) : "n/a",
+      dataPoints: filtered.length,
+      tradeCount: assetId,
+      dataStatus: `ASSET · ${assetId}`,
+      assetFullPoints: activeDataset.assetMeta?.[assetId]?.fullPoints ?? filtered.length,
+      assetDisplayPoints: activeDataset.assetMeta?.[assetId]?.displayPoints ?? filtered.length,
+      assetMaxDailyReturnPct: activeDataset.assetMeta?.[assetId]?.maxDailyReturnPct ?? "n/a",
+    };
+    return {
+      ...activeDataset,
+      performanceSeries: filtered,
+      drawdownSeries,
+      annualReturns,
+      monthlyReturns,
+      metrics,
+    };
+  }, [lineMode, primaryAsset, activeGroups, activeDataset, startFilter]);
+
+  const effectiveDataset = (lineMode === "assets" && primaryAssetDataset) ? primaryAssetDataset : activeDataset;
 
   const visiblePerformanceSeries =
     lineMode === "assets" && activeGroups.length && Object.keys(activeDataset.groupSeries).length
@@ -2403,7 +2745,7 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
 
   const filteredPerformanceSeries = rebaseSeries(filterSeries(visiblePerformanceSeries, startFilter));
   const filteredAnnualReturns = tab === "invest"
-    ? activeDataset.annualReturns
+    ? effectiveDataset.annualReturns
     : dataset.annualReturns.filter((item) => {
         if (startFilter === "Max") return true;
         if (startFilter === "2008") return Number(item.label.slice(0, 4)) >= 2008;
@@ -2430,22 +2772,29 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
               benchmarkEnabled={benchmarkEnabled}
               activeGroups={activeGroups}
               compounded={compounded}
+              primaryAsset={primaryAsset}
+              periodMode={periodMode}
               onStartFilter={setStartFilter}
               onLineMode={setLineMode}
               onCompounded={setCompounded}
+              onPrimaryAsset={handlePrimaryAsset}
+              onToggleGroup={handleToggleGroup}
+              onSelectAll={handleSelectAll}
+              onClear={handleClearGroups}
+              onPeriodMode={setPeriodMode}
             />
           </div>
 
           <div className="col-span-12 xl:col-span-4">
-            <KpiGrid cards={buildKpiCards(dataset, lineMode, dataset.benchmarkSeries, capalifeData)} />
+            <KpiGrid cards={buildKpiCards(effectiveDataset, lineMode, effectiveDataset.benchmarkSeries, capalifeData)} />
           </div>
 
           <div className="col-span-12 xl:col-span-8">
-            <DrawdownCard dataset={activeDataset} visibleSeries={filteredPerformanceSeries} benchmarkEnabled={benchmarkEnabled} lineMode={lineMode} />
+            <DrawdownCard dataset={effectiveDataset} visibleSeries={filteredPerformanceSeries} benchmarkEnabled={benchmarkEnabled} lineMode={lineMode} />
           </div>
 
           <div className="col-span-12 xl:col-span-4">
-            <OverviewCard rows={buildOverviewRows(dataset)} />
+            <OverviewCard rows={buildOverviewRows(activeDataset)} />
           </div>
 
           <div className="col-span-12 md:col-span-4">
@@ -2458,7 +2807,7 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
               items={tab === "whiteSwan" && mode === "backtest" ? (() => {
                 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
                 const groups: number[][] = Array.from({ length: 12 }, () => []);
-                for (const bar of dataset.monthlyReturns) {
+                for (const bar of effectiveDataset.monthlyReturns) {
                   const m = parseInt(bar.label.slice(5, 7), 10) - 1;
                   if (m >= 0 && m < 12) groups[m]!.push(bar.value);
                 }
@@ -2466,7 +2815,7 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
                   label: MONTHS[i]!,
                   value: vals.length ? Number((vals.reduce((s, v) => s + v, 0) / vals.length).toFixed(2)) : 0,
                 }));
-              })() : dataset.monthlyReturns}
+              })() : effectiveDataset.monthlyReturns}
             />
           </div>
 

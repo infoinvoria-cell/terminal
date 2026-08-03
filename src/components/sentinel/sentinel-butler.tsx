@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { useGlobalPage } from "@/context/global-page-context";
@@ -222,7 +222,7 @@ export function SentinelButler() {
                 fontSize: 13,
                 fontWeight: 600,
                 color: "#e8eaed",
-                fontFamily: "var(--font-montserrat,sans-serif)",
+                fontFamily: "var(--font-text)",
                 letterSpacing: "0.01em",
               }}
             >
@@ -238,7 +238,7 @@ export function SentinelButler() {
                 border: "1px solid rgba(214,184,108,0.18)",
                 borderRadius: 20,
                 padding: "2px 8px",
-                fontFamily: "var(--font-montserrat,sans-serif)",
+                fontFamily: "var(--font-text)",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
               }}
@@ -320,7 +320,7 @@ export function SentinelButler() {
                     fontSize: 12,
                     color: "#555",
                     textAlign: "center",
-                    fontFamily: "var(--font-montserrat,sans-serif)",
+                    fontFamily: "var(--font-text)",
                     margin: 0,
                     lineHeight: 1.5,
                   }}
@@ -350,7 +350,7 @@ export function SentinelButler() {
                       padding: "8px 12px",
                       fontSize: 12,
                       color: "#d8dae0",
-                      fontFamily: "var(--font-montserrat,sans-serif)",
+                      fontFamily: "var(--font-text)",
                       lineHeight: 1.5,
                       wordBreak: "break-word",
                     }}
@@ -377,7 +377,7 @@ export function SentinelButler() {
             ))}
 
             {hasQueued && (
-              <p style={{ fontSize: 10, color: "#6a5a30", textAlign: "center", margin: "2px 0", fontFamily: "var(--font-montserrat,sans-serif)" }}>
+              <p style={{ fontSize: 10, color: "#6a5a30", textAlign: "center", margin: "2px 0", fontFamily: "var(--font-text)" }}>
                 1 Nachricht in Warteschlange
               </p>
             )}
@@ -416,13 +416,13 @@ export function SentinelButler() {
                 padding: "8px 12px",
                 fontSize: 12,
                 color: "#d8dae0",
-                fontFamily: "var(--font-montserrat,sans-serif)",
+                fontFamily: "var(--font-text)",
                 resize: "none",
                 lineHeight: 1.5,
                 minHeight: 34,
                 maxHeight: 100,
                 overflowY: "auto",
-                caretColor: "#d6b86c",
+                caretColor: "#C9A84C",
               }}
             />
             <button
@@ -438,7 +438,7 @@ export function SentinelButler() {
                 background: input.trim()
                   ? "rgba(214,184,108,0.14)"
                   : "rgba(255,255,255,0.04)",
-                color: input.trim() ? "#d6b86c" : "#444",
+                color: input.trim() ? "#C9A84C" : "#444",
                 cursor: input.trim() ? "pointer" : "default",
                 display: "flex",
                 alignItems: "center",

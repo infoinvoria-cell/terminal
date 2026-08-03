@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { AboutModeTabs } from "@/components/about/AboutModeTabs";
@@ -50,8 +50,8 @@ const TOKENS = {
   red: "#D45B63",
 };
 
-const M = "var(--font-montserrat,sans-serif)";
-const N = "var(--font-nunito,sans-serif)";
+const M = "var(--font-text)";
+const N = "var(--font-numbers)";
 
 type InnoSection = "overview" | "portfolios" | "track" | "risk" | "ibkr" | "cto" | "sources";
 type VisualTone = "confirmed" | "test" | "planned" | "open" | "critical";

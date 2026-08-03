@@ -7714,11 +7714,11 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           font-weight: 700;
         }
         .monitoring-fwd-dir.is-short {
-          color: #f87171;
+          color: #EF4444;
           font-weight: 700;
         }
         .monitoring-fwd-sl {
-          color: #f87171;
+          color: #EF4444;
         }
         .monitoring-fwd-tp {
           color: #22c55e;
@@ -7731,7 +7731,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           color: #22c55e;
         }
         .monitoring-fwd-pnl.is-pnl-neg {
-          color: #f87171;
+          color: #EF4444;
         }
         .monitoringContent {
           z-index: 1;
@@ -7904,11 +7904,11 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           font-weight: 600;
         }
         .live-signal-status-wait {
-          color: #eab308;
+          color: #C9A84C;
           font-weight: 600;
         }
         .live-signal-status-confirmed {
-          color: #60a5fa;
+          color: #9CA3AF;
           font-weight: 600;
         }
         .live-signal-prices,
@@ -7925,7 +7925,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           gap: 6px;
         }
         .live-signal-countdown {
-          color: #eab308;
+          color: #C9A84C;
         }
         .live-signal-source {
           color: #7b8088;
@@ -8579,7 +8579,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
         }
         .badge-data-warn,
         .badge-param-warn {
-          color: #eab308;
+          color: #C9A84C;
           background: rgba(234, 179, 8, 0.1);
           border-color: rgba(234, 179, 8, 0.25);
         }
@@ -8603,7 +8603,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           border-color: rgba(255, 77, 90, 0.32);
         }
         .badge-parameter-fail {
-          color: #eab308;
+          color: #C9A84C;
           background: rgba(234, 179, 8, 0.12);
           border-color: rgba(234, 179, 8, 0.3);
         }
@@ -8615,7 +8615,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
         }
         .badge-recent-warn,
         .badge-overlap-warn {
-          color: #eab308;
+          color: #C9A84C;
           background: rgba(234, 179, 8, 0.12);
           border-color: rgba(234, 179, 8, 0.3);
         }
@@ -8625,7 +8625,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           border-color: rgba(255, 77, 90, 0.32);
         }
         .badge-parity-warn {
-          color: #eab308;
+          color: #C9A84C;
           background: rgba(234, 179, 8, 0.12);
           border-color: rgba(234, 179, 8, 0.3);
         }
@@ -8728,7 +8728,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           font-weight: 700;
         }
         .status-badge.rebuild {
-          color: #eab308;
+          color: #C9A84C;
           background: rgba(234, 179, 8, 0.1);
           border: 1px solid rgba(234, 179, 8, 0.25);
         }
@@ -8738,7 +8738,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .status-badge.ok {
-          color: #4ade80;
+          color: #22C55E;
           background: rgba(74, 222, 128, 0.08);
           border: 1px solid rgba(74, 222, 128, 0.25);
         }
@@ -9642,7 +9642,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
         .st-parity-chip.parity-warn {
           border-color: rgba(234, 179, 8, 0.35);
           background: rgba(234, 179, 8, 0.1);
-          color: #eab308;
+          color: #C9A84C;
         }
         .st-parity-chip.parity-fail {
           border-color: rgba(255, 77, 90, 0.35);
@@ -9657,7 +9657,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
         .st-parity-chip.parity-info {
           border-color: rgba(96, 165, 250, 0.35);
           background: rgba(96, 165, 250, 0.1);
-          color: #60a5fa;
+          color: #9CA3AF;
         }
         .st-parity-chip.parity-hybrid {
           border-color: rgba(45, 212, 191, 0.4);
@@ -9666,7 +9666,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
         }
         .st-source-note {
           font-size: 9px;
-          color: #60a5fa;
+          color: #9CA3AF;
           margin-top: 2px;
           letter-spacing: 0.02em;
           cursor: default;
@@ -10595,7 +10595,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
             padding: 6px 4px 0;
             font-size: 10px;
             font-weight: 500;
-            font-family: var(--font-montserrat, system-ui, sans-serif);
+            font-family: var(--font-text);
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
             letter-spacing: 0.02em;

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import type { GeoEventItem } from "@/lib/globe/globe-types";
@@ -35,7 +35,7 @@ function eventDotColor(ev: GeoEventItem): DotColor {
 
 function dotHex(c: DotColor): string {
   if (c === "red") return "#f05252";
-  if (c === "gold") return "#D4AF37";
+  if (c === "gold") return "#C9A84C";
   return "#f59e0b";
 }
 
@@ -118,7 +118,7 @@ export default function GlobeTimeline({ geoEvents, selectedDay, onSelectDay, onC
       )}
 
       <div className="flex items-center gap-1 px-2" style={{ height: 30 }}>
-        <span className="shrink-0 text-[8px] font-semibold uppercase tracking-[0.08em] text-[#D4AF37]/80">⏱</span>
+        <span className="shrink-0 text-[8px] font-semibold uppercase tracking-[0.08em] text-[#C9A84C]/80">⏱</span>
         <div className="relative flex h-full min-w-0 flex-1 items-end">
           {buckets.map((b) => {
             const isSel = selectedDay === b.date;
@@ -151,10 +151,10 @@ export default function GlobeTimeline({ geoEvents, selectedDay, onSelectDay, onC
                 {/* tick / day marker */}
                 <div
                   className="absolute bottom-0 h-[5px] w-px"
-                  style={{ background: isSel ? "#D4AF37" : "rgba(255,255,255,0.14)" }}
+                  style={{ background: isSel ? "#C9A84C" : "rgba(255,255,255,0.14)" }}
                 />
                 {isSel && (
-                  <div className="absolute bottom-[7px] text-[7px] font-bold text-[#D4AF37]">{b.labelShort}</div>
+                  <div className="absolute bottom-[7px] text-[7px] font-bold text-[#C9A84C]">{b.labelShort}</div>
                 )}
                 {b.isMonthStart && !isSel && (
                   <div className="absolute bottom-0 text-[7px] text-white/30">{b.monthLabel}</div>
@@ -167,7 +167,7 @@ export default function GlobeTimeline({ geoEvents, selectedDay, onSelectDay, onC
           <button
             type="button"
             onClick={() => onSelectDay(null)}
-            className="shrink-0 rounded px-1.5 py-[2px] text-[8px] font-semibold text-[#D4AF37] transition hover:brightness-125"
+            className="shrink-0 rounded px-1.5 py-[2px] text-[8px] font-semibold text-[#C9A84C] transition hover:brightness-125"
             style={{ background: "rgba(212,175,55,0.12)" }}
           >
             {selectedDay} ✕

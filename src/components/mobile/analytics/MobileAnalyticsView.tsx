@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useMemo, useState } from "react";
 import {
@@ -33,12 +33,12 @@ interface Props {
 
 // ─── Theme ──────────────────────────────────────────────────────────────────
 const PAGE_BG = "#0c0d10";
-const CARD_BG = "#1c1d20";
+const CARD_BG = "#1F1F1F";
 const BORDER = "1px solid rgba(255,255,255,0.06)";
-const GOLD = "#e2ca7a";
+const GOLD = "#C9A84C";
 const MUTED = "rgba(255,255,255,0.38)";
-const GREEN = "#4ade80";
-const RED = "#f87171";
+const GREEN = "#22C55E";
+const RED = "#EF4444";
 const CHART_BG = "#111214";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -302,7 +302,7 @@ export function MobileAnalyticsView({ capalifeData, fsportfolio }: Props) {
     color: active ? GOLD : MUTED,
     fontSize: 11,
     fontWeight: 600 as const,
-    fontFamily: "var(--font-montserrat, sans-serif)",
+    fontFamily: "var(--font-text)",
     cursor: "pointer" as const,
     letterSpacing: "0.04em",
   });
@@ -319,7 +319,7 @@ export function MobileAnalyticsView({ capalifeData, fsportfolio }: Props) {
         minHeight: "100%",
         paddingBottom: 40,
         background: PAGE_BG,
-        fontFamily: "var(--font-montserrat, sans-serif)",
+        fontFamily: "var(--font-text)",
         color: "white",
       }}
     >

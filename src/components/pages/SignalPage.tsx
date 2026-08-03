@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -217,7 +217,7 @@ function Metric({ label, value, tone }: { label: string; value: string; tone?: "
     <div style={{
       flex: 1, minWidth: 0,
       display: "flex", flexDirection: "column", justifyContent: "space-between",
-      background: "linear-gradient(to bottom, #1c1d20, #141517)",
+      background: "linear-gradient(to bottom, #1F1F1F, #13131A)",
       border: "1px solid rgba(255,255,255,0.06)",
       borderRadius: 14,
       padding: "10px 12px 12px",

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -24,7 +24,7 @@ const BORDER_ACT = "#1F2127";
 const T_MUTED    = "#6B7280";
 const T_DIM      = "#9CA3AF";
 const T_BRIGHT   = "#E5E7EB";
-const FONT_MONO  = "var(--font-montserrat,ui-monospace,monospace)";
+const FONT_MONO  = "var(--font-text)";
 
 // Icon paths verified against /public directory:
 // /assets/invest/{spy,spmo,qqq,gld}.png   — invest-specific icons
@@ -214,7 +214,7 @@ function CandleCard({ weightId, sleeve, strategyTrades, showEmas, isSelected, on
   const isLong = isValidated && sleeve.currentSignal === "long";
   const tv = sleeve.config.tvMetrics;
   const badgeLabel = isRejected ? "Rejected" : isAsset ? "Asset OHLC" : "TV reference";
-  const badgeColor = isRejected ? "#F87171" : isAsset ? "#9CA3AF" : "#FBBF24";
+  const badgeColor = isRejected ? "#EF4444" : isAsset ? "#9CA3AF" : "#FBBF24";
 
   return (
     <div
@@ -307,7 +307,7 @@ function CandleCard({ weightId, sleeve, strategyTrades, showEmas, isSelected, on
 
       {/* Never present approximate calculations as validated live signals. */}
       <div style={{ position: "absolute", bottom: 8, right: 8, pointerEvents: "none", display: "flex", alignItems: "center", gap: 5, background: "rgba(4,4,6,0.68)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 999, padding: "3px 8px" }}>
-        <span style={{ fontSize: 11, lineHeight: 1, color: isValidated && isLong ? "#4ADE80" : badgeColor }}>{isValidated && isLong ? "▲" : isRejected ? "×" : "!"}</span>
+        <span style={{ fontSize: 11, lineHeight: 1, color: isValidated && isLong ? "#22C55E" : badgeColor }}>{isValidated && isLong ? "▲" : isRejected ? "×" : "!"}</span>
         <span style={{ fontSize: 9, color: isValidated && isLong ? "#E5E7EB" : badgeColor, letterSpacing: "0.05em", textTransform: "uppercase", fontWeight: 700 }}>
           {isValidated && isLong ? "Long" : badgeLabel}
         </span>
@@ -664,7 +664,7 @@ function InfoTile({ dataStatus, missingSymbols, sleeves }: InfoTileProps) {
       <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 10px 5px", borderBottom: `1px solid ${BORDER}`, flexShrink: 0 }}>
         <span style={{ fontSize: 11, fontWeight: 600, color: T_BRIGHT, letterSpacing: "0.04em", textTransform: "uppercase", fontFamily: FONT_MONO }}>Core Invest</span>
         {missingSymbols.length > 0 && (
-          <span style={{ fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#450a0a", color: "#F87171" }}>{missingSymbols.length} missing</span>
+          <span style={{ fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#450a0a", color: "#EF4444" }}>{missingSymbols.length} missing</span>
         )}
         {lastUpdated && <span style={{ fontSize: 9, color: T_MUTED, marginLeft: "auto" }}>{lastUpdated}</span>}
       </div>
@@ -699,7 +699,7 @@ function InfoTile({ dataStatus, missingSymbols, sleeves }: InfoTileProps) {
                 </div>
                 <span style={{
                   fontSize: isValidated ? 14 : 9, lineHeight: 1,
-                  color: isLong ? "#4ADE80" : isValidated ? T_MUTED : "#FBBF24",
+                  color: isLong ? "#22C55E" : isValidated ? T_MUTED : "#FBBF24",
                   fontWeight: isValidated ? 400 : 700,
                 }}>
                   {isValidated ? (isLong ? "▲" : "△") : "PARITY PENDING"}
@@ -716,7 +716,7 @@ function InfoTile({ dataStatus, missingSymbols, sleeves }: InfoTileProps) {
             {Object.entries(dataStatus).map(([sym, info]) => (
               <div key={sym} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span style={{ fontSize: 9, color: T_DIM }}>{sym}</span>
-                <span style={{ fontSize: 8, padding: "0 4px", borderRadius: 2, background: info.found ? "#052E16" : "#450a0a", color: info.found ? "#4ADE80" : "#F87171" }}>
+                <span style={{ fontSize: 8, padding: "0 4px", borderRadius: 2, background: info.found ? "#052E16" : "#450a0a", color: info.found ? "#22C55E" : "#EF4444" }}>
                   {info.found ? "ok" : "—"}
                 </span>
               </div>
@@ -754,7 +754,7 @@ export default function CoreInvestMonitoringGrid({ onStrategySelect, selectedStr
   const spy    = sleeves.find(s => s.config.id === "SPY")            ?? EMPTY;
 
   if (loading) return <div style={{ background: CHART_BG, height: "100%", display: "grid", placeItems: "center", color: T_MUTED, fontSize: 12 }}>Core Invest lädt…</div>;
-  if (error)   return <div style={{ background: CHART_BG, height: "100%", display: "grid", placeItems: "center", color: "#F87171", fontSize: 12 }}>Fehler: {error}</div>;
+  if (error)   return <div style={{ background: CHART_BG, height: "100%", display: "grid", placeItems: "center", color: "#EF4444", fontSize: 12 }}>Fehler: {error}</div>;
 
   const makeCardClick = (weightId: string) => onStrategySelect && STRATEGY_CARD_IDS.has(weightId)
     ? () => onStrategySelect(WEIGHT_TO_SLEEVE_ID[weightId] ?? weightId)

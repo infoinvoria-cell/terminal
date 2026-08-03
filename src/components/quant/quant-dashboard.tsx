@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo } from "react";
 import {
@@ -81,7 +81,7 @@ function statusFor(k: number, sharpe: number): ModelStatus {
 }
 
 const card =
-  "rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]";
+  "rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1F1F1F] to-[#13131A] shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]";
 
 export function QuantDashboard({ trades }: QuantDashboardProps) {
   const rows = useMemo(() => deserializeTrades(trades), [trades]);
@@ -204,13 +204,13 @@ export function QuantDashboard({ trades }: QuantDashboardProps) {
         {models.map((m) => (
           <div key={m.name} className={`p-5 ${card}`}>
             <div className="flex items-start justify-between gap-2">
-              <h3 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+              <h3 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
                 {m.name}
               </h3>
               <span
                 className={
                   m.status === "Live"
-                    ? "rounded-full border border-[#e2ca7a]/30 bg-[#e2ca7a]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#e2ca7a]"
+                    ? "rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#C9A84C]"
                     : m.status === "Testing"
                       ? "rounded-full border border-zinc-600/40 bg-zinc-800/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-300"
                       : "rounded-full border border-zinc-600/40 bg-zinc-800/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-400"
@@ -222,87 +222,87 @@ export function QuantDashboard({ trades }: QuantDashboardProps) {
             <dl className="mt-4 space-y-2 text-xs text-zinc-500">
               <div className="flex justify-between gap-2 border-b border-white/[0.05] pb-2">
                 <dt>Sharpe</dt>
-                <dd className="text-sm font-semibold text-white [font-family:var(--font-nunito),sans-serif]">
+                <dd className="text-sm font-semibold text-white [font-family:var(--font-numbers),sans-serif]">
                   {m.sharpe.toFixed(2)}
                 </dd>
               </div>
               <div className="flex justify-between gap-2 border-b border-white/[0.05] pb-2">
                 <dt>Sortino</dt>
-                <dd className="text-sm font-semibold text-white [font-family:var(--font-nunito),sans-serif]">
+                <dd className="text-sm font-semibold text-white [font-family:var(--font-numbers),sans-serif]">
                   {m.sortino.toFixed(2)}
                 </dd>
               </div>
               <div className="flex justify-between gap-2 border-b border-white/[0.05] pb-2">
                 <dt>Win rate</dt>
-                <dd className="text-sm font-semibold text-white [font-family:var(--font-nunito),sans-serif]">
+                <dd className="text-sm font-semibold text-white [font-family:var(--font-numbers),sans-serif]">
                   {m.winRate.toFixed(0)}%
                 </dd>
               </div>
               <div className="flex justify-between gap-2 border-b border-white/[0.05] pb-2">
                 <dt>Max DD</dt>
-                <dd className="text-sm font-semibold text-zinc-300 [font-family:var(--font-nunito),sans-serif]">
+                <dd className="text-sm font-semibold text-zinc-300 [font-family:var(--font-numbers),sans-serif]">
                   {m.maxDd.toFixed(1)}%
                 </dd>
               </div>
               <div className="flex justify-between gap-2 border-b border-white/[0.05] pb-2">
                 <dt>Expectancy %</dt>
-                <dd className="text-sm font-semibold text-white [font-family:var(--font-nunito),sans-serif]">
+                <dd className="text-sm font-semibold text-white [font-family:var(--font-numbers),sans-serif]">
                   {m.expectancy.toFixed(3)}
                 </dd>
               </div>
               <div className="flex justify-between gap-2 border-b border-white/[0.05] pb-2">
                 <dt>Cumulative return</dt>
-                <dd className="text-sm font-semibold text-white [font-family:var(--font-nunito),sans-serif]">
+                <dd className="text-sm font-semibold text-white [font-family:var(--font-numbers),sans-serif]">
                   {m.totalRet >= 0 ? "+" : ""}
                   {m.totalRet.toFixed(1)}%
                 </dd>
               </div>
               <div className="flex justify-between gap-2 border-b border-white/[0.05] pb-2">
                 <dt>Ann. return (est.)</dt>
-                <dd className="text-sm font-semibold text-white [font-family:var(--font-nunito),sans-serif]">
+                <dd className="text-sm font-semibold text-white [font-family:var(--font-numbers),sans-serif]">
                   {m.annualizedReturn >= 0 ? "+" : ""}
                   {m.annualizedReturn.toFixed(1)}%
                 </dd>
               </div>
               <div className="flex justify-between gap-2 border-b border-white/[0.05] pb-2">
                 <dt>Signals</dt>
-                <dd className="text-sm font-semibold text-white [font-family:var(--font-nunito),sans-serif]">
+                <dd className="text-sm font-semibold text-white [font-family:var(--font-numbers),sans-serif]">
                   {m.signalCount}
                 </dd>
               </div>
               <div className="flex justify-between gap-2 border-b border-white/[0.05] pb-2">
                 <dt>Exposure</dt>
-                <dd className="text-sm font-semibold text-white [font-family:var(--font-nunito),sans-serif]">
+                <dd className="text-sm font-semibold text-white [font-family:var(--font-numbers),sans-serif]">
                   {(m.exposure * 100).toFixed(0)}%
                 </dd>
               </div>
               <div className="flex justify-between gap-2 border-b border-white/[0.05] pb-2">
                 <dt>Volatility σ</dt>
-                <dd className="text-sm font-semibold text-white [font-family:var(--font-nunito),sans-serif]">
+                <dd className="text-sm font-semibold text-white [font-family:var(--font-numbers),sans-serif]">
                   {m.vol.toFixed(3)}
                 </dd>
               </div>
               <div className="flex justify-between gap-2 border-b border-white/[0.05] pb-2">
                 <dt>Avg |RR|</dt>
-                <dd className="text-sm font-semibold text-white [font-family:var(--font-nunito),sans-serif]">
+                <dd className="text-sm font-semibold text-white [font-family:var(--font-numbers),sans-serif]">
                   {m.avgRr.toFixed(2)}
                 </dd>
               </div>
               <div className="flex justify-between gap-2 border-b border-white/[0.05] pb-2">
                 <dt>Hit ratio</dt>
-                <dd className="text-sm font-semibold text-white [font-family:var(--font-nunito),sans-serif]">
+                <dd className="text-sm font-semibold text-white [font-family:var(--font-numbers),sans-serif]">
                   {m.hit.toFixed(0)}%
                 </dd>
               </div>
               <div className="flex justify-between gap-2 border-b border-white/[0.05] pb-2">
                 <dt>Stability</dt>
-                <dd className="text-sm font-semibold text-white [font-family:var(--font-nunito),sans-serif]">
+                <dd className="text-sm font-semibold text-white [font-family:var(--font-numbers),sans-serif]">
                   {m.stability.toFixed(2)}
                 </dd>
               </div>
               <div className="flex justify-between gap-2">
                 <dt>Signal quality</dt>
-                <dd className="text-sm font-semibold text-white [font-family:var(--font-nunito),sans-serif]">
+                <dd className="text-sm font-semibold text-white [font-family:var(--font-numbers),sans-serif]">
                   {(m.signalQuality * 100).toFixed(0)}
                 </dd>
               </div>
@@ -312,7 +312,7 @@ export function QuantDashboard({ trades }: QuantDashboardProps) {
       </div>
 
       <div className={`p-5 ${card}`}>
-        <h3 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+        <h3 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
           Model comparison
         </h3>
         <div className="mt-4 overflow-x-auto">
@@ -329,7 +329,7 @@ export function QuantDashboard({ trades }: QuantDashboardProps) {
                 <th className="py-2 pr-4">Signals</th>
               </tr>
             </thead>
-            <tbody className="[font-family:var(--font-nunito),sans-serif]">
+            <tbody className="[font-family:var(--font-numbers),sans-serif]">
               {models.map((m) => (
                 <tr key={m.name} className="border-b border-white/[0.04] text-zinc-300">
                   <td className="py-2.5 pr-4 text-white">{m.name}</td>
@@ -352,25 +352,25 @@ export function QuantDashboard({ trades }: QuantDashboardProps) {
 
       <div className="grid gap-2 lg:grid-cols-3">
         <div className={`p-5 lg:col-span-1 ${card}`}>
-          <h3 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+          <h3 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
             Book metrics
           </h3>
           <dl className="mt-4 space-y-3 text-xs text-zinc-500">
             <div className="flex justify-between gap-2 border-b border-white/[0.05] pb-2">
               <dt>Expectancy / trade (%)</dt>
-              <dd className="text-sm font-semibold text-white [font-family:var(--font-nunito),sans-serif]">
+              <dd className="text-sm font-semibold text-white [font-family:var(--font-numbers),sans-serif]">
                 {expectancy.toFixed(3)}
               </dd>
             </div>
             <div className="flex justify-between gap-2 border-b border-white/[0.05] pb-2">
               <dt>Volatility (σ)</dt>
-              <dd className="text-sm font-semibold text-white [font-family:var(--font-nunito),sans-serif]">
+              <dd className="text-sm font-semibold text-white [font-family:var(--font-numbers),sans-serif]">
                 {volAll.toFixed(3)}
               </dd>
             </div>
             <div className="flex justify-between gap-2">
               <dt>Avg |gain| (RR proxy)</dt>
-              <dd className="text-sm font-semibold text-white [font-family:var(--font-nunito),sans-serif]">
+              <dd className="text-sm font-semibold text-white [font-family:var(--font-numbers),sans-serif]">
                 {avgRr.toFixed(2)}
               </dd>
             </div>
@@ -378,7 +378,7 @@ export function QuantDashboard({ trades }: QuantDashboardProps) {
         </div>
 
         <div className={`p-5 lg:col-span-2 ${card}`}>
-          <h3 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+          <h3 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
             Model contribution (normalized)
           </h3>
           <div className="mt-3 h-[200px]">
@@ -389,7 +389,7 @@ export function QuantDashboard({ trades }: QuantDashboardProps) {
                 <YAxis tick={{ fill: "#8a8a8a", fontSize: 10 }} width={36} />
                 <Tooltip
                   contentStyle={{
-                    background: "#1c1d20",
+                    background: "#1F1F1F",
                     border: "1px solid rgba(255,255,255,0.08)",
                     borderRadius: 12,
                   }}
@@ -402,7 +402,7 @@ export function QuantDashboard({ trades }: QuantDashboardProps) {
       </div>
 
       <div className={`p-5 ${card}`}>
-        <h3 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+        <h3 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
           Model equity curves (cumulative %)
         </h3>
         <div className="mt-3 h-[280px]">
@@ -413,7 +413,7 @@ export function QuantDashboard({ trades }: QuantDashboardProps) {
               <YAxis tick={{ fill: "#8a8a8a", fontSize: 10 }} width={44} />
               <Tooltip
                 contentStyle={{
-                  background: "#1c1d20",
+                  background: "#1F1F1F",
                   border: "1px solid rgba(255,255,255,0.08)",
                   borderRadius: 12,
                 }}
@@ -465,7 +465,7 @@ export function QuantDashboard({ trades }: QuantDashboardProps) {
 
       <div className="grid gap-2 lg:grid-cols-2">
         <div className={`p-5 ${card}`}>
-          <h3 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+          <h3 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
             Rolling Sharpe (24-trade window)
           </h3>
           <div className="mt-3 h-[220px]">
@@ -476,7 +476,7 @@ export function QuantDashboard({ trades }: QuantDashboardProps) {
                 <YAxis tick={{ fill: "#8a8a8a", fontSize: 10 }} width={40} />
                 <Tooltip
                   contentStyle={{
-                    background: "#1c1d20",
+                    background: "#1F1F1F",
                     border: "1px solid rgba(255,255,255,0.08)",
                     borderRadius: 12,
                   }}
@@ -493,7 +493,7 @@ export function QuantDashboard({ trades }: QuantDashboardProps) {
           </div>
         </div>
         <div className={`p-5 ${card}`}>
-          <h3 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+          <h3 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
             Regime sensitivity
           </h3>
           <div className="mt-3 h-[220px]">
@@ -504,7 +504,7 @@ export function QuantDashboard({ trades }: QuantDashboardProps) {
                 <YAxis tick={{ fill: "#8a8a8a", fontSize: 10 }} width={40} />
                 <Tooltip
                   contentStyle={{
-                    background: "#1c1d20",
+                    background: "#1F1F1F",
                     border: "1px solid rgba(255,255,255,0.08)",
                     borderRadius: 12,
                   }}

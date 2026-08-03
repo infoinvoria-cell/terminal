@@ -18,7 +18,7 @@ import type { PatternCandidate } from "@/lib/seasonality/patternSelection";
 import styles from "./seasonal.module.css";
 
 const C_WHITE = "#F0F3F7";
-const C_GOLD = "#DCC476";
+const C_GOLD = "#C9A84C";
 const C_AXIS = "#D4DEE8";
 const C_GRID = "rgba(255,255,255,0.04)";
 const C_ZERO = "rgba(255,255,255,0.18)";

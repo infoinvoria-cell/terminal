@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -135,7 +135,7 @@ function AurumRings({ voiceLevel = 0 }: { voiceLevel?: number }) {
         <circle cx="130" cy="130" r="74"  stroke="rgba(255,255,255,0.06)" strokeWidth="0.7" />
         <circle cx="130" cy="130" r="62"  stroke="rgba(214,184,108,0.10)" strokeWidth="0.7" />
         {/* Rotating arc 1 — gold, slow CW */}
-        <circle cx="130" cy="130" r="100" stroke="#d6b86c" strokeWidth={2.6 + voiceLevel * 0.8}
+        <circle cx="130" cy="130" r="100" stroke="#C9A84C" strokeWidth={2.6 + voiceLevel * 0.8}
           strokeDasharray="138 490" strokeLinecap="round"
           style={{ filter: `drop-shadow(0 0 ${5 + glowBoost * 12}px rgba(214,184,108,${0.65 + glowBoost})) drop-shadow(0 0 12px rgba(214,184,108,0.25))` }}
           className="aur-arc1" />
@@ -231,7 +231,7 @@ function MiniAurumRings() {
         <circle cx="130" cy="130" r="88"  stroke="rgba(214,184,108,0.13)" strokeWidth="1.0" />
         <circle cx="130" cy="130" r="74"  stroke="rgba(255,255,255,0.06)" strokeWidth="0.7" />
         <circle cx="130" cy="130" r="62"  stroke="rgba(214,184,108,0.10)" strokeWidth="0.7" />
-        <circle cx="130" cy="130" r="100" stroke="#d6b86c" strokeWidth="2.8"
+        <circle cx="130" cy="130" r="100" stroke="#C9A84C" strokeWidth="2.8"
           strokeDasharray="138 490" strokeLinecap="round"
           style={{ filter: "drop-shadow(0 0 5px rgba(214,184,108,0.6))" }}
           className="maur-arc1" />
@@ -264,7 +264,7 @@ function MiniAurumRings() {
 function SourcesToggle({ sources, confidence }: { sources: SourceItem[]; confidence?: string }) {
   const [open, setOpen] = useState(false);
   if (!sources.length) return null;
-  const confColor = confidence === "high" ? "#d6b86c" : confidence === "medium" ? "rgba(255,255,255,0.55)" : "#ff6b72";
+  const confColor = confidence === "high" ? "#C9A84C" : confidence === "medium" ? "rgba(255,255,255,0.55)" : "#ff6b72";
   return (
     <div className="snt-src">
       <button type="button" className="snt-src-toggle" onClick={() => setOpen(o => !o)}>
@@ -418,12 +418,12 @@ function FavoritesDropdown({
         .fav-menu-head { display:flex;align-items:center;justify-content:space-between;padding:7px 10px 5px;border-bottom:1px solid rgba(255,255,255,0.06); }
         .fav-menu-head span { font-size:10px;color:#5a6270;letter-spacing:0.05em;text-transform:uppercase; }
         .fav-add-btn { display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:none;border:1px dashed rgba(255,255,255,0.15);border-radius:50%;color:#4a5260;cursor:pointer; }
-        .fav-add-btn:hover { color:#d6b86c;border-color:rgba(214,184,108,0.4); }
+        .fav-add-btn:hover { color:#C9A84C;border-color:rgba(214,184,108,0.4); }
         .fav-list { padding:4px 0; }
         .fav-item { display:flex;align-items:center;padding:0 6px 0 10px;height:30px; }
         .fav-item:hover { background:rgba(255,255,255,0.04); }
         .fav-item-btn { flex:1;text-align:left;background:none;border:none;color:#9aa3b0;font-size:11.5px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0; }
-        .fav-item:hover .fav-item-btn { color:#d6b86c; }
+        .fav-item:hover .fav-item-btn { color:#C9A84C; }
         .fav-item-acts { display:inline-flex;gap:1px;opacity:0;transition:opacity .15s; }
         .fav-item:hover .fav-item-acts { opacity:1; }
         .fav-ia { display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:none;border:none;color:#4a5260;cursor:pointer;border-radius:3px; }
@@ -905,7 +905,7 @@ export default function SentinelPanel({ onResizeStart, halved = false, feed }: P
           background: #060709;
           color: #e2e6ed;
           font-size: 13px;
-          font-family: var(--font-montserrat, "Montserrat", system-ui, -apple-system, sans-serif);
+          font-family: var(--font-text);
         }
         .snt.snt-fullscreen {
           position: fixed;
@@ -1016,7 +1016,7 @@ export default function SentinelPanel({ onResizeStart, halved = false, feed }: P
         .snt-msg-b { background:rgba(8,10,15,0.72);color:#c8d0dc;border:1px solid rgba(255,255,255,0.055);border-bottom-left-radius:3px;backdrop-filter:blur(8px);box-shadow:0 2px 12px rgba(0,0,0,0.35); }
         .snt-star { align-self:flex-end;margin-top:2px;background:none;border:none;color:#333a45;cursor:pointer;padding:2px 3px;opacity:0;transition:opacity .15s,color .15s; }
         .snt-bwrap:hover .snt-star { opacity:1; }
-        .snt-star:hover { color:#d6b86c; }
+        .snt-star:hover { color:#C9A84C; }
         .snt-error-wrap { display:flex;flex-direction:column;gap:5px;padding:4px 3px; }
         .snt-error { font-size:11.5px;color:#ff6b72;line-height:1.4; }
         .snt-retry { align-self:flex-start;background:rgba(255,107,114,0.10);border:1px solid rgba(255,107,114,0.25);color:#ff9ba0;font-size:11px;padding:4px 10px;border-radius:5px;cursor:pointer;font-family:inherit;transition:background .15s; }

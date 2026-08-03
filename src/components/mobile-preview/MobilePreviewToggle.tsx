@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { Smartphone } from "lucide-react";
 import { useMobilePreview, type PreviewMode } from "@/context/mobile-preview-context";
 
@@ -10,7 +10,7 @@ const LABELS: Record<PreviewMode, string> = {
 
 const ICON_COLOR: Record<PreviewMode, string> = {
   desktop: "rgba(113,113,122,1)",   // zinc-500
-  mobile:  "#e2ca7a",
+  mobile:  "#C9A84C",
   split:   "rgba(226,202,122,0.7)",
 };
 

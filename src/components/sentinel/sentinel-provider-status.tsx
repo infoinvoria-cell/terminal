@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type { SentinelCurrentRun, SentinelProviderStatus, SentinelStatusPayload } from "@/lib/sentinel/sentinel-session-store";
 
@@ -12,7 +12,7 @@ type StatusChipTone = {
 
 function providerTone(provider: Pick<SentinelProviderStatus, "usable" | "available" | "reason" | "active">): StatusChipTone {
   if (provider.active) {
-    return { dot: "#d6b86c", border: "rgba(214,184,108,0.28)", background: "rgba(214,184,108,0.08)", label: "#f3ead2", value: "rgba(243,234,210,0.92)" };
+    return { dot: "#C9A84C", border: "rgba(214,184,108,0.28)", background: "rgba(214,184,108,0.08)", label: "#f3ead2", value: "rgba(243,234,210,0.92)" };
   }
   if (provider.usable || provider.available) {
     return { dot: "#5dd39e", border: "rgba(93,211,158,0.18)", background: "rgba(93,211,158,0.06)", label: "rgba(219,230,225,0.82)", value: "rgba(223,232,240,0.82)" };
@@ -40,7 +40,7 @@ function providerValue(provider: SentinelProviderStatus) {
 
 function modeTone(mode: SentinelStatusPayload["mode"]): StatusChipTone {
   return {
-    dot: mode === "auto" ? "rgba(196,203,212,0.8)" : "#d6b86c",
+    dot: mode === "auto" ? "rgba(196,203,212,0.8)" : "#C9A84C",
     border: "rgba(255,255,255,0.08)",
     background: mode === "auto" ? "rgba(255,255,255,0.06)" : "rgba(214,184,108,0.08)",
     label: "rgba(180,188,198,0.82)",
@@ -151,7 +151,7 @@ export function SentinelProviderStatusBar({
             value={runningProvider ? `yes / ${runningProvider}` : "yes"}
             title={`Run status: ${currentRun.status}`}
             tone={{
-              dot: "#d6b86c",
+              dot: "#C9A84C",
               border: "rgba(214,184,108,0.22)",
               background: "rgba(214,184,108,0.07)",
               label: "rgba(243,234,210,0.86)",

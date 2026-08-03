@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 
@@ -64,7 +64,7 @@ function ringColor(fraction: number | null): string {
   if (fraction == null) return "rgba(255,255,255,0.18)";
   if (fraction >= 0.9) return "#ef4444";
   if (fraction >= 0.7) return "#f59e0b";
-  return "#e2ca7a";
+  return "#C9A84C";
 }
 
 export function TokenRing({ activeProvider }: Props) {
@@ -171,7 +171,7 @@ export function TokenRing({ activeProvider }: Props) {
             padding: "14px 14px 12px",
             zIndex: 500,
             boxShadow: "0 12px 40px rgba(0,0,0,0.70)",
-            fontFamily: "var(--font-montserrat,sans-serif)",
+            fontFamily: "var(--font-text)",
             fontSize: 12,
             color: "#c8cdd6",
           }}

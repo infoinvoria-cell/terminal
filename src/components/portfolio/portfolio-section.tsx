@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { SecondaryKpiRow } from "@/components/dashboard/secondary-kpi-row";
@@ -38,7 +38,7 @@ function Btn({
         padding: "0 12px",
         borderRadius: 15,
         fontSize: 11,
-        fontFamily: "var(--font-montserrat,sans-serif)",
+        fontFamily: "var(--font-text)",
         fontWeight: 500,
         cursor: "pointer",
         lineHeight: "30px",
@@ -115,7 +115,7 @@ export function PortfolioSection({ trades, kpis, capalifeData, trackRecordOvervi
             fontSize: 13,
             fontWeight: 600,
             color: "#c8cad0",
-            fontFamily: "var(--font-montserrat,sans-serif)",
+            fontFamily: "var(--font-text)",
             letterSpacing: "0.01em",
           }}
         >
@@ -136,7 +136,7 @@ export function PortfolioSection({ trades, kpis, capalifeData, trackRecordOvervi
           overflow: "hidden",
           borderRadius: 14,
           border: "1px solid rgba(255,255,255,0.06)",
-          background: "linear-gradient(180deg, #1c1d20 0%, #141517 100%)",
+          background: "linear-gradient(180deg, #1F1F1F 0%, #13131A 100%)",
           boxShadow: "0 12px 32px -12px rgba(0,0,0,0.4)",
         }}
       >

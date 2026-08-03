@@ -20,15 +20,15 @@ import { useHomeDashboard } from "@/context/home-dashboard-context";
 import { formatUsdCompact } from "@/lib/trades-analytics";
 
 const CARD_CLASS =
-  "rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]";
+  "rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1F1F1F] to-[#13131A] shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]";
 
 function KpiCard({ label, value }: { label: string; value: string }) {
   return (
     <div className={`${CARD_CLASS} flex min-h-[102px] flex-col justify-between p-4`}>
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 [font-family:var(--font-text),sans-serif]">
         {label}
       </p>
-      <p className="text-2xl font-bold leading-none text-white [font-family:var(--font-nunito),sans-serif]">
+      <p className="text-2xl font-bold leading-none text-white [font-family:var(--font-numbers),sans-serif]">
         {value}
       </p>
     </div>
@@ -173,7 +173,7 @@ export function InvestorAnalyticsDashboard() {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Name or account"
-              className="h-9 rounded-lg border border-white/[0.08] bg-[#141517] pl-7 pr-3 text-xs text-zinc-300"
+              className="h-9 rounded-lg border border-white/[0.08] bg-[#13131A] pl-7 pr-3 text-xs text-zinc-300"
             />
           </label>
 
@@ -184,7 +184,7 @@ export function InvestorAnalyticsDashboard() {
             <select
               value={subIbFilter}
               onChange={(event) => setSubIbFilter(event.target.value)}
-              className="h-9 rounded-lg border border-white/[0.08] bg-[#141517] px-3 text-xs text-zinc-300"
+              className="h-9 rounded-lg border border-white/[0.08] bg-[#13131A] px-3 text-xs text-zinc-300"
             >
               <option value="ALL">All</option>
               {metrics.subIbMetrics.map((subIb) => (
@@ -202,7 +202,7 @@ export function InvestorAnalyticsDashboard() {
             <select
               value={multiplierFilter}
               onChange={(event) => setMultiplierFilter(event.target.value)}
-              className="h-9 rounded-lg border border-white/[0.08] bg-[#141517] px-3 text-xs text-zinc-300"
+              className="h-9 rounded-lg border border-white/[0.08] bg-[#13131A] px-3 text-xs text-zinc-300"
             >
               <option value="ALL">All</option>
               <option value="1">1x</option>
@@ -217,7 +217,7 @@ export function InvestorAnalyticsDashboard() {
           onClick={() => setAnalyticsMode((current) => !current)}
           className={
             analyticsMode
-              ? "rounded-full border border-[#e2ca7a]/45 bg-gradient-to-b from-[#1c1d20] to-[#141517] px-3.5 py-1.5 text-[12px] font-semibold text-white shadow-[inset_0_-1px_0_0_rgba(226,202,122,0.45)]"
+              ? "rounded-full border border-[#C9A84C]/45 bg-gradient-to-b from-[#1F1F1F] to-[#13131A] px-3.5 py-1.5 text-[12px] font-semibold text-white shadow-[inset_0_-1px_0_0_rgba(226,202,122,0.45)]"
               : "rounded-full border border-white/[0.08] px-3.5 py-1.5 text-[12px] font-semibold text-zinc-300 transition-colors hover:bg-white/[0.04]"
           }
         >
@@ -257,8 +257,8 @@ export function InvestorAnalyticsDashboard() {
                     }}
                     className={
                       selected
-                        ? "cursor-pointer border-b border-white/[0.04] bg-white/[0.03] text-[13px] [font-family:var(--font-nunito),sans-serif]"
-                        : "cursor-pointer border-b border-white/[0.04] text-[13px] [font-family:var(--font-nunito),sans-serif]"
+                        ? "cursor-pointer border-b border-white/[0.04] bg-white/[0.03] text-[13px] [font-family:var(--font-numbers),sans-serif]"
+                        : "cursor-pointer border-b border-white/[0.04] text-[13px] [font-family:var(--font-numbers),sans-serif]"
                     }
                   >
                     <td className="px-4 py-2.5 text-white">{row.name}</td>
@@ -271,7 +271,7 @@ export function InvestorAnalyticsDashboard() {
                     <td className="px-4 py-2.5 text-zinc-300">
                       {formatUsdCompact(row.grossProfit)}
                     </td>
-                    <td className="px-4 py-2.5 text-[#e2ca7a]">
+                    <td className="px-4 py-2.5 text-[#C9A84C]">
                       {formatUsdCompact(row.profitSplitPaid)}
                     </td>
                     <td className="px-4 py-2.5 text-zinc-200">
@@ -299,7 +299,7 @@ export function InvestorAnalyticsDashboard() {
           <section className={`${CARD_CLASS} flex min-h-0 flex-col p-5`}>
             <div className="flex items-start justify-between gap-2">
               <div>
-                <h3 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+                <h3 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
                   {selectedInvestor.name} Detail View
                 </h3>
                 <p className="mt-1 text-xs text-zinc-500">
@@ -309,7 +309,7 @@ export function InvestorAnalyticsDashboard() {
               <button
                 type="button"
                 onClick={() => setPage("sub-ib-system")}
-                className="rounded-full border border-[#e2ca7a]/35 px-2.5 py-1 text-[11px] font-semibold text-[#e2ca7a] transition-colors hover:border-[#e2ca7a]/55"
+                className="rounded-full border border-[#C9A84C]/35 px-2.5 py-1 text-[11px] font-semibold text-[#C9A84C] transition-colors hover:border-[#C9A84C]/55"
               >
                 Open Sub-IB
               </button>
@@ -323,7 +323,7 @@ export function InvestorAnalyticsDashboard() {
               </div>
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.01] p-3">
                 <p className="text-[10px] uppercase tracking-wider text-zinc-500">Fees Paid</p>
-                <p className="mt-1 text-sm font-semibold text-[#e2ca7a]">
+                <p className="mt-1 text-sm font-semibold text-[#C9A84C]">
                   {formatUsdCompact(selectedInvestor.profitSplitPaid)}
                 </p>
               </div>
@@ -347,7 +347,7 @@ export function InvestorAnalyticsDashboard() {
                 <p className="text-[10px] uppercase tracking-wider text-zinc-500">
                   Commission -&gt; Manager
                 </p>
-                <p className="mt-1 text-sm font-semibold text-[#e2ca7a]">
+                <p className="mt-1 text-sm font-semibold text-[#C9A84C]">
                   {formatUsdCompact(selectedInvestor.commissionToManager)}
                 </p>
               </div>
@@ -371,7 +371,7 @@ export function InvestorAnalyticsDashboard() {
                       formatUsdCompact(typeof value === "number" ? value : Number(value) || 0)
                     }
                     contentStyle={{
-                      background: "#1c1d20",
+                      background: "#1F1F1F",
                       border: "1px solid rgba(255,255,255,0.08)",
                       borderRadius: 12,
                     }}
@@ -379,7 +379,7 @@ export function InvestorAnalyticsDashboard() {
                   <Line
                     type="monotone"
                     dataKey="equity"
-                    stroke="#e2ca7a"
+                    stroke="#C9A84C"
                     strokeWidth={1.8}
                     dot={false}
                   />
@@ -389,7 +389,7 @@ export function InvestorAnalyticsDashboard() {
           </section>
 
           <section className={`${CARD_CLASS} flex min-h-0 flex-col p-5`}>
-            <h3 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+            <h3 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
               Monthly Profit, Fees & Commission
             </h3>
             <div className="mt-3 min-h-0 flex-1">
@@ -403,7 +403,7 @@ export function InvestorAnalyticsDashboard() {
                       formatUsdCompact(typeof value === "number" ? value : Number(value) || 0)
                     }
                     contentStyle={{
-                      background: "#1c1d20",
+                      background: "#1F1F1F",
                       border: "1px solid rgba(255,255,255,0.08)",
                       borderRadius: 12,
                     }}
@@ -416,7 +416,7 @@ export function InvestorAnalyticsDashboard() {
                   />
                   <Bar
                     dataKey="feesPaid"
-                    fill="#e2ca7a"
+                    fill="#C9A84C"
                     maxBarSize={22}
                     radius={[4, 4, 0, 0]}
                   />
@@ -449,7 +449,7 @@ export function InvestorAnalyticsDashboard() {
                     outerRadius={68}
                     stroke="none"
                   >
-                    <Cell fill="#e2ca7a" />
+                    <Cell fill="#C9A84C" />
                     <Cell fill="rgba(161,161,170,0.72)" />
                   </Pie>
                   <Tooltip
@@ -457,7 +457,7 @@ export function InvestorAnalyticsDashboard() {
                       formatUsdCompact(typeof value === "number" ? value : Number(value) || 0)
                     }
                     contentStyle={{
-                      background: "#1c1d20",
+                      background: "#1F1F1F",
                       border: "1px solid rgba(255,255,255,0.08)",
                       borderRadius: 12,
                     }}
@@ -472,12 +472,12 @@ export function InvestorAnalyticsDashboard() {
       {analyticsMode ? (
         <div className="grid min-h-0 flex-1 gap-2 xl:grid-cols-3">
           <section className={`${CARD_CLASS} flex min-h-0 flex-col p-5`}>
-            <h3 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+            <h3 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
               Aggregated Insights
             </h3>
             <p className="mt-2 text-sm text-zinc-300">
               Best performing Sub-IB:{" "}
-              <span className="font-semibold text-[#e2ca7a]">
+              <span className="font-semibold text-[#C9A84C]">
                 {bestSubIbInsight?.name ?? "n/a"}
               </span>{" "}
               ({formatUsdCompact(bestSubIbInsight?.netProfit ?? 0)} net)
@@ -490,14 +490,14 @@ export function InvestorAnalyticsDashboard() {
                   <YAxis tick={{ fill: "#8a8a8a", fontSize: 10 }} width={38} allowDecimals={false} />
                   <Tooltip
                     contentStyle={{
-                      background: "#1c1d20",
+                      background: "#1F1F1F",
                       border: "1px solid rgba(255,255,255,0.08)",
                       borderRadius: 12,
                     }}
                   />
                   <Bar
                     dataKey="count"
-                    fill="#e2ca7a"
+                    fill="#C9A84C"
                     maxBarSize={38}
                     radius={[4, 4, 0, 0]}
                   />
@@ -507,7 +507,7 @@ export function InvestorAnalyticsDashboard() {
           </section>
 
           <section className={`${CARD_CLASS} flex min-h-0 flex-col p-5`}>
-            <h3 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+            <h3 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
               Capital Distribution
             </h3>
             <div className="mt-3 min-h-0 flex-1">
@@ -521,7 +521,7 @@ export function InvestorAnalyticsDashboard() {
                       formatUsdCompact(typeof value === "number" ? value : Number(value) || 0)
                     }
                     contentStyle={{
-                      background: "#1c1d20",
+                      background: "#1F1F1F",
                       border: "1px solid rgba(255,255,255,0.08)",
                       borderRadius: 12,
                     }}
@@ -538,7 +538,7 @@ export function InvestorAnalyticsDashboard() {
           </section>
 
           <section className={`${CARD_CLASS} flex min-h-0 flex-col p-5`}>
-            <h3 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+            <h3 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
               Investor Distribution per Sub-IB
             </h3>
             <div className="mt-3 min-h-0 flex-1">
@@ -549,14 +549,14 @@ export function InvestorAnalyticsDashboard() {
                   <YAxis tick={{ fill: "#8a8a8a", fontSize: 10 }} width={38} allowDecimals={false} />
                   <Tooltip
                     contentStyle={{
-                      background: "#1c1d20",
+                      background: "#1F1F1F",
                       border: "1px solid rgba(255,255,255,0.08)",
                       borderRadius: 12,
                     }}
                   />
                   <Bar
                     dataKey="count"
-                    fill="#e2ca7a"
+                    fill="#C9A84C"
                     maxBarSize={42}
                     radius={[4, 4, 0, 0]}
                   />

@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 
 type Pill = { label: string; value: string; open?: boolean };
 
@@ -23,7 +23,7 @@ export function WhiteSwanStatusBar() {
           height={18}
           className="rounded-sm object-contain opacity-70"
         />
-        <span className="text-[11px] font-semibold text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">
+        <span className="text-[11px] font-semibold text-zinc-500 [font-family:var(--font-text),sans-serif]">
           White Swan Status
         </span>
       </div>
@@ -32,7 +32,7 @@ export function WhiteSwanStatusBar() {
         {PILLS.map((p) => (
           <span
             key={p.label}
-            className="flex items-center gap-1.5 text-[10.5px] [font-family:var(--font-montserrat),sans-serif]"
+            className="flex items-center gap-1.5 text-[10.5px] [font-family:var(--font-text),sans-serif]"
           >
             <span className="text-zinc-600">{p.label}:</span>
             <span className={p.open ? "text-emerald-400/90" : "text-zinc-400"}>

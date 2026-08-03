@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, Loader2 } from "lucide-react";
@@ -677,7 +677,7 @@ function Sparkline({ values, tone = "neutral" }: { values: number[]; tone?: "pos
       .join(" ");
   }, [values]);
 
-  const stroke = tone === "positive" ? "#dcc476" : tone === "negative" ? "#ff7b84" : "#9aa4b2";
+  const stroke = tone === "positive" ? "#C9A84C" : tone === "negative" ? "#ff7b84" : "#9aa4b2";
 
   return (
     <svg viewBox="0 0 320 88" className="msw-sparkline" aria-hidden="true">

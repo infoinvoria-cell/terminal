@@ -34,16 +34,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <HomeDashboardProvider initialReportTrades={[]} initialBalanceRows={[]}>
-      <div className="flex h-[100dvh] min-h-0 overflow-hidden bg-[#0a0a0c]">
+      <div className="relative flex h-[100dvh] min-h-0 min-w-0 overflow-hidden bg-[#0a0a0c]">
         <Sidebar />
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <div className="absolute inset-0 z-0 flex min-h-0 min-w-0 flex-col overflow-hidden pl-[88px]">
           {sectionLabel && (
             <>
               <Topbar sectionLabel={sectionLabel} />
               <HeaderDivider />
             </>
           )}
-          <div className="flex min-h-0 flex-1 overflow-hidden">
+          <div className="dashboard-content-shell flex min-h-0 flex-1 overflow-hidden pt-0">
             {children}
           </div>
         </div>

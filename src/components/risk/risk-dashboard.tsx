@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo } from "react";
 import {
@@ -32,11 +32,11 @@ const LOSS_FILL = "#3f3f46";
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] p-4 shadow-[0_16px_32px_-14px_rgba(0,0,0,0.55)]">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">
+    <div className="rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1F1F1F] to-[#13131A] p-4 shadow-[0_16px_32px_-14px_rgba(0,0,0,0.55)]">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 [font-family:var(--font-text),sans-serif]">
         {label}
       </p>
-      <p className="mt-2 text-lg font-bold text-white [font-family:var(--font-nunito),sans-serif]">
+      <p className="mt-2 text-lg font-bold text-white [font-family:var(--font-numbers),sans-serif]">
         {value}
       </p>
     </div>
@@ -195,7 +195,7 @@ export function RiskDashboard({ trades }: RiskDashboardProps) {
     return "rgba(82,82,91,0.4)";
   };
 
-  const card = "rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] p-5 shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]";
+  const card = "rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1F1F1F] to-[#13131A] p-5 shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]";
 
   return (
     <div className="space-y-3 pb-4">
@@ -228,7 +228,7 @@ export function RiskDashboard({ trades }: RiskDashboardProps) {
 
       <div className="grid gap-2 lg:grid-cols-2">
         <div className={`${card} flex flex-col`}>
-          <h3 className="shrink-0 text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+          <h3 className="shrink-0 text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
             Equity &amp; drawdown
           </h3>
           <div className="mt-2 min-h-0 flex-1" style={{ height: 268 }}>
@@ -249,7 +249,7 @@ export function RiskDashboard({ trades }: RiskDashboardProps) {
                 />
                 <Tooltip
                   contentStyle={{
-                    background: "#1c1d20",
+                    background: "#1F1F1F",
                     border: "1px solid rgba(255,255,255,0.08)",
                     borderRadius: 12,
                   }}
@@ -267,7 +267,7 @@ export function RiskDashboard({ trades }: RiskDashboardProps) {
         </div>
 
         <div className={`${card} flex flex-col`}>
-          <h3 className="shrink-0 text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+          <h3 className="shrink-0 text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
             Risk per trade (|Gain %|)
           </h3>
           <div className="mt-2 min-h-0 flex-1" style={{ height: 268 }}>
@@ -278,7 +278,7 @@ export function RiskDashboard({ trades }: RiskDashboardProps) {
                 <YAxis tick={{ fill: "#8a8a8a", fontSize: 10 }} width={36} domain={[0, "auto"]} />
                 <Tooltip
                   contentStyle={{
-                    background: "#1c1d20",
+                    background: "#1F1F1F",
                     border: "1px solid rgba(255,255,255,0.08)",
                     borderRadius: 12,
                   }}
@@ -299,7 +299,7 @@ export function RiskDashboard({ trades }: RiskDashboardProps) {
 
       <div className="grid gap-2 lg:grid-cols-2">
         <div className={`${card}`}>
-          <h3 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+          <h3 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
             Win / Loss
           </h3>
           <div className="relative mt-2" style={{ height: 240 }}>
@@ -322,10 +322,10 @@ export function RiskDashboard({ trades }: RiskDashboardProps) {
               </PieChart>
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pt-2">
-              <p className="text-[11px] font-medium uppercase tracking-wider text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">
+              <p className="text-[11px] font-medium uppercase tracking-wider text-zinc-500 [font-family:var(--font-text),sans-serif]">
                 Win rate
               </p>
-              <p className="text-3xl font-bold text-white [font-family:var(--font-nunito),sans-serif]">
+              <p className="text-3xl font-bold text-white [font-family:var(--font-numbers),sans-serif]">
                 {stats.winRate.toFixed(0)}%
               </p>
               <p className="mt-2 text-center text-[10px] leading-relaxed text-zinc-500">
@@ -339,7 +339,7 @@ export function RiskDashboard({ trades }: RiskDashboardProps) {
         </div>
 
         <div className={`${card} flex flex-col`}>
-          <h3 className="shrink-0 text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+          <h3 className="shrink-0 text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
             Gain distribution
           </h3>
           <div className="mt-3 min-h-0 flex-1" style={{ height: 240 }}>
@@ -357,7 +357,7 @@ export function RiskDashboard({ trades }: RiskDashboardProps) {
                 <YAxis tick={{ fill: "#8a8a8a", fontSize: 10 }} allowDecimals={false} width={32} />
                 <Tooltip
                   contentStyle={{
-                    background: "#1c1d20",
+                    background: "#1F1F1F",
                     border: "1px solid rgba(255,255,255,0.08)",
                     borderRadius: 12,
                   }}
@@ -370,7 +370,7 @@ export function RiskDashboard({ trades }: RiskDashboardProps) {
       </div>
 
       <div className={card}>
-        <h3 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+        <h3 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
           Rolling volatility (15-trade)
         </h3>
         <div className="mt-3" style={{ height: 220 }}>
@@ -381,7 +381,7 @@ export function RiskDashboard({ trades }: RiskDashboardProps) {
               <YAxis tick={{ fill: "#8a8a8a", fontSize: 10 }} width={40} />
               <Tooltip
                 contentStyle={{
-                  background: "#1c1d20",
+                  background: "#1F1F1F",
                   border: "1px solid rgba(255,255,255,0.08)",
                   borderRadius: 12,
                 }}
@@ -399,7 +399,7 @@ export function RiskDashboard({ trades }: RiskDashboardProps) {
       </div>
 
       <div className={card}>
-        <h3 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+        <h3 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
           Activity heatmap
         </h3>
         <div className="mt-4 overflow-x-auto">

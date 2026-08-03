@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { TrendingUp, LayoutGrid } from "lucide-react";
@@ -11,10 +11,10 @@ import {
 } from "@/lib/components/ws-strategy-data";
 
 // ── design tokens ─────────────────────────────────────────────────────────────
-const GOLD     = "#e2ca7a";
+const GOLD     = "#C9A84C";
 const MUTED    = "#737373";
 const BG       = "#0c0d10";
-const CARD     = "linear-gradient(180deg,#1c1d20 0%,#141517 100%)";
+const CARD     = "linear-gradient(180deg,#1F1F1F 0%,#13131A 100%)";
 const CBORD    = "rgba(255,255,255,0.06)";
 const RBORD    = "rgba(255,255,255,0.04)";
 
@@ -250,8 +250,8 @@ function SwanIcon({ size = 13 }: { size?: number }) {
 function HKpi({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ background: CARD, border: `1px solid ${CBORD}`, borderRadius: 12, padding: "8px 14px", boxShadow: "0 6px 18px -8px rgba(0,0,0,0.6)", minWidth: 78 }}>
-      <div style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 9, fontWeight: 600, color: MUTED, letterSpacing: ".08em", textTransform: "uppercase" as const, marginBottom: 4 }}>{label}</div>
-      <div style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 18, fontWeight: 700, letterSpacing: "-.02em", color: "#fff", lineHeight: 1 }}>{value}</div>
+      <div style={{ fontFamily: "var(--font-text),sans-serif", fontSize: 9, fontWeight: 600, color: MUTED, letterSpacing: ".08em", textTransform: "uppercase" as const, marginBottom: 4 }}>{label}</div>
+      <div style={{ fontFamily: "var(--font-text),sans-serif", fontSize: 18, fontWeight: 700, letterSpacing: "-.02em", color: "#fff", lineHeight: 1 }}>{value}</div>
     </div>
   );
 }
@@ -259,8 +259,8 @@ function HKpi({ label, value }: { label: string; value: string }) {
 function EKpi({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ background: CARD, border: `1px solid ${CBORD}`, borderRadius: 10, padding: "8px 12px", flex: "1 1 0", minWidth: 0 }}>
-      <div style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 9, fontWeight: 600, color: MUTED, letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 5, whiteSpace: "nowrap" as const }}>{label}</div>
-      <div style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 15, fontWeight: 700, letterSpacing: "-.02em", color: strNumColor(value) }}>{value}</div>
+      <div style={{ fontFamily: "var(--font-text),sans-serif", fontSize: 9, fontWeight: 600, color: MUTED, letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 5, whiteSpace: "nowrap" as const }}>{label}</div>
+      <div style={{ fontFamily: "var(--font-text),sans-serif", fontSize: 15, fontWeight: 700, letterSpacing: "-.02em", color: strNumColor(value) }}>{value}</div>
     </div>
   );
 }
@@ -269,7 +269,7 @@ function EKpi({ label, value }: { label: string; value: string }) {
 function Pill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
     <button onClick={onClick} style={{
-      fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600,
+      fontFamily: "var(--font-text),sans-serif", fontSize: 10, fontWeight: 600,
       letterSpacing: ".07em", textTransform: "uppercase" as const,
       padding: "4px 11px", borderRadius: 20, cursor: "pointer",
       background: active ? "rgba(255,255,255,0.07)" : "transparent",
@@ -285,7 +285,7 @@ function Chip({ status }: { status: string }) {
     active:         { label: "Aktiv",      c: "rgba(255,255,255,0.5)" },
     watch:          { label: "Watch",      c: GOLD },
     archived:       { label: "Archiviert", c: "rgba(255,255,255,0.15)" },
-    historical_reference: { label: "Historisch",      c: "#60a5fa" },
+    historical_reference: { label: "Historisch",      c: "#9CA3AF" },
     research:             { label: "Research",        c: "rgba(255,255,255,0.3)" },
     validation:           { label: "Validation",      c: "rgba(255,255,255,0.45)" },
     parity_pending:       { label: "Pending",         c: GOLD },
@@ -294,7 +294,7 @@ function Chip({ status }: { status: string }) {
   };
   const s = cfg[status] ?? { label: status, c: MUTED };
   return (
-    <span style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, color: s.c, display: "inline-flex", alignItems: "center", gap: 4 }}>
+    <span style={{ fontFamily: "var(--font-text),sans-serif", fontSize: 10, fontWeight: 600, color: s.c, display: "inline-flex", alignItems: "center", gap: 4 }}>
       <span style={{ width: 4, height: 4, borderRadius: "50%", background: s.c, flexShrink: 0 }} />
       {s.label}
     </span>
@@ -323,7 +323,7 @@ function Th({ label, k, sortKey, sortDir, onSort, align = "left", agg }: {
   const active = sortKey === k;
   return (
     <th onClick={() => onSort(k)} style={{
-      fontFamily: "var(--font-montserrat),sans-serif",
+      fontFamily: "var(--font-text),sans-serif",
       fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase" as const,
       color: active ? "rgba(255,255,255,0.65)" : MUTED,
       padding: "0 8px 9px", whiteSpace: "nowrap" as const, textAlign: align,
@@ -346,7 +346,7 @@ function LiveTimer({ secs, max }: { secs: number; max: number }) {
         <circle cx={7} cy={7} r={r} fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth={1.5}
           strokeDasharray={`${circ * (secs / max)} ${circ}`} strokeLinecap="round" />
       </svg>
-      <span style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, color: MUTED, fontVariantNumeric: "tabular-nums" }}>{secs}s</span>
+      <span style={{ fontFamily: "var(--font-text),sans-serif", fontSize: 10, color: MUTED, fontVariantNumeric: "tabular-nums" }}>{secs}s</span>
     </span>
   );
 }
@@ -512,12 +512,12 @@ function CandleChart({ ticker, timeframe = "1D", refreshSecs = 30 }: { ticker: s
   }, [bars, trade]);
 
   if (bars === null) return (
-    <div style={{ height: 280, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-montserrat),sans-serif", background: BG, borderRadius: 6 }}>
+    <div style={{ height: 280, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-text),sans-serif", background: BG, borderRadius: 6 }}>
       Lade OHLC…
     </div>
   );
   if (!bars.length) return (
-    <div style={{ height: 60, display: "flex", alignItems: "center", fontSize: 11, color: "rgba(255,255,255,0.15)", fontFamily: "var(--font-montserrat),sans-serif" }}>
+    <div style={{ height: 60, display: "flex", alignItems: "center", fontSize: 11, color: "rgba(255,255,255,0.15)", fontFamily: "var(--font-text),sans-serif" }}>
       Keine OHLC-Daten
     </div>
   );
@@ -531,8 +531,8 @@ const SYNC_ID_PREFIX = "eq-dd-";
 const CHART_M   = { top: 4, right: 44, bottom: 0, left: 0 };
 const CHART_M_X = { top: 2, right: 44, bottom: 4, left: 0 }; // DdChart gets bottom space for X labels
 const Y_WIDTH   = 38; // same for both charts
-const AXIS_TICK = { fill: "rgba(255,255,255,0.28)", fontSize: 8, fontFamily: "var(--font-montserrat),sans-serif" };
-const TOOLTIP_STYLE = { background: "#1c1d20", border: `1px solid ${CBORD}`, borderRadius: 8, fontSize: 10, fontFamily: "var(--font-montserrat),sans-serif", color: "#fff" };
+const AXIS_TICK = { fill: "rgba(255,255,255,0.28)", fontSize: 8, fontFamily: "var(--font-text),sans-serif" };
+const TOOLTIP_STYLE = { background: "#1F1F1F", border: `1px solid ${CBORD}`, borderRadius: 8, fontSize: 10, fontFamily: "var(--font-text),sans-serif", color: "#fff" };
 const CURSOR_STYLE  = { stroke: "rgba(255,255,255,0.22)", strokeWidth: 1, strokeDasharray: "3 3" };
 
 const REF_LINE_STYLE = { stroke: "rgba(255,255,255,0.28)", strokeDasharray: "4 3", strokeWidth: 1 };
@@ -544,7 +544,7 @@ function EqChart({ pts, label, syncId, oosStart }: { pts: EP[]; label: string; s
   const oosKey = oosStart ? oosStart.slice(0, 7) : undefined;
   return (
     <div style={{ marginBottom: 0 }}>
-      <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 2, paddingLeft: Y_WIDTH + 2 }}>{label}</div>
+      <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-text),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 2, paddingLeft: Y_WIDTH + 2 }}>{label}</div>
       <ResponsiveContainer width="100%" height={95}>
         <AreaChart data={d} margin={CHART_M} syncId={syncId}>
           <defs><linearGradient id="eqg2" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#fff" stopOpacity={0.13}/><stop offset="95%" stopColor="#fff" stopOpacity={0.01}/></linearGradient></defs>
@@ -556,7 +556,7 @@ function EqChart({ pts, label, syncId, oosStart }: { pts: EP[]; label: string; s
             formatter={(v: any) => [`$${Number(v ?? 0).toLocaleString("de", { maximumFractionDigits: 0 })}`, "Equity"]}
             cursor={CURSOR_STYLE} />
           <Area type="monotone" dataKey="v" stroke="#fff" strokeWidth={1.5} strokeOpacity={0.75} fill="url(#eqg2)" dot={false} activeDot={{ r: 3, fill: "#fff", strokeWidth: 0 }} />
-          {oosKey && <ReferenceLine x={oosKey} {...REF_LINE_STYLE} label={{ value: "IS / OOS", position: "insideTopRight", fill: "rgba(255,255,255,0.40)", fontSize: 8, fontFamily: "var(--font-montserrat),sans-serif" }} />}
+          {oosKey && <ReferenceLine x={oosKey} {...REF_LINE_STYLE} label={{ value: "IS / OOS", position: "insideTopRight", fill: "rgba(255,255,255,0.40)", fontSize: 8, fontFamily: "var(--font-text),sans-serif" }} />}
         </AreaChart>
       </ResponsiveContainer>
     </div>
@@ -570,7 +570,7 @@ function DdChart({ pts, syncId, oosStart }: { pts: EP[]; syncId: string; oosStar
   const oosKey = oosStart ? oosStart.slice(0, 7) : undefined;
   return (
     <div style={{ marginTop: 0 }}>
-      <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 2, paddingLeft: Y_WIDTH + 2 }}>Drawdown</div>
+      <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-text),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 2, paddingLeft: Y_WIDTH + 2 }}>Drawdown</div>
       <ResponsiveContainer width="100%" height={72}>
         <AreaChart data={d} margin={CHART_M_X} syncId={syncId}>
           <defs><linearGradient id="ddg2" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={GOLD} stopOpacity={0.30}/><stop offset="95%" stopColor={GOLD} stopOpacity={0.02}/></linearGradient></defs>
@@ -848,7 +848,7 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
           {/* Left: candle chart */}
           <div>
-            <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 6 }}>
+            <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-text),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 6 }}>
               OHLC · {row.ticker} · {candleTf} · {isRealtime ? "5s" : "30s"} Refresh
             </div>
             <CandleChart ticker={row.ticker} timeframe={candleTf} refreshSecs={refreshSecs} />
@@ -871,11 +871,11 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
                   alignItems: "flex-start", gap: 3, minWidth: 70,
                 }}
               >
-                <span style={{ fontSize: 9, fontFamily: "var(--font-montserrat),sans-serif", fontWeight: 600, color: MUTED, letterSpacing: ".07em", textTransform: "uppercase" as const, whiteSpace: "nowrap" as const }}>
+                <span style={{ fontSize: 9, fontFamily: "var(--font-text),sans-serif", fontWeight: 600, color: MUTED, letterSpacing: ".07em", textTransform: "uppercase" as const, whiteSpace: "nowrap" as const }}>
                   Mehr
                 </span>
                 <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                  <span style={{ fontSize: 15, fontWeight: 700, fontFamily: "var(--font-montserrat),sans-serif", color: "rgba(255,255,255,0.85)", letterSpacing: "-.02em" }}>
+                  <span style={{ fontSize: 15, fontWeight: 700, fontFamily: "var(--font-text),sans-serif", color: "rgba(255,255,255,0.85)", letterSpacing: "-.02em" }}>
                     Data
                   </span>
                   <svg width={10} height={10} viewBox="0 0 10 10" fill="none" style={{ transform: showInfo ? "rotate(180deg)" : "none", transition: "transform .2s", color: MUTED }}>
@@ -894,14 +894,14 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
             {infoBoxes.map(box => (
               <div key={box.title} style={{ background: "rgba(255,255,255,0.03)", border: `1px solid ${RBORD}`, borderRadius: 10, padding: "10px 12px", display: "flex", flexDirection: "column" as const, gap: 8 }}>
-                <div style={{ fontSize: 9, fontFamily: "var(--font-montserrat),sans-serif", fontWeight: 700, color: MUTED, letterSpacing: ".09em", textTransform: "uppercase" as const, borderBottom: `1px solid ${RBORD}`, paddingBottom: 6 }}>
+                <div style={{ fontSize: 9, fontFamily: "var(--font-text),sans-serif", fontWeight: 700, color: MUTED, letterSpacing: ".09em", textTransform: "uppercase" as const, borderBottom: `1px solid ${RBORD}`, paddingBottom: 6 }}>
                   {box.title}
                 </div>
                 {box.items.map(item => {
                   const arrowColor = item.arrow === "up" ? "#6ee7b7" : item.arrow === "down" ? GOLD : "rgba(255,255,255,0.75)";
                   return (
                     <div key={item.k} style={{ display: "flex", flexDirection: "column" as const, gap: 1 }}>
-                      <span style={{ fontSize: 8, fontFamily: "var(--font-montserrat),sans-serif", color: "rgba(255,255,255,0.28)", letterSpacing: ".07em", textTransform: "uppercase" as const }}>{item.k}</span>
+                      <span style={{ fontSize: 8, fontFamily: "var(--font-text),sans-serif", color: "rgba(255,255,255,0.28)", letterSpacing: ".07em", textTransform: "uppercase" as const }}>{item.k}</span>
                       <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                         {"icon" in item && item.icon && (
                           <img src={item.icon} alt="" width={12} height={12} style={{ width: 12, height: 12, objectFit: "contain", borderRadius: 2, flexShrink: 0 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
@@ -911,7 +911,7 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
                             {item.arrow === "up" ? "▲" : "▼"}
                           </span>
                         )}
-                        <span style={{ fontSize: 11, fontFamily: "var(--font-montserrat),sans-serif", color: arrowColor, fontWeight: 600, lineHeight: 1.35 }}>
+                        <span style={{ fontSize: 11, fontFamily: "var(--font-text),sans-serif", color: arrowColor, fontWeight: 600, lineHeight: 1.35 }}>
                           {item.v}
                         </span>
                       </div>
@@ -1093,7 +1093,7 @@ export default function StrategyMasterTable() {
   let rowNum = 0;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", padding: "18px 20px 0", background: BG, fontFamily: "var(--font-montserrat),sans-serif" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", padding: "18px 20px 0", background: BG, fontFamily: "var(--font-text),sans-serif" }}>
       <style>{`.kmp::-webkit-scrollbar{display:none}.kmp{scrollbar-width:none;-ms-overflow-style:none}`}</style>
 
       {/* top bar */}
@@ -1107,7 +1107,7 @@ export default function StrategyMasterTable() {
             ] as const).map(item => (
               <button key={item.id} type="button" onClick={() => switchPortfolio(item.id)}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors [font-family:var(--font-montserrat),sans-serif]",
+                  "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors [font-family:var(--font-text),sans-serif]",
                   portfolio === item.id
                     ? "border-white/40 bg-white/[0.06] text-white"
                     : "border-transparent text-zinc-500 hover:border-white/[0.08] hover:text-zinc-300",
@@ -1124,14 +1124,14 @@ export default function StrategyMasterTable() {
       {portfolio === "ci" && (
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12, flexShrink: 0 }}>
           <span style={{
-            fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600,
+            fontFamily: "var(--font-text),sans-serif", fontSize: 10, fontWeight: 600,
             color: "#f59e0b", letterSpacing: ".04em",
             background: "rgba(245,158,11,0.10)", border: "1px solid rgba(245,158,11,0.28)",
             borderRadius: 6, padding: "2px 8px", whiteSpace: "nowrap" as const,
           }}>
             ⚠ Engine Parity partiell (Pine2-Sleeves ~15% Match)
           </span>
-          <span style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, color: MUTED }}>
+          <span style={{ fontFamily: "var(--font-text),sans-serif", fontSize: 10, color: MUTED }}>
             OOS 2019–2026 · Backtest-Werte · kein Live-Track-Record
           </span>
         </div>
@@ -1150,7 +1150,7 @@ export default function StrategyMasterTable() {
           title={liveCols ? "Live ausblenden" : "Live einblenden"}
           style={{
             display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
-            fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600,
+            fontFamily: "var(--font-text),sans-serif", fontSize: 10, fontWeight: 600,
             letterSpacing: ".06em", textTransform: "uppercase" as const,
             padding: "4px 10px", borderRadius: 8, cursor: "pointer",
             background: liveCols ? "rgba(255,255,255,0.06)" : "transparent",
@@ -1188,7 +1188,7 @@ export default function StrategyMasterTable() {
                 const avgWf = wfs.length ? (wfs.reduce((s, v) => s + v, 0) / wfs.length).toFixed(0) + "%" : null;
                 return (
                   <tr>
-                    <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 6px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, width: 26 }}>
+                    <th style={{ fontFamily: "var(--font-text),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 6px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, width: 26 }}>
                       <div style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.50)", marginBottom: 2 }}>n {totalRows}</div>
                       #
                     </th>
@@ -1206,9 +1206,9 @@ export default function StrategyMasterTable() {
                     <Th label="WF/Win%" k="wfWin"     sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={showComponentAggregates && avgWf ? `∅ ${avgWf}` : undefined} />
                     <Th label="Status"  k="status"    sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="left" agg={activeRows.length > 0 ? `n ${activeRows.length}` : undefined} />
                     {liveCols && <>
-                      <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, borderLeft: "1px solid rgba(255,255,255,0.05)" }}>Preis</th>
-                      <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG }}>Signal</th>
-                      <th style={{ fontFamily: "var(--font-montserrat),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, whiteSpace: "nowrap" as const }}>Von – Bis</th>
+                      <th style={{ fontFamily: "var(--font-text),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, borderLeft: "1px solid rgba(255,255,255,0.05)" }}>Preis</th>
+                      <th style={{ fontFamily: "var(--font-text),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG }}>Signal</th>
+                      <th style={{ fontFamily: "var(--font-text),sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", color: MUTED, padding: "0 8px 9px", textAlign: "left", borderBottom: `1px solid ${RBORD}`, background: BG, whiteSpace: "nowrap" as const }}>Von – Bis</th>
                     </>}
                   </tr>
                 );

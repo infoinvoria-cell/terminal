@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 
@@ -69,7 +69,7 @@ export default function MarketSessions() {
           <span
             className="inline-block h-[6px] w-[6px] rounded-full"
             style={{
-              background: s.open ? "#4ade80" : "rgba(255,255,255,0.18)",
+              background: s.open ? "#22C55E" : "rgba(255,255,255,0.18)",
               boxShadow: s.open ? "0 0 5px rgba(74,222,128,0.7)" : "none",
             }}
           />

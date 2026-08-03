@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useEffect, useRef } from 'react'
 import { createChart, CandlestickSeries, LineSeries, createSeriesMarkers, type UTCTimestamp, type IChartApi } from 'lightweight-charts'
 
@@ -40,7 +40,7 @@ export default function LWChart({ data, trades = [], emaFastData = [], emaSlowDa
         textColor: '#9CA3AF',
         fontSize: 10,
         attributionLogo: false,
-        fontFamily: 'var(--font-montserrat, system-ui)',
+        fontFamily: 'var(--font-text)',
       },
       grid: {
         vertLines: { color: 'rgba(255,255,255,0.03)', style: 1 },
@@ -48,8 +48,8 @@ export default function LWChart({ data, trades = [], emaFastData = [], emaSlowDa
       },
       crosshair: {
         mode: 0,
-        vertLine: { color: '#333333', width: 1, style: 3, labelBackgroundColor: '#1c1d20' },
-        horzLine: { color: '#333333', width: 1, style: 3, labelBackgroundColor: '#1c1d20' },
+        vertLine: { color: '#333333', width: 1, style: 3, labelBackgroundColor: '#1F1F1F' },
+        horzLine: { color: '#333333', width: 1, style: 3, labelBackgroundColor: '#1F1F1F' },
       },
       handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: true },
       handleScale: { mouseWheel: true, pinch: true, axisPressedMouseMove: { time: true, price: true } },
@@ -89,7 +89,7 @@ export default function LWChart({ data, trades = [], emaFastData = [], emaSlowDa
     })
 
     const emaFastSeries = chart.addSeries(LineSeries, {
-      color: '#e2ca7a', lineWidth: 1, priceLineVisible: false, lastValueVisible: false,
+      color: '#C9A84C', lineWidth: 1, priceLineVisible: false, lastValueVisible: false,
     })
     const emaSlowSeries = chart.addSeries(LineSeries, {
       color: '#555555', lineWidth: 1, priceLineVisible: false, lastValueVisible: false,

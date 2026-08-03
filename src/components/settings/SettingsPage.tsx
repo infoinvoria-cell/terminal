@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import type { SentinelStatusPayload } from "@/lib/sentinel/sentinel-session-store";
@@ -53,7 +53,7 @@ const PROVIDER_META: Record<string, { envKey: string; defaultModel: string }> = 
 
 function statusDot(usable: boolean, available: boolean, reason: string) {
   if (usable) return "#5dd39e";
-  if (reason === "key_missing" || reason === "endpoint_missing") return "#e2ca7a";
+  if (reason === "key_missing" || reason === "endpoint_missing") return "#C9A84C";
   return "#ff7b86";
 }
 
@@ -112,7 +112,7 @@ function ProviderCard({
 function CommitRow({ c }: { c: CommitEntry }) {
   const isFeature = c.message.startsWith("feat:");
   const isFix = c.message.startsWith("fix:");
-  const tagColor = isFeature ? "#5dd39e" : isFix ? "#e2ca7a" : "rgba(255,255,255,0.25)";
+  const tagColor = isFeature ? "#5dd39e" : isFix ? "#C9A84C" : "rgba(255,255,255,0.25)";
   const tag = isFeature ? "feat" : isFix ? "fix" : "chg";
   const body = c.message.replace(/^(feat|fix|chore|refactor|docs|style|test|perf|ci|build|revert):\s*/i, "");
   return (
@@ -271,7 +271,7 @@ export function SettingsPage() {
           color: #f5f5f7;
           letter-spacing: -0.02em;
           margin: 0;
-          font-family: var(--font-montserrat, sans-serif);
+          font-family: var(--font-text);
         }
         .st-page-sub {
           font-size: 11px;
@@ -279,7 +279,7 @@ export function SettingsPage() {
           margin: 4px 0 0;
           letter-spacing: 0.05em;
           text-transform: uppercase;
-          font-family: var(--font-montserrat, sans-serif);
+          font-family: var(--font-text);
         }
         .st-content {
           padding: 32px 40px 60px;
@@ -298,7 +298,7 @@ export function SettingsPage() {
           color: rgba(214,184,108,0.75);
           padding-bottom: 8px;
           border-bottom: 1px solid rgba(214,184,108,0.12);
-          font-family: var(--font-montserrat, sans-serif);
+          font-family: var(--font-text);
         }
         .st-desc { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.6; margin: 0; }
         .st-loading { font-size: 12px; color: rgba(255,255,255,0.25); }
@@ -392,7 +392,7 @@ export function SettingsPage() {
         .st-code {
           font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
           font-size: 11px;
-          color: #e2ca7a;
+          color: #C9A84C;
           background: rgba(226,202,122,0.08);
           border: 1px solid rgba(226,202,122,0.12);
           border-radius: 4px;
@@ -407,7 +407,7 @@ export function SettingsPage() {
           border-radius: 999px;
           letter-spacing: 0.03em;
         }
-        .st-chip-gold { background: rgba(214,184,108,0.12); color: #e2ca7a; border: 1px solid rgba(214,184,108,0.25); }
+        .st-chip-gold { background: rgba(214,184,108,0.12); color: #C9A84C; border: 1px solid rgba(214,184,108,0.25); }
         .st-chip-dim  { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.1); }
       `}</style>
     </>

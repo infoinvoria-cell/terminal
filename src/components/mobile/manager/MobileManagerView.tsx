@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 
@@ -14,21 +14,21 @@ type Investor = {
 
 const STATUS_STYLE: Record<string, string> = {
   "Neu": "#a1a1aa",
-  "Kontaktiert": "#60a5fa",
+  "Kontaktiert": "#9CA3AF",
   "Early Access gesendet": "#818cf8",
   "Interesse bestätigt": "#22d3ee",
   "Gespräch geplant": "#c084fc",
   "Warm Commitment": "#fbbf24",
   "Unterlagen ausstehend": "#fb923c",
-  "Bereit für Onboarding": "#4ade80",
+  "Bereit für Onboarding": "#22C55E",
   "Später kontaktieren": "#71717a",
-  "Abgesagt": "#f87171",
+  "Abgesagt": "#EF4444",
 };
 
 const PRIORITY_STATUSES = new Set(["Warm Commitment", "Bereit für Onboarding"]);
 
 const PAGE_BG = "#0c0d10";
-const CARD_BG = "#1c1d20";
+const CARD_BG = "#1F1F1F";
 const BORDER = "1px solid rgba(255,255,255,0.06)";
 const MUTED = "rgba(255,255,255,0.38)";
 
@@ -79,7 +79,7 @@ export function MobileManagerView() {
         minHeight: "100%",
         paddingBottom: 32,
         background: PAGE_BG,
-        fontFamily: "var(--font-montserrat, sans-serif)",
+        fontFamily: "var(--font-text)",
         color: "white",
       }}
     >
@@ -120,7 +120,7 @@ export function MobileManagerView() {
         {error && (
           <div
             style={{
-              color: "#f87171",
+              color: "#EF4444",
               fontSize: 13,
               background: "rgba(248,113,113,0.08)",
               border: "1px solid rgba(248,113,113,0.2)",
@@ -146,7 +146,7 @@ export function MobileManagerView() {
               {[
                 { label: "Investoren", value: total, color: "white" },
                 { label: "Pipeline", value: pipeline, color: "#fbbf24" },
-                { label: "Abgesagt", value: abgesagt, color: "#f87171" },
+                { label: "Abgesagt", value: abgesagt, color: "#EF4444" },
               ].map((chip) => (
                 <div
                   key={chip.label}

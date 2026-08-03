@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 
@@ -51,7 +51,7 @@ export function AumKpiCard({ value }: { value: string }) {
         minHeight: 132,
         borderRadius: 20,
         border: "1px solid rgba(255,255,255,0.06)",
-        background: "linear-gradient(180deg,#1c1d20 0%,#141517 100%)",
+        background: "linear-gradient(180deg,#1F1F1F 0%,#13131A 100%)",
         boxShadow: "0 20px 40px -16px rgba(0,0,0,0.55)",
         padding: "20px 20px 24px",
       }}
@@ -63,7 +63,7 @@ export function AumKpiCard({ value }: { value: string }) {
             fontWeight: 500,
             lineHeight: 1.3,
             color: "var(--dash-muted, #6b6b6b)",
-            fontFamily: "var(--font-montserrat,sans-serif)",
+            fontFamily: "var(--font-text)",
             margin: 0,
           }}
         >
@@ -96,7 +96,7 @@ export function AumKpiCard({ value }: { value: string }) {
           lineHeight: 1,
           letterSpacing: "-0.02em",
           color: "#ffffff",
-          fontFamily: "var(--font-nunito,sans-serif)",
+          fontFamily: "var(--font-numbers)",
           margin: 0,
           transition: "opacity 0.2s",
           opacity: mounted && !visible ? 0.35 : 1,

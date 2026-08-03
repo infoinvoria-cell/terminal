@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { SCENARIOS } from "@/lib/globe/scenarios";
@@ -46,7 +46,7 @@ export default function ScenarioStress({ prices, onHighlight, onOpenChart, onClo
     >
       <div className="flex items-center gap-1.5 px-2.5 py-2" style={{ borderBottom: "1px solid rgba(212,175,55,0.2)" }}>
         <span className="text-[11px]">⚗️</span>
-        <span className="text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: "#D4AF37" }}>Scenario Stress</span>
+        <span className="text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: "#C9A84C" }}>Scenario Stress</span>
         <button type="button" onClick={onClose} className="ml-auto text-[13px] leading-none text-white/40 transition hover:text-white/80" aria-label="Close">×</button>
       </div>
 
@@ -60,7 +60,7 @@ export default function ScenarioStress({ prices, onHighlight, onOpenChart, onClo
             className="rounded-[6px] px-1.5 py-[3px] text-[8.5px] font-semibold transition"
             style={{
               background: s.id === selectedId ? "rgba(212,175,55,0.18)" : "rgba(255,255,255,0.05)",
-              color: s.id === selectedId ? "#D4AF37" : "rgba(255,255,255,0.5)",
+              color: s.id === selectedId ? "#C9A84C" : "rgba(255,255,255,0.5)",
             }}
             title={s.description}
           >
@@ -83,14 +83,14 @@ export default function ScenarioStress({ prices, onHighlight, onOpenChart, onClo
               title={`Open chart · ${r.ticker}`}
             >
               <span className="w-12 shrink-0 text-[10px] font-semibold text-white/85">{r.ticker}</span>
-              <span className="shrink-0 text-[10px] font-bold tabular-nums" style={{ color: up ? "#4ade80" : "#f87171" }}>
+              <span className="shrink-0 text-[10px] font-bold tabular-nums" style={{ color: up ? "#22C55E" : "#EF4444" }}>
                 {up ? "+" : ""}{r.pct}%
               </span>
               <span className="ml-auto shrink-0 text-[9px] tabular-nums text-white/45">
                 {r.price > 0 ? (
                   <>
                     {fmtPrice(r.price)} <span className="text-white/25">→</span>{" "}
-                    <span style={{ color: up ? "#4ade80" : "#f87171" }}>{fmtPrice(r.projected)}</span>
+                    <span style={{ color: up ? "#22C55E" : "#EF4444" }}>{fmtPrice(r.projected)}</span>
                   </>
                 ) : "—"}
               </span>

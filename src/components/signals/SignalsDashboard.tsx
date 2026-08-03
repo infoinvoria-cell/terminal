@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { useInterval } from "@/hooks/useInterval";
@@ -52,11 +52,11 @@ function pnlColor(v: number | null | undefined) {
 
 function KpiCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="flex min-h-[90px] flex-col justify-between rounded-[16px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] px-4 pb-4 pt-3 shadow-[0_12px_28px_-10px_rgba(0,0,0,0.4)]">
-      <p className="text-[12px] font-medium text-[#6b7280] [font-family:var(--font-montserrat),sans-serif]">
+    <div className="flex min-h-[90px] flex-col justify-between rounded-[16px] border border-white/[0.06] bg-gradient-to-b from-[#1F1F1F] to-[#13131A] px-4 pb-4 pt-3 shadow-[0_12px_28px_-10px_rgba(0,0,0,0.4)]">
+      <p className="text-[12px] font-medium text-[#6b7280] [font-family:var(--font-text),sans-serif]">
         {label}
       </p>
-      <p className="text-[28px] font-bold leading-none text-white [font-family:var(--font-nunito),sans-serif]">
+      <p className="text-[28px] font-bold leading-none text-white [font-family:var(--font-numbers),sans-serif]">
         {value}
       </p>
     </div>
@@ -67,7 +67,7 @@ function KpiCard({ label, value }: { label: string; value: string | number }) {
 
 function Th({ children }: { children: React.ReactNode }) {
   return (
-    <th className="border-b border-white/[0.06] px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-[#555] [font-family:var(--font-montserrat),sans-serif]">
+    <th className="border-b border-white/[0.06] px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-[#555] [font-family:var(--font-text),sans-serif]">
       {children}
     </th>
   );
@@ -75,7 +75,7 @@ function Th({ children }: { children: React.ReactNode }) {
 
 function Td({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <td className={`border-b border-white/[0.04] px-3 py-2.5 text-[12px] text-[#c8cad0] [font-family:var(--font-montserrat),sans-serif] ${className}`}>
+    <td className={`border-b border-white/[0.04] px-3 py-2.5 text-[12px] text-[#c8cad0] [font-family:var(--font-text),sans-serif] ${className}`}>
       {children}
     </td>
   );
@@ -83,7 +83,7 @@ function Td({ children, className = "" }: { children: React.ReactNode; className
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mb-3 text-[13px] font-semibold text-[#c8cad0] [font-family:var(--font-montserrat),sans-serif]">
+    <p className="mb-3 text-[13px] font-semibold text-[#c8cad0] [font-family:var(--font-text),sans-serif]">
       {children}
     </p>
   );
@@ -127,7 +127,7 @@ export function SignalsDashboard() {
       </div>
 
       {/* Refresh status */}
-      <div className="mb-5 flex items-center gap-2 text-[11px] text-[#555] [font-family:var(--font-montserrat),sans-serif]">
+      <div className="mb-5 flex items-center gap-2 text-[11px] text-[#555] [font-family:var(--font-text),sans-serif]">
         {loading && <span className="h-3 w-3 animate-spin rounded-full border border-[#555] border-t-transparent" />}
         {lastRefresh && <span>Aktualisiert: {lastRefresh.toLocaleTimeString("de-DE")}</span>}
         {data && !data.available && (

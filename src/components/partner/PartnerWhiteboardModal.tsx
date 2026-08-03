@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { X } from "lucide-react";
 import { PARTNER_PROGRAM_CONFIG } from "@/lib/partner/partnerProgramConfig";
@@ -10,13 +10,13 @@ const CFG = PARTNER_PROGRAM_CONFIG;
 const TC = {
   bronze: { fill: "#451a03", stroke: "#b45309", text: "#fbbf24" },
   silver: { fill: "#27272a", stroke: "#71717a", text: "#d4d4d8" },
-  gold:   { fill: "#422006", stroke: "#c99e3e", text: "#e2ca7a" },
+  gold:   { fill: "#422006", stroke: "#c99e3e", text: "#C9A84C" },
   platin: { fill: "#0c2340", stroke: "#3b82f6", text: "#93c5fd" },
   black:  { fill: "#09090b", stroke: "#d4d4d8", text: "#f4f4f5" },
 } as const;
 
 const FONT_MONO = "'Geist Mono', 'JetBrains Mono', 'Fira Mono', monospace";
-const GOLD = "#e2ca7a";
+const GOLD = "#C9A84C";
 const DIM  = "rgba(230,235,245,0.35)";
 
 function fmt(n: number): string {
@@ -331,7 +331,7 @@ export function PartnerWhiteboardModal({ onClose }: { onClose: () => void }) {
       >
         <div>
           <div style={{
-            color: "#e2ca7a", fontSize: 9.5, fontWeight: 700,
+            color: "#C9A84C", fontSize: 9.5, fontWeight: 700,
             letterSpacing: "0.14em", textTransform: "uppercase",
             fontFamily: FONT_MONO,
           }}>

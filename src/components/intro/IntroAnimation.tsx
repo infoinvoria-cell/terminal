@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
@@ -248,7 +248,7 @@ export default function IntroAnimation({
             ref={progressRef}
             className="h-full w-full origin-left opacity-0"
             style={{
-              background: "linear-gradient(90deg, #c9a227 0%, #e2ca7a 100%)",
+              background: "linear-gradient(90deg, #c9a227 0%, #C9A84C 100%)",
               transform: "scaleX(0)",
               willChange: "transform, opacity",
             }}

@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 import { useEffect, useState } from "react";
 
-const GOLD = "#e2ca7a";
-const CARD_BG = "#1c1d20";
+const GOLD = "#C9A84C";
+const CARD_BG = "#1F1F1F";
 const CARD_BORDER = "rgba(255,255,255,0.06)";
 const PREF_KEY = "fmd_settings_preferred_provider";
 
@@ -11,7 +11,7 @@ type SentinelStatus = { activeProvider: string | null; providers: ProviderStatus
 type AppInfo = { version: string; branch: string; nextVersion: string; nodeVersion: string; commits: { hash: string; message: string; date: string }[] };
 
 function ProviderCard({ p, isActive, isPreferred, onSet }: { p: ProviderStatus; isActive: boolean; isPreferred: boolean; onSet: (id: string) => void }) {
-  const statusColor = p.usable ? "#4ade80" : p.configured ? GOLD : "rgba(255,255,255,0.2)";
+  const statusColor = p.usable ? "#22C55E" : p.configured ? GOLD : "rgba(255,255,255,0.2)";
   return (
     <div onClick={() => p.usable && onSet(p.id)} style={{
       background: CARD_BG, border: `1px solid ${isActive ? GOLD + "60" : isPreferred ? GOLD + "30" : CARD_BORDER}`,
@@ -59,7 +59,7 @@ export function MobileSettingsView() {
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
       <header style={{ position: "sticky", top: 0, zIndex: 20, padding: "16px 16px 12px", background: "linear-gradient(#0c0d10 68%, rgba(12,13,16,0))" }}>
-        <h1 style={{ margin: 0, fontSize: 19, fontWeight: 700, color: "#fafafa", fontFamily: "var(--font-montserrat), sans-serif" }}>Einstellungen</h1>
+        <h1 style={{ margin: 0, fontSize: 19, fontWeight: 700, color: "#fafafa", fontFamily: "var(--font-text), sans-serif" }}>Einstellungen</h1>
         <p style={{ margin: "2px 0 0", fontSize: 11, color: "rgba(255,255,255,0.42)", fontWeight: 600 }}>Provider & Präferenzen</p>
       </header>
 

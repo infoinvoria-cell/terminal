@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import { X, ZoomIn, ZoomOut, Maximize, RotateCcw } from "lucide-react";
@@ -125,8 +125,8 @@ const SECTIONS: WbSection[] = [
     id: "kapital",
     title: "3 — Kapitalprozess",
     y: 1080,
-    color: "#4ade80",
-    nodes: makeNodes(1160, "#4ade80", [
+    color: "#22C55E",
+    nodes: makeNodes(1160, "#22C55E", [
       {
         title: "Vertragsunterzeichnung",
         bullets: ["Finalvertrag unterzeichnen", "Notarielle Beglaubigung (opt.)", "Exemplar für Investor"],
@@ -153,8 +153,8 @@ const SECTIONS: WbSection[] = [
     id: "verguetung",
     title: "4 — Vergütung",
     y: 1600,
-    color: "#e2ca7a",
-    nodes: makeNodes(1680, "#e2ca7a", [
+    color: "#C9A84C",
+    nodes: makeNodes(1680, "#C9A84C", [
       {
         title: "AP (Abschlussprovision)",
         bullets: ["Bei Aktivierung fällig", "0,5 % / 1,0 % / 1,5 %", "Bindungsdauer abhängig"],
@@ -265,13 +265,13 @@ function NodeCard({ node, onClick, isSelected }: {
         top: node.y,
         width: node.w,
         height: node.h,
-        background: "linear-gradient(180deg, #1c1d20 0%, #141517 100%)",
-        border: `1.5px solid ${isSelected ? (node.color ?? "#e2ca7a") : "rgba(255,255,255,0.08)"}`,
+        background: "linear-gradient(180deg, #1F1F1F 0%, #13131A 100%)",
+        border: `1.5px solid ${isSelected ? (node.color ?? "#C9A84C") : "rgba(255,255,255,0.08)"}`,
         borderRadius: 14,
         padding: "16px 18px 12px",
         cursor: "pointer",
         boxShadow: isSelected
-          ? `0 0 0 2px ${node.color ?? "#e2ca7a"}40, 0 8px 32px rgba(0,0,0,0.6)`
+          ? `0 0 0 2px ${node.color ?? "#C9A84C"}40, 0 8px 32px rgba(0,0,0,0.6)`
           : "0 4px 20px rgba(0,0,0,0.4)",
         transition: "border-color 0.15s, box-shadow 0.15s",
         overflow: "hidden",
@@ -286,7 +286,7 @@ function NodeCard({ node, onClick, isSelected }: {
         top: 0, left: 0, right: 0,
         height: 3,
         borderRadius: "14px 14px 0 0",
-        background: node.color ?? "#e2ca7a",
+        background: node.color ?? "#C9A84C",
         opacity: 0.7,
       }} />
 
@@ -315,9 +315,9 @@ function NodeCard({ node, onClick, isSelected }: {
         {node.keywords.map((kw) => (
           <span key={kw} style={{
             fontSize: 9,
-            color: node.color ?? "#e2ca7a",
-            background: `${node.color ?? "#e2ca7a"}18`,
-            border: `1px solid ${node.color ?? "#e2ca7a"}35`,
+            color: node.color ?? "#C9A84C",
+            background: `${node.color ?? "#C9A84C"}18`,
+            border: `1px solid ${node.color ?? "#C9A84C"}35`,
             borderRadius: 5,
             padding: "1px 6px",
           }}>
@@ -376,8 +376,8 @@ function DetailPopover({ node, onClose }: { node: WbNode; onClose: () => void })
         left: node.x,
         top: node.y + node.h + 10,
         width: node.w,
-        background: "#1c1d20",
-        border: `1.5px solid ${node.color ?? "#e2ca7a"}55`,
+        background: "#1F1F1F",
+        border: `1.5px solid ${node.color ?? "#C9A84C"}55`,
         borderRadius: 10,
         padding: "12px 14px",
         zIndex: 10,
@@ -386,7 +386,7 @@ function DetailPopover({ node, onClose }: { node: WbNode; onClose: () => void })
       onClick={(e) => e.stopPropagation()}
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: node.color ?? "#e2ca7a" }}>Detail</div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: node.color ?? "#C9A84C" }}>Detail</div>
         <button
           onClick={onClose}
           style={{ background: "none", border: "none", color: "#71717a", cursor: "pointer", padding: 0 }}

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -155,7 +155,7 @@ export function SupabaseAuthGate({ children }: { children: React.ReactNode }) {
           autoComplete="current-password"
           placeholder="••••••••"
           style={{
-            background: "#1c1d20",
+            background: "#1F1F1F",
             border: "1px solid rgba(255,255,255,0.10)",
             borderRadius: 12,
             color: "#fff",
@@ -170,7 +170,7 @@ export function SupabaseAuthGate({ children }: { children: React.ReactNode }) {
           type="submit"
           disabled={locked || loading || !password.trim()}
           style={{
-            background: locked ? "rgba(226,202,122,0.25)" : "#e2ca7a",
+            background: locked ? "rgba(226,202,122,0.25)" : "#C9A84C",
             border: "none",
             borderRadius: 12,
             width: 44,

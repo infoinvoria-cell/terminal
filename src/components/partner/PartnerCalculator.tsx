@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
@@ -18,13 +18,13 @@ import { CheckCircle2, AlertCircle, RotateCcw } from "lucide-react";
 // ── Design tokens ─────────────────────────────────────────────────────────────
 
 const CARD =
-  "rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]";
+  "rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1F1F1F] to-[#13131A] shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]";
 
 const SECTION_LABEL =
   "text-[10px] font-semibold text-zinc-400 uppercase tracking-[0.08em] mb-3";
 
 const INPUT_CLASS =
-  "w-full bg-white/[0.04] border border-white/[0.10] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#e2ca7a]/40 tabular-nums";
+  "w-full bg-white/[0.04] border border-white/[0.10] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#C9A84C]/40 tabular-nums";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -66,7 +66,7 @@ function ToggleBtn({
       className={cn(
         "flex-1 py-1.5 rounded-lg text-[11px] font-semibold border transition-colors",
         active
-          ? "border-[#e2ca7a]/40 bg-[#e2ca7a]/10 text-[#e2ca7a]"
+          ? "border-[#C9A84C]/40 bg-[#C9A84C]/10 text-[#C9A84C]"
           : "border-white/[0.08] bg-white/[0.02] text-zinc-400 hover:text-zinc-200",
       )}
     >
@@ -88,13 +88,13 @@ function SummaryRow({
       indent && "pl-3",
     )}>
       <span className={cn(
-        muted ? "text-zinc-600" : highlight ? "text-[#e2ca7a]" : "text-zinc-400",
+        muted ? "text-zinc-600" : highlight ? "text-[#C9A84C]" : "text-zinc-400",
       )}>
         {label}
       </span>
       <span className={cn(
         "font-semibold tabular-nums",
-        muted ? "text-zinc-600" : highlight ? "text-[#e2ca7a]" : "text-zinc-200",
+        muted ? "text-zinc-600" : highlight ? "text-[#C9A84C]" : "text-zinc-200",
       )}>
         {value}
       </span>
@@ -200,7 +200,7 @@ export function PartnerCalculator() {
             className={cn(
               "flex-1 py-1 rounded-lg text-[10px] font-semibold border transition-colors",
               investmentEur === p.value
-                ? "border-[#e2ca7a]/40 bg-[#e2ca7a]/10 text-[#e2ca7a]"
+                ? "border-[#C9A84C]/40 bg-[#C9A84C]/10 text-[#C9A84C]"
                 : "border-white/[0.08] bg-white/[0.02] text-zinc-500 hover:text-zinc-300",
             )}
           >
@@ -279,7 +279,7 @@ export function PartnerCalculator() {
                 onClick={() => setIsFounder(!isFounder)}
                 className={cn(
                   "w-8 h-4 rounded-full transition-colors relative flex-shrink-0",
-                  isFounder ? "bg-[#e2ca7a]/60" : "bg-white/10",
+                  isFounder ? "bg-[#C9A84C]/60" : "bg-white/10",
                 )}
               >
                 <span
@@ -326,7 +326,7 @@ export function PartnerCalculator() {
                 </div>
                 <div>
                   <label className="text-[10px] text-zinc-500 mb-1 block">Entspricht</label>
-                  <div className="py-2 px-3 rounded-lg bg-white/[0.03] border border-white/[0.06] text-[#e2ca7a] font-semibold text-sm tabular-nums">
+                  <div className="py-2 px-3 rounded-lg bg-white/[0.03] border border-white/[0.06] text-[#C9A84C] font-semibold text-sm tabular-nums">
                     {formatEur(profitEur)}
                   </div>
                 </div>
@@ -342,9 +342,9 @@ export function PartnerCalculator() {
                 <div className="text-zinc-600 mb-0.5">InnoInvest</div>
                 <div className="text-zinc-400 font-semibold tabular-nums">{formatEur(pf.innoInvestShare)}</div>
               </div>
-              <div className="rounded-lg bg-[#e2ca7a]/[0.06] border border-[#e2ca7a]/20 px-2.5 py-2">
-                <div className="text-[#e2ca7a]/70 mb-0.5">Partner ({formatPct(TIERS.find(t => t.id === activeTierId)!.clShareRate)})</div>
-                <div className="text-[#e2ca7a] font-bold tabular-nums">{formatEur(pf.partnerShare)}</div>
+              <div className="rounded-lg bg-[#C9A84C]/[0.06] border border-[#C9A84C]/20 px-2.5 py-2">
+                <div className="text-[#C9A84C]/70 mb-0.5">Partner ({formatPct(TIERS.find(t => t.id === activeTierId)!.clShareRate)})</div>
+                <div className="text-[#C9A84C] font-bold tabular-nums">{formatEur(pf.partnerShare)}</div>
               </div>
               <div className="rounded-lg bg-white/[0.02] border border-white/[0.05] px-2.5 py-2">
                 <div className="text-zinc-600 mb-0.5">CL Rest</div>
@@ -384,7 +384,7 @@ export function PartnerCalculator() {
                     onClick={() => setMfPartnerEnabled(!mfPartnerEnabled)}
                     className={cn(
                       "w-7 h-3.5 rounded-full transition-colors relative flex-shrink-0",
-                      mfPartnerEnabled ? "bg-[#e2ca7a]/60" : "bg-white/10",
+                      mfPartnerEnabled ? "bg-[#C9A84C]/60" : "bg-white/10",
                     )}
                   >
                     <span
@@ -423,13 +423,13 @@ export function PartnerCalculator() {
               <div className={cn(
                 "rounded-lg px-2.5 py-2",
                 mf.partnerShareEur > 0
-                  ? "bg-[#e2ca7a]/[0.06] border border-[#e2ca7a]/20"
+                  ? "bg-[#C9A84C]/[0.06] border border-[#C9A84C]/20"
                   : "bg-white/[0.02] border border-white/[0.05]",
               )}>
                 <div className="text-zinc-600 mb-0.5">Partner MF</div>
                 <div className={cn(
                   "font-semibold tabular-nums",
-                  mf.partnerShareEur > 0 ? "text-[#e2ca7a]" : "text-zinc-600",
+                  mf.partnerShareEur > 0 ? "text-[#C9A84C]" : "text-zinc-600",
                 )}>
                   {formatEur(mf.partnerShareEur)}
                 </div>
@@ -444,7 +444,7 @@ export function PartnerCalculator() {
               <div className="text-[11px] text-zinc-400">
                 {formatPct(ap.rate)} von {formatEur(investmentEur)} ({ap.lockupYears} Jahr{ap.lockupYears > 1 ? "e" : ""} Bindung)
               </div>
-              <div className="text-[#e2ca7a] font-bold text-[15px] tabular-nums">
+              <div className="text-[#C9A84C] font-bold text-[15px] tabular-nums">
                 {formatEur(ap.apAmount)}
               </div>
             </div>
@@ -479,9 +479,9 @@ export function PartnerCalculator() {
           <SummaryDivider />
 
           <div className="text-[9px] font-semibold text-zinc-600 uppercase tracking-wider mb-1">Gesamtertrag</div>
-          <div className="rounded-lg border border-[#e2ca7a]/30 bg-[#e2ca7a]/[0.08] px-3 py-2 mb-1">
-            <div className="text-[9px] text-[#e2ca7a]/70 uppercase tracking-wider mb-0.5">Vermittler gesamt</div>
-            <div className="text-[#e2ca7a] font-bold text-[14px] tabular-nums">
+          <div className="rounded-lg border border-[#C9A84C]/30 bg-[#C9A84C]/[0.08] px-3 py-2 mb-1">
+            <div className="text-[9px] text-[#C9A84C]/70 uppercase tracking-wider mb-0.5">Vermittler gesamt</div>
+            <div className="text-[#C9A84C] font-bold text-[14px] tabular-nums">
               {formatEur(gt.partnerTotal)}
             </div>
           </div>

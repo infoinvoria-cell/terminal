@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { REGION_LABELS } from "@/lib/globe/eventImpactMap";
@@ -53,7 +53,7 @@ export default function AlertsPanel({ rules, assetOptions, changes, triggeredIds
     >
       <div className="flex items-center gap-1.5 px-2.5 py-2" style={{ borderBottom: "1px solid rgba(248,113,113,0.2)" }}>
         <span className="text-[11px]">🔔</span>
-        <span className="text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: "#f87171" }}>Alerts</span>
+        <span className="text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: "#EF4444" }}>Alerts</span>
         <button type="button" onClick={onClose} className="ml-auto text-[13px] leading-none text-white/40 transition hover:text-white/80" aria-label="Close">×</button>
       </div>
 
@@ -101,7 +101,7 @@ export default function AlertsPanel({ rules, assetOptions, changes, triggeredIds
             type="button"
             onClick={add}
             className="shrink-0 rounded px-2.5 py-1 text-[10px] font-semibold transition hover:brightness-110"
-            style={{ background: "rgba(248,113,113,0.2)", color: "#f87171" }}
+            style={{ background: "rgba(248,113,113,0.2)", color: "#EF4444" }}
           >
             + Alert
           </button>

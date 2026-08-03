@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
@@ -182,7 +182,7 @@ export default function LiveSignalCard({ card, onSelect, colors = DEFAULT_COLORS
         .lsc-grid > div { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; }
         .lsc-grid span { color: #828b98; }
         .lsc-grid b { color: #e2e8f1; font-weight: 600; font-variant-numeric: tabular-nums; }
-        .lsc-grid b.pos { color: #4ade80; }
+        .lsc-grid b.pos { color: #22C55E; }
         .lsc-grid b.neg { color: #ff5d9e; }
         .lsc-missing { margin-top: 8px; font-size: 11px; color: #d9b066; }
         .lsc-src { margin-top: 8px; font-size: 10px; color: #5b636e; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

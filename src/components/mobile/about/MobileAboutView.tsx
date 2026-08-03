@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { AboutModeTabs } from "@/components/about/AboutModeTabs";
 import {
@@ -12,20 +12,20 @@ import {
   ABOUT_WS_SLEEVES, ABOUT_CI_ALLOC, ABOUT_CORRELATION,
 } from "@/lib/about/about-data";
 
-const SHADES = ["#e2ca7a", "rgba(226,202,122,0.62)", "rgba(226,202,122,0.38)", "rgba(255,255,255,0.18)", "rgba(255,255,255,0.10)"];
+const SHADES = ["#C9A84C", "rgba(226,202,122,0.62)", "rgba(226,202,122,0.38)", "rgba(255,255,255,0.18)", "rgba(255,255,255,0.10)"];
 const ALLOC: Record<string, { label: string; pct: number }[]> = {
   ws: ABOUT_WS_SLEEVES.map((s) => ({ label: s.label, pct: s.pct })),
   ci: [...ABOUT_CI_ALLOC],
 };
 
 const BG = "#0c0d10";
-const CARD = "linear-gradient(180deg,#1c1d20 0%,#141517 100%)";
+const CARD = "linear-gradient(180deg,#1F1F1F 0%,#13131A 100%)";
 const BORDER = "rgba(255,255,255,0.07)";
 const SHADOW = "0 8px 24px -8px rgba(0,0,0,0.6)";
 const MUTED = "rgba(255,255,255,0.38)";
-const ACCENT = "var(--dash-accent, #e2ca7a)";
-const M = "var(--font-montserrat,sans-serif)";
-const N = "var(--font-nunito,sans-serif)";
+const ACCENT = "var(--dash-accent, #C9A84C)";
+const M = "var(--font-text)";
+const N = "var(--font-numbers)";
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   Layers: <Layers size={11} />,
@@ -72,7 +72,7 @@ export function MobileAboutView() {
             <span style={{
               flexShrink: 0, borderRadius: 20, border: `1px solid ${s.badgeColor === "gold" ? "rgba(226,202,122,0.3)" : "rgba(96,165,250,0.3)"}`,
               background: s.badgeColor === "gold" ? "rgba(226,202,122,0.1)" : "rgba(96,165,250,0.1)",
-              color: s.badgeColor === "gold" ? ACCENT : "#60a5fa",
+              color: s.badgeColor === "gold" ? ACCENT : "#9CA3AF",
               fontSize: 9, fontWeight: 600, padding: "3px 8px", fontFamily: M,
             }}>
               {s.badge}
@@ -134,7 +134,7 @@ export function MobileAboutView() {
                     {r.tag && <span style={{ marginLeft: 4, fontSize: 8, fontWeight: 600, background: r.accent ? "rgba(226,202,122,0.15)" : "rgba(255,255,255,0.06)", color: r.accent ? ACCENT : MUTED, padding: "1px 4px", borderRadius: 3 }}>{r.tag}</span>}
                   </td>
                   <td style={{ padding: "5px 8px", fontSize: 11, fontWeight: 600, color: ACCENT, fontFamily: N }}>{r.cagr}</td>
-                  <td style={{ padding: "5px 8px", fontSize: 11, fontWeight: 600, color: "#f87171", fontFamily: N }}>{r.dd}</td>
+                  <td style={{ padding: "5px 8px", fontSize: 11, fontWeight: 600, color: "#EF4444", fontFamily: N }}>{r.dd}</td>
                   <td style={{ padding: "5px 8px", fontSize: 11, color: "#fff", fontFamily: N }}>{r.sharpe}</td>
                   <td style={{ padding: "5px 8px", fontSize: 11, color: "#fff", fontFamily: N }}>{r.calmar}</td>
                   <td style={{ padding: "5px 8px", fontSize: 10, color: MUTED, fontFamily: M, whiteSpace: "nowrap" }}>{r.corrSpy}</td>

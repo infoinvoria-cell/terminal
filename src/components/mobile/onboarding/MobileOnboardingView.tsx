@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { MessageSquare, Send, X, ChevronRight, Trash2 } from "lucide-react";
@@ -22,7 +22,7 @@ type Investor = {
   created_at: string;
 };
 
-const T = "var(--font-montserrat,sans-serif)";
+const T = "var(--font-text)";
 
 // ── Dropdown options — identical to desktop ───────────────────────────────────
 
@@ -114,15 +114,15 @@ function estimateCapital(rows: Investor[]): string {
 
 const STATUS_STYLE: Record<string, { bg: string; color: string; border: string }> = {
   "Neu":                    { bg: "rgba(113,113,122,0.18)", color: "#a1a1aa", border: "rgba(113,113,122,0.35)" },
-  "Kontaktiert":            { bg: "rgba(59,130,246,0.18)",  color: "#60a5fa", border: "rgba(59,130,246,0.35)" },
+  "Kontaktiert":            { bg: "rgba(59,130,246,0.18)",  color: "#9CA3AF", border: "rgba(59,130,246,0.35)" },
   "Early Access gesendet":  { bg: "rgba(99,102,241,0.18)",  color: "#818cf8", border: "rgba(99,102,241,0.35)" },
   "Interesse bestätigt":    { bg: "rgba(6,182,212,0.18)",   color: "#22d3ee", border: "rgba(6,182,212,0.35)" },
   "Gespräch geplant":       { bg: "rgba(168,85,247,0.18)",  color: "#c084fc", border: "rgba(168,85,247,0.35)" },
   "Warm Commitment":        { bg: "rgba(245,158,11,0.18)",  color: "#fbbf24", border: "rgba(245,158,11,0.35)" },
   "Unterlagen ausstehend":  { bg: "rgba(249,115,22,0.18)",  color: "#fb923c", border: "rgba(249,115,22,0.35)" },
-  "Bereit für Onboarding":  { bg: "rgba(34,197,94,0.18)",   color: "#4ade80", border: "rgba(34,197,94,0.35)" },
+  "Bereit für Onboarding":  { bg: "rgba(34,197,94,0.18)",   color: "#22C55E", border: "rgba(34,197,94,0.35)" },
   "Später kontaktieren":    { bg: "rgba(63,63,70,0.35)",    color: "#71717a", border: "rgba(63,63,70,0.55)" },
-  "Abgesagt":               { bg: "rgba(239,68,68,0.18)",   color: "#f87171", border: "rgba(239,68,68,0.35)" },
+  "Abgesagt":               { bg: "rgba(239,68,68,0.18)",   color: "#EF4444", border: "rgba(239,68,68,0.35)" },
 };
 
 // ── Inline cell ───────────────────────────────────────────────────────────────
@@ -328,7 +328,7 @@ function SentinelSheet({ onClose, onCreated }: { onClose: () => void; onCreated:
               </div>
             </div>
           ))}
-          {err && <div style={{ color: "#f87171", fontSize: 12, textAlign: "center", fontFamily: T }}>{err}</div>}
+          {err && <div style={{ color: "#EF4444", fontSize: 12, textAlign: "center", fontFamily: T }}>{err}</div>}
           <div ref={bottomRef} />
         </div>
 

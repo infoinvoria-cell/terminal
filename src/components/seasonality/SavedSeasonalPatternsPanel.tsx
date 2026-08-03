@@ -1,11 +1,11 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useState } from "react";
 
 import type { SavedSeasonalPattern, WFResearchGateStatus } from "@/lib/seasonality/walkForward/types";
 
 const C_WHITE = "#ffffff";
-const C_GOLD = "#dcc476";
+const C_GOLD = "#C9A84C";
 const C_MUTED = "#5a5a5a";
 
 interface Props {

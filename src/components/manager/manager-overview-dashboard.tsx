@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   Bar,
@@ -18,15 +18,15 @@ import { useHomeDashboard } from "@/context/home-dashboard-context";
 import { formatUsdCompact } from "@/lib/trades-analytics";
 
 const CARD_CLASS =
-  "rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]";
+  "rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1F1F1F] to-[#13131A] shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]";
 
 function KpiCard({ label, value }: { label: string; value: string }) {
   return (
     <div className={`${CARD_CLASS} flex min-h-[102px] flex-col justify-between p-4`}>
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 [font-family:var(--font-text),sans-serif]">
         {label}
       </p>
-      <p className="text-2xl font-bold leading-none text-white [font-family:var(--font-nunito),sans-serif]">
+      <p className="text-2xl font-bold leading-none text-white [font-family:var(--font-numbers),sans-serif]">
         {value}
       </p>
     </div>
@@ -49,7 +49,7 @@ function RevenueSplitBox({
   const total = Math.max(1, topValue + bottomValue);
   return (
     <section className={`${CARD_CLASS} p-5`}>
-      <h3 className="text-base font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+      <h3 className="text-base font-semibold text-white [font-family:var(--font-text),sans-serif]">
         {title}
       </h3>
       <div className="mt-4 space-y-4">
@@ -79,14 +79,14 @@ function SplitRow({
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-[12px] font-semibold text-zinc-400 [font-family:var(--font-montserrat),sans-serif]">
+        <p className="text-[12px] font-semibold text-zinc-400 [font-family:var(--font-text),sans-serif]">
           {label}
         </p>
         <p
           className={
             highlighted
-              ? "text-[13px] font-semibold text-[#e2ca7a] [font-family:var(--font-nunito),sans-serif]"
-              : "text-[13px] font-semibold text-zinc-300 [font-family:var(--font-nunito),sans-serif]"
+              ? "text-[13px] font-semibold text-[#C9A84C] [font-family:var(--font-numbers),sans-serif]"
+              : "text-[13px] font-semibold text-zinc-300 [font-family:var(--font-numbers),sans-serif]"
           }
         >
           {formatUsdCompact(value)}
@@ -94,7 +94,7 @@ function SplitRow({
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-[#111216]">
         <div
-          className={highlighted ? "h-full bg-[#e2ca7a]" : "h-full bg-zinc-500"}
+          className={highlighted ? "h-full bg-[#C9A84C]" : "h-full bg-zinc-500"}
           style={{ width: `${Math.max(2, Math.min(100, share * 100))}%` }}
         />
       </div>
@@ -104,7 +104,7 @@ function SplitRow({
 
 function SectionLabel({ text }: { text: string }) {
   return (
-    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">
+    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500 [font-family:var(--font-text),sans-serif]">
       {text}
     </p>
   );
@@ -124,7 +124,7 @@ export function ManagerOverviewDashboard() {
     <div className="flex h-full min-h-0 flex-col gap-4 pb-1">
       <div className="space-y-2">
         <SectionLabel text="KPIs" />
-        <h2 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+        <h2 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
           KPI Cards
         </h2>
       </div>
@@ -184,7 +184,7 @@ export function ManagerOverviewDashboard() {
 
       <div className="grid min-h-0 flex-1 gap-2 xl:grid-cols-2 xl:grid-rows-2">
         <section className={`${CARD_CLASS} flex min-h-0 flex-col p-5`}>
-          <h3 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+          <h3 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
             Monthly Revenue Breakdown
           </h3>
           <div className="mt-3 min-h-0 flex-1">
@@ -198,7 +198,7 @@ export function ManagerOverviewDashboard() {
                     formatUsdCompact(typeof value === "number" ? value : Number(value) || 0)
                   }
                   contentStyle={{
-                    background: "#1c1d20",
+                    background: "#1F1F1F",
                     border: "1px solid rgba(255,255,255,0.08)",
                     borderRadius: 12,
                   }}
@@ -213,7 +213,7 @@ export function ManagerOverviewDashboard() {
                 <Bar
                   dataKey="profitSplitRevenue"
                   stackId="revenue"
-                  fill="#e2ca7a"
+                  fill="#C9A84C"
                   radius={[4, 4, 0, 0]}
                   name="Profit Split"
                 />
@@ -223,7 +223,7 @@ export function ManagerOverviewDashboard() {
         </section>
 
         <section className={`${CARD_CLASS} flex min-h-0 flex-col p-5`}>
-          <h3 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+          <h3 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
             Equity Curve
           </h3>
           <div className="mt-3 min-h-0 flex-1">
@@ -237,7 +237,7 @@ export function ManagerOverviewDashboard() {
                     formatUsdCompact(typeof value === "number" ? value : Number(value) || 0)
                   }
                   contentStyle={{
-                    background: "#1c1d20",
+                    background: "#1F1F1F",
                     border: "1px solid rgba(255,255,255,0.08)",
                     borderRadius: 12,
                   }}
@@ -245,7 +245,7 @@ export function ManagerOverviewDashboard() {
                 <Line
                   type="monotone"
                   dataKey="aggregatedEquity"
-                  stroke="#e2ca7a"
+                  stroke="#C9A84C"
                   strokeWidth={1.8}
                   dot={false}
                   name="Equity"
@@ -255,7 +255,7 @@ export function ManagerOverviewDashboard() {
           </div>
         </section>
         <section className={`${CARD_CLASS} flex min-h-0 flex-col p-5`}>
-          <h3 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+          <h3 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
             Commission Growth Over Time
           </h3>
           <div className="mt-3 min-h-0 flex-1">
@@ -269,7 +269,7 @@ export function ManagerOverviewDashboard() {
                     formatUsdCompact(typeof value === "number" ? value : Number(value) || 0)
                   }
                   contentStyle={{
-                    background: "#1c1d20",
+                    background: "#1F1F1F",
                     border: "1px solid rgba(255,255,255,0.08)",
                     borderRadius: 12,
                   }}
@@ -277,7 +277,7 @@ export function ManagerOverviewDashboard() {
                 <Line
                   type="monotone"
                   dataKey="generated"
-                  stroke="#e2ca7a"
+                  stroke="#C9A84C"
                   strokeWidth={1.8}
                   dot={false}
                   name="Generated"
@@ -296,7 +296,7 @@ export function ManagerOverviewDashboard() {
         </section>
 
         <section className={`${CARD_CLASS} flex min-h-0 flex-col p-5`}>
-          <h3 className="text-sm font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+          <h3 className="text-sm font-semibold text-white [font-family:var(--font-text),sans-serif]">
             Commission by Asset Type
           </h3>
           <div className="mt-3 min-h-0 flex-1">
@@ -314,7 +314,7 @@ export function ManagerOverviewDashboard() {
                   {commissionByAssetType.map((row) => (
                     <Cell
                       key={row.name}
-                      fill={row.name === "Forex" ? "#e2ca7a" : "rgba(161,161,170,0.7)"}
+                      fill={row.name === "Forex" ? "#C9A84C" : "rgba(161,161,170,0.7)"}
                     />
                   ))}
                 </Pie>
@@ -323,7 +323,7 @@ export function ManagerOverviewDashboard() {
                     formatUsdCompact(typeof value === "number" ? value : Number(value) || 0)
                   }
                   contentStyle={{
-                    background: "#1c1d20",
+                    background: "#1F1F1F",
                     border: "1px solid rgba(255,255,255,0.08)",
                     borderRadius: 12,
                   }}

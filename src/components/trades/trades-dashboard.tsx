@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import {
@@ -61,7 +61,7 @@ function buildRows(rows: ReturnType<typeof deserializeTrades>): Row[] {
 }
 
 const card =
-  "rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1c1d20] to-[#141517] shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]";
+  "rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1F1F1F] to-[#13131A] shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]";
 
 function SummaryChip({
   label,
@@ -72,10 +72,10 @@ function SummaryChip({
 }) {
   return (
     <div className={`${card} px-4 py-3`}>
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 [font-family:var(--font-text),sans-serif]">
         {label}
       </p>
-      <p className="mt-1 text-sm font-bold text-white [font-family:var(--font-nunito),sans-serif]">
+      <p className="mt-1 text-sm font-bold text-white [font-family:var(--font-numbers),sans-serif]">
         {value}
       </p>
     </div>
@@ -169,17 +169,17 @@ export function TradesDashboard({ trades }: TradesDashboardProps) {
         <div className="flex flex-col gap-1">
           <label className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">From</label>
           <input type="date" value={from} onChange={(e) => setFrom(e.target.value)}
-            className="rounded-lg border border-white/[0.08] bg-[#141517] px-2 py-1.5 text-xs text-white" />
+            className="rounded-lg border border-white/[0.08] bg-[#13131A] px-2 py-1.5 text-xs text-white" />
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">To</label>
           <input type="date" value={to} onChange={(e) => setTo(e.target.value)}
-            className="rounded-lg border border-white/[0.08] bg-[#141517] px-2 py-1.5 text-xs text-white" />
+            className="rounded-lg border border-white/[0.08] bg-[#13131A] px-2 py-1.5 text-xs text-white" />
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Win / Loss</label>
           <select value={wl} onChange={(e) => setWl(e.target.value as typeof wl)}
-            className="rounded-lg border border-white/[0.08] bg-[#141517] px-2 py-1.5 text-xs text-white">
+            className="rounded-lg border border-white/[0.08] bg-[#13131A] px-2 py-1.5 text-xs text-white">
             <option value="ALL">All</option>
             <option value="WIN">Win</option>
             <option value="LOSS">Loss</option>
@@ -203,11 +203,11 @@ export function TradesDashboard({ trades }: TradesDashboardProps) {
             </thead>
             <tbody>
               {filtered.slice().reverse().map((r) => (
-                <tr key={r.id} className="border-b border-white/[0.04] text-[13px] [font-family:var(--font-nunito),sans-serif]">
+                <tr key={r.id} className="border-b border-white/[0.04] text-[13px] [font-family:var(--font-numbers),sans-serif]">
                   <td className="px-4 py-2.5 text-zinc-300">
                     {r.date.toLocaleString("en-GB", { dateStyle: "short", timeStyle: "short" })}
                   </td>
-                  <td className={r.win ? "px-4 py-2.5 text-[#e2ca7a]" : "px-4 py-2.5 text-zinc-400"}>
+                  <td className={r.win ? "px-4 py-2.5 text-[#C9A84C]" : "px-4 py-2.5 text-zinc-400"}>
                     {r.pnl}
                   </td>
                   <td className="px-4 py-2.5 text-zinc-200">{r.returnPct}</td>
@@ -221,7 +221,7 @@ export function TradesDashboard({ trades }: TradesDashboardProps) {
 
       <div className="grid shrink-0 grid-cols-2 gap-2 lg:grid-cols-3">
         <div className={`p-3 ${card}`}>
-          <h3 className="text-xs font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">Win rate</h3>
+          <h3 className="text-xs font-semibold text-white [font-family:var(--font-text),sans-serif]">Win rate</h3>
           <div className="mt-1 h-[100px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -234,14 +234,14 @@ export function TradesDashboard({ trades }: TradesDashboardProps) {
           </div>
         </div>
         <div className={`p-3 ${card}`}>
-          <h3 className="text-xs font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">PnL distribution</h3>
+          <h3 className="text-xs font-semibold text-white [font-family:var(--font-text),sans-serif]">PnL distribution</h3>
           <div className="mt-1 h-[100px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={pnlHist} margin={{ left: 0, right: 8, top: 4, bottom: 0 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
                 <XAxis dataKey="name" tick={{ fill: "#8a8a8a", fontSize: 8 }} />
                 <YAxis tick={{ fill: "#8a8a8a", fontSize: 9 }} allowDecimals={false} width={28} />
-                <Tooltip contentStyle={{ background: "#1c1d20", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12 }} />
+                <Tooltip contentStyle={{ background: "#1F1F1F", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12 }} />
                 <Bar dataKey="n" fill="#94a3b8" maxBarSize={24} radius={[4, 4, 0, 0]}>
                   {pnlHist.map((e, i) => <Cell key={i} fill={e.name.includes("-") ? "#64748b" : "#94a3b8"} />)}
                 </Bar>
@@ -250,7 +250,7 @@ export function TradesDashboard({ trades }: TradesDashboardProps) {
           </div>
         </div>
         <div className={`p-3 ${card} lg:col-span-1`}>
-          <h3 className="text-xs font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+          <h3 className="text-xs font-semibold text-white [font-family:var(--font-text),sans-serif]">
             Monthly trade count
           </h3>
           <div className="mt-1 h-[100px]">
@@ -261,7 +261,7 @@ export function TradesDashboard({ trades }: TradesDashboardProps) {
                 <YAxis tick={{ fill: "#8a8a8a", fontSize: 9 }} allowDecimals={false} width={28} />
                 <Tooltip
                   contentStyle={{
-                    background: "#1c1d20",
+                    background: "#1F1F1F",
                     border: "1px solid rgba(255,255,255,0.08)",
                     borderRadius: 12,
                   }}

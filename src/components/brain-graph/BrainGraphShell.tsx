@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import useSWR from "swr";
@@ -28,7 +28,7 @@ type StatusData = {
 
 const FOLDER_COLORS: Record<string, string> = {
   "00_Index":                  "#f0dfa0",
-  "04_Strategies":             "#e2ca7a",
+  "04_Strategies":             "#C9A84C",
   "09_AI":                     "#ffffff",
   "13_Manuals":                "#c8cdd4",
   "16_Backtesting_Validation": "#9ca0aa",
@@ -250,7 +250,7 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
         ctx.beginPath();
         ctx.arc(px, py, isSelected ? r + 2 : r, 0, Math.PI * 2);
         if (isSelected) {
-          ctx.fillStyle = "#e2ca7a";
+          ctx.fillStyle = "#C9A84C";
         } else if (top5.has(idx)) {
           ctx.fillStyle = `rgba(255,255,255,${Math.min(0.95, alpha).toFixed(2)})`;
         } else {
@@ -360,7 +360,7 @@ function NodePanel({ node, onClose }: { node: NetworkNode; onClose: () => void }
           <span className="break-all font-medium text-[#e8eaed] leading-[1.5]">{node.label}</span>
         </div>
         <Row label="Ordner"       value={folderLabel} accent={color} />
-        <Row label="Verbindungen" value={String(node.degree)} accent="#e2ca7a" />
+        <Row label="Verbindungen" value={String(node.degree)} accent="#C9A84C" />
         <Row label="Quelle"       value={node.source === "brain" ? "Capitalife Brain" : "Dashboard"} />
         {node.preview && (
           <div className="mt-4">

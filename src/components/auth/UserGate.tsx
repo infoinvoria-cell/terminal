@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { APP_USERS, AppUser, CL_USER_KEY, UserProvider } from "@/context/user-context";
@@ -112,7 +112,7 @@ function PasswordScreen({ onSuccess }: { onSuccess: () => void }) {
             style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", padding: "4px 2px", cursor: locked || !password.trim() ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: password.trim() && !locked ? 1 : 0.3, transition: "opacity 0.2s" }}
             aria-label="Enter">
             <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
-              <path d="M4 10h12M11 5l5 5-5 5" stroke="#e2ca7a" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M4 10h12M11 5l5 5-5 5" stroke="#C9A84C" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
         </div>
@@ -153,7 +153,7 @@ function UserCard({ user, label, index, onSelect }: { user: AppUser; label: stri
           <Image src={index === 0 ? "/profile.png" : "/profile_jeroen.png"} alt={user.name} width={100} height={100}
             style={{ objectFit: "cover", width: "100%", height: "100%" }} />
         </div>
-        <span style={{ color: "#f0e6c8", fontSize: 15, fontWeight: 700, fontFamily: "var(--font-montserrat, sans-serif)", letterSpacing: "0.03em", lineHeight: 1, marginBottom: 7 }}>{label}</span>
+        <span style={{ color: "#f0e6c8", fontSize: 15, fontWeight: 700, fontFamily: "var(--font-text)", letterSpacing: "0.03em", lineHeight: 1, marginBottom: 7 }}>{label}</span>
         <span style={{ color: "rgba(255,255,255,0.38)", fontSize: 13, fontWeight: 500, lineHeight: 1 }}>{user.name}</span>
       </button>
     </>

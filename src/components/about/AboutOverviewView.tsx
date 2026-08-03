@@ -1,4 +1,4 @@
-import {
+﻿import {
   Layers, Calendar, Clock, Globe, Shield,
   RefreshCw, BarChart2, Target, CheckCircle, TrendingUp,
 } from "lucide-react";
@@ -8,8 +8,8 @@ import {
   ABOUT_WS_SLEEVES, ABOUT_CI_ALLOC, ABOUT_CORRELATION,
 } from "@/lib/about/about-data";
 
-const M = "var(--font-montserrat), sans-serif";
-const N = "var(--font-nunito), sans-serif";
+const M = "var(--font-text), sans-serif";
+const N = "var(--font-numbers), sans-serif";
 const CARD = "rounded-[18px] border border-white/[0.07] bg-gradient-to-b from-[#1e1f22] to-[#151618] shadow-[0_12px_32px_-12px_rgba(0,0,0,0.6)]";
 const SHADES = ["var(--dash-accent)", "rgba(226,202,122,0.62)", "rgba(226,202,122,0.38)", "rgba(255,255,255,0.16)", "rgba(255,255,255,0.09)"];
 

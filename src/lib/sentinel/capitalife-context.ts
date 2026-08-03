@@ -112,43 +112,53 @@ Zeitraum: 11.04.2024 bis 01.07.2026 (ca. 26 Monate)
 // -- Brain file list ----------------------------------------------------------
 
 const BRAIN_FILES: { relPath: string; label: string; maxChars: number }[] = [
-  { relPath: "09_AI/AI_PROJECT_BRAIN_CURRENT.md", label: "AI Project Brain Current", maxChars: 5000 },
-  { relPath: "09_AI/dashboard_snapshot.json", label: "Dashboard Snapshot", maxChars: 5000 },
-  { relPath: "00_Index/Open Issues.md", label: "Open Issues", maxChars: 1800 },
-  { relPath: "00_Index/Next Actions.md", label: "Next Actions", maxChars: 1800 },
+  { relPath: "09_AI/AI_PROJECT_BRAIN_CURRENT.md", label: "AI Project Brain (aktuell)", maxChars: 8000 },
+  { relPath: "09_AI/dashboard_snapshot.json", label: "Dashboard Snapshot (aktuell)", maxChars: 6000 },
+  { relPath: "00_Index/Open Issues.md", label: "Offene Issues (aktuell)", maxChars: 3000 },
+  { relPath: "00_Index/Next Actions.md", label: "Nächste Aktionen (aktuell)", maxChars: 3000 },
+  { relPath: "00_Index/Changelog.md", label: "Changelog", maxChars: 2000 },
+  { relPath: "09_AI/Live_Track_Record.md", label: "Live Track Record (aktuell)", maxChars: 3000 },
 ];
 
 // -- Context builder ----------------------------------------------------------
 
 function buildContext(): string {
   const brainStatus = getBrainContextStatus();
-  if (!brainStatus.available) {
-    return `${STATIC_CONTEXT}\n\n---\n\n## Context Mode\n${brainStatus.message}`;
-  }
-
-  if (!BRAIN_BASE) {
-    return `${STATIC_CONTEXT}\n\n---\n\n## Context Mode\nBrain path missing`;
-  }
-
   const liveParts: string[] = [];
 
-  for (const { relPath, label, maxChars } of BRAIN_FILES) {
-    const fullPath = path.join(/* turbopackIgnore: true */ BRAIN_BASE, relPath);
-    const content = readSafe(fullPath);
-    if (!content?.trim()) continue;
-    const clean = content.replace(/\r\n/g, "\n").trim();
-    liveParts.push(`### ${label}\n${clamp(clean, maxChars)}`);
+  if (brainStatus.available && BRAIN_BASE) {
+    for (const { relPath, label, maxChars } of BRAIN_FILES) {
+      const fullPath = path.join(/* turbopackIgnore: true */ BRAIN_BASE, relPath);
+      const content = readSafe(fullPath);
+      if (!content?.trim()) continue;
+      const clean = content.replace(/\r\n/g, "\n").trim();
+      liveParts.push(`### ${label}\n${clamp(clean, maxChars)}`);
+    }
   }
 
-  if (liveParts.length === 0) return STATIC_CONTEXT;
-  return `${STATIC_CONTEXT}\n\n---\n\n## Capitalife Brain - Geladene Quelldateien\n\n${liveParts.join("\n\n---\n\n")}`;
+  if (liveParts.length > 0) {
+    // Live Brain data comes FIRST — always takes priority over static context
+    return `## CAPITALIFE BRAIN — LIVE DATEN (höchste Priorität, immer aktuell)
+WICHTIG: Diese Live-Daten haben IMMER Vorrang. Nutze ausschließlich diese Werte, nicht veraltete Annahmen.
+
+${liveParts.join("\n\n---\n\n")}
+
+---
+
+## Statischer Basis-Kontext (Fallback / Hintergrundwissen)
+${STATIC_CONTEXT}`;
+  }
+
+  // Fallback: only static context
+  return `## CAPITALIFE KONTEXT (Statisch — Brain nicht erreichbar)
+${STATIC_CONTEXT}`;
 }
 
-// -- Cache (5-minute TTL) -----------------------------------------------------
+// -- Cache (30-second TTL for near-real-time freshness) -----------------------
 
 let cached: string | null = null;
 let cachedAt = 0;
-const TTL = 5 * 60 * 1000;
+const TTL = 30 * 1000;
 
 export function getCapalifeContext(): string {
   const now = Date.now();
@@ -162,10 +172,7 @@ export function getCapalifeContext(): string {
   return cached;
 }
 
-const BRAIN_KEYWORDS = /\b(strategi|portfolio|backtest|signal|brain|sleeve|entry|entries|invest|track.?record|performance|drawdown|sharpe|symbol|asset|agrar|metal|forex|energy|indic|seasonal|produc|white.?swan|capitalife|aum|execution|universe|register)\b/i;
-
-export function getCapalifeContextConditional(question?: string): string {
-  const needsBrain = !question || BRAIN_KEYWORDS.test(question);
-  if (needsBrain) return getCapalifeContext();
-  return STATIC_CONTEXT;
+// Always inject full Brain context — no keyword filtering
+export function getCapalifeContextConditional(_question?: string): string {
+  return getCapalifeContext();
 }

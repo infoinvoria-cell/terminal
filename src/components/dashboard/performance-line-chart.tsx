@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   CartesianGrid,
@@ -67,11 +67,11 @@ export function PerformanceLineChart({
               if (!active || !payload?.length) return null;
               const v = (payload[0]?.payload as LinePoint)?.cumulativePct;
               return (
-                <div className="rounded-xl border border-[#2a2b30] bg-[#1c1d20] px-3.5 py-2.5 shadow-[0_16px_40px_rgba(0,0,0,0.55)]">
-                  <p className="text-[11px] font-medium text-[#8a8a8a] [font-family:var(--font-montserrat),sans-serif]">
+                <div className="rounded-xl border border-[#2a2b30] bg-[#1F1F1F] px-3.5 py-2.5 shadow-[0_16px_40px_rgba(0,0,0,0.55)]">
+                  <p className="text-[11px] font-medium text-[#8a8a8a] [font-family:var(--font-text),sans-serif]">
                     {label}
                   </p>
-                  <p className="mt-1 text-sm font-semibold text-white [font-family:var(--font-nunito),sans-serif]">
+                  <p className="mt-1 text-sm font-semibold text-white [font-family:var(--font-numbers),sans-serif]">
                     {typeof v === "number"
                       ? `${v > 0 ? "+" : ""}${v.toFixed(2)}%`
                       : "—"}
@@ -86,7 +86,7 @@ export function PerformanceLineChart({
             stroke="#a1a1aa"
             strokeWidth={2}
             dot={false}
-            activeDot={{ r: 4, fill: "#e2ca7a", stroke: "#1c1d20", strokeWidth: 1 }}
+            activeDot={{ r: 4, fill: "#C9A84C", stroke: "#1F1F1F", strokeWidth: 1 }}
           />
           </LineChart>
         </ResponsiveContainer>

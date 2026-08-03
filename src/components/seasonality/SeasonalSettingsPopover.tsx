@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { Settings } from "lucide-react";
@@ -312,7 +312,7 @@ export function SeasonalSettingsPopover({ settings, onUpdate }: Props) {
                     fontFamily: "inherit",
                     borderColor: settings.formulaMode === mode ? "rgba(216,188,103,0.6)" : "rgba(255,255,255,0.1)",
                     background: settings.formulaMode === mode ? "rgba(216,188,103,0.12)" : "transparent",
-                    color: settings.formulaMode === mode ? "#DCC476" : C_TEXT2,
+                    color: settings.formulaMode === mode ? "#C9A84C" : C_TEXT2,
                   }}
                 >
                   {mode === "avg" ? "Ø Avg" : "Median"}

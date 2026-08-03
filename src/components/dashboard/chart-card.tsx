@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
@@ -71,9 +71,9 @@ export function ChartCard({ trades }: ChartCardProps) {
       onClick={() => setView(mode)}
       aria-pressed={view === mode}
       className={cn(
-        "flex items-center gap-1.5 text-[13px] font-medium transition-colors [font-family:var(--font-montserrat),sans-serif]",
+        "flex items-center gap-1.5 text-[13px] font-medium transition-colors [font-family:var(--font-text),sans-serif]",
         view === mode
-          ? "rounded-md border border-[#e2ca7a]/40 bg-gradient-to-b from-[#1c1d20] to-[#141517] px-3 py-1.5 font-semibold text-white shadow-[inset_0_-1px_0_0_rgba(226,202,122,0.5)]"
+          ? "rounded-md border border-[#C9A84C]/40 bg-gradient-to-b from-[#1F1F1F] to-[#13131A] px-3 py-1.5 font-semibold text-white shadow-[inset_0_-1px_0_0_rgba(226,202,122,0.5)]"
           : "border-0 bg-transparent px-2.5 py-1.5 text-zinc-500 hover:text-zinc-300"
       )}
     >
@@ -86,7 +86,7 @@ export function ChartCard({ trades }: ChartCardProps) {
     <div
       className={cn(
         "flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-white/[0.06] shadow-[0_12px_32px_-12px_rgba(0,0,0,0.4)]",
-        "bg-gradient-to-b from-[#1c1d20] to-[#141517]"
+        "bg-gradient-to-b from-[#1F1F1F] to-[#13131A]"
       )}
     >
       <div className="flex shrink-0 flex-col gap-2 px-4 pb-2 pt-3 sm:flex-row sm:items-center sm:justify-end">
@@ -125,10 +125,10 @@ export function ChartSectionHeader() {
   return (
     <div className="flex flex-wrap items-center justify-between gap-2">
       <div>
-        <h2 className="text-[15px] font-bold tracking-tight text-white [font-family:var(--font-montserrat),sans-serif]">
+        <h2 className="text-[15px] font-bold tracking-tight text-white [font-family:var(--font-text),sans-serif]">
           Performance Overview
         </h2>
-        <p className="mt-0.5 text-[11px] text-zinc-600 [font-family:var(--font-montserrat),sans-serif]">
+        <p className="mt-0.5 text-[11px] text-zinc-600 [font-family:var(--font-text),sans-serif]">
           Statement-based historical performance. Not independently audited.
         </p>
       </div>
@@ -139,9 +139,9 @@ export function ChartSectionHeader() {
           onClick={() => setRrReportingMode(!rrReportingMode)}
           aria-label="x4 ab Mai 2025"
           className={cn(
-            "rounded-full px-2.5 py-1 text-[10px] font-semibold transition-colors [font-family:var(--font-montserrat),sans-serif]",
+            "rounded-full px-2.5 py-1 text-[10px] font-semibold transition-colors [font-family:var(--font-text),sans-serif]",
             rrReportingMode
-              ? "border border-[#e2ca7a]/45 bg-[#2a2516] text-[#e2ca7a]"
+              ? "border border-[#C9A84C]/45 bg-[#2a2516] text-[#C9A84C]"
               : "border border-white/[0.08] bg-white/[0.03] text-zinc-300 hover:border-white/12 hover:bg-white/[0.05]"
           )}
         >
@@ -149,7 +149,7 @@ export function ChartSectionHeader() {
         </button>
         <button
           type="button"
-          className="rounded-full border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-[10px] font-semibold text-zinc-300 transition-colors hover:border-white/12 hover:bg-white/[0.05] [font-family:var(--font-montserrat),sans-serif]"
+          className="rounded-full border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-[10px] font-semibold text-zinc-300 transition-colors hover:border-white/12 hover:bg-white/[0.05] [font-family:var(--font-text),sans-serif]"
         >
           Add Benchmark +
         </button>

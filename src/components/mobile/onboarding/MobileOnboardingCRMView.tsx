@@ -1,16 +1,16 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Investor } from "@/components/investors-crm/InvestorsCRMView";
 import { SentinelChat } from "@/components/investors-crm/SentinelChat";
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
-const CARD_BG     = "linear-gradient(180deg,#1c1d20 0%,#141517 100%)";
+const CARD_BG     = "linear-gradient(180deg,#1F1F1F 0%,#13131A 100%)";
 const CARD_BORDER = "rgba(255,255,255,0.06)";
 const CARD_SHADOW = "0 8px 20px -8px rgba(0,0,0,0.55)";
 const MUTED       = "rgba(255,255,255,0.38)";
 const PAGE_BG     = "#0c0d10";
-const GOLD        = "#e2ca7a";
+const GOLD        = "#C9A84C";
 
 // ── Options ────────────────────────────────────────────────────────────────────
 const KONTAKTQUELLE   = ["Persönlicher Kontakt","Empfehlung","Vermittler","Netzwerk / Event","LinkedIn","Sonstiges"];
@@ -21,15 +21,15 @@ const ZUSTAENDIG_OPTS = ["Jeroen","Partner 2","Partner 3"];
 
 const STATUS_COLOR: Record<string, { bg: string; text: string }> = {
   "Neu":                    { bg: "rgba(113,113,122,0.2)", text: "#a1a1aa" },
-  "Kontaktiert":            { bg: "rgba(59,130,246,0.2)",  text: "#60a5fa" },
+  "Kontaktiert":            { bg: "rgba(59,130,246,0.2)",  text: "#9CA3AF" },
   "Early Access gesendet":  { bg: "rgba(99,102,241,0.2)",  text: "#818cf8" },
   "Interesse bestätigt":    { bg: "rgba(6,182,212,0.2)",   text: "#22d3ee" },
   "Gespräch geplant":       { bg: "rgba(168,85,247,0.2)",  text: "#c084fc" },
   "Warm Commitment":        { bg: "rgba(245,158,11,0.2)",  text: "#fbbf24" },
   "Unterlagen ausstehend":  { bg: "rgba(249,115,22,0.2)",  text: "#fb923c" },
-  "Bereit für Onboarding":  { bg: "rgba(34,197,94,0.2)",   text: "#4ade80" },
+  "Bereit für Onboarding":  { bg: "rgba(34,197,94,0.2)",   text: "#22C55E" },
   "Später kontaktieren":    { bg: "rgba(63,63,70,0.35)",   text: "#71717a" },
-  "Abgesagt":               { bg: "rgba(239,68,68,0.2)",   text: "#f87171" },
+  "Abgesagt":               { bg: "rgba(239,68,68,0.2)",   text: "#EF4444" },
 };
 
 function fmtDate(iso: string | null) {
@@ -95,10 +95,10 @@ function KpiCard({ label, value }: { label: string; value: string | number }) {
       display: "flex", flexDirection: "column", justifyContent: "space-between",
       gap: 6, flex: 1, minWidth: 0,
     }}>
-      <p style={{ margin: 0, fontSize: 8, fontWeight: 600, color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", textTransform: "uppercase", letterSpacing: "0.01em", lineHeight: 1.2, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+      <p style={{ margin: 0, fontSize: 8, fontWeight: 600, color: MUTED, fontFamily: "var(--font-text)", textTransform: "uppercase", letterSpacing: "0.01em", lineHeight: 1.2, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
         {label}
       </p>
-      <p style={{ margin: 0, fontSize: 13, fontWeight: 700, lineHeight: 1, letterSpacing: "-0.02em", fontFamily: "var(--font-nunito,sans-serif)", color: "#ffffff" }}>
+      <p style={{ margin: 0, fontSize: 13, fontWeight: 700, lineHeight: 1, letterSpacing: "-0.02em", fontFamily: "var(--font-numbers)", color: "#ffffff" }}>
         {value}
       </p>
     </div>
@@ -128,7 +128,7 @@ function CellEditor({ rowKey, value, onSave, onClose }: {
   const s: React.CSSProperties = {
     width: "100%", boxSizing: "border-box", border: "none", outline: "none",
     background: "transparent", color: "#fff",
-    fontSize: 16, fontFamily: "var(--font-montserrat,sans-serif)",
+    fontSize: 16, fontFamily: "var(--font-text)",
     padding: 0, touchAction: "manipulation",
   };
 
@@ -237,8 +237,8 @@ export function MobileOnboardingCRMView() {
 
         {/* ── Page header ── */}
         <div style={{ padding: "12px 14px 10px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <h1 style={{ margin: 0, fontSize: 15, fontWeight: 800, fontFamily: "var(--font-montserrat,sans-serif)", color: "#fff" }}>Investor Onboarding</h1>
-          <button onClick={() => setSentinel(true)} style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(226,202,122,0.1)", border: "1px solid rgba(226,202,122,0.25)", borderRadius: 20, padding: "6px 12px", color: GOLD, fontSize: 11, fontWeight: 700, fontFamily: "var(--font-montserrat,sans-serif)", cursor: "pointer", touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}>
+          <h1 style={{ margin: 0, fontSize: 15, fontWeight: 800, fontFamily: "var(--font-text)", color: "#fff" }}>Investor Onboarding</h1>
+          <button onClick={() => setSentinel(true)} style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(226,202,122,0.1)", border: "1px solid rgba(226,202,122,0.25)", borderRadius: 20, padding: "6px 12px", color: GOLD, fontSize: 11, fontWeight: 700, fontFamily: "var(--font-text)", cursor: "pointer", touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             Sentinel
           </button>
@@ -260,7 +260,7 @@ export function MobileOnboardingCRMView() {
 
           <div ref={tableRef} onScroll={onScroll} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} style={{ height: "100%", overflowX: "auto", overflowY: "auto" }}>
             {loading ? (
-              <div style={{ padding: 32, textAlign: "center", color: MUTED, fontSize: 12, fontFamily: "var(--font-montserrat,sans-serif)" }}>Lädt…</div>
+              <div style={{ padding: 32, textAlign: "center", color: MUTED, fontSize: 12, fontFamily: "var(--font-text)" }}>Lädt…</div>
             ) : (
               <table style={{ borderCollapse: "collapse", tableLayout: "fixed" }}>
                 <colgroup>
@@ -280,7 +280,7 @@ export function MobileOnboardingCRMView() {
                       borderRight: "1px solid rgba(255,255,255,0.06)",
                       textAlign: "left", verticalAlign: "middle", paddingLeft: 12,
                     }}>
-                      <span style={{ fontSize: 8.5, fontWeight: 800, color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", textTransform: "uppercase", letterSpacing: "0.08em", opacity: collapsed ? 0 : 1, transition: "opacity 160ms" }}>
+                      <span style={{ fontSize: 8.5, fontWeight: 800, color: MUTED, fontFamily: "var(--font-text)", textTransform: "uppercase", letterSpacing: "0.08em", opacity: collapsed ? 0 : 1, transition: "opacity 160ms" }}>
                         Feld
                       </span>
                     </th>
@@ -299,10 +299,10 @@ export function MobileOnboardingCRMView() {
                           animation: isNew ? "colSlideIn 300ms ease both" : undefined,
                         }}>
                           <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", lineHeight: 1.15, minWidth: 0 }}>
-                            <span style={{ fontSize: 9, fontWeight: 800, color: GOLD, fontFamily: "var(--font-montserrat,sans-serif)", letterSpacing: "0.04em" }}>
+                            <span style={{ fontSize: 9, fontWeight: 800, color: GOLD, fontFamily: "var(--font-text)", letterSpacing: "0.04em" }}>
                               {ci + 1}
                             </span>
-                            <span style={{ fontSize: 11.5, fontWeight: 700, color: "#fff", fontFamily: "var(--font-montserrat,sans-serif)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block" }}>
+                            <span style={{ fontSize: 11.5, fontWeight: 700, color: "#fff", fontFamily: "var(--font-text)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block" }}>
                               {inv.name || "—"}
                             </span>
                           </div>
@@ -334,7 +334,7 @@ export function MobileOnboardingCRMView() {
                             </span>
                             <span style={{
                               fontSize: 9.5, fontWeight: 700, color: MUTED,
-                              fontFamily: "var(--font-montserrat,sans-serif)", textTransform: "uppercase",
+                              fontFamily: "var(--font-text)", textTransform: "uppercase",
                               letterSpacing: "0.05em", whiteSpace: "nowrap", overflow: "hidden",
                               opacity: collapsed ? 0 : 1,
                               maxWidth: collapsed ? 0 : 70,
@@ -347,7 +347,7 @@ export function MobileOnboardingCRMView() {
 
                         {/* One cell per investor */}
                         {rows.length === 0 ? (
-                          <td><span style={{ fontSize: 11, color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", paddingLeft: 12 }}>Noch keine Einträge</span></td>
+                          <td><span style={{ fontSize: 11, color: MUTED, fontFamily: "var(--font-text)", paddingLeft: 12 }}>Noch keine Einträge</span></td>
                         ) : rows.map(inv => {
                           const isNew     = newIds.has(inv.id);
                           const isEditing = editCell?.id === inv.id && editCell?.key === rowDef.key;
@@ -369,13 +369,13 @@ export function MobileOnboardingCRMView() {
                               {isEditing ? (
                                 <CellEditor rowKey={rowDef.key} value={raw} onSave={v => patch(inv.id, rowDef.key, v)} onClose={() => setEditCell(null)} />
                               ) : rowDef.key === "status" && sc ? (
-                                <span style={{ display: "inline-block", padding: "2px 7px", borderRadius: 4, fontSize: 10, fontWeight: 700, fontFamily: "var(--font-montserrat,sans-serif)", background: sc.bg, color: sc.text, whiteSpace: "nowrap" }}>
+                                <span style={{ display: "inline-block", padding: "2px 7px", borderRadius: 4, fontSize: 10, fontWeight: 700, fontFamily: "var(--font-text)", background: sc.bg, color: sc.text, whiteSpace: "nowrap" }}>
                                   {raw ?? "Neu"}
                                 </span>
                               ) : (rowDef.key === "verfuegbar_ab" || rowDef.key === "letzter_kontakt") ? (
-                                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-montserrat,sans-serif)" }}>{fmtDate(raw)}</span>
+                                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-text)" }}>{fmtDate(raw)}</span>
                               ) : (
-                                <span style={{ fontSize: 11, color: raw ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.18)", fontFamily: "var(--font-montserrat,sans-serif)", display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                <span style={{ fontSize: 11, color: raw ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.18)", fontFamily: "var(--font-text)", display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>
                                   {raw ?? "—"}
                                 </span>
                               )}

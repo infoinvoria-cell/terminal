@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Check, ChevronDown, ChevronRight, Copy, Grid2x2, Mic, MicOff,
-  Pencil, Plus, RotateCcw, Send, Trash2, Volume2, VolumeX, X,
+  Check, ChevronDown, ChevronRight, Clock, Copy, Grid2x2, Mic, MicOff,
+  Pencil, Plus, RotateCcw, Send, SquarePen, Trash2, Volume2, VolumeX, X,
 } from "lucide-react";
 import { createPortal } from "react-dom";
 import { SentinelProviderStatusBar } from "@/components/sentinel/sentinel-provider-status";
@@ -114,7 +114,7 @@ function AurumWaves({ voiceLevel = 0, speaking = false }: { voiceLevel?: number;
             key={i}
             x={x} y={y} width={barW} height={h}
             rx={barW / 2}
-            fill="#e2ca7a"
+            fill="#C9A84C"
             opacity={active ? (i === 2 ? 1 : 0.72) : 0.30}
             className={active ? `aur-bar aur-bar-${i}` : undefined}
             style={active && i === 2 ? { filter: "drop-shadow(0 0 3px rgba(226,202,122,0.6))" } : undefined}
@@ -153,7 +153,7 @@ function AurumRings({ voiceLevel = 0, speaking = false }: { voiceLevel?: number;
         <circle cx="130" cy="130" r="88"  stroke="rgba(214,184,108,0.13)" strokeWidth="1.0" />
         <circle cx="130" cy="130" r="74"  stroke="rgba(255,255,255,0.06)" strokeWidth="0.7" />
         <circle cx="130" cy="130" r="62"  stroke="rgba(214,184,108,0.10)" strokeWidth="0.7" />
-        <circle cx="130" cy="130" r="100" stroke="#d6b86c" strokeWidth={2.6 + voiceLevel * 0.8}
+        <circle cx="130" cy="130" r="100" stroke="#C9A84C" strokeWidth={2.6 + voiceLevel * 0.8}
           strokeDasharray="138 490" strokeLinecap="round"
           style={{ filter: `drop-shadow(0 0 ${5 + glowBoost * 12}px rgba(214,184,108,${0.65 + glowBoost})) drop-shadow(0 0 12px rgba(214,184,108,0.25))` }}
           className="aur-arc1" />
@@ -215,7 +215,7 @@ function MiniAurumRings() {
         <circle cx="130" cy="130" r="100" stroke="rgba(255,255,255,0.10)" strokeWidth="1.0" />
         <circle cx="130" cy="130" r="88"  stroke="rgba(214,184,108,0.18)" strokeWidth="1.2" />
         <circle cx="130" cy="130" r="74"  stroke="rgba(255,255,255,0.08)" strokeWidth="0.9" />
-        <circle cx="130" cy="130" r="100" stroke="#d6b86c" strokeWidth="3.5"
+        <circle cx="130" cy="130" r="100" stroke="#C9A84C" strokeWidth="3.5"
           strokeDasharray="138 490" strokeLinecap="round"
           style={{ filter: "drop-shadow(0 0 6px rgba(214,184,108,0.75))" }}
           className="maur-arc1" />
@@ -256,7 +256,7 @@ function MiniAurumRings() {
 function SourcesToggle({ sources, confidence }: { sources: SourceItem[]; confidence?: string }) {
   const [open, setOpen] = useState(false);
   if (!sources.length) return null;
-  const confColor = confidence === "high" ? "#d6b86c" : confidence === "medium" ? "rgba(255,255,255,0.55)" : "#ff6b72";
+  const confColor = confidence === "high" ? "#C9A84C" : confidence === "medium" ? "rgba(255,255,255,0.55)" : "#ff6b72";
   return (
     <div className="snt-src">
       <button type="button" className="snt-src-toggle" onClick={() => setOpen(o => !o)}>
@@ -310,7 +310,7 @@ function SentinelSpinner() {
         .snt-sp-ring {
           position:absolute;inset:0;border-radius:50%;
           border:1.5px solid rgba(226,202,122,0.15);
-          border-top-color:#e2ca7a;
+          border-top-color:#C9A84C;
           animation:snt-spin 1.2s linear infinite;
         }
         @keyframes snt-spin { to { transform:rotate(360deg); } }
@@ -365,7 +365,7 @@ function SentinelMarkdown({ content }: { content: string }) {
       </ReactMarkdown>
       <style jsx>{`
         .sm-root { display:flex;flex-direction:column;gap:0; }
-        .sm-h2 { font-size:14px;font-weight:600;color:#d6b86c;margin:10px 0 4px;letter-spacing:-0.01em;line-height:1.35; }
+        .sm-h2 { font-size:14px;font-weight:600;color:#C9A84C;margin:10px 0 4px;letter-spacing:-0.01em;line-height:1.35; }
         .sm-h2:first-child { margin-top:0; }
         .sm-h3 { font-size:12.5px;font-weight:600;color:rgba(214,184,108,0.80);margin:8px 0 3px;line-height:1.35; }
         .sm-h3:first-child { margin-top:0; }
@@ -404,7 +404,7 @@ function MessageActions({ content, onRegenerate, regenDisabled }: { content: str
         <circle cx="130" cy="130" r="88"  stroke="rgba(214,184,108,0.18)" strokeWidth="7" />
         <circle cx="130" cy="130" r="74"  stroke="rgba(255,255,255,0.08)" strokeWidth="5" />
         {/* arc1 cw — starts at top */}
-        <circle cx="130" cy="130" r="100" stroke="#d6b86c" strokeWidth="18"
+        <circle cx="130" cy="130" r="100" stroke="#C9A84C" strokeWidth="18"
           strokeDasharray="138 490" strokeLinecap="round"
           transform="rotate(-90 130 130)"
           style={{ filter:"drop-shadow(0 0 8px rgba(214,184,108,0.85))" }} />
@@ -500,12 +500,12 @@ function FavoritesDropdown({
         .fav-menu-head { display:flex;align-items:center;justify-content:space-between;padding:7px 10px 5px;border-bottom:1px solid rgba(255,255,255,0.06); }
         .fav-menu-head span { font-size:10px;color:#5a6270;letter-spacing:0.05em;text-transform:uppercase; }
         .fav-add-btn { display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:none;border:1px dashed rgba(255,255,255,0.15);border-radius:50%;color:#4a5260;cursor:pointer; }
-        .fav-add-btn:hover { color:#d6b86c;border-color:rgba(214,184,108,0.4); }
+        .fav-add-btn:hover { color:#C9A84C;border-color:rgba(214,184,108,0.4); }
         .fav-list { padding:4px 0; }
         .fav-item { display:flex;align-items:center;padding:0 6px 0 10px;height:30px; }
         .fav-item:hover { background:rgba(255,255,255,0.04); }
         .fav-item-btn { flex:1;text-align:left;background:none;border:none;color:#9aa3b0;font-size:11.5px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0; }
-        .fav-item:hover .fav-item-btn { color:#d6b86c; }
+        .fav-item:hover .fav-item-btn { color:#C9A84C; }
         .fav-item-acts { display:inline-flex;gap:1px;opacity:0;transition:opacity .15s; }
         .fav-item:hover .fav-item-acts { opacity:1; }
         .fav-ia { display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:none;border:none;color:#4a5260;cursor:pointer;border-radius:3px; }
@@ -534,6 +534,10 @@ export function SentinelDashboard() {
     currentRun,
     send,
     clearHistory,
+    savedSessions,
+    loadSession,
+    deleteSession,
+    renameSession,
   } = useSentinelSession();
   const [favorites, setFavorites] = useState<SentinelFavoritePrompt[]>(() => {
     try {
@@ -554,6 +558,9 @@ export function SentinelDashboard() {
   const [selectedVoiceUri, setSelectedVoiceUri] = useState<string | null>(() => { try { const v = lsGet<string>("snt_voice_uri", ""); return v || null; } catch { return null; } });
   const [voiceDropOpen, setVoiceDropOpen] = useState(false);
   const voiceDropRef = useRef<HTMLDivElement>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
 
   // Opening animation
   const GREETING = "Yo was geht ab Bro, Sentinel hier...";
@@ -886,11 +893,12 @@ export function SentinelDashboard() {
       <div
         className="snt-hero-bar"
         style={{
-          display: "flex", alignItems: "center", gap: 8,
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
           opacity: animPhase === "done" ? 1 : 0,
           transition: animPhase === "done" ? "opacity 200ms ease" : "none",
         }}
       >
+        {/* Pill: Vorlagen | textarea | Send | Mic */}
         <div className="snt-hero-pill">
           <FavoritesDropdown
             favorites={favorites}
@@ -909,7 +917,7 @@ export function SentinelDashboard() {
             onKeyDown={onKeyDown}
           />
           {visibleInput.trim() && (
-            <button type="button" className="snt-pill-ico snt-pill-send snt-pill-aligned" onClick={() => void sendWithUiReset()} title={visibleBusy ? "Als Naechstes senden" : "Senden"}>
+            <button type="button" className="snt-pill-ico snt-pill-send snt-pill-aligned" onClick={() => void sendWithUiReset()} title={visibleBusy ? "Als Nächstes senden" : "Senden"}>
               <Send size={14} />
             </button>
           )}
@@ -921,73 +929,181 @@ export function SentinelDashboard() {
               {listening ? <MicOff size={14} /> : <Mic size={14} />}
             </button>
           )}
-          <button type="button" className="snt-pill-ico snt-pill-aligned" onClick={() => setMuted(m => !m)} title={muted ? "Stimme an" : "Stimme aus"}>
-            {muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-          </button>
-          {germanVoices.length > 0 && (
-            <div ref={voiceDropRef} style={{ position:"relative", alignSelf:"center" }}>
-              <button
-                type="button"
-                className="snt-pill-ico snt-pill-aligned"
-                style={{ width:20, height:20, padding:0, opacity: muted ? 0.35 : 1 }}
-                onClick={() => setVoiceDropOpen(o => !o)}
-                title="Stimme wählen"
-              >
-                <ChevronDown size={11} />
-              </button>
-              {voiceDropOpen && (
-                <div style={{
-                  position:"absolute", bottom:"calc(100% + 6px)", right:0,
-                  background:"#141517", border:"1px solid rgba(255,255,255,0.10)",
-                  borderRadius:10, padding:"6px 0", zIndex:300,
-                  boxShadow:"0 8px 32px rgba(0,0,0,0.6)",
-                  minWidth:220, maxHeight:280, overflowY:"auto",
-                  fontFamily:"var(--font-montserrat,sans-serif)", fontSize:12,
-                }}>
-                  <p style={{ padding:"4px 12px 6px", fontSize:10, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:"rgba(255,255,255,0.35)", margin:0 }}>
-                    DE Stimme
-                  </p>
-                  {germanVoices.map(v => {
-                    const active = selectedVoiceUri ? v.voiceURI === selectedVoiceUri : v === pickBestGermanVoice(germanVoices, null);
-                    return (
-                      <button
-                        key={v.voiceURI}
-                        type="button"
-                        onClick={() => { setSelectedVoiceUri(v.voiceURI); setVoiceDropOpen(false); }}
-                        style={{
-                          display:"flex", alignItems:"center", gap:8, width:"100%",
-                          padding:"6px 12px", background:"none", border:"none",
-                          color: active ? "#e2ca7a" : "rgba(200,210,220,0.8)",
-                          cursor:"pointer", textAlign:"left", fontSize:12,
-                          fontFamily:"inherit",
-                        }}
-                      >
-                        {active && <Check size={11} style={{ flexShrink:0, color:"#e2ca7a" }} />}
-                        {!active && <span style={{ width:11, flexShrink:0 }} />}
-                        <span style={{ overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{v.name}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
-          {visibleEntries.length > 0 && (
-            <button type="button" className="snt-pill-ico snt-pill-aligned" onClick={clearHistory} title="Verlauf löschen">
-              <Trash2 size={14} />
+        </div>
+
+        {/* Toolbar row: left actions | right controls — matches pill width */}
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", width:"50%", paddingLeft:4, paddingRight:4 }}>
+          {/* Links: chat-Aktionen */}
+          <div style={{ display:"flex", alignItems:"center", gap:2 }}>
+            <button type="button" className="snt-pill-ico" onClick={clearHistory} title="Neuer Chat">
+              <SquarePen size={14} />
             </button>
-          )}
-          <div style={{ display:"flex", alignItems:"center", paddingLeft:4, paddingRight:2 }}>
+            <button type="button" className="snt-pill-ico" onClick={() => setHistoryOpen(o => !o)} title="Chat-Verlauf">
+              <Clock size={14} />
+            </button>
+            <button type="button" className="snt-pill-ico" onClick={addFavorite} title="Zu Favoriten hinzufügen">
+              <Plus size={14} />
+            </button>
+          </div>
+          {/* Rechts: audio + provider */}
+          <div style={{ display:"flex", alignItems:"center", gap:2 }}>
+            <button type="button" className="snt-pill-ico" onClick={() => setMuted(m => !m)} title={muted ? "Stimme an" : "Stimme aus"}>
+              {muted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+            </button>
+            {germanVoices.length > 0 && (
+              <div ref={voiceDropRef} style={{ position:"relative" }}>
+                <button
+                  type="button"
+                  className="snt-pill-ico"
+                  style={{ opacity: muted ? 0.35 : 1 }}
+                  onClick={() => setVoiceDropOpen(o => !o)}
+                  title="Stimme wählen"
+                >
+                  <ChevronDown size={13} />
+                </button>
+                {voiceDropOpen && (
+                  <div style={{
+                    position:"absolute", bottom:"calc(100% + 6px)", left:0,
+                    background:"#13131A", border:"1px solid rgba(255,255,255,0.10)",
+                    borderRadius:10, padding:"6px 0", zIndex:300,
+                    boxShadow:"0 8px 32px rgba(0,0,0,0.6)",
+                    minWidth:220, maxHeight:280, overflowY:"auto",
+                    fontFamily:"var(--font-text)", fontSize:12,
+                  }}>
+                    <p style={{ padding:"4px 12px 6px", fontSize:10, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:"rgba(255,255,255,0.35)", margin:0 }}>
+                      DE Stimme
+                    </p>
+                    {germanVoices.map(v => {
+                      const active = selectedVoiceUri ? v.voiceURI === selectedVoiceUri : v === pickBestGermanVoice(germanVoices, null);
+                      return (
+                        <button
+                          key={v.voiceURI}
+                          type="button"
+                          onClick={() => { setSelectedVoiceUri(v.voiceURI); setVoiceDropOpen(false); }}
+                          style={{
+                            display:"flex", alignItems:"center", gap:8, width:"100%",
+                            padding:"6px 12px", background:"none", border:"none",
+                            color: active ? "#C9A84C" : "rgba(200,210,220,0.8)",
+                            cursor:"pointer", textAlign:"left", fontSize:12,
+                            fontFamily:"inherit",
+                          }}
+                        >
+                          {active && <Check size={11} style={{ flexShrink:0, color:"#C9A84C" }} />}
+                          {!active && <span style={{ width:11, flexShrink:0 }} />}
+                          <span style={{ overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{v.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+            {visibleEntries.length > 0 && (
+              <button type="button" className="snt-pill-ico" onClick={clearHistory} title="Verlauf löschen">
+                <Trash2 size={15} />
+              </button>
+            )}
+            {(currentRun.provider ?? status?.activeProvider) && (
+              <span style={{
+                fontSize: 10, fontWeight: 700,
+                color: "rgba(214,184,108,0.65)",
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+                background: "rgba(214,184,108,0.07)",
+                border: "1px solid rgba(214,184,108,0.15)",
+                borderRadius: 6,
+                padding: "2px 7px",
+                flexShrink: 0,
+                marginLeft: 4,
+              }}>
+                {currentRun.provider ?? status?.activeProvider}
+              </span>
+            )}
             <TokenRing activeProvider={currentRun.provider ?? status?.activeProvider ?? null} />
           </div>
         </div>
       </div>
 
+      {/* ── Chat-Verlauf Panel ── */}
+      {historyOpen && (
+        <div
+          style={{
+            position:"absolute", top:0, right:0, bottom:0, width:270,
+            background:"#0f1013", borderLeft:"1px solid rgba(255,255,255,0.07)",
+            display:"flex", flexDirection:"column", zIndex:200,
+            boxShadow:"-8px 0 32px rgba(0,0,0,0.5)",
+            animation:"snt-slide-in 180ms ease",
+          }}
+        >
+          {/* Header */}
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"12px 14px 10px", borderBottom:"1px solid rgba(255,255,255,0.07)", flexShrink:0 }}>
+            <span style={{ fontSize:12, fontWeight:700, color:"rgba(255,255,255,0.55)", letterSpacing:"0.1em", textTransform:"uppercase" }}>Verlauf</span>
+            <button type="button" onClick={() => setHistoryOpen(false)} style={{ background:"none", border:"none", color:"rgba(255,255,255,0.35)", cursor:"pointer", padding:4, display:"flex", alignItems:"center" }}>
+              <X size={14} />
+            </button>
+          </div>
+
+          {/* List */}
+          <div style={{ flex:1, overflowY:"auto", padding:"6px 0" }}>
+            {savedSessions.length === 0 && (
+              <p style={{ padding:"20px 16px", fontSize:11.5, color:"rgba(255,255,255,0.25)", textAlign:"center", margin:0 }}>
+                Noch keine gespeicherten Chats.<br />Starte einen neuen Chat — der alte wird hier gespeichert.
+              </p>
+            )}
+            {savedSessions.map(session => (
+              <div
+                key={session.id}
+                style={{ padding:"8px 12px", cursor:"pointer", borderRadius:8, margin:"2px 6px", transition:"background .12s" }}
+                onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.05)")}
+                onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+              >
+                {renamingId === session.id ? (
+                  <input
+                    autoFocus
+                    value={renameValue}
+                    onChange={e => setRenameValue(e.target.value)}
+                    onBlur={() => { if (renameValue.trim()) renameSession(session.id, renameValue.trim()); setRenamingId(null); }}
+                    onKeyDown={e => { if (e.key === "Enter") { if (renameValue.trim()) renameSession(session.id, renameValue.trim()); setRenamingId(null); } if (e.key === "Escape") setRenamingId(null); }}
+                    style={{ width:"100%", background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.15)", borderRadius:6, padding:"4px 7px", color:"#fff", fontSize:12, fontFamily:"inherit", outline:"none" }}
+                    onClick={e => e.stopPropagation()}
+                  />
+                ) : (
+                  <div
+                    onClick={() => { loadSession(session.id); setHistoryOpen(false); }}
+                    style={{ display:"flex", flexDirection:"column", gap:3 }}
+                  >
+                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:6 }}>
+                      <span style={{ fontSize:12, fontWeight:600, color:"rgba(255,255,255,0.82)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", flex:1 }}>
+                        {session.title}
+                      </span>
+                      <div style={{ display:"flex", gap:2, flexShrink:0 }} onClick={e => e.stopPropagation()}>
+                        <button type="button" title="Umbenennen" onClick={() => { setRenamingId(session.id); setRenameValue(session.title); }} style={{ background:"none", border:"none", color:"rgba(255,255,255,0.25)", cursor:"pointer", padding:3, display:"flex", alignItems:"center" }}>
+                          <Pencil size={11} />
+                        </button>
+                        <button type="button" title="Löschen" onClick={() => deleteSession(session.id)} style={{ background:"none", border:"none", color:"rgba(255,100,100,0.35)", cursor:"pointer", padding:3, display:"flex", alignItems:"center" }}>
+                          <X size={11} />
+                        </button>
+                      </div>
+                    </div>
+                    <span style={{ fontSize:10.5, color:"rgba(255,255,255,0.28)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+                      {session.preview || "—"}
+                    </span>
+                    <span style={{ fontSize:9.5, color:"rgba(255,255,255,0.18)", letterSpacing:"0.02em" }}>
+                      {new Date(session.createdAt).toLocaleDateString("de-DE", { day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" })}
+                    </span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <style jsx>{`
         .snt {
           position:relative;display:flex;flex-direction:column;height:100%;min-height:0;width:100%;
           background:transparent;color:#e2e6ed;font-size:13px;
-          font-family:var(--font-montserrat,"Montserrat",system-ui,-apple-system,sans-serif);
+          font-family:var(--font-text);
         }
         .snt.snt-fullscreen {
           position:fixed;inset:0;z-index:2147483000;width:100vw;width:100dvw;
@@ -1020,6 +1136,10 @@ export function SentinelDashboard() {
         }
         .snt-empty-rings { flex:0 0 auto;display:flex;align-items:center;justify-content:center;margin-bottom:56px; }
         .snt-empty-rings-fs { transform:scale(1.3);transform-origin:center;margin-bottom:90px; }
+        @keyframes snt-slide-in {
+          from { transform:translateX(100%); opacity:0; }
+          to   { transform:translateX(0);    opacity:1; }
+        }
         /* avatar enter animation */
         @keyframes snt-avatar-enter {
           from { opacity:0;transform:scale(0.8); }
@@ -1050,8 +1170,8 @@ export function SentinelDashboard() {
         .snt-bwrap-b { align-items:flex-start; }
         .snt-msg { font-size:13px;line-height:1.65;white-space:pre-wrap;word-break:break-word;font-weight:500; }
         .snt-msg-u {
-          max-width:68%;background:#1a1c22;color:#ffffff;
-          border:1px solid rgba(255,255,255,0.10);border-radius:18px;border-bottom-right-radius:4px;
+          max-width:68%;background:#1a1a1c;color:#ffffff;
+          border:none;border-radius:18px;border-bottom-right-radius:4px;
           padding:11px 14px;font-weight:500;
         }
         .snt-msg-b {
@@ -1092,13 +1212,13 @@ export function SentinelDashboard() {
         .snt-hero-pill {
           position:relative;display:flex;align-items:center;gap:0;
           width:50%;min-height:56px;
-          background:#0d0e11;border:1px solid rgba(255,255,255,0.20);border-radius:28px;
+          background:#1a1a1c;border:none;border-radius:28px;
           padding:8px 10px 8px 10px;
           box-shadow:0 4px 24px rgba(0,0,0,0.40);
           transition:border-color .2s,box-shadow .2s;
         }
         .snt-hero-pill:focus-within {
-          border-color:rgba(255,255,255,0.55);
+          border-color:transparent;
           box-shadow:0 0 0 1px rgba(255,255,255,0.10),0 4px 24px rgba(0,0,0,0.40);
         }
         .snt-ta {

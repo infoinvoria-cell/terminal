@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   useEffect, useRef, useState, useCallback, useMemo,
@@ -104,7 +104,7 @@ const DEFAULT_PARAMS: Record<Strategy, Params> = {
 const BG      = "#0a0a0c";
 const GAP     = "#000000";
 const GOLD    = "#C9A84C";
-const GOLD_S  = "#e2ca7a";
+const GOLD_S  = "#C9A84C";
 const GOLD_DIM= "rgba(201,168,76,0.12)";
 const TXT     = "#F0F0F0";
 const MUT     = "#9ca3af";
@@ -451,7 +451,7 @@ export default function TradingEnginePage() {
         input[type=date]::-webkit-calendar-picker-indicator{filter:invert(0.4);cursor:pointer}
         select option{background:${BG}}
 
-        .e-root{display:flex;height:100%;width:100%;background:${GAP};overflow:hidden;color:${TXT};font-family:var(--font-montserrat,system-ui);gap:2px}
+        .e-root{display:flex;height:100%;width:100%;background:${GAP};overflow:hidden;color:${TXT};font-family:var(--font-text);gap:2px}
         .e-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
         .e-chart-wrap{flex:55%;min-height:0;background:${BG};position:relative;overflow:hidden}
         .e-tester-wrap{flex:45%;min-height:0;background:${BG};display:flex;flex-direction:column;overflow:hidden}
@@ -483,12 +483,12 @@ export default function TradingEnginePage() {
         .kpi-row{display:flex;justify-content:space-between;align-items:baseline;padding:7px 8px;border-bottom:1px solid rgba(255,255,255,0.03)}
         .kpi-row:last-child{border-bottom:none}
         .kpi-label{font-size:10px;color:${DIM};letter-spacing:.04em}
-        .kpi-value{font-size:15px;font-weight:700;font-family:var(--font-nunito,monospace)}
+        .kpi-value{font-size:15px;font-weight:700;font-family:var(--font-numbers)}
 
         .trade-tbl{width:100%;border-collapse:collapse}
         .trade-tbl th{padding:6px 8px;font-size:9px;color:${DIM};font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid ${BORDER};text-align:left;position:sticky;top:0;background:${BG};cursor:pointer;user-select:none;white-space:nowrap}
         .trade-tbl th:hover{color:${MUT}}
-        .trade-tbl td{padding:4px 8px;font-size:11px;font-family:var(--font-nunito,monospace)}
+        .trade-tbl td{padding:4px 8px;font-size:11px;font-family:var(--font-numbers)}
 
         .tf-btn{padding:3px 8px;font-size:10px;font-weight:600;color:${DIM};background:none;border:1px solid transparent;border-radius:4px;cursor:pointer;transition:all .15s}
         .tf-btn:hover{color:${MUT};border-color:${BORDER}}
@@ -498,7 +498,7 @@ export default function TradingEnginePage() {
         .perf-tbl tr{border-bottom:1px solid rgba(255,255,255,0.03)}
         .perf-tbl td{padding:8px 14px;font-size:11.5px}
         .perf-tbl td:first-child{color:${DIM};font-size:10.5px}
-        .perf-tbl td:last-child{text-align:right;font-family:var(--font-nunito,monospace);font-weight:600;color:${TXT}}
+        .perf-tbl td:last-child{text-align:right;font-family:var(--font-numbers);font-weight:600;color:${TXT}}
 
         .tbtn{background:none;border:1px solid ${BORDER};color:${DIM};padding:4px 8px;border-radius:4px;cursor:pointer;font-size:10px;transition:all .12s;display:flex;align-items:center;gap:4px}
         .tbtn:hover{color:${TXT};border-color:rgba(255,255,255,0.12)}
@@ -531,7 +531,7 @@ export default function TradingEnginePage() {
                 {signal.status && (
                   <>
                     <span style={{ width: 1, height: 12, background: BORDER, margin: "0 4px" }} />
-                    <span style={{ fontSize: 9, fontWeight: 700, color: signal.status === "APPROVED_LIVE" ? "#4ade80" : GOLD, padding: "2px 8px", borderRadius: 3, background: signal.status === "APPROVED_LIVE" ? "rgba(74,222,128,0.1)" : GOLD_DIM }}>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: signal.status === "APPROVED_LIVE" ? "#22C55E" : GOLD, padding: "2px 8px", borderRadius: 3, background: signal.status === "APPROVED_LIVE" ? "rgba(74,222,128,0.1)" : GOLD_DIM }}>
                       {signal.status === "APPROVED_LIVE" ? "APPROVED LIVE" : signal.status}
                     </span>
                     {signal.parity && (
@@ -542,8 +542,8 @@ export default function TradingEnginePage() {
                 {meta.useEma && signal.ema_fast_val != null && (
                   <>
                     <span style={{ width: 1, height: 12, background: BORDER, margin: "0 4px" }} />
-                    <span style={{ fontSize: 10, color: GOLD_S, fontFamily: "var(--font-nunito,monospace)" }}>EMA {emaFast}: {signal.ema_fast_val.toFixed(5)}</span>
-                    <span style={{ fontSize: 10, color: FAINT, fontFamily: "var(--font-nunito,monospace)" }}>EMA {emaSlow}: {signal.ema_slow_val?.toFixed(5)}</span>
+                    <span style={{ fontSize: 10, color: GOLD_S, fontFamily: "var(--font-numbers)" }}>EMA {emaFast}: {signal.ema_fast_val.toFixed(5)}</span>
+                    <span style={{ fontSize: 10, color: FAINT, fontFamily: "var(--font-numbers)" }}>EMA {emaSlow}: {signal.ema_slow_val?.toFixed(5)}</span>
                   </>
                 )}
               </div>
@@ -557,18 +557,18 @@ export default function TradingEnginePage() {
                 <div style={{ position: "relative" }}>
                   <button className="tbtn" onClick={() => setShowSettings(s => !s)} style={{ position: "relative" }}>
                     <span style={{ fontSize: 11 }}>&#9881;</span>
-                    <div style={{ width: 5, height: 5, borderRadius: "50%", background: online ? "#4ade80" : GOLD, position: "absolute", top: 2, right: 2 }} />
+                    <div style={{ width: 5, height: 5, borderRadius: "50%", background: online ? "#22C55E" : GOLD, position: "absolute", top: 2, right: 2 }} />
                   </button>
                   {showSettings && (
                     <div className="settings-drop">
                       <div style={{ fontSize: 10, color: DIM, marginBottom: 8, letterSpacing: ".06em", textTransform: "uppercase" }}>Engine Status</div>
                       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: online ? "#4ade80" : GOLD }} />
+                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: online ? "#22C55E" : GOLD }} />
                         <span style={{ fontSize: 11, color: online ? TXT : MUT }}>{online ? "Online" : "Offline"}</span>
                       </div>
                       {online && (
                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: ibkrOk ? "#4ade80" : GOLD }} />
+                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: ibkrOk ? "#22C55E" : GOLD }} />
                           <span style={{ fontSize: 11, color: MUT }}>IBKR {ibkrOk ? `connected${health?.paper_mode ? " (Paper)" : ""}` : "disconnected"}</span>
                         </div>
                       )}
@@ -608,7 +608,7 @@ export default function TradingEnginePage() {
                 <button key={t.key} className={`e-tab${testerTab === t.key ? " on" : ""}`} onClick={() => setTesterTab(t.key)}>{t.label}</button>
               ))}
               <div style={{ flex: 1 }} />
-              <span style={{ fontSize: 10, color: FAINT, fontFamily: "var(--font-nunito,monospace)", flexShrink: 0 }}>
+              <span style={{ fontSize: 10, color: FAINT, fontFamily: "var(--font-numbers)", flexShrink: 0 }}>
                 {hasResult ? `${trades.length} Trades · ${startDate.slice(0, 4)}–${endDate.slice(0, 4)}` : hasData ? `${bars.length.toLocaleString()} Kerzen geladen` : ""}
               </span>
               <button onClick={() => void runBacktest()} disabled={running}
@@ -631,8 +631,8 @@ export default function TradingEnginePage() {
                           <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={equityData} margin={{ top: 6, right: 6, left: 0, bottom: 0 }}>
                               <XAxis dataKey="x" tick={{ fontSize: 9, fill: FAINT }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} interval={Math.max(1, Math.floor(equityData.length / 8))} tickFormatter={v => String(v).slice(0, 4)} />
-                              <YAxis domain={["auto", "auto"]} tick={{ fontSize: 9, fill: DIM, fontFamily: 'var(--font-nunito,monospace)' }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} width={50} tickFormatter={v => `${Number(v).toFixed(0)}%`} />
-                              <Tooltip contentStyle={{ background: BG, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 10, fontFamily: 'var(--font-nunito,monospace)' }} labelStyle={{ color: DIM }} formatter={(v: unknown, n: unknown) => [`${Number(v).toFixed(2)}%`, n === "y" ? "Strategy" : "Buy & Hold"]} />
+                              <YAxis domain={["auto", "auto"]} tick={{ fontSize: 9, fill: DIM, fontFamily: 'var(--font-numbers)' }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} width={50} tickFormatter={v => `${Number(v).toFixed(0)}%`} />
+                              <Tooltip contentStyle={{ background: BG, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 10, fontFamily: 'var(--font-numbers)' }} labelStyle={{ color: DIM }} formatter={(v: unknown, n: unknown) => [`${Number(v).toFixed(2)}%`, n === "y" ? "Strategy" : "Buy & Hold"]} />
                               <Line type="monotone" dataKey="y" stroke="#F5F5F5" dot={false} strokeWidth={1.5} name="Strategy" />
                               {equityData.some(d => d.bh != null) && <Line type="monotone" dataKey="bh" stroke="#333333" dot={false} strokeWidth={1} strokeDasharray="4 3" name="Buy & Hold" />}
                             </LineChart>
@@ -642,7 +642,7 @@ export default function TradingEnginePage() {
                           <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={ddData} margin={{ top: 2, right: 6, left: 0, bottom: 0 }}>
                               <XAxis dataKey="x" tick={{ fontSize: 7, fill: FAINT }} tickLine={false} axisLine={false} interval={Math.max(1, Math.floor(ddData.length / 8))} tickFormatter={v => String(v).slice(0, 4)} />
-                              <YAxis domain={["auto", 0]} tick={{ fontSize: 8, fill: DIM, fontFamily: 'var(--font-nunito,monospace)' }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} width={50} tickFormatter={v => `${Number(v).toFixed(1)}%`} />
+                              <YAxis domain={["auto", 0]} tick={{ fontSize: 8, fill: DIM, fontFamily: 'var(--font-numbers)' }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} width={50} tickFormatter={v => `${Number(v).toFixed(1)}%`} />
                               <Tooltip contentStyle={{ background: BG, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 9 }} formatter={(v: unknown) => [`${Number(v).toFixed(2)}%`, "Drawdown"]} />
                               <Area type="monotone" dataKey="dd" stroke="#C9A84C" fill="rgba(201,168,76,0.2)" strokeWidth={1} dot={false} />
                             </AreaChart>
@@ -665,13 +665,13 @@ export default function TradingEnginePage() {
                     })}
                     {STRATEGY_VALIDATION[strategy] && (
                       <div style={{ borderTop: `1px solid ${BORDER}`, marginTop: 6, paddingTop: 8, display: "flex", flexDirection: "column", gap: 3 }}>
-                        <span style={{ fontSize: 8, color: FAINT, letterSpacing: ".08em", textTransform: "uppercase", fontFamily: "var(--font-montserrat,system-ui)", marginBottom: 2 }}>Validierung</span>
+                        <span style={{ fontSize: 8, color: FAINT, letterSpacing: ".08em", textTransform: "uppercase", fontFamily: "var(--font-text)", marginBottom: 2 }}>Validierung</span>
                         {STRATEGY_VALIDATION[strategy]!.map(b => {
                           const col = b.status === "ok" ? "#22C55E" : b.status === "fail" ? RED : b.status === "pending" ? FAINT : GOLD;
                           return (
                             <div key={b.label} title={b.tooltip ?? ""} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "2px 6px", borderRadius: 3, border: `1px solid ${col}33`, cursor: b.tooltip ? "help" : "default" }}>
-                              <span style={{ fontSize: 9, letterSpacing: ".06em", textTransform: "uppercase", fontFamily: "var(--font-montserrat,system-ui)", color: FAINT }}>{b.label}</span>
-                              <span style={{ fontSize: 9, fontWeight: 700, fontFamily: "var(--font-montserrat,system-ui)", color: col }}>{b.value}</span>
+                              <span style={{ fontSize: 9, letterSpacing: ".06em", textTransform: "uppercase", fontFamily: "var(--font-text)", color: FAINT }}>{b.label}</span>
+                              <span style={{ fontSize: 9, fontWeight: 700, fontFamily: "var(--font-text)", color: col }}>{b.value}</span>
                             </div>
                           );
                         })}
@@ -726,12 +726,12 @@ export default function TradingEnginePage() {
                     <div>
                       <label style={{ fontSize: 9, color: DIM, letterSpacing: ".06em", textTransform: "uppercase", display: "block", marginBottom: 4 }}>Start Date</label>
                       <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)}
-                        style={{ width: "100%", fontSize: 11, background: "rgba(255,255,255,0.03)", border: `1px solid ${BORDER}`, color: TXT, padding: "6px 10px", borderRadius: 4, outline: "none", fontFamily: "var(--font-nunito,monospace)" }} />
+                        style={{ width: "100%", fontSize: 11, background: "rgba(255,255,255,0.03)", border: `1px solid ${BORDER}`, color: TXT, padding: "6px 10px", borderRadius: 4, outline: "none", fontFamily: "var(--font-numbers)" }} />
                     </div>
                     <div>
                       <label style={{ fontSize: 9, color: DIM, letterSpacing: ".06em", textTransform: "uppercase", display: "block", marginBottom: 4 }}>End Date</label>
                       <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)}
-                        style={{ width: "100%", fontSize: 11, background: "rgba(255,255,255,0.03)", border: `1px solid ${BORDER}`, color: TXT, padding: "6px 10px", borderRadius: 4, outline: "none", fontFamily: "var(--font-nunito,monospace)" }} />
+                        style={{ width: "100%", fontSize: 11, background: "rgba(255,255,255,0.03)", border: `1px solid ${BORDER}`, color: TXT, padding: "6px 10px", borderRadius: 4, outline: "none", fontFamily: "var(--font-numbers)" }} />
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 6, marginTop: 14 }}>
@@ -742,11 +742,11 @@ export default function TradingEnginePage() {
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, maxWidth: 480, marginTop: 20 }}>
                     <div>
                       <label style={{ fontSize: 9, color: DIM, letterSpacing: ".06em", textTransform: "uppercase", display: "block", marginBottom: 4 }}>Initial Capital</label>
-                      <div style={{ fontSize: 13, color: TXT, fontFamily: "var(--font-nunito,monospace)", fontWeight: 600, padding: "6px 0" }}>100.000 EUR</div>
+                      <div style={{ fontSize: 13, color: TXT, fontFamily: "var(--font-numbers)", fontWeight: 600, padding: "6px 0" }}>100.000 EUR</div>
                     </div>
                     <div>
                       <label style={{ fontSize: 9, color: DIM, letterSpacing: ".06em", textTransform: "uppercase", display: "block", marginBottom: 4 }}>Commission</label>
-                      <div style={{ fontSize: 13, color: TXT, fontFamily: "var(--font-nunito,monospace)", fontWeight: 600, padding: "6px 0" }}>10 bps</div>
+                      <div style={{ fontSize: 13, color: TXT, fontFamily: "var(--font-numbers)", fontWeight: 600, padding: "6px 0" }}>10 bps</div>
                     </div>
                   </div>
                   <button onClick={() => void runBacktest()} disabled={running}
@@ -770,7 +770,7 @@ export default function TradingEnginePage() {
                 <Image src={STRATEGIES[id].icon} alt="" width={24} height={24} style={{ borderRadius: 4, flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 11.5, fontWeight: strategy === id ? 600 : 400 }}>{STRATEGIES[id].label}</div>
-                  <div style={{ fontSize: 9, color: strategy === id ? GOLD_S : FAINT, fontFamily: "var(--font-nunito,monospace)", marginTop: 1 }}>
+                  <div style={{ fontSize: 9, color: strategy === id ? GOLD_S : FAINT, fontFamily: "var(--font-numbers)", marginTop: 1 }}>
                     {assetType === "futures" ? STRATEGIES[id].futures : STRATEGIES[id].cfd}
                   </div>
                 </div>
@@ -797,7 +797,7 @@ export default function TradingEnginePage() {
               <div key={lbl} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
                 <span style={{ fontSize: 9, color: FAINT, width: 28, flexShrink: 0 }}>{lbl}</span>
                 <input type="date" value={val} onChange={e => setter(e.target.value)}
-                  style={{ flex: 1, fontSize: 9, background: "none", border: "none", borderBottom: `1px solid ${BORDER}`, color: MUT, outline: "none", padding: "2px 0", fontFamily: "var(--font-nunito,monospace)" }} />
+                  style={{ flex: 1, fontSize: 9, background: "none", border: "none", borderBottom: `1px solid ${BORDER}`, color: MUT, outline: "none", padding: "2px 0", fontFamily: "var(--font-numbers)" }} />
               </div>
             ))}
           </div>
@@ -809,7 +809,7 @@ export default function TradingEnginePage() {
                 <div key={label as string} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
                   <input type="checkbox" checked={checked as boolean} onChange={e => (setter as (v: boolean) => void)(e.target.checked)} style={{ accentColor: GOLD, width: 13, height: 13, cursor: "pointer" }} />
                   <span style={{ fontSize: 10.5, color: (checked as boolean) ? (col as string) : DIM, flex: 1 }}>{label as string}</span>
-                  <span style={{ fontSize: 11, color: TXT, fontFamily: "var(--font-nunito,monospace)", fontWeight: 600 }}>{val as string}</span>
+                  <span style={{ fontSize: 11, color: TXT, fontFamily: "var(--font-numbers)", fontWeight: 600 }}>{val as string}</span>
                 </div>
               ))}
             </div>
@@ -830,11 +830,11 @@ export default function TradingEnginePage() {
                 {([
                   ["Close", signal.close?.toFixed(5), TXT],
                   ["ATR", signal.atr?.toFixed(5), MUT],
-                  ["Regime", signal.regime_active ? "Active" : "Off", signal.regime_active ? "#4ade80" : DIM],
+                  ["Regime", signal.regime_active ? "Active" : "Off", signal.regime_active ? "#22C55E" : DIM],
                 ] as [string, string | undefined, string][]).filter(([, v]) => v).map(([l, v, col]) => (
                   <div key={l} style={{ display: "flex", justifyContent: "space-between" }}>
                     <span style={{ fontSize: 9, color: FAINT }}>{l}</span>
-                    <span style={{ fontSize: 10, color: col, fontFamily: "var(--font-nunito,monospace)" }}>{v}</span>
+                    <span style={{ fontSize: 10, color: col, fontFamily: "var(--font-numbers)" }}>{v}</span>
                   </div>
                 ))}
               </div>
@@ -844,7 +844,7 @@ export default function TradingEnginePage() {
                 {([["EMA Fast", signal.ema_fast_val?.toFixed(5), GOLD_S], ["EMA Slow", signal.ema_slow_val?.toFixed(5), DIM], ["Last Cross", signal.last_cross_date, FAINT]] as [string, string | undefined, string][]).filter(([, v]) => v).map(([l, v, col]) => (
                   <div key={l} style={{ display: "flex", justifyContent: "space-between" }}>
                     <span style={{ fontSize: 9, color: FAINT }}>{l}</span>
-                    <span style={{ fontSize: 10, color: col, fontFamily: "var(--font-nunito,monospace)" }}>{v}</span>
+                    <span style={{ fontSize: 10, color: col, fontFamily: "var(--font-numbers)" }}>{v}</span>
                   </div>
                 ))}
               </div>
@@ -854,7 +854,7 @@ export default function TradingEnginePage() {
                 {([["Entry", signal.entry?.toFixed(4), TXT], ["SL", signal.sl?.toFixed(4), GOLD], ["TP", signal.tp?.toFixed(4), TXT]] as [string, string | undefined, string][]).filter(([, v]) => v).map(([l, v, col]) => (
                   <div key={l} style={{ display: "flex", justifyContent: "space-between" }}>
                     <span style={{ fontSize: 9, color: FAINT }}>{l}</span>
-                    <span style={{ fontSize: 10, color: col, fontFamily: "var(--font-nunito,monospace)" }}>{v}</span>
+                    <span style={{ fontSize: 10, color: col, fontFamily: "var(--font-numbers)" }}>{v}</span>
                   </div>
                 ))}
               </div>
@@ -869,7 +869,7 @@ export default function TradingEnginePage() {
                 ] as [string, string | undefined, string][]).filter(([, v]) => v).map(([l, v, col]) => (
                   <div key={l} style={{ display: "flex", justifyContent: "space-between" }}>
                     <span style={{ fontSize: 9, color: FAINT }}>{l}</span>
-                    <span style={{ fontSize: 10, color: col, fontFamily: "var(--font-nunito,monospace)" }}>{v}</span>
+                    <span style={{ fontSize: 10, color: col, fontFamily: "var(--font-numbers)" }}>{v}</span>
                   </div>
                 ))}
               </div>
@@ -882,7 +882,7 @@ export default function TradingEnginePage() {
           <div className="e-codepanel">
             <div className="e-code-resize" onMouseDown={codeW.onMouseDown} />
             <div style={{ padding: '8px 14px 8px 18px', borderBottom: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-              <span style={{ fontSize: 11, color: TXT, fontFamily: 'var(--font-nunito,monospace)', fontWeight: 500 }}>
+              <span style={{ fontSize: 11, color: TXT, fontFamily: 'var(--font-numbers)', fontWeight: 500 }}>
                 {strategy.toLowerCase()}_strategy.py
               </span>
               <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -924,7 +924,7 @@ function ParamRow({ def, value, onChange }: { def: ParamDef; value: number | str
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0" }}>
       <span style={{ fontSize: 10, color: DIM }}>{def.label}</span>
       <select value={value as string} onChange={e => onChange(e.target.value)}
-        style={{ fontSize: 11, color: TXT, fontFamily: "var(--font-nunito,monospace)", fontWeight: 600, background: "none", border: "none", borderBottom: `1px solid ${BORDER}`, outline: "none", cursor: "pointer" }}>
+        style={{ fontSize: 11, color: TXT, fontFamily: "var(--font-numbers)", fontWeight: 600, background: "none", border: "none", borderBottom: `1px solid ${BORDER}`, outline: "none", cursor: "pointer" }}>
         {def.options?.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
     </div>
@@ -933,7 +933,7 @@ function ParamRow({ def, value, onChange }: { def: ParamDef; value: number | str
     <div style={{ padding: "5px 0" }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
         <span style={{ fontSize: 10, color: DIM }}>{def.label}</span>
-        <span style={{ fontSize: 11, color: TXT, fontFamily: "var(--font-nunito,monospace)", fontWeight: 600 }}>{value}</span>
+        <span style={{ fontSize: 11, color: TXT, fontFamily: "var(--font-numbers)", fontWeight: 600 }}>{value}</span>
       </div>
       <input type="range" min={def.min} max={def.max} step={def.step} value={value as number}
         onChange={e => onChange((def.step ?? 1) < 1 ? parseFloat(e.target.value) : parseInt(e.target.value, 10))} />
@@ -944,7 +944,7 @@ function ParamRow({ def, value, onChange }: { def: ParamDef; value: number | str
       <span style={{ fontSize: 10, color: DIM }}>{def.label}</span>
       <input type="number" min={def.min} max={def.max} step={def.step} value={value as number}
         onChange={e => { const n = parseFloat(e.target.value); if (!isNaN(n)) onChange(n); }}
-        style={{ fontSize: 11, color: TXT, fontFamily: "var(--font-nunito,monospace)", fontWeight: 600, background: "none", border: "none", borderBottom: `1px solid ${BORDER}`, outline: "none", width: 72, textAlign: "right" }} />
+        style={{ fontSize: 11, color: TXT, fontFamily: "var(--font-numbers)", fontWeight: 600, background: "none", border: "none", borderBottom: `1px solid ${BORDER}`, outline: "none", width: 72, textAlign: "right" }} />
     </div>
   );
 }

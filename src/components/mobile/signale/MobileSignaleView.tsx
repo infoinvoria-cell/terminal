@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
@@ -485,7 +485,7 @@ function DetailSheet({
             const isNeg = k.tone === "negative" || (typeof k.value === "string" && k.value.startsWith("-"));
             return (
               <div key={k.label} style={{
-                background: "linear-gradient(180deg,#1c1d20 0%,#141517 100%)",
+                background: "linear-gradient(180deg,#1F1F1F 0%,#13131A 100%)",
                 border: "1px solid rgba(255,255,255,0.08)",
                 borderRadius: 7, padding: "6px 5px 7px",
                 display: "flex", flexDirection: "column", gap: 4,
@@ -532,7 +532,7 @@ function SectionPanel({
       <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 8, padding: "10px 14px 8px" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={logo} alt={section.title} width={20} height={20} style={{ objectFit: "contain", flexShrink: 0 }} />
-        <span style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.82)", textTransform: "uppercase", letterSpacing: "0.06em", fontFamily: "var(--font-montserrat,sans-serif)" }}>
+        <span style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.82)", textTransform: "uppercase", letterSpacing: "0.06em", fontFamily: "var(--font-text)" }}>
           {section.title}
         </span>
         <div style={{ marginLeft: "auto", display: "flex", gap: 3 }}>
@@ -543,7 +543,7 @@ function SectionPanel({
               border: filter === f ? "1px solid rgba(255,255,255,0.12)" : "1px solid transparent",
               borderRadius: 5, color: filter === f ? "#fff" : "rgba(255,255,255,0.35)",
               fontSize: 10, fontWeight: 700, letterSpacing: "0.05em",
-              cursor: "pointer", fontFamily: "var(--font-montserrat,sans-serif)",
+              cursor: "pointer", fontFamily: "var(--font-text)",
               WebkitTapHighlightColor: "transparent",
             } as React.CSSProperties}>{label}</button>
           ))}

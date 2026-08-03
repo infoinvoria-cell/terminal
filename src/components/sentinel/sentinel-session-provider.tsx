@@ -7,10 +7,13 @@ import {
   lsGet,
   lsSet,
   MAX_HISTORY,
+  MAX_SAVED_SESSIONS,
   SENTINEL_DRAFT_KEY,
   SENTINEL_HISTORY_KEY,
+  SENTINEL_SAVED_SESSIONS_KEY,
   SENTINEL_SESSION_KEY,
   sentinelHistoryKey,
+  type SavedSession,
   type SentinelCurrentRun,
   type SentinelSessionState,
   type SentinelStatusPayload,
@@ -22,6 +25,10 @@ type SentinelSessionContextValue = SentinelSessionState & {
   send: (overrideText?: string, entriesOverride?: ChatEntry[]) => Promise<void>;
   clearHistory: () => void;
   refreshStatus: () => Promise<void>;
+  savedSessions: SavedSession[];
+  loadSession: (id: string) => void;
+  deleteSession: (id: string) => void;
+  renameSession: (id: string, title: string) => void;
 };
 
 const DEFAULT_RUN: SentinelCurrentRun = {
@@ -57,9 +64,22 @@ function nowIso() {
   return new Date().toISOString();
 }
 
+function makeSessionTitle(entries: ChatEntry[]): string {
+  const first = entries.find(e => e.role === "user")?.content ?? "";
+  return first.slice(0, 48) || "Chat";
+}
+
+function makeSessionPreview(entries: ChatEntry[]): string {
+  const last = [...entries].reverse().find(e => e.role === "assistant")?.content ?? "";
+  return last.slice(0, 80);
+}
+
 export function SentinelSessionProvider({ children, userId }: { children: React.ReactNode; userId?: string }) {
   const historyKey = userId ? sentinelHistoryKey(userId) : SENTINEL_HISTORY_KEY;
   const initialSession = loadInitialSession();
+  const [savedSessions, setSavedSessions] = useState<SavedSession[]>(() =>
+    lsGet<SavedSession[]>(SENTINEL_SAVED_SESSIONS_KEY, [])
+  );
   const [entries, setEntries] = useState<ChatEntry[]>(() => {
     if (userId) {
       try {
@@ -299,6 +319,21 @@ export function SentinelSessionProvider({ children, userId }: { children: React.
   }, [busy, send]);
 
   const clearHistory = useCallback(() => {
+    const current = entriesRef.current;
+    if (current.length > 0) {
+      const session: SavedSession = {
+        id: crypto.randomUUID(),
+        title: makeSessionTitle(current),
+        preview: makeSessionPreview(current),
+        createdAt: new Date().toISOString(),
+        entries: current,
+      };
+      setSavedSessions(prev => {
+        const next = [session, ...prev].slice(0, MAX_SAVED_SESSIONS);
+        lsSet(SENTINEL_SAVED_SESSIONS_KEY, next);
+        return next;
+      });
+    }
     setEntries([]);
     entriesRef.current = [];
     setError(null);
@@ -308,6 +343,33 @@ export function SentinelSessionProvider({ children, userId }: { children: React.
     setQueuedPreview(null);
     lsClear(historyKey);
     lsClear(SENTINEL_SESSION_KEY);
+  }, [historyKey]);
+
+  const loadSession = useCallback((id: string) => {
+    const session = lsGet<SavedSession[]>(SENTINEL_SAVED_SESSIONS_KEY, []).find(s => s.id === id);
+    if (!session) return;
+    setEntries(session.entries);
+    entriesRef.current = session.entries;
+    setError(null);
+    setRetryText(null);
+    setCurrentRun(DEFAULT_RUN);
+    lsSet(historyKey, session.entries);
+  }, [historyKey]);
+
+  const deleteSession = useCallback((id: string) => {
+    setSavedSessions(prev => {
+      const next = prev.filter(s => s.id !== id);
+      lsSet(SENTINEL_SAVED_SESSIONS_KEY, next);
+      return next;
+    });
+  }, []);
+
+  const renameSession = useCallback((id: string, title: string) => {
+    setSavedSessions(prev => {
+      const next = prev.map(s => s.id === id ? { ...s, title } : s);
+      lsSet(SENTINEL_SAVED_SESSIONS_KEY, next);
+      return next;
+    });
   }, []);
 
   const value = useMemo<SentinelSessionContextValue>(() => ({
@@ -328,7 +390,11 @@ export function SentinelSessionProvider({ children, userId }: { children: React.
     send,
     clearHistory,
     refreshStatus,
-  }), [entries, input, busy, sending, streamStarted, error, retryText, queuedPreview, status, currentRun, send, clearHistory, refreshStatus]);
+    savedSessions,
+    loadSession,
+    deleteSession,
+    renameSession,
+  }), [entries, input, busy, sending, streamStarted, error, retryText, queuedPreview, status, currentRun, send, clearHistory, refreshStatus, savedSessions, loadSession, deleteSession, renameSession]);
 
   return (
     <SentinelSessionContext.Provider value={value}>

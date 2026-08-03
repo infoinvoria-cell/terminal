@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 
@@ -16,7 +16,7 @@ import type {
 
 const BOX = "rounded-[14px] border border-[rgba(220,196,118,0.18)] bg-[#0b0b0b] p-[16px] shadow-[inset_0_1px_0_rgba(220,196,118,0.08)]";
 const INPUT = "h-8 rounded-[6px] border border-[#1f1f1f] bg-[#080808] px-2 text-xs text-white outline-none";
-const GOLD = "#dcc476";
+const GOLD = "#C9A84C";
 const BULL = "#0dff00";
 const BEAR = "#ff0000";
 const MUTED = "#8a8a8a";
@@ -40,7 +40,7 @@ function returnColor(v: number | null | undefined): string {
 
 function statusBadge(status: WFCurrentYearStatus): string {
   switch (status) {
-    case "UPCOMING": return "text-[#dcc476]";
+    case "UPCOMING": return "text-[#C9A84C]";
     case "ACTIVE": return "text-[#0dff00]";
     case "COMPLETED_PROVISIONAL": return "text-[#8a8a8a]";
     default: return "text-[#8a8a8a]";
@@ -290,7 +290,7 @@ export function WalkForwardSection() {
           <span className="text-[14px] font-semibold text-white">
             Walk-Forward Seasonal Grid Test
           </span>
-          <span className="rounded-[4px] border border-[rgba(220,196,118,0.3)] bg-[rgba(220,196,118,0.06)] px-2 py-0.5 text-[10px] text-[#dcc476]">
+          <span className="rounded-[4px] border border-[rgba(220,196,118,0.3)] bg-[rgba(220,196,118,0.06)] px-2 py-0.5 text-[10px] text-[#C9A84C]">
             HISTORICAL CSV RESEARCH
           </span>
         </div>
@@ -373,7 +373,7 @@ export function WalkForwardSection() {
           <button
             onClick={handleRun}
             disabled={status === "running"}
-            className="rounded-[8px] border border-[rgba(220,196,118,0.4)] bg-[rgba(220,196,118,0.08)] px-4 py-2 text-xs font-medium text-[#dcc476] transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-[8px] border border-[rgba(220,196,118,0.4)] bg-[rgba(220,196,118,0.08)] px-4 py-2 text-xs font-medium text-[#C9A84C] transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {status === "running" ? "Berechne…" : "Walk-Forward starten"}
           </button>
@@ -401,7 +401,7 @@ export function WalkForwardSection() {
             <div><span className="text-[#8a8a8a]">Fingerprint: </span>{result.dataSource.csvFingerprint.slice(0, 30)}</div>
           </div>
           {result.warnings.length > 0 && (
-            <div className="mt-2 text-[10px] text-[#dcc476]">
+            <div className="mt-2 text-[10px] text-[#C9A84C]">
               {result.warnings.map((w, i) => <div key={i}>⚠ {w}</div>)}
             </div>
           )}
@@ -446,7 +446,7 @@ export function WalkForwardSection() {
               </span>
             )}
           </div>
-          <div className="mb-2 text-[10px] text-[#dcc476]">
+          <div className="mb-2 text-[10px] text-[#C9A84C]">
             Research plan only — not promoted to live trading signal.
           </div>
           <div className="grid grid-cols-2 gap-2 text-[11px] sm:grid-cols-4">
@@ -492,13 +492,13 @@ export function WalkForwardSection() {
           <div className="mb-2 flex gap-2">
             <button
               onClick={() => setActiveTab("folds")}
-              className={`rounded-[6px] px-3 py-1 text-xs transition-colors ${activeTab === "folds" ? "bg-[rgba(220,196,118,0.15)] text-[#dcc476]" : "text-[#8a8a8a] hover:text-white"}`}
+              className={`rounded-[6px] px-3 py-1 text-xs transition-colors ${activeTab === "folds" ? "bg-[rgba(220,196,118,0.15)] text-[#C9A84C]" : "text-[#8a8a8a] hover:text-white"}`}
             >
               Walk-Forward Folds ({result.foldResults.length})
             </button>
             <button
               onClick={() => setActiveTab("top10")}
-              className={`rounded-[6px] px-3 py-1 text-xs transition-colors ${activeTab === "top10" ? "bg-[rgba(220,196,118,0.15)] text-[#dcc476]" : "text-[#8a8a8a] hover:text-white"}`}
+              className={`rounded-[6px] px-3 py-1 text-xs transition-colors ${activeTab === "top10" ? "bg-[rgba(220,196,118,0.15)] text-[#C9A84C]" : "text-[#8a8a8a] hover:text-white"}`}
             >
               Top-10 Kandidaten (letztes Train-Fenster)
             </button>
@@ -532,7 +532,7 @@ export function WalkForwardSection() {
 
       {/* Safety footer */}
       <div className="mt-4 rounded-[8px] border border-[#1f1f1f] bg-[#060606] p-3 text-[10px] text-[#8a8a8a]">
-        <strong className="text-[#dcc476]">Wichtiger Hinweis:</strong>{" "}
+        <strong className="text-[#C9A84C]">Wichtiger Hinweis:</strong>{" "}
         Diese Funktion ist ausschließlich historisches Walk-Forward Research auf Basis einer CSV-Datei.
         Die Ergebnisse sind kein Live-Signal, kein gehebeltes Trading-System und keine Anlageempfehlung.
         Der Current Year Plan ist vorläufig (Provisional) und nicht in der OOS-Gesamtperformance enthalten.

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import {
@@ -106,13 +106,13 @@ function PanelFrame({
         style={{ borderBottom: `1px solid ${C.border}` }}
       >
         <div>
-          <p className="text-[11px] font-semibold tracking-[0.05em] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.text }}>
+          <p className="text-[11px] font-semibold tracking-[0.05em] [font-family:var(--font-text),sans-serif]" style={{ color: C.text }}>
             {title}
           </p>
-          {subtitle ? <p className="text-[9px] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.muted }}>{subtitle}</p> : null}
+          {subtitle ? <p className="text-[9px] [font-family:var(--font-text),sans-serif]" style={{ color: C.muted }}>{subtitle}</p> : null}
         </div>
         {badge ? (
-          <span className="rounded px-1.5 py-0.5 text-[9px] font-semibold tracking-wide [font-family:var(--font-montserrat),sans-serif]" style={{ background: `${badgeColor ?? C.gold}22`, color: badgeColor ?? C.gold }}>
+          <span className="rounded px-1.5 py-0.5 text-[9px] font-semibold tracking-wide [font-family:var(--font-text),sans-serif]" style={{ background: `${badgeColor ?? C.gold}22`, color: badgeColor ?? C.gold }}>
             {badge}
           </span>
         ) : null}
@@ -128,7 +128,7 @@ function StatusBadge({ status, message }: { status: SleeveData["status"]; messag
   return (
     <div className="flex items-center gap-1.5 px-3 py-4">
       <Icon size={12} style={{ color }} />
-      <span className="text-[10px] [font-family:var(--font-montserrat),sans-serif]" style={{ color }}>
+      <span className="text-[10px] [font-family:var(--font-text),sans-serif]" style={{ color }}>
         {message}
       </span>
     </div>
@@ -139,7 +139,7 @@ function SignalPill({ signal }: { signal?: "long" | "cash" }) {
   const isLong = signal === "long";
   return (
     <span
-      className="flex items-center gap-1 rounded px-2 py-0.5 text-[9px] font-semibold tracking-wide [font-family:var(--font-montserrat),sans-serif]"
+      className="flex items-center gap-1 rounded px-2 py-0.5 text-[9px] font-semibold tracking-wide [font-family:var(--font-text),sans-serif]"
       style={{ background: `${isLong ? C.green : C.muted}22`, color: isLong ? C.green : C.muted }}
     >
       {isLong ? <TrendingUp size={9} /> : <TrendingDown size={9} />}
@@ -200,10 +200,10 @@ function SleeveChartPanel({ sleeve }: { sleeve: SleeveData }) {
     >
       <div className="flex items-center justify-between px-3 pt-1.5 pb-0.5">
         <SignalPill signal={sleeve.currentSignal} />
-        <span className="text-[9px] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.muted }}>
+        <span className="text-[9px] [font-family:var(--font-text),sans-serif]" style={{ color: C.muted }}>
           {sleeve.signals.length} signals
         </span>
-        <span className="text-[9px] [font-family:var(--font-montserrat),sans-serif]" style={{ color: lastReturn !== null && lastReturn >= 0 ? C.green : C.red }}>
+        <span className="text-[9px] [font-family:var(--font-text),sans-serif]" style={{ color: lastReturn !== null && lastReturn >= 0 ? C.green : C.red }}>
           {fmt2(lastReturn)}
         </span>
       </div>
@@ -214,7 +214,7 @@ function SleeveChartPanel({ sleeve }: { sleeve: SleeveData }) {
           <XAxis dataKey="date" tick={false} axisLine={false} tickLine={false} />
           <YAxis
             domain={["auto", "auto"]}
-            tick={{ fill: C.muted, fontSize: 8, fontFamily: "var(--font-montserrat), sans-serif" }}
+            tick={{ fill: C.muted, fontSize: 8, fontFamily: "var(--font-text), sans-serif" }}
             width={40}
             axisLine={false}
             tickLine={false}
@@ -222,8 +222,8 @@ function SleeveChartPanel({ sleeve }: { sleeve: SleeveData }) {
           />
           <Tooltip
             contentStyle={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: "4px 8px" }}
-            labelStyle={{ color: C.muted, fontSize: 9, fontFamily: "var(--font-montserrat), sans-serif" }}
-            itemStyle={{ fontSize: 9, fontFamily: "var(--font-montserrat), sans-serif" }}
+            labelStyle={{ color: C.muted, fontSize: 9, fontFamily: "var(--font-text), sans-serif" }}
+            itemStyle={{ fontSize: 9, fontFamily: "var(--font-text), sans-serif" }}
             isAnimationActive={false}
           />
           {/* SMA400 */}
@@ -252,7 +252,7 @@ function SleeveChartPanel({ sleeve }: { sleeve: SleeveData }) {
         {sleeve.signals.slice(-12).map((s) => (
           <span
             key={`${s.date}-${s.type}`}
-            className="rounded px-1 py-px text-[8px] [font-family:var(--font-montserrat),sans-serif]"
+            className="rounded px-1 py-px text-[8px] [font-family:var(--font-text),sans-serif]"
             style={{
               background: `${s.type === "long" ? C.green : C.magenta}18`,
               color: s.type === "long" ? C.green : C.magenta,
@@ -262,7 +262,7 @@ function SleeveChartPanel({ sleeve }: { sleeve: SleeveData }) {
           </span>
         ))}
         {signalDates.size === 0 ? (
-          <span className="text-[8px] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.muted }}>no recent signals</span>
+          <span className="text-[8px] [font-family:var(--font-text),sans-serif]" style={{ color: C.muted }}>no recent signals</span>
         ) : null}
       </div>
     </PanelFrame>
@@ -305,25 +305,25 @@ function PerformancePanel({
       subtitle={`SPY ${fmt2(lastSpy)} · QQQ ${fmt2(lastQqq)} · last 500 bars`}
     >
       <div className="flex gap-3 px-3 pt-1.5 pb-0.5">
-        <span className="flex items-center gap-1 text-[9px] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.white }}>
+        <span className="flex items-center gap-1 text-[9px] [font-family:var(--font-text),sans-serif]" style={{ color: C.white }}>
           <span style={{ background: C.white, width: 10, height: 2, display: "inline-block", borderRadius: 1 }} /> Core Invest
         </span>
-        <span className="flex items-center gap-1 text-[9px] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.gold }}>
+        <span className="flex items-center gap-1 text-[9px] [font-family:var(--font-text),sans-serif]" style={{ color: C.gold }}>
           <span style={{ background: C.gold, width: 10, height: 2, display: "inline-block", borderRadius: 1 }} /> SPY
         </span>
-        <span className="flex items-center gap-1 text-[9px] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.qqq }}>
+        <span className="flex items-center gap-1 text-[9px] [font-family:var(--font-text),sans-serif]" style={{ color: C.qqq }}>
           <span style={{ background: C.qqq, width: 10, height: 2, display: "inline-block", borderRadius: 1 }} /> QQQ
         </span>
       </div>
       <ResponsiveContainer width="100%" height={140}>
         <LineChart data={merged} margin={{ top: 4, right: 8, bottom: 4, left: 0 }}>
           <CartesianGrid strokeDasharray="2 6" stroke={C.border} vertical={false} />
-          <XAxis dataKey="date" tickFormatter={formatDate} tick={{ fill: C.muted, fontSize: 8, fontFamily: "var(--font-montserrat), sans-serif" }} axisLine={false} tickLine={false} minTickGap={60} />
-          <YAxis tick={{ fill: C.muted, fontSize: 8, fontFamily: "var(--font-montserrat), sans-serif" }} width={40} axisLine={false} tickLine={false} tickCount={4} tickFormatter={(v) => `${v.toFixed(0)}%`} domain={["auto", "auto"]} />
+          <XAxis dataKey="date" tickFormatter={formatDate} tick={{ fill: C.muted, fontSize: 8, fontFamily: "var(--font-text), sans-serif" }} axisLine={false} tickLine={false} minTickGap={60} />
+          <YAxis tick={{ fill: C.muted, fontSize: 8, fontFamily: "var(--font-text), sans-serif" }} width={40} axisLine={false} tickLine={false} tickCount={4} tickFormatter={(v) => `${v.toFixed(0)}%`} domain={["auto", "auto"]} />
           <Tooltip
             contentStyle={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: "4px 8px" }}
-            labelStyle={{ color: C.muted, fontSize: 9, fontFamily: "var(--font-montserrat), sans-serif" }}
-            itemStyle={{ fontSize: 9, fontFamily: "var(--font-montserrat), sans-serif" }}
+            labelStyle={{ color: C.muted, fontSize: 9, fontFamily: "var(--font-text), sans-serif" }}
+            itemStyle={{ fontSize: 9, fontFamily: "var(--font-text), sans-serif" }}
             formatter={(v) => typeof v === "number" ? `${v >= 0 ? "+" : ""}${v.toFixed(2)}%` : String(v)}
             isAnimationActive={false}
           />
@@ -354,20 +354,20 @@ function AllocationPanel() {
       <div className="flex flex-col gap-1.5 px-3 py-2">
         {weights.map((item) => (
           <div key={item.label} className="flex items-center gap-2">
-            <span className="w-[88px] shrink-0 text-[9px] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.muted }}>{item.label}</span>
+            <span className="w-[88px] shrink-0 text-[9px] [font-family:var(--font-text),sans-serif]" style={{ color: C.muted }}>{item.label}</span>
             <div className="relative flex-1 h-[6px] rounded overflow-hidden" style={{ background: C.border }}>
               <div className="absolute inset-y-0 left-0 rounded" style={{ width: `${item.w}%`, background: item.color, opacity: 0.75 }} />
             </div>
-            <span className="w-8 shrink-0 text-right text-[9px] font-semibold [font-family:var(--font-montserrat),sans-serif]" style={{ color: item.color }}>
+            <span className="w-8 shrink-0 text-right text-[9px] font-semibold [font-family:var(--font-text),sans-serif]" style={{ color: item.color }}>
               {item.w}%
             </span>
           </div>
         ))}
-        <div className="mt-1 flex justify-between text-[8px] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.muted }}>
+        <div className="mt-1 flex justify-between text-[8px] [font-family:var(--font-text),sans-serif]" style={{ color: C.muted }}>
           <span>ETF Core 75% · Sleeves 25%</span>
           <span>Σ 100%</span>
         </div>
-        <p className="mt-1 text-[7.5px] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.muted }}>
+        <p className="mt-1 text-[7.5px] [font-family:var(--font-text),sans-serif]" style={{ color: C.muted }}>
           Research Scenario · Quarterly Rebalance · 10 bps · Not live execution
         </p>
       </div>
@@ -393,39 +393,39 @@ function ValidationPanel({
     <PanelFrame title="Validation Status" subtitle="Data · Pine · Proxy warnings">
       <div className="flex flex-col gap-1 px-3 py-2">
         {/* Data files */}
-        <p className="text-[8px] font-semibold tracking-wide [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.muted }}>OHLC DATA</p>
+        <p className="text-[8px] font-semibold tracking-wide [font-family:var(--font-text),sans-serif]" style={{ color: C.muted }}>OHLC DATA</p>
         <div className="grid grid-cols-3 gap-1 mb-1.5">
           {allSymbols.map((sym) => {
             const found = dataStatus[sym]?.found ?? false;
             return (
               <div key={sym} className="flex items-center gap-1">
                 <span style={{ color: found ? C.green : C.red, fontSize: 9 }}>{found ? "✓" : "✗"}</span>
-                <span className="text-[8px] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.text }}>{sym}</span>
+                <span className="text-[8px] [font-family:var(--font-text),sans-serif]" style={{ color: C.text }}>{sym}</span>
               </div>
             );
           })}
         </div>
 
         {/* Pine files */}
-        <p className="text-[8px] font-semibold tracking-wide [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.muted }}>PINE FILES</p>
+        <p className="text-[8px] font-semibold tracking-wide [font-family:var(--font-text),sans-serif]" style={{ color: C.muted }}>PINE FILES</p>
         <div className="flex gap-3 mb-1.5">
           {["QQQ_pine1.txt"].map((fname) => {
             const found = pineFiles[fname]?.found ?? false;
             return (
               <div key={fname} className="flex items-center gap-1">
                 <span style={{ color: found ? C.green : C.red, fontSize: 9 }}>{found ? "✓" : "✗"}</span>
-                <span className="text-[8px] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.text }}>{fname}</span>
+                <span className="text-[8px] [font-family:var(--font-text),sans-serif]" style={{ color: C.text }}>{fname}</span>
               </div>
             );
           })}
         </div>
 
         {/* Sleeve signals */}
-        <p className="text-[8px] font-semibold tracking-wide [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.muted }}>SLEEVE SIGNALS</p>
+        <p className="text-[8px] font-semibold tracking-wide [font-family:var(--font-text),sans-serif]" style={{ color: C.muted }}>SLEEVE SIGNALS</p>
         <div className="grid grid-cols-2 gap-1 mb-1.5">
           {sleeves.map((s) => (
             <div key={s.config.id} className="flex items-center justify-between gap-1">
-              <span className="text-[8px] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.text }}>{s.config.label}</span>
+              <span className="text-[8px] [font-family:var(--font-text),sans-serif]" style={{ color: C.text }}>{s.config.label}</span>
               <SignalPill signal={s.currentSignal} />
             </div>
           ))}
@@ -433,14 +433,14 @@ function ValidationPanel({
 
         {/* Warnings */}
         <div className="mt-1 rounded p-1.5" style={{ background: `${C.gold}10`, border: `1px solid ${C.goldDim}44` }}>
-          <p className="text-[7.5px] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.goldDim }}>
+          <p className="text-[7.5px] [font-family:var(--font-text),sans-serif]" style={{ color: C.goldDim }}>
             ⚠ QQQ Pine muss auf QQQ validiert werden – NAS100/OANDA ist nur Proxy/Research.
           </p>
-          <p className="text-[7.5px] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.goldDim }}>
+          <p className="text-[7.5px] [font-family:var(--font-text),sans-serif]" style={{ color: C.goldDim }}>
             ⚠ Signale sind Python-Näherungen – finaler Abgleich mit TradingView-Export erforderlich.
           </p>
           {missingSymbols.length > 0 ? (
-            <p className="text-[7.5px] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.red }}>
+            <p className="text-[7.5px] [font-family:var(--font-text),sans-serif]" style={{ color: C.red }}>
               ✗ Missing OHLC: {missingSymbols.join(", ")}
             </p>
           ) : null}
@@ -472,7 +472,7 @@ export function CoreInvestVisualGrid() {
     return (
       <div className="flex items-center gap-2 rounded-[14px] px-4 py-6" style={{ background: C.panel, border: `1px solid ${C.border}` }}>
         <AlertTriangle size={14} style={{ color: C.red }} />
-        <p className="text-[11px] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.red }}>Error loading Core Invest data: {data.error}</p>
+        <p className="text-[11px] [font-family:var(--font-text),sans-serif]" style={{ color: C.red }}>Error loading Core Invest data: {data.error}</p>
       </div>
     );
   }
@@ -482,17 +482,17 @@ export function CoreInvestVisualGrid() {
       {/* Header bar */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-[13px] font-semibold tracking-[0.04em] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.text }}>
+          <p className="text-[13px] font-semibold tracking-[0.04em] [font-family:var(--font-text),sans-serif]" style={{ color: C.text }}>
             {data.portfolioName}
           </p>
-          <p className="text-[9px] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.muted }}>
+          <p className="text-[9px] [font-family:var(--font-text),sans-serif]" style={{ color: C.muted }}>
             Visual Grid · ETF Core 75% · Strategy Sleeves 25% · Research · Not live execution
           </p>
         </div>
         <button
           type="button"
           onClick={() => setShowValidation((v) => !v)}
-          className="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] transition-colors [font-family:var(--font-montserrat),sans-serif]"
+          className="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] transition-colors [font-family:var(--font-text),sans-serif]"
           style={{
             borderColor: showValidation ? `${C.gold}60` : C.border,
             color: showValidation ? C.gold : C.muted,
@@ -532,7 +532,7 @@ export function CoreInvestVisualGrid() {
       )}
 
       {/* Caveat footer */}
-      <p className="text-[8px] [font-family:var(--font-montserrat),sans-serif]" style={{ color: C.muted }}>
+      <p className="text-[8px] [font-family:var(--font-text),sans-serif]" style={{ color: C.muted }}>
         Core Invest ist ein Research-/Pre-Fund-Level-System. Historische Ergebnisse sind kein Renditeversprechen.
         Keine Live-Execution. Keine Finanzportfolioverwaltung durch Capitalife GbR.
       </p>

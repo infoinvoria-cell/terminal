@@ -18,6 +18,16 @@ export type AnalyticsBar = {
   group?: string;
 };
 
+export type AssetMeta = {
+  ticker: string;
+  inceptionDate: string;
+  lastDate: string;
+  fullPoints: number;
+  displayPoints: number;
+  maxDailyReturnPct: number;
+  priceColumn: string;
+};
+
 export type AnalyticsDataset = {
   tab: AnalyticsTab;
   mode: AnalyticsMode;
@@ -41,6 +51,8 @@ export type AnalyticsDataset = {
   drawdownSeries: AnalyticsSeriesPoint[];
   benchmarkSeries: AnalyticsSeriesPoint[];
   groupSeries: Record<string, AnalyticsSeriesPoint[]>;
+  fullGroupSeries?: Record<string, AnalyticsSeriesPoint[]>;
+  assetMeta?: Record<string, AssetMeta>;
   annualReturns: AnalyticsBar[];
   monthlyReturns: AnalyticsBar[];
   groupBars: AnalyticsBar[];
@@ -438,9 +450,11 @@ function createInvestDatasetFromSnapshot(mode: AnalyticsMode, fsportfolio: FSPor
 
 export function getAnalyticsDataset(tab: AnalyticsTab, mode: AnalyticsMode, fsportfolio: FSPortfolioSnapshot | undefined, data: CapalifeData) {
   if (tab === "invest") {
-    // The legacy five-component snapshot and the single QQQ Pine series do not
-    // represent the frozen eight-component v2.0 portfolio.
-    return createBlockedCoreInvestDataset(mode);
+    if (mode === "live") {
+      return data.coreInvestShadowLive ?? createBlockedCoreInvestDataset(mode);
+    }
+    // backtest priority: reference CSV data > Pine series > blocked placeholder
+    return data.coreInvestReference ?? data.coreInvestPineBacktest ?? createBlockedCoreInvestDataset(mode);
   }
   if (mode === "backtest") return createBacktestDataset(tab, data);
   return createLiveDataset(tab, data);

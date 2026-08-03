@@ -1,7 +1,8 @@
-﻿import { FundManagerHome } from "@/components/dashboard/fund-manager-home";
-import { getDashboardPageData } from "@/lib/dashboard/dashboard-page-data-cloud";
+import { FundManagerHome } from "@/components/dashboard/fund-manager-home";
+import { getCachedDashboardPageData } from "@/lib/server/page-cache";
+
+export const revalidate = 300;
 
 export default async function HomePage() {
-  return <FundManagerHome {...(await getDashboardPageData())} />;
+  return <FundManagerHome {...(await getCachedDashboardPageData())} />;
 }
-

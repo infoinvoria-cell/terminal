@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import type { AssetItem, GeoEventItem } from "@/lib/globe/globe-types";
@@ -57,7 +57,7 @@ export default function SessionBrief({ geoEvents, changes, assets, patternCount,
   const Row = ({ label, pct }: { label: string; pct: number }) => (
     <div className="flex items-center justify-between text-[10px]">
       <span className="truncate text-white/70">{label}</span>
-      <span className="tabular-nums font-semibold" style={{ color: pct >= 0 ? "#4ade80" : "#f87171" }}>
+      <span className="tabular-nums font-semibold" style={{ color: pct >= 0 ? "#22C55E" : "#EF4444" }}>
         {pct >= 0 ? "+" : ""}{pct.toFixed(1)}%
       </span>
     </div>
@@ -70,7 +70,7 @@ export default function SessionBrief({ geoEvents, changes, assets, patternCount,
     >
       <div className="flex items-center gap-1.5 px-2.5 py-2" style={{ borderBottom: "1px solid rgba(212,175,55,0.2)" }}>
         <span className="text-[11px]">📋</span>
-        <span className="text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: "#D4AF37" }}>Session Brief</span>
+        <span className="text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: "#C9A84C" }}>Session Brief</span>
         <button type="button" onClick={onClose} className="ml-auto text-[13px] leading-none text-white/40 transition hover:text-white/80" aria-label="Close">×</button>
       </div>
 
@@ -91,7 +91,7 @@ export default function SessionBrief({ geoEvents, changes, assets, patternCount,
           {nextMacro ? (
             <div className="flex items-center justify-between text-[10px]">
               <span className="truncate text-white/75">{nextMacro.label}</span>
-              <span className="tabular-nums font-semibold text-[#D4AF37]">{fmtCountdown(nextMacro.ms)}</span>
+              <span className="tabular-nums font-semibold text-[#C9A84C]">{fmtCountdown(nextMacro.ms)}</span>
             </div>
           ) : (
             <div className="text-[10px] text-white/30">—</div>

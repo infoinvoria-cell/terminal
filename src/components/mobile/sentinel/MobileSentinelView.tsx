@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -100,7 +100,7 @@ function AurumWaves({ voiceLevel = 0, speaking = false }: { voiceLevel?: number;
     <svg width={totalW} height={BAR_TOTAL_H} viewBox={`0 0 ${totalW} ${BAR_TOTAL_H}`} fill="none">
       {BAR_CFG.map((cfg, i) => (
         <rect key={i} x={i * (barW + gap)} y={(BAR_TOTAL_H - cfg.h) / 2} width={barW} height={cfg.h} rx={barW / 2}
-          fill="#e2ca7a"
+          fill="#C9A84C"
           opacity={active ? (i === 2 ? 1 : 0.72) : 0.30}
           className={active ? `maw-b maw-b${i}` : undefined}
         />
@@ -129,7 +129,7 @@ function AurumRings({ voiceLevel = 0, speaking = false, size = 210 }: { voiceLev
         <circle cx="130" cy="130" r="88"  stroke="rgba(214,184,108,0.13)" strokeWidth="1.0" />
         <circle cx="130" cy="130" r="74"  stroke="rgba(255,255,255,0.06)" strokeWidth="0.7" />
         <circle cx="130" cy="130" r="62"  stroke="rgba(214,184,108,0.10)" strokeWidth="0.7" />
-        <circle cx="130" cy="130" r="100" stroke="#d6b86c" strokeWidth={2.6 + voiceLevel * 0.8}
+        <circle cx="130" cy="130" r="100" stroke="#C9A84C" strokeWidth={2.6 + voiceLevel * 0.8}
           strokeDasharray="138 490" strokeLinecap="round"
           style={{ filter: `drop-shadow(0 0 ${5+glowBoost*12}px rgba(214,184,108,${0.65+glowBoost})) drop-shadow(0 0 12px rgba(214,184,108,0.25))` }}
           className="mar-a1" />
@@ -187,7 +187,7 @@ function MiniAurumRings() {
         <circle cx="130" cy="130" r="100" stroke="rgba(255,255,255,0.10)" strokeWidth="1.0" />
         <circle cx="130" cy="130" r="88"  stroke="rgba(214,184,108,0.18)" strokeWidth="1.2" />
         <circle cx="130" cy="130" r="74"  stroke="rgba(255,255,255,0.08)" strokeWidth="0.9" />
-        <circle cx="130" cy="130" r="100" stroke="#d6b86c" strokeWidth="3.5"
+        <circle cx="130" cy="130" r="100" stroke="#C9A84C" strokeWidth="3.5"
           strokeDasharray="138 490" strokeLinecap="round"
           style={{ filter: "drop-shadow(0 0 6px rgba(214,184,108,0.75))" }}
           className="mni-a1" />
@@ -218,7 +218,7 @@ function MiniAurumRings() {
 function SourcesToggle({ sources, confidence }: { sources: SourceItem[]; confidence?: string }) {
   const [open, setOpen] = useState(false);
   if (!sources.length) return null;
-  const confColor = confidence === "high" ? "#d6b86c" : confidence === "medium" ? "rgba(255,255,255,0.55)" : "#ff6b72";
+  const confColor = confidence === "high" ? "#C9A84C" : confidence === "medium" ? "rgba(255,255,255,0.55)" : "#ff6b72";
   return (
     <div style={{ marginTop: 4 }}>
       <button type="button" onClick={() => setOpen(o => !o)}
@@ -255,7 +255,7 @@ function SentinelSpinner() {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/Sentinel.png" alt="" width={16} height={16} style={{ objectFit: "contain", opacity: 0.88 }} />
       <style jsx>{`
-        .msnts-ring { position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(226,202,122,0.15);border-top-color:#e2ca7a;animation:msnts-spin 1.2s linear infinite; }
+        .msnts-ring { position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(226,202,122,0.15);border-top-color:#C9A84C;animation:msnts-spin 1.2s linear infinite; }
         @keyframes msnts-spin { to { transform:rotate(360deg); } }
       `}</style>
     </div>
@@ -298,7 +298,7 @@ function SentinelMarkdown({ content }: { content: string }) {
       </ReactMarkdown>
       <style jsx>{`
         .msmd-root { display:flex;flex-direction:column;gap:0; }
-        .msmd-h2 { font-size:13px;font-weight:600;color:#d6b86c;margin:10px 0 4px;line-height:1.35; }
+        .msmd-h2 { font-size:13px;font-weight:600;color:#C9A84C;margin:10px 0 4px;line-height:1.35; }
         .msmd-h2:first-child { margin-top:0; }
         .msmd-h3 { font-size:12px;font-weight:600;color:rgba(214,184,108,0.80);margin:8px 0 3px;line-height:1.35; }
         .msmd-h3:first-child { margin-top:0; }
@@ -329,7 +329,7 @@ function MessageActions({ content, onRegenerate, regenDisabled }: { content: str
         <circle cx="130" cy="130" r="100" stroke="rgba(255,255,255,0.10)" strokeWidth="6" />
         <circle cx="130" cy="130" r="88"  stroke="rgba(214,184,108,0.18)" strokeWidth="7" />
         <circle cx="130" cy="130" r="74"  stroke="rgba(255,255,255,0.08)" strokeWidth="5" />
-        <circle cx="130" cy="130" r="100" stroke="#d6b86c" strokeWidth="18" strokeDasharray="138 490" strokeLinecap="round" transform="rotate(-90 130 130)" style={{ filter: "drop-shadow(0 0 8px rgba(214,184,108,0.85))" }} />
+        <circle cx="130" cy="130" r="100" stroke="#C9A84C" strokeWidth="18" strokeDasharray="138 490" strokeLinecap="round" transform="rotate(-90 130 130)" style={{ filter: "drop-shadow(0 0 8px rgba(214,184,108,0.85))" }} />
         <circle cx="130" cy="130" r="88"  stroke="rgba(244,239,230,0.70)" strokeWidth="13" strokeDasharray="160 353" strokeLinecap="round" transform="rotate(110 130 130)" />
         <circle cx="130" cy="130" r="74"  stroke="rgba(214,184,108,0.80)" strokeWidth="12" strokeDasharray="90 365" strokeLinecap="round" transform="rotate(200 130 130)" />
       </svg>
@@ -783,7 +783,7 @@ export function MobileSentinelView() {
       display: "flex", flexDirection: "column",
       background: "#0b0c0f",
       color: "#e2e6ed",
-      fontFamily: "var(--font-montserrat,\"Montserrat\",system-ui,-apple-system,sans-serif)",
+      fontFamily: "var(--font-text)",
       fontSize: 13,
     }}>
       {/* Global animation keyframes */}

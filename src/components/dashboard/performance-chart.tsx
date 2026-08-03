@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   Bar,
@@ -47,7 +47,7 @@ export function PerformanceChart({
             >
               <stop offset="0%" stopColor="#3f3f46" />
               <stop offset="58%" stopColor="#6f6d65" />
-              <stop offset="100%" stopColor="#e2ca7a" />
+              <stop offset="100%" stopColor="#C9A84C" />
             </linearGradient>
           </defs>
           <CartesianGrid
@@ -84,11 +84,11 @@ export function PerformanceChart({
               if (!active || !payload?.length) return null;
               const total = (payload[0]?.payload as ChartPoint)?.total;
               return (
-                <div className="rounded-xl border border-[#2a2b30] bg-[#1c1d20] px-3.5 py-2.5 shadow-[0_16px_40px_rgba(0,0,0,0.55)]">
-                  <p className="text-[11px] font-medium text-[#8a8a8a] [font-family:var(--font-montserrat),sans-serif]">
+                <div className="rounded-xl border border-[#2a2b30] bg-[#1F1F1F] px-3.5 py-2.5 shadow-[0_16px_40px_rgba(0,0,0,0.55)]">
+                  <p className="text-[11px] font-medium text-[#8a8a8a] [font-family:var(--font-text),sans-serif]">
                     {label}
                   </p>
-                  <p className="mt-1 text-sm font-semibold text-white [font-family:var(--font-nunito),sans-serif]">
+                  <p className="mt-1 text-sm font-semibold text-white [font-family:var(--font-numbers),sans-serif]">
                     {typeof total === "number"
                       ? `${total > 0 ? "+" : ""}${total.toFixed(2)}%`
                       : "—"}

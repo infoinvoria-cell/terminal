@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useRef, useState } from "react";
 import type { AssetItem, GeoEventItem, OverlayToggleState } from "@/lib/globe/globe-types";
@@ -138,7 +138,7 @@ export default function GlobeSentinelChat({ geoEvents, overlayState, assets, ena
     >
       <div className="flex items-center gap-1.5 px-2.5 py-2" style={{ borderBottom: "1px solid rgba(212,175,55,0.2)" }}>
         <span className="text-[12px]">🛰</span>
-        <span className="text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: "#D4AF37" }}>
+        <span className="text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: "#C9A84C" }}>
           Sentinel Globe Intel
         </span>
         <button
@@ -207,7 +207,7 @@ export default function GlobeSentinelChat({ geoEvents, overlayState, assets, ena
           onClick={() => send(input)}
           disabled={busy || !input.trim()}
           className="shrink-0 rounded-[6px] px-2.5 py-1.5 text-[10px] font-semibold transition disabled:opacity-40"
-          style={{ background: "rgba(212,175,55,0.2)", color: "#D4AF37" }}
+          style={{ background: "rgba(212,175,55,0.2)", color: "#C9A84C" }}
         >
           ➤
         </button>

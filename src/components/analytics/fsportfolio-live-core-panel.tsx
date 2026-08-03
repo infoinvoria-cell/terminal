@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   Area,
@@ -63,11 +63,11 @@ function Card({
     >
       <div className="flex items-start justify-between gap-3 border-b border-white/[0.06] px-4 py-3">
         <div>
-          <p className="text-[12px] font-medium tracking-[0.04em] text-[#d8dadf] [font-family:var(--font-montserrat),sans-serif]">
+          <p className="text-[12px] font-medium tracking-[0.04em] text-[#d8dadf] [font-family:var(--font-text),sans-serif]">
             {title}
           </p>
           {subtitle ? (
-            <p className="mt-1 text-[10px] text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">{subtitle}</p>
+            <p className="mt-1 text-[10px] text-zinc-500 [font-family:var(--font-text),sans-serif]">{subtitle}</p>
           ) : null}
         </div>
         {right}
@@ -86,10 +86,10 @@ function Kpi({
 }) {
   return (
     <div className="rounded-[14px] border border-white/[0.06] bg-[#15161a] px-3 py-2.5">
-      <p className="text-[10px] uppercase tracking-[0.08em] text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">
+      <p className="text-[10px] uppercase tracking-[0.08em] text-zinc-500 [font-family:var(--font-text),sans-serif]">
         {label}
       </p>
-      <p className="mt-2 text-[20px] font-bold leading-none tracking-tight text-white [font-family:var(--font-nunito),sans-serif]">
+      <p className="mt-2 text-[20px] font-bold leading-none tracking-tight text-white [font-family:var(--font-numbers),sans-serif]">
         {value}
       </p>
     </div>
@@ -176,14 +176,14 @@ export function FSPortfolioLiveCorePanel({ snapshot }: { snapshot: FSPortfolioSn
     <div className="flex h-full min-h-0 flex-col gap-4 overflow-y-auto pr-1">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-[18px] border border-white/[0.07] bg-[#141518] px-4 py-3">
         <div>
-          <p className="text-[13px] font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+          <p className="text-[13px] font-semibold text-white [font-family:var(--font-text),sans-serif]">
             {snapshot.portfolioName}
           </p>
-          <p className="mt-1 text-[11px] text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">
+          <p className="mt-1 text-[11px] text-zinc-500 [font-family:var(--font-text),sans-serif]">
             Long-only Multi-Asset Invest Portfolio. Eigene Research-/Forward-Tracking-Linie, nicht White-Swan-Track-Record.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2 text-[10px] text-zinc-400 [font-family:var(--font-montserrat),sans-serif]">
+        <div className="flex flex-wrap gap-2 text-[10px] text-zinc-400 [font-family:var(--font-text),sans-serif]">
           <span className="rounded-full border border-white/[0.08] px-3 py-1">Benchmark: {snapshot.config.benchmark}</span>
           <span className="rounded-full border border-white/[0.08] px-3 py-1">Quarterly Rebalance</span>
           <span className="rounded-full border border-white/[0.08] px-3 py-1">Cost: {snapshot.config.transaction_cost_bps} bps</span>
@@ -198,7 +198,7 @@ export function FSPortfolioLiveCorePanel({ snapshot }: { snapshot: FSPortfolioSn
         ))}
       </div>
 
-      <div className="rounded-[14px] border border-white/[0.06] bg-[#15161a] px-4 py-3 text-[11px] text-zinc-400 [font-family:var(--font-montserrat),sans-serif]">
+      <div className="rounded-[14px] border border-white/[0.06] bg-[#15161a] px-4 py-3 text-[11px] text-zinc-400 [font-family:var(--font-text),sans-serif]">
         DBC removed from final core; retained for research comparison only.
       </div>
 
@@ -221,7 +221,7 @@ export function FSPortfolioLiveCorePanel({ snapshot }: { snapshot: FSPortfolioSn
       >
         <div className="grid gap-3 px-4 py-4 xl:grid-cols-[1.2fr_0.8fr]">
           <div className="overflow-hidden rounded-[14px] border border-white/[0.06]">
-            <table className="w-full border-collapse text-left text-[11px] [font-family:var(--font-montserrat),sans-serif]">
+            <table className="w-full border-collapse text-left text-[11px] [font-family:var(--font-text),sans-serif]">
               <thead className="bg-white/[0.03] text-zinc-500">
                 <tr>
                   <th className="px-3 py-2">Symbol</th>
@@ -249,11 +249,11 @@ export function FSPortfolioLiveCorePanel({ snapshot }: { snapshot: FSPortfolioSn
 
           <div className="flex flex-col gap-3">
             <div className="rounded-[14px] border border-white/[0.06] bg-[#15161a] p-3">
-              <p className="flex items-center gap-2 text-[11px] font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+              <p className="flex items-center gap-2 text-[11px] font-semibold text-white [font-family:var(--font-text),sans-serif]">
                 <Database size={14} />
                 Data sources found
               </p>
-              <div className="mt-2 space-y-1 text-[10px] text-zinc-400 [font-family:var(--font-montserrat),sans-serif]">
+              <div className="mt-2 space-y-1 text-[10px] text-zinc-400 [font-family:var(--font-text),sans-serif]">
                 {snapshot.dataQuality
                   .filter((item) => item.found)
                   .map((item) => (
@@ -272,11 +272,11 @@ export function FSPortfolioLiveCorePanel({ snapshot }: { snapshot: FSPortfolioSn
             </div>
 
             <div className="rounded-[14px] border border-white/[0.06] bg-[#15161a] p-3">
-              <p className="flex items-center gap-2 text-[11px] font-semibold text-white [font-family:var(--font-montserrat),sans-serif]">
+              <p className="flex items-center gap-2 text-[11px] font-semibold text-white [font-family:var(--font-text),sans-serif]">
                 <ShieldAlert size={14} />
                 Caveats
               </p>
-              <div className="mt-2 space-y-1 text-[10px] text-zinc-400 [font-family:var(--font-montserrat),sans-serif]">
+              <div className="mt-2 space-y-1 text-[10px] text-zinc-400 [font-family:var(--font-text),sans-serif]">
                 {snapshot.caveats.slice(0, 4).map((caveat) => (
                   <p key={caveat}>- {caveat}</p>
                 ))}
@@ -343,7 +343,7 @@ export function FSPortfolioLiveCorePanel({ snapshot }: { snapshot: FSPortfolioSn
             </Card>
 
             <Card title="White Swan Sleeve" subtitle="Research reference NAS100USD, core implementation QQQ long/cash">
-              <div className="space-y-2 p-4 text-[11px] [font-family:var(--font-montserrat),sans-serif]">
+              <div className="space-y-2 p-4 text-[11px] [font-family:var(--font-text),sans-serif]">
                 <div className="grid grid-cols-2 gap-2">
                   <Kpi label="Signal" value={snapshot.backtest.whiteSwan.currentSignal.toUpperCase()} />
                   <Kpi label="Source" value={snapshot.backtest.whiteSwan.source} />
@@ -360,7 +360,7 @@ export function FSPortfolioLiveCorePanel({ snapshot }: { snapshot: FSPortfolioSn
 
             <Card title="Audit Trail" subtitle="Quarterly rebalance log, proposal only">
               <div className="overflow-auto p-2">
-                <table className="w-full border-collapse text-left text-[10px] [font-family:var(--font-montserrat),sans-serif]">
+                <table className="w-full border-collapse text-left text-[10px] [font-family:var(--font-text),sans-serif]">
                   <thead className="bg-white/[0.03] text-zinc-500">
                     <tr>
                       <th className="px-2 py-2">Date</th>
@@ -426,7 +426,7 @@ export function FSPortfolioLiveCorePanel({ snapshot }: { snapshot: FSPortfolioSn
       ) : (
         <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
           <Card title="Backtest Not Available" subtitle={snapshot.backtest.reason ?? "Missing data"}>
-            <div className="space-y-3 p-4 text-[11px] text-zinc-400 [font-family:var(--font-montserrat),sans-serif]">
+            <div className="space-y-3 p-4 text-[11px] text-zinc-400 [font-family:var(--font-text),sans-serif]">
               <p>Missing required OHLC: {snapshot.missingSymbols.join(", ") || "n/a"}</p>
               <p>Final v2 backtest not available - missing SPMO.csv.</p>
               <p>Upload/import required. Das Modul zeigt absichtlich keine hardcodierten Portfolio-KPIs oder Fake-Performance an.</p>
@@ -450,7 +450,7 @@ export function FSPortfolioLiveCorePanel({ snapshot }: { snapshot: FSPortfolioSn
       )}
 
       <Card title="Investor Caveats" subtitle="Pflicht-Hinweise fuer diesen Bereich">
-        <div className="grid gap-1 px-4 py-4 text-[11px] text-zinc-400 [font-family:var(--font-montserrat),sans-serif]">
+        <div className="grid gap-1 px-4 py-4 text-[11px] text-zinc-400 [font-family:var(--font-text),sans-serif]">
           <p>- Historische Tests sind kein Renditeversprechen.</p>
           <p>- Core Invest ist aktuell nicht live und nicht freigegeben (Research/Pre-Fund).</p>
           <p>- QQQ Pine 1 und QQQ Pine 2 EMA sind zusammen maximal 15% Strategy-Sleeve.</p>

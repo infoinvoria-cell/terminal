@@ -35,8 +35,8 @@ import {
 import { buildInnoTrackRecordRuntimeModel } from "@/lib/about/inno-track-record-model";
 import type { TrackRecordOverview } from "@/lib/track-record/types";
 
-const M = "var(--font-montserrat), sans-serif";
-const N = "var(--font-nunito), sans-serif";
+const M = "var(--font-text), sans-serif";
+const N = "var(--font-numbers), sans-serif";
 const TOKENS = {
   bg: "#09090A",
   surface: "#141416",

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
@@ -16,7 +16,7 @@ const PerformanceReportChart = dynamic(
 
 // ── Tokens ────────────────────────────────────────────────────────────────────
 const PAGE_BG     = "#0c0d10";
-const CARD_BG     = "linear-gradient(180deg,#1c1d20 0%,#141517 100%)";
+const CARD_BG     = "linear-gradient(180deg,#1F1F1F 0%,#13131A 100%)";
 const CARD_BORDER = "rgba(255,255,255,0.06)";
 const CARD_SHADOW = "0 8px 20px -8px rgba(0,0,0,0.55)";
 const MUTED       = "rgba(255,255,255,0.38)";
@@ -74,7 +74,7 @@ function TopKpi({ label, value, neg, isAum }: TopKpiItem) {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
         <p style={{
           margin: 0, fontSize: 8, fontWeight: 600, color: MUTED,
-          fontFamily: "var(--font-montserrat,sans-serif)",
+          fontFamily: "var(--font-text)",
           textTransform: "uppercase", letterSpacing: "0.01em", lineHeight: 1.2,
           minWidth: 0, overflow: "hidden",
         }}>
@@ -91,7 +91,7 @@ function TopKpi({ label, value, neg, isAum }: TopKpiItem) {
       <p style={{
         margin: 0, fontSize: 13, fontWeight: 700, lineHeight: 1,
         letterSpacing: "-0.02em",
-        fontFamily: "var(--font-nunito,sans-serif)",
+        fontFamily: "var(--font-numbers)",
         color: neg ? "rgba(161,161,170,1)" : "#ffffff",
         opacity: isAum && mounted && !visible ? 0.22 : 1,
         transition: "opacity 0.2s",
@@ -128,7 +128,7 @@ function TabBtn({ id, label, active, onClick }: { id: HomeTab; label: string; ac
         cursor: "pointer", WebkitTapHighlightColor: "transparent",
         color: active ? "#ffffff" : "#55585f",
         fontSize: 12, fontWeight: active ? 600 : 500,
-        fontFamily: "var(--font-montserrat,sans-serif)",
+        fontFamily: "var(--font-text)",
         transition: "color 0.12s",
       }}>
       <Icon />
@@ -146,17 +146,17 @@ function SecKpi({ label, value, delta, deltaPos }: { label: string; value: strin
       padding: "8px 9px 10px",
       display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 5,
     }}>
-      <p style={{ margin: 0, fontSize: 7.5, fontWeight: 600, color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", textTransform: "uppercase", letterSpacing: "0.01em", lineHeight: 1.3 }}>
+      <p style={{ margin: 0, fontSize: 7.5, fontWeight: 600, color: MUTED, fontFamily: "var(--font-text)", textTransform: "uppercase", letterSpacing: "0.01em", lineHeight: 1.3 }}>
         {label}
       </p>
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 2, minWidth: 0 }}>
-        <p style={{ margin: 0, fontSize: 13, fontWeight: 700, lineHeight: 1, letterSpacing: "-0.02em", fontFamily: "var(--font-nunito,sans-serif)", color: "#fff", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <p style={{ margin: 0, fontSize: 13, fontWeight: 700, lineHeight: 1, letterSpacing: "-0.02em", fontFamily: "var(--font-numbers)", color: "#fff", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {value}
         </p>
         {delta != null && deltaPos != null && (
           deltaPos
-            ? <span style={{ flexShrink: 0, border: "1px solid rgba(226,202,122,0.3)", borderRadius: 999, padding: "1px 3px", fontSize: 7, fontWeight: 700, color: "#e2ca7a", fontFamily: "var(--font-nunito,sans-serif)", lineHeight: 1.4, whiteSpace: "nowrap" }}>{delta}</span>
-            : <span style={{ flexShrink: 0, fontSize: 7, fontWeight: 600, color: "rgba(161,161,170,0.55)", fontFamily: "var(--font-nunito,sans-serif)", lineHeight: 1.4 }}>{delta}</span>
+            ? <span style={{ flexShrink: 0, border: "1px solid rgba(226,202,122,0.3)", borderRadius: 999, padding: "1px 3px", fontSize: 7, fontWeight: 700, color: "#C9A84C", fontFamily: "var(--font-numbers)", lineHeight: 1.4, whiteSpace: "nowrap" }}>{delta}</span>
+            : <span style={{ flexShrink: 0, fontSize: 7, fontWeight: 600, color: "rgba(161,161,170,0.55)", fontFamily: "var(--font-numbers)", lineHeight: 1.4 }}>{delta}</span>
         )}
       </div>
     </div>
@@ -169,7 +169,7 @@ function Btn({ label, active, onClick }: { label: string; active: boolean; onCli
     <button type="button" onClick={onClick}
       style={{
         height: 22, minWidth: 26, padding: "0 6px", borderRadius: 11,
-        fontSize: 9.5, fontFamily: "var(--font-montserrat,sans-serif)", fontWeight: 500,
+        fontSize: 9.5, fontFamily: "var(--font-text)", fontWeight: 500,
         cursor: "pointer", lineHeight: "22px",
         background: active ? "rgba(255,255,255,0.07)" : "transparent",
         border: `1px solid ${active ? "#ffffff" : "rgba(255,255,255,0.09)"}`,
@@ -265,8 +265,8 @@ export function MobileHomeView({
 
       {/* ── Page title ─────────────────────────────────────── */}
       <div style={{ flexShrink: 0, padding: "12px 14px 10px" }}>
-        <p style={{ margin: "0 0 1px", fontSize: 9, fontWeight: 600, color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", textTransform: "uppercase", letterSpacing: "0.07em" }}>HOME</p>
-        <h1 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#fafafa", fontFamily: "var(--font-montserrat,sans-serif)", letterSpacing: "-0.01em" }}>Portfolio</h1>
+        <p style={{ margin: "0 0 1px", fontSize: 9, fontWeight: 600, color: MUTED, fontFamily: "var(--font-text)", textTransform: "uppercase", letterSpacing: "0.07em" }}>HOME</p>
+        <h1 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#fafafa", fontFamily: "var(--font-text)", letterSpacing: "-0.01em" }}>Portfolio</h1>
       </div>
 
       {/* ── 4 top KPI cards (1×4) — Risk Adj. AuM | Total Return | Max DD | Annualized ── */}
@@ -298,7 +298,7 @@ export function MobileHomeView({
 
           {/* ── Performance Overview ───────────────────────── */}
           <div style={{ flex: 1, minHeight: 0, padding: "0 14px 10px", display: "flex", flexDirection: "column" }}>
-            <p style={{ flexShrink: 0, margin: "0 0 8px", fontSize: 11, fontWeight: 600, color: "#c8cad0", fontFamily: "var(--font-montserrat,sans-serif)", letterSpacing: "0.01em" }}>
+            <p style={{ flexShrink: 0, margin: "0 0 8px", fontSize: 11, fontWeight: 600, color: "#c8cad0", fontFamily: "var(--font-text)", letterSpacing: "0.01em" }}>
               Performance Overview
             </p>
             <div style={{ position: "relative", flex: 1, minHeight: 0, borderRadius: 10, border: `1px solid ${CARD_BORDER}`, background: CARD_BG, boxShadow: CARD_SHADOW, overflow: "hidden" }}>
@@ -325,7 +325,7 @@ export function MobileHomeView({
         </>
       ) : (
         <div style={{ flex: 1, minHeight: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <p style={{ color: MUTED, fontFamily: "var(--font-montserrat,sans-serif)", fontSize: 12 }}>
+          <p style={{ color: MUTED, fontFamily: "var(--font-text)", fontSize: 12 }}>
             {tab.charAt(0).toUpperCase() + tab.slice(1)} — demnächst verfügbar
           </p>
         </div>

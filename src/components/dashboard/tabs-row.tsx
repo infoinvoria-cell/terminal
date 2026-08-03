@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { BarChart2, Circle, Layers, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -29,14 +29,14 @@ export function TabsRow() {
             onClick={() => setHomeTab(tab.id)}
             aria-pressed={active}
             className={cn(
-              "flex items-center gap-1.5 text-[12px] font-medium transition-colors [font-family:var(--font-montserrat),sans-serif]",
+              "flex items-center gap-1.5 text-[12px] font-medium transition-colors [font-family:var(--font-text),sans-serif]",
               active
-                ? "rounded-full border border-[#e2ca7a]/45 bg-gradient-to-b from-[#1c1d20] to-[#141517] px-3.5 py-1.5 font-semibold text-white shadow-[inset_0_-1px_0_0_rgba(226,202,122,0.45)]"
+                ? "rounded-full border border-[#C9A84C]/45 bg-gradient-to-b from-[#1F1F1F] to-[#13131A] px-3.5 py-1.5 font-semibold text-white shadow-[inset_0_-1px_0_0_rgba(226,202,122,0.45)]"
                 : "border-0 bg-transparent px-2 py-1.5 text-zinc-500 hover:text-zinc-300"
             )}
           >
             <Icon
-              className={cn("h-4 w-4 shrink-0", active ? "text-[#e2ca7a]" : "")}
+              className={cn("h-4 w-4 shrink-0", active ? "text-[#C9A84C]" : "")}
               strokeWidth={1.65}
             />
             {tab.label}

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo } from "react";
 import type { DailySeasonalResult, DailySeasonalPoint } from "@/lib/seasonality/dailySeasonalChart";
@@ -8,7 +8,7 @@ import type { WalkForwardResult } from "@/lib/seasonality/walkForward/types";
 import type styles from "./seasonal.module.css";
 
 const C_BULL = "#F0F3F7";
-const C_BEAR = "#DCC476";
+const C_BEAR = "#C9A84C";
 
 interface DonutProps {
   pct: number;

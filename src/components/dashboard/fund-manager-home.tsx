@@ -166,7 +166,7 @@ function HomeShell({
   return (
     <>
       <SentinelFloatingWindow />
-      <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-hidden px-8 pb-3 pt-6">
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden pb-2 pl-0 pr-4 pt-3">
           {page === "home" ? (
             <>
               <div className="shrink-0">

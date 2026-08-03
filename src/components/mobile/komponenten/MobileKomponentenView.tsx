@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
@@ -9,10 +9,10 @@ import {
 } from "@/lib/components/ws-strategy-data";
 
 // ── design tokens ──────────────────────────────────────────────────────────────
-const GOLD  = "#e2ca7a";
+const GOLD  = "#C9A84C";
 const MUTED = "#737373";
 const BG    = "#0c0d10";
-const CARD  = "linear-gradient(180deg,#1c1d20 0%,#141517 100%)";
+const CARD  = "linear-gradient(180deg,#1F1F1F 0%,#13131A 100%)";
 const CBORD = "rgba(255,255,255,0.06)";
 const RBORD = "rgba(255,255,255,0.04)";
 
@@ -220,14 +220,14 @@ function Chip({ status }: { status: string }) {
     active: { label: "Aktiv", c: "rgba(255,255,255,0.5)" },
     watch: { label: "Watch", c: GOLD },
     archived: { label: "Archiviert", c: "rgba(255,255,255,0.15)" },
-    historical_reference: { label: "Historisch", c: "#60a5fa" },
+    historical_reference: { label: "Historisch", c: "#9CA3AF" },
     research: { label: "Research", c: "rgba(255,255,255,0.3)" },
     validation: { label: "Validation", c: "rgba(255,255,255,0.45)" },
     parity_pending: { label: "Pending", c: GOLD },
   };
   const s = cfg[status] ?? { label: status, c: MUTED };
   return (
-    <span style={{ fontSize: 10, fontWeight: 600, color: s.c, display: "inline-flex", alignItems: "center", gap: 3, fontFamily: "var(--font-montserrat),sans-serif", whiteSpace: "nowrap" }}>
+    <span style={{ fontSize: 10, fontWeight: 600, color: s.c, display: "inline-flex", alignItems: "center", gap: 3, fontFamily: "var(--font-text),sans-serif", whiteSpace: "nowrap" }}>
       <span style={{ width: 4, height: 4, borderRadius: "50%", background: s.c, flexShrink: 0 }} />
       {s.label}
     </span>
@@ -294,8 +294,8 @@ function MobileCandleChart({ ticker }: { ticker: string }) {
     return () => { destroyed = true; if (chart) { try { chart.remove(); } catch { /**/ } } };
   }, [bars]);
 
-  if (bars === null) return <div style={{ height: 160, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-montserrat),sans-serif", background: BG, borderRadius: 6 }}>Lade OHLC…</div>;
-  if (!bars.length) return <div style={{ height: 40, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "rgba(255,255,255,0.15)", fontFamily: "var(--font-montserrat),sans-serif" }}>Keine Daten</div>;
+  if (bars === null) return <div style={{ height: 160, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-text),sans-serif", background: BG, borderRadius: 6 }}>Lade OHLC…</div>;
+  if (!bars.length) return <div style={{ height: 40, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "rgba(255,255,255,0.15)", fontFamily: "var(--font-text),sans-serif" }}>Keine Daten</div>;
   return <div ref={ref} style={{ width: "100%", height: 160, borderRadius: 6, overflow: "hidden", background: BG }} />;
 }
 
@@ -303,11 +303,11 @@ function MobileCandleChart({ ticker }: { ticker: string }) {
 function InfoBox({ title, items }: { title: string; items: Array<{ k: string; v: string }> }) {
   return (
     <div style={{ background: "rgba(255,255,255,0.03)", border: `1px solid ${RBORD}`, borderRadius: 10, padding: "10px 12px" }}>
-      <div style={{ fontSize: 9, fontWeight: 700, color: MUTED, letterSpacing: ".09em", textTransform: "uppercase", fontFamily: "var(--font-montserrat),sans-serif", borderBottom: `1px solid ${RBORD}`, paddingBottom: 5, marginBottom: 7 }}>{title}</div>
+      <div style={{ fontSize: 9, fontWeight: 700, color: MUTED, letterSpacing: ".09em", textTransform: "uppercase", fontFamily: "var(--font-text),sans-serif", borderBottom: `1px solid ${RBORD}`, paddingBottom: 5, marginBottom: 7 }}>{title}</div>
       {items.map(({ k, v }) => (
         <div key={k} style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
-          <span style={{ fontSize: 10, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", flexShrink: 0 }}>{k}</span>
-          <span style={{ fontSize: 10, color: strNumColor(v), fontFamily: "var(--font-montserrat),sans-serif", textAlign: "right", wordBreak: "break-word" }}>{v}</span>
+          <span style={{ fontSize: 10, color: MUTED, fontFamily: "var(--font-text),sans-serif", flexShrink: 0 }}>{k}</span>
+          <span style={{ fontSize: 10, color: strNumColor(v), fontFamily: "var(--font-text),sans-serif", textAlign: "right", wordBreak: "break-word" }}>{v}</span>
         </div>
       ))}
     </div>
@@ -402,7 +402,7 @@ function ExpandedPanel({ row }: { row: DisplayRow }) {
 
   const tabBtn = (t: "charts"|"info") => ({
     flex: 1, padding: "8px 0", fontSize: 10, fontWeight: 600,
-    fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em",
+    fontFamily: "var(--font-text),sans-serif", letterSpacing: ".07em",
     textTransform: "uppercase" as const, cursor: "pointer", border: "none",
     background: "none", color: tab === t ? "#fff" : MUTED,
     borderBottom: `2px solid ${tab === t ? "rgba(255,255,255,0.4)" : "transparent"}`,
@@ -417,21 +417,21 @@ function ExpandedPanel({ row }: { row: DisplayRow }) {
 
       {tab === "charts" && (
         <div style={{ padding: "10px 12px 14px" }}>
-          <div style={{ fontSize: 8, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase", marginBottom: 5 }}>
+          <div style={{ fontSize: 8, color: MUTED, fontFamily: "var(--font-text),sans-serif", letterSpacing: ".07em", textTransform: "uppercase", marginBottom: 5 }}>
             OHLC · {row.ticker} · Daily
           </div>
           <MobileCandleChart ticker={row.ticker} />
 
           {activeEq.length > 0 && (
             <div style={{ marginTop: 10 }}>
-              <div style={{ fontSize: 8, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase", marginBottom: 3 }}>
+              <div style={{ fontSize: 8, color: MUTED, fontFamily: "var(--font-text),sans-serif", letterSpacing: ".07em", textTransform: "uppercase", marginBottom: 3 }}>
                 {isSynth ? "Equity (Sim)" : "Equity OOS"}
               </div>
               <ResponsiveContainer width="100%" height={72}>
                 <AreaChart data={activeEq.map(p => ({ t: p.time.slice(0,7), v: Math.round(p.value*100)/100 }))} margin={CM}>
                   <defs><linearGradient id="mxeq" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#fff" stopOpacity={0.12}/><stop offset="95%" stopColor="#fff" stopOpacity={0.01}/></linearGradient></defs>
                   <YAxis tick={TICK} tickLine={false} axisLine={false} width={34} tickFormatter={(v: number) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : `${v.toFixed(0)}`} />
-                  <Tooltip contentStyle={{ background: "#1c1d20", border: `1px solid ${CBORD}`, borderRadius: 8, fontSize: 10 }}
+                  <Tooltip contentStyle={{ background: "#1F1F1F", border: `1px solid ${CBORD}`, borderRadius: 8, fontSize: 10 }}
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     formatter={(v: any) => [`$${Number(v??0).toLocaleString("de",{maximumFractionDigits:0})}`, "Equity"]} />
                   <Area type="monotone" dataKey="v" stroke="#fff" strokeWidth={1.4} strokeOpacity={0.75} fill="url(#mxeq)" dot={false} activeDot={{ r: 2, fill: "#fff", strokeWidth: 0 }} />
@@ -442,13 +442,13 @@ function ExpandedPanel({ row }: { row: DisplayRow }) {
 
           {activeDd.length > 0 && (
             <div style={{ marginTop: 4 }}>
-              <div style={{ fontSize: 8, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em", textTransform: "uppercase", marginBottom: 3 }}>Drawdown</div>
+              <div style={{ fontSize: 8, color: MUTED, fontFamily: "var(--font-text),sans-serif", letterSpacing: ".07em", textTransform: "uppercase", marginBottom: 3 }}>Drawdown</div>
               <ResponsiveContainer width="100%" height={48}>
                 <AreaChart data={activeDd.map(p => ({ t: p.time.slice(0,7), v: Math.round(p.value*100)/100 }))} margin={CMX}>
                   <defs><linearGradient id="mxdd" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={GOLD} stopOpacity={0.28}/><stop offset="95%" stopColor={GOLD} stopOpacity={0.02}/></linearGradient></defs>
                   <XAxis dataKey="t" tick={TICK} tickLine={false} axisLine={false} interval="preserveStartEnd" />
                   <YAxis tick={TICK} tickLine={false} axisLine={false} width={34} tickFormatter={(v: number) => `${v.toFixed(0)}%`} />
-                  <Tooltip contentStyle={{ background: "#1c1d20", border: `1px solid ${CBORD}`, borderRadius: 8, fontSize: 10 }}
+                  <Tooltip contentStyle={{ background: "#1F1F1F", border: `1px solid ${CBORD}`, borderRadius: 8, fontSize: 10 }}
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     formatter={(v: any) => [`${Number(v??0).toFixed(2)}%`, "DD"]} />
                   <Area type="monotone" dataKey="v" stroke={GOLD} strokeWidth={1.2} fill="url(#mxdd)" dot={false} activeDot={{ r: 2, fill: GOLD, strokeWidth: 0 }} />
@@ -461,8 +461,8 @@ function ExpandedPanel({ row }: { row: DisplayRow }) {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 5, marginTop: 10 }}>
             {kpi6.map(k => (
               <div key={k.label} style={{ background: CARD, border: `1px solid ${CBORD}`, borderRadius: 9, padding: "7px 9px" }}>
-                <div style={{ fontSize: 8, fontWeight: 600, color: MUTED, letterSpacing: ".06em", textTransform: "uppercase", fontFamily: "var(--font-montserrat),sans-serif", marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{k.label}</div>
-                <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "var(--font-montserrat),sans-serif", color: strNumColor(k.value) }}>{k.value}</div>
+                <div style={{ fontSize: 8, fontWeight: 600, color: MUTED, letterSpacing: ".06em", textTransform: "uppercase", fontFamily: "var(--font-text),sans-serif", marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{k.label}</div>
+                <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "var(--font-text),sans-serif", color: strNumColor(k.value) }}>{k.value}</div>
               </div>
             ))}
           </div>
@@ -505,8 +505,8 @@ function ColHeader({ label, agg, k, sortKey, sortDir, onSort, w, align = "left" 
   const active = sortKey === k;
   return (
     <div onClick={() => onSort(k)} style={{ width: w, flexShrink: 0, paddingRight: 4, cursor: "pointer", userSelect: "none", textAlign: align }}>
-      <div style={{ fontSize: 8, fontWeight: 600, color: active ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.32)", letterSpacing: ".05em", fontFamily: "var(--font-montserrat),sans-serif", marginBottom: 1, whiteSpace: "nowrap" }}>{agg}</div>
-      <div style={{ fontSize: 8, fontWeight: 700, color: active ? "rgba(255,255,255,0.65)" : MUTED, letterSpacing: ".08em", textTransform: "uppercase", fontFamily: "var(--font-montserrat),sans-serif", display: "flex", alignItems: "center", gap: 2, justifyContent: align === "right" ? "flex-end" : "flex-start" }}>
+      <div style={{ fontSize: 8, fontWeight: 600, color: active ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.32)", letterSpacing: ".05em", fontFamily: "var(--font-text),sans-serif", marginBottom: 1, whiteSpace: "nowrap" }}>{agg}</div>
+      <div style={{ fontSize: 8, fontWeight: 700, color: active ? "rgba(255,255,255,0.65)" : MUTED, letterSpacing: ".08em", textTransform: "uppercase", fontFamily: "var(--font-text),sans-serif", display: "flex", alignItems: "center", gap: 2, justifyContent: align === "right" ? "flex-end" : "flex-start" }}>
         {label}
         {active && <span style={{ opacity: 0.6, fontSize: 8 }}>{sortDir === "desc" ? "↓" : "↑"}</span>}
       </div>
@@ -531,10 +531,10 @@ function StrategyRow({ row, num, liveData, liveOn }: {
       }}>
         {/* ticker row */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-montserrat),sans-serif", width: 18, flexShrink: 0, textAlign: "right" }}>{num}</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-text),sans-serif", width: 18, flexShrink: 0, textAlign: "right" }}>{num}</span>
           {iconSrc && <img src={iconSrc} alt="" width={15} height={15} style={{ width: 15, height: 15, objectFit: "contain", borderRadius: 3, flexShrink: 0 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />}
-          <span style={{ fontSize: 12, fontWeight: 700, fontFamily: "var(--font-montserrat),sans-serif", color: "#fff", flexShrink: 0 }}>{row.ticker}</span>
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-montserrat),sans-serif", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>{row.label}</span>
+          <span style={{ fontSize: 12, fontWeight: 700, fontFamily: "var(--font-text),sans-serif", color: "#fff", flexShrink: 0 }}>{row.ticker}</span>
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-text),sans-serif", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>{row.label}</span>
           <Chip status={row.status} />
           <svg width={10} height={10} viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0, marginLeft: 2, transform: open ? "rotate(180deg)" : "none", transition: "transform .18s", color: MUTED }}>
             <path d="M1.5 3l3.5 3.5L8.5 3" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" />
@@ -569,7 +569,7 @@ function StrategyRow({ row, num, liveData, liveOn }: {
 function MCol({ label, value, w, color, dim }: { label: string; value: string; w: string; color?: string; dim?: boolean }) {
   return (
     <div style={{ width: w, flexShrink: 0, paddingRight: 4 }}>
-      <div style={{ fontSize: 11, fontWeight: 600, color: dim ? "rgba(255,255,255,0.5)" : (color ?? "rgba(255,255,255,0.78)"), fontFamily: "var(--font-montserrat),sans-serif", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{value}</div>
+      <div style={{ fontSize: 11, fontWeight: 600, color: dim ? "rgba(255,255,255,0.5)" : (color ?? "rgba(255,255,255,0.78)"), fontFamily: "var(--font-text),sans-serif", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{value}</div>
     </div>
   );
 }
@@ -582,7 +582,7 @@ function ToggleBtn({ active, onClick, children }: { active: boolean; onClick: ()
       background: active ? "rgba(255,255,255,0.08)" : "transparent",
       border: `1px solid ${active ? "rgba(255,255,255,0.22)" : RBORD}`,
       borderRadius: 20, padding: "4px 11px", cursor: "pointer",
-      fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em",
+      fontFamily: "var(--font-text),sans-serif", letterSpacing: ".07em",
       textTransform: "uppercase", WebkitTapHighlightColor: "transparent",
       flexShrink: 0, whiteSpace: "nowrap",
     }}>
@@ -677,7 +677,7 @@ export function MobileKomponentenView() {
               width: "100%", boxSizing: "border-box",
               background: "rgba(255,255,255,0.05)", border: `1px solid ${RBORD}`,
               borderRadius: 20, padding: "4px 8px 4px 22px",
-              fontSize: 10, color: "#fff", fontFamily: "var(--font-montserrat),sans-serif",
+              fontSize: 10, color: "#fff", fontFamily: "var(--font-text),sans-serif",
               outline: "none", appearance: "none",
             }}
           />
@@ -695,7 +695,7 @@ export function MobileKomponentenView() {
                 style={{
                   flexShrink: 0, fontSize: 10, fontWeight: 600,
                   letterSpacing: ".07em", textTransform: "uppercase",
-                  fontFamily: "var(--font-montserrat),sans-serif",
+                  fontFamily: "var(--font-text),sans-serif",
                   padding: "4px 11px", borderRadius: 20, cursor: "pointer",
                   background: pillarFilter === p ? "rgba(255,255,255,0.07)" : "transparent",
                   border: `1px solid ${pillarFilter === p ? "rgba(255,255,255,0.18)" : RBORD}`,
@@ -738,7 +738,7 @@ export function MobileKomponentenView() {
               onClick={() => { setPortfolio(p.id); setPillarFilter("all"); setSortKey("weight"); setSortDir("desc"); }}
               style={{
                 flex: 1, padding: "11px 0", fontSize: 11, fontWeight: 700,
-                fontFamily: "var(--font-montserrat),sans-serif", letterSpacing: ".07em",
+                fontFamily: "var(--font-text),sans-serif", letterSpacing: ".07em",
                 textTransform: "uppercase", border: "none", cursor: "pointer", background: "none",
                 color: portfolio === p.id ? "#fff" : MUTED,
                 borderBottom: `2px solid ${portfolio === p.id ? "rgba(255,255,255,0.5)" : "transparent"}`,
@@ -757,8 +757,8 @@ export function MobileKomponentenView() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6, padding: "18px 10px 0" }}>
           {kpis.map(k => (
             <div key={k.label} style={{ background: CARD, border: `1px solid ${CBORD}`, borderRadius: 10, padding: "7px 8px" }}>
-              <div style={{ fontSize: 7, fontWeight: 600, color: MUTED, letterSpacing: ".06em", textTransform: "uppercase", fontFamily: "var(--font-montserrat),sans-serif", marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{k.label}</div>
-              <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "var(--font-montserrat),sans-serif", color: "#fff", letterSpacing: "-.02em", lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{k.value}</div>
+              <div style={{ fontSize: 7, fontWeight: 600, color: MUTED, letterSpacing: ".06em", textTransform: "uppercase", fontFamily: "var(--font-text),sans-serif", marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{k.label}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "var(--font-text),sans-serif", color: "#fff", letterSpacing: "-.02em", lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{k.value}</div>
             </div>
           ))}
         </div>
@@ -773,7 +773,7 @@ export function MobileKomponentenView() {
                 width: "100%", boxSizing: "border-box",
                 background: "rgba(255,255,255,0.05)", border: `1px solid ${RBORD}`,
                 borderRadius: 20, padding: "4px 8px 4px 22px",
-                fontSize: 10, color: "#fff", fontFamily: "var(--font-montserrat),sans-serif",
+                fontSize: 10, color: "#fff", fontFamily: "var(--font-text),sans-serif",
                 outline: "none", appearance: "none",
               }}
             />
@@ -791,7 +791,7 @@ export function MobileKomponentenView() {
                   style={{
                     flexShrink: 0, fontSize: 10, fontWeight: 600,
                     letterSpacing: ".07em", textTransform: "uppercase",
-                    fontFamily: "var(--font-montserrat),sans-serif",
+                    fontFamily: "var(--font-text),sans-serif",
                     padding: "4px 11px", borderRadius: 20, cursor: "pointer",
                     background: pillarFilter === p ? "rgba(255,255,255,0.07)" : "transparent",
                     border: `1px solid ${pillarFilter === p ? "rgba(255,255,255,0.18)" : RBORD}`,
@@ -843,7 +843,7 @@ export function MobileKomponentenView() {
           <StrategyRow key={row.id} row={row} num={i + 1} liveData={liveData} liveOn={liveOn} />
         ))}
         {filtered.length === 0 && (
-          <div style={{ padding: "40px 24px", textAlign: "center", fontSize: 12, color: MUTED, fontFamily: "var(--font-montserrat),sans-serif" }}>
+          <div style={{ padding: "40px 24px", textAlign: "center", fontSize: 12, color: MUTED, fontFamily: "var(--font-text),sans-serif" }}>
             Keine Strategien gefunden
           </div>
         )}

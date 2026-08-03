@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -72,7 +72,7 @@ function NavLabel({ label, expanded }: { label: string; expanded: boolean }) {
         whiteSpace: "nowrap",
         fontSize: 13,
         fontWeight: 600,
-        fontFamily: "var(--font-montserrat,sans-serif)",
+        fontFamily: "var(--font-text)",
         letterSpacing: "0.01em",
         lineHeight: 1,
         display: "inline-block",
@@ -160,19 +160,43 @@ function SidebarLink({
   );
 }
 
-function SidebarSep({ expanded }: { expanded: boolean }) {
+function SectionMarker({ expanded, label }: { expanded: boolean; label?: string }) {
   return (
     <div
-      style={{
-        height: 1,
-        width: expanded ? "calc(100% - 16px)" : 52,
-        background: "linear-gradient(to right, transparent, rgba(255,255,255,0.18), transparent)",
-        flexShrink: 0,
-        transformOrigin: "left center",
-        transition: "width 180ms ease",
-      }}
+      style={{ height: 22, width: "100%", flexShrink: 0, position: "relative" }}
       aria-hidden
-    />
+    >
+      {expanded ? (
+        <div
+          style={{
+            paddingLeft: 18,
+            paddingRight: 8,
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: "0.16em",
+            textTransform: "uppercase",
+            color: "rgba(196,196,204,0.82)",
+            fontFamily: "var(--font-text)",
+            lineHeight: "22px",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {label ?? ""}
+        </div>
+      ) : (
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            top: "50%",
+            height: 1,
+            width: 52,
+            transform: "translateY(-50%)",
+            background: "linear-gradient(to right, transparent, rgba(255,255,255,0.18), transparent)",
+          }}
+        />
+      )}
+    </div>
   );
 }
 
@@ -222,11 +246,11 @@ function FloatToggleBtn({ onClick, label }: { onClick: (e: React.MouseEvent) => 
         border: "1px solid rgba(226,202,122,0.25)",
         borderRadius: 20,
         padding: "7px 14px 7px 10px",
-        color: "#e2ca7a",
+        color: "#C9A84C",
         cursor: "pointer",
         fontSize: 12,
         fontWeight: 600,
-        fontFamily: "var(--font-montserrat,sans-serif)",
+        fontFamily: "var(--font-text)",
         backdropFilter: "blur(8px)",
         boxShadow: "0 4px 16px rgba(0,0,0,0.5)",
       }}
@@ -467,11 +491,18 @@ export function Sidebar() {
         document.body,
       )}
 
-      <div className="flex w-full shrink-0 items-start justify-start pt-3">
+      <div
+        className="sticky top-0 z-[3] flex w-full shrink-0 items-start justify-start pt-3"
+        style={{
+          background: expanded ? "rgba(10, 10, 12, 0.62)" : "rgba(10, 10, 12, 0.82)",
+          backdropFilter: expanded ? "blur(16px) saturate(128%)" : "blur(8px)",
+          overflow: "visible",
+        }}
+      >
         <button
           type="button"
           className="relative flex items-center justify-start border-0 bg-transparent p-0 shadow-none outline-none ring-0 hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white/12"
-          style={{ width: expanded ? 196 : 34, height: 48, marginLeft: 19 }}
+          style={{ width: expanded ? 196 : 34, height: 62, marginLeft: 19, overflow: "visible" }}
           aria-label="Capitalife home"
           onClick={(e) => {
             e.preventDefault();
@@ -485,7 +516,7 @@ export function Sidebar() {
             width={34}
             height={34}
             className="absolute top-1/2 h-[34px] w-[34px] -translate-y-1/2 object-contain"
-            style={{ left: -1, opacity: expanded ? 0 : 1, transition: "opacity 120ms ease" }}
+            style={{ left: -1, opacity: expanded ? 0 : 1, transition: "opacity 120ms ease", overflow: "visible" }}
             priority
           />
           <Image
@@ -494,41 +525,52 @@ export function Sidebar() {
             width={184}
             height={50}
             className="absolute top-1/2 h-[50px] w-[184px] -translate-y-1/2 object-contain"
-            style={{ left: 0, opacity: expanded ? 1 : 0, transition: "opacity 140ms ease" }}
+            style={{ left: 0, opacity: expanded ? 1 : 0, transition: "opacity 140ms ease", overflow: "visible" }}
           />
         </button>
       </div>
 
-      <nav className={cn("mt-2", navClass)} aria-label="Primary">
+      <div className="mt-2 flex w-full flex-col items-center gap-2 px-2">
+        <SectionMarker expanded={expanded} label="Navigation" />
+      </div>
+
+      <nav className={cn("mt-1", navClass)} aria-label="Navigation">
         {shellRouteActive ? (
           <SidebarIconButton page="home" activePage={sidebarPageState} label="Home" icon={Home} onSelect={setPage} onHover={updateHoverBox} expanded={expanded} />
         ) : (
           <SidebarLink href="/" active={shellRouteActive && sidebarPageState === "home"} label="Home" icon={Home} onHover={updateHoverBox} expanded={expanded} />
         )}
-        <SidebarLink href="/sentinel" active={sentinelActive} label="Sentinel" icon={MessageSquare} onHover={updateHoverBox} expanded={expanded} />
-        {canViewBrain && <SidebarLink href="/brain" active={brainActive} label="Brain" icon={BrainCircuit} onHover={updateHoverBox} expanded={expanded} />}
         {canViewGlobe && <SidebarLink href="/globe" active={globeActive} label="Globe" icon={Globe} onHover={updateHoverBox} expanded={expanded} />}
+        {canViewBrain && <SidebarLink href="/brain" active={brainActive} label="Brain" icon={BrainCircuit} onHover={updateHoverBox} expanded={expanded} />}
+        <SidebarLink href="/sentinel" active={sentinelActive} label="Sentinel" icon={MessageSquare} onHover={updateHoverBox} expanded={expanded} />
       </nav>
 
       <div className="mt-3 flex w-full flex-col items-center gap-2 px-2">
-        <SidebarSep expanded={expanded} />
+        <SectionMarker expanded={expanded} label="Execution" />
       </div>
 
-      <nav className={cn("mt-1", navClass)} aria-label="Tools">
+      <nav className={cn("mt-1", navClass)} aria-label="Execution">
         <SidebarLink href="/engine" active={engineActive} label="Trading Engine" icon={ChartCandlestick} onHover={updateHoverBox} expanded={expanded} />
         <SidebarLink href="/signal" active={signalActive} label="Signale" icon={BellRing} onHover={updateHoverBox} expanded={expanded} />
         {canViewMonitoring && <SidebarLink href="/monitoring" active={monitoringActive} label="Monitoring" icon={Activity} onHover={updateHoverBox} expanded={expanded} />}
-        {canViewAnalytics && <SidebarLink href="/analytics" active={analyticsActive} label="Analytics" icon={ChartColumn} onHover={updateHoverBox} expanded={expanded} />}
-        {canViewKomponenten && <SidebarLink href="/komponenten" active={componentsActive && !seasonalityActive} label="Komponenten" icon={Blocks} onHover={updateHoverBox} expanded={expanded} />}
-        {canViewKomponenten && <SidebarLink href="/komponenten/seasonality" active={seasonalityActive} label="Seasonality" icon={CalendarRange} onHover={updateHoverBox} expanded={expanded} />}
       </nav>
 
       <div className="mt-3 flex w-full flex-col items-center gap-2 px-2">
-        <SidebarSep expanded={expanded} />
+        <SectionMarker expanded={expanded} label="Intelligence" />
       </div>
 
-      <nav className={cn("mt-1", navClass)} aria-label="Manager">
+      <nav className={cn("mt-1", navClass)} aria-label="Intelligence">
+        {canViewAnalytics && <SidebarLink href="/analytics" active={analyticsActive} label="Analytics" icon={ChartColumn} onHover={updateHoverBox} expanded={expanded} />}
+        {canViewKomponenten && <SidebarLink href="/komponenten" active={componentsActive && !seasonalityActive} label="Komponenten" icon={Blocks} onHover={updateHoverBox} expanded={expanded} />}
+        {canViewKomponenten && <SidebarLink href="/komponenten/seasonality" active={seasonalityActive} label="Seasonality" icon={CalendarRange} onHover={updateHoverBox} expanded={expanded} />}
         <SidebarLink href="/about" active={aboutActive} label="Bibel" icon={BookText} onHover={updateHoverBox} expanded={expanded} />
+      </nav>
+
+      <div className="mt-3 flex w-full flex-col items-center gap-2 px-2">
+        <SectionMarker expanded={expanded} label="Clients" />
+      </div>
+
+      <nav className={cn("mt-1", navClass)} aria-label="Clients">
         <SidebarLink href="/manager" active={managerActive} label="Manager" icon={BriefcaseBusiness} onHover={updateHoverBox} expanded={expanded} />
         <SidebarLink href="/investors" active={investorsActive} label="Investors" icon={HandCoins} onHover={updateHoverBox} expanded={expanded} />
         <SidebarLink href="/onboarding" active={investorsCRMActive} label="Onboarding" icon={UserRoundPlus} onHover={updateHoverBox} expanded={expanded} />
@@ -537,10 +579,10 @@ export function Sidebar() {
       </nav>
 
       <div className="mt-auto flex w-full flex-col items-center px-2 pb-16 pt-0">
-        <SidebarSep expanded={expanded} />
+        <SectionMarker expanded={expanded} label="System" />
 
         <div className="mt-1 w-full">
-          <button type="button" onClick={cyclePreview} onMouseEnter={(event) => updateHoverBox(event.currentTarget)} title={previewMode === "desktop" ? "Mobile Preview" : previewMode === "mobile" ? "Split View" : "Desktop"} style={{ display: "flex", height: 44, width: "100%", alignItems: "center", gap: 12, borderRadius: 8, border: 0, background: "transparent", cursor: "pointer", paddingLeft: 18, color: previewMode === "desktop" ? "rgba(113,113,122,1)" : "#e2ca7a", flexShrink: 0 }}>
+          <button type="button" onClick={cyclePreview} onMouseEnter={(event) => updateHoverBox(event.currentTarget)} title={previewMode === "desktop" ? "Mobile Preview" : previewMode === "mobile" ? "Split View" : "Desktop"} style={{ display: "flex", height: 44, width: "100%", alignItems: "center", gap: 12, borderRadius: 8, border: 0, background: "transparent", cursor: "pointer", paddingLeft: 18, color: previewMode === "desktop" ? "rgba(113,113,122,1)" : "#C9A84C", flexShrink: 0 }}>
             <Smartphone style={{ width: 19, height: 19, flexShrink: 0 }} strokeWidth={1.65} />
             <NavLabel label="Preview" expanded={expanded} />
           </button>
@@ -569,9 +611,9 @@ export function Sidebar() {
       </div>
       <style jsx>{`
         .capitalife-sidebar {
-          background: rgba(10, 10, 12, 1);
-          backdrop-filter: blur(0px);
-          border-right-color: rgba(255, 255, 255, 0.05);
+          background: rgba(10, 10, 12, 0.44);
+          backdrop-filter: blur(16px) saturate(126%);
+          border-right-color: rgba(255, 255, 255, 0.06);
           transition:
             width 180ms ease,
             box-shadow 180ms ease,
@@ -582,9 +624,9 @@ export function Sidebar() {
         }
 
         .capitalife-sidebar[data-expanded="true"] {
-          background: rgba(10, 10, 12, 0.9);
-          backdrop-filter: blur(12px) saturate(118%);
-          border-right-color: rgba(255, 255, 255, 0.08);
+          background: rgba(10, 10, 12, 0.28);
+          backdrop-filter: blur(28px) saturate(152%);
+          border-right-color: rgba(255, 255, 255, 0.09);
           box-shadow:
             inset -1px 0 0 rgba(255,255,255,0.06),
             10px 0 20px rgba(0,0,0,0.56);

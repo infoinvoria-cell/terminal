@@ -7,28 +7,25 @@ const withBundleAnalyzer = bundleAnalyzer({
 });
 
 const nextConfig: NextConfig = {
+  reactStrictMode: false,
+  typedRoutes: false,
   transpilePackages: ["react-force-graph-2d", "force-graph", "d3-force-3d", "three-forcegraph"],
   serverExternalPackages: ["canvas"],
   experimental: {
+    optimizeCss: true,
     optimizePackageImports: ["lucide-react", "recharts"],
   },
   outputFileTracingIncludes: {
-    // Include capitalife JSON data files so they are available on Vercel
     "**": ["./src/data/capitalife/**/*.json"],
   },
   async headers() {
-    const immutableAssetHeaders = [
-      { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-    ];
+    const immutableAssetHeaders = [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }];
 
     return [
-      // Note: /_next/static/* is managed by Next.js automatically (immutable).
-      // Public branding/icons
       {
         source: "/branding/:path*",
         headers: immutableAssetHeaders,
       },
-      // Public image assets
       {
         source: "/:path*\\.(png|jpg|jpeg|webp|avif|gif|svg|ico)",
         headers: immutableAssetHeaders,
@@ -37,7 +34,6 @@ const nextConfig: NextConfig = {
         source: "/:path*\\.(woff|woff2|ttf|otf|eot)",
         headers: immutableAssetHeaders,
       },
-      // Dynamic generated data: no cache
       {
         source: "/generated/:path*",
         headers: [{ key: "Cache-Control", value: "no-store" }],

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useRef, useState, memo } from "react";
 import {
@@ -9,7 +9,7 @@ import { getAssetDef } from "@/lib/seasonality/walkForward/assetManifest";
 import SafeResponsiveContainer from "@/components/shared/SafeResponsiveContainer";
 
 const C_WHITE  = "#F0F3F7";
-const C_GOLD   = "#DCC476";
+const C_GOLD   = "#C9A84C";
 const C_TEXT_2 = "#A8B4C4";
 const C_TEXT_3 = "#6A7785";
 const C_BG     = "rgba(255,255,255,0.025)";

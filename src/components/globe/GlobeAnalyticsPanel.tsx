@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo } from "react";
 import type { AssetItem, GeoEventItem, CommodityRegionItem, NewsItem } from "@/lib/globe/globe-types";
@@ -25,11 +25,11 @@ function trafficLight(value: number, thresholds: { green: number; yellow: number
   const { green, yellow, red, invert } = thresholds;
   if (invert) {
     if (value <= green) return { color: "#22c55e", label: "Low" };
-    if (value <= yellow) return { color: "#eab308", label: "Elevated" };
+    if (value <= yellow) return { color: "#C9A84C", label: "Elevated" };
     return { color: "#ef4444", label: "High" };
   }
   if (value >= green) return { color: "#22c55e", label: "Strong" };
-  if (value >= yellow) return { color: "#eab308", label: "Caution" };
+  if (value >= yellow) return { color: "#C9A84C", label: "Caution" };
   return { color: "#ef4444", label: "Weak" };
 }
 
@@ -169,10 +169,10 @@ export function GlobeAnalyticsPanel({
       <div className={SECTION}>
         <div className={SECTION_TITLE}>Risk Matrix</div>
         <div className="grid grid-cols-2 gap-2">
-          <RiskTile label="Geopolitics" value={conflictEvents.length} suffix="hotspots" color={conflictEvents.length > 5 ? "#ef4444" : conflictEvents.length > 2 ? "#eab308" : "#22c55e"} />
-          <RiskTile label="Earthquakes ≥5.0" value={quakeCount} suffix="24h" color={quakeCount > 5 ? "#ef4444" : quakeCount > 2 ? "#eab308" : "#22c55e"} />
-          <RiskTile label="Commodity Stress" value={commodityStressRegions.length} suffix="regions" color={commodityStressRegions.length > 3 ? "#ef4444" : commodityStressRegions.length > 1 ? "#eab308" : "#22c55e"} />
-          <RiskTile label="Ship Disruptions" value={shippingDisruptionEvents.length} suffix="active" color={shippingDisruptionEvents.length > 3 ? "#ef4444" : shippingDisruptionEvents.length > 1 ? "#eab308" : "#22c55e"} />
+          <RiskTile label="Geopolitics" value={conflictEvents.length} suffix="hotspots" color={conflictEvents.length > 5 ? "#ef4444" : conflictEvents.length > 2 ? "#C9A84C" : "#22c55e"} />
+          <RiskTile label="Earthquakes ≥5.0" value={quakeCount} suffix="24h" color={quakeCount > 5 ? "#ef4444" : quakeCount > 2 ? "#C9A84C" : "#22c55e"} />
+          <RiskTile label="Commodity Stress" value={commodityStressRegions.length} suffix="regions" color={commodityStressRegions.length > 3 ? "#ef4444" : commodityStressRegions.length > 1 ? "#C9A84C" : "#22c55e"} />
+          <RiskTile label="Ship Disruptions" value={shippingDisruptionEvents.length} suffix="active" color={shippingDisruptionEvents.length > 3 ? "#ef4444" : shippingDisruptionEvents.length > 1 ? "#C9A84C" : "#22c55e"} />
         </div>
       </div>
 

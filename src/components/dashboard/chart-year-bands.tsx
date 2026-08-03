@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 type YearPoint = { year: number };
 
@@ -32,7 +32,7 @@ export function ChartYearBands({ data, enabled = true }: ChartYearBandsProps) {
           style={{ flex: r.n }}
         >
           <div className="h-px min-w-[6px] flex-1 bg-gradient-to-r from-transparent via-zinc-500/30 to-transparent" />
-          <span className="shrink-0 px-1 text-[10px] font-medium tabular-nums text-zinc-500 [font-family:var(--font-montserrat),sans-serif]">
+          <span className="shrink-0 px-1 text-[10px] font-medium tabular-nums text-zinc-500 [font-family:var(--font-text),sans-serif]">
             {r.year}
           </span>
           <div className="h-px min-w-[6px] flex-1 bg-gradient-to-l from-transparent via-zinc-500/30 to-transparent" />

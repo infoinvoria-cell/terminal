@@ -1,7 +1,7 @@
 import { readFileSync, existsSync } from "fs";
 import { join } from "path";
-// v2 — asset view uses per-asset price returns from canonical CSVs
-import type { AnalyticsDataset, AnalyticsSeriesPoint, AnalyticsBar } from "./portfolio-data";
+// v3 — full/display resolution separation, no carry-forward, AssetMeta
+import type { AnalyticsDataset, AnalyticsSeriesPoint, AnalyticsBar, AssetMeta } from "./portfolio-data";
 
 const DATA_DIR = join(process.cwd(), "data", "core-invest", "reference");
 
@@ -109,47 +109,115 @@ const CANONICAL_DIR = join(process.cwd(), "data", "core-invest", "canonical");
 // ETF assets used in Core Invest (from daily_target_weights.csv header, minus Cash_Financing)
 const CORE_INVEST_ETFS = ["SPY", "QQQ", "RSP", "IWM", "EFA", "EEM", "QUAL", "MTUM", "VLUE", "USMV", "GLD", "IEF", "BIL"];
 
-function parseAssetReturnSeries(startDate: string): Record<string, AnalyticsSeriesPoint[]> {
-  const result: Record<string, AnalyticsSeriesPoint[]> = {};
+type AssetSeriesBundle = {
+  fullSeries: Record<string, AnalyticsSeriesPoint[]>;
+  displaySeries: Record<string, AnalyticsSeriesPoint[]>;
+  meta: Record<string, AssetMeta>;
+};
 
+function parseAssetReturnSeries(startDate: string): AssetSeriesBundle {
+  // Step 1: Build raw price maps — only real price observations, no filling.
+  // col[0]=date, col[4]=adjusted close (split-adjusted from data source).
+  const allPrices = new Map<string, Map<string, number>>();
   for (const ticker of CORE_INVEST_ETFS) {
     const filepath = join(CANONICAL_DIR, `${ticker}.csv`);
     if (!existsSync(filepath)) continue;
-
     const text = readFileSync(filepath, "utf-8");
     const lines = text.trim().split("\n");
-    if (lines.length < 2) continue;
-
-    // Build date→close map
-    const priceByDate = new Map<string, number>();
+    const prices = new Map<string, number>();
     for (let i = 1; i < lines.length; i++) {
       const parts = lines[i].split(",");
       if (parts.length < 5) continue;
-      const date = parts[0];
+      const date = parts[0].trim();
       const close = parseFloat(parts[4]);
       if (date >= startDate && Number.isFinite(close) && close > 0) {
-        priceByDate.set(date, close);
+        prices.set(date, close);
       }
     }
+    if (prices.size > 0) allPrices.set(ticker, prices);
+  }
 
-    const dates = [...priceByDate.keys()].sort();
-    if (dates.length === 0) continue;
+  // Step 2: Build FULL daily series per ETF.
+  // Uses the ETF's own trading dates only — no anchor, no carry-forward.
+  // Base price = price on ETF's own first available date.
+  const fullSeries: Record<string, AnalyticsSeriesPoint[]> = {};
+  const meta: Record<string, AssetMeta> = {};
 
-    const basePrice = priceByDate.get(dates[0])!;
+  for (const [ticker, prices] of allPrices.entries()) {
+    const etfDates = [...prices.keys()].sort();
+    if (!etfDates.length) continue;
+    const inceptionDate = etfDates[0]!;
+    const basePrice = prices.get(inceptionDate)!;
+    const series: AnalyticsSeriesPoint[] = [];
+    let maxDailyReturnPct = 0;
+    let prevPrice = basePrice;
+
+    for (const date of etfDates) {
+      const price = prices.get(date)!;
+      // Daily return between consecutive real observations (spec §3)
+      if (series.length > 0) {
+        const dr = Math.abs(price / prevPrice - 1) * 100;
+        if (dr > maxDailyReturnPct) maxDailyReturnPct = dr;
+      }
+      prevPrice = price;
+      const cumReturn = Number(((price / basePrice - 1) * 100).toFixed(4));
+      series.push({ date, value: cumReturn });
+    }
+
+    fullSeries[ticker] = series;
+    meta[ticker] = {
+      ticker,
+      inceptionDate,
+      lastDate: etfDates[etfDates.length - 1]!,
+      fullPoints: series.length,
+      displayPoints: 0, // filled below
+      maxDailyReturnPct: Number(maxDailyReturnPct.toFixed(4)),
+      priceColumn: "col[4] adjusted close",
+    };
+  }
+
+  // Step 3: Build union calendar of all ETF dates, then downsample to ~500 pts.
+  // Outer join — no ETF's rows are removed by another ETF's absence.
+  const allDates = new Set<string>();
+  for (const prices of allPrices.values()) {
+    for (const date of prices.keys()) allDates.add(date);
+  }
+  const sortedUnion = [...allDates].sort();
+  const total = sortedUnion.length;
+  const targetPoints = 500;
+  const step = Math.max(1, Math.ceil(total / targetPoints));
+  const sampledDates: string[] = [];
+  for (let i = 0; i < total; i++) {
+    if (i % step === 0 || i === total - 1) sampledDates.push(sortedUnion[i]!);
+  }
+
+  // Step 4: Build DISPLAY series aligned to sampledDates.
+  // No carry-forward: if ETF has no price on a sampled date, skip that point (null gap).
+  // Pre-inception dates are also skipped.
+  const displaySeries: Record<string, AnalyticsSeriesPoint[]> = {};
+
+  for (const [ticker, prices] of allPrices.entries()) {
+    const etfDates = [...prices.keys()].sort();
+    if (!etfDates.length) continue;
+    const inceptionDate = etfDates[0]!;
+    const basePrice = prices.get(inceptionDate)!;
     const series: AnalyticsSeriesPoint[] = [];
 
-    for (let i = 0; i < dates.length; i++) {
-      if (i % 3 !== 0 && i !== 0 && i !== dates.length - 1) continue;
-      const date = dates[i];
-      const price = priceByDate.get(date)!;
+    for (const date of sampledDates) {
+      if (date < inceptionDate) continue; // pre-inception: genuine null gap
+      const price = prices.get(date);
+      if (price === undefined) continue;  // no trade on this date: null gap (no carry-forward)
       const cumReturn = Number(((price / basePrice - 1) * 100).toFixed(2));
       series.push({ date, value: cumReturn });
     }
 
-    result[ticker] = series;
+    if (series.length > 0) {
+      displaySeries[ticker] = series;
+      if (meta[ticker]) meta[ticker]!.displayPoints = series.length;
+    }
   }
 
-  return result;
+  return { fullSeries, displaySeries, meta };
 }
 
 function parseAnnualReturns(): { core: AnalyticsBar[]; spy: AnalyticsBar[] } {
@@ -282,7 +350,7 @@ export function buildCoreInvestReferenceDataset(): AnalyticsDataset | null {
   const passedGates = gates.filter((g) => g.status === "PASS").length;
   const failedGates = gates.filter((g) => g.status === "FAIL").length;
 
-  const assetWeights = parseAssetReturnSeries(curves.performance[0]?.date ?? "2008-01-01");
+  const assetBundle = parseAssetReturnSeries(curves.performance[0]?.date ?? "2008-01-01");
 
   const full = summary.full;
   const spy = summary.spy;
@@ -293,7 +361,7 @@ export function buildCoreInvestReferenceDataset(): AnalyticsDataset | null {
     { id: "MANAGED_FUTURES", label: "Managed Futures", active: true, weight: 0.25 },
   ];
 
-  const assetGroups = Object.entries(assetWeights).map(([ticker]) => ({
+  const assetGroups = Object.keys(assetBundle.displaySeries).map((ticker) => ({
     id: ticker, label: ticker, active: true, weight: 0,
   }));
 
@@ -313,8 +381,10 @@ export function buildCoreInvestReferenceDataset(): AnalyticsDataset | null {
     benchmarkSeries: curves.benchmark,
     groupSeries: {
       "Core Gross": curves.grossPerformance,
-      ...assetWeights,
+      ...assetBundle.displaySeries,
     },
+    fullGroupSeries: assetBundle.fullSeries,
+    assetMeta: assetBundle.meta,
     annualReturns: annual.core,
     monthlyReturns: monthly,
     groupBars: annual.spy.map((b) => ({ ...b, group: "SPY" })),
@@ -414,7 +484,7 @@ export function buildCoreInvestShadowLiveDataset(): AnalyticsDataset | null {
   const etfTargets = parseEtfTargets();
   const futuresTargets = parseFuturesTargets();
   const curves = parseEquityCurves();
-  const assetWeights = parseAssetReturnSeries(curves.performance[0]?.date ?? "2008-01-01");
+  const assetBundle = parseAssetReturnSeries(curves.performance[0]?.date ?? "2008-01-01");
 
   const activeEtfs = etfTargets.filter((t) => t.weight > 0);
   const activeFutures = futuresTargets.filter((t) => t.contracts !== 0);
@@ -475,8 +545,10 @@ export function buildCoreInvestShadowLiveDataset(): AnalyticsDataset | null {
     benchmarkSeries: curves.benchmark,
     groupSeries: {
       "Core Gross": curves.grossPerformance,
-      ...assetWeights,
+      ...assetBundle.displaySeries,
     },
+    fullGroupSeries: assetBundle.fullSeries,
+    assetMeta: assetBundle.meta,
     annualReturns: annual.core,
     monthlyReturns: monthly,
     groupBars: annual.spy.map((b) => ({ ...b, group: "SPY" })),

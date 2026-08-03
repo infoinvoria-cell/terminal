@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useCallback, useEffect } from "react";
 import { useInterval } from "@/hooks/useInterval";
@@ -55,12 +55,12 @@ function TradeCard({ trade, showPnl = false }: { trade: ForwardTrade; showPnl?: 
   return (
     <div className="rounded-[14px] border border-white/[0.07] bg-[#13141a] p-4">
       <div className="flex items-start justify-between gap-2">
-        <span className="text-[17px] font-bold leading-tight text-white [font-family:var(--font-nunito),sans-serif]">
+        <span className="text-[17px] font-bold leading-tight text-white [font-family:var(--font-numbers),sans-serif]">
           {trade.symbol ?? "—"}
         </span>
         <DirBadge dir={trade.direction ?? ""} />
       </div>
-      <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[#888] [font-family:var(--font-montserrat),sans-serif]">
+      <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[#888] [font-family:var(--font-text),sans-serif]">
         {trade.entry_price && (
           <span>
             <span className="text-[#555]">Entry </span>
@@ -103,12 +103,12 @@ function SignalCard({ signal }: { signal: ForwardSignal }) {
   return (
     <div className="rounded-[14px] border border-white/[0.07] bg-[#13141a] p-4">
       <div className="flex items-start justify-between gap-2">
-        <span className="text-[17px] font-bold leading-tight text-white [font-family:var(--font-nunito),sans-serif]">
+        <span className="text-[17px] font-bold leading-tight text-white [font-family:var(--font-numbers),sans-serif]">
           {signal.symbol ?? "—"}
         </span>
         <DirBadge dir={signal.direction ?? signal.signal_direction ?? ""} />
       </div>
-      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[#888] [font-family:var(--font-montserrat),sans-serif]">
+      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[#888] [font-family:var(--font-text),sans-serif]">
         {(signal.strategy ?? signal.strategy_id) && (
           <span className="text-[#666]">{signal.strategy ?? signal.strategy_id}</span>
         )}
@@ -132,15 +132,15 @@ function TabBtn({ active, onClick, label, count }: {
     <button
       type="button"
       onClick={onClick}
-      className={`flex-1 py-2.5 text-[12px] font-semibold transition-colors [font-family:var(--font-montserrat),sans-serif] ${
+      className={`flex-1 py-2.5 text-[12px] font-semibold transition-colors [font-family:var(--font-text),sans-serif] ${
         active
-          ? "border-b-2 border-[#e2ca7a] text-white"
+          ? "border-b-2 border-[#C9A84C] text-white"
           : "border-b-2 border-transparent text-[#555]"
       }`}
     >
       {label}
       {count > 0 && (
-        <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] ${active ? "bg-[#e2ca7a]/20 text-[#e2ca7a]" : "bg-white/[0.06] text-[#555]"}`}>
+        <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] ${active ? "bg-[#C9A84C]/20 text-[#C9A84C]" : "bg-white/[0.06] text-[#555]"}`}>
           {count}
         </span>
       )}
@@ -179,7 +179,7 @@ export function MobileSignalsView() {
       {/* Header */}
       <div className="flex-shrink-0 px-4 pt-safe pt-4 pb-0">
         <div className="flex items-center justify-between">
-          <h1 className="text-[18px] font-bold [font-family:var(--font-nunito),sans-serif]">
+          <h1 className="text-[18px] font-bold [font-family:var(--font-numbers),sans-serif]">
             Live Signale
           </h1>
           {loading && (
@@ -226,7 +226,7 @@ export function MobileSignalsView() {
 function Empty({ text }: { text: string }) {
   return (
     <div className="flex h-40 items-center justify-center">
-      <p className="text-[12px] text-[#444] [font-family:var(--font-montserrat),sans-serif]">{text}</p>
+      <p className="text-[12px] text-[#444] [font-family:var(--font-text),sans-serif]">{text}</p>
     </div>
   );
 }

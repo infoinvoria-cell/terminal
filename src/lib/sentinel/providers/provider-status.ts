@@ -52,21 +52,46 @@ function envInt(value: string | undefined, fallback: number): number {
 }
 
 export function getSentinelEnvConfig(): SentinelEnvConfig {
-  const mode = (process.env.SENTINEL_PROVIDER_MODE ?? process.env.SENTINEL_PROVIDER ?? "local").trim().toLowerCase();
-  const defaultProvider = (process.env.SENTINEL_DEFAULT_PROVIDER ?? process.env.SENTINEL_PRIMARY_PROVIDER ?? "local").trim().toLowerCase();
+  const mode = (process.env.SENTINEL_PROVIDER_MODE ?? process.env.SENTINEL_PROVIDER ?? "auto").trim().toLowerCase();
+  const defaultProvider = (process.env.SENTINEL_DEFAULT_PROVIDER ?? process.env.SENTINEL_PRIMARY_PROVIDER ?? "groq").trim().toLowerCase();
   const allowPaidApi = envBool(process.env.SENTINEL_ALLOW_PAID_API, false);
   const allowCustomApi = envBool(process.env.SENTINEL_ALLOW_CUSTOM_API, false);
+  const hasCloudKey = Boolean(
+    process.env.GROQ_API_KEY?.trim() ||
+      process.env.CEREBRAS_API_KEY?.trim() ||
+      process.env.MISTRAL_API_KEY?.trim() ||
+      process.env.COHERE_API_KEY?.trim() ||
+      process.env.ANTHROPIC_API_KEY?.trim(),
+  );
+  const paidApisEnabled = allowPaidApi || hasCloudKey;
   const normalizedMode: SentinelRouterMode =
-    mode === "local" || mode === "ollama" || mode === "groq" || mode === "mistral" || mode === "anthropic" || mode === "custom" ? mode : "auto";
+    mode === "local" ||
+    mode === "ollama" ||
+    mode === "groq" ||
+    mode === "cerebras" ||
+    mode === "mistral" ||
+    mode === "cohere" ||
+    mode === "anthropic" ||
+    mode === "custom"
+      ? mode
+      : "auto";
   const normalizedProvider: SentinelProviderId =
-    defaultProvider === "ollama" || defaultProvider === "groq" || defaultProvider === "mistral" || defaultProvider === "anthropic" || defaultProvider === "custom" ? defaultProvider : "local";
-  const enforcedMode: SentinelRouterMode = !allowPaidApi && !allowCustomApi ? "local" : normalizedMode;
-  const enforcedProvider: SentinelProviderId = !allowPaidApi && !allowCustomApi ? "local" : normalizedProvider;
+    defaultProvider === "ollama" ||
+    defaultProvider === "groq" ||
+    defaultProvider === "cerebras" ||
+    defaultProvider === "mistral" ||
+    defaultProvider === "cohere" ||
+    defaultProvider === "anthropic" ||
+    defaultProvider === "custom"
+      ? defaultProvider
+      : "local";
+  const enforcedMode: SentinelRouterMode = !paidApisEnabled && !allowCustomApi ? "local" : normalizedMode;
+  const enforcedProvider: SentinelProviderId = !paidApisEnabled && !allowCustomApi ? "local" : normalizedProvider;
 
   return {
     mode: enforcedMode,
     defaultProvider: enforcedProvider,
-    allowPaidApi,
+    allowPaidApi: paidApisEnabled,
     allowCustomApi,
     requireLocalFallback: envBool(process.env.SENTINEL_REQUIRE_LOCAL_FALLBACK, true),
     localTimeoutMs: envInt(process.env.SENTINEL_LOCAL_TIMEOUT_MS, 30_000),
@@ -128,9 +153,7 @@ export function getBrainContextStatus(config = getSentinelEnvConfig()): BrainCon
     pathConfigured: true,
     path: config.brainPath,
     mode: config.partnerMode ? "generic" : "capitalife",
-    message: config.partnerMode
-      ? "Brain context unavailable, running generic/local context mode"
-      : "Brain context missing",
+    message: config.partnerMode ? "Brain context unavailable, running generic/local context mode" : "Brain context missing",
   };
 }
 

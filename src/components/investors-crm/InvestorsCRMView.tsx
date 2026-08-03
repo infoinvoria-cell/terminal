@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { SentinelChat } from "./SentinelChat";
@@ -34,15 +34,15 @@ const ZUSTAENDIG_OPTS = ["Jeroen", "Partner 2", "Partner 3"];
 
 const STATUS_COLOR: Record<string, { bg: string; text: string; border: string }> = {
   "Neu":                    { bg: "rgba(113,113,122,0.15)", text: "#a1a1aa", border: "rgba(113,113,122,0.3)" },
-  "Kontaktiert":            { bg: "rgba(59,130,246,0.15)",  text: "#60a5fa", border: "rgba(59,130,246,0.3)" },
+  "Kontaktiert":            { bg: "rgba(59,130,246,0.15)",  text: "#9CA3AF", border: "rgba(59,130,246,0.3)" },
   "Early Access gesendet":  { bg: "rgba(99,102,241,0.15)",  text: "#818cf8", border: "rgba(99,102,241,0.3)" },
   "Interesse bestätigt":    { bg: "rgba(6,182,212,0.15)",   text: "#22d3ee", border: "rgba(6,182,212,0.3)" },
   "Gespräch geplant":       { bg: "rgba(168,85,247,0.15)",  text: "#c084fc", border: "rgba(168,85,247,0.3)" },
   "Warm Commitment":        { bg: "rgba(245,158,11,0.15)",  text: "#fbbf24", border: "rgba(245,158,11,0.3)" },
   "Unterlagen ausstehend":  { bg: "rgba(249,115,22,0.15)",  text: "#fb923c", border: "rgba(249,115,22,0.3)" },
-  "Bereit für Onboarding":  { bg: "rgba(34,197,94,0.15)",   text: "#4ade80", border: "rgba(34,197,94,0.3)" },
+  "Bereit für Onboarding":  { bg: "rgba(34,197,94,0.15)",   text: "#22C55E", border: "rgba(34,197,94,0.3)" },
   "Später kontaktieren":    { bg: "rgba(63,63,70,0.3)",     text: "#71717a", border: "rgba(63,63,70,0.5)" },
-  "Abgesagt":               { bg: "rgba(239,68,68,0.15)",   text: "#f87171", border: "rgba(239,68,68,0.3)" },
+  "Abgesagt":               { bg: "rgba(239,68,68,0.15)",   text: "#EF4444", border: "rgba(239,68,68,0.3)" },
 };
 
 function StatusBadge({ status }: { status: string }) {
@@ -54,7 +54,7 @@ function StatusBadge({ status }: { status: string }) {
       borderRadius: 4,
       fontSize: 11,
       fontWeight: 600,
-      fontFamily: "var(--font-montserrat,sans-serif)",
+      fontFamily: "var(--font-text)",
       letterSpacing: "0.03em",
       background: c.bg,
       color: c.text,
@@ -81,18 +81,18 @@ const inp: React.CSSProperties = {
   width: "100%", boxSizing: "border-box",
   background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)",
   borderRadius: 6, color: "#e4e4e7", fontSize: 13,
-  fontFamily: "var(--font-montserrat,sans-serif)",
+  fontFamily: "var(--font-text)",
   padding: "7px 10px", outline: "none",
 };
 const btnPrimary: React.CSSProperties = {
   background: "rgba(226,202,122,0.15)", border: "1px solid rgba(226,202,122,0.35)",
-  color: "#e2ca7a", borderRadius: 6, padding: "7px 16px", fontSize: 12, fontWeight: 700,
-  fontFamily: "var(--font-montserrat,sans-serif)", cursor: "pointer", letterSpacing: "0.04em",
+  color: "#C9A84C", borderRadius: 6, padding: "7px 16px", fontSize: 12, fontWeight: 700,
+  fontFamily: "var(--font-text)", cursor: "pointer", letterSpacing: "0.04em",
 };
 const btnSecondary: React.CSSProperties = {
   background: "transparent", border: "1px solid rgba(255,255,255,0.12)",
   color: "rgba(255,255,255,0.5)", borderRadius: 6, padding: "7px 16px", fontSize: 12,
-  fontFamily: "var(--font-montserrat,sans-serif)", cursor: "pointer",
+  fontFamily: "var(--font-text)", cursor: "pointer",
 };
 // ── Column definitions ─────────────────────────────────────────────────────────
 
@@ -257,7 +257,7 @@ export function InvestorsCRMView() {
 
   const thStyle = (key: keyof Investor): React.CSSProperties => ({
     padding: "0 10px", height: 36, textAlign: "left", fontSize: 11, fontWeight: 700,
-    color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-montserrat,sans-serif)",
+    color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-text)",
     letterSpacing: "0.06em", textTransform: "uppercase", cursor: "pointer",
     whiteSpace: "nowrap", userSelect: "none",
     background: sortKey === key ? "rgba(255,255,255,0.04)" : "transparent",
@@ -269,8 +269,8 @@ export function InvestorsCRMView() {
       <div style={{ padding: "20px 24px 16px", flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
           <div>
-            <h1 style={{ margin: 0, fontSize: 18, fontWeight: 800, fontFamily: "var(--font-montserrat,sans-serif)", color: "#fff" }}>Early Access Investoren</h1>
-            <p style={{ margin: "2px 0 0", fontSize: 12, color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-montserrat,sans-serif)" }}>
+            <h1 style={{ margin: 0, fontSize: 18, fontWeight: 800, fontFamily: "var(--font-text)", color: "#fff" }}>Early Access Investoren</h1>
+            <p style={{ margin: "2px 0 0", fontSize: 12, color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-text)" }}>
               {rows.length} {rows.length === 1 ? "Interessent" : "Interessenten"} gespeichert
             </p>
           </div>
@@ -315,9 +315,9 @@ export function InvestorsCRMView() {
       {/* Table */}
       <div style={{ flex: 1, minHeight: 0, overflowX: "auto", overflowY: "auto" }}>
         {loading ? (
-          <div style={{ padding: 40, textAlign: "center", color: "rgba(255,255,255,0.3)", fontSize: 13, fontFamily: "var(--font-montserrat,sans-serif)" }}>Lädt…</div>
+          <div style={{ padding: 40, textAlign: "center", color: "rgba(255,255,255,0.3)", fontSize: 13, fontFamily: "var(--font-text)" }}>Lädt…</div>
         ) : filtered.length === 0 ? (
-          <div style={{ padding: 60, textAlign: "center", color: "rgba(255,255,255,0.25)", fontSize: 14, fontFamily: "var(--font-montserrat,sans-serif)" }}>
+          <div style={{ padding: 60, textAlign: "center", color: "rgba(255,255,255,0.25)", fontSize: 14, fontFamily: "var(--font-text)" }}>
             {rows.length === 0 ? "Noch keine Interessenten eingetragen." : "Keine Ergebnisse für die aktuellen Filter."}
           </div>
         ) : (
@@ -400,5 +400,5 @@ const tdStyle: React.CSSProperties = {
   whiteSpace: "nowrap",
 };
 const cellText: React.CSSProperties = {
-  fontSize: 12, color: "#e4e4e7", fontFamily: "var(--font-montserrat,sans-serif)",
+  fontSize: 12, color: "#e4e4e7", fontFamily: "var(--font-text)",
 };

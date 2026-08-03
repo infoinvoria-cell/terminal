@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 import type { WalkForwardResult } from "@/lib/seasonality/walkForward/types";
 import styles from "./seasonal.module.css";
 
 const C_WHITE = "#F0F3F7";
-const C_GOLD = "#DCC476";
+const C_GOLD = "#C9A84C";
 
 interface Props {
   walkForwardResult: WalkForwardResult | null;

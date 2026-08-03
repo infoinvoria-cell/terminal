@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Bar, CartesianGrid, ComposedChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { AnchoredWalkForwardFold, WalkForwardExperiment } from "@/lib/seasonality/walkForward/types";
 
-const COLOR_GOLD = "#dcc476";
+const COLOR_GOLD = "#C9A84C";
 const COLOR_BULL = "#0dff00";
 const COLOR_BEAR = "#ff0000";
 const COLOR_MUTED = "#8a8a8a";
@@ -66,7 +66,7 @@ function FoldsTable({ folds }: { folds: AnchoredWalkForwardFold[] }) {
               <tr key={fold.foldId} className="border-b border-[#0d0d0d] hover:bg-[#0d0d0d]">
                 <td className="py-1.5 pr-3 text-[#5a5a5a]">{fold.foldId}</td>
                 <td className="py-1.5 pr-3 text-[#5a5a5a]">{fold.trainingStartYear}–{fold.trainingEndYear}</td>
-                <td className="py-1.5 pr-3 text-[#dcc476]">{fold.oosStartYear}–{fold.oosEndYear}</td>
+                <td className="py-1.5 pr-3 text-[#C9A84C]">{fold.oosStartYear}–{fold.oosEndYear}</td>
                 <td className="py-1.5 pr-3" style={{ color: rule?.direction === "LONG" ? COLOR_BULL : rule?.direction === "SHORT" ? COLOR_BEAR : COLOR_MUTED }}>
                   {rule?.direction ?? "—"}
                 </td>
@@ -134,8 +134,8 @@ function StitchedOosView({ experiment }: { experiment: WalkForwardExperiment }) 
         {s.researchGate.failures.length > 0 && (
           <span className="text-[9px] text-[#5a5a5a]">· {s.researchGate.failures.length} failure(s)</span>
         )}
-        {s.smallSampleWarning && <span className="text-[9px] text-[#dcc476]">· small sample</span>}
-        {s.profitConcentrationWarning && <span className="text-[9px] text-[#dcc476]">· profit concentration</span>}
+        {s.smallSampleWarning && <span className="text-[9px] text-[#C9A84C]">· small sample</span>}
+        {s.profitConcentrationWarning && <span className="text-[9px] text-[#C9A84C]">· profit concentration</span>}
       </div>
 
       {/* OOS equity chart */}
@@ -188,14 +188,14 @@ export function AnchoredExperimentPanel({ assetId, experiment, loading, error, o
   return (
     <div className={BOX_CLASS}>
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-[11px] font-medium text-[#dcc476]">V2 Anchored Expanding OOS</span>
+        <span className="text-[11px] font-medium text-[#C9A84C]">V2 Anchored Expanding OOS</span>
         <div className="flex gap-1">
           {tabs.map((t) => (
             <button
               key={t.key}
               type="button"
               onClick={() => setTab(t.key)}
-              className={`rounded-[5px] border px-2.5 py-1 text-[10px] ${tab === t.key ? "border-[#dcc476] bg-[rgba(220,196,118,0.12)] text-[#dcc476]" : "border-transparent text-[#5a5a5a] hover:text-[#8a8a8a]"}`}
+              className={`rounded-[5px] border px-2.5 py-1 text-[10px] ${tab === t.key ? "border-[#C9A84C] bg-[rgba(220,196,118,0.12)] text-[#C9A84C]" : "border-transparent text-[#5a5a5a] hover:text-[#8a8a8a]"}`}
             >
               {t.label}
             </button>
@@ -236,7 +236,7 @@ export function AnchoredExperimentPanel({ assetId, experiment, loading, error, o
             type="button"
             onClick={handleRun}
             disabled={loading}
-            className="w-full rounded-[6px] border border-[rgba(220,196,118,0.3)] bg-[rgba(220,196,118,0.06)] py-2 text-[11px] text-[#dcc476] disabled:opacity-40 hover:bg-[rgba(220,196,118,0.12)]"
+            className="w-full rounded-[6px] border border-[rgba(220,196,118,0.3)] bg-[rgba(220,196,118,0.06)] py-2 text-[11px] text-[#C9A84C] disabled:opacity-40 hover:bg-[rgba(220,196,118,0.12)]"
           >
             {loading ? "Computing…" : `Run V2 Anchored OOS · ${assetId}`}
           </button>

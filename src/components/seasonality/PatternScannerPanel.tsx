@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import type { PatternCandidate, PatternDataResult } from "@/lib/seasonality/patternSelection";
@@ -13,7 +13,7 @@ export type ScannerTimeScope  = "month" | "quarter" | "year";
 export type ScannerAssetScope = "global" | "group" | "asset";
 
 const C_WHITE  = "#F0F3F7";
-const C_GOLD   = "#DCC476";
+const C_GOLD   = "#C9A84C";
 const C_TEXT_2 = "#A8B4C4";
 const C_TEXT_3 = "#6A7785";
 const FONT     = "Montserrat, Segoe UI, sans-serif";

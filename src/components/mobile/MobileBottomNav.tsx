@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -257,7 +257,7 @@ export function MobileBottomNav({ headerHidden, onToggleHeader }: Props) {
           transform: layersOpen ? "translateY(0)" : "translateY(100vh)",
           transition: "transform 260ms cubic-bezier(0.16,1,0.3,1)",
           visibility: layersOpen ? "visible" : "hidden",
-          background: "linear-gradient(180deg,#1c1d20 0%,#141517 100%)",
+          background: "linear-gradient(180deg,#1F1F1F 0%,#13131A 100%)",
           border: "1px solid rgba(255,255,255,0.08)",
           borderBottom: "none",
           borderRadius: "20px 20px 0 0",
@@ -281,7 +281,7 @@ export function MobileBottomNav({ headerHidden, onToggleHeader }: Props) {
               color: "rgba(255,255,255,0.3)",
               textTransform: "uppercase",
               letterSpacing: "0.07em",
-              fontFamily: "var(--font-montserrat,sans-serif)",
+              fontFamily: "var(--font-text)",
             }}>
               {group.label}
             </p>
@@ -296,7 +296,7 @@ export function MobileBottomNav({ headerHidden, onToggleHeader }: Props) {
                   color: active(href) ? "#ffffff" : "rgba(255,255,255,0.7)",
                   textDecoration: "none",
                   fontSize: 14, fontWeight: active(href) ? 700 : 500,
-                  fontFamily: "var(--font-montserrat,sans-serif)",
+                  fontFamily: "var(--font-text)",
                   WebkitTapHighlightColor: "transparent",
                 }}
               >
@@ -319,7 +319,7 @@ export function MobileBottomNav({ headerHidden, onToggleHeader }: Props) {
             background: "none", border: "none", cursor: "pointer",
             color: "rgba(255,255,255,0.7)", textDecoration: "none",
             fontSize: 14, fontWeight: 500,
-            fontFamily: "var(--font-montserrat,sans-serif)",
+            fontFamily: "var(--font-text)",
             WebkitTapHighlightColor: "transparent",
           }}
         >
@@ -337,7 +337,7 @@ export function MobileBottomNav({ headerHidden, onToggleHeader }: Props) {
             color: active("/settings") ? "#ffffff" : "rgba(255,255,255,0.7)",
             textDecoration: "none",
             fontSize: 14, fontWeight: active("/settings") ? 700 : 500,
-            fontFamily: "var(--font-montserrat,sans-serif)",
+            fontFamily: "var(--font-text)",
             WebkitTapHighlightColor: "transparent",
           }}
         >

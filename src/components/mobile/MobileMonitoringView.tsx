@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -235,7 +235,7 @@ export function MobileMonitoringView() {
         flexDirection: "column",
         background: "#050505",
         color: "rgba(255,255,255,0.85)",
-        fontFamily: "var(--font-montserrat, system-ui, sans-serif)",
+        fontFamily: "var(--font-text)",
         overflow: "hidden",
         paddingBottom: "calc(54px + env(safe-area-inset-bottom, 0px))",
         boxSizing: "border-box",

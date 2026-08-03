@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { lazy, useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
 import Image from "next/image";
@@ -3120,7 +3120,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                   type="button"
                   onClick={() => setShowGlobeSettings((v) => !v)}
                   className={`absolute right-12 top-3 z-40 flex h-7 w-7 items-center justify-center rounded-md border transition ${
-                    showGlobeSettings ? "border-[#D4AF37]/70 bg-[rgba(212,175,55,0.14)] text-[#D4AF37]" : "border-white/15 text-white/70 hover:border-white/50 hover:text-white"
+                    showGlobeSettings ? "border-[#C9A84C]/70 bg-[rgba(212,175,55,0.14)] text-[#C9A84C]" : "border-white/15 text-white/70 hover:border-white/50 hover:text-white"
                   }`}
                   title="Globe settings"
                   aria-label="Globe settings"
@@ -3155,14 +3155,14 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                           type="button"
                           onClick={opt.onClick}
                           className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[11px] transition hover:bg-white/[0.06]"
-                          style={{ color: opt.active ? "#D4AF37" : "rgba(255,255,255,0.7)" }}
+                          style={{ color: opt.active ? "#C9A84C" : "rgba(255,255,255,0.7)" }}
                         >
                           <span className="flex-1">{opt.label}</span>
                           <span
                             className="h-3 w-3 shrink-0 rounded-full border"
                             style={{
-                              borderColor: opt.active ? "#D4AF37" : "rgba(255,255,255,0.25)",
-                              background: opt.active ? "#D4AF37" : "transparent",
+                              borderColor: opt.active ? "#C9A84C" : "rgba(255,255,255,0.25)",
+                              background: opt.active ? "#C9A84C" : "transparent",
                             }}
                           />
                         </button>
