@@ -16,22 +16,10 @@ import {
 } from "recharts";
 import { useHomeDashboard } from "@/context/home-dashboard-context";
 import { formatUsdCompact } from "@/lib/trades-analytics";
+import { KpiCard } from "@/components/shared/KpiCard";
 
 const CARD_CLASS =
   "rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1F1F1F] to-[#13131A] shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]";
-
-function KpiCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className={`${CARD_CLASS} flex min-h-[102px] flex-col justify-between p-4`}>
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 [font-family:var(--font-text),sans-serif]">
-        {label}
-      </p>
-      <p className="text-2xl font-bold leading-none text-white [font-family:var(--font-numbers),sans-serif]">
-        {value}
-      </p>
-    </div>
-  );
-}
 
 function RevenueSplitBox({
   title,

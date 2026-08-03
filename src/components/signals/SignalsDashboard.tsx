@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { KpiCard } from "@/components/shared/KpiCard";
 import { useInterval } from "@/hooks/useInterval";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -48,20 +49,7 @@ function pnlColor(v: number | null | undefined) {
   return v >= 0 ? "text-emerald-400" : "text-red-400";
 }
 
-// ── KPI Card ──────────────────────────────────────────────────────────────────
-
-function KpiCard({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="flex min-h-[90px] flex-col justify-between rounded-[16px] border border-white/[0.06] bg-gradient-to-b from-[#1F1F1F] to-[#13131A] px-4 pb-4 pt-3 shadow-[0_12px_28px_-10px_rgba(0,0,0,0.4)]">
-      <p className="text-[12px] font-medium text-[#6b7280] [font-family:var(--font-text),sans-serif]">
-        {label}
-      </p>
-      <p className="text-[28px] font-bold leading-none text-white [font-family:var(--font-numbers),sans-serif]">
-        {value}
-      </p>
-    </div>
-  );
-}
+// KpiCard imported from shared/KpiCard
 
 // ── Table ─────────────────────────────────────────────────────────────────────
 

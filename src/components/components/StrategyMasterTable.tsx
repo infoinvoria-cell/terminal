@@ -102,10 +102,10 @@ function ciRow(r: CoreInvestRow): DisplayRow {
   return {
     id: r.id, section: "ci",
     ticker: r.ticker, label: r.label, group: r.group, engine: r.engine,
-    pillarKey: r.pillar, pillarLabel: CI_META[r.pillar as CIPillar].label,
-    weight: r.weight, sharpeOos: r.sharpe,
+    pillarKey: r.pillar, pillarLabel: CI_META[r.pillar as CIPillar]?.label ?? r.pillar,
+    weight: r.weight, sharpeOos: r.sharpe ?? null,
     cagr: r.cagr ?? null, maxDd: r.maxDd, pf: r.pf, trades: r.trades,
-    wfWin: r.winRate, calmar: r.calmar, status: r.status, isNotes: r.notes,
+    wfWin: r.winRate, calmar: r.calmar ?? null, status: r.status, isNotes: r.notes,
   };
 }
 
@@ -129,6 +129,9 @@ const TICKER_VON: Record<string, string> = {
   "GOOGL": "19.08.2004", "AAPL": "12.12.1980", "MSFT": "13.03.1986", "NVDA": "22.01.1999",
   "META": "18.05.2012", "AMZN": "15.05.1997",
   "QQQ": "10.03.1999", "SPY": "22.01.1993", "GLD": "18.11.2004", "SPMO": "12.10.2015",
+  "VLUE": "16.04.2013", "RSP": "24.04.2003", "QUAL": "16.07.2013",
+  "MTUM": "16.04.2013", "USMV": "18.10.2011", "IWM": "22.05.2000", "BIL": "25.05.2007",
+  "ZM1!": "01.01.1970",
   "ZARUSD": "01.01.2003", "SEKUSD": "01.01.2003", "BRLUSD": "01.01.2003",
 };
 
@@ -1089,7 +1092,7 @@ export default function StrategyMasterTable() {
     { key: "anomaly",   label: "Anomaly"    }, { key: "intraday", label: "Intraday"   },
   ];
   const ciSecs = [
-    { key: "all", label: "Alle" }, { key: "etf_core", label: "ETF-Core" }, { key: "ci_sleeve", label: "Sleeve" },
+    { key: "all", label: "Alle" }, { key: "etf_factor", label: "ETF Factor" }, { key: "managed_futures", label: "Managed Futures" },
   ];
   const sections = portfolio === "ws" ? wsSecs : ciSecs;
   const kpis     = portfolio === "ws" ? WS_KPIS : CI_KPIS;
