@@ -24,6 +24,8 @@ import {
   PanelTopOpen,
   PieChart,
   Settings,
+  Palette,
+  Rows2,
   Smartphone,
   UserRoundPlus,
   Users,
@@ -59,6 +61,8 @@ const NAV_ROUTES = [
   "/vermittler",
   "/partner",
   "/settings",
+  "/referenzen",
+  "/preview-workspace",
 ] as const;
 
 function NavLabel({ label, expanded }: { label: string; expanded: boolean }) {
@@ -160,7 +164,15 @@ function SidebarLink({
   );
 }
 
-function SectionMarker({ expanded, label }: { expanded: boolean; label?: string }) {
+function SectionMarker({
+  expanded,
+  label,
+  action,
+}: {
+  expanded: boolean;
+  label?: string;
+  action?: React.ReactNode;
+}) {
   return (
     <div
       style={{ height: 22, width: "100%", flexShrink: 0, position: "relative" }}
@@ -179,9 +191,13 @@ function SectionMarker({ expanded, label }: { expanded: boolean; label?: string 
             fontFamily: "var(--font-text)",
             lineHeight: "22px",
             whiteSpace: "nowrap",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
-          {label ?? ""}
+          <span>{label ?? ""}</span>
+          {action}
         </div>
       ) : (
         <div
@@ -414,6 +430,8 @@ export function Sidebar() {
   const componentsActive = pathname?.startsWith("/komponenten") ?? false;
   const seasonalityActive = pathname?.startsWith("/komponenten/seasonality") ?? false;
   const settingsActive = pathname?.startsWith("/settings") ?? false;
+  const referenzenActive = pathname?.startsWith("/referenzen") ?? false;
+  const previewWorkspaceActive = pathname?.startsWith("/preview-workspace") ?? false;
   const investorsCRMActive = (pathname?.startsWith("/onboarding") ?? false) || (pathname?.startsWith("/investors-crm") ?? false);
   const shellRouteActive = pathname === "/" || !pathname;
 
@@ -494,8 +512,8 @@ export function Sidebar() {
       <div
         className="sticky top-0 z-[3] flex w-full shrink-0 items-start justify-start pt-3"
         style={{
-          background: expanded ? "rgba(10, 10, 12, 0.62)" : "rgba(10, 10, 12, 0.82)",
-          backdropFilter: expanded ? "blur(16px) saturate(128%)" : "blur(8px)",
+          background: expanded ? "rgba(10, 10, 12, 0.22)" : "rgba(10, 10, 12, 0.34)",
+          backdropFilter: expanded ? "blur(36px) saturate(180%) brightness(1.05)" : "blur(20px) saturate(150%) brightness(1.03)",
           overflow: "visible",
         }}
       >
@@ -506,8 +524,10 @@ export function Sidebar() {
           aria-label="Capitalife home"
           onClick={(e) => {
             e.preventDefault();
-            if (shellRouteActive) setPage("home");
-            else window.location.assign("/");
+            const currentPath = window.location.pathname || "/";
+            const currentSearch = new URLSearchParams(window.location.search);
+            currentSearch.set("__hard_refresh", Date.now().toString());
+            window.location.assign(`${currentPath}?${currentSearch.toString()}`);
           }}
         >
           <Image
@@ -531,7 +551,35 @@ export function Sidebar() {
       </div>
 
       <div className="mt-2 flex w-full flex-col items-center gap-2 px-2">
-        <SectionMarker expanded={expanded} label="Navigation" />
+        <SectionMarker
+          expanded={expanded}
+          label="Navigation"
+          action={
+            <button
+              type="button"
+              onClick={() => router.push("/preview-workspace")}
+              onMouseEnter={(event) => updateHoverBox(event.currentTarget)}
+              title="Preview Workspace"
+              aria-label="Preview Workspace"
+              style={{
+                display: "flex",
+                height: 18,
+                width: 18,
+                alignItems: "center",
+                justifyContent: "center",
+                border: 0,
+                borderRadius: 6,
+                background: previewWorkspaceActive ? "rgba(255,255,255,0.08)" : "transparent",
+                color: previewWorkspaceActive ? "#C9A84C" : "rgba(196,196,204,0.82)",
+                cursor: "pointer",
+                flexShrink: 0,
+                marginRight: 2,
+              }}
+            >
+              <Rows2 className="h-3.5 w-3.5" strokeWidth={1.9} />
+            </button>
+          }
+        />
       </div>
 
       <nav className={cn("mt-1", navClass)} aria-label="Navigation">
@@ -578,10 +626,22 @@ export function Sidebar() {
         {canViewPartner && <SidebarLink href="/partner" active={pathname?.startsWith("/partner") ?? false} label="Partnerprogramm" icon={Network} onHover={updateHoverBox} expanded={expanded} />}
       </nav>
 
-      <div className="mt-auto flex w-full flex-col items-center px-2 pb-16 pt-0">
+      <div className="mt-auto flex w-full flex-col items-center px-2 pb-[96px] pt-0">
         <SectionMarker expanded={expanded} label="System" />
 
         <div className="mt-1 w-full">
+          <SidebarLink href="/settings" active={settingsActive} label="Settings" icon={Settings} onHover={updateHoverBox} expanded={expanded} />
+          <SidebarLink href="/referenzen" active={referenzenActive} label="Referenzen" icon={Palette} onHover={updateHoverBox} expanded={expanded} />
+        </div>
+
+        <div className="mt-0.5 w-full">
+          <button type="button" onClick={toggleHeader} onMouseEnter={(event) => updateHoverBox(event.currentTarget)} aria-label={headerHidden ? "Header einblenden" : "Header ausblenden"} title={headerHidden ? "Header einblenden" : "Header ausblenden"} className={cn(`flex h-11 w-full shrink-0 items-center gap-3 rounded-lg border-0 transition-colors ${ICON_PL}`, headerHidden ? "bg-transparent text-zinc-600 hover:text-zinc-500" : "bg-transparent text-zinc-300 hover:text-white")}>
+            {headerHidden ? <PanelTopOpen className="h-[19px] w-[19px] shrink-0" strokeWidth={1.65} /> : <PanelTopClose className="h-[19px] w-[19px] shrink-0" strokeWidth={1.65} />}
+            <NavLabel label={headerHidden ? "Show header" : "Hide header"} expanded={expanded} />
+          </button>
+        </div>
+
+        <div className="mt-0.5 w-full">
           <button type="button" onClick={cyclePreview} onMouseEnter={(event) => updateHoverBox(event.currentTarget)} title={previewMode === "desktop" ? "Mobile Preview" : previewMode === "mobile" ? "Split View" : "Desktop"} style={{ display: "flex", height: 44, width: "100%", alignItems: "center", gap: 12, borderRadius: 8, border: 0, background: "transparent", cursor: "pointer", paddingLeft: 18, color: previewMode === "desktop" ? "rgba(113,113,122,1)" : "#C9A84C", flexShrink: 0 }}>
             <Smartphone style={{ width: 19, height: 19, flexShrink: 0 }} strokeWidth={1.65} />
             <NavLabel label="Preview" expanded={expanded} />
@@ -597,23 +657,48 @@ export function Sidebar() {
         )}
 
         {mounted && previewMode === "split" && createPortal(<SplitView mobileUrl={mobileUrl} desktopUrl={desktopUrl} onCycle={cyclePreview} />, document.body)}
+      </div>
 
-        <div className="mt-0.5 w-full">
-          <button type="button" onClick={toggleHeader} onMouseEnter={(event) => updateHoverBox(event.currentTarget)} aria-label={headerHidden ? "Header einblenden" : "Header ausblenden"} title={headerHidden ? "Header einblenden" : "Header ausblenden"} className={cn(`flex h-11 w-full shrink-0 items-center gap-3 rounded-lg border-0 transition-colors ${ICON_PL}`, headerHidden ? "bg-transparent text-zinc-600 hover:text-zinc-500" : "bg-transparent text-zinc-300 hover:text-white")}>
-            {headerHidden ? <PanelTopOpen className="h-[19px] w-[19px] shrink-0" strokeWidth={1.65} /> : <PanelTopClose className="h-[19px] w-[19px] shrink-0" strokeWidth={1.65} />}
-            <NavLabel label={headerHidden ? "Show header" : "Hide header"} expanded={expanded} />
-          </button>
-        </div>
-
-        <div className="mt-0.5 w-full">
-          <SidebarLink href="/settings" active={settingsActive} label="Settings" icon={Settings} onHover={updateHoverBox} expanded={expanded} />
-        </div>
+      <div
+        aria-hidden
+        style={{
+          position: "sticky",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 20,
+          height: 96,
+          marginTop: -96,
+          pointerEvents: "none",
+          background: expanded ? "rgba(10, 10, 12, 0.22)" : "rgba(10, 10, 12, 0.34)",
+          backdropFilter: expanded ? "blur(36px) saturate(180%) brightness(1.05)" : "blur(20px) saturate(150%) brightness(1.03)",
+          borderTop: "1px solid rgba(255,255,255,0.06)",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(180deg, rgba(10,10,12,0.02) 0%, rgba(10,10,12,0.72) 30%, rgba(10,10,12,0.98) 58%, rgba(10,10,12,1) 100%)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 58,
+            background: "rgba(10,10,12,1)",
+          }}
+        />
       </div>
       <style jsx>{`
         .capitalife-sidebar {
-          background: rgba(10, 10, 12, 0.44);
-          backdrop-filter: blur(16px) saturate(126%);
-          border-right-color: rgba(255, 255, 255, 0.06);
+          background: rgba(10, 10, 12, 0.34);
+          backdrop-filter: blur(26px) saturate(168%) brightness(1.04);
+          border-right-color: rgba(255, 255, 255, 0.08);
           transition:
             width 180ms ease,
             box-shadow 180ms ease,
@@ -624,12 +709,13 @@ export function Sidebar() {
         }
 
         .capitalife-sidebar[data-expanded="true"] {
-          background: rgba(10, 10, 12, 0.28);
-          backdrop-filter: blur(28px) saturate(152%);
-          border-right-color: rgba(255, 255, 255, 0.09);
+          background: rgba(10, 10, 12, 0.22);
+          backdrop-filter: blur(38px) saturate(186%) brightness(1.06);
+          border-right-color: rgba(255, 255, 255, 0.1);
           box-shadow:
-            inset -1px 0 0 rgba(255,255,255,0.06),
-            10px 0 20px rgba(0,0,0,0.56);
+            inset -1px 0 0 rgba(255,255,255,0.08),
+            inset 0 1px 0 rgba(255,255,255,0.05),
+            12px 0 28px rgba(0,0,0,0.46);
         }
       `}</style>
     </aside>

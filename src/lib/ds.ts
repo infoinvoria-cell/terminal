@@ -54,7 +54,7 @@ export const DS = {
   candle: {
     bg: "#0A0A0A",
     up: "#FFFFFF",
-    down: "#EF5350",
+    down: "#C9A84C",
     font: "-apple-system, BlinkMacSystemFont, 'Trebuchet MS', Roboto, Ubuntu, sans-serif",
     fontSize: 11,
     crosshairColor: "rgba(255,255,255,0.12)",
