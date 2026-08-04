@@ -11,6 +11,7 @@ import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons
 import SignalCard from "@/components/signal/SignalCard";
 import LiveWatchlistPanel from "@/components/signals/LiveWatchlistPanel";
 import LivePipelineView from "@/components/signals/LivePipelineView";
+import { ChartAssetOverlay } from "@/components/shared/ChartAssetOverlay";
 import type {
   SignalCardFilter,
   SignalCardModel,
@@ -523,30 +524,13 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
           borderBottom: "1px solid rgba(255,255,255,0.04)",
           background: "#09090a",
         }}>
-          {/* Asset chip — top left */}
-          <div style={{
-            pointerEvents: "none",
-            position: "absolute", left: 10, top: 10, zIndex: 10,
-            display: "flex", alignItems: "center", gap: 8,
-            borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)",
-            background: "rgba(0,0,0,0.6)",
-            padding: "6px 10px", backdropFilter: "blur(6px)",
-          }}>
-            {selectedIconUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={selectedIconUrl} alt="" width={20} height={20}
-                style={{ objectFit: "contain", borderRadius: 5, border: "1px solid rgba(255,255,255,0.08)" }} />
-            ) : (
-              <div style={{ width: 20, height: 20, borderRadius: 5, background: "rgba(255,255,255,0.05)" }} />
-            )}
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "#fff", lineHeight: 1 }}>
-                {selectedCard?.displaySymbol ?? "—"}
-              </div>
-              <div style={{ fontSize: 9, color: "rgba(255,255,255,0.4)", marginTop: 1, lineHeight: 1 }}>
-                {selectedCard?.strategyName ?? ""}
-              </div>
-            </div>
+          {/* Asset overlay — master style, no box, direct on chart */}
+          <div style={{ pointerEvents: "none", position: "absolute", left: 12, top: 12, zIndex: 10 }}>
+            <ChartAssetOverlay
+              iconUrl={selectedIconUrl}
+              symbol={selectedCard?.displaySymbol ?? "—"}
+              assetName={selectedCard?.assetName}
+            />
           </div>
 
           {mounted && chartData ? (

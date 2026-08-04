@@ -35,6 +35,7 @@ import { GlobeApi, subscribeApiLoading } from "@/lib/globe/api";
 import { designTokens } from "@/lib/globe/designTokens";
 import { buildGlobeSeasonalityAnalysis } from "@/lib/globe/globeSeasonality";
 import { iconUrlForAsset } from "@/lib/globe/icons";
+import { ChartAssetOverlay } from "@/components/shared/ChartAssetOverlay";
 import { buildDisplayMarkers } from "@/lib/globe/markers";
 import { DEFAULT_GLOBE_STATE, hasPersistedGlobeState, loadInitialGlobeState, persistGlobeState } from "@/lib/globe/state";
 import type {
@@ -3002,7 +3003,13 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                 onRecentSignalChange={setRecentSignal}
                 onTimeframeChange={setChartTimeframe}
                 hideBuiltinChartToolbar
-                suppressTitleOverlay
+                topLeftOverlay={
+                  <ChartAssetOverlay
+                    iconUrl={selectedAsset ? iconUrlForAsset(selectedAsset) : null}
+                    symbol={chartHeaderLabel}
+                    assetName={selectedAsset?.category}
+                  />
+                }
               />
             </Suspense>
           </div>
@@ -3435,7 +3442,13 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                     onRecentSignalChange={setRecentSignal}
                     onTimeframeChange={setChartTimeframe}
                     hideBuiltinChartToolbar
-                    suppressTitleOverlay
+                    topLeftOverlay={
+                      <ChartAssetOverlay
+                        iconUrl={selectedAsset ? iconUrlForAsset(selectedAsset) : null}
+                        symbol={chartHeaderLabel}
+                        assetName={selectedAsset?.category}
+                      />
+                    }
                   />
                 </Suspense>
               ) : (

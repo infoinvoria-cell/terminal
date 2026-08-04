@@ -1305,7 +1305,7 @@ function MonitoringChartInner({
     if (!chart || !candle) return;
     const backgroundColor = uiPrefs?.backgroundColor ?? MONITORING_CHART_BACKGROUND;
     const candleUpColor = uiPrefs?.candleUpColor ?? "#FFFFFF";
-    const candleDownColor = uiPrefs?.candleDownColor ?? "#EF5350";
+    const candleDownColor = uiPrefs?.candleDownColor ?? "#C9A84C";
     chart.applyOptions({
       layout: {
         background: { type: ColorType.Solid, color: backgroundColor },
@@ -1423,7 +1423,7 @@ function MonitoringChartInner({
     });
 
     const candleUpColor = uiPrefs?.candleUpColor ?? "#FFFFFF";
-    const candleDownColor = uiPrefs?.candleDownColor ?? "#EF5350";
+    const candleDownColor = uiPrefs?.candleDownColor ?? "#C9A84C";
     const candle = chart.addSeries(CandlestickSeries, {
       upColor: candleUpColor,
       downColor: candleDownColor,

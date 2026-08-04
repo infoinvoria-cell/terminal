@@ -1,6 +1,8 @@
 ﻿"use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import { ChartAssetOverlay } from "@/components/shared/ChartAssetOverlay";
+import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
 import { TrendingUp, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
@@ -377,7 +379,7 @@ const TICKER_TF: Record<string, string> = {
 
 // ── candle chart — price line, auto-refresh, signal overlay ──────────────────
 // NOTE: OHLC API only stocks daily (1D) bars. timeframe prop is display-only (shown in header).
-function CandleChart({ ticker, timeframe = "1D", refreshSecs = 30 }: { ticker: string; timeframe?: string; refreshSecs?: number }) {
+function CandleChart({ ticker, timeframe = "1D", refreshSecs = 30, assetName }: { ticker: string; timeframe?: string; refreshSecs?: number; assetName?: string }) {
   const ref  = useRef<HTMLDivElement>(null);
   const sym  = toOhlcSymbol(ticker);
   const cacheKey = sym + ":1D";
@@ -455,15 +457,15 @@ function CandleChart({ ticker, timeframe = "1D", refreshSecs = 30 }: { ticker: s
           horzLine: { color: "rgba(163,180,199,0.42)", width: 1, labelVisible: true, labelBackgroundColor: "rgba(22,26,32,0.9)" },
         },
         rightPriceScale: { borderVisible: false, textColor: "rgba(228,236,248,0.68)" },
-        timeScale: { borderVisible: false, timeVisible: false, rightOffset: 4 },
+        timeScale: { borderVisible: false, timeVisible: true, rightOffset: 4 },
         handleScroll: { mouseWheel: false, pressedMouseMove: true },
         handleScale: { mouseWheel: true, pinch: true },
       });
 
       const series = chart.addSeries(CandlestickSeries, {
-        upColor: "#FFFFFF", downColor: "#D6B44B",
+        upColor: "#FFFFFF", downColor: "#C9A84C",
         borderVisible: false,
-        wickUpColor: "#FFFFFF", wickDownColor: "#D6B44B",
+        wickUpColor: "#FFFFFF", wickDownColor: "#C9A84C",
         priceLineVisible: true,        // short line from last candle to Y-axis
         priceLineColor: "rgba(255,255,255,0.40)",
         priceLineWidth: 1,
@@ -528,7 +530,15 @@ function CandleChart({ ticker, timeframe = "1D", refreshSecs = 30 }: { ticker: s
       Keine OHLC-Daten
     </div>
   );
-  return <div ref={ref} style={{ width: "100%", height: 280, borderRadius: 6, overflow: "hidden", background: BG }} />;
+  const iconUrl = getMonitoringAssetIconUrl({ code: ticker, name: assetName, displaySymbol: ticker });
+  return (
+    <div style={{ position: "relative", width: "100%", height: 280, borderRadius: 6, overflow: "hidden", background: BG }}>
+      <div ref={ref} style={{ width: "100%", height: "100%" }} />
+      <div style={{ position: "absolute", left: 10, top: 10, zIndex: 10, pointerEvents: "none" }}>
+        <ChartAssetOverlay iconUrl={iconUrl} symbol={ticker.replace("1!", "")} assetName={assetName} iconSize={22} />
+      </div>
+    </div>
+  );
 }
 
 // ── equity / drawdown charts — synchronized crosshair via syncId ──────────────
@@ -858,7 +868,7 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
             <div style={{ fontSize: 9, color: MUTED, fontFamily: "var(--font-text),sans-serif", letterSpacing: ".07em", textTransform: "uppercase" as const, marginBottom: 6 }}>
               OHLC · {row.ticker} · {candleTf} · {isRealtime ? "5s" : "30s"} Refresh
             </div>
-            <CandleChart ticker={row.ticker} timeframe={candleTf} refreshSecs={refreshSecs} />
+            <CandleChart ticker={row.ticker} timeframe={candleTf} refreshSecs={refreshSecs} assetName={row.label} />
           </div>
           {/* Right: equity + drawdown (always) + KPI row */}
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
