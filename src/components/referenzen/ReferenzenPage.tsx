@@ -39,48 +39,64 @@ function MasterCandleChart() {
       if (!containerRef.current) return;
 
       const chart = createChart(containerRef.current, {
-        width:  containerRef.current.clientWidth,
-        height: containerRef.current.clientHeight,
+        width:  Math.max(80, containerRef.current.clientWidth),
+        height: Math.max(56, containerRef.current.clientHeight),
         layout: {
           background: { type: ColorType.Solid, color: "#0B0C0F" },
           textColor: "#6B7280",
           fontFamily: "-apple-system, BlinkMacSystemFont, 'Trebuchet MS', Roboto, sans-serif",
           fontSize: 11,
+          attributionLogo: false,
         },
         grid: {
           vertLines: { visible: false },
           horzLines: { visible: false },
         },
         crosshair: {
-          mode: CrosshairMode.Normal,
+          mode: CrosshairMode.MagnetOHLC,
           vertLine: {
-            color: "rgba(255,255,255,0.18)",
+            color: "rgba(180,185,200,0.6)",
             width: 1,
-            style: LineStyle.Solid,
-            labelBackgroundColor: "#1e1f24",
+            style: 0,
+            labelVisible: true,
+            labelBackgroundColor: "rgba(22,26,32,0.9)",
+            visible: true,
           },
           horzLine: {
-            color: "rgba(255,255,255,0.18)",
+            color: "rgba(180,185,200,0.6)",
             width: 1,
-            style: LineStyle.Solid,
-            labelBackgroundColor: "#C9A84C",
+            style: 0,
+            labelVisible: true,
+            labelBackgroundColor: "rgba(22,26,32,0.9)",
+            visible: true,
           },
         },
         timeScale: {
-          borderColor: "rgba(255,255,255,0.07)",
+          borderVisible: false,
           timeVisible: true,
           secondsVisible: false,
-          tickMarkFormatter: (time: number) => {
-            const d = new Date(time * 1000);
-            return d.toLocaleDateString("de-DE", { day: "2-digit", month: "short" });
-          },
+          ticksVisible: true,
+          minimumHeight: 20,
         },
         rightPriceScale: {
-          borderColor: "rgba(255,255,255,0.07)",
+          borderVisible: false,
           scaleMargins: { top: 0.08, bottom: 0.08 },
         },
-        handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
-        handleScale:  { mouseWheel: true, pinch: true, axisPressedMouseMove: true },
+        handleScroll: {
+          mouseWheel: true,
+          pressedMouseMove: true,
+          horzTouchDrag: true,
+          vertTouchDrag: true,
+        },
+        kineticScroll: {
+          touch: true,
+          mouse: true,
+        },
+        handleScale: {
+          mouseWheel: true,
+          pinch: true,
+          axisPressedMouseMove: { time: true, price: true },
+        },
       });
 
       const candles = chart.addSeries(CandlestickSeries, {
