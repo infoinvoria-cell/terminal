@@ -18,7 +18,7 @@ import {
   HandCoins,
   Home,
   Layers,
-  MessageSquare,
+
   Network,
   PanelTopClose,
   PanelTopOpen,
@@ -38,6 +38,8 @@ import { useHomeDashboard, type DashboardPage } from "@/context/home-dashboard-c
 import { useHeaderState } from "@/context/header-state-context";
 import { useUser } from "@/context/user-context";
 import { hasPermission } from "@/lib/auth/userPermissions";
+import { useLoading } from "@/context/loading-context";
+import { CapalifeLogoAnim } from "@/components/ui/capitalife-logo-anim";
 
 const COLLAPSED_W = 72;
 const EXPANDED_W = 232;
@@ -89,7 +91,7 @@ function NavLabel({ label, expanded }: { label: string; expanded: boolean }) {
 
 const itemBase = (active: boolean) =>
   cn(
-    "flex h-11 w-full shrink-0 items-center gap-3 rounded-lg border-0 transition-colors",
+    "flex h-[42px] w-full shrink-0 items-center gap-3 rounded-md border-0 transition-colors",
     ICON_PL,
     active ? "bg-white/[0.08] text-white" : "bg-transparent text-zinc-500 hover:text-zinc-300",
   );
@@ -122,11 +124,30 @@ function SidebarIconButton({
       aria-current={active ? "page" : undefined}
       className={itemBase(active)}
     >
-      <Icon className="h-[19px] w-[19px] shrink-0" strokeWidth={1.65} />
+      <Icon className="h-[20px] w-[20px] shrink-0" strokeWidth={1.65} />
       <NavLabel label={label} expanded={expanded} />
     </button>
   );
 }
+
+// MessageSquare outline with the real Sentinel logo PNG inside, made monochrome white
+const SentinelIcon = (({ className }: { className?: string }) => (
+  <span
+    className={className}
+    style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+  >
+    <svg viewBox="0 0 24 24" fill="none" style={{ width: "100%", height: "100%" }} aria-hidden>
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img
+      src="/sentinel-logo.png"
+      alt=""
+      aria-hidden
+      style={{ position: "absolute", width: "56%", height: "56%", objectFit: "contain", filter: "brightness(0) invert(1)", top: "10%", opacity: 0.9 }}
+    />
+  </span>
+)) as typeof Home;
 
 function SidebarLink({
   href,
@@ -158,7 +179,7 @@ function SidebarLink({
       }}
       onFocus={(event) => onHover(event.currentTarget)}
     >
-      <Icon className="h-[19px] w-[19px] shrink-0" strokeWidth={1.65} />
+      <Icon className="h-[20px] w-[20px] shrink-0" strokeWidth={1.65} />
       <NavLabel label={label} expanded={expanded} />
     </Link>
   );
@@ -175,7 +196,7 @@ function SectionMarker({
 }) {
   return (
     <div
-      style={{ height: 22, width: "100%", flexShrink: 0, position: "relative" }}
+      style={{ height: 18, width: "100%", flexShrink: 0, position: "relative" }}
       aria-hidden
     >
       {expanded ? (
@@ -189,7 +210,7 @@ function SectionMarker({
             textTransform: "uppercase",
             color: "rgba(196,196,204,0.82)",
             fontFamily: "var(--font-text)",
-            lineHeight: "22px",
+            lineHeight: "18px",
             whiteSpace: "nowrap",
             display: "flex",
             alignItems: "center",
@@ -360,6 +381,7 @@ export function Sidebar() {
   const router = useRouter();
   const { user } = useUser();
   const { headerHidden, toggleHeader } = useHeaderState();
+  const { isLoading } = useLoading();
   const uid = user?.id ?? "";
   const canViewMonitoring = hasPermission(uid, "view:monitoring");
   const canViewAnalytics = hasPermission(uid, "view:analytics");
@@ -374,7 +396,7 @@ export function Sidebar() {
   const [phoneScale, setPhoneScale] = useState(0.7);
   const [hoverBox, setHoverBox] = useState<{ top: number; height: number; opacity: number }>({
     top: 0,
-    height: 44,
+    height: 42,
     opacity: 0,
   });
   const sidebarRef = useRef<HTMLElement | null>(null);
@@ -520,7 +542,7 @@ export function Sidebar() {
         <button
           type="button"
           className="relative flex items-center justify-start border-0 bg-transparent p-0 shadow-none outline-none ring-0 hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white/12"
-          style={{ width: expanded ? 196 : 34, height: 62, marginLeft: 19, overflow: "visible" }}
+          style={{ width: expanded ? 196 : 38, height: 60, marginLeft: 19, overflow: "visible" }}
           aria-label="Capitalife home"
           onClick={(e) => {
             e.preventDefault();
@@ -530,27 +552,46 @@ export function Sidebar() {
             window.location.assign(`${currentPath}?${currentSearch.toString()}`);
           }}
         >
+          {/* Loading state: animated logo (loops while any navigation or in-page load is active) */}
+          <div
+            className="absolute top-1/2 -translate-y-1/2"
+            style={{
+              left: 0,
+              opacity: isLoading ? 1 : 0,
+              pointerEvents: "none",
+              transition: "opacity 180ms ease",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: expanded ? 184 : 34,
+            }}
+          >
+            <CapalifeLogoAnim size={28} speed={1.6} />
+          </div>
+
+          {/* Static icon (collapsed) */}
           <Image
             src="/CAPITALIFE_ICON.png"
             alt="Capitalife"
             width={34}
             height={34}
             className="absolute top-1/2 h-[34px] w-[34px] -translate-y-1/2 object-contain"
-            style={{ left: -1, opacity: expanded ? 0 : 1, transition: "opacity 120ms ease", overflow: "visible" }}
+            style={{ left: -1, opacity: expanded || isLoading ? 0 : 1, transition: "opacity 120ms ease", overflow: "visible" }}
             priority
           />
+          {/* Static full logo (expanded) */}
           <Image
             src="/CAPITALIFE_Logo.png"
             alt="Capitalife"
             width={184}
             height={50}
             className="absolute top-1/2 h-[50px] w-[184px] -translate-y-1/2 object-contain"
-            style={{ left: 0, opacity: expanded ? 1 : 0, transition: "opacity 140ms ease", overflow: "visible" }}
+            style={{ left: 0, opacity: expanded && !isLoading ? 1 : 0, transition: "opacity 140ms ease", overflow: "visible" }}
           />
         </button>
       </div>
 
-      <div className="mt-2 flex w-full flex-col items-center gap-2 px-2">
+      <div className="mt-2 flex w-full flex-col items-center gap-1 px-2">
         <SectionMarker
           expanded={expanded}
           label="Navigation"
@@ -590,10 +631,10 @@ export function Sidebar() {
         )}
         {canViewGlobe && <SidebarLink href="/globe" active={globeActive} label="Globe" icon={Globe} onHover={updateHoverBox} expanded={expanded} />}
         {canViewBrain && <SidebarLink href="/brain" active={brainActive} label="Brain" icon={BrainCircuit} onHover={updateHoverBox} expanded={expanded} />}
-        <SidebarLink href="/sentinel" active={sentinelActive} label="Sentinel" icon={MessageSquare} onHover={updateHoverBox} expanded={expanded} />
+        <SidebarLink href="/sentinel" active={sentinelActive} label="Sentinel" icon={SentinelIcon} onHover={updateHoverBox} expanded={expanded} />
       </nav>
 
-      <div className="mt-3 flex w-full flex-col items-center gap-2 px-2">
+      <div className="mt-2 flex w-full flex-col items-center gap-1 px-2">
         <SectionMarker expanded={expanded} label="Execution" />
       </div>
 
@@ -603,7 +644,7 @@ export function Sidebar() {
         {canViewMonitoring && <SidebarLink href="/monitoring" active={monitoringActive} label="Monitoring" icon={Activity} onHover={updateHoverBox} expanded={expanded} />}
       </nav>
 
-      <div className="mt-3 flex w-full flex-col items-center gap-2 px-2">
+      <div className="mt-2 flex w-full flex-col items-center gap-1 px-2">
         <SectionMarker expanded={expanded} label="Intelligence" />
       </div>
 
@@ -614,7 +655,7 @@ export function Sidebar() {
         <SidebarLink href="/about" active={aboutActive} label="Bibel" icon={BookText} onHover={updateHoverBox} expanded={expanded} />
       </nav>
 
-      <div className="mt-3 flex w-full flex-col items-center gap-2 px-2">
+      <div className="mt-2 flex w-full flex-col items-center gap-1 px-2">
         <SectionMarker expanded={expanded} label="Clients" />
       </div>
 
@@ -626,7 +667,7 @@ export function Sidebar() {
         {canViewPartner && <SidebarLink href="/partner" active={pathname?.startsWith("/partner") ?? false} label="Partnerprogramm" icon={Network} onHover={updateHoverBox} expanded={expanded} />}
       </nav>
 
-      <div className="mt-auto flex w-full flex-col items-center px-2 pb-[96px] pt-0">
+      <div className="mt-auto flex w-full flex-col items-center px-2 pb-[52px] pt-3">
         <SectionMarker expanded={expanded} label="System" />
 
         <div className="mt-1 w-full">
@@ -635,15 +676,15 @@ export function Sidebar() {
         </div>
 
         <div className="mt-0.5 w-full">
-          <button type="button" onClick={toggleHeader} onMouseEnter={(event) => updateHoverBox(event.currentTarget)} aria-label={headerHidden ? "Header einblenden" : "Header ausblenden"} title={headerHidden ? "Header einblenden" : "Header ausblenden"} className={cn(`flex h-11 w-full shrink-0 items-center gap-3 rounded-lg border-0 transition-colors ${ICON_PL}`, headerHidden ? "bg-transparent text-zinc-600 hover:text-zinc-500" : "bg-transparent text-zinc-300 hover:text-white")}>
-            {headerHidden ? <PanelTopOpen className="h-[19px] w-[19px] shrink-0" strokeWidth={1.65} /> : <PanelTopClose className="h-[19px] w-[19px] shrink-0" strokeWidth={1.65} />}
+          <button type="button" onClick={toggleHeader} onMouseEnter={(event) => updateHoverBox(event.currentTarget)} aria-label={headerHidden ? "Header einblenden" : "Header ausblenden"} title={headerHidden ? "Header einblenden" : "Header ausblenden"} className={cn(`flex h-[42px] w-full shrink-0 items-center gap-3 rounded-md border-0 transition-colors ${ICON_PL}`, headerHidden ? "bg-transparent text-zinc-600 hover:text-zinc-500" : "bg-transparent text-zinc-300 hover:text-white")}>
+            {headerHidden ? <PanelTopOpen className="h-[16px] w-[16px] shrink-0" strokeWidth={1.65} /> : <PanelTopClose className="h-[16px] w-[16px] shrink-0" strokeWidth={1.65} />}
             <NavLabel label={headerHidden ? "Show header" : "Hide header"} expanded={expanded} />
           </button>
         </div>
 
         <div className="mt-0.5 w-full">
-          <button type="button" onClick={cyclePreview} onMouseEnter={(event) => updateHoverBox(event.currentTarget)} title={previewMode === "desktop" ? "Mobile Preview" : previewMode === "mobile" ? "Split View" : "Desktop"} style={{ display: "flex", height: 44, width: "100%", alignItems: "center", gap: 12, borderRadius: 8, border: 0, background: "transparent", cursor: "pointer", paddingLeft: 18, color: previewMode === "desktop" ? "rgba(113,113,122,1)" : "#C9A84C", flexShrink: 0 }}>
-            <Smartphone style={{ width: 19, height: 19, flexShrink: 0 }} strokeWidth={1.65} />
+          <button type="button" onClick={cyclePreview} onMouseEnter={(event) => updateHoverBox(event.currentTarget)} title={previewMode === "desktop" ? "Mobile Preview" : previewMode === "mobile" ? "Split View" : "Desktop"} style={{ display: "flex", height: 42, width: "100%", alignItems: "center", gap: 12, borderRadius: 6, border: 0, background: "transparent", cursor: "pointer", paddingLeft: 18, color: previewMode === "desktop" ? "rgba(113,113,122,1)" : "#C9A84C", flexShrink: 0 }}>
+            <Smartphone style={{ width: 20, height: 20, flexShrink: 0 }} strokeWidth={1.65} />
             <NavLabel label="Preview" expanded={expanded} />
           </button>
         </div>
@@ -667,8 +708,8 @@ export function Sidebar() {
           left: 0,
           right: 0,
           zIndex: 20,
-          height: 96,
-          marginTop: -96,
+          height: 52,
+          marginTop: -52,
           pointerEvents: "none",
           background: expanded ? "rgba(10, 10, 12, 0.22)" : "rgba(10, 10, 12, 0.34)",
           backdropFilter: expanded ? "blur(36px) saturate(180%) brightness(1.05)" : "blur(20px) saturate(150%) brightness(1.03)",
