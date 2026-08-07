@@ -415,10 +415,10 @@ export const SeasonalStrategyTester = memo(function SeasonalStrategyTester({
       key={entry.key}
       type="button"
       onClick={() => setTab(entry.key)}
-      className="rounded-[4px] border px-2.5 py-0.5 text-[9px] transition-colors"
+      className="rounded-[999px] border px-2.5 py-0.5 text-[9px] transition-colors"
       style={tab === entry.key
-        ? { borderColor: "rgba(255,255,255,0.15)", color: C_WHITE, backgroundColor: "rgba(255,255,255,0.04)" }
-        : { borderColor: "transparent", color: C_DIM }}
+        ? { borderColor: "rgba(255,255,255,0.22)", color: C_WHITE, background: "linear-gradient(to bottom, #26262d, #111114)", fontWeight: 600 }
+        : { borderColor: "transparent", color: C_DIM, background: "transparent" }}
     >
       {entry.label}
     </button>
@@ -449,7 +449,8 @@ export const SeasonalStrategyTester = memo(function SeasonalStrategyTester({
       type="button"
       onClick={() => void runPFWF("manual")}
       disabled={!activePattern || pfwfLoading}
-      className="rounded-[4px] border border-[#1a1a1a] bg-[#060606] px-2.5 py-1 text-[9px] text-[#5a5a5a] hover:text-white disabled:opacity-40"
+      className="rounded-[4px] border border-[rgba(255,255,255,0.12)] px-2.5 py-1 text-[9px] transition-colors disabled:opacity-40"
+      style={{ background: "linear-gradient(to bottom, #26262d, #111114)", color: "#9AAAB8" }}
     >
       {pfwfLoading ? "Running..." : "Run WF"}
     </button>
@@ -460,7 +461,8 @@ export const SeasonalStrategyTester = memo(function SeasonalStrategyTester({
       type="button"
       onClick={handleSave}
       disabled={!canSaveValidatedPattern}
-      className="rounded-[4px] border border-[#1a1a1a] bg-[#060606] px-2.5 py-1 text-[9px] text-[#9AAAB8] hover:text-white disabled:opacity-40"
+      className="rounded-[4px] border border-[rgba(255,255,255,0.12)] px-2.5 py-1 text-[9px] transition-colors disabled:opacity-40"
+      style={{ background: "linear-gradient(to bottom, #26262d, #111114)", color: "#9AAAB8" }}
       title={canSaveValidatedPattern ? "Save validated deployment pattern" : "Save Pattern disabled - not validated"}
     >
       Save Pattern
@@ -541,17 +543,17 @@ export const SeasonalStrategyTester = memo(function SeasonalStrategyTester({
   );
 
   const filterButtonStyle = (active: boolean): React.CSSProperties => ({
-    background: active ? "rgba(255,255,255,0.06)" : "transparent",
-    border: "1px solid transparent",
+    background: active ? "linear-gradient(to bottom, #26262d, #111114)" : "transparent",
+    border: active ? "1.5px solid rgba(255,255,255,0.22)" : "1.5px solid transparent",
     cursor: "pointer",
     fontFamily: "Montserrat, Segoe UI, sans-serif",
     fontSize: 9,
     fontWeight: active ? 600 : 500,
-    color: active ? "rgba(224,228,234,0.92)" : "rgba(118,132,148,0.78)",
-    padding: "2px 7px",
+    color: active ? "rgba(240,242,246,0.95)" : "rgba(118,132,148,0.78)",
+    padding: "2px 8px",
     letterSpacing: "0.01em",
-    borderRadius: 5,
-    transition: "color 0.12s, background 0.12s",
+    borderRadius: 999,
+    transition: "color 0.15s, background 0.15s, border-color 0.15s",
   });
 
   const scannerFilters = (

@@ -907,9 +907,9 @@ export function SeasonalResearchDashboard({ onSwitchToLegacy: _unused }: Props) 
           display: "flex",
           alignItems: "center",
           gap: 4,
-          background: "rgba(255,255,255,0.04)",
-          border: "1px solid rgba(255,255,255,0.07)",
-          borderRadius: 5,
+          background: "linear-gradient(to bottom, #26262d, #111114)",
+          border: "1px solid rgba(255,255,255,0.20)",
+          borderRadius: 6,
           padding: "2px 8px",
           cursor: "pointer",
         }}
@@ -924,7 +924,7 @@ export function SeasonalResearchDashboard({ onSwitchToLegacy: _unused }: Props) 
             className="h-[9px] w-[9px]"
           />
         )}
-        <span style={{ fontSize: 10.5, fontWeight: 600, color: "var(--c-text)" }}>
+        <span style={{ fontSize: 10.5, fontWeight: 600, color: "#F3F3F4", fontFamily: "var(--font-montserrat, 'Montserrat', sans-serif)" }}>
           {assetDef?.displayNameShort ?? assetId}
         </span>
       </button>
