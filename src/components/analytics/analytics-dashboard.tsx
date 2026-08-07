@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { Layers, TrendingUp } from "lucide-react";
+import { InjectPillCss } from "@/components/ui/pill-button";
 import { useRouter } from "next/navigation";
 import {
   Area,
@@ -477,7 +478,7 @@ function ChartTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border border-white/[0.08] bg-[#12131a]/95 px-3 py-2 text-[11px] shadow-xl [font-family:var(--font-text),sans-serif]">
+    <div className="rounded-lg border bg-[#12131a]/95 px-3 py-2 text-[11px] shadow-xl [font-family:var(--font-montserrat,'Montserrat',sans-serif)]" style={{ borderColor: "rgba(255,255,255,0.055)" }}>
       <p className="mb-1 text-zinc-500">{String(label ?? "")}</p>
       {payload.map((entry) => (
         <p key={entry.name} style={{ color: entry.color }}>
@@ -489,14 +490,29 @@ function ChartTooltip({
   );
 }
 
+const BOX_STYLE: React.CSSProperties = {
+  background: "linear-gradient(to bottom, #17171b, #0b0b0e)",
+  borderRadius: 10,
+  border: "1px solid rgba(255,255,255,0.055)",
+  overflow: "hidden",
+  position: "relative",
+};
+
+const KPI_CARD_STYLE: React.CSSProperties = {
+  background: "linear-gradient(to bottom, #26262d, #111114)",
+  borderRadius: 14,
+  border: "1px solid rgba(255,255,255,0.055)",
+  padding: "11px 14px 12px",
+};
+
 function Card({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <div
       className={cn(
-        "flex h-full min-h-0 flex-col overflow-hidden rounded-[18px] border bg-[#0d0f12] shadow-[0_18px_45px_rgba(0,0,0,0.30)]",
+        "flex h-full min-h-0 flex-col shadow-[0_18px_45px_rgba(0,0,0,0.30)]",
         className,
       )}
-      style={{ borderColor: "rgba(255,255,255,0.07)" }}
+      style={BOX_STYLE}
     >
       {children}
     </div>
@@ -517,8 +533,8 @@ function CardHeader({
   return (
     <div className={cn("flex items-start justify-between gap-3 px-4 py-3", bordered && "border-b border-white/[0.06]")}>
       <div>
-        <p className="text-[12px] font-medium tracking-[0.04em] text-[#8d8f98] [font-family:var(--font-text),sans-serif]">{title}</p>
-        {subtitle ? <p className="mt-1 text-[10px] text-zinc-500 [font-family:var(--font-text),sans-serif]">{subtitle}</p> : null}
+        <p className="text-[11px] font-bold tracking-[0.04em] text-[#f5f7fa] [font-family:var(--font-montserrat,'Montserrat',sans-serif)]">{title}</p>
+        {subtitle ? <p className="mt-1 text-[10px] [font-family:var(--font-montserrat,'Montserrat',sans-serif)]" style={{ color: "rgba(180,192,210,0.6)" }}>{subtitle}</p> : null}
       </div>
       {right}
     </div>
@@ -527,7 +543,7 @@ function CardHeader({
 
 function EmptyHint({ message }: { message: string }) {
   return (
-    <div className="flex h-full items-center justify-center px-4 text-center text-[11px] text-zinc-500 [font-family:var(--font-text),sans-serif]">
+    <div className="flex h-full items-center justify-center px-4 text-center text-[11px] [font-family:var(--font-montserrat,'Montserrat',sans-serif)]" style={{ color: "rgba(180,192,210,0.6)" }}>
       {message}
     </div>
   );
@@ -551,14 +567,16 @@ function PillButton({
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className={cn(
-        "shrink-0 rounded-full border [font-family:var(--font-text),sans-serif] transition-colors",
-        compact ? "px-2 py-0.5 text-[9px]" : "px-3 py-1 text-[10px]",
-        active
-          ? "border-white/40 bg-white/[0.06] text-white"
-          : "border-white/[0.08] bg-transparent text-zinc-500 hover:border-white/[0.14] hover:text-zinc-300",
-        disabled && "cursor-not-allowed opacity-35 hover:border-white/[0.08] hover:text-zinc-500",
-      )}
+      className={`rc-pill ${active ? "rc-active" : "rc-inactive"}`}
+      style={{
+        padding: compact ? "4px 10px" : "7px 14px",
+        fontFamily: "var(--font-montserrat,'Montserrat',sans-serif)",
+        fontSize: compact ? 10 : 12,
+        fontWeight: active ? 600 : 400,
+        color: active ? "#F3F3F4" : "#6a6e7a",
+        opacity: disabled ? 0.35 : 1,
+        cursor: disabled ? "not-allowed" : undefined,
+      }}
     >
       {children}
     </button>
@@ -570,8 +588,9 @@ function buildKpiCards(
   lineMode: LineMode,
   benchmarkSeries: AnalyticsSeriesPoint[],
   capalifeData: CapalifeData,
+  benchmarkEnabled = false,
 ): KpiCard[] {
-  const inBenchmark = lineMode === "benchmark";
+  const inBenchmark = benchmarkEnabled;
   const bTotal = inBenchmark ? computeBenchmarkTotalReturn(benchmarkSeries) : null;
   const bMaxDD = inBenchmark ? computeBenchmarkMaxDD(benchmarkSeries) : null;
   const bCagr = inBenchmark ? computeBenchmarkCagr(benchmarkSeries) : null;
@@ -615,6 +634,9 @@ function buildKpiCards(
       { label: "Beta to SPY", value: formatNumber(parseMetricNumber(dataset.metrics.betaToSpy)) },
       { label: "Worst Year", value: formatPercent(parseMetricNumber(dataset.metrics.worstYearPct)) },
       { label: "Data / Trades", value: `${formatCount(dataset.metrics.dataPoints)} / ${formatCount(dataset.metrics.tradeCount)}` },
+      { label: "Profit Factor", value: formatNumber(parseMetricNumber(dataset.metrics.profitFactor)) },
+      { label: "Strategies", value: formatCount(dataset.metrics.strategyCount ?? dataset.groups.length) },
+      { label: "Status", value: "Backtest" },
     ];
   }
 
@@ -662,6 +684,9 @@ function buildKpiCards(
       deltaCard("Pos. Months", formatPercentNoPlus(pPosM), pPosM, bExt?.posMonths ?? null),
       { label: "Market Data", value: formatCount(dataset.metrics.marketDataStatus) },
       { label: "Data / Trades", value: `${formatCount(dataset.metrics.dataPoints)} / ${formatCount(dataset.metrics.tradeCount)}` },
+      { label: "Profit Factor", value: formatNumber(parseMetricNumber(dataset.metrics.profitFactor)) },
+      { label: "Strategies", value: formatCount(dataset.metrics.strategyCount ?? dataset.groups.length) },
+      { label: "Status", value: "Live" },
     ];
   }
 
@@ -688,6 +713,9 @@ function buildKpiCards(
       { label: "Beta to SPY", value: formatNumber(parseMetricNumber(dataset.metrics.betaToSpy)) },
       { label: "Worst Year", value: formatPercent(parseMetricNumber(dataset.metrics.worstYearPct)) },
       { label: "Data / Trades", value: `${formatCount(dataset.metrics.dataPoints)} / ${formatCount(dataset.metrics.tradeCount)}` },
+      { label: "Profit Factor", value: formatNumber(parseMetricNumber(dataset.metrics.profitFactor)) },
+      { label: "Strategies", value: formatCount(dataset.metrics.strategyCount ?? dataset.groups.length) },
+      { label: "Status", value: "Backtest" },
     ];
   }
 
@@ -706,6 +734,9 @@ function buildKpiCards(
       { label: "Pos. Months", value: "18 / 26" },
       { label: "Assets", value: formatCount(official.assets) },
       { label: "Sleeves", value: formatCount(official.sleeves) },
+      { label: "Mode", value: "Live" },
+      { label: "Source", value: "Capitalife" },
+      { label: "Status", value: "Official" },
     ];
   }
 
@@ -732,6 +763,9 @@ function buildKpiCards(
       { label: "Data Points", value: formatCount(dataset.metrics.dataPoints) },
       { label: "Source", value: "WS Backtest + CI v2.0" },
       { label: "Status", value: "Research Preview" },
+      { label: "Strategies", value: formatCount(dataset.metrics.strategyCount ?? dataset.groups.length) },
+      { label: "Volatility", value: formatPercentNoPlus(parseMetricNumber(dataset.metrics.annualizedVolatilityPct)) },
+      { label: "Mode", value: dataset.mode },
     ];
   }
 
@@ -751,6 +785,9 @@ function buildKpiCards(
         { label: "Entries", value: formatCount(entryCount) },
         { label: "Zeitraum", value: dataset.period.start && dataset.period.end ? `${dataset.period.start.slice(0, 4)}-${dataset.period.end.slice(0, 4)}` : "n/a" },
         { label: "Status", value: "Internal" },
+        { label: "Volatility", value: formatPercentNoPlus(parseMetricNumber(metrics.annualizedVolatilityPct)) },
+        { label: "Sortino", value: formatNumber(parseMetricNumber(metrics.sortino)) },
+        { label: "Mode", value: dataset.mode },
       ]
     : [
         { label: "Status", value: formatCount(metrics.status) },
@@ -765,6 +802,9 @@ function buildKpiCards(
         { label: "Mode", value: "No live source" },
         { label: "Review", value: "pending" },
         { label: "Audit", value: "n/a" },
+        { label: "Groups", value: formatCount(dataset.groups.length) },
+        { label: "Tab", value: dataset.tab },
+        { label: "Config", value: "pending" },
       ];
 
   return baseCards.map((card) => ({
@@ -935,12 +975,14 @@ function TopTabs({
             key={item.id}
             type="button"
             onClick={() => onTabChange(item.id)}
-            className={cn(
-              "flex items-center gap-2 rounded-full border px-4 py-2 text-[13px] font-semibold transition-colors [font-family:var(--font-text),sans-serif]",
-              tab === item.id
-                ? "border-white/40 bg-white/[0.06] text-white"
-                : "border-transparent text-zinc-500 hover:border-white/[0.08] hover:text-zinc-300",
-            )}
+            className={`rc-pill ${tab === item.id ? "rc-active" : "rc-inactive"}`}
+            style={{
+              padding: "8px 20px",
+              fontFamily: "var(--font-montserrat,'Montserrat',sans-serif)",
+              fontSize: 13,
+              fontWeight: tab === item.id ? 700 : 500,
+              color: tab === item.id ? "#F3F3F4" : "#6a6e7a",
+            }}
           >
             {item.id === "whiteSwan" ? (
               <SwanIcon size={14} />
@@ -960,12 +1002,16 @@ function TopTabs({
             key={item}
             type="button"
             onClick={() => onModeChange(item)}
-            className={cn(
-              "rounded-full border px-4 py-1.5 text-[11px] uppercase tracking-[0.08em] [font-family:var(--font-text),sans-serif]",
-              mode === item
-                ? "border-white/40 bg-white/[0.06] text-white"
-                : "border-white/[0.08] text-zinc-500 hover:border-white/[0.14] hover:text-zinc-300",
-            )}
+            className={`rc-pill ${mode === item ? "rc-active" : "rc-inactive"}`}
+            style={{
+              padding: "6px 16px",
+              fontFamily: "var(--font-montserrat,'Montserrat',sans-serif)",
+              fontSize: 11,
+              fontWeight: mode === item ? 600 : 400,
+              color: mode === item ? "#F3F3F4" : "#6a6e7a",
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+            }}
           >
             {item}
           </button>
@@ -1100,6 +1146,7 @@ function PerformanceCard({
   periodMode,
   onStartFilter,
   onLineMode,
+  onBenchmarkEnabled,
   onCompounded,
   onPrimaryAsset,
   onToggleGroup,
@@ -1118,6 +1165,7 @@ function PerformanceCard({
   onStartFilter: (filter: StartFilter) => void;
   onLineMode: (mode: LineMode) => void;
   onCompounded: (v: boolean) => void;
+  onBenchmarkEnabled: (v: boolean) => void;
   onPrimaryAsset: (id: string) => void;
   onToggleGroup: (id: string) => void;
   onSelectAll: () => void;
@@ -1223,16 +1271,16 @@ function PerformanceCard({
               </PillButton>
             ))}
             <span className="mx-0.5 h-3 w-px shrink-0 bg-white/10" />
-            <PillButton compact active={lineMode === "portfolio"} onClick={() => onLineMode("portfolio")}>P</PillButton>
-            <PillButton compact active={lineMode === "assets"} onClick={() => onLineMode("assets")}>A</PillButton>
-            <PillButton compact active={lineMode === "benchmark"} disabled={!dataset.benchmarkSeries.length} onClick={() => onLineMode("benchmark")}>BM</PillButton>
-            <span className="mx-0.5 h-3 w-px shrink-0 bg-white/10" />
-            <PillButton compact active={compounded} onClick={() => onCompounded(!compounded)}>Comp</PillButton>
+            <PillButton compact active={true} onClick={() => onLineMode(lineMode === "assets" ? "portfolio" : "assets")}>
+              {lineMode === "assets" ? "Assets" : "Portfolio"} ▾
+            </PillButton>
+            <PillButton compact active={benchmarkEnabled} disabled={!dataset.benchmarkSeries.length} onClick={() => onBenchmarkEnabled(!benchmarkEnabled)}>Benchmark</PillButton>
+            <PillButton compact active={compounded} onClick={() => onCompounded(!compounded)}>COM</PillButton>
             {lineMode === "assets" && (
               <>
                 <span className="mx-0.5 h-3 w-px shrink-0 bg-white/10" />
                 <PillButton compact active={periodMode === "own"} onClick={() => onPeriodMode("own")}>Own</PillButton>
-                <PillButton compact active={periodMode === "common"} onClick={() => onPeriodMode("common")}>Com</PillButton>
+                <PillButton compact active={periodMode === "common"} onClick={() => onPeriodMode("common")}>Period</PillButton>
               </>
             )}
           </div>
@@ -1242,57 +1290,34 @@ function PerformanceCard({
         <div className="h-full min-h-[128px]">
           {chartData.length ? (
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 6, right: 12, bottom: 0, left: -12 }}>
+              <AreaChart data={chartData} margin={{ top: 4, right: 4, bottom: 10, left: 0 }}>
                 <defs>
                   <linearGradient id="analytics-performance-fill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="rgba(244,245,247,0.16)" />
-                    <stop offset="100%" stopColor="rgba(244,245,247,0.02)" />
+                    <stop offset="0%" stopColor="rgba(244,245,247,0.14)" />
+                    <stop offset="100%" stopColor="rgba(244,245,247,0.01)" />
                   </linearGradient>
                 </defs>
-                <CartesianGrid vertical={false} strokeDasharray="3 5" stroke="rgba(255,255,255,0.045)" />
-                <XAxis dataKey="date" tickFormatter={formatAxisDate} tick={{ fontSize: 9, fill: "#686b73" }} tickLine={false} axisLine={false} minTickGap={24} />
-                <YAxis width={44} tick={{ fontSize: 9, fill: "#686b73" }} tickLine={false} axisLine={false} tickFormatter={(value: number) => `${value > 0 ? "+" : ""}${value.toFixed(0)}%`} domain={assetYDomain ?? ["auto", "auto"]} />
+                <XAxis dataKey="date" tickFormatter={formatAxisDate} tick={{ fontSize: 11, fill: "#7f8a9d", fontFamily: "var(--font-numbers,'Nunito',sans-serif)" }} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,0.16)" }} minTickGap={32} />
+                <YAxis width={44} tick={{ fontSize: 11, fill: "#7f8a9d", fontFamily: "var(--font-numbers,'Nunito',sans-serif)" }} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,0.14)" }} tickFormatter={(value: number) => `${value > 0 ? "+" : ""}${value.toFixed(0)}%`} domain={assetYDomain ?? ["auto", "auto"]} />
                 <Tooltip content={<ChartTooltip />} cursor={{ stroke: "rgba(255,255,255,0.10)", strokeWidth: 1 }} />
-                <ReferenceLine y={0} stroke="rgba(255,255,255,0.16)" strokeWidth={1} />
+                <ReferenceLine y={0} stroke="rgba(255,255,255,0.22)" strokeDasharray="5 4" strokeWidth={1} />
                 {dataset.oosStartDate && dataset.mode !== "live" ? (
                   <ReferenceLine
                     x={dataset.oosStartDate}
-                    stroke="rgba(210,214,222,0.32)"
-                    strokeDasharray="4 4"
-                    label={{ value: "WF/OOS", position: "insideTopRight", fill: "#8d8f98", fontSize: 9 }}
-                  />
-                ) : null}
-                {dataset.fullCoreStartDate && dataset.mode !== "live" ? (
-                  <ReferenceLine
-                    x={dataset.fullCoreStartDate}
-                    stroke="rgba(139,92,246,0.22)"
-                    strokeDasharray="3 5"
-                    label={{ value: "Full Core", position: "insideTopLeft", fill: "#8d8f98", fontSize: 9 }}
-                  />
-                ) : null}
-                {dataset.qqpineForwardDate ? (
-                  <ReferenceLine
-                    x={dataset.qqpineForwardDate}
-                    stroke="rgba(103,232,249,0.45)"
+                    stroke="rgba(255,255,255,0.65)"
+                    strokeDasharray="4 5"
                     strokeWidth={1}
-                    strokeDasharray="4 4"
-                    label={(props: { viewBox?: { x?: number; y?: number } }) => (
-                      <text x={(props.viewBox?.x ?? 0) + 4} y={(props.viewBox?.y ?? 0) + 14} fill="#67e8f9" fontSize={9} fontFamily="var(--font-text),sans-serif">QQQ Pine Fwd</text>
-                    )}
                   />
                 ) : null}
                 {dataset.portfolioLiveDate ? (
                   <ReferenceLine
                     x={dataset.portfolioLiveDate}
-                    stroke="rgba(52,211,153,0.45)"
+                    stroke="rgba(214,178,74,0.9)"
+                    strokeDasharray="4 5"
                     strokeWidth={1}
-                    strokeDasharray="4 4"
-                    label={(props: { viewBox?: { x?: number; y?: number } }) => (
-                      <text x={(props.viewBox?.x ?? 0) + 4} y={(props.viewBox?.y ?? 0) + 14} fill="#6ee7b7" fontSize={9} fontFamily="var(--font-text),sans-serif">Portfolio Live</text>
-                    )}
                   />
                 ) : null}
-                <Area type="monotone" dataKey="portfolio" name="Portfolio" stroke={lineMode === "assets" ? "transparent" : "#f3f4f6"} strokeWidth={lineMode === "assets" ? 0 : 1.6} fill={lineMode === "assets" ? "none" : "url(#analytics-performance-fill)"} dot={false} />
+                <Area type="monotone" dataKey="portfolio" name="Portfolio" stroke={lineMode === "assets" ? "transparent" : "#F5F7FA"} strokeWidth={lineMode === "assets" ? 0 : 1.5} fill={lineMode === "assets" ? "none" : "url(#analytics-performance-fill)"} dot={false} connectNulls isAnimationActive={false} />
                 {lineMode === "assets" &&
                   visibleGroups.map((group) => (
                     <Line
@@ -1304,10 +1329,11 @@ function PerformanceCard({
                       strokeWidth={1.2}
                       dot={false}
                       connectNulls={false}
+                      isAnimationActive={false}
                     />
                   ))}
-                {benchmarkEnabled || lineMode === "benchmark" ? (
-                  <Line type="monotone" dataKey="benchmark" name="SPY" stroke="#d8c071" strokeWidth={1.2} dot={false} />
+                {benchmarkEnabled ? (
+                  <Line type="monotone" dataKey="benchmark" name="SPY" stroke="#dc2626" strokeWidth={1.5} dot={false} connectNulls isAnimationActive={false} />
                 ) : null}
               </AreaChart>
             </ResponsiveContainer>
@@ -1336,38 +1362,43 @@ function PerformanceCard({
 
 function KpiGrid({ cards }: { cards: KpiCard[] }) {
   return (
-    <Card className="p-3">
-      <div className="grid h-full min-h-0 grid-cols-2 gap-2 xl:grid-cols-3">
-        {cards.slice(0, 15).map((card) => (
-          <div
-            key={card.label}
-            className="flex min-h-[88px] flex-col justify-between rounded-[16px] border border-white/[0.07] bg-gradient-to-b from-[#141618] to-[#0d0f12] px-3 py-2.5 shadow-[0_8px_20px_-8px_rgba(0,0,0,0.55)]"
+    <div className="grid h-full min-h-0 grid-cols-3 gap-2" style={{ alignContent: "start" }}>
+      {cards.slice(0, 15).map((card) => (
+        <div
+          key={card.label}
+          className="flex flex-col justify-between shadow-[0_8px_20px_-8px_rgba(0,0,0,0.55)]"
+          style={{ ...KPI_CARD_STYLE, minHeight: 72 }}
+        >
+          <p
+            className="text-[9px] font-medium uppercase tracking-[0.08em] [font-family:var(--font-montserrat,'Montserrat',sans-serif)]"
+            style={{ color: "rgba(180,192,210,0.6)" }}
           >
-            <p className="text-[9px] font-medium uppercase tracking-[0.08em] text-zinc-500 [font-family:var(--font-text),sans-serif]">
-              {card.label}
+            {card.label}
+          </p>
+          <div className="flex items-end justify-between gap-1 mt-2">
+            <p
+              className="line-clamp-2 text-[16px] font-bold leading-tight tracking-tight [font-family:var(--font-numbers,'Nunito',sans-serif)]"
+              style={{ color: "#F0F2F6" }}
+            >
+              {card.value}
             </p>
-            <div className="flex items-end justify-between gap-1">
-              <p className="line-clamp-2 text-[18px] font-bold leading-tight tracking-tight text-white [font-family:var(--font-numbers),sans-serif]">
-                {card.value}
+            {card.delta ? (
+              <p
+                className="mb-0.5 text-[10px] font-semibold [font-family:var(--font-montserrat,'Montserrat',sans-serif)]"
+                style={{ color: card.deltaNeutral ? "#71717a" : card.deltaGold ? "#D6B24A" : "#b66a6a" }}
+              >
+                {card.delta}
               </p>
-              {card.delta ? (
-                <p
-                  className="mb-0.5 text-[10px] font-semibold [font-family:var(--font-text),sans-serif]"
-                  style={{ color: card.deltaNeutral ? "#71717a" : card.deltaGold ? "#d8c071" : "#b66a6a" }}
-                >
-                  {card.delta}
-                </p>
-              ) : null}
-            </div>
+            ) : null}
           </div>
-        ))}
-      </div>
-    </Card>
+        </div>
+      ))}
+    </div>
   );
 }
 
 function DrawdownCard({ dataset, visibleSeries, benchmarkEnabled, lineMode }: { dataset: AnalyticsDataset; visibleSeries: AnalyticsSeriesPoint[]; benchmarkEnabled: boolean; lineMode: LineMode }) {
-  const bmActive = benchmarkEnabled || lineMode === "benchmark";
+  const bmActive = benchmarkEnabled;
   const { chartData, hasBm } = useMemo(() => {
     const datasetSeries = filterSeries(dataset.drawdownSeries, "Max");
     const portDD = downsampleSeries(datasetSeries.length ? datasetSeries : computeDrawdown(visibleSeries));
@@ -1393,21 +1424,20 @@ function DrawdownCard({ dataset, visibleSeries, benchmarkEnabled, lineMode }: { 
         <div className="h-full min-h-[58px]">
           {chartData.length ? (
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 3, right: 10, bottom: 0, left: -12 }}>
+              <AreaChart data={chartData} margin={{ top: 4, right: 4, bottom: 10, left: 6 }}>
                 <defs>
-                  <linearGradient id="analytics-drawdown-fill" x1="0" y1="1" x2="0" y2="0">
-                    <stop offset="0%" stopColor="rgba(196,174,96,0.22)" />
-                    <stop offset="100%" stopColor="rgba(226,202,122,0.03)" />
+                  <linearGradient id="analytics-drawdown-fill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="rgba(186,148,62,0.55)" stopOpacity={0.22} />
+                    <stop offset="100%" stopColor="#D6B24A" stopOpacity={0.01} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid vertical={false} strokeDasharray="3 5" stroke="rgba(255,255,255,0.04)" />
-                <XAxis dataKey="date" tickFormatter={formatAxisDate} tick={{ fontSize: 8, fill: "#686b73" }} tickLine={false} axisLine={false} minTickGap={24} />
-                <YAxis tick={{ fontSize: 8, fill: "#686b73" }} tickLine={false} axisLine={false} tickFormatter={(value: number) => `${value.toFixed(0)}%`} />
+                <XAxis dataKey="date" tickFormatter={formatAxisDate} tick={{ fontSize: 11, fill: "#7f8a9d", fontFamily: "var(--font-numbers,'Nunito',sans-serif)" }} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,0.16)" }} minTickGap={32} />
+                <YAxis tick={{ fontSize: 11, fill: "#7f8a9d", fontFamily: "var(--font-numbers,'Nunito',sans-serif)" }} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,0.14)" }} tickFormatter={(value: number) => `${value.toFixed(0)}%`} width={56} />
                 <Tooltip content={<ChartTooltip />} />
-                <ReferenceLine y={0} stroke="rgba(255,255,255,0.16)" strokeWidth={1} />
-                <Area type="monotone" dataKey="value" name="Drawdown" stroke="rgba(196,174,96,0.82)" strokeWidth={1.45} fill="url(#analytics-drawdown-fill)" dot={false} />
+                <ReferenceLine y={0} stroke="rgba(255,255,255,0.10)" strokeWidth={1} />
+                <Area type="monotone" dataKey="value" name="Drawdown" stroke="#D6B24A" strokeWidth={1.4} fill="url(#analytics-drawdown-fill)" dot={false} connectNulls isAnimationActive={false} />
                 {hasBm && (
-                  <Line type="monotone" dataKey="spy" name="SPY DD" stroke="#d8c071" strokeWidth={1.1} strokeDasharray="4 3" dot={false} />
+                  <Line type="monotone" dataKey="spy" name="SPY DD" stroke="#dc2626" strokeWidth={1.5} dot={false} connectNulls isAnimationActive={false} />
                 )}
               </AreaChart>
             </ResponsiveContainer>
@@ -1420,23 +1450,70 @@ function DrawdownCard({ dataset, visibleSeries, benchmarkEnabled, lineMode }: { 
   );
 }
 
+const BAR_GRAD_DEFS = [
+  { id: "ab-pb-hi", x1: "0", y1: "1", x2: "0", y2: "0", stops: [{ o: "0%", c: "#606470" }, { o: "50%", c: "#e6e8ec" }, { o: "100%", c: "#f8f9fb" }] },
+  { id: "ab-pb-md", x1: "0", y1: "1", x2: "0", y2: "0", stops: [{ o: "0%", c: "#565a62" }, { o: "65%", c: "#d0d3d9" }, { o: "100%", c: "#e8e9ec" }] },
+  { id: "ab-pb-lo", x1: "0", y1: "1", x2: "0", y2: "0", stops: [{ o: "0%", c: "#44484f" }, { o: "100%", c: "#a2a6ae" }] },
+  { id: "ab-pb-xs", x1: "0", y1: "1", x2: "0", y2: "0", stops: [{ o: "0%", c: "#38393e" }, { o: "100%", c: "#66696f" }] },
+  { id: "ab-nb-hi", x1: "0", y1: "0", x2: "0", y2: "1", stops: [{ o: "0%", c: "#4a4630" }, { o: "100%", c: "#D6B24A" }] },
+  { id: "ab-nb-md", x1: "0", y1: "0", x2: "0", y2: "1", stops: [{ o: "0%", c: "#3e3b28" }, { o: "100%", c: "#b08838" }] },
+  { id: "ab-nb-lo", x1: "0", y1: "0", x2: "0", y2: "1", stops: [{ o: "0%", c: "#333028" }, { o: "100%", c: "#7a6230" }] },
+  { id: "ab-nb-xs", x1: "0", y1: "0", x2: "0", y2: "1", stops: [{ o: "0%", c: "#2a2820" }, { o: "100%", c: "#4e4828" }] },
+] as const;
+
+function barGradFill(val: number, maxPos: number, maxNeg: number): string {
+  if (val >= 0) {
+    const s = maxPos > 0 ? val / maxPos : 0;
+    if (s >= 0.85) return "url(#ab-pb-hi)";
+    if (s >= 0.45) return "url(#ab-pb-md)";
+    if (s >= 0.15) return "url(#ab-pb-lo)";
+    return "url(#ab-pb-xs)";
+  }
+  const s = maxNeg < 0 ? Math.abs(val) / Math.abs(maxNeg) : 0;
+  if (s >= 0.85) return "url(#ab-nb-hi)";
+  if (s >= 0.45) return "url(#ab-nb-md)";
+  if (s >= 0.15) return "url(#ab-nb-lo)";
+  return "url(#ab-nb-xs)";
+}
+
 function BarsCard({ title, items }: { title: string; items: Array<{ label: string; value: number }> }) {
+  const maxPos = Math.max(0, ...items.map(d => d.value));
+  const maxNeg = Math.min(0, ...items.map(d => d.value));
   return (
     <Card>
       <CardHeader title={title} />
-      <div className="min-h-0 flex-1 px-2 pb-1.5 pt-1">
+      <div className="min-h-0 flex-1 pb-1.5 pt-1" style={{ padding: "0 4px 8px" }}>
         <div className="h-full min-h-[60px]">
           {items.length ? (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={items} margin={{ top: 4, right: 8, bottom: 0, left: -12 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 5" stroke="rgba(255,255,255,0.04)" />
-                <XAxis dataKey="label" tick={{ fontSize: 8, fill: "#686b73" }} tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={12} />
-                <YAxis tick={{ fontSize: 8, fill: "#686b73" }} tickLine={false} axisLine={false} tickFormatter={(value: number) => `${value}%`} />
-                <Tooltip content={<ChartTooltip />} />
-                <ReferenceLine y={0} stroke="rgba(255,255,255,0.16)" strokeWidth={1} />
-                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                  {items.map((item) => (
-                    <Cell key={item.label} fill={item.value >= 0 ? "rgba(232,234,239,0.88)" : "rgba(196,174,96,0.52)"} />
+              <BarChart data={items} margin={{ top: 4, right: 6, bottom: 2, left: 0 }} barCategoryGap="40%">
+                <defs>
+                  {BAR_GRAD_DEFS.map(g => (
+                    <linearGradient key={g.id} id={g.id} x1={g.x1} y1={g.y1} x2={g.x2} y2={g.y2}>
+                      {g.stops.map(s => <stop key={s.o} offset={s.o} stopColor={s.c} />)}
+                    </linearGradient>
+                  ))}
+                </defs>
+                <XAxis dataKey="label" tick={{ fontSize: 10, fill: "#7f8a9d", fontFamily: "var(--font-numbers,'Nunito',sans-serif)" }} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,0.16)" }} interval="preserveStartEnd" minTickGap={12} />
+                <YAxis tick={{ fontSize: 10, fill: "#7f8a9d", fontFamily: "var(--font-numbers,'Nunito',sans-serif)" }} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,0.14)" }} tickFormatter={(v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`} width={46} />
+                <Tooltip
+                  content={({ active, payload, label }) => {
+                    if (!active || !payload?.length) return null;
+                    const v = payload[0]?.value as number;
+                    const pos = v >= 0;
+                    return (
+                      <div style={{ background: "#0B0E12", border: `1px solid ${pos ? "rgba(240,242,246,0.18)" : "rgba(214,178,74,0.22)"}`, borderRadius: 6, padding: "5px 9px", fontFamily: "var(--font-numbers,'Nunito',sans-serif)", fontSize: 11 }}>
+                        <div style={{ color: "#7c8798", marginBottom: 2 }}>{String(label ?? "")}</div>
+                        <div style={{ color: pos ? "#F0F2F6" : "#D6B24A", fontWeight: 700 }}>{pos ? "+" : ""}{v?.toFixed(2)}%</div>
+                      </div>
+                    );
+                  }}
+                  cursor={{ fill: "rgba(255,255,255,0.03)" }}
+                />
+                <ReferenceLine y={0} stroke="rgba(255,255,255,0.22)" strokeWidth={1} />
+                <Bar dataKey="value" radius={[2, 2, 0, 0]} isAnimationActive={false} maxBarSize={22}>
+                  {items.map((item, i) => (
+                    <Cell key={i} fill={barGradFill(item.value, maxPos, maxNeg)} />
                   ))}
                 </Bar>
               </BarChart>
@@ -1450,44 +1527,97 @@ function BarsCard({ title, items }: { title: string; items: Array<{ label: strin
   );
 }
 
+const MONTSERRAT_FONT = "var(--font-montserrat,'Montserrat',sans-serif)";
+const NUNITO_FONT = "var(--font-numbers,'Nunito',sans-serif)";
+
 function OverviewCard({ rows }: { rows: Array<[string, string]> }) {
-  type Item = { type: "sep" } | { type: "pair"; left: [string, string]; right: [string, string] | null };
-  const items: Item[] = [];
-  const dataRows = rows.slice(0, 20);
-  let i = 0;
-  while (i < dataRows.length) {
-    if (dataRows[i]![0] === "__sep__") {
-      items.push({ type: "sep" });
-      i += 1;
-    } else if (dataRows[i + 1]?.[0] === "__sep__") {
-      items.push({ type: "pair", left: dataRows[i]!, right: null });
-      i += 1; // leave __sep__ for next iteration
-    } else {
-      items.push({ type: "pair", left: dataRows[i]!, right: dataRows[i + 1] ?? null });
-      i += 2;
-    }
-  }
+  const dataRows = rows.filter(r => r[0] !== "__sep__").slice(0, 16);
+  // Split into two halves for 2-column layout
+  const half = Math.ceil(dataRows.length / 2);
+  const col1 = dataRows.slice(0, half);
+  const col2 = dataRows.slice(half);
   return (
     <Card>
       <CardHeader title="Overview" />
-      <div className="flex flex-1 flex-col justify-between gap-0.5 px-4 py-2">
-        {items.map((item, idx) =>
-          item.type === "sep" ? (
-            <div key={`sep-${idx}`} className="border-t border-white/[0.06] my-0.5" />
-          ) : (
-            <div key={item.left[0]} className="grid grid-cols-2 gap-x-4">
-              <div className="grid grid-cols-[72px_minmax(0,1fr)] gap-2">
-                <p className="text-[9px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-text),sans-serif]">{item.left[0]}</p>
-                <p className="line-clamp-1 text-[10px] text-zinc-200 [font-family:var(--font-text),sans-serif]">{item.left[1]}</p>
-              </div>
-              {item.right ? (
-                <div className="grid grid-cols-[72px_minmax(0,1fr)] gap-2">
-                  <p className="text-[9px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-text),sans-serif]">{item.right[0]}</p>
-                  <p className="line-clamp-1 text-[10px] text-zinc-200 [font-family:var(--font-text),sans-serif]">{item.right[1]}</p>
+      <div className="flex flex-1 min-h-0 overflow-y-auto px-3 py-2">
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 12px", width: "100%", alignContent: "start" }}>
+          {[col1, col2].map((col, ci) => (
+            <div key={ci} style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+              {col.map(([key, val]) => (
+                <div key={key} style={{ display: "flex", flexDirection: "column", padding: "3px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                  <span style={{ fontSize: 8, fontWeight: 500, letterSpacing: "0.07em", textTransform: "uppercase", fontFamily: MONTSERRAT_FONT, color: "rgba(180,192,210,0.5)" }}>
+                    {key}
+                  </span>
+                  <span style={{ fontSize: 10, fontFamily: MONTSERRAT_FONT, color: "#F0F2F6", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {val}
+                  </span>
                 </div>
-              ) : <div />}
+              ))}
             </div>
-          )
+          ))}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function WeightingCard({ dataset }: { dataset: AnalyticsDataset }) {
+  const groups = dataset.groups;
+  const [localActive, setLocalActive] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(groups.map((g) => [g.id, g.active ?? true]))
+  );
+  const [localWeights, setLocalWeights] = useState<Record<string, number>>(() =>
+    Object.fromEntries(groups.map((g) => [g.id, g.weight != null ? Math.round(g.weight * 100) : 0]))
+  );
+
+  const toggleActive = (id: string) => setLocalActive((prev) => ({ ...prev, [id]: !prev[id] }));
+  const adjustWeight = (id: string, delta: number) =>
+    setLocalWeights((prev) => ({ ...prev, [id]: Math.max(0, Math.min(100, (prev[id] ?? 0) + delta)) }));
+
+  // Two columns
+  const half = Math.ceil(groups.length / 2);
+  const col1 = groups.slice(0, half);
+  const col2 = groups.slice(half);
+
+  const renderGroup = (g: typeof groups[number]) => {
+    const active = localActive[g.id] ?? true;
+    const weight = localWeights[g.id] ?? 0;
+    return (
+      <div key={g.id} style={{ display: "flex", alignItems: "center", gap: 4, padding: "3px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+        <button
+          onClick={() => toggleActive(g.id)}
+          style={{
+            flexShrink: 0, padding: "1px 5px", borderRadius: 3, border: "1px solid rgba(255,255,255,0.12)",
+            background: active ? "rgba(214,178,74,0.18)" : "rgba(255,255,255,0.04)",
+            color: active ? "#D6B24A" : "rgba(180,192,210,0.4)",
+            fontSize: 7, fontWeight: 700, letterSpacing: "0.05em", fontFamily: MONTSERRAT_FONT, cursor: "pointer",
+          }}
+        >
+          {active ? "EIN" : "AUS"}
+        </button>
+        <span style={{ flex: "1 1 0", minWidth: 0, fontSize: 9, fontFamily: MONTSERRAT_FONT, color: active ? "#F0F2F6" : "rgba(180,192,210,0.35)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {g.label}
+        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: 2, flexShrink: 0 }}>
+          <button onClick={() => adjustWeight(g.id, -5)} style={{ background: "none", border: "none", color: "rgba(180,192,210,0.5)", cursor: "pointer", fontSize: 10, padding: "0 1px", lineHeight: 1 }}>◀</button>
+          <span style={{ fontSize: 10, fontWeight: 700, fontFamily: NUNITO_FONT, color: active && weight > 0 ? "#D6B24A" : "#52525b", minWidth: 26, textAlign: "center" }}>{weight}%</span>
+          <button onClick={() => adjustWeight(g.id, 5)} style={{ background: "none", border: "none", color: "rgba(180,192,210,0.5)", cursor: "pointer", fontSize: 10, padding: "0 1px", lineHeight: 1 }}>▶</button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <Card>
+      <CardHeader title="Weighting" />
+      <div className="flex flex-1 min-h-0 overflow-y-auto px-3 py-2">
+        {groups.length === 0 ? (
+          <p style={{ fontSize: 10, color: "rgba(180,192,210,0.5)", fontFamily: MONTSERRAT_FONT }}>No groups available.</p>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 10px", width: "100%", alignContent: "start" }}>
+            <div style={{ display: "flex", flexDirection: "column" }}>{col1.map(renderGroup)}</div>
+            <div style={{ display: "flex", flexDirection: "column" }}>{col2.map(renderGroup)}</div>
+          </div>
         )}
       </div>
     </Card>
@@ -2083,11 +2213,11 @@ function InvestControlPanel({
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-[14px] border border-white/[0.06] bg-gradient-to-b from-[#19191d] to-[#111214]">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-[10px] border" style={{ background: "linear-gradient(to bottom, #26262d, #111114)", borderColor: "rgba(255,255,255,0.055)" }}>
 
       {/* Header */}
       <div className="flex shrink-0 items-center justify-between border-b border-white/[0.05] px-3 py-2">
-        <p className="text-[9.5px] font-bold uppercase tracking-[0.18em] text-[#C9A84C]/80 [font-family:var(--font-text),sans-serif]">Control Panel</p>
+        <p className="text-[9.5px] font-bold uppercase tracking-[0.18em] text-[#D6B24A]/80 [font-family:var(--font-montserrat,'Montserrat',sans-serif)]">Control Panel</p>
         <div className="flex gap-1.5">
           {scenarioActive && <span className="rounded-[3px] border border-[#C9A84C]/30 bg-[#C9A84C]/10 px-1.5 py-0.5 text-[7.5px] font-bold uppercase text-[#C9A84C] [font-family:var(--font-text),sans-serif]">SCENARIO</span>}
           {hasChanges && !isRunning && <span className="rounded-[3px] border border-zinc-600/40 bg-zinc-700/20 px-1.5 py-0.5 text-[7.5px] font-bold uppercase text-zinc-400 [font-family:var(--font-text),sans-serif]">DRAFT</span>}
@@ -2269,7 +2399,7 @@ function ControlPanel({
       <CardHeader title="Control Panel" />
       <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 py-3">
         <div>
-          <p className="mb-2 text-[9px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-text),sans-serif]">Zeitraum</p>
+          <p className="mb-2 text-[9px] uppercase tracking-[0.08em] [font-family:var(--font-montserrat,'Montserrat',sans-serif)]" style={{ color: "rgba(180,192,210,0.6)" }}>Zeitraum</p>
           <div className="flex flex-wrap gap-2">
             {START_FILTERS.map((filter) => (
               <PillButton key={filter} active={startFilter === filter} onClick={() => onStartFilter(filter)}>
@@ -2279,7 +2409,7 @@ function ControlPanel({
           </div>
         </div>
         <div>
-          <p className="mb-2 text-[9px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-text),sans-serif]">Linien</p>
+          <p className="mb-2 text-[9px] uppercase tracking-[0.08em] [font-family:var(--font-montserrat,'Montserrat',sans-serif)]" style={{ color: "rgba(180,192,210,0.6)" }}>Linien</p>
           <div className="flex flex-wrap gap-2">
             <PillButton active={lineMode === "portfolio"} onClick={() => onLineMode("portfolio")}>
               Portfolio
@@ -2293,7 +2423,7 @@ function ControlPanel({
           </div>
         </div>
         <div className="min-h-0 flex-1">
-          <p className="mb-2 text-[9px] uppercase tracking-[0.08em] text-zinc-600 [font-family:var(--font-text),sans-serif]">
+          <p className="mb-2 text-[9px] uppercase tracking-[0.08em] [font-family:var(--font-montserrat,'Montserrat',sans-serif)]" style={{ color: "rgba(180,192,210,0.6)" }}>
             {dataset.tab === "invest" ? "Assets" : "Gruppen"}
           </p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -2308,14 +2438,20 @@ function ControlPanel({
                   className={cn(
                     "flex items-center justify-between rounded-[10px] border px-2.5 py-1.5 text-left transition-colors",
                     group.disabled
-                      ? "cursor-not-allowed border-white/[0.05] text-zinc-700 opacity-50"
+                      ? "cursor-not-allowed border-white/[0.05] opacity-50"
                       : active
-                        ? "border-white/20 bg-white/[0.05] text-white"
-                        : "border-white/[0.06] text-zinc-300 hover:bg-white/[0.02]",
+                        ? ""
+                        : "border-white/[0.06] hover:bg-white/[0.02]",
                   )}
+                  style={group.disabled
+                    ? { color: "#6a6e7a" }
+                    : active
+                      ? { background: "linear-gradient(to bottom, #26262d, #111114)", borderColor: "rgba(255,255,255,0.28)", color: "#F3F3F4" }
+                      : { color: "rgba(180,192,210,0.6)" }
+                  }
                 >
-                  <span className="text-[10px] [font-family:var(--font-text),sans-serif]">{group.label}</span>
-                  <span className="text-[10px] [font-family:var(--font-text),sans-serif]">
+                  <span className="text-[10px] [font-family:var(--font-montserrat,'Montserrat',sans-serif)]">{group.label}</span>
+                  <span className="text-[10px] [font-family:var(--font-montserrat,'Montserrat',sans-serif)]">
                     {group.disabled ? "n/a" : active ? "on" : "off"}
                   </span>
                 </button>
@@ -2765,6 +2901,7 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
 
   return (
     <div className="flex flex-1 min-h-0 flex-col gap-4 overflow-hidden">
+      <InjectPillCss />
       <TopTabs tab={tab} mode={mode} onTabChange={setTab} onModeChange={setMode} />
 
       <div className="flex-1 min-h-0 overflow-y-auto xl:overflow-hidden pr-1">
@@ -2782,6 +2919,7 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
               onStartFilter={setStartFilter}
               onLineMode={setLineMode}
               onCompounded={setCompounded}
+              onBenchmarkEnabled={setBenchmarkEnabled}
               onPrimaryAsset={handlePrimaryAsset}
               onToggleGroup={handleToggleGroup}
               onSelectAll={handleSelectAll}
@@ -2791,7 +2929,7 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
           </div>
 
           <div className="col-span-12 xl:col-span-4">
-            <KpiGrid cards={buildKpiCards(effectiveDataset, lineMode, effectiveDataset.benchmarkSeries, capalifeData)} />
+            <KpiGrid cards={buildKpiCards(effectiveDataset, lineMode, effectiveDataset.benchmarkSeries, capalifeData, benchmarkEnabled)} />
           </div>
 
           <div className="col-span-12 xl:col-span-8">
@@ -2825,59 +2963,7 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
           </div>
 
           <div className="col-span-12 md:col-span-4">
-            {tab === "combined" ? (
-              <CombinedControlPanel
-                wsWeight={combinedWsWeight}
-                riskMultiplier={wsRiskMultiplier}
-                onWsWeightChange={setCombinedWsWeight}
-                onRiskChange={setWsRiskMultiplier}
-                onReset={() => setCombinedWsWeight(50)}
-              />
-            ) : tab === "invest" ? (
-              <InvestControlPanel
-                dataset={dataset}
-                onScenarioResult={handleScenarioResult}
-                onResetScenario={handleResetScenario}
-              />
-            ) : tab === "whiteSwan" && mode === "backtest" ? (
-              <WsLiveControlPanel
-                weights={wsWeights}
-                enabled={wsEnabled}
-                riskMultiplier={wsRiskMultiplier}
-                onWeightChange={(id, val) => setWsWeights(prev => ({ ...prev, [id]: val }))}
-                onToggle={id => setWsEnabled(prev => ({ ...prev, [id]: !(prev[id] !== false) }))}
-                onRiskChange={setWsRiskMultiplier}
-                onReset={() => {
-                  setWsWeights({ ...WS_FROZEN_WEIGHTS });
-                  setWsEnabled({ ...WS_DEFAULT_ENABLED });
-                  setWsRiskMultiplier(2.5);
-                }}
-              />
-            ) : tab === "whiteSwan" ? (
-              <ControlPanel
-                dataset={dataset}
-                startFilter={startFilter}
-                lineMode={lineMode}
-                activeGroups={activeGroups}
-                onStartFilter={setStartFilter}
-                onLineMode={setLineMode}
-                onToggleGroup={group => setActiveGroups(cur => cur.includes(group) ? cur.filter(g => g !== group) : [...cur, group])}
-              />
-            ) : (
-              <ControlPanel
-                dataset={dataset}
-                startFilter={startFilter}
-                lineMode={lineMode}
-                activeGroups={activeGroups}
-                onStartFilter={setStartFilter}
-                onLineMode={setLineMode}
-                onToggleGroup={(group) =>
-                  setActiveGroups((current) =>
-                    current.includes(group) ? current.filter((item) => item !== group) : [...current, group],
-                  )
-                }
-              />
-            )}
+            <WeightingCard dataset={activeDataset} />
           </div>
         </div>
       </div>
