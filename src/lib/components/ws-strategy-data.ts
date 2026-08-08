@@ -257,14 +257,14 @@ const ANOMALY: StrategyRow[] = [
     engine: "Friday Long", pillar: "anomaly", weight: 9,
     sharpeOos: 1.54, cagr: "+4.18%", maxDd: "−6.87%", calmar: 0.61, pf: 2.28, trades: 377, wfOos: null,
     status: "active", dataFile: "anomaly/gc1_friday_long.json", exchange: "COMEX",
-    isNotes: "OOS 2019–2026 · Walk-Forward approved · IS 2004–2018 (1096 trades) · v1.3 weight 15% · v2 Backtrader audit pending",
+    isNotes: "OOS 2019–2026 · Walk-Forward approved · IS 2004–2018 (1096 trades) · v1.3 weight 15% · v2 Backtrader WFO (2018–2020, 3 folds, data limited): PF 1.44 / holdout 2021+ PF 0.69 — REJECT pending close-execution rerun",
   },
   {
     id: "gld_thursday", ticker: "GLD", label: "Gold ETF", group: "Anomaly",
     engine: "Thursday Long", pillar: "anomaly", weight: 9,
     sharpeOos: 0.506, cagr: "+3.38%", maxDd: "−7.29%", calmar: 0.46, pf: 1.21, trades: 379, wfOos: null,
     status: "active", dataFile: "anomaly/gld_thursday_long.json", exchange: "ARCA",
-    isNotes: "OOS 2019–2026 · Walk-Forward approved · IS 2004–2018 (717 trades) · v1.3 weight 15% · v2 Backtrader audit pending",
+    isNotes: "OOS 2019–2026 · Walk-Forward approved · IS 2004–2018 (717 trades) · v1.3 weight 15% · v2 Backtrader WFO (12 folds): PF 1.001 / holdout 2021+ PF 0.92 — REJECT (entry gap: next-open vs Thu-close; close-execution rerun needed)",
   },
   {
     id: "ym1_tat", ticker: "YM1!", label: "Dow Jones — TAT", group: "Anomaly",
@@ -278,8 +278,8 @@ const ANOMALY: StrategyRow[] = [
     engine: "TAT · Mon 17:30 → Wed 17:30 · ATR SL/TP · Regime Risk Scale",
     pillar: "anomaly", weight: null,
     sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null,
-    status: "research", exchange: "EUREX",
-    isNotes: "v2 Backtrader audit in progress · WFO 2007–2020 · Final OOS 2021+ · Source: EUREX FDAX 30m · Regime: VIX, US10Y, DAX-ATR · Reference WFO CAGR 2.08% (provisional, not Backtrader-verified)",
+    status: "archived", exchange: "EUREX",
+    isNotes: "v2 Backtrader audit 2026-08-08: REJECTED — WFO 9 folds: PF 0.97 (net loss), 6/9 folds negative, IS PF < 1.0 in most folds; holdout 2021+ PF 0.91 DD −70.6% · Anomaly absent even in-sample · See reports/white_swan_strategy_audit.md",
   },
 ];
 

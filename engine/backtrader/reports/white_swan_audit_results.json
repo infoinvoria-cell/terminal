@@ -1,0 +1,812 @@
+{
+  "manifest": {
+    "backtrader_version": "1.9.78.123",
+    "run_timestamp": "2026-08-08T19:12:22.126245Z",
+    "execution_model": "Vectorized pandas (entry at next-bar open, stop/target checked via high/low)",
+    "data_files": {
+      "GC1_240m": {
+        "path": "C:\\Users\\joris\\Downloads\\COMEX_DL_GC1!, 240_dc277.csv",
+        "rows": 15431,
+        "date_range": [
+          "2016-06-03",
+          "2026-06-04"
+        ]
+      },
+      "FDAX_30m": {
+        "path": "C:\\Users\\joris\\Downloads\\EUREX_FDAX_30min_gesamt_2007-2026.csv",
+        "rows": 166850,
+        "date_range": [
+          "2007-03-13",
+          "2026-07-14"
+        ]
+      },
+      "GLD_1D": {
+        "path": "C:\\Users\\joris\\Downloads\\BATS_GLD, 1D_4975f.csv",
+        "rows": 5437,
+        "date_range": [
+          "2004-11-18",
+          "2026-07-01"
+        ]
+      },
+      "VIX_1D": {
+        "path": "C:\\Users\\joris\\Downloads\\TVC_VIX, 1D_402f7.csv",
+        "rows": 9202
+      },
+      "US10Y_1D": {
+        "path": "C:\\Users\\joris\\Downloads\\TVC_US10Y, 1D_935af.csv",
+        "rows": 10834
+      },
+      "DXY_1D": {
+        "path": "C:\\Users\\joris\\Downloads\\ICEUS_DLY_DXY, 1D_3217e.csv",
+        "rows": 10292
+      }
+    },
+    "cost_model": {
+      "GC_commission_per_side_usd": 3.0,
+      "GC_slippage_ticks": 0,
+      "FDAX_commission_per_side_eur": 2.5,
+      "FDAX_spread_pct_per_side": 0.00075,
+      "GLD_commission_pct_per_side": 0.0002
+    },
+    "wfo_protocol": {
+      "IS_optimization_criterion": "Profit Factor (maximize)",
+      "min_IS_trades": 5,
+      "holdout": "2021-01-01 to present (run exactly once)",
+      "GC1_note": "Data starts 2016-06; 2yr IS windows used (limited history)",
+      "FDAX_note": "5yr IS windows from 2007",
+      "GLD_note": "5yr IS windows from 2004"
+    }
+  },
+  "results": {
+    "gold_friday_long": {
+      "strategy": "GOLD Friday Long (GC1 240m)",
+      "folds": [
+        {
+          "fold": 1,
+          "is_start": "2016-01-01",
+          "is_end": "2018-01-01",
+          "oos_start": "2018-01-01",
+          "oos_end": "2019-01-01",
+          "best_params": {
+            "atr_len": 14,
+            "sl_atr": 1.25,
+            "rr": 1.0
+          },
+          "is_metrics": {
+            "cagr": 0.0138,
+            "max_dd": -0.0358,
+            "calmar": 0.3852,
+            "pf": 1.1489,
+            "win_rate": 0.4875,
+            "trades": 80
+          },
+          "oos_metrics": {
+            "cagr": -0.0132,
+            "max_dd": -0.0228,
+            "calmar": -0.5802,
+            "pf": 0.8039,
+            "win_rate": 0.4706,
+            "trades": 51
+          }
+        },
+        {
+          "fold": 2,
+          "is_start": "2017-01-01",
+          "is_end": "2019-01-01",
+          "oos_start": "2019-01-01",
+          "oos_end": "2020-01-01",
+          "best_params": {
+            "atr_len": 10,
+            "sl_atr": 0.75,
+            "rr": 1.0
+          },
+          "is_metrics": {
+            "cagr": -0.0029,
+            "max_dd": -0.0773,
+            "calmar": -0.0378,
+            "pf": 0.9772,
+            "win_rate": 0.4902,
+            "trades": 102
+          },
+          "oos_metrics": {
+            "cagr": 0.0368,
+            "max_dd": -0.0225,
+            "calmar": 1.6328,
+            "pf": 1.3348,
+            "win_rate": 0.549,
+            "trades": 51
+          }
+        },
+        {
+          "fold": 3,
+          "is_start": "2018-01-01",
+          "is_end": "2020-01-01",
+          "oos_start": "2020-01-01",
+          "oos_end": "2021-01-01",
+          "best_params": {
+            "atr_len": 10,
+            "sl_atr": 1.25,
+            "rr": 1.0
+          },
+          "is_metrics": {
+            "cagr": 0.0198,
+            "max_dd": -0.0203,
+            "calmar": 0.9747,
+            "pf": 1.2979,
+            "win_rate": 0.5,
+            "trades": 102
+          },
+          "oos_metrics": {
+            "cagr": 0.1304,
+            "max_dd": -0.0329,
+            "calmar": 3.9628,
+            "pf": 2.1886,
+            "win_rate": 0.56,
+            "trades": 50
+          }
+        }
+      ],
+      "wfo_aggregate": {
+        "cagr": 0.0513,
+        "max_dd": -0.0329,
+        "calmar": 1.5603,
+        "pf": 1.4424,
+        "win_rate": 0.5265,
+        "trades": 152
+      },
+      "best_family": {
+        "atr_len": 14,
+        "sl_atr": 1.25,
+        "rr": 1.0
+      },
+      "holdout_2021_plus": {
+        "cagr": -0.1118,
+        "max_dd": -0.5127,
+        "calmar": -0.2181,
+        "pf": 0.6929,
+        "win_rate": 0.4655,
+        "trades": 275
+      }
+    },
+    "dax_turnaround_tuesday": {
+      "strategy": "DAX Turnaround Tuesday (FDAX 30m)",
+      "folds": [
+        {
+          "fold": 1,
+          "is_start": "2007-01-01",
+          "is_end": "2012-01-01",
+          "oos_start": "2012-01-01",
+          "oos_end": "2013-01-01",
+          "best_params": {
+            "atr_len": 21,
+            "sl_atr": 1.5,
+            "rr": 1.0
+          },
+          "is_metrics": {
+            "cagr": -0.029,
+            "max_dd": -0.4651,
+            "calmar": -0.0623,
+            "pf": 0.9574,
+            "win_rate": 0.5404,
+            "trades": 235
+          },
+          "oos_metrics": {
+            "cagr": -0.0681,
+            "max_dd": -0.1364,
+            "calmar": -0.4995,
+            "pf": 0.8718,
+            "win_rate": 0.4667,
+            "trades": 45
+          }
+        },
+        {
+          "fold": 2,
+          "is_start": "2008-01-01",
+          "is_end": "2013-01-01",
+          "oos_start": "2013-01-01",
+          "oos_end": "2014-01-01",
+          "best_params": {
+            "atr_len": 14,
+            "sl_atr": 1.5,
+            "rr": 1.0
+          },
+          "is_metrics": {
+            "cagr": 0.0167,
+            "max_dd": -0.3908,
+            "calmar": 0.0428,
+            "pf": 1.0278,
+            "win_rate": 0.5425,
+            "trades": 247
+          },
+          "oos_metrics": {
+            "cagr": -0.1322,
+            "max_dd": -0.1852,
+            "calmar": -0.7137,
+            "pf": 0.7961,
+            "win_rate": 0.4894,
+            "trades": 47
+          }
+        },
+        {
+          "fold": 3,
+          "is_start": "2009-01-01",
+          "is_end": "2014-01-01",
+          "oos_start": "2014-01-01",
+          "oos_end": "2015-01-01",
+          "best_params": {
+            "atr_len": 14,
+            "sl_atr": 1.0,
+            "rr": 1.5
+          },
+          "is_metrics": {
+            "cagr": 0.0345,
+            "max_dd": -0.1265,
+            "calmar": 0.2731,
+            "pf": 1.0683,
+            "win_rate": 0.5263,
+            "trades": 247
+          },
+          "oos_metrics": {
+            "cagr": 0.1677,
+            "max_dd": -0.1175,
+            "calmar": 1.4273,
+            "pf": 1.3116,
+            "win_rate": 0.5435,
+            "trades": 46
+          }
+        },
+        {
+          "fold": 4,
+          "is_start": "2010-01-01",
+          "is_end": "2015-01-01",
+          "oos_start": "2015-01-01",
+          "oos_end": "2016-01-01",
+          "best_params": {
+            "atr_len": 21,
+            "sl_atr": 1.0,
+            "rr": 1.5
+          },
+          "is_metrics": {
+            "cagr": 0.0438,
+            "max_dd": -0.1331,
+            "calmar": 0.3287,
+            "pf": 1.0903,
+            "win_rate": 0.5163,
+            "trades": 246
+          },
+          "oos_metrics": {
+            "cagr": -0.5428,
+            "max_dd": -0.6282,
+            "calmar": -0.8641,
+            "pf": 0.5414,
+            "win_rate": 0.413,
+            "trades": 46
+          }
+        },
+        {
+          "fold": 5,
+          "is_start": "2011-01-01",
+          "is_end": "2016-01-01",
+          "oos_start": "2016-01-01",
+          "oos_end": "2017-01-01",
+          "best_params": {
+            "atr_len": 14,
+            "sl_atr": 1.5,
+            "rr": 1.0
+          },
+          "is_metrics": {
+            "cagr": -0.068,
+            "max_dd": -0.5096,
+            "calmar": -0.1334,
+            "pf": 0.9149,
+            "win_rate": 0.5081,
+            "trades": 248
+          },
+          "oos_metrics": {
+            "cagr": -0.0174,
+            "max_dd": -0.1774,
+            "calmar": -0.0981,
+            "pf": 0.9799,
+            "win_rate": 0.6,
+            "trades": 45
+          }
+        },
+        {
+          "fold": 6,
+          "is_start": "2012-01-01",
+          "is_end": "2017-01-01",
+          "oos_start": "2017-01-01",
+          "oos_end": "2018-01-01",
+          "best_params": {
+            "atr_len": 7,
+            "sl_atr": 1.5,
+            "rr": 1.0
+          },
+          "is_metrics": {
+            "cagr": -0.07,
+            "max_dd": -0.5149,
+            "calmar": -0.136,
+            "pf": 0.914,
+            "win_rate": 0.5182,
+            "trades": 247
+          },
+          "oos_metrics": {
+            "cagr": -0.0913,
+            "max_dd": -0.1685,
+            "calmar": -0.5421,
+            "pf": 0.8479,
+            "win_rate": 0.413,
+            "trades": 46
+          }
+        },
+        {
+          "fold": 7,
+          "is_start": "2013-01-01",
+          "is_end": "2018-01-01",
+          "oos_start": "2018-01-01",
+          "oos_end": "2019-01-01",
+          "best_params": {
+            "atr_len": 21,
+            "sl_atr": 2.0,
+            "rr": 2.0
+          },
+          "is_metrics": {
+            "cagr": -0.0561,
+            "max_dd": -0.5394,
+            "calmar": -0.1039,
+            "pf": 0.9291,
+            "win_rate": 0.5103,
+            "trades": 243
+          },
+          "oos_metrics": {
+            "cagr": -0.2238,
+            "max_dd": -0.2808,
+            "calmar": -0.7968,
+            "pf": 0.7187,
+            "win_rate": 0.5,
+            "trades": 44
+          }
+        },
+        {
+          "fold": 8,
+          "is_start": "2014-01-01",
+          "is_end": "2019-01-01",
+          "oos_start": "2019-01-01",
+          "oos_end": "2020-01-01",
+          "best_params": {
+            "atr_len": 7,
+            "sl_atr": 1.5,
+            "rr": 1.0
+          },
+          "is_metrics": {
+            "cagr": -0.1306,
+            "max_dd": -0.6657,
+            "calmar": -0.1963,
+            "pf": 0.8693,
+            "win_rate": 0.5062,
+            "trades": 243
+          },
+          "oos_metrics": {
+            "cagr": 0.0902,
+            "max_dd": -0.1564,
+            "calmar": 0.577,
+            "pf": 1.1372,
+            "win_rate": 0.5306,
+            "trades": 49
+          }
+        },
+        {
+          "fold": 9,
+          "is_start": "2015-01-01",
+          "is_end": "2020-01-01",
+          "oos_start": "2020-01-01",
+          "oos_end": "2021-01-01",
+          "best_params": {
+            "atr_len": 7,
+            "sl_atr": 1.5,
+            "rr": 1.0
+          },
+          "is_metrics": {
+            "cagr": -0.1503,
+            "max_dd": -0.7575,
+            "calmar": -0.1984,
+            "pf": 0.8592,
+            "win_rate": 0.5,
+            "trades": 242
+          },
+          "oos_metrics": {
+            "cagr": 0.5791,
+            "max_dd": -0.1512,
+            "calmar": 3.83,
+            "pf": 1.5411,
+            "win_rate": 0.58,
+            "trades": 50
+          }
+        }
+      ],
+      "wfo_aggregate": {
+        "cagr": -0.0265,
+        "max_dd": -0.6282,
+        "calmar": -0.0422,
+        "pf": 0.9717,
+        "win_rate": 0.504,
+        "trades": 418
+      },
+      "best_family": {
+        "atr_len": 7,
+        "sl_atr": 1.5,
+        "rr": 1.0
+      },
+      "holdout_2021_plus": {
+        "cagr": -0.1498,
+        "max_dd": -0.7059,
+        "calmar": -0.2122,
+        "pf": 0.9117,
+        "win_rate": 0.4727,
+        "trades": 275
+      }
+    },
+    "gld_thursday_long": {
+      "strategy": "GLD Thursday Long (GLD 1D)",
+      "folds": [
+        {
+          "fold": 1,
+          "is_start": "2004-01-01",
+          "is_end": "2009-01-01",
+          "oos_start": "2009-01-01",
+          "oos_end": "2010-01-01",
+          "best_params": {
+            "atr_len": 20,
+            "sl_atr": 1.5,
+            "tp_r": 0.0
+          },
+          "is_metrics": {
+            "cagr": 0.0099,
+            "max_dd": -0.029,
+            "calmar": 0.341,
+            "pf": 1.2393,
+            "win_rate": 0.5583,
+            "trades": 206
+          },
+          "oos_metrics": {
+            "cagr": -0.0157,
+            "max_dd": -0.0157,
+            "calmar": -0.9995,
+            "pf": 0.6775,
+            "win_rate": 0.4565,
+            "trades": 46
+          }
+        },
+        {
+          "fold": 2,
+          "is_start": "2005-01-01",
+          "is_end": "2010-01-01",
+          "oos_start": "2010-01-01",
+          "oos_end": "2011-01-01",
+          "best_params": {
+            "atr_len": 10,
+            "sl_atr": 1.5,
+            "tp_r": 0.0
+          },
+          "is_metrics": {
+            "cagr": 0.0054,
+            "max_dd": -0.0322,
+            "calmar": 0.1691,
+            "pf": 1.1274,
+            "win_rate": 0.5458,
+            "trades": 251
+          },
+          "oos_metrics": {
+            "cagr": 0.0125,
+            "max_dd": -0.0075,
+            "calmar": 1.6671,
+            "pf": 1.3105,
+            "win_rate": 0.6531,
+            "trades": 49
+          }
+        },
+        {
+          "fold": 3,
+          "is_start": "2006-01-01",
+          "is_end": "2011-01-01",
+          "oos_start": "2011-01-01",
+          "oos_end": "2012-01-01",
+          "best_params": {
+            "atr_len": 20,
+            "sl_atr": 1.5,
+            "tp_r": 0.0
+          },
+          "is_metrics": {
+            "cagr": 0.0055,
+            "max_dd": -0.029,
+            "calmar": 0.1886,
+            "pf": 1.1261,
+            "win_rate": 0.56,
+            "trades": 250
+          },
+          "oos_metrics": {
+            "cagr": 0.0156,
+            "max_dd": -0.0077,
+            "calmar": 2.0339,
+            "pf": 1.4791,
+            "win_rate": 0.5957,
+            "trades": 47
+          }
+        },
+        {
+          "fold": 4,
+          "is_start": "2007-01-01",
+          "is_end": "2012-01-01",
+          "oos_start": "2012-01-01",
+          "oos_end": "2013-01-01",
+          "best_params": {
+            "atr_len": 10,
+            "sl_atr": 1.5,
+            "tp_r": 0.0
+          },
+          "is_metrics": {
+            "cagr": 0.0131,
+            "max_dd": -0.0173,
+            "calmar": 0.7606,
+            "pf": 1.3436,
+            "win_rate": 0.5794,
+            "trades": 252
+          },
+          "oos_metrics": {
+            "cagr": 0.0078,
+            "max_dd": -0.0229,
+            "calmar": 0.341,
+            "pf": 1.19,
+            "win_rate": 0.551,
+            "trades": 49
+          }
+        },
+        {
+          "fold": 5,
+          "is_start": "2008-01-01",
+          "is_end": "2013-01-01",
+          "oos_start": "2013-01-01",
+          "oos_end": "2014-01-01",
+          "best_params": {
+            "atr_len": 10,
+            "sl_atr": 1.5,
+            "tp_r": 0.0
+          },
+          "is_metrics": {
+            "cagr": 0.0055,
+            "max_dd": -0.0229,
+            "calmar": 0.2384,
+            "pf": 1.1435,
+            "win_rate": 0.5635,
+            "trades": 252
+          },
+          "oos_metrics": {
+            "cagr": -0.0021,
+            "max_dd": -0.0113,
+            "calmar": -0.1888,
+            "pf": 0.9342,
+            "win_rate": 0.5208,
+            "trades": 48
+          }
+        },
+        {
+          "fold": 6,
+          "is_start": "2009-01-01",
+          "is_end": "2014-01-01",
+          "oos_start": "2014-01-01",
+          "oos_end": "2015-01-01",
+          "best_params": {
+            "atr_len": 10,
+            "sl_atr": 1.5,
+            "tp_r": 0.0
+          },
+          "is_metrics": {
+            "cagr": 0.0056,
+            "max_dd": -0.0349,
+            "calmar": 0.1603,
+            "pf": 1.151,
+            "win_rate": 0.5534,
+            "trades": 253
+          },
+          "oos_metrics": {
+            "cagr": 0.0263,
+            "max_dd": -0.0061,
+            "calmar": 4.2999,
+            "pf": 1.9171,
+            "win_rate": 0.5208,
+            "trades": 48
+          }
+        },
+        {
+          "fold": 7,
+          "is_start": "2010-01-01",
+          "is_end": "2015-01-01",
+          "oos_start": "2015-01-01",
+          "oos_end": "2016-01-01",
+          "best_params": {
+            "atr_len": 10,
+            "sl_atr": 1.5,
+            "tp_r": 0.0
+          },
+          "is_metrics": {
+            "cagr": 0.0127,
+            "max_dd": -0.0349,
+            "calmar": 0.3633,
+            "pf": 1.3752,
+            "win_rate": 0.5697,
+            "trades": 251
+          },
+          "oos_metrics": {
+            "cagr": 0.0082,
+            "max_dd": -0.0126,
+            "calmar": 0.6461,
+            "pf": 1.2403,
+            "win_rate": 0.4898,
+            "trades": 49
+          }
+        },
+        {
+          "fold": 8,
+          "is_start": "2011-01-01",
+          "is_end": "2016-01-01",
+          "oos_start": "2016-01-01",
+          "oos_end": "2017-01-01",
+          "best_params": {
+            "atr_len": 20,
+            "sl_atr": 1.5,
+            "tp_r": 0.0
+          },
+          "is_metrics": {
+            "cagr": 0.0127,
+            "max_dd": -0.0341,
+            "calmar": 0.3707,
+            "pf": 1.3953,
+            "win_rate": 0.5363,
+            "trades": 248
+          },
+          "oos_metrics": {
+            "cagr": -0.0118,
+            "max_dd": -0.0325,
+            "calmar": -0.3636,
+            "pf": 0.81,
+            "win_rate": 0.4894,
+            "trades": 47
+          }
+        },
+        {
+          "fold": 9,
+          "is_start": "2012-01-01",
+          "is_end": "2017-01-01",
+          "oos_start": "2017-01-01",
+          "oos_end": "2018-01-01",
+          "best_params": {
+            "atr_len": 20,
+            "sl_atr": 1.5,
+            "tp_r": 0.0
+          },
+          "is_metrics": {
+            "cagr": 0.0067,
+            "max_dd": -0.0341,
+            "calmar": 0.1952,
+            "pf": 1.1749,
+            "win_rate": 0.5181,
+            "trades": 249
+          },
+          "oos_metrics": {
+            "cagr": -0.0297,
+            "max_dd": -0.0346,
+            "calmar": -0.8577,
+            "pf": 0.5405,
+            "win_rate": 0.4681,
+            "trades": 47
+          }
+        },
+        {
+          "fold": 10,
+          "is_start": "2013-01-01",
+          "is_end": "2018-01-01",
+          "oos_start": "2018-01-01",
+          "oos_end": "2019-01-01",
+          "best_params": {
+            "atr_len": 14,
+            "sl_atr": 1.5,
+            "tp_r": 0.0
+          },
+          "is_metrics": {
+            "cagr": 0.0014,
+            "max_dd": -0.0505,
+            "calmar": 0.0287,
+            "pf": 1.0353,
+            "win_rate": 0.512,
+            "trades": 250
+          },
+          "oos_metrics": {
+            "cagr": -0.0083,
+            "max_dd": -0.011,
+            "calmar": -0.7493,
+            "pf": 0.75,
+            "win_rate": 0.3958,
+            "trades": 48
+          }
+        },
+        {
+          "fold": 11,
+          "is_start": "2014-01-01",
+          "is_end": "2019-01-01",
+          "oos_start": "2019-01-01",
+          "oos_end": "2020-01-01",
+          "best_params": {
+            "atr_len": 14,
+            "sl_atr": 1.5,
+            "tp_r": 0.0
+          },
+          "is_metrics": {
+            "cagr": 0.0002,
+            "max_dd": -0.054,
+            "calmar": 0.0036,
+            "pf": 1.0046,
+            "win_rate": 0.4821,
+            "trades": 251
+          },
+          "oos_metrics": {
+            "cagr": -0.0209,
+            "max_dd": -0.0245,
+            "calmar": -0.8518,
+            "pf": 0.5681,
+            "win_rate": 0.4894,
+            "trades": 47
+          }
+        },
+        {
+          "fold": 12,
+          "is_start": "2015-01-01",
+          "is_end": "2020-01-01",
+          "oos_start": "2020-01-01",
+          "oos_end": "2021-01-01",
+          "best_params": {
+            "atr_len": 10,
+            "sl_atr": 0.75,
+            "tp_r": 0.0
+          },
+          "is_metrics": {
+            "cagr": -0.0153,
+            "max_dd": -0.1285,
+            "calmar": -0.1192,
+            "pf": 0.8282,
+            "win_rate": 0.4783,
+            "trades": 253
+          },
+          "oos_metrics": {
+            "cagr": -0.0436,
+            "max_dd": -0.0524,
+            "calmar": -0.8313,
+            "pf": 0.5931,
+            "win_rate": 0.4286,
+            "trades": 49
+          }
+        }
+      ],
+      "wfo_aggregate": {
+        "cagr": -0.0051,
+        "max_dd": -0.0524,
+        "calmar": -0.0981,
+        "pf": 1.0009,
+        "win_rate": 0.5049,
+        "trades": 574
+      },
+      "best_family": {
+        "atr_len": 10,
+        "sl_atr": 1.5,
+        "tp_r": 0.0
+      },
+      "holdout_2021_plus": {
+        "cagr": -0.0041,
+        "max_dd": -0.0641,
+        "calmar": -0.0638,
+        "pf": 0.9172,
+        "win_rate": 0.4818,
+        "trades": 274
+      }
+    }
+  }
+}
