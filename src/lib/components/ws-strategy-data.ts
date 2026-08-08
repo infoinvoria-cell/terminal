@@ -257,14 +257,14 @@ const ANOMALY: StrategyRow[] = [
     engine: "Friday Long", pillar: "anomaly", weight: 9,
     sharpeOos: 1.54, cagr: "+4.18%", maxDd: "−6.87%", calmar: 0.61, pf: 2.28, trades: 377, wfOos: null,
     status: "active", dataFile: "anomaly/gc1_friday_long.json", exchange: "COMEX",
-    isNotes: "OOS 2019–2026 · Walk-Forward approved · IS 2004–2018 (1096 trades) · v1.3 weight 15%",
+    isNotes: "OOS 2019–2026 · Walk-Forward approved · IS 2004–2018 (1096 trades) · v1.3 weight 15% · v2 Backtrader audit pending",
   },
   {
     id: "gld_thursday", ticker: "GLD", label: "Gold ETF", group: "Anomaly",
     engine: "Thursday Long", pillar: "anomaly", weight: 9,
     sharpeOos: 0.506, cagr: "+3.38%", maxDd: "−7.29%", calmar: 0.46, pf: 1.21, trades: 379, wfOos: null,
     status: "active", dataFile: "anomaly/gld_thursday_long.json", exchange: "ARCA",
-    isNotes: "OOS 2019–2026 · Walk-Forward approved · IS 2004–2018 (717 trades) · v1.3 weight 15%",
+    isNotes: "OOS 2019–2026 · Walk-Forward approved · IS 2004–2018 (717 trades) · v1.3 weight 15% · v2 Backtrader audit pending",
   },
   {
     id: "ym1_tat", ticker: "YM1!", label: "Dow Jones — TAT", group: "Anomaly",
@@ -272,6 +272,14 @@ const ANOMALY: StrategyRow[] = [
     sharpeOos: 0.348, cagr: "+1.24%", maxDd: "−6.64%", calmar: 0.19, pf: 1.21, trades: 164, wfOos: null,
     status: "active", dataFile: "anomaly/ym1_tat.json", exchange: "CBOT",
     isNotes: "OOS 2019–2026 · Walk-Forward approved · IS 2002–2018 (873 trades) · v1.3 weight 15%",
+  },
+  {
+    id: "fdax_tat", ticker: "FDAX1!", label: "DAX — Turnaround Tuesday", group: "Anomaly",
+    engine: "TAT · Mon 17:30 → Wed 17:30 · ATR SL/TP · Regime Risk Scale",
+    pillar: "anomaly", weight: null,
+    sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null,
+    status: "research", exchange: "EUREX",
+    isNotes: "v2 Backtrader audit in progress · WFO 2007–2020 · Final OOS 2021+ · Source: EUREX FDAX 30m · Regime: VIX, US10Y, DAX-ATR · Reference WFO CAGR 2.08% (provisional, not Backtrader-verified)",
   },
 ];
 
@@ -316,7 +324,7 @@ export const PILLAR_META: Record<Pillar, { label: string; weight: string; color:
   macro:     { label: "Macro",     weight: "Research", color: "#e8a020", count: 2 },
   trend:     { label: "Trend",     weight: "Research", color: "#00c8a0", count: 3 },
   seasonal:  { label: "Seasonal",  weight: "40%",      color: "#a78bfa", count: 12 },
-  anomaly:   { label: "Anomaly",   weight: "27%",      color: "#f472b6", count: 3 },
+  anomaly:   { label: "Anomaly",   weight: "27%",      color: "#f472b6", count: 4 },
   intraday:  { label: "Intraday",  weight: "33%",      color: "#94a3b8", count: 3 },
 };
 
