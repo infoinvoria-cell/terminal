@@ -1,0 +1,1342 @@
+{
+  "manifest": {
+    "audit_version": "v3",
+    "run_timestamp": "2026-08-09T11:14:36.012545Z",
+    "execution_model": "CLOSE-FILL (cheat-on-close). Entry at signal bar CLOSE.",
+    "cost_model": {
+      "GC_commission_per_side_usd": 0.85,
+      "GC_slippage_ticks_per_side": 1,
+      "GC_tick_value_usd": 10.0,
+      "GC_RT_cost_per_lot_usd": 21.7,
+      "FDAX_commission_per_side_eur": 2.5,
+      "FDAX_spread_pct_per_side": 0.00075,
+      "GLD_commission_pct_per_side": 0.0002
+    },
+    "data_manifest": {
+      "GC1_240m": {
+        "path": "C:\\Users\\joris\\Downloads\\COMEX_DL_GC1!, 240_dc277.csv",
+        "rows": 15431,
+        "first": "2016-06-03",
+        "last": "2026-06-04",
+        "note": "DATA-LIMITED: starts 2016-06. Only 3 WFO folds possible pre-2021. Pre-2016 not found."
+      },
+      "GC1_1D": {
+        "path": "C:\\Users\\joris\\Downloads\\COMEX_DL_GC1!, 1D_d451f.csv",
+        "rows": 12945,
+        "first": "1975-01-02",
+        "last": "2026-06-18",
+        "note": "Daily GC1! available 1975+. Used for ATR reference only; 240m signal cannot be reconstructed from daily."
+      },
+      "FDAX_30m": {
+        "path": "C:\\Users\\joris\\Downloads\\EUREX_FDAX_30min_gesamt_2007-2026.csv",
+        "rows": 166850,
+        "first": "2007-03-13",
+        "last": "2026-07-14"
+      },
+      "GLD_1D": {
+        "path": "C:\\Users\\joris\\Downloads\\BATS_GLD, 1D_4975f.csv",
+        "rows": 5437,
+        "first": "2004-11-18",
+        "last": "2026-07-01"
+      },
+      "VIX_1D": {
+        "rows": 9202
+      },
+      "US10Y_1D": {
+        "rows": 10834
+      },
+      "DXY_1D": {
+        "rows": 10292
+      }
+    }
+  },
+  "phase4_signal_layer_a": {
+    "gold_friday_long": {
+      "n_trades": 508,
+      "win_rate": 0.4862,
+      "pf_r": 1.083,
+      "avg_r": 0.0189,
+      "avg_win_r": 0.5073,
+      "avg_loss_r": -0.4433,
+      "payoff_ratio": 1.1444,
+      "max_losing_streak": 8
+    },
+    "gld_thursday_long": {
+      "n_trades": 1094,
+      "win_rate": 0.5366,
+      "pf_r": 1.3991,
+      "avg_r": 0.1301,
+      "avg_win_r": 0.8502,
+      "avg_loss_r": -0.7036,
+      "payoff_ratio": 1.2084,
+      "max_losing_streak": 9
+    },
+    "dax_turnaround_tuesday": {
+      "n_trades": 959,
+      "win_rate": 0.5057,
+      "pf_r": 0.8825,
+      "avg_r": -0.0224,
+      "avg_win_r": 0.3334,
+      "avg_loss_r": -0.3866,
+      "payoff_ratio": 0.8625,
+      "max_losing_streak": 8
+    }
+  },
+  "phase5_grid_search": {
+    "gold_friday_long_top5": [
+      {
+        "params": {
+          "atr_len": 14,
+          "sl_atr": 1.5,
+          "rr": 1.25
+        },
+        "is_metrics": {
+          "cagr": 0.0581,
+          "max_dd": -0.0531,
+          "calmar": 1.0954,
+          "pf": 1.6678,
+          "win_rate": 0.5021,
+          "trades": 233,
+          "final_value": 129112.2,
+          "avg_r": 0.0541
+        },
+        "signal": {
+          "n_trades": 233,
+          "win_rate": 0.5021,
+          "pf_r": 1.2817,
+          "avg_r": 0.0541,
+          "avg_win_r": 0.4897,
+          "avg_loss_r": -0.3854,
+          "payoff_ratio": 1.2708,
+          "max_losing_streak": 7
+        }
+      },
+      {
+        "params": {
+          "atr_len": 14,
+          "sl_atr": 1.5,
+          "rr": 1.0
+        },
+        "is_metrics": {
+          "cagr": 0.0578,
+          "max_dd": -0.058,
+          "calmar": 0.9967,
+          "pf": 1.6649,
+          "win_rate": 0.5064,
+          "trades": 233,
+          "final_value": 128923.06,
+          "avg_r": 0.0487
+        },
+        "signal": {
+          "n_trades": 233,
+          "win_rate": 0.5064,
+          "pf_r": 1.2545,
+          "avg_r": 0.0487,
+          "avg_win_r": 0.4745,
+          "avg_loss_r": -0.3881,
+          "payoff_ratio": 1.2226,
+          "max_losing_streak": 7
+        }
+      },
+      {
+        "params": {
+          "atr_len": 21,
+          "sl_atr": 1.5,
+          "rr": 1.0
+        },
+        "is_metrics": {
+          "cagr": 0.0588,
+          "max_dd": -0.0605,
+          "calmar": 0.9718,
+          "pf": 1.6616,
+          "win_rate": 0.5064,
+          "trades": 233,
+          "final_value": 129469.26,
+          "avg_r": 0.0586
+        },
+        "signal": {
+          "n_trades": 233,
+          "win_rate": 0.5064,
+          "pf_r": 1.299,
+          "avg_r": 0.0586,
+          "avg_win_r": 0.5032,
+          "avg_loss_r": -0.3975,
+          "payoff_ratio": 1.2659,
+          "max_losing_streak": 7
+        }
+      },
+      {
+        "params": {
+          "atr_len": 21,
+          "sl_atr": 1.5,
+          "rr": 1.25
+        },
+        "is_metrics": {
+          "cagr": 0.0572,
+          "max_dd": -0.0569,
+          "calmar": 1.0054,
+          "pf": 1.6448,
+          "win_rate": 0.5021,
+          "trades": 233,
+          "final_value": 128609.18,
+          "avg_r": 0.0569
+        },
+        "signal": {
+          "n_trades": 233,
+          "win_rate": 0.5021,
+          "pf_r": 1.2895,
+          "avg_r": 0.0569,
+          "avg_win_r": 0.5047,
+          "avg_loss_r": -0.3947,
+          "payoff_ratio": 1.2785,
+          "max_losing_streak": 7
+        }
+      },
+      {
+        "params": {
+          "atr_len": 21,
+          "sl_atr": 2.0,
+          "rr": 1.0
+        },
+        "is_metrics": {
+          "cagr": 0.0574,
+          "max_dd": -0.0662,
+          "calmar": 0.8683,
+          "pf": 1.6326,
+          "win_rate": 0.5021,
+          "trades": 233,
+          "final_value": 128741.98,
+          "avg_r": 0.0448
+        },
+        "signal": {
+          "n_trades": 233,
+          "win_rate": 0.5021,
+          "pf_r": 1.299,
+          "avg_r": 0.0448,
+          "avg_win_r": 0.3876,
+          "avg_loss_r": -0.3009,
+          "payoff_ratio": 1.2879,
+          "max_losing_streak": 7
+        }
+      }
+    ],
+    "gld_thursday_long_top5": [
+      {
+        "params": {
+          "atr_len": 10,
+          "sl_atr": 0.75,
+          "tp_r": 0.0
+        },
+        "is_metrics": {
+          "cagr": 0.0557,
+          "max_dd": -0.1049,
+          "calmar": 0.5307,
+          "pf": 1.4442,
+          "win_rate": 0.5471,
+          "trades": 817,
+          "final_value": 238866.52,
+          "avg_r": 0.1319
+        },
+        "signal": {
+          "n_trades": 817,
+          "win_rate": 0.5459,
+          "pf_r": 1.416,
+          "avg_r": 0.1319,
+          "avg_win_r": 0.8227,
+          "avg_loss_r": -0.6985,
+          "payoff_ratio": 1.1779,
+          "max_losing_streak": 9
+        }
+      },
+      {
+        "params": {
+          "atr_len": 7,
+          "sl_atr": 0.75,
+          "tp_r": 0.0
+        },
+        "is_metrics": {
+          "cagr": 0.0554,
+          "max_dd": -0.1115,
+          "calmar": 0.497,
+          "pf": 1.435,
+          "win_rate": 0.5483,
+          "trades": 817,
+          "final_value": 237880.16,
+          "avg_r": 0.1348
+        },
+        "signal": {
+          "n_trades": 817,
+          "win_rate": 0.5471,
+          "pf_r": 1.4265,
+          "avg_r": 0.1348,
+          "avg_win_r": 0.824,
+          "avg_loss_r": -0.6978,
+          "payoff_ratio": 1.1808,
+          "max_losing_streak": 9
+        }
+      },
+      {
+        "params": {
+          "atr_len": 7,
+          "sl_atr": 1.0,
+          "tp_r": 2.0
+        },
+        "is_metrics": {
+          "cagr": 0.0412,
+          "max_dd": -0.0985,
+          "calmar": 0.4187,
+          "pf": 1.4219,
+          "win_rate": 0.5581,
+          "trades": 817,
+          "final_value": 191448.1,
+          "avg_r": 0.0988
+        },
+        "signal": {
+          "n_trades": 817,
+          "win_rate": 0.5569,
+          "pf_r": 1.4048,
+          "avg_r": 0.0988,
+          "avg_win_r": 0.6156,
+          "avg_loss_r": -0.5508,
+          "payoff_ratio": 1.1177,
+          "max_losing_streak": 9
+        }
+      },
+      {
+        "params": {
+          "atr_len": 20,
+          "sl_atr": 1.0,
+          "tp_r": 0.0
+        },
+        "is_metrics": {
+          "cagr": 0.0406,
+          "max_dd": -0.0861,
+          "calmar": 0.4718,
+          "pf": 1.4175,
+          "win_rate": 0.5558,
+          "trades": 815,
+          "final_value": 189335.41,
+          "avg_r": 0.0937
+        },
+        "signal": {
+          "n_trades": 815,
+          "win_rate": 0.5546,
+          "pf_r": 1.3841,
+          "avg_r": 0.0937,
+          "avg_win_r": 0.609,
+          "avg_loss_r": -0.5479,
+          "payoff_ratio": 1.1116,
+          "max_losing_streak": 9
+        }
+      },
+      {
+        "params": {
+          "atr_len": 14,
+          "sl_atr": 1.0,
+          "tp_r": 0.0
+        },
+        "is_metrics": {
+          "cagr": 0.0402,
+          "max_dd": -0.0942,
+          "calmar": 0.4268,
+          "pf": 1.4168,
+          "win_rate": 0.5551,
+          "trades": 816,
+          "final_value": 188309.52,
+          "avg_r": 0.0934
+        },
+        "signal": {
+          "n_trades": 816,
+          "win_rate": 0.5539,
+          "pf_r": 1.3832,
+          "avg_r": 0.0934,
+          "avg_win_r": 0.6087,
+          "avg_loss_r": -0.5464,
+          "payoff_ratio": 1.1139,
+          "max_losing_streak": 9
+        }
+      }
+    ],
+    "dax_turnaround_tuesday_top5": [
+      {
+        "params": {
+          "atr_len": 21,
+          "sl_atr": 2.0,
+          "rr": 1.0
+        },
+        "is_metrics": {
+          "cagr": 0.035,
+          "max_dd": -0.3909,
+          "calmar": 0.0895,
+          "pf": 1.1337,
+          "win_rate": 0.5084,
+          "trades": 297,
+          "final_value": 159696.78,
+          "avg_r": -0.0018
+        },
+        "signal": {
+          "n_trades": 297,
+          "win_rate": 0.5051,
+          "pf_r": 0.9911,
+          "avg_r": -0.0018,
+          "avg_win_r": 0.3892,
+          "avg_loss_r": -0.4007,
+          "payoff_ratio": 0.9712,
+          "max_losing_streak": 8
+        }
+      },
+      {
+        "params": {
+          "atr_len": 14,
+          "sl_atr": 1.5,
+          "rr": 1.0
+        },
+        "is_metrics": {
+          "cagr": 0.0343,
+          "max_dd": -0.4174,
+          "calmar": 0.0821,
+          "pf": 1.1296,
+          "win_rate": 0.5051,
+          "trades": 297,
+          "final_value": 158136.9,
+          "avg_r": 0.0006
+        },
+        "signal": {
+          "n_trades": 297,
+          "win_rate": 0.5017,
+          "pf_r": 1.0024,
+          "avg_r": 0.0006,
+          "avg_win_r": 0.5134,
+          "avg_loss_r": -0.5156,
+          "payoff_ratio": 0.9957,
+          "max_losing_streak": 7
+        }
+      },
+      {
+        "params": {
+          "atr_len": 7,
+          "sl_atr": 2.0,
+          "rr": 1.0
+        },
+        "is_metrics": {
+          "cagr": 0.0328,
+          "max_dd": -0.3843,
+          "calmar": 0.0854,
+          "pf": 1.1248,
+          "win_rate": 0.5084,
+          "trades": 297,
+          "final_value": 155167.22,
+          "avg_r": -0.0
+        },
+        "signal": {
+          "n_trades": 297,
+          "win_rate": 0.5051,
+          "pf_r": 0.9998,
+          "avg_r": -0.0,
+          "avg_win_r": 0.3626,
+          "avg_loss_r": -0.3701,
+          "payoff_ratio": 0.9798,
+          "max_losing_streak": 8
+        }
+      },
+      {
+        "params": {
+          "atr_len": 7,
+          "sl_atr": 1.5,
+          "rr": 2.0
+        },
+        "is_metrics": {
+          "cagr": 0.0321,
+          "max_dd": -0.4255,
+          "calmar": 0.0753,
+          "pf": 1.1213,
+          "win_rate": 0.5084,
+          "trades": 297,
+          "final_value": 153620.5,
+          "avg_r": 0.0035
+        },
+        "signal": {
+          "n_trades": 297,
+          "win_rate": 0.5051,
+          "pf_r": 1.0144,
+          "avg_r": 0.0035,
+          "avg_win_r": 0.484,
+          "avg_loss_r": -0.4869,
+          "payoff_ratio": 0.9941,
+          "max_losing_streak": 8
+        }
+      },
+      {
+        "params": {
+          "atr_len": 7,
+          "sl_atr": 2.0,
+          "rr": 1.5
+        },
+        "is_metrics": {
+          "cagr": 0.0321,
+          "max_dd": -0.3798,
+          "calmar": 0.0844,
+          "pf": 1.1213,
+          "win_rate": 0.5084,
+          "trades": 297,
+          "final_value": 153639.17,
+          "avg_r": 0.0002
+        },
+        "signal": {
+          "n_trades": 297,
+          "win_rate": 0.5051,
+          "pf_r": 1.0009,
+          "avg_r": 0.0002,
+          "avg_win_r": 0.363,
+          "avg_loss_r": -0.3701,
+          "payoff_ratio": 0.9809,
+          "max_losing_streak": 8
+        }
+      }
+    ]
+  },
+  "phase6_wfo": {
+    "gold_friday_long": {
+      "strategy": "GOLD Friday Long (GC1 240m)",
+      "folds": [
+        {
+          "fold": 1,
+          "is_start": "2017-01-01",
+          "is_end": "2019-01-01",
+          "oos_start": "2019-01-01",
+          "oos_end": "2020-01-01",
+          "best_params": {
+            "atr_len": 10,
+            "sl_atr": 1.5,
+            "rr": 1.25
+          },
+          "is_pf": 1.0636,
+          "is_trades": 102,
+          "oos_metrics": {
+            "cagr": 0.0314,
+            "max_dd": -0.0223,
+            "calmar": 1.409,
+            "pf": 1.3758,
+            "win_rate": 0.549,
+            "trades": 51,
+            "final_value": 103071.05,
+            "avg_r": 0.0232
+          },
+          "oos_signal": {
+            "n_trades": 51,
+            "win_rate": 0.549,
+            "pf_r": 1.1219,
+            "avg_r": 0.0232,
+            "avg_win_r": 0.3883,
+            "avg_loss_r": -0.4213,
+            "payoff_ratio": 0.9215,
+            "max_losing_streak": 5
+          }
+        },
+        {
+          "fold": 2,
+          "is_start": "2018-01-01",
+          "is_end": "2020-01-01",
+          "oos_start": "2020-01-01",
+          "oos_end": "2021-01-01",
+          "best_params": {
+            "atr_len": 10,
+            "sl_atr": 1.5,
+            "rr": 1.0
+          },
+          "is_pf": 1.1677,
+          "is_trades": 102,
+          "oos_metrics": {
+            "cagr": 0.1914,
+            "max_dd": -0.0303,
+            "calmar": 6.3105,
+            "pf": 2.4285,
+            "win_rate": 0.6,
+            "trades": 50,
+            "final_value": 118274.5,
+            "avg_r": 0.1532
+          },
+          "oos_signal": {
+            "n_trades": 50,
+            "win_rate": 0.6,
+            "pf_r": 1.9501,
+            "avg_r": 0.1532,
+            "avg_win_r": 0.5242,
+            "avg_loss_r": -0.4032,
+            "payoff_ratio": 1.3001,
+            "max_losing_streak": 3
+          }
+        }
+      ],
+      "wfo_aggregate": {
+        "n_folds": 2,
+        "positive_folds": 2,
+        "avg_pf": 1.9022,
+        "avg_cagr": 0.1114,
+        "min_max_dd": -0.0303,
+        "avg_calmar": 3.6766,
+        "total_oos_trades": 101
+      },
+      "best_family": {
+        "atr_len": 10,
+        "sl_atr": 1.5,
+        "rr": 1.25
+      },
+      "holdout_2021_plus": {
+        "cagr": -0.0648,
+        "max_dd": -0.4909,
+        "calmar": -0.132,
+        "pf": 0.8665,
+        "win_rate": 0.4764,
+        "trades": 275,
+        "final_value": 69705.86,
+        "avg_r": -0.0122
+      },
+      "holdout_signal": {
+        "n_trades": 275,
+        "win_rate": 0.4764,
+        "pf_r": 0.9531,
+        "avg_r": -0.0122,
+        "avg_win_r": 0.5212,
+        "avg_loss_r": -0.4975,
+        "payoff_ratio": 1.0477,
+        "max_losing_streak": 8
+      },
+      "holdout_yearly": {
+        "2021": 0.0195,
+        "2022": -0.0652,
+        "2023": 0.0292,
+        "2024": -0.08,
+        "2025": 0.2022,
+        "2026": -0.3574
+      }
+    },
+    "gld_thursday_long": {
+      "strategy": "GLD Thursday Long (1D)",
+      "folds": [
+        {
+          "fold": 1,
+          "is_start": "2010-01-01",
+          "is_end": "2015-01-01",
+          "oos_start": "2015-01-01",
+          "oos_end": "2016-01-01",
+          "best_params": {
+            "atr_len": 10,
+            "sl_atr": 0.75,
+            "tp_r": 0.0
+          },
+          "is_pf": 1.4515,
+          "is_trades": 251,
+          "oos_metrics": {
+            "cagr": 0.0414,
+            "max_dd": -0.0259,
+            "calmar": 1.5946,
+            "pf": 1.3121,
+            "win_rate": 0.5102,
+            "trades": 49,
+            "final_value": 103915.5,
+            "avg_r": 0.0747
+          },
+          "oos_signal": {
+            "n_trades": 49,
+            "win_rate": 0.5102,
+            "pf_r": 1.2021,
+            "avg_r": 0.0747,
+            "avg_win_r": 0.8703,
+            "avg_loss_r": -0.7542,
+            "payoff_ratio": 1.154,
+            "max_losing_streak": 6
+          }
+        },
+        {
+          "fold": 2,
+          "is_start": "2011-01-01",
+          "is_end": "2016-01-01",
+          "oos_start": "2016-01-01",
+          "oos_end": "2017-01-01",
+          "best_params": {
+            "atr_len": 10,
+            "sl_atr": 0.75,
+            "tp_r": 0.0
+          },
+          "is_pf": 1.433,
+          "is_trades": 250,
+          "oos_metrics": {
+            "cagr": 0.0376,
+            "max_dd": -0.0574,
+            "calmar": 0.6547,
+            "pf": 1.2115,
+            "win_rate": 0.4286,
+            "trades": 49,
+            "final_value": 103526.84,
+            "avg_r": 0.04
+          },
+          "oos_signal": {
+            "n_trades": 49,
+            "win_rate": 0.4286,
+            "pf_r": 1.0946,
+            "avg_r": 0.04,
+            "avg_win_r": 1.0812,
+            "avg_loss_r": -0.7409,
+            "payoff_ratio": 1.4594,
+            "max_losing_streak": 7
+          }
+        },
+        {
+          "fold": 3,
+          "is_start": "2012-01-01",
+          "is_end": "2017-01-01",
+          "oos_start": "2017-01-01",
+          "oos_end": "2018-01-01",
+          "best_params": {
+            "atr_len": 20,
+            "sl_atr": 1.0,
+            "tp_r": 0.0
+          },
+          "is_pf": 1.2747,
+          "is_trades": 249,
+          "oos_metrics": {
+            "cagr": 0.0539,
+            "max_dd": -0.0285,
+            "calmar": 1.8903,
+            "pf": 1.5406,
+            "win_rate": 0.6383,
+            "trades": 47,
+            "final_value": 104839.11,
+            "avg_r": 0.1233
+          },
+          "oos_signal": {
+            "n_trades": 47,
+            "win_rate": 0.6383,
+            "pf_r": 1.56,
+            "avg_r": 0.1233,
+            "avg_win_r": 0.5381,
+            "avg_loss_r": -0.6088,
+            "payoff_ratio": 0.884,
+            "max_losing_streak": 2
+          }
+        },
+        {
+          "fold": 4,
+          "is_start": "2013-01-01",
+          "is_end": "2018-01-01",
+          "oos_start": "2018-01-01",
+          "oos_end": "2019-01-01",
+          "best_params": {
+            "atr_len": 20,
+            "sl_atr": 1.0,
+            "tp_r": 0.0
+          },
+          "is_pf": 1.3083,
+          "is_trades": 249,
+          "oos_metrics": {
+            "cagr": 0.0265,
+            "max_dd": -0.0176,
+            "calmar": 1.5046,
+            "pf": 1.2911,
+            "win_rate": 0.5106,
+            "trades": 47,
+            "final_value": 102385.64,
+            "avg_r": 0.0441
+          },
+          "oos_signal": {
+            "n_trades": 47,
+            "win_rate": 0.5106,
+            "pf_r": 1.1599,
+            "avg_r": 0.0441,
+            "avg_win_r": 0.6271,
+            "avg_loss_r": -0.5641,
+            "payoff_ratio": 1.1116,
+            "max_losing_streak": 4
+          }
+        },
+        {
+          "fold": 5,
+          "is_start": "2014-01-01",
+          "is_end": "2019-01-01",
+          "oos_start": "2019-01-01",
+          "oos_end": "2020-01-01",
+          "best_params": {
+            "atr_len": 7,
+            "sl_atr": 1.0,
+            "tp_r": 2.0
+          },
+          "is_pf": 1.4074,
+          "is_trades": 252,
+          "oos_metrics": {
+            "cagr": 0.0352,
+            "max_dd": -0.0285,
+            "calmar": 1.2371,
+            "pf": 1.3611,
+            "win_rate": 0.5102,
+            "trades": 49,
+            "final_value": 103374.57,
+            "avg_r": 0.0893
+          },
+          "oos_signal": {
+            "n_trades": 49,
+            "win_rate": 0.5102,
+            "pf_r": 1.3737,
+            "avg_r": 0.0893,
+            "avg_win_r": 0.6434,
+            "avg_loss_r": -0.4879,
+            "payoff_ratio": 1.3188,
+            "max_losing_streak": 4
+          }
+        },
+        {
+          "fold": 6,
+          "is_start": "2015-01-01",
+          "is_end": "2020-01-01",
+          "oos_start": "2020-01-01",
+          "oos_end": "2021-01-01",
+          "best_params": {
+            "atr_len": 7,
+            "sl_atr": 1.0,
+            "tp_r": 2.0
+          },
+          "is_pf": 1.4237,
+          "is_trades": 253,
+          "oos_metrics": {
+            "cagr": 0.0485,
+            "max_dd": -0.0183,
+            "calmar": 2.6562,
+            "pf": 1.5352,
+            "win_rate": 0.5714,
+            "trades": 49,
+            "final_value": 104593.07,
+            "avg_r": 0.1277
+          },
+          "oos_signal": {
+            "n_trades": 49,
+            "win_rate": 0.5714,
+            "pf_r": 1.65,
+            "avg_r": 0.1277,
+            "avg_win_r": 0.5671,
+            "avg_loss_r": -0.4582,
+            "payoff_ratio": 1.2375,
+            "max_losing_streak": 3
+          }
+        }
+      ],
+      "wfo_aggregate": {
+        "n_folds": 6,
+        "positive_folds": 6,
+        "avg_pf": 1.3753,
+        "avg_cagr": 0.0405,
+        "min_max_dd": -0.0574,
+        "avg_calmar": 0.7059,
+        "total_oos_trades": 290
+      },
+      "best_family": {
+        "atr_len": 10,
+        "sl_atr": 0.75,
+        "tp_r": 0.0
+      },
+      "holdout_2021_plus": {
+        "cagr": 0.0496,
+        "max_dd": -0.0564,
+        "calmar": 0.8801,
+        "pf": 1.4117,
+        "win_rate": 0.5109,
+        "trades": 274,
+        "final_value": 130022.93,
+        "avg_r": 0.1217
+      },
+      "holdout_signal": {
+        "n_trades": 274,
+        "win_rate": 0.5109,
+        "pf_r": 1.3493,
+        "avg_r": 0.1217,
+        "avg_win_r": 0.9204,
+        "avg_loss_r": -0.7127,
+        "payoff_ratio": 1.2914,
+        "max_losing_streak": 8
+      },
+      "holdout_yearly": {
+        "2021": 0.016,
+        "2022": -0.0049,
+        "2023": 0.0629,
+        "2024": 0.0954,
+        "2025": 0.076,
+        "2026": 0.0266
+      }
+    },
+    "dax_turnaround_tuesday": {
+      "strategy": "DAX Turnaround Tuesday (FDAX 30m)",
+      "folds": [
+        {
+          "fold": 1,
+          "is_start": "2013-01-01",
+          "is_end": "2018-01-01",
+          "oos_start": "2018-01-01",
+          "oos_end": "2019-01-01",
+          "best_params": {
+            "atr_len": 7,
+            "sl_atr": 1.5,
+            "rr": 1.0
+          },
+          "is_pf": 1.1622,
+          "is_trades": 105,
+          "oos_metrics": {
+            "cagr": -0.2791,
+            "max_dd": -0.335,
+            "calmar": -0.8331,
+            "pf": 0.4634,
+            "win_rate": 0.4286,
+            "trades": 21,
+            "final_value": 74002.49,
+            "avg_r": -0.233
+          },
+          "oos_signal": {
+            "n_trades": 21,
+            "win_rate": 0.381,
+            "pf_r": 0.3526,
+            "avg_r": -0.233,
+            "avg_win_r": 0.3331,
+            "avg_loss_r": -0.5814,
+            "payoff_ratio": 0.573,
+            "max_losing_streak": 4
+          }
+        },
+        {
+          "fold": 2,
+          "is_start": "2014-01-01",
+          "is_end": "2019-01-01",
+          "oos_start": "2019-01-01",
+          "oos_end": "2020-01-01",
+          "best_params": {
+            "atr_len": 7,
+            "sl_atr": 1.5,
+            "rr": 1.0
+          },
+          "is_pf": 0.9925,
+          "is_trades": 105,
+          "oos_metrics": {
+            "cagr": 0.0841,
+            "max_dd": -0.0732,
+            "calmar": 1.1496,
+            "pf": 1.3359,
+            "win_rate": 0.6667,
+            "trades": 18,
+            "final_value": 107380.71,
+            "avg_r": 0.0834
+          },
+          "oos_signal": {
+            "n_trades": 18,
+            "win_rate": 0.6667,
+            "pf_r": 1.4777,
+            "avg_r": 0.0834,
+            "avg_win_r": 0.3869,
+            "avg_loss_r": -0.5237,
+            "payoff_ratio": 0.7389,
+            "max_losing_streak": 2
+          }
+        },
+        {
+          "fold": 3,
+          "is_start": "2015-01-01",
+          "is_end": "2020-01-01",
+          "oos_start": "2020-01-01",
+          "oos_end": "2021-01-01",
+          "best_params": {
+            "atr_len": 7,
+            "sl_atr": 1.5,
+            "rr": 1.5
+          },
+          "is_pf": 1.0165,
+          "is_trades": 100,
+          "oos_metrics": {
+            "cagr": 0.4866,
+            "max_dd": -0.1438,
+            "calmar": 3.3834,
+            "pf": 1.7562,
+            "win_rate": 0.6087,
+            "trades": 23,
+            "final_value": 142926.77,
+            "avg_r": 0.1407
+          },
+          "oos_signal": {
+            "n_trades": 23,
+            "win_rate": 0.6087,
+            "pf_r": 1.6435,
+            "avg_r": 0.1407,
+            "avg_win_r": 0.5905,
+            "avg_loss_r": -0.5589,
+            "payoff_ratio": 1.0566,
+            "max_losing_streak": 2
+          }
+        }
+      ],
+      "wfo_aggregate": {
+        "n_folds": 3,
+        "positive_folds": 2,
+        "avg_pf": 1.1852,
+        "avg_cagr": 0.0972,
+        "min_max_dd": -0.335,
+        "avg_calmar": 0.2901,
+        "total_oos_trades": 62
+      },
+      "best_family": {
+        "atr_len": 7,
+        "sl_atr": 1.5,
+        "rr": 1.0
+      },
+      "holdout_2021_plus": {
+        "cagr": 0.0797,
+        "max_dd": -0.2022,
+        "calmar": 0.3942,
+        "pf": 1.1715,
+        "win_rate": 0.5041,
+        "trades": 121,
+        "final_value": 152020.9,
+        "avg_r": -0.0073
+      },
+      "holdout_signal": {
+        "n_trades": 121,
+        "win_rate": 0.5041,
+        "pf_r": 0.9724,
+        "avg_r": -0.0073,
+        "avg_win_r": 0.5081,
+        "avg_loss_r": -0.5313,
+        "payoff_ratio": 0.9564,
+        "max_losing_streak": 4
+      },
+      "holdout_yearly": {
+        "2021": 0.102,
+        "2022": 0.3991,
+        "2023": -0.0263,
+        "2024": -0.0283,
+        "2025": 0.178,
+        "2026": -0.1154
+      }
+    }
+  },
+  "phase7_holdout": {
+    "gold_friday_long": {
+      "cagr": -0.0648,
+      "max_dd": -0.4909,
+      "calmar": -0.132,
+      "pf": 0.8665,
+      "win_rate": 0.4764,
+      "trades": 275,
+      "final_value": 69705.86,
+      "avg_r": -0.0122,
+      "signal": {
+        "n_trades": 275,
+        "win_rate": 0.4764,
+        "pf_r": 0.9531,
+        "avg_r": -0.0122,
+        "avg_win_r": 0.5212,
+        "avg_loss_r": -0.4975,
+        "payoff_ratio": 1.0477,
+        "max_losing_streak": 8
+      },
+      "yearly": {
+        "2021": 0.0195,
+        "2022": -0.0652,
+        "2023": 0.0292,
+        "2024": -0.08,
+        "2025": 0.2022,
+        "2026": -0.3574
+      },
+      "best_family": {
+        "atr_len": 10,
+        "sl_atr": 1.5,
+        "rr": 1.25
+      }
+    },
+    "gld_thursday_long": {
+      "cagr": 0.0496,
+      "max_dd": -0.0564,
+      "calmar": 0.8801,
+      "pf": 1.4117,
+      "win_rate": 0.5109,
+      "trades": 274,
+      "final_value": 130022.93,
+      "avg_r": 0.1217,
+      "signal": {
+        "n_trades": 274,
+        "win_rate": 0.5109,
+        "pf_r": 1.3493,
+        "avg_r": 0.1217,
+        "avg_win_r": 0.9204,
+        "avg_loss_r": -0.7127,
+        "payoff_ratio": 1.2914,
+        "max_losing_streak": 8
+      },
+      "yearly": {
+        "2021": 0.016,
+        "2022": -0.0049,
+        "2023": 0.0629,
+        "2024": 0.0954,
+        "2025": 0.076,
+        "2026": 0.0266
+      },
+      "best_family": {
+        "atr_len": 10,
+        "sl_atr": 0.75,
+        "tp_r": 0.0
+      }
+    },
+    "dax_turnaround_tuesday": {
+      "cagr": 0.0797,
+      "max_dd": -0.2022,
+      "calmar": 0.3942,
+      "pf": 1.1715,
+      "win_rate": 0.5041,
+      "trades": 121,
+      "final_value": 152020.9,
+      "avg_r": -0.0073,
+      "signal": {
+        "n_trades": 121,
+        "win_rate": 0.5041,
+        "pf_r": 0.9724,
+        "avg_r": -0.0073,
+        "avg_win_r": 0.5081,
+        "avg_loss_r": -0.5313,
+        "payoff_ratio": 0.9564,
+        "max_losing_streak": 4
+      },
+      "yearly": {
+        "2021": 0.102,
+        "2022": 0.3991,
+        "2023": -0.0263,
+        "2024": -0.0283,
+        "2025": 0.178,
+        "2026": -0.1154
+      },
+      "best_family": {
+        "atr_len": 7,
+        "sl_atr": 1.5,
+        "rr": 1.0
+      }
+    }
+  },
+  "phase8_regime": {
+    "gld_no_regime_holdout": {
+      "cagr": 0.0605,
+      "max_dd": -0.0997,
+      "calmar": 0.6063,
+      "pf": 1.349,
+      "win_rate": 0.5109,
+      "trades": 274,
+      "final_value": 137487.86,
+      "avg_r": 0.1217
+    },
+    "gld_with_regime_holdout": {
+      "cagr": 0.0496,
+      "max_dd": -0.0564,
+      "calmar": 0.8801,
+      "pf": 1.4117,
+      "win_rate": 0.5109,
+      "trades": 274,
+      "final_value": 130022.93,
+      "avg_r": 0.1217
+    },
+    "dax_no_regime_holdout": {
+      "cagr": -0.1497,
+      "max_dd": -0.7056,
+      "calmar": -0.2122,
+      "pf": 0.9118,
+      "win_rate": 0.4727,
+      "trades": 275,
+      "final_value": 41237.08,
+      "avg_r": -0.0486
+    },
+    "dax_with_regime_holdout": {
+      "cagr": 0.0797,
+      "max_dd": -0.2022,
+      "calmar": 0.3942,
+      "pf": 1.1715,
+      "win_rate": 0.5041,
+      "trades": 121,
+      "final_value": 152020.9,
+      "avg_r": -0.0073
+    }
+  },
+  "phase10_stress": {
+    "gold": {
+      "baseline": {
+        "cagr": -0.0648,
+        "max_dd": -0.4909,
+        "calmar": -0.132,
+        "pf": 0.8665,
+        "win_rate": 0.4764,
+        "trades": 275,
+        "final_value": 69705.86,
+        "avg_r": -0.0122
+      },
+      "costs_1_5x": {
+        "cagr": -0.0724,
+        "max_dd": -0.5026,
+        "calmar": -0.144,
+        "pf": 0.8544,
+        "win_rate": 0.4764,
+        "trades": 275,
+        "final_value": 66722.11,
+        "avg_r": -0.0122
+      },
+      "costs_2x": {
+        "cagr": -0.0802,
+        "max_dd": -0.5147,
+        "calmar": -0.1559,
+        "pf": 0.8424,
+        "win_rate": 0.4727,
+        "trades": 275,
+        "final_value": 63738.36,
+        "avg_r": -0.0122
+      },
+      "sl_wide_20pct": {
+        "cagr": -0.0505,
+        "max_dd": -0.4872,
+        "calmar": -0.1036,
+        "pf": 0.8955,
+        "win_rate": 0.48,
+        "trades": 275,
+        "final_value": 75669.25,
+        "avg_r": 0.0011
+      },
+      "sl_narrow_20pct": {
+        "cagr": -0.0758,
+        "max_dd": -0.4699,
+        "calmar": -0.1612,
+        "pf": 0.8458,
+        "win_rate": 0.4691,
+        "trades": 275,
+        "final_value": 65428.0,
+        "avg_r": -0.0254
+      }
+    },
+    "gld": {
+      "baseline": {
+        "cagr": 0.0496,
+        "max_dd": -0.0564,
+        "calmar": 0.8801,
+        "pf": 1.4117,
+        "win_rate": 0.5109,
+        "trades": 274,
+        "final_value": 130022.93,
+        "avg_r": 0.1217
+      },
+      "costs_1_5x": {
+        "cagr": 0.0422,
+        "max_dd": -0.0589,
+        "calmar": 0.7172,
+        "pf": 1.3341,
+        "win_rate": 0.4781,
+        "trades": 274,
+        "final_value": 125158.87,
+        "avg_r": 0.1217
+      },
+      "costs_2x": {
+        "cagr": 0.0347,
+        "max_dd": -0.0615,
+        "calmar": 0.5632,
+        "pf": 1.2609,
+        "win_rate": 0.4672,
+        "trades": 274,
+        "final_value": 120294.81,
+        "avg_r": 0.1217
+      },
+      "sl_wide_20pct": {
+        "cagr": 0.032,
+        "max_dd": -0.0535,
+        "calmar": 0.5979,
+        "pf": 1.2924,
+        "win_rate": 0.5109,
+        "trades": 274,
+        "final_value": 118636.55,
+        "avg_r": 0.0789
+      },
+      "sl_narrow_20pct": {
+        "cagr": 0.0774,
+        "max_dd": -0.06,
+        "calmar": 1.2892,
+        "pf": 1.566,
+        "win_rate": 0.5036,
+        "trades": 274,
+        "final_value": 149838.46,
+        "avg_r": 0.1943
+      }
+    },
+    "dax": {
+      "baseline": {
+        "cagr": 0.0797,
+        "max_dd": -0.2022,
+        "calmar": 0.3942,
+        "pf": 1.1715,
+        "win_rate": 0.5041,
+        "trades": 121,
+        "final_value": 152020.9,
+        "avg_r": -0.0073
+      },
+      "costs_1_5x": {
+        "cagr": 0.0183,
+        "max_dd": -0.2724,
+        "calmar": 0.0672,
+        "pf": 1.0321,
+        "win_rate": 0.5041,
+        "trades": 121,
+        "final_value": 110419.74,
+        "avg_r": -0.0073
+      },
+      "costs_2x": {
+        "cagr": -0.0661,
+        "max_dd": -0.4984,
+        "calmar": -0.1327,
+        "pf": 0.9098,
+        "win_rate": 0.4711,
+        "trades": 121,
+        "final_value": 68818.58,
+        "avg_r": -0.0073
+      },
+      "sl_wide_20pct": {
+        "cagr": 0.0584,
+        "max_dd": -0.2168,
+        "calmar": 0.2695,
+        "pf": 1.1191,
+        "win_rate": 0.4959,
+        "trades": 121,
+        "final_value": 136361.91,
+        "avg_r": -0.0159
+      },
+      "sl_narrow_20pct": {
+        "cagr": 0.0296,
+        "max_dd": -0.2687,
+        "calmar": 0.1102,
+        "pf": 1.0536,
+        "win_rate": 0.5041,
+        "trades": 121,
+        "final_value": 117286.25,
+        "avg_r": -0.0275
+      }
+    }
+  },
+  "verdicts": {
+    "gold_friday_long": {
+      "verdict": "DATA-LIMITED",
+      "signal_pf_r": 1.083,
+      "wfo_folds": 2,
+      "wfo_positive_folds": 2,
+      "holdout_pf": 0.8665,
+      "holdout_cagr": -0.0648
+    },
+    "gld_thursday_long": {
+      "verdict": "KEEP",
+      "signal_pf_r": 1.3991,
+      "wfo_folds": 6,
+      "wfo_positive_folds": 6,
+      "holdout_pf": 1.4117,
+      "holdout_cagr": 0.0496
+    },
+    "dax_turnaround_tuesday": {
+      "verdict": "WATCH",
+      "signal_pf_r": 0.8825,
+      "wfo_folds": 3,
+      "wfo_positive_folds": 2,
+      "holdout_pf": 1.1715,
+      "holdout_cagr": 0.0797
+    }
+  }
+}

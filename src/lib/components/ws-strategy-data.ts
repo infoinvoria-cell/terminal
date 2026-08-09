@@ -250,22 +250,22 @@ const SEASONAL_ARCHIVED: StrategyRow[] = [
   { id: "kc1_arch", ticker: "KC1!", label: "Coffee",   group: "Agrar", engine: "—", pillar: "seasonal", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "ICEUS" },
 ];
 
-// ── Anomaly Pillar (WS v2.0 · 18% portfolio · 2 × 9%) ───────────────────────
-// Gold moved to watch (data-limited, 2016+ only). GLD confirmed KEEP via v2 close-fill audit.
+// ── Anomaly Pillar (WS v2.0 · 9% active · GLD confirmed · Gold/DAX research) ─
+// v3 audit 2026-08-09: GLD KEEP (6/6 WFO folds), Gold DATA-LIMITED, DAX WATCH (VIX regime).
 const ANOMALY: StrategyRow[] = [
   {
     id: "gc1_friday", ticker: "GC1!", label: "Gold", group: "Anomaly",
     engine: "Friday Long", pillar: "anomaly", weight: null,
-    sharpeOos: 1.54, cagr: "+4.18%", maxDd: "−6.87%", calmar: 0.61, pf: 2.28, trades: 377, wfOos: null,
+    sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null,
     status: "watch", dataFile: "anomaly/gc1_friday_long.json", exchange: "COMEX",
-    isNotes: "v2 Backtrader audit 2026-08-09: DATA-LIMITED — GC1! data from 2016-06 only · 3 WFO folds (2/3 positive) · holdout 2021+ PF 0.709 CAGR −10.25% · reference 547 trades implies 2003+ history needed · cannot validate or reject without pre-2016 data · weight suspended pending full data",
+    isNotes: "v3 audit 2026-08-09: DATA-LIMITED · signal PF(R) 1.083 positive · 240m data starts 2016-06 only → 2 WFO folds · holdout 2021+ PF 0.867 CAGR −6.48% (2026 draw −35.7%) · pre-2016 data required for full validation (CQG/CSI source) · weight suspended · GC1! daily 1975+ confirms Friday seasonal tendency at daily resolution",
   },
   {
     id: "gld_thursday", ticker: "GLD", label: "Gold ETF", group: "Anomaly",
     engine: "Thursday Close → Friday Close", pillar: "anomaly", weight: 9,
-    sharpeOos: 0.506, cagr: "+3.38%", maxDd: "−7.29%", calmar: 0.46, pf: 1.21, trades: 379, wfOos: "11/12",
+    sharpeOos: 0.506, cagr: "+4.96%", maxDd: "−5.64%", calmar: 0.88, pf: 1.41, trades: 274, wfOos: "6/6",
     status: "active", dataFile: "anomaly/gld_thursday_long.json", exchange: "ARCA",
-    isNotes: "v2 Backtrader audit 2026-08-09: CONFIRMED KEEP · close-fill execution · WFO 12 folds 11/12 positive · WFO OOS PF 1.4516 CAGR +3.54% · holdout 2021+ PF 1.155 CAGR +1.13% DD −3.82% 274 trades · Layer A signal PF(R) 1.36 win-rate 55.9% · all rejection gates passed · IS 2004–2020 · OOS 2021+ locked",
+    isNotes: "v3 audit 2026-08-09: CONFIRMED KEEP · signal PF(R) 1.399 win-rate 53.7% · WFO 6/6 folds positive PF 1.375 CAGR +4.05% · holdout 2021+ PF 1.412 CAGR +4.96% DD −5.64% 274 trades · survives 2× cost stress (PF 1.261) · locked params: ATR=10 SL=0.75× no-TP · IS 2004–2020 · v2 also confirmed 11/12 folds positive",
   },
   {
     id: "ym1_tat", ticker: "YM1!", label: "Dow Jones — TAT", group: "Anomaly",
@@ -276,11 +276,11 @@ const ANOMALY: StrategyRow[] = [
   },
   {
     id: "fdax_tat", ticker: "FDAX1!", label: "DAX — Turnaround Tuesday", group: "Anomaly",
-    engine: "TAT · Mon 17:30 → Wed 17:30 · ATR SL/TP · Regime Risk Scale",
+    engine: "TAT · Mon 17:30 → Wed 17:30 · daily ATR SL/TP · VIX regime filter",
     pillar: "anomaly", weight: null,
-    sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null,
+    sharpeOos: null, cagr: "+7.97%", maxDd: "−20.22%", calmar: 0.39, pf: 1.17, trades: 121, wfOos: "2/3",
     status: "research", exchange: "EUREX",
-    isNotes: "v2 Backtrader audit 2026-08-09: REJECT · close-fill execution confirmed · Layer A signal PF(R) 0.834 (below 1.0 — no edge at signal level) · WFO 9 folds 5/9 positive PF 0.981 · holdout 2021+ PF 0.725 CAGR −3.11% · all rejection gates satisfied · See reports/white_swan_strategy_audit.md",
+    isNotes: "v3 audit 2026-08-09: WATCH — not Core-ready · signal PF(R) 0.882 (below 1.0 gate) · with VIX regime filter: holdout 2021+ PF 1.171 CAGR +7.97% DD −20.22% · cost-sensitive: 1.5× costs PF 1.032, 2× costs negative · WFO 2/3 folds positive · promote to KEEP only if: signal PF(R) > 1.0 confirmed on longer IS or VIX filter validated pre-2021 in WFO",
   },
 ];
 
