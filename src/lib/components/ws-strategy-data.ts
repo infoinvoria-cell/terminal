@@ -258,7 +258,7 @@ const ANOMALY: StrategyRow[] = [
     engine: "Friday Long · Fri 18:00 UTC close → Mon close · ATR SL/TP", pillar: "anomaly", weight: null,
     sharpeOos: null, cagr: "+3.08%", maxDd: "−25.32%", calmar: 0.12, pf: 1.12, trades: 600, wfOos: "6/12",
     status: "watch", dataFile: "anomaly/gc1_friday_long.json", exchange: "COMEX",
-    isNotes: "v3c audit 2026-08-09 · full 2003-2026 (133k 60m bars) · IS PF(R) 1.293 (852 trades) · 97.5% of 80 param combos IS-profitable · WFO 12 folds 6/12 positive PF 1.121 CAGR +3.08% · holdout 2021+ PF 0.905 AvgR −0.059 (2022: −13.5R, 2023: −8.2R; recovery 2025: +2.5R) · holdout gate not met — weight suspended · locked: ATR=10 SL=0.75× RR=1.5",
+    isNotes: "v2 audit 2026-08-09 · DXY-filtered WFO OOS PF 1.332 (11/13 folds positive) · DXY regime: close<SMA20 — META-SELECTION BIAS disclosed (chosen from 3 candidates on same OOS data) · PnL concentration PASS (best year 19.8% of total) · GC/GLD Pearson correlation −0.254 (0 simultaneous drawdown years, 6/13 diverge) · KHV 2021-2026 DXY-filtered PF 0.767 CAGR −3.57% (not pristine holdout) · Classification D: GLD+GC genuinely complementary — portfolio Sharpe 1.973 vs GC alone 0.975 · diversification ratio 1.532 · locked: ATR=10 SL=0.75× RR=1.25 · DXY frozen — no param change after KHV · production weight PENDING forward live confirmation",
   },
   {
     id: "gld_thursday", ticker: "GLD", label: "Gold ETF", group: "Anomaly",

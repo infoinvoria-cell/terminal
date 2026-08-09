@@ -1,0 +1,99 @@
+{
+  "version": "v2",
+  "generated": "2026-08-09T13:45:22.592871",
+  "gld_file": "C:\\Users\\joris\\Downloads\\BATS_GLD, 1D_4975f.csv",
+  "locked_params_gc": {
+    "atr": 10,
+    "sl_mult": 0.75,
+    "rr": 1.25
+  },
+  "locked_params_gld": {
+    "atr": 10,
+    "sl_mult": 0.75,
+    "rr": null
+  },
+  "task1_dxy_audit": {
+    "meta_selection_bias": true,
+    "dxy_definition": "close < SMA(20), lookback=20 trading days",
+    "aggregate": {
+      "pf_unfiltered": 1.139,
+      "pf_filtered": 1.332,
+      "median_fold_pf_unfiltered": 1.111,
+      "median_fold_pf_filtered": 1.375,
+      "mean_fold_pf_unfiltered": 1.202,
+      "mean_fold_pf_filtered": 1.374,
+      "folds_pf_gt_1_0": 11,
+      "folds_pf_gt_1_1": 10,
+      "total_folds": 13,
+      "worst_fold_year": 2015,
+      "worst_fold_pf": 0.577,
+      "best_fold_year": 2013,
+      "best_fold_pf": 2.083,
+      "total_pnl_r": 50.5,
+      "pct_from_best_1yr": 19.8,
+      "pct_from_best_2yr": 39.1,
+      "pct_from_best_3yr": 51.0,
+      "concentration_flag": "PASS: PnL reasonably distributed across years"
+    },
+    "fold_count": 13
+  },
+  "task2_gld": {
+    "gld_is_metrics": {
+      "trades": 818,
+      "win_pct": 55.9,
+      "pf": 1.573,
+      "avg_r": 0.1718,
+      "total_r": 140.544,
+      "cagr": 8.85,
+      "max_dd_pct": 12.09,
+      "max_dd_r": 12.781,
+      "calmar": 0.732
+    },
+    "gld_khv_metrics": {
+      "trades": 276,
+      "win_pct": 53.6,
+      "pf": 1.463,
+      "avg_r": 0.1544,
+      "total_r": 42.602,
+      "cagr": 7.87,
+      "max_dd_pct": 8.69,
+      "max_dd_r": 9.0,
+      "calmar": 0.906
+    },
+    "comparison": {
+      "pearson": -0.254,
+      "both_positive": 7,
+      "both_negative": 0,
+      "diverge": 6,
+      "n_years": 13
+    }
+  },
+  "task3_khv": {
+    "label": "KNOWN HISTORICAL VALIDATION \u2014 NOT PRISTINE OOS",
+    "unfiltered_pf": 0.791,
+    "filtered_pf": 0.767,
+    "unfiltered_cagr": -6.52,
+    "filtered_cagr": -3.57,
+    "freeze_statement": "DXY regime definition frozen. No modification after viewing 2021-2026."
+  },
+  "task4_vehicles": {
+    "gross_avg_r": 0.1608,
+    "gc_net_pf": 1.267,
+    "mgc_net_pf": 1.146,
+    "gld_net_pf": 1.281
+  },
+  "task5_classification": {
+    "classification": "D",
+    "rationale": "Both GLD and GC viable, low correlation (-0.254), limited simultaneous drawdowns. Potential genuine diversification benefit \u2014 evaluate portfolio Sharpe.",
+    "evidence": {
+      "gld_is_pf": 1.573,
+      "gld_khv_pf": 1.463,
+      "gc_wfo_pf_dxy_filtered": 1.332,
+      "gc_khv_pf_dxy_filtered": 0.767,
+      "pearson_correlation": -0.254,
+      "both_neg_years": 0,
+      "diverge_years": 6,
+      "meta_selection_bias_disclosed": true
+    }
+  }
+}
