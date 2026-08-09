@@ -250,8 +250,8 @@ const SEASONAL_ARCHIVED: StrategyRow[] = [
   { id: "kc1_arch", ticker: "KC1!", label: "Coffee",   group: "Agrar", engine: "—", pillar: "seasonal", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "ICEUS" },
 ];
 
-// ── Anomaly Pillar (WS v3c · 9% active · GLD confirmed KEEP · Gold/DAX research) ──
-// v3c audit 2026-08-09: GLD KEEP, Gold WATCH (holdout gate not met), DAX research (base unfiltered).
+// ── Anomaly Pillar (WS clean audit 2026-08-09 · GLD KEEP · DAX REJECT) ──
+// clean audit 2026-08-09: DAX TAT REJECT — holdout 2021+ PF 0.995 (gate needs >1.0). WFO 6/9 positive PF 1.191 confirmed edge but post-2020 regime shift absorbs it. GLD sole active anomaly sleeve.
 const ANOMALY: StrategyRow[] = [
   {
     id: "gc1_friday", ticker: "GC1!", label: "Gold", group: "Anomaly",
@@ -278,9 +278,9 @@ const ANOMALY: StrategyRow[] = [
     id: "fdax_tat", ticker: "FDAX1!", label: "DAX — Turnaround Tuesday", group: "Anomaly",
     engine: "TAT · Mon 17:30 Berlin close → Wed 17:30 · daily ATR SL/TP",
     pillar: "anomaly", weight: null,
-    sharpeOos: null, cagr: "+7.96%", maxDd: "−15.18%", calmar: 0.52, pf: 1.27, trades: 786, wfOos: "5/8",
-    status: "research", exchange: "EUREX",
-    isNotes: "v3c audit 2026-08-09 · UNFILTERED base WFO 2013-2020: 5/8 folds positive PF 1.267 CAGR +7.96% Calmar 0.524 · VIX regime filter REJECTED: improves only 1/8 folds (needs >50%) and reduces Calmar · break-even cost: RT absorbs 50.4% of edge at FDXS micro level · unfiltered base merits clean non-regime audit · promote after cost-adjusted WFO confirms positive expectancy",
+    sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: 1.191, trades: 439, wfOos: "6/9",
+    status: "archived", exchange: "EUREX",
+    isNotes: "clean audit 2026-08-09 · FINAL VERDICT: REJECT · no regime filter · WFO 9 folds (2012-2020) 6/9 positive PF 1.191 Exp +0.051R Win% 54.4% N=439 — edge confirmed IS/WFO · holdout 2021+: PF 0.995 N=272 CAGR −0.19% MaxDD −8.0% — holdout gate FAILED (needs PF>1.0) · FDXS cost stress 1.5×: PF 1.171 (pass) · VIX filter already permanently rejected (v3c) · no regime filter resolves the cost-model gates but not the holdout · post-2020 regime shift absorbs edge · locked IS params: ATR=7 SL=1.25 RR=2.0",
   },
 ];
 
