@@ -1,0 +1,973 @@
+{
+  "version": "final_audit_v1",
+  "generated": "2026-08-09",
+  "strategy": "White Swan Gold Friday v3",
+  "instrument": "GC1! 60-minute futures",
+  "section1_entry_exit": {
+    "rows": 133622,
+    "date_start": "2003-07-30 00:00:00+00:00",
+    "date_end": "2026-06-05 11:00:00+00:00",
+    "ohlc_violations": 0,
+    "dow_distribution": {
+      "Mon": 26395,
+      "Tue": 27096,
+      "Wed": 27128,
+      "Thu": 26907,
+      "Fri": 24312,
+      "Sun": 1784
+    },
+    "entry_bar_count": 1150,
+    "entry_definition": {
+      "weekday": 4,
+      "hour_utc": 0,
+      "bar_convention": "end-of-bar (labeled 00:00 UTC covers 00:00-00:59 UTC)",
+      "price": "close of entry bar",
+      "chicago_cst": "Thu 18:00-18:59 CT (UTC-6)",
+      "chicago_cdt": "Thu 19:00-19:59 CT (UTC-5)",
+      "cet": "01:00-01:59 CET / 02:00-02:59 CEST"
+    },
+    "exit_definition": {
+      "rule": "last_friday_bar_close",
+      "description": "Max hour_utc bar on same year_week Friday",
+      "summer_exit_hour_utc": 20,
+      "winter_exit_hour_utc": 21,
+      "target_ct": "~15:00-16:00 CT"
+    },
+    "last_bar_hour_distribution": {
+      "11": 1,
+      "16": 5,
+      "17": 19,
+      "18": 37,
+      "19": 21,
+      "20": 697,
+      "21": 371
+    },
+    "friday_weeks_without_entry_bar": 1,
+    "friday_weeks_no_entry_sample_years": [
+      "2003"
+    ]
+  },
+  "section2_dst_robustness": {
+    "entry_variants": {
+      "A_thu_23": {
+        "n": 1150,
+        "mean_ret_pct": 0.117,
+        "win_rate": 56.61,
+        "t_stat": 3.3667,
+        "p_value": 0.000786,
+        "signal_pf": 1.3322
+      },
+      "B_fri_00_canonical": {
+        "n": 1150,
+        "mean_ret_pct": 0.1278,
+        "win_rate": 57.83,
+        "t_stat": 3.6919,
+        "p_value": 0.000233,
+        "signal_pf": 1.3721
+      },
+      "C_fri_01": {
+        "n": 1150,
+        "mean_ret_pct": 0.1266,
+        "win_rate": 57.04,
+        "t_stat": 3.7861,
+        "p_value": 0.000161,
+        "signal_pf": 1.3769
+      }
+    },
+    "dst_split_canonical": {
+      "US_STANDARD": {
+        "n": 377,
+        "mean_ret_pct": 0.1463,
+        "win_rate": 58.36,
+        "t_stat": 2.2006,
+        "p_value": 0.02837,
+        "pf": 1.409
+      },
+      "US_DAYLIGHT": {
+        "n": 727,
+        "mean_ret_pct": 0.127,
+        "win_rate": 58.05,
+        "t_stat": 3.0805,
+        "p_value": 0.002145,
+        "pf": 1.3839
+      },
+      "TRANSITION": {
+        "n": 46,
+        "mean_ret_pct": -0.0106,
+        "win_rate": 50.0,
+        "t_stat": -0.0626,
+        "p_value": 0.950349,
+        "pf": 0.9752
+      }
+    },
+    "conclusion": "See individual DST period stats -- edge should persist across both STANDARD and DAYLIGHT"
+  },
+  "section3_plateau_backtrader": {
+    "is_period": "2003-2018",
+    "grid": {
+      "ATR7_SL0.75": {
+        "n": 773,
+        "pf": 1.3583,
+        "win_rate": 20.05,
+        "exp_R": 0.2853,
+        "median_R": -1.0
+      },
+      "ATR7_SL1.0": {
+        "n": 773,
+        "pf": 1.3898,
+        "win_rate": 26.52,
+        "exp_R": 0.2832,
+        "median_R": -1.0
+      },
+      "ATR7_SL1.25": {
+        "n": 773,
+        "pf": 1.4043,
+        "win_rate": 32.6,
+        "exp_R": 0.2655,
+        "median_R": -1.0
+      },
+      "ATR7_SL1.5": {
+        "n": 773,
+        "pf": 1.3191,
+        "win_rate": 35.71,
+        "exp_R": 0.1958,
+        "median_R": -1.0
+      },
+      "ATR10_SL0.75": {
+        "n": 773,
+        "pf": 1.3575,
+        "win_rate": 20.96,
+        "exp_R": 0.2814,
+        "median_R": -1.0
+      },
+      "ATR10_SL1.0": {
+        "n": 773,
+        "pf": 1.45,
+        "win_rate": 28.2,
+        "exp_R": 0.3191,
+        "median_R": -1.0
+      },
+      "ATR10_SL1.25": {
+        "n": 773,
+        "pf": 1.3854,
+        "win_rate": 33.25,
+        "exp_R": 0.2487,
+        "median_R": -1.0
+      },
+      "ATR10_SL1.5": {
+        "n": 773,
+        "pf": 1.3123,
+        "win_rate": 36.61,
+        "exp_R": 0.1879,
+        "median_R": -1.0
+      },
+      "ATR14_SL0.75": {
+        "n": 773,
+        "pf": 1.3626,
+        "win_rate": 21.09,
+        "exp_R": 0.2849,
+        "median_R": -1.0
+      },
+      "ATR14_SL1.0": {
+        "n": 773,
+        "pf": 1.4459,
+        "win_rate": 28.72,
+        "exp_R": 0.3137,
+        "median_R": -1.0
+      },
+      "ATR14_SL1.25": {
+        "n": 773,
+        "pf": 1.3673,
+        "win_rate": 33.25,
+        "exp_R": 0.2365,
+        "median_R": -1.0
+      },
+      "ATR14_SL1.5": {
+        "n": 773,
+        "pf": 1.313,
+        "win_rate": 37.0,
+        "exp_R": 0.1873,
+        "median_R": -1.0
+      },
+      "ATR20_SL0.75": {
+        "n": 773,
+        "pf": 1.3489,
+        "win_rate": 21.09,
+        "exp_R": 0.2741,
+        "median_R": -1.0
+      },
+      "ATR20_SL1.0": {
+        "n": 773,
+        "pf": 1.4111,
+        "win_rate": 28.46,
+        "exp_R": 0.2896,
+        "median_R": -1.0
+      },
+      "ATR20_SL1.25": {
+        "n": 773,
+        "pf": 1.3375,
+        "win_rate": 32.99,
+        "exp_R": 0.2185,
+        "median_R": -1.0
+      },
+      "ATR20_SL1.5": {
+        "n": 773,
+        "pf": 1.3116,
+        "win_rate": 37.26,
+        "exp_R": 0.1865,
+        "median_R": -1.0
+      }
+    },
+    "combos_pf_gt_1": "16/16",
+    "plateau_robust": true
+  },
+  "section4_wfo_5y": {
+    "fold_count": 13,
+    "folds": [
+      {
+        "is_period": "2003-2007",
+        "oos_year": 2008,
+        "is_trades": 215,
+        "is_pf": 1.9222,
+        "oos_trades": 51,
+        "oos_pf": 1.5936,
+        "oos_exp_R": 0.4246,
+        "oos_win_rate": 27.45,
+        "oos_median_R": -1.0,
+        "oos_payoff": 4.2117,
+        "oos_total_R": 21.6558,
+        "positive": true
+      },
+      {
+        "is_period": "2004-2008",
+        "oos_year": 2009,
+        "is_trades": 247,
+        "is_pf": 1.8563,
+        "oos_trades": 50,
+        "oos_pf": 1.6596,
+        "oos_exp_R": 0.426,
+        "oos_win_rate": 30.0,
+        "oos_median_R": -1.0,
+        "oos_payoff": 3.6511,
+        "oos_total_R": 21.3007,
+        "positive": true
+      },
+      {
+        "is_period": "2005-2009",
+        "oos_year": 2010,
+        "is_trades": 250,
+        "is_pf": 1.8491,
+        "oos_trades": 50,
+        "oos_pf": 1.5255,
+        "oos_exp_R": 0.3574,
+        "oos_win_rate": 32.0,
+        "oos_median_R": -1.0,
+        "oos_payoff": 3.2418,
+        "oos_total_R": 17.8681,
+        "positive": true
+      },
+      {
+        "is_period": "2006-2010",
+        "oos_year": 2011,
+        "is_trades": 253,
+        "is_pf": 1.9702,
+        "oos_trades": 51,
+        "oos_pf": 2.0896,
+        "oos_exp_R": 0.6623,
+        "oos_win_rate": 39.22,
+        "oos_median_R": -1.0,
+        "oos_payoff": 3.2388,
+        "oos_total_R": 33.7763,
+        "positive": true
+      },
+      {
+        "is_period": "2007-2011",
+        "oos_year": 2012,
+        "is_trades": 253,
+        "is_pf": 2.0811,
+        "oos_trades": 51,
+        "oos_pf": 0.8894,
+        "oos_exp_R": -0.0867,
+        "oos_win_rate": 21.57,
+        "oos_median_R": -1.0,
+        "oos_payoff": 3.2342,
+        "oos_total_R": -4.4234,
+        "positive": false
+      },
+      {
+        "is_period": "2008-2012",
+        "oos_year": 2013,
+        "is_trades": 253,
+        "is_pf": 1.5189,
+        "oos_trades": 51,
+        "oos_pf": 0.8763,
+        "oos_exp_R": -0.0915,
+        "oos_win_rate": 25.49,
+        "oos_median_R": -1.0,
+        "oos_payoff": 2.5616,
+        "oos_total_R": -4.6675,
+        "positive": false
+      },
+      {
+        "is_period": "2009-2013",
+        "oos_year": 2014,
+        "is_trades": 253,
+        "is_pf": 1.3648,
+        "oos_trades": 51,
+        "oos_pf": 1.1524,
+        "oos_exp_R": 0.1142,
+        "oos_win_rate": 23.53,
+        "oos_median_R": -1.0,
+        "oos_payoff": 3.7452,
+        "oos_total_R": 5.8263,
+        "positive": true
+      },
+      {
+        "is_period": "2010-2014",
+        "oos_year": 2015,
+        "is_trades": 254,
+        "is_pf": 1.2673,
+        "oos_trades": 50,
+        "oos_pf": 1.2293,
+        "oos_exp_R": 0.1605,
+        "oos_win_rate": 30.0,
+        "oos_median_R": -1.0,
+        "oos_payoff": 2.8683,
+        "oos_total_R": 8.0246,
+        "positive": true
+      },
+      {
+        "is_period": "2011-2015",
+        "oos_year": 2016,
+        "is_trades": 254,
+        "is_pf": 1.2118,
+        "oos_trades": 51,
+        "oos_pf": 1.1282,
+        "oos_exp_R": 0.1031,
+        "oos_win_rate": 17.65,
+        "oos_median_R": -1.0,
+        "oos_payoff": 5.265,
+        "oos_total_R": 5.2586,
+        "positive": true
+      },
+      {
+        "is_period": "2012-2016",
+        "oos_year": 2017,
+        "is_trades": 254,
+        "is_pf": 1.0522,
+        "oos_trades": 51,
+        "oos_pf": 1.4269,
+        "oos_exp_R": 0.3014,
+        "oos_win_rate": 29.41,
+        "oos_median_R": -1.0,
+        "oos_payoff": 3.4247,
+        "oos_total_R": 15.3698,
+        "positive": true
+      },
+      {
+        "is_period": "2013-2017",
+        "oos_year": 2018,
+        "is_trades": 254,
+        "is_pf": 1.1586,
+        "oos_trades": 51,
+        "oos_pf": 0.7579,
+        "oos_exp_R": -0.1852,
+        "oos_win_rate": 23.53,
+        "oos_median_R": -1.0,
+        "oos_payoff": 2.463,
+        "oos_total_R": -9.4435,
+        "positive": false
+      },
+      {
+        "is_period": "2014-2018",
+        "oos_year": 2019,
+        "is_trades": 254,
+        "is_pf": 1.1323,
+        "oos_trades": 51,
+        "oos_pf": 1.2637,
+        "oos_exp_R": 0.198,
+        "oos_win_rate": 23.53,
+        "oos_median_R": -1.0,
+        "oos_payoff": 4.107,
+        "oos_total_R": 10.0994,
+        "positive": true
+      },
+      {
+        "is_period": "2015-2019",
+        "oos_year": 2020,
+        "is_trades": 254,
+        "is_pf": 1.1548,
+        "oos_trades": 50,
+        "oos_pf": 1.9602,
+        "oos_exp_R": 0.5953,
+        "oos_win_rate": 38.0,
+        "oos_median_R": -1.0,
+        "oos_payoff": 3.1982,
+        "oos_total_R": 29.7655,
+        "positive": true
+      }
+    ],
+    "positive_folds": 10,
+    "wfOos_label": "10/13",
+    "agg": {
+      "trades": 659,
+      "pf": 1.32,
+      "exp_R": 0.2282,
+      "win_rate": 27.77,
+      "payoff": 3.4189,
+      "total_R": 150.4108,
+      "MaxDD_R": -26.9862,
+      "CAGR_R": 11.5701,
+      "Calmar_R": 0.4287,
+      "longest_losing_streak": 23
+    }
+  },
+  "section4_wfo_7y": {
+    "is_window_years": 7,
+    "fold_count": 11,
+    "oos_period": "2010-2020",
+    "folds": [
+      {
+        "is_period": "2003-2009",
+        "oos_year": 2010,
+        "is_trades": 316,
+        "is_pf": 1.8256,
+        "oos_trades": 50,
+        "oos_pf": 1.5255,
+        "oos_exp_R": 0.3574,
+        "oos_win_rate": 32.0,
+        "oos_median_R": -1.0,
+        "oos_payoff": 3.2418,
+        "oos_total_R": 17.8681,
+        "positive": true
+      },
+      {
+        "is_period": "2004-2010",
+        "oos_year": 2011,
+        "is_trades": 347,
+        "is_pf": 1.7811,
+        "oos_trades": 51,
+        "oos_pf": 2.0896,
+        "oos_exp_R": 0.6623,
+        "oos_win_rate": 39.22,
+        "oos_median_R": -1.0,
+        "oos_payoff": 3.2388,
+        "oos_total_R": 33.7763,
+        "positive": true
+      },
+      {
+        "is_period": "2005-2011",
+        "oos_year": 2012,
+        "is_trades": 351,
+        "is_pf": 1.8338,
+        "oos_trades": 51,
+        "oos_pf": 0.8894,
+        "oos_exp_R": -0.0867,
+        "oos_win_rate": 21.57,
+        "oos_median_R": -1.0,
+        "oos_payoff": 3.2342,
+        "oos_total_R": -4.4234,
+        "positive": false
+      },
+      {
+        "is_period": "2006-2012",
+        "oos_year": 2013,
+        "is_trades": 355,
+        "is_pf": 1.8032,
+        "oos_trades": 51,
+        "oos_pf": 0.8763,
+        "oos_exp_R": -0.0915,
+        "oos_win_rate": 25.49,
+        "oos_median_R": -1.0,
+        "oos_payoff": 2.5616,
+        "oos_total_R": -4.6675,
+        "positive": false
+      },
+      {
+        "is_period": "2007-2013",
+        "oos_year": 2014,
+        "is_trades": 355,
+        "is_pf": 1.689,
+        "oos_trades": 51,
+        "oos_pf": 1.1524,
+        "oos_exp_R": 0.1142,
+        "oos_win_rate": 23.53,
+        "oos_median_R": -1.0,
+        "oos_payoff": 3.7452,
+        "oos_total_R": 5.8263,
+        "positive": true
+      },
+      {
+        "is_period": "2008-2014",
+        "oos_year": 2015,
+        "is_trades": 355,
+        "is_pf": 1.3657,
+        "oos_trades": 50,
+        "oos_pf": 1.2293,
+        "oos_exp_R": 0.1605,
+        "oos_win_rate": 30.0,
+        "oos_median_R": -1.0,
+        "oos_payoff": 2.8683,
+        "oos_total_R": 8.0246,
+        "positive": true
+      },
+      {
+        "is_period": "2009-2015",
+        "oos_year": 2016,
+        "is_trades": 354,
+        "is_pf": 1.313,
+        "oos_trades": 51,
+        "oos_pf": 1.1282,
+        "oos_exp_R": 0.1031,
+        "oos_win_rate": 17.65,
+        "oos_median_R": -1.0,
+        "oos_payoff": 5.265,
+        "oos_total_R": 5.2586,
+        "positive": true
+      },
+      {
+        "is_period": "2010-2016",
+        "oos_year": 2017,
+        "is_trades": 355,
+        "is_pf": 1.2399,
+        "oos_trades": 51,
+        "oos_pf": 1.4269,
+        "oos_exp_R": 0.3014,
+        "oos_win_rate": 29.41,
+        "oos_median_R": -1.0,
+        "oos_payoff": 3.4247,
+        "oos_total_R": 15.3698,
+        "positive": true
+      },
+      {
+        "is_period": "2011-2017",
+        "oos_year": 2018,
+        "is_trades": 356,
+        "is_pf": 1.2284,
+        "oos_trades": 51,
+        "oos_pf": 0.7579,
+        "oos_exp_R": -0.1852,
+        "oos_win_rate": 23.53,
+        "oos_median_R": -1.0,
+        "oos_payoff": 2.463,
+        "oos_total_R": -9.4435,
+        "positive": false
+      },
+      {
+        "is_period": "2012-2018",
+        "oos_year": 2019,
+        "is_trades": 356,
+        "is_pf": 1.0597,
+        "oos_trades": 51,
+        "oos_pf": 1.2637,
+        "oos_exp_R": 0.198,
+        "oos_win_rate": 23.53,
+        "oos_median_R": -1.0,
+        "oos_payoff": 4.107,
+        "oos_total_R": 10.0994,
+        "positive": true
+      },
+      {
+        "is_period": "2013-2019",
+        "oos_year": 2020,
+        "is_trades": 356,
+        "is_pf": 1.1148,
+        "oos_trades": 50,
+        "oos_pf": 1.9602,
+        "oos_exp_R": 0.5953,
+        "oos_win_rate": 38.0,
+        "oos_median_R": -1.0,
+        "oos_payoff": 3.1982,
+        "oos_total_R": 29.7655,
+        "positive": true
+      }
+    ],
+    "positive_folds": 8,
+    "wfOos_label": "8/11",
+    "agg_pf": 1.2678,
+    "agg_exp_R": 0.1926
+  },
+  "section5_khv": {
+    "label": "KNOWN HISTORICAL VALIDATION -- NOT pristine OOS",
+    "period": "2021-2026",
+    "data_cutoff": "2026-06-05",
+    "trades": 276,
+    "pf": 1.2478,
+    "exp_R": 0.1752,
+    "win_rate": 27.54,
+    "total_R": 48.3448,
+    "CAGR_R": 8.0575,
+    "MaxDD_R": -30.3905,
+    "Calmar_R": 0.2651,
+    "per_year": [
+      {
+        "year": 2021,
+        "n": 50,
+        "pf": 1.2858,
+        "total_R": 9.7627,
+        "win_rate": 28.0
+      },
+      {
+        "year": 2022,
+        "n": 51,
+        "pf": 0.8481,
+        "total_R": -5.9567,
+        "win_rate": 21.57
+      },
+      {
+        "year": 2023,
+        "n": 51,
+        "pf": 1.5956,
+        "total_R": 22.1838,
+        "win_rate": 25.49
+      },
+      {
+        "year": 2024,
+        "n": 51,
+        "pf": 1.7711,
+        "total_R": 26.2176,
+        "win_rate": 33.33
+      },
+      {
+        "year": 2025,
+        "n": 51,
+        "pf": 0.7683,
+        "total_R": -8.2182,
+        "win_rate": 27.45
+      },
+      {
+        "year": 2026,
+        "n": 22,
+        "pf": 1.2904,
+        "total_R": 4.3556,
+        "win_rate": 31.82
+      }
+    ]
+  },
+  "section6_multiple_testing": {
+    "hypotheses_tested": 160,
+    "bonferroni_alpha": 0.0003125,
+    "canonical_t_stat": 3.9015,
+    "canonical_p_value": 0.000103,
+    "bonferroni_adjusted_p": 0.016469,
+    "bonferroni_survives": true,
+    "block_bootstrap": {
+      "n_iterations": 1000,
+      "actual_signal_pf": 1.4762,
+      "bootstrap_mean_pf": 1.4843,
+      "bootstrap_p_value": 0.488,
+      "bootstrap_survives_5pct": false
+    }
+  },
+  "section7_roll_audit": {
+    "non_roll": {
+      "trades": 584,
+      "pf": 1.2039,
+      "exp_R": 0.1483,
+      "win_rate": 26.37,
+      "total_R": 86.5938
+    },
+    "roll": {
+      "trades": 75,
+      "pf": 2.4031,
+      "exp_R": 0.8509,
+      "win_rate": 38.67,
+      "total_R": 63.8169
+    },
+    "artifact_flag": true,
+    "artifact_threshold": "1.15x non-roll PF",
+    "top_4_gaps": [
+      {
+        "time": "2026-01-29 15:00:00+00:00",
+        "gap_pct": 5.654,
+        "weekday": 3,
+        "hour_utc": 15,
+        "in_friday_session": false
+      },
+      {
+        "time": "2008-09-18 19:00:00+00:00",
+        "gap_pct": 5.3344,
+        "weekday": 3,
+        "hour_utc": 19,
+        "in_friday_session": false
+      },
+      {
+        "time": "2009-03-18 18:00:00+00:00",
+        "gap_pct": 4.232,
+        "weekday": 2,
+        "hour_utc": 18,
+        "in_friday_session": false
+      },
+      {
+        "time": "2008-09-17 14:00:00+00:00",
+        "gap_pct": 3.7981,
+        "weekday": 2,
+        "hour_utc": 14,
+        "in_friday_session": false
+      }
+    ]
+  },
+  "section8_gld_correlation": {
+    "overlap_years": [
+      2009,
+      2010,
+      2011,
+      2012,
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020
+    ],
+    "annual_comparison": [
+      {
+        "year": 2009,
+        "gc_total_R": 21.3007,
+        "gld_avg_r": 0.1573
+      },
+      {
+        "year": 2010,
+        "gc_total_R": 17.8681,
+        "gld_avg_r": 0.1602
+      },
+      {
+        "year": 2011,
+        "gc_total_R": 33.7763,
+        "gld_avg_r": 0.355
+      },
+      {
+        "year": 2012,
+        "gc_total_R": -4.4234,
+        "gld_avg_r": 0.1942
+      },
+      {
+        "year": 2013,
+        "gc_total_R": -4.6675,
+        "gld_avg_r": -0.0968
+      },
+      {
+        "year": 2014,
+        "gc_total_R": 5.8263,
+        "gld_avg_r": 0.1569
+      },
+      {
+        "year": 2015,
+        "gc_total_R": 8.0246,
+        "gld_avg_r": 0.1876
+      },
+      {
+        "year": 2016,
+        "gc_total_R": 5.2586,
+        "gld_avg_r": 0.069
+      },
+      {
+        "year": 2017,
+        "gc_total_R": 15.3698,
+        "gld_avg_r": 0.2063
+      },
+      {
+        "year": 2018,
+        "gc_total_R": -9.4435,
+        "gld_avg_r": 0.1892
+      },
+      {
+        "year": 2019,
+        "gc_total_R": 10.0994,
+        "gld_avg_r": 0.1856
+      },
+      {
+        "year": 2020,
+        "gc_total_R": 29.7655,
+        "gld_avg_r": 0.3067
+      }
+    ],
+    "pearson_r": 0.6458,
+    "pearson_p": 0.0233,
+    "both_positive_years": 9,
+    "both_negative_years": 1,
+    "diverging_years": 2,
+    "note": "GLD exits Friday daily close. GC enters Friday 00:00 UTC and exits ~15:00 CT Friday. Different intraday windows despite common gold factor. Low correlation suggests GC adds diversification."
+  },
+  "section9_execution": {
+    "stop_statistics": {
+      "avg_stop_pts": 4.0398,
+      "median_stop_pts": 3.5956,
+      "pct25_stop_pts": 2.7175,
+      "pct75_stop_pts": 4.7742
+    },
+    "gross_exp_R": 0.2282,
+    "GC": {
+      "multiplier": 100,
+      "dollar_risk_per_contract": 403.98,
+      "commission_rt": 4.0,
+      "spread_cost": 10.0,
+      "total_rt_cost": 14.0,
+      "cost_in_R": 0.034655,
+      "cost_pct_exp_R": 15.18,
+      "break_even_cost_R": 0.228241,
+      "pf_baseline_costs": 1.2622,
+      "pf_1p5x_costs": 1.2347,
+      "pf_2x_costs": 1.2081,
+      "gate_pass": true
+    },
+    "MGC": {
+      "multiplier": 10,
+      "dollar_risk_per_contract": 40.4,
+      "commission_rt": 1.5,
+      "spread_cost": 1.0,
+      "total_rt_cost": 2.5,
+      "cost_in_R": 0.061884,
+      "pf_baseline_costs": 1.2194,
+      "pf_1p5x_costs": 1.1735,
+      "pf_2x_costs": 1.1301,
+      "gate_pass": true
+    }
+  },
+  "section10_portfolio": {
+    "common_years": [
+      2009,
+      2010,
+      2011,
+      2012,
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020
+    ],
+    "correlations": {
+      "GLD_vs_GC": {
+        "r": 0.6458,
+        "p": 0.0233
+      },
+      "GLD_vs_YM": {
+        "r": -0.1358,
+        "p": 0.6739
+      },
+      "GC_vs_YM": {
+        "r": -0.0883,
+        "p": 0.785
+      }
+    },
+    "ym_source": "patch_json",
+    "allocations": [
+      {
+        "total_R": 2.0712,
+        "CAGR_R": 0.1726,
+        "MaxDD_R": -0.0968,
+        "Calmar_R": 1.7831,
+        "losing_years": 1,
+        "corr_to_gld": 1.0,
+        "name": "GLD_only",
+        "gc_weight_pct": 0
+      },
+      {
+        "total_R": 1.2397,
+        "CAGR_R": 0.1033,
+        "MaxDD_R": -0.0136,
+        "Calmar_R": 7.5959,
+        "losing_years": 1,
+        "corr_to_gld": 0.6749,
+        "name": "GLD+YM",
+        "gc_weight_pct": 0
+      },
+      {
+        "total_R": 1.2397,
+        "CAGR_R": 0.1033,
+        "MaxDD_R": -0.0136,
+        "Calmar_R": 7.5959,
+        "losing_years": 1,
+        "corr_to_gld": 0.6749,
+        "name": "GLD+YM+GC_0pct",
+        "gc_weight_pct": 0
+      },
+      {
+        "total_R": 3.79,
+        "CAGR_R": 0.3158,
+        "MaxDD_R": -0.1314,
+        "Calmar_R": 2.4027,
+        "losing_years": 3,
+        "corr_to_gld": 0.7222,
+        "name": "GLD+YM+GC_2pct",
+        "gc_weight_pct": 2.0
+      },
+      {
+        "total_R": 6.3403,
+        "CAGR_R": 0.5284,
+        "MaxDD_R": -0.3143,
+        "Calmar_R": 1.6811,
+        "losing_years": 3,
+        "corr_to_gld": 0.6894,
+        "name": "GLD+YM+GC_4pct",
+        "gc_weight_pct": 4.0
+      },
+      {
+        "total_R": 8.8906,
+        "CAGR_R": 0.7409,
+        "MaxDD_R": -0.4971,
+        "Calmar_R": 1.4903,
+        "losing_years": 3,
+        "corr_to_gld": 0.6757,
+        "name": "GLD+YM+GC_6pct",
+        "gc_weight_pct": 6.0
+      },
+      {
+        "total_R": 11.4409,
+        "CAGR_R": 0.9534,
+        "MaxDD_R": -0.68,
+        "Calmar_R": 1.4021,
+        "losing_years": 3,
+        "corr_to_gld": 0.6683,
+        "name": "GLD+YM+GC_8pct",
+        "gc_weight_pct": 8.0
+      }
+    ],
+    "baseline_calmar_gld_ym": 7.5959,
+    "best_gc_alloc": {
+      "total_R": 3.79,
+      "CAGR_R": 0.3158,
+      "MaxDD_R": -0.1314,
+      "Calmar_R": 2.4027,
+      "losing_years": 3,
+      "corr_to_gld": 0.7222,
+      "name": "GLD+YM+GC_2pct",
+      "gc_weight_pct": 2.0
+    },
+    "marginal_calmar_adding_gc": -5.1932,
+    "portfolio_gate_pass": false,
+    "approved_gc_weight_pct": 2.0
+  },
+  "section11_forward_tracking": {
+    "file_written": "C:\\Users\\joris\\Documents\\Capitalife Terminal\\public\\generated\\monitoring\\strategies\\COMEX_GC_friday_events.json",
+    "schema": "mirror of ARCA_GLD_thursday_long_events.json"
+  },
+  "section12_verdict": {
+    "gates": {
+      "gate1_wfo_fold_count_valid": true,
+      "gate2_dst_robust": true,
+      "gate3_backtrader_exp_R_positive": true,
+      "gate4_majority_wfo_folds_positive": true,
+      "gate5_realistic_costs": true,
+      "gate6_roll_audit": false,
+      "gate7_khv_plausible": true,
+      "gate8_multiple_testing": true,
+      "gate9_portfolio_calmar": false
+    },
+    "gates_passed": 7,
+    "verdict": "WATCH",
+    "approved_weight_pct": 0,
+    "frozen_params": {
+      "atr_len": 14,
+      "sl_mult": 1.0,
+      "entry_hour_utc": 0,
+      "entry_weekday": "Friday",
+      "exit_rule": "last_friday_bar_close"
+    }
+  }
+}
