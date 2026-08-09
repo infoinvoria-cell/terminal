@@ -250,21 +250,22 @@ const SEASONAL_ARCHIVED: StrategyRow[] = [
   { id: "kc1_arch", ticker: "KC1!", label: "Coffee",   group: "Agrar", engine: "—", pillar: "seasonal", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "ICEUS" },
 ];
 
-// ── Anomaly Pillar (WS v2.0 · 27% portfolio · 3 × 9%) ───────────────────────
+// ── Anomaly Pillar (WS v2.0 · 18% portfolio · 2 × 9%) ───────────────────────
+// Gold moved to watch (data-limited, 2016+ only). GLD confirmed KEEP via v2 close-fill audit.
 const ANOMALY: StrategyRow[] = [
   {
     id: "gc1_friday", ticker: "GC1!", label: "Gold", group: "Anomaly",
-    engine: "Friday Long", pillar: "anomaly", weight: 9,
+    engine: "Friday Long", pillar: "anomaly", weight: null,
     sharpeOos: 1.54, cagr: "+4.18%", maxDd: "−6.87%", calmar: 0.61, pf: 2.28, trades: 377, wfOos: null,
-    status: "active", dataFile: "anomaly/gc1_friday_long.json", exchange: "COMEX",
-    isNotes: "OOS 2019–2026 · Walk-Forward approved · IS 2004–2018 (1096 trades) · v1.3 weight 15% · v2 Backtrader WFO (2018–2020, 3 folds, data limited): PF 1.44 / holdout 2021+ PF 0.69 — REJECT pending close-execution rerun",
+    status: "watch", dataFile: "anomaly/gc1_friday_long.json", exchange: "COMEX",
+    isNotes: "v2 Backtrader audit 2026-08-09: DATA-LIMITED — GC1! data from 2016-06 only · 3 WFO folds (2/3 positive) · holdout 2021+ PF 0.709 CAGR −10.25% · reference 547 trades implies 2003+ history needed · cannot validate or reject without pre-2016 data · weight suspended pending full data",
   },
   {
     id: "gld_thursday", ticker: "GLD", label: "Gold ETF", group: "Anomaly",
-    engine: "Thursday Long", pillar: "anomaly", weight: 9,
-    sharpeOos: 0.506, cagr: "+3.38%", maxDd: "−7.29%", calmar: 0.46, pf: 1.21, trades: 379, wfOos: null,
+    engine: "Thursday Close → Friday Close", pillar: "anomaly", weight: 9,
+    sharpeOos: 0.506, cagr: "+3.38%", maxDd: "−7.29%", calmar: 0.46, pf: 1.21, trades: 379, wfOos: "11/12",
     status: "active", dataFile: "anomaly/gld_thursday_long.json", exchange: "ARCA",
-    isNotes: "OOS 2019–2026 · Walk-Forward approved · IS 2004–2018 (717 trades) · v1.3 weight 15% · v2 Backtrader WFO (12 folds): PF 1.001 / holdout 2021+ PF 0.92 — REJECT (entry gap: next-open vs Thu-close; close-execution rerun needed)",
+    isNotes: "v2 Backtrader audit 2026-08-09: CONFIRMED KEEP · close-fill execution · WFO 12 folds 11/12 positive · WFO OOS PF 1.4516 CAGR +3.54% · holdout 2021+ PF 1.155 CAGR +1.13% DD −3.82% 274 trades · Layer A signal PF(R) 1.36 win-rate 55.9% · all rejection gates passed · IS 2004–2020 · OOS 2021+ locked",
   },
   {
     id: "ym1_tat", ticker: "YM1!", label: "Dow Jones — TAT", group: "Anomaly",
@@ -278,8 +279,8 @@ const ANOMALY: StrategyRow[] = [
     engine: "TAT · Mon 17:30 → Wed 17:30 · ATR SL/TP · Regime Risk Scale",
     pillar: "anomaly", weight: null,
     sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null,
-    status: "archived", exchange: "EUREX",
-    isNotes: "v2 Backtrader audit 2026-08-08: REJECTED — WFO 9 folds: PF 0.97 (net loss), 6/9 folds negative, IS PF < 1.0 in most folds; holdout 2021+ PF 0.91 DD −70.6% · Anomaly absent even in-sample · See reports/white_swan_strategy_audit.md",
+    status: "research", exchange: "EUREX",
+    isNotes: "v2 Backtrader audit 2026-08-09: REJECT · close-fill execution confirmed · Layer A signal PF(R) 0.834 (below 1.0 — no edge at signal level) · WFO 9 folds 5/9 positive PF 0.981 · holdout 2021+ PF 0.725 CAGR −3.11% · all rejection gates satisfied · See reports/white_swan_strategy_audit.md",
   },
 ];
 
