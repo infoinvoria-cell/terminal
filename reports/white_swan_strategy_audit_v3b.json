@@ -1,0 +1,216 @@
+{
+  "task1": {
+    "task": "data_search",
+    "gold_60m_files": {
+      "5747f": {
+        "expected_range": "2003-07-30 to 2006-12-29",
+        "expected_rows": 18791,
+        "status": "NOT FOUND",
+        "paths": []
+      },
+      "646ce": {
+        "expected_range": "2007-01-01 to 2010-12-31",
+        "expected_rows": 23696,
+        "status": "NOT FOUND",
+        "paths": []
+      },
+      "8f931": {
+        "expected_range": "2011-01-02 to 2014-12-31",
+        "expected_rows": 23637,
+        "status": "NOT FOUND",
+        "paths": []
+      },
+      "ff910": {
+        "expected_range": "2015-01-01 to 2018-12-31",
+        "expected_rows": 23597,
+        "status": "NOT FOUND",
+        "paths": []
+      },
+      "279f5": {
+        "expected_range": "2019-01-01 to 2022-12-30",
+        "expected_rows": 23652,
+        "status": "NOT FOUND",
+        "paths": []
+      },
+      "cd78a": {
+        "expected_range": "2023-01-02 to 2026-06-05",
+        "expected_rows": 20249,
+        "status": "NOT FOUND",
+        "paths": []
+      }
+    },
+    "gold_240m": {
+      "path": "C:\\Users\\joris\\Downloads\\COMEX_DL_GC1!, 240_dc277.csv",
+      "bars": 15431,
+      "start": "2016-06-03",
+      "end": "2026-06-04",
+      "status": "FOUND"
+    },
+    "vix": {
+      "status": "FOUND",
+      "bars": 704,
+      "start": "2023-11-06",
+      "end": "2026-08-06",
+      "pre2021_available": false
+    },
+    "gold_60m_complete": false
+  },
+  "task2": {
+    "task": "gold_friday_long",
+    "status": "PARTIAL_DATA_WARNING",
+    "data_note": "60m source files not found. 240m data available from 2016-06-03 only. Full canonical WFO (starting 2003) cannot be executed.",
+    "folds": [
+      {
+        "fold": 1,
+        "is_start": "2016-06-01",
+        "is_end": "2020-12-31",
+        "oos_start": "2021-01-01",
+        "oos_end": "2021-12-31",
+        "best_params": {
+          "atr_len": 21,
+          "sl_atr": 2.0,
+          "rr": 1.25
+        },
+        "is_pf": 1.415,
+        "oos_pf": 0.967,
+        "oos_trades": 61,
+        "oos_win_pct": 49.2,
+        "oos_avg_r": -0.011
+      },
+      {
+        "fold": 2,
+        "is_start": "2017-01-01",
+        "is_end": "2021-12-31",
+        "oos_start": "2022-01-01",
+        "oos_end": "2022-12-31",
+        "best_params": {
+          "atr_len": 21,
+          "sl_atr": 1.5,
+          "rr": 1.25
+        },
+        "is_pf": 1.363,
+        "oos_pf": 0.5,
+        "oos_trades": 72,
+        "oos_win_pct": 33.3,
+        "oos_avg_r": -0.242
+      },
+      {
+        "fold": 3,
+        "is_start": "2018-01-01",
+        "is_end": "2022-12-31",
+        "oos_start": "2023-01-01",
+        "oos_end": "2023-12-31",
+        "best_params": {
+          "atr_len": 21,
+          "sl_atr": 1.0,
+          "rr": 1.0
+        },
+        "is_pf": 1.117,
+        "oos_pf": 1.341,
+        "oos_trades": 85,
+        "oos_win_pct": 55.3,
+        "oos_avg_r": 0.124
+      },
+      {
+        "fold": 4,
+        "is_start": "2019-01-01",
+        "is_end": "2023-12-31",
+        "oos_start": "2024-01-01",
+        "oos_end": "2024-12-31",
+        "best_params": {
+          "atr_len": 14,
+          "sl_atr": 1.0,
+          "rr": 1.0
+        },
+        "is_pf": 1.237,
+        "oos_pf": 0.858,
+        "oos_trades": 87,
+        "oos_win_pct": 47.1,
+        "oos_avg_r": -0.068
+      },
+      {
+        "fold": 5,
+        "is_start": "2020-01-01",
+        "is_end": "2024-12-31",
+        "oos_start": "2025-01-01",
+        "oos_end": "2025-12-31",
+        "best_params": {
+          "atr_len": 10,
+          "sl_atr": 1.0,
+          "rr": 1.0
+        },
+        "is_pf": 1.205,
+        "oos_pf": 1.033,
+        "oos_trades": 81,
+        "oos_win_pct": 50.6,
+        "oos_avg_r": 0.015
+      }
+    ],
+    "wfo_aggregate": {
+      "trades": 386,
+      "pf": 0.926,
+      "win_pct": 47.4,
+      "avg_r": -0.032,
+      "cagr": -2.74,
+      "max_dd": 20.4,
+      "calmar": -0.134,
+      "pos_folds": 2,
+      "total_folds": 5
+    },
+    "holdout": {
+      "params": {
+        "atr_len": 21,
+        "sl_atr": 2.0,
+        "rr": 1.25
+      },
+      "trades": 330,
+      "pf": 1.034,
+      "win_pct": 48.5,
+      "avg_r": 0.011,
+      "cagr": 0.51,
+      "max_dd": 14.39,
+      "calmar": 0.035,
+      "yearly_returns": {
+        "2021": -0.167,
+        "2022": -9.838,
+        "2023": 6.226,
+        "2024": -5.081,
+        "2025": 9.119,
+        "2026": 3.491
+      },
+      "note": "CONTAMINATED: holdout overlaps WFO OOS period due to insufficient pre-2016 history"
+    }
+  },
+  "task3": {
+    "task": "dax_vix_regime",
+    "status": "BLOCKED_NO_PRE2021_VIX",
+    "reason": "VIX daily data available only from 2023-11-06. Pre-2021 VIX history is required to select regime thresholds inside IS windows (2007-2020). Running regime selection on the holdout period would constitute look-ahead bias and is prohibited by the audit protocol. DAX VIX regime WFO validation cannot proceed without pre-2021 VIX data."
+  },
+  "task4": {
+    "task": "portfolio_combinations",
+    "verdict": "D",
+    "reason": "Only GLD Thursday Long has a fully validated WFO. Gold Friday Long is blocked by missing 60m history. DAX VIX regime is blocked by missing pre-2021 VIX data. Portfolio combinations A, B, C cannot be properly formed."
+  },
+  "final_verdict": {
+    "portfolio": "D",
+    "portfolio_description": "GLD Thursday Long only (9% weight)",
+    "gld_status": "KEEP",
+    "gold_status": "BLOCKED_PARTIAL",
+    "dax_regime_status": "CANNOT_VALIDATE",
+    "blockers": {
+      "gold": "60m files not found; 240m data starts 2016-06-03 \u2014 insufficient for 2003 WFO",
+      "dax_vix": "VIX daily data available only from 2023-11-06; pre-2021 data required"
+    },
+    "data_required_to_unblock": {
+      "gold_60m_files": [
+        "5747f",
+        "646ce",
+        "8f931",
+        "ff910",
+        "279f5",
+        "cd78a"
+      ],
+      "vix_daily_pre2021": "TradingView CBOE:VIX 1D export 2007-2020"
+    }
+  }
+}
