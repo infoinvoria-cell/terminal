@@ -1,0 +1,1824 @@
+{
+  "phase1": {
+    "manifest": [
+      {
+        "file": "COMEX_DL_GC1!, 60_5747f(1).csv",
+        "sha256": "cb74a5810581d4147430a53aad38dc4a768ddafc115dede1c88521a47895a1b0",
+        "expected_rows": 18791,
+        "actual_bars": 18791,
+        "row_check": "PASS",
+        "date_start": "2003-07-30",
+        "date_end": "2006-12-29"
+      },
+      {
+        "file": "COMEX_DL_GC1!, 60_646ce(1).csv",
+        "sha256": "6aac1274904178013ef89349689575da8df845b58b3d7af93c7fcfaf7488f8d7",
+        "expected_rows": 23696,
+        "actual_bars": 23696,
+        "row_check": "PASS",
+        "date_start": "2007-01-01",
+        "date_end": "2010-12-31"
+      },
+      {
+        "file": "COMEX_DL_GC1!, 60_8f931(1).csv",
+        "sha256": "94551cc42fa73e7ad555a5ed43b636ea7d66d3ab7ef7bad555e7e89f49295baa",
+        "expected_rows": 23637,
+        "actual_bars": 23637,
+        "row_check": "PASS",
+        "date_start": "2011-01-02",
+        "date_end": "2014-12-31"
+      },
+      {
+        "file": "COMEX_DL_GC1!, 60_ff910(1).csv",
+        "sha256": "382a1056c790c497af1cf0bbc88dd23905600cf6c2cb8336b8ebd9fb70972f45",
+        "expected_rows": 23597,
+        "actual_bars": 23597,
+        "row_check": "PASS",
+        "date_start": "2015-01-01",
+        "date_end": "2018-12-31"
+      },
+      {
+        "file": "COMEX_DL_GC1!, 60_279f5(1).csv",
+        "sha256": "1c45dbabd5d8c3bd503a46437c1d2189538b01d85dec257e88a68580711b7982",
+        "expected_rows": 23652,
+        "actual_bars": 23652,
+        "row_check": "PASS",
+        "date_start": "2019-01-01",
+        "date_end": "2022-12-30"
+      },
+      {
+        "file": "COMEX_DL_GC1!, 60_cd78a.csv",
+        "sha256": "6715d565470d4ebdc70720cc98c9ed72e92ebb04334016ff992b3aac6132ca68",
+        "expected_rows": 20249,
+        "actual_bars": 20249,
+        "row_check": "PASS",
+        "date_start": "2023-01-02",
+        "date_end": "2026-06-05"
+      }
+    ],
+    "gc60_total_bars": 133622,
+    "gc60_range_start": "2003-07-30 00:00:00",
+    "gc60_range_end": "2026-06-05 11:00:00",
+    "gc60_dupes_removed": 0,
+    "gc60_gaps_gt1week": 1,
+    "gc_daily_bars": 7003
+  },
+  "phase2": {
+    "combo_results_count": 80,
+    "pf_gt1_count": 80,
+    "pf_gt1_pct": 100.0,
+    "plateau_center": {
+      "atr_n": 10,
+      "sl_mult": 0.75,
+      "rr": 1.25
+    },
+    "plateau_center_pf": 1.224,
+    "plateau_center_avg_r": 0.1128,
+    "plateau_center_wr": 49.4,
+    "plateau_center_n": 852,
+    "neighborhood_pf": 1.212,
+    "all_combos": {
+      "(7, 0.75, None)": {
+        "n": 852,
+        "pf": 1.15,
+        "avg_r": 0.1084,
+        "wr": 26.6,
+        "payoff": 3.165
+      },
+      "(7, 0.75, 1.0)": {
+        "n": 852,
+        "pf": 1.191,
+        "avg_r": 0.0871,
+        "wr": 54.3,
+        "payoff": 1.001
+      },
+      "(7, 0.75, 1.25)": {
+        "n": 852,
+        "pf": 1.255,
+        "avg_r": 0.127,
+        "wr": 50.1,
+        "payoff": 1.25
+      },
+      "(7, 0.75, 1.5)": {
+        "n": 852,
+        "pf": 1.288,
+        "avg_r": 0.1536,
+        "wr": 46.2,
+        "payoff": 1.497
+      },
+      "(7, 0.75, 2.0)": {
+        "n": 852,
+        "pf": 1.234,
+        "avg_r": 0.1423,
+        "wr": 38.7,
+        "payoff": 1.952
+      },
+      "(7, 1.0, None)": {
+        "n": 852,
+        "pf": 1.064,
+        "avg_r": 0.042,
+        "wr": 32.0,
+        "payoff": 2.256
+      },
+      "(7, 1.0, 1.0)": {
+        "n": 852,
+        "pf": 1.2,
+        "avg_r": 0.0897,
+        "wr": 54.3,
+        "payoff": 1.008
+      },
+      "(7, 1.0, 1.25)": {
+        "n": 852,
+        "pf": 1.175,
+        "avg_r": 0.0886,
+        "wr": 48.4,
+        "payoff": 1.255
+      },
+      "(7, 1.0, 1.5)": {
+        "n": 852,
+        "pf": 1.138,
+        "avg_r": 0.0757,
+        "wr": 43.7,
+        "payoff": 1.468
+      },
+      "(7, 1.0, 2.0)": {
+        "n": 852,
+        "pf": 1.069,
+        "avg_r": 0.0424,
+        "wr": 37.3,
+        "payoff": 1.796
+      },
+      "(7, 1.25, None)": {
+        "n": 852,
+        "pf": 1.009,
+        "avg_r": 0.0053,
+        "wr": 35.7,
+        "payoff": 1.818
+      },
+      "(7, 1.25, 1.0)": {
+        "n": 852,
+        "pf": 1.099,
+        "avg_r": 0.0457,
+        "wr": 52.1,
+        "payoff": 1.01
+      },
+      "(7, 1.25, 1.25)": {
+        "n": 852,
+        "pf": 1.039,
+        "avg_r": 0.0204,
+        "wr": 45.9,
+        "payoff": 1.225
+      },
+      "(7, 1.25, 1.5)": {
+        "n": 852,
+        "pf": 1.027,
+        "avg_r": 0.0148,
+        "wr": 42.4,
+        "payoff": 1.397
+      },
+      "(7, 1.25, 2.0)": {
+        "n": 852,
+        "pf": 1.023,
+        "avg_r": 0.0138,
+        "wr": 38.5,
+        "payoff": 1.635
+      },
+      "(7, 1.5, None)": {
+        "n": 852,
+        "pf": 1.043,
+        "avg_r": 0.0235,
+        "wr": 40.1,
+        "payoff": 1.549
+      },
+      "(7, 1.5, 1.0)": {
+        "n": 852,
+        "pf": 1.061,
+        "avg_r": 0.0274,
+        "wr": 51.4,
+        "payoff": 0.998
+      },
+      "(7, 1.5, 1.25)": {
+        "n": 852,
+        "pf": 1.041,
+        "avg_r": 0.0204,
+        "wr": 46.7,
+        "payoff": 1.183
+      },
+      "(7, 1.5, 1.5)": {
+        "n": 852,
+        "pf": 1.021,
+        "avg_r": 0.011,
+        "wr": 44.0,
+        "payoff": 1.294
+      },
+      "(7, 1.5, 2.0)": {
+        "n": 852,
+        "pf": 1.067,
+        "avg_r": 0.0357,
+        "wr": 41.7,
+        "payoff": 1.487
+      },
+      "(10, 0.75, None)": {
+        "n": 852,
+        "pf": 1.148,
+        "avg_r": 0.1076,
+        "wr": 26.3,
+        "payoff": 3.218
+      },
+      "(10, 0.75, 1.0)": {
+        "n": 852,
+        "pf": 1.202,
+        "avg_r": 0.0918,
+        "wr": 54.6,
+        "payoff": 1.001
+      },
+      "(10, 0.75, 1.25)": {
+        "n": 852,
+        "pf": 1.224,
+        "avg_r": 0.1128,
+        "wr": 49.4,
+        "payoff": 1.253
+      },
+      "(10, 0.75, 1.5)": {
+        "n": 852,
+        "pf": 1.293,
+        "avg_r": 0.1565,
+        "wr": 46.2,
+        "payoff": 1.503
+      },
+      "(10, 0.75, 2.0)": {
+        "n": 852,
+        "pf": 1.232,
+        "avg_r": 0.1416,
+        "wr": 38.5,
+        "payoff": 1.968
+      },
+      "(10, 1.0, None)": {
+        "n": 852,
+        "pf": 1.065,
+        "avg_r": 0.0432,
+        "wr": 31.7,
+        "payoff": 2.296
+      },
+      "(10, 1.0, 1.0)": {
+        "n": 852,
+        "pf": 1.221,
+        "avg_r": 0.0987,
+        "wr": 54.8,
+        "payoff": 1.007
+      },
+      "(10, 1.0, 1.25)": {
+        "n": 852,
+        "pf": 1.2,
+        "avg_r": 0.1002,
+        "wr": 48.8,
+        "payoff": 1.257
+      },
+      "(10, 1.0, 1.5)": {
+        "n": 852,
+        "pf": 1.149,
+        "avg_r": 0.082,
+        "wr": 43.8,
+        "payoff": 1.476
+      },
+      "(10, 1.0, 2.0)": {
+        "n": 852,
+        "pf": 1.084,
+        "avg_r": 0.0514,
+        "wr": 37.3,
+        "payoff": 1.82
+      },
+      "(10, 1.25, None)": {
+        "n": 852,
+        "pf": 1.015,
+        "avg_r": 0.0091,
+        "wr": 35.6,
+        "payoff": 1.839
+      },
+      "(10, 1.25, 1.0)": {
+        "n": 852,
+        "pf": 1.104,
+        "avg_r": 0.0483,
+        "wr": 52.2,
+        "payoff": 1.01
+      },
+      "(10, 1.25, 1.25)": {
+        "n": 852,
+        "pf": 1.063,
+        "avg_r": 0.0325,
+        "wr": 46.4,
+        "payoff": 1.23
+      },
+      "(10, 1.25, 1.5)": {
+        "n": 852,
+        "pf": 1.043,
+        "avg_r": 0.0236,
+        "wr": 42.6,
+        "payoff": 1.405
+      },
+      "(10, 1.25, 2.0)": {
+        "n": 852,
+        "pf": 1.034,
+        "avg_r": 0.0201,
+        "wr": 38.6,
+        "payoff": 1.644
+      },
+      "(10, 1.5, None)": {
+        "n": 852,
+        "pf": 1.035,
+        "avg_r": 0.0194,
+        "wr": 39.7,
+        "payoff": 1.568
+      },
+      "(10, 1.5, 1.0)": {
+        "n": 852,
+        "pf": 1.065,
+        "avg_r": 0.0294,
+        "wr": 51.4,
+        "payoff": 1.001
+      },
+      "(10, 1.5, 1.25)": {
+        "n": 852,
+        "pf": 1.05,
+        "avg_r": 0.0246,
+        "wr": 46.7,
+        "payoff": 1.192
+      },
+      "(10, 1.5, 1.5)": {
+        "n": 852,
+        "pf": 1.009,
+        "avg_r": 0.0049,
+        "wr": 43.4,
+        "payoff": 1.309
+      },
+      "(10, 1.5, 2.0)": {
+        "n": 852,
+        "pf": 1.059,
+        "avg_r": 0.0318,
+        "wr": 41.3,
+        "payoff": 1.498
+      },
+      "(14, 0.75, None)": {
+        "n": 852,
+        "pf": 1.138,
+        "avg_r": 0.1016,
+        "wr": 25.6,
+        "payoff": 3.31
+      },
+      "(14, 0.75, 1.0)": {
+        "n": 852,
+        "pf": 1.208,
+        "avg_r": 0.0942,
+        "wr": 54.7,
+        "payoff": 1.001
+      },
+      "(14, 0.75, 1.25)": {
+        "n": 852,
+        "pf": 1.195,
+        "avg_r": 0.0997,
+        "wr": 48.8,
+        "payoff": 1.253
+      },
+      "(14, 0.75, 1.5)": {
+        "n": 852,
+        "pf": 1.291,
+        "avg_r": 0.156,
+        "wr": 46.2,
+        "payoff": 1.501
+      },
+      "(14, 0.75, 2.0)": {
+        "n": 852,
+        "pf": 1.228,
+        "avg_r": 0.1402,
+        "wr": 38.3,
+        "payoff": 1.982
+      },
+      "(14, 1.0, None)": {
+        "n": 852,
+        "pf": 1.07,
+        "avg_r": 0.0468,
+        "wr": 31.3,
+        "payoff": 2.344
+      },
+      "(14, 1.0, 1.0)": {
+        "n": 852,
+        "pf": 1.198,
+        "avg_r": 0.0896,
+        "wr": 54.3,
+        "payoff": 1.007
+      },
+      "(14, 1.0, 1.25)": {
+        "n": 852,
+        "pf": 1.222,
+        "avg_r": 0.1107,
+        "wr": 49.3,
+        "payoff": 1.257
+      },
+      "(14, 1.0, 1.5)": {
+        "n": 852,
+        "pf": 1.16,
+        "avg_r": 0.0883,
+        "wr": 43.9,
+        "payoff": 1.482
+      },
+      "(14, 1.0, 2.0)": {
+        "n": 852,
+        "pf": 1.105,
+        "avg_r": 0.0647,
+        "wr": 37.4,
+        "payoff": 1.847
+      },
+      "(14, 1.25, None)": {
+        "n": 852,
+        "pf": 1.029,
+        "avg_r": 0.0176,
+        "wr": 35.2,
+        "payoff": 1.893
+      },
+      "(14, 1.25, 1.0)": {
+        "n": 852,
+        "pf": 1.138,
+        "avg_r": 0.0631,
+        "wr": 52.9,
+        "payoff": 1.012
+      },
+      "(14, 1.25, 1.25)": {
+        "n": 852,
+        "pf": 1.083,
+        "avg_r": 0.043,
+        "wr": 46.6,
+        "payoff": 1.242
+      },
+      "(14, 1.25, 1.5)": {
+        "n": 852,
+        "pf": 1.049,
+        "avg_r": 0.0272,
+        "wr": 42.4,
+        "payoff": 1.427
+      },
+      "(14, 1.25, 2.0)": {
+        "n": 852,
+        "pf": 1.038,
+        "avg_r": 0.0223,
+        "wr": 38.4,
+        "payoff": 1.666
+      },
+      "(14, 1.5, None)": {
+        "n": 852,
+        "pf": 1.053,
+        "avg_r": 0.0294,
+        "wr": 39.6,
+        "payoff": 1.603
+      },
+      "(14, 1.5, 1.0)": {
+        "n": 852,
+        "pf": 1.085,
+        "avg_r": 0.0383,
+        "wr": 51.8,
+        "payoff": 1.006
+      },
+      "(14, 1.5, 1.25)": {
+        "n": 852,
+        "pf": 1.056,
+        "avg_r": 0.0278,
+        "wr": 46.7,
+        "payoff": 1.199
+      },
+      "(14, 1.5, 1.5)": {
+        "n": 852,
+        "pf": 1.031,
+        "avg_r": 0.0165,
+        "wr": 43.5,
+        "payoff": 1.332
+      },
+      "(14, 1.5, 2.0)": {
+        "n": 852,
+        "pf": 1.066,
+        "avg_r": 0.036,
+        "wr": 41.2,
+        "payoff": 1.516
+      },
+      "(20, 0.75, None)": {
+        "n": 852,
+        "pf": 1.151,
+        "avg_r": 0.1112,
+        "wr": 25.4,
+        "payoff": 3.389
+      },
+      "(20, 0.75, 1.0)": {
+        "n": 852,
+        "pf": 1.197,
+        "avg_r": 0.0895,
+        "wr": 54.5,
+        "payoff": 1.001
+      },
+      "(20, 0.75, 1.25)": {
+        "n": 852,
+        "pf": 1.201,
+        "avg_r": 0.1023,
+        "wr": 48.9,
+        "payoff": 1.253
+      },
+      "(20, 0.75, 1.5)": {
+        "n": 852,
+        "pf": 1.303,
+        "avg_r": 0.1615,
+        "wr": 46.5,
+        "payoff": 1.5
+      },
+      "(20, 0.75, 2.0)": {
+        "n": 852,
+        "pf": 1.262,
+        "avg_r": 0.1595,
+        "wr": 38.8,
+        "payoff": 1.987
+      },
+      "(20, 1.0, None)": {
+        "n": 852,
+        "pf": 1.048,
+        "avg_r": 0.0326,
+        "wr": 30.3,
+        "payoff": 2.412
+      },
+      "(20, 1.0, 1.0)": {
+        "n": 852,
+        "pf": 1.153,
+        "avg_r": 0.0707,
+        "wr": 53.4,
+        "payoff": 1.006
+      },
+      "(20, 1.0, 1.25)": {
+        "n": 852,
+        "pf": 1.185,
+        "avg_r": 0.0938,
+        "wr": 48.5,
+        "payoff": 1.259
+      },
+      "(20, 1.0, 1.5)": {
+        "n": 852,
+        "pf": 1.156,
+        "avg_r": 0.087,
+        "wr": 43.7,
+        "payoff": 1.492
+      },
+      "(20, 1.0, 2.0)": {
+        "n": 852,
+        "pf": 1.102,
+        "avg_r": 0.063,
+        "wr": 37.0,
+        "payoff": 1.878
+      },
+      "(20, 1.25, None)": {
+        "n": 852,
+        "pf": 1.022,
+        "avg_r": 0.0136,
+        "wr": 34.5,
+        "payoff": 1.939
+      },
+      "(20, 1.25, 1.0)": {
+        "n": 852,
+        "pf": 1.13,
+        "avg_r": 0.0601,
+        "wr": 52.6,
+        "payoff": 1.019
+      },
+      "(20, 1.25, 1.25)": {
+        "n": 852,
+        "pf": 1.093,
+        "avg_r": 0.0483,
+        "wr": 46.6,
+        "payoff": 1.253
+      },
+      "(20, 1.25, 1.5)": {
+        "n": 852,
+        "pf": 1.04,
+        "avg_r": 0.0224,
+        "wr": 41.8,
+        "payoff": 1.449
+      },
+      "(20, 1.25, 2.0)": {
+        "n": 852,
+        "pf": 1.028,
+        "avg_r": 0.0169,
+        "wr": 37.7,
+        "payoff": 1.701
+      },
+      "(20, 1.5, None)": {
+        "n": 852,
+        "pf": 1.022,
+        "avg_r": 0.0128,
+        "wr": 38.4,
+        "payoff": 1.638
+      },
+      "(20, 1.5, 1.0)": {
+        "n": 852,
+        "pf": 1.077,
+        "avg_r": 0.0356,
+        "wr": 51.4,
+        "payoff": 1.016
+      },
+      "(20, 1.5, 1.25)": {
+        "n": 852,
+        "pf": 1.011,
+        "avg_r": 0.0057,
+        "wr": 45.4,
+        "payoff": 1.212
+      },
+      "(20, 1.5, 1.5)": {
+        "n": 852,
+        "pf": 1.006,
+        "avg_r": 0.0031,
+        "wr": 42.7,
+        "payoff": 1.346
+      },
+      "(20, 1.5, 2.0)": {
+        "n": 852,
+        "pf": 1.029,
+        "avg_r": 0.016,
+        "wr": 40.0,
+        "payoff": 1.538
+      }
+    }
+  },
+  "locked_params": {
+    "atr_n": 10,
+    "sl_mult": 0.75,
+    "rr": 1.25
+  },
+  "phase3": [
+    {
+      "trade_num": 1,
+      "entry_utc": "2003-08-01 20:00:00",
+      "entry_price": 347.8,
+      "atr": 1.939,
+      "stop": 346.35,
+      "target": 349.62,
+      "exit_utc": "2003-08-04 00:00:00",
+      "exit_price": 349.62,
+      "reason": "TP",
+      "gross_r": 1.25,
+      "net_r": 1.0741
+    },
+    {
+      "trade_num": 2,
+      "entry_utc": "2004-01-09 18:00:00",
+      "entry_price": 426.8,
+      "atr": 1.891,
+      "stop": 425.38,
+      "target": 428.57,
+      "exit_utc": "2004-01-12 00:00:00",
+      "exit_price": 425.38,
+      "reason": "SL",
+      "gross_r": -1.0,
+      "net_r": -1.1759
+    },
+    {
+      "trade_num": 3,
+      "entry_utc": "2005-01-28 21:00:00",
+      "entry_price": 428.9,
+      "atr": 1.061,
+      "stop": 428.1,
+      "target": 429.89,
+      "exit_utc": "2005-01-31 00:00:00",
+      "exit_price": 428.1,
+      "reason": "SL",
+      "gross_r": -1.0,
+      "net_r": -1.1759
+    },
+    {
+      "trade_num": 4,
+      "entry_utc": "2006-01-06 21:00:00",
+      "entry_price": 541.2,
+      "atr": 2.501,
+      "stop": 539.32,
+      "target": 543.54,
+      "exit_utc": "2006-01-09 00:00:00",
+      "exit_price": 543.54,
+      "reason": "TP",
+      "gross_r": 1.25,
+      "net_r": 1.0741
+    },
+    {
+      "trade_num": 5,
+      "entry_utc": "2007-01-05 21:00:00",
+      "entry_price": 608.5,
+      "atr": 3.852,
+      "stop": 605.61,
+      "target": 612.11,
+      "exit_utc": "2007-01-08 16:00:00",
+      "exit_price": 605.61,
+      "reason": "SL",
+      "gross_r": -1.0,
+      "net_r": -1.1759
+    },
+    {
+      "trade_num": 6,
+      "entry_utc": "2008-01-04 21:00:00",
+      "entry_price": 862.6,
+      "atr": 3.952,
+      "stop": 859.64,
+      "target": 866.3,
+      "exit_utc": "2008-01-07 02:00:00",
+      "exit_price": 859.64,
+      "reason": "SL",
+      "gross_r": -1.0,
+      "net_r": -1.1759
+    },
+    {
+      "trade_num": 7,
+      "entry_utc": "2009-01-02 21:00:00",
+      "entry_price": 876.0,
+      "atr": 4.337,
+      "stop": 872.75,
+      "target": 880.07,
+      "exit_utc": "2009-01-05 00:00:00",
+      "exit_price": 880.07,
+      "reason": "TP",
+      "gross_r": 1.25,
+      "net_r": 1.0741
+    },
+    {
+      "trade_num": 8,
+      "entry_utc": "2010-01-08 21:00:00",
+      "entry_price": 1138.2,
+      "atr": 5.16,
+      "stop": 1134.33,
+      "target": 1143.04,
+      "exit_utc": "2010-01-11 00:00:00",
+      "exit_price": 1143.04,
+      "reason": "TP",
+      "gross_r": 1.25,
+      "net_r": 1.0741
+    },
+    {
+      "trade_num": 9,
+      "entry_utc": "2011-01-07 21:00:00",
+      "entry_price": 1369.2,
+      "atr": 5.602,
+      "stop": 1365.0,
+      "target": 1374.45,
+      "exit_utc": "2011-01-10 01:00:00",
+      "exit_price": 1374.45,
+      "reason": "TP",
+      "gross_r": 1.25,
+      "net_r": 1.0741
+    },
+    {
+      "trade_num": 10,
+      "entry_utc": "2012-01-06 21:00:00",
+      "entry_price": 1618.3,
+      "atr": 5.945,
+      "stop": 1613.84,
+      "target": 1623.87,
+      "exit_utc": "2012-01-09 00:00:00",
+      "exit_price": 1613.84,
+      "reason": "SL",
+      "gross_r": -1.0,
+      "net_r": -1.1759
+    },
+    {
+      "trade_num": 11,
+      "entry_utc": "2013-01-04 21:00:00",
+      "entry_price": 1655.7,
+      "atr": 6.879,
+      "stop": 1650.54,
+      "target": 1662.15,
+      "exit_utc": "2013-01-07 02:00:00",
+      "exit_price": 1662.15,
+      "reason": "TP",
+      "gross_r": 1.25,
+      "net_r": 1.0741
+    },
+    {
+      "trade_num": 12,
+      "entry_utc": "2014-01-03 21:00:00",
+      "entry_price": 1236.2,
+      "atr": 4.062,
+      "stop": 1233.15,
+      "target": 1240.01,
+      "exit_utc": "2014-01-06 00:00:00",
+      "exit_price": 1233.15,
+      "reason": "SL",
+      "gross_r": -1.0,
+      "net_r": -1.1759
+    },
+    {
+      "trade_num": 13,
+      "entry_utc": "2015-01-02 21:00:00",
+      "entry_price": 1188.6,
+      "atr": 6.043,
+      "stop": 1184.07,
+      "target": 1194.27,
+      "exit_utc": "2015-01-05 00:00:00",
+      "exit_price": 1184.07,
+      "reason": "SL",
+      "gross_r": -1.0,
+      "net_r": -1.1759
+    },
+    {
+      "trade_num": 14,
+      "entry_utc": "2016-01-08 21:00:00",
+      "entry_price": 1104.1,
+      "atr": 3.717,
+      "stop": 1101.31,
+      "target": 1107.58,
+      "exit_utc": "2016-01-11 00:00:00",
+      "exit_price": 1107.58,
+      "reason": "TP",
+      "gross_r": 1.25,
+      "net_r": 1.0741
+    },
+    {
+      "trade_num": 15,
+      "entry_utc": "2017-01-06 21:00:00",
+      "entry_price": 1172.9,
+      "atr": 3.555,
+      "stop": 1170.23,
+      "target": 1176.23,
+      "exit_utc": "2017-01-09 01:00:00",
+      "exit_price": 1176.23,
+      "reason": "TP",
+      "gross_r": 1.25,
+      "net_r": 1.0741
+    },
+    {
+      "trade_num": 16,
+      "entry_utc": "2018-01-05 21:00:00",
+      "entry_price": 1320.3,
+      "atr": 2.699,
+      "stop": 1318.28,
+      "target": 1322.83,
+      "exit_utc": "2018-01-08 01:00:00",
+      "exit_price": 1322.83,
+      "reason": "TP",
+      "gross_r": 1.25,
+      "net_r": 1.0741
+    },
+    {
+      "trade_num": 17,
+      "entry_utc": "2019-01-04 21:00:00",
+      "entry_price": 1286.2,
+      "atr": 3.2,
+      "stop": 1283.8,
+      "target": 1289.2,
+      "exit_utc": "2019-01-07 01:00:00",
+      "exit_price": 1289.2,
+      "reason": "TP",
+      "gross_r": 1.25,
+      "net_r": 1.0741
+    },
+    {
+      "trade_num": 18,
+      "entry_utc": "2020-01-03 21:00:00",
+      "entry_price": 1555.2,
+      "atr": 3.802,
+      "stop": 1552.35,
+      "target": 1558.76,
+      "exit_utc": "2020-01-06 00:00:00",
+      "exit_price": 1558.76,
+      "reason": "TP",
+      "gross_r": 1.25,
+      "net_r": 1.0741
+    }
+  ],
+  "phase4": {
+    "5yr_folds": [
+      {
+        "label": "5yr",
+        "is_start": "2003",
+        "is_end": "2007",
+        "is_years": 4.4,
+        "oos_year": 2008,
+        "flag": "short-IS",
+        "best_params": {
+          "atr_n": 7,
+          "sl_mult": 0.75,
+          "rr": 1.5
+        },
+        "is_pf": 1.817,
+        "oos_trades": 51,
+        "oos_pf": 2.143,
+        "oos_win_pct": 58.8,
+        "oos_avg_r": 0.4706,
+        "oos_cagr": 26.59,
+        "oos_max_dd_pct": 3.94,
+        "oos_calmar": 6.747,
+        "oos_positive": "True"
+      },
+      {
+        "label": "5yr",
+        "is_start": "2004",
+        "is_end": "2008",
+        "is_years": 5.0,
+        "oos_year": 2009,
+        "flag": "",
+        "best_params": {
+          "atr_n": 7,
+          "sl_mult": 0.75,
+          "rr": 1.5
+        },
+        "is_pf": 1.913,
+        "oos_trades": 49,
+        "oos_pf": 0.797,
+        "oos_win_pct": 34.7,
+        "oos_avg_r": -0.1327,
+        "oos_cagr": -6.64,
+        "oos_max_dd_pct": 14.12,
+        "oos_calmar": -0.47,
+        "oos_positive": "False"
+      },
+      {
+        "label": "5yr",
+        "is_start": "2005",
+        "is_end": "2009",
+        "is_years": 5.0,
+        "oos_year": 2010,
+        "flag": "",
+        "best_params": {
+          "atr_n": 10,
+          "sl_mult": 0.75,
+          "rr": 1.5
+        },
+        "is_pf": 1.675,
+        "oos_trades": 49,
+        "oos_pf": 1.585,
+        "oos_win_pct": 51.0,
+        "oos_avg_r": 0.2826,
+        "oos_cagr": 14.45,
+        "oos_max_dd_pct": 3.94,
+        "oos_calmar": 3.667,
+        "oos_positive": "True"
+      },
+      {
+        "label": "5yr",
+        "is_start": "2006",
+        "is_end": "2010",
+        "is_years": 5.0,
+        "oos_year": 2011,
+        "flag": "",
+        "best_params": {
+          "atr_n": 10,
+          "sl_mult": 0.75,
+          "rr": 1.5
+        },
+        "is_pf": 1.741,
+        "oos_trades": 50,
+        "oos_pf": 1.5,
+        "oos_win_pct": 50.0,
+        "oos_avg_r": 0.25,
+        "oos_cagr": 12.9,
+        "oos_max_dd_pct": 3.51,
+        "oos_calmar": 3.676,
+        "oos_positive": "True"
+      },
+      {
+        "label": "5yr",
+        "is_start": "2007",
+        "is_end": "2011",
+        "is_years": 5.0,
+        "oos_year": 2012,
+        "flag": "",
+        "best_params": {
+          "atr_n": 10,
+          "sl_mult": 0.75,
+          "rr": 1.5
+        },
+        "is_pf": 1.469,
+        "oos_trades": 51,
+        "oos_pf": 0.968,
+        "oos_win_pct": 39.2,
+        "oos_avg_r": -0.0196,
+        "oos_cagr": -1.37,
+        "oos_max_dd_pct": 10.53,
+        "oos_calmar": -0.13,
+        "oos_positive": "False"
+      },
+      {
+        "label": "5yr",
+        "is_start": "2008",
+        "is_end": "2012",
+        "is_years": 5.0,
+        "oos_year": 2013,
+        "flag": "",
+        "best_params": {
+          "atr_n": 14,
+          "sl_mult": 0.75,
+          "rr": 1.0
+        },
+        "is_pf": 1.447,
+        "oos_trades": 51,
+        "oos_pf": 1.125,
+        "oos_win_pct": 52.9,
+        "oos_avg_r": 0.0588,
+        "oos_cagr": 2.79,
+        "oos_max_dd_pct": 7.73,
+        "oos_calmar": 0.361,
+        "oos_positive": "True"
+      },
+      {
+        "label": "5yr",
+        "is_start": "2009",
+        "is_end": "2013",
+        "is_years": 5.0,
+        "oos_year": 2014,
+        "flag": "",
+        "best_params": {
+          "atr_n": 7,
+          "sl_mult": 0.75,
+          "rr": 1.25
+        },
+        "is_pf": 1.25,
+        "oos_trades": 50,
+        "oos_pf": 0.663,
+        "oos_win_pct": 34.0,
+        "oos_avg_r": -0.2163,
+        "oos_cagr": -10.55,
+        "oos_max_dd_pct": 18.64,
+        "oos_calmar": -0.566,
+        "oos_positive": "False"
+      },
+      {
+        "label": "5yr",
+        "is_start": "2010",
+        "is_end": "2014",
+        "is_years": 5.0,
+        "oos_year": 2015,
+        "flag": "",
+        "best_params": {
+          "atr_n": 20,
+          "sl_mult": 0.75,
+          "rr": 1.5
+        },
+        "is_pf": 1.199,
+        "oos_trades": 49,
+        "oos_pf": 0.871,
+        "oos_win_pct": 36.7,
+        "oos_avg_r": -0.0816,
+        "oos_cagr": -4.28,
+        "oos_max_dd_pct": 12.8,
+        "oos_calmar": -0.334,
+        "oos_positive": "False"
+      },
+      {
+        "label": "5yr",
+        "is_start": "2011",
+        "is_end": "2015",
+        "is_years": 5.0,
+        "oos_year": 2016,
+        "flag": "",
+        "best_params": {
+          "atr_n": 20,
+          "sl_mult": 0.75,
+          "rr": null
+        },
+        "is_pf": 1.08,
+        "oos_trades": 50,
+        "oos_pf": 1.445,
+        "oos_win_pct": 34.0,
+        "oos_avg_r": 0.2854,
+        "oos_cagr": 14.17,
+        "oos_max_dd_pct": 8.94,
+        "oos_calmar": 1.586,
+        "oos_positive": "True"
+      },
+      {
+        "label": "5yr",
+        "is_start": "2012",
+        "is_end": "2016",
+        "is_years": 5.0,
+        "oos_year": 2017,
+        "flag": "",
+        "best_params": {
+          "atr_n": 20,
+          "sl_mult": 0.75,
+          "rr": 1.5
+        },
+        "is_pf": 1.122,
+        "oos_trades": 50,
+        "oos_pf": 1.0,
+        "oos_win_pct": 40.0,
+        "oos_avg_r": 0.0,
+        "oos_cagr": -0.37,
+        "oos_max_dd_pct": 10.13,
+        "oos_calmar": -0.037,
+        "oos_positive": "False"
+      },
+      {
+        "label": "5yr",
+        "is_start": "2013",
+        "is_end": "2017",
+        "is_years": 5.0,
+        "oos_year": 2018,
+        "flag": "",
+        "best_params": {
+          "atr_n": 20,
+          "sl_mult": 0.75,
+          "rr": null
+        },
+        "is_pf": 1.118,
+        "oos_trades": 51,
+        "oos_pf": 0.701,
+        "oos_win_pct": 15.7,
+        "oos_avg_r": -0.252,
+        "oos_cagr": -12.88,
+        "oos_max_dd_pct": 20.83,
+        "oos_calmar": -0.619,
+        "oos_positive": "False"
+      },
+      {
+        "label": "5yr",
+        "is_start": "2014",
+        "is_end": "2018",
+        "is_years": 5.0,
+        "oos_year": 2019,
+        "flag": "",
+        "best_params": {
+          "atr_n": 10,
+          "sl_mult": 0.75,
+          "rr": 1.5
+        },
+        "is_pf": 1.02,
+        "oos_trades": 51,
+        "oos_pf": 1.05,
+        "oos_win_pct": 41.2,
+        "oos_avg_r": 0.0294,
+        "oos_cagr": 1.13,
+        "oos_max_dd_pct": 6.86,
+        "oos_calmar": 0.164,
+        "oos_positive": "True"
+      },
+      {
+        "label": "5yr",
+        "is_start": "2015",
+        "is_end": "2019",
+        "is_years": 5.0,
+        "oos_year": 2020,
+        "flag": "",
+        "best_params": {
+          "atr_n": 20,
+          "sl_mult": 0.75,
+          "rr": 1.5
+        },
+        "is_pf": 1.14,
+        "oos_trades": 49,
+        "oos_pf": 1.327,
+        "oos_win_pct": 46.9,
+        "oos_avg_r": 0.1735,
+        "oos_cagr": 8.46,
+        "oos_max_dd_pct": 6.38,
+        "oos_calmar": 1.326,
+        "oos_positive": "True"
+      }
+    ],
+    "5yr_aggregate": {
+      "trades": 651,
+      "win_pct": 41.2,
+      "pf": 1.111,
+      "avg_r": 0.0652,
+      "avg_win_r": 1.5791,
+      "avg_loss_r": -0.9941,
+      "payoff_ratio": 1.588,
+      "max_consec_loss": 19,
+      "cagr": 2.12,
+      "max_dd_pct": 29.3,
+      "calmar": 0.072,
+      "pos_folds": 7,
+      "total_folds": 13,
+      "yearly_r": {
+        "2008": 24.0,
+        "2009": -6.5,
+        "2010": 13.847,
+        "2011": 12.5,
+        "2012": -1.0,
+        "2013": 3.0,
+        "2014": -10.815,
+        "2015": -4.0,
+        "2016": 14.268,
+        "2017": 0.0,
+        "2018": -12.853,
+        "2019": 1.5,
+        "2020": 8.5
+      },
+      "max_losing_streak": 19
+    },
+    "7yr_folds": [
+      {
+        "label": "7yr",
+        "is_start": "2003",
+        "is_end": "2007",
+        "is_years": 4.4,
+        "oos_year": 2008,
+        "flag": "short-IS",
+        "best_params": {
+          "atr_n": 7,
+          "sl_mult": 0.75,
+          "rr": 1.5
+        },
+        "is_pf": 1.817,
+        "oos_trades": 51,
+        "oos_pf": 2.143,
+        "oos_win_pct": 58.8,
+        "oos_avg_r": 0.4706,
+        "oos_cagr": 26.59,
+        "oos_max_dd_pct": 3.94,
+        "oos_calmar": 6.747,
+        "oos_positive": "True"
+      },
+      {
+        "label": "7yr",
+        "is_start": "2003",
+        "is_end": "2008",
+        "is_years": 5.4,
+        "oos_year": 2009,
+        "flag": "short-IS",
+        "best_params": {
+          "atr_n": 7,
+          "sl_mult": 0.75,
+          "rr": 1.5
+        },
+        "is_pf": 1.88,
+        "oos_trades": 49,
+        "oos_pf": 0.797,
+        "oos_win_pct": 34.7,
+        "oos_avg_r": -0.1327,
+        "oos_cagr": -6.64,
+        "oos_max_dd_pct": 14.12,
+        "oos_calmar": -0.47,
+        "oos_positive": "False"
+      },
+      {
+        "label": "7yr",
+        "is_start": "2003",
+        "is_end": "2009",
+        "is_years": 6.4,
+        "oos_year": 2010,
+        "flag": "short-IS",
+        "best_params": {
+          "atr_n": 7,
+          "sl_mult": 0.75,
+          "rr": 1.5
+        },
+        "is_pf": 1.634,
+        "oos_trades": 49,
+        "oos_pf": 1.588,
+        "oos_win_pct": 51.0,
+        "oos_avg_r": 0.2833,
+        "oos_cagr": 14.49,
+        "oos_max_dd_pct": 3.94,
+        "oos_calmar": 3.677,
+        "oos_positive": "True"
+      },
+      {
+        "label": "7yr",
+        "is_start": "2004",
+        "is_end": "2010",
+        "is_years": 7.0,
+        "oos_year": 2011,
+        "flag": "",
+        "best_params": {
+          "atr_n": 7,
+          "sl_mult": 0.75,
+          "rr": 1.5
+        },
+        "is_pf": 1.641,
+        "oos_trades": 50,
+        "oos_pf": 1.5,
+        "oos_win_pct": 50.0,
+        "oos_avg_r": 0.25,
+        "oos_cagr": 12.9,
+        "oos_max_dd_pct": 3.51,
+        "oos_calmar": 3.676,
+        "oos_positive": "True"
+      },
+      {
+        "label": "7yr",
+        "is_start": "2005",
+        "is_end": "2011",
+        "is_years": 7.0,
+        "oos_year": 2012,
+        "flag": "",
+        "best_params": {
+          "atr_n": 10,
+          "sl_mult": 0.75,
+          "rr": 1.5
+        },
+        "is_pf": 1.626,
+        "oos_trades": 51,
+        "oos_pf": 0.968,
+        "oos_win_pct": 39.2,
+        "oos_avg_r": -0.0196,
+        "oos_cagr": -1.37,
+        "oos_max_dd_pct": 10.53,
+        "oos_calmar": -0.13,
+        "oos_positive": "False"
+      },
+      {
+        "label": "7yr",
+        "is_start": "2006",
+        "is_end": "2012",
+        "is_years": 7.0,
+        "oos_year": 2013,
+        "flag": "",
+        "best_params": {
+          "atr_n": 10,
+          "sl_mult": 0.75,
+          "rr": 1.5
+        },
+        "is_pf": 1.566,
+        "oos_trades": 51,
+        "oos_pf": 1.213,
+        "oos_win_pct": 45.1,
+        "oos_avg_r": 0.1169,
+        "oos_cagr": 5.75,
+        "oos_max_dd_pct": 7.28,
+        "oos_calmar": 0.79,
+        "oos_positive": "True"
+      },
+      {
+        "label": "7yr",
+        "is_start": "2007",
+        "is_end": "2013",
+        "is_years": 7.0,
+        "oos_year": 2014,
+        "flag": "",
+        "best_params": {
+          "atr_n": 7,
+          "sl_mult": 0.75,
+          "rr": 1.25
+        },
+        "is_pf": 1.4,
+        "oos_trades": 50,
+        "oos_pf": 0.663,
+        "oos_win_pct": 34.0,
+        "oos_avg_r": -0.2163,
+        "oos_cagr": -10.55,
+        "oos_max_dd_pct": 18.64,
+        "oos_calmar": -0.566,
+        "oos_positive": "False"
+      },
+      {
+        "label": "7yr",
+        "is_start": "2008",
+        "is_end": "2014",
+        "is_years": 7.0,
+        "oos_year": 2015,
+        "flag": "",
+        "best_params": {
+          "atr_n": 20,
+          "sl_mult": 0.75,
+          "rr": 1.5
+        },
+        "is_pf": 1.264,
+        "oos_trades": 49,
+        "oos_pf": 0.871,
+        "oos_win_pct": 36.7,
+        "oos_avg_r": -0.0816,
+        "oos_cagr": -4.28,
+        "oos_max_dd_pct": 12.8,
+        "oos_calmar": -0.334,
+        "oos_positive": "False"
+      },
+      {
+        "label": "7yr",
+        "is_start": "2009",
+        "is_end": "2015",
+        "is_years": 7.0,
+        "oos_year": 2016,
+        "flag": "",
+        "best_params": {
+          "atr_n": 20,
+          "sl_mult": 0.75,
+          "rr": 2.0
+        },
+        "is_pf": 1.101,
+        "oos_trades": 50,
+        "oos_pf": 1.378,
+        "oos_win_pct": 40.0,
+        "oos_avg_r": 0.2193,
+        "oos_cagr": 11.0,
+        "oos_max_dd_pct": 6.9,
+        "oos_calmar": 1.593,
+        "oos_positive": "True"
+      },
+      {
+        "label": "7yr",
+        "is_start": "2010",
+        "is_end": "2016",
+        "is_years": 7.0,
+        "oos_year": 2017,
+        "flag": "",
+        "best_params": {
+          "atr_n": 20,
+          "sl_mult": 0.75,
+          "rr": 1.5
+        },
+        "is_pf": 1.228,
+        "oos_trades": 50,
+        "oos_pf": 1.0,
+        "oos_win_pct": 40.0,
+        "oos_avg_r": 0.0,
+        "oos_cagr": -0.37,
+        "oos_max_dd_pct": 10.13,
+        "oos_calmar": -0.037,
+        "oos_positive": "False"
+      },
+      {
+        "label": "7yr",
+        "is_start": "2011",
+        "is_end": "2017",
+        "is_years": 7.0,
+        "oos_year": 2018,
+        "flag": "",
+        "best_params": {
+          "atr_n": 20,
+          "sl_mult": 0.75,
+          "rr": null
+        },
+        "is_pf": 1.181,
+        "oos_trades": 51,
+        "oos_pf": 0.701,
+        "oos_win_pct": 15.7,
+        "oos_avg_r": -0.252,
+        "oos_cagr": -12.88,
+        "oos_max_dd_pct": 20.83,
+        "oos_calmar": -0.619,
+        "oos_positive": "False"
+      },
+      {
+        "label": "7yr",
+        "is_start": "2012",
+        "is_end": "2018",
+        "is_years": 7.0,
+        "oos_year": 2019,
+        "flag": "",
+        "best_params": {
+          "atr_n": 20,
+          "sl_mult": 0.75,
+          "rr": 1.5
+        },
+        "is_pf": 1.073,
+        "oos_trades": 51,
+        "oos_pf": 1.232,
+        "oos_win_pct": 45.1,
+        "oos_avg_r": 0.1275,
+        "oos_cagr": 6.32,
+        "oos_max_dd_pct": 4.94,
+        "oos_calmar": 1.279,
+        "oos_positive": "True"
+      },
+      {
+        "label": "7yr",
+        "is_start": "2013",
+        "is_end": "2019",
+        "is_years": 7.0,
+        "oos_year": 2020,
+        "flag": "",
+        "best_params": {
+          "atr_n": 20,
+          "sl_mult": 0.75,
+          "rr": 1.5
+        },
+        "is_pf": 1.086,
+        "oos_trades": 49,
+        "oos_pf": 1.327,
+        "oos_win_pct": 46.9,
+        "oos_avg_r": 0.1735,
+        "oos_cagr": 8.46,
+        "oos_max_dd_pct": 6.38,
+        "oos_calmar": 1.326,
+        "oos_positive": "True"
+      }
+    ],
+    "7yr_aggregate": {
+      "trades": 651,
+      "win_pct": 41.3,
+      "pf": 1.124,
+      "avg_r": 0.0724,
+      "avg_win_r": 1.5868,
+      "avg_loss_r": -0.994,
+      "payoff_ratio": 1.596,
+      "max_consec_loss": 19,
+      "cagr": 2.41,
+      "max_dd_pct": 31.27,
+      "calmar": 0.077,
+      "pos_folds": 7,
+      "total_folds": 13,
+      "yearly_r": {
+        "2008": 24.0,
+        "2009": -6.5,
+        "2010": 13.879,
+        "2011": 12.5,
+        "2012": -1.0,
+        "2013": 5.96,
+        "2014": -10.815,
+        "2015": -4.0,
+        "2016": 10.966,
+        "2017": 0.0,
+        "2018": -12.853,
+        "2019": 6.5,
+        "2020": 8.5
+      },
+      "max_losing_streak": 19
+    }
+  },
+  "phase5": {
+    "roll_dates_count": 144,
+    "is_signals_total": 852,
+    "is_signals_in_roll_window": 112,
+    "is_signals_outside_roll_window": 740,
+    "pf_A_all_signals": 1.224,
+    "pf_B_roll_excluded": 1.24,
+    "exp_A": 0.1128,
+    "exp_B": 0.1201,
+    "wfo_A_aggregate": {
+      "trades": 651,
+      "win_pct": 41.2,
+      "pf": 1.111,
+      "avg_r": 0.0652,
+      "avg_win_r": 1.5791,
+      "avg_loss_r": -0.9941,
+      "payoff_ratio": 1.588,
+      "max_consec_loss": 19,
+      "cagr": 2.85,
+      "max_dd_pct": 29.3,
+      "calmar": 0.097,
+      "pos_folds_a": 7
+    },
+    "wfo_B_aggregate": {
+      "trades": 566,
+      "win_pct": 39.6,
+      "pf": 1.127,
+      "avg_r": 0.0762,
+      "avg_win_r": 1.7051,
+      "avg_loss_r": -0.9906,
+      "payoff_ratio": 1.721,
+      "max_consec_loss": 18,
+      "cagr": 2.92,
+      "max_dd_pct": 28.67,
+      "calmar": 0.102,
+      "pos_folds_b": 9
+    },
+    "pf_drop": -0.016,
+    "conclusion": "EDGE SURVIVES ROLL EXCLUSION \u2014 anomaly appears genuine"
+  },
+  "phase6": {
+    "gld_data_found": false,
+    "gld_yearly_gc_oos": {
+      "2008": 24.0,
+      "2009": -6.5,
+      "2010": 13.847,
+      "2011": 12.5,
+      "2012": -1.0,
+      "2013": 3.0,
+      "2014": -10.815,
+      "2015": -4.0,
+      "2016": 14.268,
+      "2017": 0.0,
+      "2018": -12.853,
+      "2019": 1.5,
+      "2020": 8.5
+    },
+    "note": "GLD daily file not found; decomposition pending."
+  },
+  "phase7": {
+    "account_eur": 100000,
+    "account_usd": 108000.0,
+    "risk_pct": 0.01,
+    "risk_usd": 1080.0,
+    "stop_pts_usd_per_oz": 7.5,
+    "gross_avg_r_oos": 0.0652,
+    "tiers": [
+      {
+        "instrument": "Normalized R (research baseline)",
+        "multiplier": "N/A",
+        "tick_usd": "N/A",
+        "rt_cost_usd": 0,
+        "contracts": "N/A",
+        "gross_edge_usd": "N/A",
+        "net_edge_usd": "N/A",
+        "cost_pct_gross": "0%",
+        "pf_at_1x_cost": 1.111,
+        "pf_at_1_25x_cost": 1.111,
+        "pf_at_2x_cost": 1.111,
+        "verdict": "N/A (baseline)"
+      },
+      {
+        "instrument": "MGC Micro Gold Futures",
+        "multiplier": "10 oz",
+        "tick_usd": "$1.00/contract",
+        "rt_cost_usd": 7.0,
+        "contracts_for_1pct_risk": 14,
+        "total_rt_usd": 98.0,
+        "gross_edge_usd": 70.42,
+        "net_edge_usd": -27.58,
+        "cost_pct_gross": "139.2%",
+        "pf_at_1x_cost": 0.96,
+        "pf_at_1_25x_cost": 0.926,
+        "pf_at_2x_cost": 0.832,
+        "verdict": "MARGINAL"
+      },
+      {
+        "instrument": "GC Standard Gold Futures",
+        "multiplier": "100 oz",
+        "tick_usd": "$10.00/contract",
+        "rt_cost_usd": 30.0,
+        "contracts_for_1pct_risk": 1,
+        "total_rt_usd": 30.0,
+        "gross_edge_usd": 70.42,
+        "net_edge_usd": 40.42,
+        "cost_pct_gross": "42.6%",
+        "pf_at_1x_cost": 1.062,
+        "pf_at_1_25x_cost": 1.05,
+        "pf_at_2x_cost": 1.016,
+        "verdict": "NET POSITIVE"
+      },
+      {
+        "instrument": "GLD ETF",
+        "multiplier": "1 share ~$200",
+        "tick_usd": "$0.01",
+        "rt_cost_usd": 23.04,
+        "shares_for_1pct_risk": 1152,
+        "gross_edge_usd": 70.42,
+        "net_edge_usd": 47.38,
+        "cost_pct_gross": "32.7%",
+        "pf_at_1x_cost": 1.073,
+        "pf_at_1_25x_cost": 1.064,
+        "pf_at_2x_cost": 1.037,
+        "verdict": "NET POSITIVE"
+      }
+    ]
+  },
+  "phase8": {
+    "trades": 274,
+    "win_pct": 39.1,
+    "pf": 0.791,
+    "avg_r": -0.1274,
+    "avg_win_r": 1.2345,
+    "avg_loss_r": -1.0,
+    "payoff_ratio": 1.234,
+    "max_consec_loss": 10,
+    "cagr": -6.52,
+    "max_dd_pct": 37.13,
+    "calmar": -0.176,
+    "yearly_r": {
+      "2021": 6.25,
+      "2022": -17.25,
+      "2023": -12.16,
+      "2024": -6.0,
+      "2025": -2.75,
+      "2026": -3.0
+    },
+    "rolling_12m_pf": {
+      "2021-01-31": 0.417,
+      "2021-02-28": 0.75,
+      "2021-03-31": 0.893,
+      "2021-04-30": 1.25,
+      "2021-05-31": 1.875,
+      "2021-06-30": 1.477,
+      "2021-07-31": 1.538,
+      "2021-08-31": 1.328,
+      "2021-09-30": 1.184,
+      "2021-10-31": 1.375,
+      "2021-11-30": 1.25,
+      "2021-12-31": 1.25,
+      "2022-01-31": 1.154,
+      "2022-02-28": 1.25,
+      "2022-03-31": 1.25,
+      "2022-04-30": 0.982,
+      "2022-05-31": 0.766,
+      "2022-06-30": 0.833,
+      "2022-07-31": 0.703,
+      "2022-08-31": 0.644,
+      "2022-09-30": 0.625,
+      "2022-10-31": 0.486,
+      "2022-11-30": 0.439,
+      "2022-12-31": 0.521,
+      "2023-01-31": 0.742,
+      "2023-02-28": 0.625,
+      "2023-03-31": 0.556,
+      "2023-04-30": 0.571,
+      "2023-05-31": 0.682,
+      "2023-06-30": 0.607,
+      "2023-07-31": 0.571,
+      "2023-08-31": 0.571,
+      "2023-09-30": 0.682,
+      "2023-10-31": 0.682,
+      "2023-11-30": 0.742,
+      "2023-12-31": 0.632,
+      "2024-01-31": 0.524,
+      "2024-02-29": 0.524,
+      "2024-03-31": 0.651,
+      "2024-04-30": 0.69,
+      "2024-05-31": 0.613,
+      "2024-06-30": 0.69,
+      "2024-07-31": 0.82,
+      "2024-08-31": 0.861,
+      "2024-09-30": 0.753,
+      "2024-10-31": 0.753,
+      "2024-11-30": 0.793,
+      "2024-12-31": 0.806,
+      "2025-01-31": 0.72,
+      "2025-02-28": 0.847,
+      "2025-03-31": 0.781,
+      "2025-04-30": 0.742,
+      "2025-05-31": 0.806,
+      "2025-06-30": 0.742,
+      "2025-07-31": 0.766,
+      "2025-08-31": 0.703,
+      "2025-09-30": 0.766,
+      "2025-10-31": 0.806,
+      "2025-11-30": 0.833,
+      "2025-12-31": 0.905,
+      "2026-01-31": 1.154,
+      "2026-02-28": 1.154,
+      "2026-03-31": 0.982,
+      "2026-04-30": 0.982
+    }
+  },
+  "phase9": {
+    "base": {
+      "trades": 852,
+      "win_pct": 49.4,
+      "pf": 1.224,
+      "avg_r": 0.1128,
+      "avg_win_r": 1.2485,
+      "avg_loss_r": -0.9965,
+      "payoff_ratio": 1.253,
+      "max_consec_loss": 11,
+      "cagr": 5.35,
+      "max_dd_pct": 25.32,
+      "calmar": 0.211
+    },
+    "dxy_declining": {
+      "trades": 314,
+      "win_pct": 51.6,
+      "pf": 1.332,
+      "avg_r": 0.1608,
+      "avg_win_r": 1.25,
+      "avg_loss_r": -1.0,
+      "payoff_ratio": 1.25,
+      "max_consec_loss": 7,
+      "cagr": 3.8,
+      "max_dd_pct": 12.55,
+      "calmar": 0.303,
+      "pos_folds": 11,
+      "total_folds": 13
+    },
+    "us10y_declining": {
+      "trades": 353,
+      "win_pct": 45.6,
+      "pf": 1.053,
+      "avg_r": 0.0289,
+      "avg_win_r": 1.25,
+      "avg_loss_r": -0.9951,
+      "payoff_ratio": 1.256,
+      "max_consec_loss": 12,
+      "cagr": 0.62,
+      "max_dd_pct": 25.61,
+      "calmar": 0.024,
+      "pos_folds": 6,
+      "total_folds": 13
+    },
+    "combined_dxy_us10y": {
+      "trades": 170,
+      "win_pct": 51.2,
+      "pf": 1.31,
+      "avg_r": 0.1515,
+      "avg_win_r": 1.25,
+      "avg_loss_r": -1.0,
+      "payoff_ratio": 1.25,
+      "max_consec_loss": 7,
+      "cagr": 1.91,
+      "max_dd_pct": 8.7,
+      "calmar": 0.22,
+      "pos_folds": 9,
+      "total_folds": 13
+    }
+  },
+  "phase10": {
+    "gc_only_pf": 1.111,
+    "gld_data_available": false,
+    "note": "GLD daily data not found; full portfolio analysis pending."
+  },
+  "phase11": {
+    "gates": {
+      "G1_wfo_expectancy_pos": true,
+      "G2_wfo_pf_material": true,
+      "G3_majority_folds_pos": true,
+      "G4_plateau_confirmed": true,
+      "G5_roll_audit": true,
+      "G6_independent_proxy": false,
+      "G7_costs_pos": "False",
+      "G8_khv_not_catastrophic": false
+    },
+    "gates_passed": "5",
+    "gates_total": 8,
+    "verdict": "WATCH",
+    "locked_params": {
+      "atr_n": 10,
+      "sl_mult": 0.75,
+      "rr": 1.25
+    },
+    "portfolio_recommendation": "GLD remains sole implementation. Needed for upgrade: GC OOS data confirmation, roll audit pass, and cost model positive."
+  }
+}
