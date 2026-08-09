@@ -1,0 +1,539 @@
+{
+  "run_date": "2026-08-09T18:00:40.454441",
+  "frozen_params": {
+    "atr_len": 14,
+    "sl_mult": 1.0,
+    "rr": 2.0,
+    "filter": "neg_monday"
+  },
+  "section1_provenance": {
+    "file_path": "C:\\Users\\joris\\Downloads\\CBOT_MINI_DL_YM1!, 1D_ff3f0.csv",
+    "filename": "CBOT_MINI_DL_YM1!, 1D_ff3f0.csv",
+    "source": "TradingView CBOT_MINI_DL continuous contract, daily bars",
+    "row_count": 6102,
+    "first_timestamp": "2002-04-05",
+    "last_timestamp": "2026-06-22",
+    "timezone": "Exchange (Chicago, CT)",
+    "duplicate_rows": 0,
+    "ohlc_violations": 0,
+    "day_of_week_distribution": {
+      "Mon": 1145,
+      "Tue": 1253,
+      "Wed": 1251,
+      "Thu": 1227,
+      "Fri": 1226
+    },
+    "weekend_bars": 0,
+    "missing_mondays": 119,
+    "missing_tuesdays": 11,
+    "oos_fold_coverage_note": "Data starts 2002-04-05. WFO uses 5yr IS \u2192 1yr OOS rolling annually. First IS: 2002-2006 (years 2002-2006 inclusive). First OOS: 2007. Last OOS in pre-2021 block: 2020 (IS 2015-2019). Total pre-2021 OOS folds: 14 (2007-2020)."
+  },
+  "section2_pre2021_wfo": {
+    "fold_detail": [
+      {
+        "is_period": "2002-2006",
+        "oos_year": 2007,
+        "is_pf": 1.408,
+        "oos_trades": 23,
+        "oos_pf": 2.1295,
+        "oos_r_total": 5.4288,
+        "oos_expectancy": 0.236,
+        "positive": true
+      },
+      {
+        "is_period": "2003-2007",
+        "oos_year": 2008,
+        "is_pf": 1.6168,
+        "oos_trades": 31,
+        "oos_pf": 1.5191,
+        "oos_r_total": 3.8782,
+        "oos_expectancy": 0.1251,
+        "positive": true
+      },
+      {
+        "is_period": "2004-2008",
+        "oos_year": 2009,
+        "is_pf": 1.5229,
+        "oos_trades": 19,
+        "oos_pf": 0.6777,
+        "oos_r_total": -1.9,
+        "oos_expectancy": -0.1,
+        "positive": false
+      },
+      {
+        "is_period": "2005-2009",
+        "oos_year": 2010,
+        "is_pf": 1.2509,
+        "oos_trades": 19,
+        "oos_pf": 0.6945,
+        "oos_r_total": -1.8038,
+        "oos_expectancy": -0.0949,
+        "positive": false
+      },
+      {
+        "is_period": "2006-2010",
+        "oos_year": 2011,
+        "is_pf": 1.16,
+        "oos_trades": 24,
+        "oos_pf": 0.7917,
+        "oos_r_total": -1.7654,
+        "oos_expectancy": -0.0736,
+        "positive": false
+      },
+      {
+        "is_period": "2007-2011",
+        "oos_year": 2012,
+        "is_pf": 1.0989,
+        "oos_trades": 24,
+        "oos_pf": 0.7449,
+        "oos_r_total": -1.542,
+        "oos_expectancy": -0.0642,
+        "positive": false
+      },
+      {
+        "is_period": "2008-2012",
+        "oos_year": 2013,
+        "is_pf": 0.9346,
+        "oos_trades": 18,
+        "oos_pf": 1.2699,
+        "oos_r_total": 1.2533,
+        "oos_expectancy": 0.0696,
+        "positive": true
+      },
+      {
+        "is_period": "2009-2013",
+        "oos_year": 2014,
+        "is_pf": 0.8161,
+        "oos_trades": 26,
+        "oos_pf": 1.0705,
+        "oos_r_total": 0.5556,
+        "oos_expectancy": 0.0214,
+        "positive": true
+      },
+      {
+        "is_period": "2010-2014",
+        "oos_year": 2015,
+        "is_pf": 0.9001,
+        "oos_trades": 23,
+        "oos_pf": 1.3389,
+        "oos_r_total": 1.6636,
+        "oos_expectancy": 0.0723,
+        "positive": true
+      },
+      {
+        "is_period": "2011-2015",
+        "oos_year": 2016,
+        "is_pf": 0.9963,
+        "oos_trades": 22,
+        "oos_pf": 1.849,
+        "oos_r_total": 3.6857,
+        "oos_expectancy": 0.1675,
+        "positive": true
+      },
+      {
+        "is_period": "2012-2016",
+        "oos_year": 2017,
+        "is_pf": 1.2023,
+        "oos_trades": 19,
+        "oos_pf": 1.0408,
+        "oos_r_total": 0.1998,
+        "oos_expectancy": 0.0105,
+        "positive": true
+      },
+      {
+        "is_period": "2013-2017",
+        "oos_year": 2018,
+        "is_pf": 1.2948,
+        "oos_trades": 22,
+        "oos_pf": 1.0547,
+        "oos_r_total": 0.3894,
+        "oos_expectancy": 0.0177,
+        "positive": true
+      },
+      {
+        "is_period": "2014-2018",
+        "oos_year": 2019,
+        "is_pf": 1.1756,
+        "oos_trades": 19,
+        "oos_pf": 2.2564,
+        "oos_r_total": 3.5004,
+        "oos_expectancy": 0.1842,
+        "positive": true
+      },
+      {
+        "is_period": "2015-2019",
+        "oos_year": 2020,
+        "is_pf": 1.461,
+        "oos_trades": 18,
+        "oos_pf": 2.1042,
+        "oos_r_total": 3.5575,
+        "oos_expectancy": 0.1976,
+        "positive": true
+      }
+    ],
+    "aggregate": {
+      "folds": 14,
+      "trades": 307,
+      "pf": 1.2181,
+      "expectancy_r": 0.0557,
+      "positive_fold_ratio": "10/14",
+      "total_r": 17.1011,
+      "maxdd_r": -8.5283,
+      "calmar_r": 0.1432,
+      "cagr_pct": 1.18,
+      "maxdd_pct": -8.32,
+      "calmar_equity": 0.142
+    }
+  },
+  "section2_khv": {
+    "label": "KNOWN HISTORICAL VALIDATION \u2014 NOT PRISTINE OOS",
+    "period": "2021 to end of data",
+    "trades": 111,
+    "pf": 1.1913,
+    "expectancy_r": 0.0392,
+    "total_r": 4.3526,
+    "win_rate_pct": 50.5,
+    "by_year": [
+      {
+        "year": 2021,
+        "trades": 23,
+        "pf": 1.4064,
+        "r_total": 1.7492
+      },
+      {
+        "year": 2022,
+        "trades": 25,
+        "pf": 1.6463,
+        "r_total": 2.402
+      },
+      {
+        "year": 2023,
+        "trades": 15,
+        "pf": 0.817,
+        "r_total": -0.8129
+      },
+      {
+        "year": 2024,
+        "trades": 26,
+        "pf": 1.6733,
+        "r_total": 3.0501
+      },
+      {
+        "year": 2025,
+        "trades": 18,
+        "pf": 0.4558,
+        "r_total": -3.098
+      },
+      {
+        "year": 2026,
+        "trades": 4,
+        "pf": 17.2665,
+        "r_total": 1.0622
+      }
+    ],
+    "cagr_pct": 0.7,
+    "maxdd_pct": -3.82,
+    "calmar": 0.183
+  },
+  "section3_filter_audit": {
+    "unfiltered_pre2021": {
+      "trades": 659,
+      "pf": 1.1128,
+      "expectancy_r": 0.0267,
+      "positive_folds_of_14": 9,
+      "total_r": 17.5783,
+      "maxdd_r": -13.3138,
+      "calmar_r": 0.0943
+    },
+    "neg_monday_pre2021": {
+      "trades": 307,
+      "pf": 1.2181,
+      "expectancy_r": 0.0557,
+      "positive_folds_of_14": 10,
+      "total_r": 17.1011,
+      "maxdd_r": -8.5283,
+      "calmar_r": 0.1432
+    },
+    "filter_delta": {
+      "pf_delta": 0.1053,
+      "pf_delta_pct": 9.46,
+      "statement": "neg_monday filter improves PRE-2021 WFO OOS PF by 9.5%"
+    },
+    "provenance_assessment": "UNFILTERED strategy has 879 IS+OOS trades vs 411 with neg_monday. The 873 IS trades cited in ws-strategy-data.ts is consistent with the unfiltered version (all Monday entries 2002-2018). neg_monday appears to have been added after initial specification, raising meta-selection bias risk if 2021+ data was visible. FLAGGED: neg_monday provenance uncertain \u2014 filter should be validated on pre-2021 OOS only."
+  },
+  "section4_plateau": {
+    "with_filter": {
+      "count": 120,
+      "min_pf": 1.0468,
+      "p10_pf": 1.1116,
+      "median_pf": 1.1657,
+      "max_pf": 1.5064,
+      "count_above_1_0": 120,
+      "pct_above_1_0": 100.0,
+      "count_above_1_10": 108,
+      "pct_above_1_10": 90.0,
+      "count_above_1_20": 33,
+      "pct_above_1_20": 27.5
+    },
+    "without_filter": {
+      "count": 120,
+      "min_pf": 0.9598,
+      "p10_pf": 0.9849,
+      "median_pf": 1.0231,
+      "max_pf": 1.3619,
+      "count_above_1_0": 84,
+      "pct_above_1_0": 70.0,
+      "count_above_1_10": 16,
+      "pct_above_1_10": 13.3,
+      "count_above_1_20": 12,
+      "pct_above_1_20": 10.0
+    }
+  },
+  "section5_roll_audit": {
+    "base_all": {
+      "trades": 522,
+      "pf": 1.248,
+      "expectancy_r": 0.0588,
+      "total_r": 30.7027
+    },
+    "roll_only_all": {
+      "pf": 1.1925,
+      "trades": 81
+    },
+    "non_roll_all": {
+      "trades": 441,
+      "pf": 1.2589,
+      "expectancy_r": 0.0607,
+      "total_r": 26.7848
+    },
+    "non_roll_pre2021_wfo": {
+      "trades": 260,
+      "pf": 1.2844,
+      "expectancy_r": 0.0708,
+      "total_r": 18.3981
+    },
+    "roll_artifact_concern": "False",
+    "note": "Roll PF=1.1925 vs Non-Roll PF=1.2589; diff=acceptable"
+  },
+  "section6_cost": {
+    "avg_atr_pre2021": 243.0,
+    "gross_expectancy_r": 0.0557,
+    "ym": {
+      "1r_usd": 1215.0,
+      "rt_cost_usd": 14.1,
+      "cost_in_r": 0.011605,
+      "net_expectancy_r": 0.0441,
+      "cost_pct_of_gross": 20.8,
+      "breakeven_max_rt_usd": 67.68,
+      "stress_test": {
+        "1x": 0.0441,
+        "1.25x": 0.0412,
+        "1.5x": 0.0383,
+        "2.0x": 0.0325
+      }
+    },
+    "mym": {
+      "1r_usd": 121.5,
+      "rt_cost_usd": 2.2,
+      "cost_in_r": 0.018107,
+      "net_expectancy_r": 0.0376,
+      "cost_pct_of_gross": 32.5,
+      "breakeven_max_rt_usd": 6.77,
+      "stress_test": {
+        "1x": 0.0376,
+        "1.25x": 0.0331,
+        "1.5x": 0.0285,
+        "2.0x": 0.0195
+      }
+    }
+  },
+  "section7_portfolio": {
+    "overlap_years": [
+      {
+        "year": 2009,
+        "ym_annual_r": -1.9,
+        "ym_ret_pct": -1.9,
+        "gld_ret_pct": 8.2
+      },
+      {
+        "year": 2010,
+        "ym_annual_r": -1.8038,
+        "ym_ret_pct": -1.8038,
+        "gld_ret_pct": 8.47
+      },
+      {
+        "year": 2011,
+        "ym_annual_r": -1.7654,
+        "ym_ret_pct": -1.7654,
+        "gld_ret_pct": 20.03
+      },
+      {
+        "year": 2012,
+        "ym_annual_r": -1.542,
+        "ym_ret_pct": -1.542,
+        "gld_ret_pct": 10.3
+      },
+      {
+        "year": 2013,
+        "ym_annual_r": 1.2533,
+        "ym_ret_pct": 1.2533,
+        "gld_ret_pct": -4.98
+      },
+      {
+        "year": 2014,
+        "ym_annual_r": 0.5556,
+        "ym_ret_pct": 0.5556,
+        "gld_ret_pct": 8.23
+      },
+      {
+        "year": 2015,
+        "ym_annual_r": 1.6636,
+        "ym_ret_pct": 1.6636,
+        "gld_ret_pct": 9.86
+      },
+      {
+        "year": 2016,
+        "ym_annual_r": 3.6857,
+        "ym_ret_pct": 3.6857,
+        "gld_ret_pct": 3.25
+      },
+      {
+        "year": 2017,
+        "ym_annual_r": 0.1998,
+        "ym_ret_pct": 0.1998,
+        "gld_ret_pct": 11.12
+      },
+      {
+        "year": 2018,
+        "ym_annual_r": 0.3894,
+        "ym_ret_pct": 0.3894,
+        "gld_ret_pct": 10.07
+      },
+      {
+        "year": 2019,
+        "ym_annual_r": 3.5004,
+        "ym_ret_pct": 3.5004,
+        "gld_ret_pct": 9.65
+      },
+      {
+        "year": 2020,
+        "ym_annual_r": 3.5575,
+        "ym_ret_pct": 3.5575,
+        "gld_ret_pct": 16.84
+      }
+    ],
+    "correlation": -0.1896,
+    "simultaneous_losing_years": 0,
+    "ym_standalone_overlap": {
+      "cagr_pct": 0.63,
+      "maxdd_pct": -6.83,
+      "calmar": 0.092,
+      "sharpe": 0.303
+    },
+    "gld_standalone_overlap": {
+      "cagr_pct": 9.09,
+      "maxdd_pct": -4.98,
+      "calmar": 1.825,
+      "sharpe": 1.496
+    },
+    "splits": {
+      "70_30": {
+        "cagr_pct": 6.59,
+        "maxdd_pct": -3.11,
+        "calmar": 2.119,
+        "sharpe": 1.568
+      },
+      "60_40": {
+        "cagr_pct": 5.75,
+        "maxdd_pct": -2.49,
+        "calmar": 2.309,
+        "sharpe": 1.593
+      },
+      "50_50": {
+        "cagr_pct": 4.91,
+        "maxdd_pct": -1.86,
+        "calmar": 2.64,
+        "sharpe": 1.61
+      },
+      "40_60": {
+        "cagr_pct": 4.06,
+        "maxdd_pct": -1.24,
+        "calmar": 3.274,
+        "sharpe": 1.596
+      },
+      "30_70": {
+        "cagr_pct": 3.21,
+        "maxdd_pct": -0.62,
+        "calmar": 5.177,
+        "sharpe": 1.5
+      }
+    },
+    "current_allocation_assessment": "The 50/50 split falls within the robust allocation plateau (40/60 to 60/40 show similar Calmar). If current 9%+9% equal-weight allocation refers to portfolio risk fraction, 50/50 split is confirmed robust."
+  },
+  "section8_verdict": {
+    "verdict": "KEEP \u2014 strategy confirmed, allocation pending provenance review",
+    "gates": [
+      {
+        "gate": 1,
+        "name": "Pre-2021 WFO expectancy > 0",
+        "value": 0.0557,
+        "pass": "True",
+        "target": ">0"
+      },
+      {
+        "gate": 2,
+        "name": "Pre-2021 WFO PF > 1.05",
+        "value": 1.2181,
+        "pass": "True",
+        "target": ">1.05"
+      },
+      {
+        "gate": 3,
+        "name": "Pre-2021 positive fold ratio >= 50%",
+        "value": "10/14",
+        "pass": true,
+        "target": ">=7/14"
+      },
+      {
+        "gate": 4,
+        "name": "IS plateau >= 60% combos PF>1 (with filter)",
+        "value": 100.0,
+        "pass": true,
+        "target": ">=60%"
+      },
+      {
+        "gate": 5,
+        "name": "YM costs preserve positive expectancy",
+        "value": 0.0441,
+        "pass": "True",
+        "target": ">0"
+      },
+      {
+        "gate": 6,
+        "name": "Roll audit non-roll PF > 1.0",
+        "value": 1.2844,
+        "pass": "True",
+        "target": ">1.0"
+      },
+      {
+        "gate": 7,
+        "name": "KHV 2021-2025 PF > 0.90",
+        "value": 1.1913,
+        "pass": "True",
+        "target": ">0.90",
+        "note": "NOT PRISTINE OOS"
+      },
+      {
+        "gate": 8,
+        "name": "neg_monday filter provenance",
+        "value": "uncertain",
+        "pass": false,
+        "target": "clear pre-spec",
+        "note": "FLAGGED \u2014 filter may have been added after seeing results"
+      }
+    ],
+    "passes": 7,
+    "fails": 1,
+    "allocation_recommendation": "Maintain current allocation (YM TAT + GLD Thursday Long, ~equal weight). Monitor neg_monday filter \u2014 if provenance cannot be confirmed pre-spec, apply penalty factor or revert to unfiltered. Revisit if pre-2021 WFO OOS net expectancy degrades below 0.05R/trade after cost."
+  }
+}
