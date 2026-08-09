@@ -250,22 +250,22 @@ const SEASONAL_ARCHIVED: StrategyRow[] = [
   { id: "kc1_arch", ticker: "KC1!", label: "Coffee",   group: "Agrar", engine: "—", pillar: "seasonal", weight: null, sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null, status: "archived", exchange: "ICEUS" },
 ];
 
-// ── Anomaly Pillar (WS v2.0 · 9% active · GLD confirmed · Gold/DAX research) ─
-// v3 audit 2026-08-09: GLD KEEP (6/6 WFO folds), Gold DATA-LIMITED, DAX WATCH (VIX regime).
+// ── Anomaly Pillar (WS v3c · 9% active · GLD confirmed KEEP · Gold/DAX research) ──
+// v3c audit 2026-08-09: GLD KEEP, Gold WATCH (holdout gate not met), DAX research (base unfiltered).
 const ANOMALY: StrategyRow[] = [
   {
     id: "gc1_friday", ticker: "GC1!", label: "Gold", group: "Anomaly",
-    engine: "Friday Long", pillar: "anomaly", weight: null,
-    sharpeOos: null, cagr: null, maxDd: null, calmar: null, pf: null, trades: null, wfOos: null,
+    engine: "Friday Long · Fri 18:00 UTC close → Mon close · ATR SL/TP", pillar: "anomaly", weight: null,
+    sharpeOos: null, cagr: "+3.08%", maxDd: "−25.32%", calmar: 0.12, pf: 1.12, trades: 600, wfOos: "6/12",
     status: "watch", dataFile: "anomaly/gc1_friday_long.json", exchange: "COMEX",
-    isNotes: "v3 audit 2026-08-09: DATA-LIMITED · signal PF(R) 1.083 positive · 240m data starts 2016-06 only → 2 WFO folds · holdout 2021+ PF 0.867 CAGR −6.48% (2026 draw −35.7%) · pre-2016 data required for full validation (CQG/CSI source) · weight suspended · GC1! daily 1975+ confirms Friday seasonal tendency at daily resolution",
+    isNotes: "v3c audit 2026-08-09 · full 2003-2026 (133k 60m bars) · IS PF(R) 1.293 (852 trades) · 97.5% of 80 param combos IS-profitable · WFO 12 folds 6/12 positive PF 1.121 CAGR +3.08% · holdout 2021+ PF 0.905 AvgR −0.059 (2022: −13.5R, 2023: −8.2R; recovery 2025: +2.5R) · holdout gate not met — weight suspended · locked: ATR=10 SL=0.75× RR=1.5",
   },
   {
     id: "gld_thursday", ticker: "GLD", label: "Gold ETF", group: "Anomaly",
     engine: "Thursday Close → Friday Close", pillar: "anomaly", weight: 9,
-    sharpeOos: 0.506, cagr: "+4.96%", maxDd: "−5.64%", calmar: 0.88, pf: 1.41, trades: 274, wfOos: "6/6",
+    sharpeOos: 0.506, cagr: "+4.96%", maxDd: "−5.64%", calmar: 0.88, pf: 1.41, trades: 274, wfOos: "11/12",
     status: "active", dataFile: "anomaly/gld_thursday_long.json", exchange: "ARCA",
-    isNotes: "v3 audit 2026-08-09: CONFIRMED KEEP · signal PF(R) 1.399 win-rate 53.7% · WFO 6/6 folds positive PF 1.375 CAGR +4.05% · holdout 2021+ PF 1.412 CAGR +4.96% DD −5.64% 274 trades · survives 2× cost stress (PF 1.261) · locked params: ATR=10 SL=0.75× no-TP · IS 2004–2020 · v2 also confirmed 11/12 folds positive",
+    isNotes: "v2+v3c audit 2026-08-09: CONFIRMED KEEP · signal PF(R) 1.399 win-rate 53.7% · v2 WFO 11/12 folds PF 1.45 · v3 WFO 6/6 folds PF 1.375 · holdout 2021+ PF 1.412 CAGR +4.96% DD −5.64% 274 trades · survives 2× cost stress PF 1.261 · locked: ATR=10 SL=0.75× no-TP",
   },
   {
     id: "ym1_tat", ticker: "YM1!", label: "Dow Jones — TAT", group: "Anomaly",
@@ -276,11 +276,11 @@ const ANOMALY: StrategyRow[] = [
   },
   {
     id: "fdax_tat", ticker: "FDAX1!", label: "DAX — Turnaround Tuesday", group: "Anomaly",
-    engine: "TAT · Mon 17:30 → Wed 17:30 · daily ATR SL/TP · VIX regime filter",
+    engine: "TAT · Mon 17:30 Berlin close → Wed 17:30 · daily ATR SL/TP",
     pillar: "anomaly", weight: null,
-    sharpeOos: null, cagr: "+7.97%", maxDd: "−20.22%", calmar: 0.39, pf: 1.17, trades: 121, wfOos: "2/3",
+    sharpeOos: null, cagr: "+7.96%", maxDd: "−15.18%", calmar: 0.52, pf: 1.27, trades: 786, wfOos: "5/8",
     status: "research", exchange: "EUREX",
-    isNotes: "v3 audit 2026-08-09: WATCH — not Core-ready · signal PF(R) 0.882 (below 1.0 gate) · with VIX regime filter: holdout 2021+ PF 1.171 CAGR +7.97% DD −20.22% · cost-sensitive: 1.5× costs PF 1.032, 2× costs negative · WFO 2/3 folds positive · promote to KEEP only if: signal PF(R) > 1.0 confirmed on longer IS or VIX filter validated pre-2021 in WFO",
+    isNotes: "v3c audit 2026-08-09 · UNFILTERED base WFO 2013-2020: 5/8 folds positive PF 1.267 CAGR +7.96% Calmar 0.524 · VIX regime filter REJECTED: improves only 1/8 folds (needs >50%) and reduces Calmar · break-even cost: RT absorbs 50.4% of edge at FDXS micro level · unfiltered base merits clean non-regime audit · promote after cost-adjusted WFO confirms positive expectancy",
   },
 ];
 
