@@ -101,6 +101,9 @@ public/generated/**
 !public/generated/monitoring/manifest.json
 !public/generated/monitoring/mobile/
 !public/generated/monitoring/mobile/**
+# Forward-tracking event files for White Swan strategies (no raw data, no secrets)
+!public/generated/monitoring/strategies/
+!public/generated/monitoring/strategies/ARCA_GLD_thursday_long_events.json
 # Seasonality static cache for Vercel (pre-computed seasonal curves, no raw data)
 !public/generated/seasonality/
 !public/generated/seasonality/**
@@ -155,3 +158,7 @@ GRAPH_REPORT.md
 data/historical/intraday/
 # Allow historical daily OHLC CSVs needed for Vercel seasonal chart API
 !data/historical/**/*.csv
+
+# MT5 connector — local Python venv and runtime snapshots
+.venv-mt5/
+.runtime/

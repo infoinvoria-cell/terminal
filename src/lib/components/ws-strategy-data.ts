@@ -282,8 +282,10 @@ const ANOMALY: StrategyRow[] = [
     //   IS signal PF(R) pre-2021 (v2 Layer A):       817 trades  PF(R) 1.364  Win% 55.94%  AvgR 0.0604
     //   WFO v3 6-fold OOS 2015-2020:                 6/6 pos     Avg PF 1.375  Avg CAGR +4.05%  MinDD 5.74%  290 trades
     //   WFO v2 12-fold OOS 2009-2020:                11/12 pos   Agg PF 1.4516 CAGR +3.54%  MaxDD 5.74%  579 trades
+    //     Refresh run (run_white_swan_gld_refresh.py): Agg PF 1.5825 610 trades (fold-boundary diff; both 11/12 positive)
     //   KNOWN HISTORICAL VALIDATION 2021-2026 (GoldFamily-v2, NOT pristine OOS):
     //     276 trades  PF 1.463  Win% 53.6%  CAGR +7.87%  MaxDD 8.69%
+    //   Refresh run KHV:  276 trades  PF 1.4726  CAGR +7.92%  MaxDD 8.63%  Calmar 0.918
     //   JSON OOS 2019-2026 (gld_thursday_long.json, summary.oos): 379 trades Sharpe 0.506 PF 1.212 CAGR +3.38% MaxDD 7.29%
     //     — period mixes WFO OOS 2019-2020 + KHV 2021-2026; NOT a pure WFO OOS Sharpe
     //   2× cost stress (v3 Phase 10):                PF 1.261  CAGR +3.47%  MaxDD 6.15%  Calmar 0.563
@@ -298,18 +300,17 @@ const ANOMALY: StrategyRow[] = [
     //   "GLD(2).csv" (5440 rows, 2026-07-07 — referenced by coordinator): NOT FOUND on disk
     //   2026-07-02 IS a Thursday → one additional trade signal if data includes that bar
     //
-    // ── ISSUE 2: live/forward tracking ───────────────────────────────────────
-    //   liveStart: null — no forward tracking data in Terminal
-    //   Signal config registered: signal-source-adapter.ts forcedStatus "PAPER_ONLY"
-    //   strategyFile: FP10_GLD_thursday_long_events.json — FILE DOES NOT EXIST yet
-    //   Pine script: WhiteSwan_GLD_Thursday_Close.pine marked PROVISIONAL (non-canonical params)
-    //   Monitoring folders searched: strategies/, live/, live_state/, signals/ — no GLD file
-    //   Forward integration not yet implemented; production weight pending forward confirmation
+    // ── ISSUE 2: live/forward tracking — RESOLVED 2026-08-09 ─────────────────
+    //   liveStart: 2026-08-09 — FORWARD SIGNAL TRACKING commenced
+    //   Event file: public/generated/monitoring/strategies/ARCA_GLD_thursday_long_events.json
+    //   Pine script: WhiteSwan_GLD_Thursday_Close.pine — FIXED ATR=10 SL=0.75 (was PROVISIONAL ATR=14 SL=1.0)
+    //   Forward trades: 0 (data ends 2026-07-01; next Thursday signal = 2026-08-14)
+    //   trackingType: FORWARD_SIGNAL (signal-only, no broker execution)
     id: "gld_thursday", ticker: "GLD", label: "Gold ETF — Thursday Long", group: "Anomaly",
     engine: "Thursday Close → Friday Close · ATR=10 SL=0.75× · no-TP", pillar: "anomaly", weight: 9,
     sharpeOos: null, cagr: "+4.96%", maxDd: "−5.64%", calmar: 0.88, pf: 1.41, trades: 274, wfOos: "11/12",
     status: "active", dataFile: "anomaly/gld_thursday_long.json", exchange: "ARCA",
-    isNotes: "v3 (2026-08-09T11:14 UTC) + v2 (2026-08-09T10:25 UTC) + GoldFamily-v2 (2026-08-09T13:45 UTC) — CONFIRMED KEEP · IS 2004–2020 (GoldFamily-v2, locked ATR=10 SL=0.75 no-TP): 818 trades PF 1.573 Win% 55.9% CAGR +8.85% · IS signal PF(R) pre-2021 (v2 Layer A): 817 trades PF(R) 1.364 Win% 55.94% AvgR 0.0604 · WFO v2 12-fold (OOS 2009–2020): 11/12 positive Agg PF 1.4516 CAGR +3.54% MaxDD 5.74% 579 trades · WFO v3 6-fold (OOS 2015–2020): 6/6 positive Avg PF 1.375 Avg CAGR +4.05% 290 trades · HOLDOUT v3 2021–2026 (locked params, NOT PRISTINE OOS): CAGR +4.96% MaxDD 5.64% PF 1.412 Calmar 0.880 274 trades · KHV GoldFamily-v2 2021–2026 (NOT PRISTINE OOS): PF 1.463 CAGR +7.87% MaxDD 8.69% 276 trades · Combined-period Sharpe 0.506 (JSON OOS 2019–2026, NOT pure WFO OOS — mixes WFO OOS + KHV) · 2× cost stress (v3): PF 1.261 CAGR +3.47% · locked: ATR=10 SL=0.75× no-TP · GLD CSV: BATS_GLD 1D_4975f.csv 5436 data rows 2004-11-18→2026-07-01 (Backtrader source) · JSON equity ends 2026-07-06 (separate newer source) · liveStart: null — FP10_GLD_thursday_long_events.json not yet generated; PAPER_ONLY",
+    isNotes: "v3 + v2 + GoldFamily-v2 + refresh 2026-08-09 — CONFIRMED KEEP · IS 2004–2020: 818 trades PF 1.573 Win% 55.9% CAGR +8.85% (GoldFamily-v2) · Refresh IS: 817 trades PF 1.569 CAGR +8.77% (run_white_swan_gld_refresh.py) · WFO v2 12-fold (OOS 2009–2020): 11/12 positive Agg PF 1.4516 579 trades · Refresh WFO: 11/12 Agg PF 1.5825 610 trades (fold-boundary diff — not discrepancy) · WFO v3 6-fold (OOS 2015–2020): 6/6 positive Avg PF 1.375 290 trades · HOLDOUT v3 2021–2026 (NOT PRISTINE OOS): CAGR +4.96% MaxDD 5.64% PF 1.412 Calmar 0.880 274 trades · KHV 2021–2026 (NOT PRISTINE OOS): PF 1.463–1.473 CAGR +7.87–7.92% MaxDD 8.63–8.69% 276 trades · Combined-period Sharpe 0.506 (JSON OOS 2019–2026, NOT pure WFO OOS) · 2× cost stress: PF 1.261 · locked: ATR=10 SL=0.75× no-TP · GLD CSV: BATS_GLD 1D_4975f.csv 5436 rows 2004-11-18→2026-07-01 · GLD(2).csv (5440 rows to 2026-07-07) PENDING — re-run refresh when available · Pine: ATR=10 SL=0.75 (fixed 2026-08-09) · liveStart: 2026-08-09 — FORWARD SIGNAL TRACKING · eventFile: ARCA_GLD_thursday_long_events.json · forwardTrades: 0 (next signal 2026-08-14)",
   },
   {
     id: "ym1_tat", ticker: "YM1!", label: "Dow Jones — TAT", group: "Anomaly",

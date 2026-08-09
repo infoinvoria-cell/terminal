@@ -1,0 +1,79 @@
+{
+  "symbol": "GLD",
+  "tvSymbol": "AMEX:GLD",
+  "sourceResolved": "AMEX:GLD",
+  "strategyName": "White Swan | GLD Thursday Long",
+  "strategyType": "anomaly_thursday_long",
+  "pillar": "anomaly",
+  "whiteSwan": true,
+  "hasStrategy": true,
+  "status": "forward_signal_tracking",
+  "trackingType": "FORWARD_SIGNAL",
+  "note": "Forward/signal tracking commenced 2026-08-09. Parameters locked after canonical Backtrader audit (run_white_swan_gld_refresh.py). No broker execution yet — signal-forward only. Insufficient sample for derived forward metrics (PF/CAGR/Calmar shown as null).",
+  "liveStart": "2026-08-09T00:00:00Z",
+  "lockedParams": {
+    "atrLen": 10,
+    "slMult": 0.75,
+    "tp": null,
+    "entry": "Thursday close",
+    "exit": "Next daily close",
+    "direction": "long only"
+  },
+  "canonicalDataSource": "BATS_GLD, 1D_4975f.csv",
+  "canonicalDataRows": 5436,
+  "canonicalDataStart": "2004-11-18",
+  "canonicalDataEnd": "2026-07-01",
+  "pendingDataRefresh": "GLD(2).csv (5440 rows, 2026-07-07) — not yet on local disk. Re-run run_white_swan_gld_refresh.py when available.",
+  "canonicalMetrics": {
+    "period": "IS 2004-2020",
+    "trades": 817,
+    "pf": 1.5692,
+    "winPct": 55.81,
+    "avgR": 0.1701,
+    "cagrPct": 8.77,
+    "maxDdPct": -12.68,
+    "calmar": 0.692
+  },
+  "wfoMetrics": {
+    "protocol": "5yr IS / 1yr OOS rolling, 12 folds, OOS 2009-2020",
+    "foldsPositive": "11/12",
+    "trades": 610,
+    "pf": 1.5825,
+    "winPct": 54.43,
+    "avgR": 0.1733,
+    "cagrPct": 8.95,
+    "maxDdPct": -12.68,
+    "calmar": 0.706
+  },
+  "khvMetrics": {
+    "period": "2021-2026-07-01 (KNOWN HISTORICAL VALIDATION — NOT PRISTINE OOS)",
+    "trades": 276,
+    "pf": 1.4726,
+    "cagrPct": 7.92,
+    "maxDdPct": -8.63,
+    "calmar": 0.918
+  },
+  "forwardState": {
+    "forwardTrades": 0,
+    "openTrade": null,
+    "currentSignal": null,
+    "lastThursday": "2026-06-26",
+    "note": "Data ends 2026-07-01 (Wed). Last Thursday in data was 2026-06-26. Next signal: Thursday 2026-08-14. Forward tracking begins 2026-08-09.",
+    "forwardPF": null,
+    "forwardCAGR": null,
+    "forwardCalmar": null,
+    "forwardRealizedR": null,
+    "sampleNote": "N/A — insufficient sample"
+  },
+  "pineScript": {
+    "file": "WhiteSwan_GLD_Thursday_Close.pine",
+    "version": "v6",
+    "atrLen": 10,
+    "slMult": 0.75,
+    "reconciled": "2026-08-09",
+    "reconciliationTrades": 30,
+    "priorNonCanonicalParams": "ATR=14 SL=1.0 — fixed 2026-08-09"
+  },
+  "events": [],
+  "trades": []
+}
