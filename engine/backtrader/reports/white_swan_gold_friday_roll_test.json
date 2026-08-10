@@ -1,0 +1,398 @@
+{
+  "version": "roll_test_v1",
+  "generated": "2026-08-10",
+  "section1_removal": {
+    "total_trades": 1150,
+    "roll_trades": 132,
+    "non_roll_trades": 1018,
+    "pct_removed": 11.48,
+    "roll_pf": 2.6498,
+    "non_roll_pf": 1.2113,
+    "roll_mean_ret_pct": 0.2854,
+    "non_roll_mean_ret_pct": 0.0472,
+    "roll_win_rate": 0.3788,
+    "non_roll_win_rate": 0.2741
+  },
+  "section2_non_roll_wfo": {
+    "folds": [
+      {
+        "fold": 1,
+        "oos_year": 2008,
+        "original_trades": 51,
+        "non_roll_trades": 45,
+        "original_pf": 1.2544,
+        "non_roll_pf": 1.1784,
+        "original_exp_R": 0.4246,
+        "non_roll_exp_R": 0.3143,
+        "non_roll_total_R": 14.1442,
+        "non_roll_MaxDD_R": -6.6041,
+        "positive": true
+      },
+      {
+        "fold": 2,
+        "oos_year": 2009,
+        "original_trades": 50,
+        "non_roll_trades": 45,
+        "original_pf": 1.7856,
+        "non_roll_pf": 1.8499,
+        "original_exp_R": 0.426,
+        "non_roll_exp_R": 0.4378,
+        "non_roll_total_R": 19.701,
+        "non_roll_MaxDD_R": -6.4284,
+        "positive": true
+      },
+      {
+        "fold": 3,
+        "oos_year": 2010,
+        "original_trades": 50,
+        "non_roll_trades": 44,
+        "original_pf": 1.4035,
+        "non_roll_pf": 1.2216,
+        "original_exp_R": 0.3574,
+        "non_roll_exp_R": 0.2146,
+        "non_roll_total_R": 9.441,
+        "non_roll_MaxDD_R": -7.0,
+        "positive": true
+      },
+      {
+        "fold": 4,
+        "oos_year": 2011,
+        "original_trades": 51,
+        "non_roll_trades": 45,
+        "original_pf": 2.1484,
+        "non_roll_pf": 1.6836,
+        "original_exp_R": 0.6623,
+        "non_roll_exp_R": 0.4882,
+        "non_roll_total_R": 21.9698,
+        "non_roll_MaxDD_R": -7.9654,
+        "positive": true
+      },
+      {
+        "fold": 5,
+        "oos_year": 2012,
+        "original_trades": 51,
+        "non_roll_trades": 45,
+        "original_pf": 0.8044,
+        "non_roll_pf": 0.6065,
+        "original_exp_R": -0.0867,
+        "non_roll_exp_R": -0.1992,
+        "non_roll_total_R": -8.9659,
+        "non_roll_MaxDD_R": -17.1723,
+        "positive": false
+      },
+      {
+        "fold": 6,
+        "oos_year": 2013,
+        "original_trades": 51,
+        "non_roll_trades": 45,
+        "original_pf": 1.1329,
+        "non_roll_pf": 0.8624,
+        "original_exp_R": -0.0915,
+        "non_roll_exp_R": -0.1697,
+        "non_roll_total_R": -7.6372,
+        "non_roll_MaxDD_R": -11.2405,
+        "positive": false
+      },
+      {
+        "fold": 7,
+        "oos_year": 2014,
+        "original_trades": 51,
+        "non_roll_trades": 45,
+        "original_pf": 0.9956,
+        "non_roll_pf": 0.8337,
+        "original_exp_R": 0.1142,
+        "non_roll_exp_R": -0.0058,
+        "non_roll_total_R": -0.2631,
+        "non_roll_MaxDD_R": -16.7968,
+        "positive": false
+      },
+      {
+        "fold": 8,
+        "oos_year": 2015,
+        "original_trades": 50,
+        "non_roll_trades": 45,
+        "original_pf": 1.4857,
+        "non_roll_pf": 1.5589,
+        "original_exp_R": 0.1605,
+        "non_roll_exp_R": 0.2095,
+        "non_roll_total_R": 9.4274,
+        "non_roll_MaxDD_R": -12.2285,
+        "positive": true
+      },
+      {
+        "fold": 9,
+        "oos_year": 2016,
+        "original_trades": 51,
+        "non_roll_trades": 45,
+        "original_pf": 1.1413,
+        "non_roll_pf": 0.7307,
+        "original_exp_R": 0.1031,
+        "non_roll_exp_R": -0.1137,
+        "non_roll_total_R": -5.1176,
+        "non_roll_MaxDD_R": -21.0,
+        "positive": false
+      },
+      {
+        "fold": 10,
+        "oos_year": 2017,
+        "original_trades": 51,
+        "non_roll_trades": 45,
+        "original_pf": 1.1532,
+        "non_roll_pf": 1.0044,
+        "original_exp_R": 0.3014,
+        "non_roll_exp_R": 0.1601,
+        "non_roll_total_R": 7.2033,
+        "non_roll_MaxDD_R": -10.6487,
+        "positive": true
+      },
+      {
+        "fold": 11,
+        "oos_year": 2018,
+        "original_trades": 51,
+        "non_roll_trades": 45,
+        "original_pf": 0.8195,
+        "non_roll_pf": 0.6908,
+        "original_exp_R": -0.1852,
+        "non_roll_exp_R": -0.3106,
+        "non_roll_total_R": -13.9749,
+        "non_roll_MaxDD_R": -18.7271,
+        "positive": false
+      },
+      {
+        "fold": 12,
+        "oos_year": 2019,
+        "original_trades": 51,
+        "non_roll_trades": 45,
+        "original_pf": 0.9778,
+        "non_roll_pf": 1.0971,
+        "original_exp_R": 0.198,
+        "non_roll_exp_R": 0.3092,
+        "non_roll_total_R": 13.9142,
+        "non_roll_MaxDD_R": -12.5827,
+        "positive": true
+      },
+      {
+        "fold": 13,
+        "oos_year": 2020,
+        "original_trades": 50,
+        "non_roll_trades": 45,
+        "original_pf": 1.5527,
+        "non_roll_pf": 1.4791,
+        "original_exp_R": 0.5953,
+        "non_roll_exp_R": 0.5945,
+        "non_roll_total_R": 26.7515,
+        "non_roll_MaxDD_R": -8.0,
+        "positive": true
+      }
+    ],
+    "agg": {
+      "trades": 584,
+      "pf": 1.1619,
+      "exp_R": 0.1483,
+      "win_rate": 0.2637,
+      "payoff": 3.2293,
+      "total_R": 86.5938,
+      "MaxDD_R": -28.9322,
+      "positive_folds": 8,
+      "total_folds": 13,
+      "median_fold_pf": 1.0971,
+      "worst_fold_oos_year": 2012,
+      "worst_fold_pf": 0.6065,
+      "longest_losing_streak": 21,
+      "CAGR_R": 6.6611,
+      "Calmar_R": 0.2302
+    }
+  },
+  "section3_gates": {
+    "gate_A_pf_ge_1_15": true,
+    "gate_B_exp_R_pos": true,
+    "gate_C_majority_folds": true,
+    "gate_D_no_concentration": true,
+    "gate_E_temporal_neighborhood": true,
+    "preliminary_outcome": "KEEP_CANDIDATE",
+    "final_outcome": "KEEP_CANDIDATE"
+  },
+  "section4_roll_inspection": {
+    "4a_return_distribution": {
+      "count": 100,
+      "mean_ret_pct": 0.4077,
+      "median_ret_pct": -0.1571,
+      "std_ret_pct": 1.0369,
+      "win_rate": 0.44,
+      "pf": 3.6096,
+      "p10": -0.3642,
+      "p25": -0.2607,
+      "p75": 0.7464,
+      "p90": 1.8978
+    },
+    "4b_gap_magnitude": {
+      "n_trades_with_gap": 100,
+      "mean_gap": 0.0124,
+      "median_gap": 0.0065,
+      "max_gap": 0.1801,
+      "count_gap_gt_0_3pct": 0
+    },
+    "4c_secondary_diagnostic": {
+      "label": "SECONDARY DIAGNOSTIC ONLY -- not used to redefine primary roll rule",
+      "trades_removed": 0,
+      "remaining_trades": 874,
+      "remaining_pf": 1.3991,
+      "remaining_exp_R": 0.3231
+    },
+    "4d_cross_tab": {
+      "roll_profitable_with_large_gap": 0,
+      "roll_profitable_without_large_gap": 44
+    }
+  },
+  "section5_individual_contracts": {
+    "available": false,
+    "note": "Individual GC contract history not available -- continuous-series artifact risk cannot be completely eliminated."
+  },
+  "section6_temporal_neighborhood_non_roll": {
+    "variants": {
+      "thu_23": {
+        "n": 774,
+        "pf": 1.2985,
+        "mean_ret_pct": 0.1044,
+        "win_rate": 0.5646
+      },
+      "fri_00": {
+        "n": 774,
+        "pf": 1.3239,
+        "mean_ret_pct": 0.1109,
+        "win_rate": 0.5762
+      },
+      "fri_01": {
+        "n": 774,
+        "pf": 1.3545,
+        "mean_ret_pct": 0.1182,
+        "win_rate": 0.5775
+      }
+    },
+    "gate_E_passed": true
+  },
+  "section7_khv_non_roll": {
+    "label": "KNOWN HISTORICAL VALIDATION -- NOT pristine OOS",
+    "base_all_trades": {
+      "n": 276,
+      "pf": 1.151,
+      "exp_R": 0.1752,
+      "total_R": 48.3448,
+      "MaxDD_R": -30.3905,
+      "win_rate": 0.2754
+    },
+    "non_roll": {
+      "n": 244,
+      "pf": 1.2353,
+      "exp_R": 0.2394,
+      "total_R": 58.4219,
+      "MaxDD_R": -29.4334,
+      "win_rate": 0.2869
+    },
+    "per_year_non_roll": [
+      {
+        "year": 2021,
+        "n": 44,
+        "pf": 1.1498,
+        "total_R": 7.4046,
+        "win_rate": 0.2727
+      },
+      {
+        "year": 2022,
+        "n": 45,
+        "pf": 0.8665,
+        "total_R": -3.7749,
+        "win_rate": 0.2222
+      },
+      {
+        "year": 2023,
+        "n": 45,
+        "pf": 1.8443,
+        "total_R": 28.1838,
+        "win_rate": 0.2889
+      },
+      {
+        "year": 2024,
+        "n": 45,
+        "pf": 1.9292,
+        "total_R": 28.0366,
+        "win_rate": 0.3333
+      },
+      {
+        "year": 2025,
+        "n": 45,
+        "pf": 0.8204,
+        "total_R": -2.2182,
+        "win_rate": 0.3111
+      },
+      {
+        "year": 2026,
+        "n": 20,
+        "pf": 1.0963,
+        "total_R": 0.7901,
+        "win_rate": 0.3
+      }
+    ]
+  },
+  "section8_strategy_verdict": {
+    "verdict": "KEEP",
+    "gates": {
+      "gate_A": true,
+      "gate_B": true,
+      "gate_C": true,
+      "gate_D": true,
+      "gate_E": true
+    },
+    "gates_passed": 5,
+    "justification": "Non-roll agg OOS PF=1.1619 over 13 folds (2008-2020). Positive folds: 8/13. Agg exp_R=0.1483R. MaxDD_R=-28.9322R. Temporal neighborhood gate_E=PASS. Roll removal reduced trades by 11.48%. Gates passed: 5/5.",
+    "non_roll_agg_pf": 1.1619,
+    "positive_folds": 8,
+    "non_roll_agg_exp_R": 0.1483
+  },
+  "section9_portfolio": {
+    "note": "Portfolio analysis requires GLD and YM annual R series from prior audit. GC non-roll annual R (OOS 2008-2020) available from fold results. GLD and Dow TAT annual R must be sourced from their respective backtest reports. Full correlation and allocation analysis deferred pending cross-strategy data merge.",
+    "gc_non_roll_annual_R_oos": {
+      "2008": 14.1442,
+      "2009": 19.701,
+      "2010": 9.441,
+      "2011": 21.9698,
+      "2012": -8.9659,
+      "2013": -7.6372,
+      "2014": -0.2631,
+      "2015": 9.4274,
+      "2016": -5.1176,
+      "2017": 7.2033,
+      "2018": -13.9749,
+      "2019": 13.9142,
+      "2020": 26.7515
+    },
+    "test_allocations": [
+      0,
+      2,
+      4,
+      6,
+      8
+    ],
+    "status": "deferred_pending_cross_strategy_merge"
+  },
+  "section10_allocation_verdict": {
+    "verdict": "KEEP + 0% allocation pending portfolio merge",
+    "approved_pct": null,
+    "note": "GC non-roll edge is independently significant (PF>=1.15, majority folds positive). Allocation size requires GLD overlap analysis against existing 9% GLD allocation. Run portfolio merge to determine marginal Calmar contribution."
+  },
+  "section11_component_state": {
+    "DO_NOT_UPDATE_FILE": true,
+    "status": "KEEP",
+    "weight": "TBD (pending GLD overlap analysis)",
+    "wfOos_label": "WFO OOS 2008-2020 (13 folds, non-roll) \u2014 PF 1.1619",
+    "pf_value": 1.1619,
+    "isNotes": [
+      "Roll independence test: 11.48% trades removed as roll-window artifacts",
+      "Non-roll OOS PF (2008-2020): 1.1619",
+      "Positive folds: 8/13",
+      "Non-roll exp_R: 0.1483R",
+      "Temporal neighborhood gate: PASS",
+      "KHV 2021-2026 non-roll PF: 1.2353"
+    ]
+  }
+}
