@@ -355,7 +355,7 @@ function MonitoringChartCardInner({
   const liveQuotesCtx = useLiveQuotesContext();
   // live_quotes stores bare symbols (FDAX1!); chart codes may carry a TF suffix
   // (FDAX1! 2H / 6E1! 30M), so normalize before lookup.
-  const liveQuote = item?.code ? (liveQuotesCtx.get(liveQuoteKey(item.code) ?? "") ?? null) : null;
+  const liveQuote = item?.code ? (liveQuotesCtx.getQuote(liveQuoteKey(item.code) ?? "") ?? null) : null;
   const resolvedLiveClose = liveClose ?? liveQuote?.close ?? null;
   const liveQuoteTs = liveQuote?.updated_at ?? liveQuote?.timestamp ?? null;
 
