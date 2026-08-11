@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev -p 3000",
     "dev:auto": "nodemon --watch src --ext ts,tsx,css --ignore .next --exec \"npm run dev\"",
-    "build": "next build",
+    "generate:canonical-params": "node scripts/generate-canonical-params.mjs",
+    "build": "cross-env NEXT_BUILD_DIST=.next-build next build",
     "start": "next start -p 3000",
     "lint": "eslint",
     "audit:github-safe": "node scripts/audit-github-safe.mjs",
@@ -27,6 +28,8 @@
     "invest:generate-events": "python tools/core-invest/generate-core-invest-events.py",
     "invest:parity": "node scripts/core-invest-parity-report.mjs",
     "invest:validate-futures": "node tools/monitoring/validate-continuous-contracts.mjs --report",
+    "market-data:audit": "tsx scripts/run-all-asset-audit.ts",
+    "market-data:python-dry-run": "python tools/market-data/manifest_dry_run.py",
     "analyze": "cross-env ANALYZE=true npm run build",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -37,6 +40,7 @@
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
     "@supabase/supabase-js": "^2.110.7",
+    "@tanstack/react-virtual": "^3.14.9",
     "@types/d3-force": "^3.0.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -67,11 +71,13 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitest/ui": "^4.1.10",
+    "critters": "^0.0.23",
     "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "tailwindcss": "^4",
+    "tsx": "^4.23.9",
     "typescript": "^5",
     "vitest": "^4.1.10"
   }

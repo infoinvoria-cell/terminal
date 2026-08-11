@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
-import { MessageSquare, Upload, ChevronLeft, ChevronRight } from "lucide-react";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import { MessageSquare, Upload } from "lucide-react";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -21,49 +22,87 @@ export type InvestorDb = {
   notizen: string | null;
 };
 
-// ── Deterministic 1 000-entry generator ───────────────────────────────────────
+// ── Deterministic 10 000-entry generator ──────────────────────────────────────
 
-const firstNames = ["Thomas","Michael","Andreas","Stefan","Klaus","Markus","Jan","Peter","Christian","Daniel","Sabine","Julia","Andrea","Lisa","Petra","Anna","Maria","Laura","Sandra","Claudia","Hans","Wolfgang","Jürgen","Rainer","Bernd","Frank","Dirk","Sven","Oliver","Tobias"];
-const lastNames  = ["Müller","Schmidt","Schneider","Fischer","Weber","Meyer","Wagner","Becker","Schulz","Hoffmann","Koch","Richter","Klein","Wolf","Schröder","Neumann","Braun","Zimmermann","Hartmann","Krause","Lehmann","Lange","Kramer","Huber","Maier","Walter","König","Werner","Peters","Schulze"];
-const companies  = ["Capital GmbH","Holding AG","Ventures","Invest","Family Office","Vermögensverwaltung","Beteiligungen GmbH","Unternehmensgruppe","Finanz GmbH","Asset Management"];
-const tickets    = ["25k–50k","25k–75k","50k–100k","50k–200k","100k–300k","100k–500k","250k–1M","500k+"];
-const sources    = ["LinkedIn","LinkedIn","LinkedIn","BaFin","Bundesanzeiger","BAND","Manual"];
-const types      = ["HNWI","HNWI","Angel","Unternehmer","Family Office","VC","Privat"];
-const statuses   = ["Neu","Neu","Neu","Kontaktiert","Kontaktiert","Geantwortet","Call","Investor"];
+const firstNames = [
+  "Thomas","Michael","Andreas","Stefan","Klaus","Markus","Jan","Peter","Christian","Daniel",
+  "Sabine","Julia","Andrea","Lisa","Petra","Anna","Maria","Laura","Sandra","Claudia",
+  "Hans","Wolfgang","Jürgen","Rainer","Bernd","Frank","Dirk","Sven","Oliver","Tobias",
+  "Kai","Florian","Sebastian","Patrick","Matthias","Alexander","Benjamin","Philipp","Lukas","Nico",
+  "Monika","Susanne","Birgit","Christine","Katharina","Elisabeth","Nicole","Stefanie","Anja","Heike",
+  "Werner","Gerhard","Helmut","Heinrich","Dieter","Karl","Friedrich","Günter","Ernst","Josef",
+];
+const lastNames = [
+  "Müller","Schmidt","Schneider","Fischer","Weber","Meyer","Wagner","Becker","Schulz","Hoffmann",
+  "Koch","Richter","Klein","Wolf","Schröder","Neumann","Braun","Zimmermann","Hartmann","Krause",
+  "Lehmann","Lange","Kramer","Huber","Maier","Walter","König","Werner","Peters","Schulze",
+  "Roth","Köhler","Bauer","Frank","Haas","Schäfer","Herrmann","Kaiser","Fuchs","Lang",
+  "Scholz","Vogel","Albrecht","Schwarz","Brandt","Winkler","Ludwig","Baumann","Keller","Möller",
+  "Pfeiffer","Sommer","Gruber","Bergmann","Dietrich","Heinrich","Busch","Engel","Hahn","Schubert",
+  "Lauer","Ziegler","Freund","Vogt","Berger","Krämer","Stein","Ernst","Jäger","Kühn",
+];
+const companyTypes = [
+  "Capital GmbH","Holding AG","Ventures","Invest GmbH","Family Office",
+  "Vermögensverwaltung","Beteiligungen GmbH","Unternehmensgruppe","Finanz GmbH",
+  "Management GmbH","Consulting GmbH","Immobilien GmbH","Industrie AG","Beteiligungs AG",
+  "Treuhand GmbH","Wirtschaftsberatung","Investmenthaus","Private Equity",
+];
+const tickets = ["25k–50k","25k–75k","50k–100k","50k–200k","100k–300k","100k–500k","250k–1M","500k+"];
 
-const MOCK: InvestorDb[] = Array.from({ length: 1000 }, (_, i) => {
-  const firstName    = firstNames[i % firstNames.length];
-  const lastName     = lastNames[Math.floor(i / firstNames.length) % lastNames.length];
-  const companySuffix = companies[i % companies.length];
-  const ticket       = tickets[i % tickets.length];
-  const source       = sources[i % sources.length];
-  const typ          = types[i % types.length];
-  const status       = statuses[i % statuses.length];
-  const score        = 1 + (i * 3 % 5);
-  const base         = lastName.toLowerCase().replace(/[^a-z]/g,"");
-  const sfx          = companySuffix.split(" ")[0].toLowerCase().replace(/[^a-z]/g,"");
-  const domain       = `${base}-${sfx}.de`;
-  const fn           = firstName.toLowerCase();
-  const ln           = lastName.toLowerCase().replace(/[^a-z]/g,"");
-  const naechsterSchritt =
-    status === "Neu"         ? "Erstkontakt senden" :
-    status === "Kontaktiert" ? "Follow-up" :
-    status === "Geantwortet" ? "Call planen" : "";
-  const day = String((i % 28) + 1).padStart(2,"0");
+const sourceWeights = [
+  ...Array(50).fill("LinkedIn"),
+  ...Array(20).fill("BaFin"),
+  ...Array(15).fill("Bundesanzeiger"),
+  ...Array(10).fill("BAND"),
+  ...Array(5).fill("Manual"),
+];
+
+const typeWeights = [
+  ...Array(35).fill("HNWI"),
+  ...Array(25).fill("Unternehmer"),
+  ...Array(20).fill("Angel"),
+  ...Array(12).fill("Family Office"),
+  ...Array(5).fill("VC"),
+  ...Array(3).fill("Privat"),
+];
+
+const statusWeights = [
+  ...Array(70).fill("Neu"),
+  ...Array(15).fill("Kontaktiert"),
+  ...Array(8).fill("Geantwortet"),
+  ...Array(4).fill("Call"),
+  ...Array(3).fill("Investor"),
+];
+
+const MOCK: InvestorDb[] = Array.from({ length: 10000 }, (_, i) => {
+  const fIdx    = i % firstNames.length;
+  const lIdx    = Math.floor(i / firstNames.length) % lastNames.length;
+  const cIdx    = (i * 3 + Math.floor(i / lastNames.length)) % companyTypes.length;
+  const firstName = firstNames[fIdx];
+  const lastName  = lastNames[lIdx];
+  const source    = sourceWeights[i % sourceWeights.length];
+  const typ       = typeWeights[i % typeWeights.length];
+  const status    = statusWeights[i % statusWeights.length];
+  const score     = 60 + ((i * 13 + (i % 7) * 5) % 39);
+  const ticket    = tickets[i % tickets.length];
+  const base      = lastName.toLowerCase().replace(/[^a-z]/g, "");
+  const sfx       = companyTypes[cIdx].split(" ")[0].toLowerCase().replace(/[^a-z]/g, "");
+  const fn        = firstName.toLowerCase().replace(/[^a-z]/g, "");
+  const ln        = lastName.toLowerCase().replace(/[^a-z]/g, "");
 
   return {
     id: i + 1,
     name: `${firstName} ${lastName}`,
-    unternehmen: `${lastName} ${companySuffix}`,
+    unternehmen: `${lastName} ${companyTypes[cIdx]}`,
     typ,
-    email: `${fn[0]}.${ln}@${domain}`,
-    linkedin: source === "LinkedIn" ? `linkedin.com/in/${fn}${ln}` : "",
+    email: `${fn[0]}.${ln}@${base}-${sfx}.de`,
+    linkedin: source === "LinkedIn" ? `linkedin.com/in/${fn}${ln}${i > 999 ? i : ""}` : "",
     kapital: ticket,
     quelle: source,
     score,
     status,
-    naechsterSchritt,
-    letzterKont: status !== "Neu" ? `${day}.01.25` : null,
+    naechsterSchritt: null,
+    letzterKont: null,
     notizen: "",
   };
 });
@@ -75,7 +114,7 @@ const QUELLE_OPTS  = ["BaFin","Bundesanzeiger","LinkedIn","BAND","Manual"];
 const STATUS_OPTS  = ["Neu","Kontaktiert","Geantwortet","Call","Investor"];
 const SCHRITT_OPTS = ["Erstkontakt senden","Erstgespräch anfragen","Follow-up","Call planen","NDA senden","Angebot senden","Onboarding","Research","Warten auf Antwort","Kein weiterer Schritt"];
 
-// ── Colour palettes — muted ────────────────────────────────────────────────────
+// ── Colour palettes ───────────────────────────────────────────────────────────
 
 const STATUS_COLOR: Record<string,{bg:string;text:string;border:string}> = {
   "Neu":         {bg:"rgba(255,255,255,0.07)", text:"rgba(255,255,255,0.6)",  border:"rgba(255,255,255,0.1)"},
@@ -94,42 +133,35 @@ const TYP_COLOR: Record<string,{bg:string;text:string;border:string}> = {
   "Privat":        {bg:"rgba(255,255,255,0.05)",text:"rgba(255,255,255,0.5)",border:"rgba(255,255,255,0.08)"},
 };
 
-const NEUTRAL_BADGE = {bg:"rgba(255,255,255,0.07)",text:"rgba(255,255,255,0.6)",border:"rgba(255,255,255,0.1)"};
+const NEUTRAL_BADGE = {bg:"rgba(255,255,255,0.07)",text:"rgba(255,255,255,0.65)",border:"rgba(255,255,255,0.1)"};
 
-// ── Quelle renderer (logos + neutral fallback) ────────────────────────────────
-
-const LOGO: Record<string,string> = {
-  "BaFin":          "/logos/bafin.png",
-  "LinkedIn":       "/logos/linkedin.jpg",
-  "Bundesanzeiger": "/logos/bundesanzeiger.jpg",
-};
+// ── Quelle cell ───────────────────────────────────────────────────────────────
 
 function QuelleCell({ quelle }: { quelle: string | null }) {
-  if (!quelle) return <span style={{ color:"rgba(255,255,255,0.18)", fontSize:10 }}>—</span>;
-  const src = LOGO[quelle];
-  if (src) {
+  if (!quelle) return null;
+  if (quelle === "LinkedIn") {
     return (
       <img
-        src={src}
-        alt={quelle}
-        title={quelle}
-        style={{ height:18, maxWidth:56, objectFit:"contain", display:"block", mixBlendMode:"luminosity", opacity:0.85 }}
+        src="/logos/linkedin.jpg"
+        alt="LinkedIn"
+        title="LinkedIn"
+        style={{ height:16, width:"auto", objectFit:"contain", display:"block", borderRadius:2 }}
       />
     );
   }
   return (
-    <span style={{ display:"inline-block", padding:"2px 7px", borderRadius:4, fontSize:10, fontWeight:700, fontFamily:T, letterSpacing:"0.03em", background:NEUTRAL_BADGE.bg, color:NEUTRAL_BADGE.text, border:`1px solid ${NEUTRAL_BADGE.border}`, whiteSpace:"nowrap" }}>
+    <span style={{ display:"inline-block", padding:"2px 6px", borderRadius:4, fontSize:10, fontWeight:600, fontFamily:T, background:NEUTRAL_BADGE.bg, color:NEUTRAL_BADGE.text, border:`1px solid ${NEUTRAL_BADGE.border}`, whiteSpace:"nowrap" }}>
       {quelle}
     </span>
   );
 }
 
-// ── Badge helper ───────────────────────────────────────────────────────────────
+// ── Badge ─────────────────────────────────────────────────────────────────────
 
 const T = "var(--font-text)";
 
 function Badge({ label, map }: { label:string|null; map:Record<string,{bg:string;text:string;border:string}> }) {
-  if (!label) return <span style={{ color:"rgba(255,255,255,0.18)", fontSize:10 }}>—</span>;
+  if (!label) return null;
   const c = map[label] ?? NEUTRAL_BADGE;
   return (
     <span style={{ display:"inline-block", padding:"2px 7px", borderRadius:4, fontSize:10, fontWeight:700, fontFamily:T, letterSpacing:"0.03em", background:c.bg, color:c.text, border:`1px solid ${c.border}`, whiteSpace:"nowrap" }}>
@@ -143,13 +175,13 @@ function Stars({ n }: { n:number|null }) {
   return (
     <span style={{ display:"inline-flex", gap:1 }}>
       {[1,2,3,4,5].map(i => (
-        <span key={i} style={{ color:i<=v?"#D4AF37":"rgba(255,255,255,0.15)", fontSize:11, lineHeight:1 }}>★</span>
+        <span key={i} style={{ color:i<=Math.round(v/20)?"#D4AF37":"rgba(255,255,255,0.15)", fontSize:11, lineHeight:1 }}>★</span>
       ))}
     </span>
   );
 }
 
-// ── Shared styles ──────────────────────────────────────────────────────────────
+// ── Styles ─────────────────────────────────────────────────────────────────────
 
 const inp: React.CSSProperties = {
   width:"100%", boxSizing:"border-box", background:"rgba(255,255,255,0.04)",
@@ -169,39 +201,27 @@ const btnSt: React.CSSProperties = {
   cursor:"pointer", fontSize:11, fontWeight:700, fontFamily:T, letterSpacing:"0.04em",
 };
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
-
-function fmtDate(iso:string|null) {
-  if (!iso) return "";
-  if (/^\d{2}\.\d{2}\.\d{2}$/.test(iso)) return iso;
-  const d = new Date(iso);
-  return isNaN(d.getTime()) ? iso : d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"2-digit"});
-}
-
-// ── Column definitions ─────────────────────────────────────────────────────────
+// ── Column definitions — only 10 visible columns ──────────────────────────────
 
 type ColKey = keyof Omit<InvestorDb,"id">;
 type Col = { key:ColKey; label:string; w:number; sortable?:boolean };
 
 const COLS: Col[] = [
-  { key:"name",             label:"Name",             w:140, sortable:true },
-  { key:"unternehmen",      label:"Unternehmen",      w:140, sortable:true },
-  { key:"typ",              label:"Typ",              w:110, sortable:true },
-  { key:"email",            label:"E-Mail",           w:165 },
-  { key:"linkedin",         label:"LinkedIn",         w:80  },
-  { key:"kapital",          label:"Kapital",          w:110, sortable:true },
-  { key:"quelle",           label:"Quelle",           w:120 },
-  { key:"score",            label:"Score",            w:90,  sortable:true },
-  { key:"status",           label:"Status",           w:115, sortable:true },
-  { key:"naechsterSchritt", label:"Nächster Schritt", w:160 },
-  { key:"letzterKont",      label:"Letzter Kont.",    w:100, sortable:true },
-  { key:"notizen",          label:"Notizen",          w:180 },
+  { key:"name",        label:"NAME",        w:150, sortable:true },
+  { key:"unternehmen", label:"UNTERNEHMEN", w:160, sortable:true },
+  { key:"typ",         label:"TYP",         w:115, sortable:true },
+  { key:"email",       label:"E-MAIL",      w:185 },
+  { key:"linkedin",    label:"LINKEDIN",    w:85  },
+  { key:"kapital",     label:"KAPITAL",     w:115, sortable:true },
+  { key:"quelle",      label:"QUELLE",      w:130 },
+  { key:"score",       label:"SCORE",       w:90,  sortable:true },
+  { key:"status",      label:"STATUS",      w:115, sortable:true },
 ];
 
 const TABS = ["Alle","Neu","Kontaktiert","Geantwortet","Call","Investor"] as const;
 type Tab = typeof TABS[number];
 
-const PAGE_SIZE = 50;
+const ROW_H = 34;
 
 // ── Edit cell ─────────────────────────────────────────────────────────────────
 
@@ -209,15 +229,15 @@ function EditCell({ col, value, onSave, onClose }: { col:ColKey; value:string|nu
   const [draft, setDraft] = useState(value ?? "");
   const commit = (v:string) => { onSave(v.trim()||null); onClose(); };
   const dropOpts =
-    col==="typ"              ? TYP_OPTS     :
-    col==="quelle"           ? QUELLE_OPTS  :
-    col==="status"           ? STATUS_OPTS  :
+    col==="typ"    ? TYP_OPTS :
+    col==="quelle" ? QUELLE_OPTS :
+    col==="status" ? STATUS_OPTS :
     col==="naechsterSchritt" ? SCHRITT_OPTS : null;
 
   if (col==="score") return (
     <select autoFocus style={selSt} value={draft} onChange={e=>{ setDraft(e.target.value); commit(e.target.value); }} onBlur={()=>commit(draft)}>
       <option value="">—</option>
-      {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
+      {Array.from({length:39},(_,i)=>60+i).map(n=><option key={n} value={n}>{n}</option>)}
     </select>
   );
   if (dropOpts) return (
@@ -225,9 +245,6 @@ function EditCell({ col, value, onSave, onClose }: { col:ColKey; value:string|nu
       <option value="">—</option>
       {dropOpts.map(o=><option key={o}>{o}</option>)}
     </select>
-  );
-  if (col==="letzterKont") return (
-    <input autoFocus type="date" style={editSt} value={draft} onChange={e=>setDraft(e.target.value)} onBlur={()=>commit(draft)} />
   );
   return (
     <input autoFocus type={col==="email"?"email":"text"} style={editSt} value={draft}
@@ -240,7 +257,7 @@ function EditCell({ col, value, onSave, onClose }: { col:ColKey; value:string|nu
 
 function AddModal({ onClose, onAdd }: { onClose:()=>void; onAdd:(row:Omit<InvestorDb,"id">)=>void }) {
   const [form, setForm] = useState<Partial<Omit<InvestorDb,"id">>>({ status:"Neu" });
-  const [err, setErr]   = useState<string|null>(null);
+  const [err, setErr] = useState<string|null>(null);
   const set = (k:keyof Omit<InvestorDb,"id">, v:string|null) => setForm(f=>({...f,[k]:v}));
   const lbl = (text:string) => (
     <label style={{ display:"block", fontSize:9, fontWeight:700, color:"rgba(255,255,255,0.28)", fontFamily:T, letterSpacing:"0.07em", textTransform:"uppercase" as const, marginBottom:4 }}>{text}</label>
@@ -249,13 +266,13 @@ function AddModal({ onClose, onAdd }: { onClose:()=>void; onAdd:(row:Omit<Invest
   function submit(e:React.FormEvent) {
     e.preventDefault();
     if (!form.name?.trim()) { setErr("Name ist Pflichtfeld"); return; }
-    onAdd({ name:form.name.trim(), unternehmen:form.unternehmen??null, typ:form.typ??null, email:form.email??null, linkedin:form.linkedin??null, kapital:form.kapital??null, quelle:form.quelle??null, score:form.score??null, status:form.status??"Neu", naechsterSchritt:form.naechsterSchritt??null, letzterKont:form.letzterKont??null, notizen:form.notizen??null });
+    onAdd({ name:form.name.trim(), unternehmen:form.unternehmen??null, typ:form.typ??null, email:form.email??null, linkedin:form.linkedin??null, kapital:form.kapital??null, quelle:form.quelle??null, score:form.score??null, status:form.status??"Neu", naechsterSchritt:null, letzterKont:null, notizen:"" });
     onClose();
   }
 
   return (
     <div style={{ position:"fixed", inset:0, zIndex:2000, background:"rgba(0,0,0,0.6)", display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}>
-      <div style={{ background:"#0c0d10", border:"1px solid rgba(255,255,255,0.08)", borderRadius:8, width:"100%", maxWidth:580, maxHeight:"88vh", overflowY:"auto", padding:22 }}>
+      <div style={{ background:"#0c0d10", border:"1px solid rgba(255,255,255,0.08)", borderRadius:8, width:"100%", maxWidth:560, maxHeight:"88vh", overflowY:"auto", padding:22 }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
           <span style={{ fontSize:13, fontWeight:800, color:"rgba(255,255,255,0.7)", fontFamily:T }}>Investor hinzufügen</span>
           <button onClick={onClose} style={{ background:"none", border:"none", color:"rgba(255,255,255,0.35)", cursor:"pointer", fontSize:16, lineHeight:1 }}>✕</button>
@@ -265,13 +282,11 @@ function AddModal({ onClose, onAdd }: { onClose:()=>void; onAdd:(row:Omit<Invest
             {([{k:"name" as const,label:"Name *"},{k:"unternehmen" as const,label:"Unternehmen"},{k:"email" as const,label:"E-Mail"},{k:"linkedin" as const,label:"LinkedIn URL"},{k:"kapital" as const,label:"Kapital"}] as {k:keyof Omit<InvestorDb,"id">;label:string}[]).map(({k,label})=>(
               <div key={k}>{lbl(label)}<input style={inp} value={(form[k] as string)??"" } onChange={e=>set(k,e.target.value||null)} /></div>
             ))}
-            {([{k:"typ" as const,label:"Typ",opts:TYP_OPTS},{k:"quelle" as const,label:"Quelle",opts:QUELLE_OPTS},{k:"status" as const,label:"Status",opts:STATUS_OPTS},{k:"naechsterSchritt" as const,label:"Nächster Schritt",opts:SCHRITT_OPTS}] as {k:keyof Omit<InvestorDb,"id">;label:string;opts:string[]}[]).map(({k,label,opts})=>(
+            {([{k:"typ" as const,label:"Typ",opts:TYP_OPTS},{k:"quelle" as const,label:"Quelle",opts:QUELLE_OPTS},{k:"status" as const,label:"Status",opts:STATUS_OPTS}] as {k:keyof Omit<InvestorDb,"id">;label:string;opts:string[]}[]).map(({k,label,opts})=>(
               <div key={k}>{lbl(label)}<select style={inp} value={(form[k] as string)??"" } onChange={e=>set(k,e.target.value||null)}><option value="">—</option>{opts.map(o=><option key={o}>{o}</option>)}</select></div>
             ))}
-            <div>{lbl("Score")}<select style={inp} value={form.score?.toString()??"" } onChange={e=>set("score" as keyof Omit<InvestorDb,"id">,e.target.value||null)}><option value="">—</option>{[1,2,3,4,5].map(n=><option key={n} value={n}>{n} ★</option>)}</select></div>
-            <div>{lbl("Letzter Kontakt")}<input style={inp} type="date" value={form.letzterKont??""} onChange={e=>set("letzterKont",e.target.value||null)} /></div>
+            <div>{lbl("Score (60–98)")}<input style={inp} type="number" min={60} max={98} value={form.score?.toString()??"" } onChange={e=>set("score" as keyof Omit<InvestorDb,"id">,e.target.value||null)} /></div>
           </div>
-          <div style={{ marginTop:10 }}>{lbl("Notizen")}<textarea style={{...inp,height:60,resize:"vertical"}} value={form.notizen??""} onChange={e=>set("notizen",e.target.value||null)} /></div>
           {err && <p style={{ color:"#f87171", fontSize:11, marginTop:6, fontFamily:T }}>{err}</p>}
           <div style={{ display:"flex", justifyContent:"flex-end", gap:8, marginTop:14 }}>
             <button type="button" onClick={onClose} style={btnSt}>Abbrechen</button>
@@ -299,7 +314,7 @@ function CsvModal({ onClose, onImport }: { onClose:()=>void; onImport:(rows:Omit
       const row:Record<string,string>={};
       headers.forEach((h,idx)=>{ if(vals[idx]) row[h]=vals[idx]; });
       if (!row.name) continue;
-      rows.push({ name:row.name, unternehmen:row.unternehmen??null, typ:row.typ??null, email:row.email??null, linkedin:row.linkedin??null, kapital:row.kapital??null, quelle:row.quelle??null, score:row.score?parseInt(row.score):null, status:row.status??"Neu", naechsterSchritt:row.naechsterschritt??null, letzterKont:row.letzterkont??null, notizen:row.notizen??null });
+      rows.push({ name:row.name, unternehmen:row.unternehmen??null, typ:row.typ??null, email:row.email??null, linkedin:row.linkedin??null, kapital:row.kapital??null, quelle:row.quelle??null, score:row.score?parseInt(row.score):null, status:row.status??"Neu", naechsterSchritt:null, letzterKont:null, notizen:"" });
     }
     if (!rows.length) { setErr("Keine gültigen Zeilen."); return; }
     onImport(rows); onClose();
@@ -312,7 +327,7 @@ function CsvModal({ onClose, onImport }: { onClose:()=>void; onImport:(rows:Omit
           <span style={{ fontSize:13, fontWeight:800, color:"rgba(255,255,255,0.7)", fontFamily:T }}>CSV importieren</span>
           <button onClick={onClose} style={{ background:"none", border:"none", color:"rgba(255,255,255,0.35)", cursor:"pointer", fontSize:16, lineHeight:1 }}>✕</button>
         </div>
-        <p style={{ margin:"0 0 8px", fontSize:10, color:"rgba(255,255,255,0.3)", fontFamily:T }}>Kopfzeile: name, unternehmen, typ, email, linkedin, kapital, quelle, score, status, naechsterschritt, notizen</p>
+        <p style={{ margin:"0 0 8px", fontSize:10, color:"rgba(255,255,255,0.3)", fontFamily:T }}>Spalten: name, unternehmen, typ, email, linkedin, kapital, quelle, score, status</p>
         <textarea style={{...inp,height:150,resize:"vertical"}} placeholder={"name,email,status\nMax Mustermann,max@example.com,Neu"} value={text} onChange={e=>setText(e.target.value)} />
         {err && <p style={{ color:"#f87171", fontSize:11, marginTop:4, fontFamily:T }}>{err}</p>}
         <div style={{ display:"flex", justifyContent:"flex-end", gap:8, marginTop:12 }}>
@@ -334,21 +349,16 @@ export function InvestorDbView() {
   const [activeCell, setActiveCell] = useState<string|null>(null);
   const [showAdd, setShowAdd]   = useState(false);
   const [showCsv, setShowCsv]   = useState(false);
-  const [sortCol, setSortCol]   = useState<ColKey|null>(null);
-  const [sortDir, setSortDir]   = useState<"asc"|"desc">("asc");
-  const [page, setPage]         = useState(1);
+  const [sortCol, setSortCol]   = useState<ColKey>("score");
+  const [sortDir, setSortDir]   = useState<"asc"|"desc">("desc");
 
   const handleSort = useCallback((col: ColKey) => {
     setSortCol(prev => {
-      if (prev === col) return prev;
+      if (prev !== col) { setSortDir("asc"); }
+      else { setSortDir(d => d === "asc" ? "desc" : "asc"); }
       return col;
     });
-    setSortDir(prev => {
-      if (sortCol === col) return prev === "asc" ? "desc" : "asc";
-      return "asc";
-    });
-    setPage(1);
-  }, [sortCol]);
+  }, []);
 
   const patch = useCallback((id:number, key:ColKey, value:string|null) => {
     setRows(prev => prev.map(r => r.id===id ? {...r,[key]:key==="score"?(value?parseInt(value):null):value} : r));
@@ -375,34 +385,38 @@ export function InvestorDbView() {
       return (["name","unternehmen","email"] as ColKey[]).some(k=>(r[k]??"").toString().toLowerCase().includes(q));
     });
 
-    if (sortCol) {
-      result = [...result].sort((a,b) => {
-        const va = (a[sortCol] ?? "").toString();
-        const vb = (b[sortCol] ?? "").toString();
-        const numA = parseFloat(va);
-        const numB = parseFloat(vb);
-        const isNum = !isNaN(numA) && !isNaN(numB);
-        const cmp = isNum ? numA - numB : va.localeCompare(vb, "de");
-        return sortDir==="asc" ? cmp : -cmp;
-      });
-    }
+    result = [...result].sort((a,b) => {
+      const va = a[sortCol];
+      const vb = b[sortCol];
+      const na = typeof va === "number" ? va : parseFloat(String(va ?? ""));
+      const nb = typeof vb === "number" ? vb : parseFloat(String(vb ?? ""));
+      const isNum = !isNaN(na) && !isNaN(nb);
+      const cmp = isNum ? na - nb : String(va ?? "").localeCompare(String(vb ?? ""), "de");
+      return sortDir === "asc" ? cmp : -cmp;
+    });
     return result;
   }, [rows, tab, search, sortCol, sortDir]);
 
-  const totalPages  = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage    = Math.min(page, totalPages);
-  const pageRows    = filtered.slice((safePage-1)*PAGE_SIZE, safePage*PAGE_SIZE);
-  const nrOffset    = (safePage-1)*PAGE_SIZE;
+  // ── Virtual scroll ──────────────────────────────────────────────────────────
+  const parentRef = useRef<HTMLDivElement>(null);
+  const virtualizer = useVirtualizer({
+    count: filtered.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => ROW_H,
+    overscan: 20,
+  });
+  const vItems = virtualizer.getVirtualItems();
 
-  const th: React.CSSProperties = {
+  // ── Table column widths ─────────────────────────────────────────────────────
+  const thS: React.CSSProperties = {
     padding:"0 8px", height:30, textAlign:"left", fontSize:10, fontWeight:700,
-    color:"rgba(255,255,255,0.58)", fontFamily:T, letterSpacing:"0.06em",
+    color:"rgba(255,255,255,0.55)", fontFamily:T, letterSpacing:"0.07em",
     textTransform:"uppercase", whiteSpace:"nowrap", userSelect:"none",
     borderBottom:"1px solid rgba(255,255,255,0.1)",
   };
-  const td: React.CSSProperties = {
-    padding:"0 8px", height:34, verticalAlign:"middle",
-    borderBottom:"1px solid rgba(255,255,255,0.04)", whiteSpace:"nowrap", overflow:"hidden",
+  const tdS: React.CSSProperties = {
+    padding:"0 8px", height:ROW_H, verticalAlign:"middle",
+    whiteSpace:"nowrap", overflow:"hidden",
   };
 
   function renderCell(row:InvestorDb, col:Col) {
@@ -410,38 +424,42 @@ export function InvestorDbView() {
     if (key==="status")  return <Badge label={val as string|null} map={STATUS_COLOR} />;
     if (key==="typ")     return <Badge label={val as string|null} map={TYP_COLOR} />;
     if (key==="quelle")  return <QuelleCell quelle={val as string|null} />;
-    if (key==="score")   return <Stars n={val as number|null} />;
-    if (key==="letzterKont") return <span style={{ fontSize:12, fontFamily:T, color:val?"rgba(255,255,255,0.6)":"rgba(255,255,255,0.2)" }}>{fmtDate(val as string|null)||"—"}</span>;
+    if (key==="score")   return (
+      <span style={{ fontSize:11, color:"rgba(255,255,255,0.65)", fontFamily:T, fontWeight:600 }}>{val as number|null ?? ""}</span>
+    );
     if (key==="linkedin" && val) return (
-      <a href={`https://${(val as string).replace(/^https?:\/\//,"")}`} target="_blank" rel="noreferrer" onClick={e=>e.stopPropagation()} style={{ color:"rgba(255,255,255,0.45)", fontSize:11, display:"block" }}>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ verticalAlign:"middle" }}><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+      <a href={`https://${(val as string).replace(/^https?:\/\//,"")}`} target="_blank" rel="noreferrer" onClick={e=>e.stopPropagation()} style={{ color:"rgba(255,255,255,0.4)", fontSize:11, display:"block" }}>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="#0A66C2" style={{ verticalAlign:"middle" }}><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12" fill="#0A66C2"/><circle cx="4" cy="4" r="2" fill="#0A66C2"/></svg>
       </a>
     );
-    return <span style={{ fontSize:12, fontFamily:T, color:val?"rgba(255,255,255,0.75)":"rgba(255,255,255,0.2)", display:"block", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{(val as string|null)??"—"}</span>;
+    if (!val) return null;
+    return <span style={{ fontSize:12, fontFamily:T, color:"rgba(255,255,255,0.72)", display:"block", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{val as string}</span>;
   }
+
+  const totalW = 36 + COLS.reduce((s,c)=>s+c.w,0) + 34;
 
   return (
     <div
       style={{ display:"flex", flexDirection:"column", height:"100%", minHeight:0, background:"#0a0a0c", color:"#e4e4e7", position:"relative" }}
       onClick={()=>setActiveCell(null)}
     >
-      {/* ── Header row ── */}
+      {/* ── Header ── */}
       <div style={{ display:"flex", alignItems:"center", gap:10, padding:"0 14px", height:46, flexShrink:0, borderBottom:"1px solid rgba(255,255,255,0.07)" }} onClick={e=>e.stopPropagation()}>
         <span style={{ fontSize:13, fontWeight:800, color:"rgba(255,255,255,0.7)", fontFamily:T, flexShrink:0, letterSpacing:"0.01em" }}>Investor DB</span>
         <input
-          style={{ width:150, flexShrink:0, background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:5, color:"#e4e4e7", fontSize:12, padding:"4px 9px", fontFamily:T, outline:"none" }}
-          placeholder="Suche…" value={search} onChange={e=>{ setSearch(e.target.value); setPage(1); }}
+          style={{ width:160, flexShrink:0, background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:5, color:"#e4e4e7", fontSize:12, padding:"4px 9px", fontFamily:T, outline:"none" }}
+          placeholder="Suche Name, Firma, E-Mail…" value={search} onChange={e=>setSearch(e.target.value)}
         />
         <div style={{ flex:1, display:"flex", alignItems:"center", overflow:"hidden" }}>
           {[
-            { label:"Gesamt",     value:String(rows.length) },
-            { label:"Investoren", value:String(rows.filter(r=>r.status==="Investor").length) },
-            { label:"Warm",       value:String(rows.filter(r=>["Geantwortet","Call"].includes(r.status)).length) },
-            { label:"Gefiltert",  value:String(filtered.length) },
+            { label:"Gesamt",    value:String(rows.length) },
+            { label:"Investoren",value:String(rows.filter(r=>r.status==="Investor").length) },
+            { label:"Warm",      value:String(rows.filter(r=>["Geantwortet","Call"].includes(r.status)).length) },
+            { label:"Gefiltert", value:String(filtered.length) },
           ].map(k=>(
             <div key={k.label} style={{ display:"flex", alignItems:"baseline", gap:4, padding:"0 13px", borderLeft:"1px solid rgba(255,255,255,0.07)", flexShrink:0 }}>
               <span style={{ fontSize:9, fontWeight:700, color:"rgba(255,255,255,0.28)", fontFamily:T, letterSpacing:"0.07em", textTransform:"uppercase" }}>{k.label}</span>
-              <span style={{ fontSize:14, fontWeight:800, color:"rgba(255,255,255,0.75)", fontFamily:T }}>{k.value}</span>
+              <span style={{ fontSize:14, fontWeight:800, color:"rgba(255,255,255,0.72)", fontFamily:T }}>{k.value}</span>
             </div>
           ))}
         </div>
@@ -455,12 +473,12 @@ export function InvestorDbView() {
         </div>
       </div>
 
-      {/* ── Filter tabs ── */}
+      {/* ── Tabs ── */}
       <div style={{ display:"flex", borderBottom:"1px solid rgba(255,255,255,0.07)", paddingLeft:14, flexShrink:0 }} onClick={e=>e.stopPropagation()}>
         {TABS.map(t => {
           const active = tab===t;
           return (
-            <button key={t} onClick={()=>{ setTab(t); setPage(1); }} style={{
+            <button key={t} onClick={()=>setTab(t)} style={{
               background:"none", border:"none",
               borderBottom:active?"1.5px solid rgba(212,175,55,0.75)":"1.5px solid transparent",
               padding:"6px 12px", cursor:"pointer",
@@ -475,83 +493,90 @@ export function InvestorDbView() {
         })}
       </div>
 
-      {/* ── Table ── */}
-      <div style={{ flex:1, minHeight:0, overflowX:"auto", overflowY:"auto", position:"relative" }} onClick={e=>e.stopPropagation()}>
-        <table style={{ width:"100%", borderCollapse:"collapse", minWidth:1300, tableLayout:"fixed" }}>
-          <thead style={{ position:"sticky", top:0, zIndex:10, background:"#0a0a0c" }}>
-            <tr>
-              <th style={{...th, width:36, paddingLeft:14}}>#</th>
-              {COLS.map(c => {
-                const isSorted = sortCol===c.key;
-                return (
-                  <th key={c.key} style={{ ...th, width:c.w, cursor:c.sortable?"pointer":"default", background:isSorted?"rgba(255,255,255,0.025)":"transparent" }}
-                    onClick={c.sortable ? ()=>handleSort(c.key) : undefined}>
-                    <span style={{ display:"inline-flex", alignItems:"center", gap:3 }}>
-                      {c.label}
-                      {c.sortable && (
-                        isSorted
-                          ? <span style={{ color:"rgba(212,175,55,0.8)", fontSize:9, lineHeight:1 }}>{sortDir==="asc"?"▲":"▼"}</span>
-                          : <span style={{ color:"rgba(255,255,255,0.2)", fontSize:9, lineHeight:1 }}>⇅</span>
-                      )}
-                    </span>
-                  </th>
-                );
-              })}
-              <th style={{...th, width:34}} />
-            </tr>
-          </thead>
-          <tbody>
-            {pageRows.map((row,ri) => (
-              <tr key={row.id} style={{ background:ri%2===0?"transparent":"rgba(255,255,255,0.013)" }}>
-                <td style={{...td, width:36, paddingLeft:14}}>
-                  <span style={{ fontSize:10, color:"rgba(255,255,255,0.35)", fontFamily:T, fontWeight:500 }}>{nrOffset+ri+1}</span>
-                </td>
+      {/* ── Scrollable table wrapper ── */}
+      <div
+        ref={parentRef}
+        style={{ flex:1, minHeight:0, overflow:"auto", scrollbarWidth:"thin", scrollbarColor:"rgba(212,175,55,0.3) transparent" }}
+        onClick={e=>e.stopPropagation()}
+      >
+        <style>{`
+          .inv-scroll::-webkit-scrollbar{width:4px;height:4px}
+          .inv-scroll::-webkit-scrollbar-track{background:transparent}
+          .inv-scroll::-webkit-scrollbar-thumb{background:rgba(212,175,55,0.3);border-radius:2px}
+        `}</style>
+
+        {/* Sticky column header */}
+        <div style={{ position:"sticky", top:0, zIndex:10, background:"#0a0a0c", minWidth:totalW }}>
+          <div style={{ display:"flex", alignItems:"center", borderBottom:"1px solid rgba(255,255,255,0.1)" }}>
+            <div style={{ ...thS, width:36, paddingLeft:14, flexShrink:0 }}>#</div>
+            {COLS.map(c => {
+              const isSorted = sortCol===c.key;
+              return (
+                <div key={c.key} style={{ ...thS, width:c.w, flexShrink:0, cursor:c.sortable?"pointer":"default", background:isSorted?"rgba(255,255,255,0.02)":"transparent" }}
+                  onClick={c.sortable?()=>handleSort(c.key):undefined}>
+                  <span style={{ display:"inline-flex", alignItems:"center", gap:3 }}>
+                    {c.label}
+                    {c.sortable && (
+                      isSorted
+                        ? <span style={{ color:"rgba(212,175,55,0.8)", fontSize:9 }}>{sortDir==="asc"?"▲":"▼"}</span>
+                        : <span style={{ color:"rgba(255,255,255,0.18)", fontSize:9 }}>⇅</span>
+                    )}
+                  </span>
+                </div>
+              );
+            })}
+            <div style={{ ...thS, width:34, flexShrink:0 }} />
+          </div>
+        </div>
+
+        {/* Virtual rows */}
+        <div style={{ height:virtualizer.getTotalSize(), position:"relative", minWidth:totalW }}>
+          {vItems.map(vRow => {
+            const row = filtered[vRow.index];
+            const ri  = vRow.index;
+            return (
+              <div
+                key={vRow.key}
+                style={{
+                  position:"absolute", top:0, left:0, width:"100%",
+                  transform:`translateY(${vRow.start}px)`,
+                  height:ROW_H, display:"flex", alignItems:"center",
+                  background:ri%2===0?"transparent":"rgba(255,255,255,0.012)",
+                  borderBottom:"1px solid rgba(255,255,255,0.035)",
+                }}
+              >
+                {/* # */}
+                <div style={{ ...tdS, width:36, paddingLeft:14, flexShrink:0 }}>
+                  <span style={{ fontSize:10, color:"rgba(255,255,255,0.28)", fontFamily:T }}>{ri+1}</span>
+                </div>
+                {/* Columns */}
                 {COLS.map(col => {
                   const cellId=`${row.id}:${col.key}`;
                   const isActive=activeCell===cellId;
                   return (
-                    <td key={col.key} style={{ ...td, width:col.w, background:isActive?"rgba(255,255,255,0.06)":undefined, boxShadow:isActive?"inset 0 0 0 1px rgba(255,255,255,0.15)":undefined }}
+                    <div key={col.key}
+                      style={{ ...tdS, width:col.w, flexShrink:0, background:isActive?"rgba(255,255,255,0.06)":undefined, boxShadow:isActive?"inset 0 0 0 1px rgba(255,255,255,0.15)":undefined }}
                       onClick={e=>{ e.stopPropagation(); setActiveCell(cellId); }}>
                       {isActive ? (
                         <EditCell col={col.key} value={row[col.key]?.toString()??null}
                           onSave={v=>patch(row.id,col.key,v)} onClose={()=>setActiveCell(null)} />
                       ) : renderCell(row,col)}
-                    </td>
+                    </div>
                   );
                 })}
-                <td style={{...td, width:34}}>
-                  <button onClick={e=>{ e.stopPropagation(); del(row.id); }} style={{ background:"none", border:"none", color:"rgba(239,68,68,0.3)", cursor:"pointer", fontSize:13, padding:"2px 4px" }} title="Löschen">✕</button>
-                </td>
-              </tr>
-            ))}
-            {pageRows.length===0 && (
-              <tr><td colSpan={COLS.length+2} style={{...td,textAlign:"center",color:"rgba(255,255,255,0.18)",fontSize:11,fontFamily:T,letterSpacing:"0.05em",height:48}}>
-                Keine Treffer
-              </td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* ── Pagination ── */}
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:12, height:44, flexShrink:0, borderTop:"1px solid rgba(255,255,255,0.06)", background:"#0a0a0c" }} onClick={e=>e.stopPropagation()}>
-        <button
-          onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={safePage<=1}
-          style={{ ...btnSt, padding:"4px 10px", opacity:safePage<=1?0.35:1 }}>
-          <ChevronLeft size={12} strokeWidth={2} />Zurück
-        </button>
-        <span style={{ fontSize:11, color:"rgba(255,255,255,0.45)", fontFamily:T, minWidth:120, textAlign:"center" }}>
-          Seite{" "}
-          <span style={{ color:"rgba(212,175,55,0.9)", fontWeight:700 }}>{safePage}</span>
-          {" "}von{" "}
-          <span style={{ color:"rgba(212,175,55,0.9)", fontWeight:700 }}>{totalPages}</span>
-          {"  ·  "}{filtered.length} Einträge
-        </span>
-        <button
-          onClick={()=>setPage(p=>Math.min(totalPages,p+1))} disabled={safePage>=totalPages}
-          style={{ ...btnSt, padding:"4px 10px", opacity:safePage>=totalPages?0.35:1 }}>
-          Weiter<ChevronRight size={12} strokeWidth={2} />
-        </button>
+                {/* Delete */}
+                <div style={{ ...tdS, width:34, flexShrink:0 }}>
+                  <button onClick={e=>{ e.stopPropagation(); del(row.id); }} style={{ background:"none", border:"none", color:"rgba(239,68,68,0.28)", cursor:"pointer", fontSize:13, padding:"2px 4px" }} title="Löschen">✕</button>
+                </div>
+              </div>
+            );
+          })}
+          {filtered.length===0 && (
+            <div style={{ position:"absolute", top:0, left:0, right:0, display:"flex", alignItems:"center", justifyContent:"center", height:60, color:"rgba(255,255,255,0.18)", fontSize:11, fontFamily:T, letterSpacing:"0.05em" }}>
+              Keine Treffer
+            </div>
+          )}
+        </div>
       </div>
 
       {showAdd && <AddModal onClose={()=>setShowAdd(false)} onAdd={addRow} />}
