@@ -60,6 +60,7 @@ const NAV_ROUTES = [
   "/manager",
   "/investors",
   "/onboarding",
+  "/investor-db",
   "/vermittler",
   "/partner",
   "/settings",
@@ -389,6 +390,7 @@ export function Sidebar() {
   const canViewBrain = hasPermission(uid, "view:brain");
   const canViewGlobe = hasPermission(uid, "view:globe");
   const canViewPartner = hasPermission(uid, "view:partner_program");
+  const canViewExecution = hasPermission(uid, "view:execution");
 
   const [expanded, setExpanded] = useState(false);
   const [previewMode, setPreviewMode] = useState<PreviewMode>("desktop");
@@ -455,6 +457,7 @@ export function Sidebar() {
   const referenzenActive = pathname?.startsWith("/referenzen") ?? false;
   const previewWorkspaceActive = pathname?.startsWith("/preview-workspace") ?? false;
   const investorsCRMActive = (pathname?.startsWith("/onboarding") ?? false) || (pathname?.startsWith("/investors-crm") ?? false);
+  const investorDbActive = pathname?.startsWith("/investor-db") ?? false;
   const shellRouteActive = pathname === "/" || !pathname;
 
   const sidebarPageState: DashboardPage = shellRouteActive && !monitoringActive && !signalActive && !brainActive && !componentsActive ? page : ("__none__" as DashboardPage);
@@ -639,8 +642,8 @@ export function Sidebar() {
       </div>
 
       <nav className={cn("mt-1", navClass)} aria-label="Execution">
-        <SidebarLink href="/engine" active={engineActive} label="Trading Engine" icon={ChartCandlestick} onHover={updateHoverBox} expanded={expanded} />
-        <SidebarLink href="/signal" active={signalActive} label="Signale" icon={BellRing} onHover={updateHoverBox} expanded={expanded} />
+        {canViewExecution && <SidebarLink href="/engine" active={engineActive} label="Trading Engine" icon={ChartCandlestick} onHover={updateHoverBox} expanded={expanded} />}
+        {canViewExecution && <SidebarLink href="/signal" active={signalActive} label="Signale" icon={BellRing} onHover={updateHoverBox} expanded={expanded} />}
         {canViewMonitoring && <SidebarLink href="/monitoring" active={monitoringActive} label="Monitoring" icon={Activity} onHover={updateHoverBox} expanded={expanded} />}
       </nav>
 
@@ -663,6 +666,7 @@ export function Sidebar() {
         <SidebarLink href="/manager" active={managerActive} label="Manager" icon={BriefcaseBusiness} onHover={updateHoverBox} expanded={expanded} />
         <SidebarLink href="/investors" active={investorsActive} label="Investors" icon={HandCoins} onHover={updateHoverBox} expanded={expanded} />
         <SidebarLink href="/onboarding" active={investorsCRMActive} label="Onboarding" icon={UserRoundPlus} onHover={updateHoverBox} expanded={expanded} />
+        <SidebarLink href="/investor-db" active={investorDbActive} label="Investor DB" icon={Users} onHover={updateHoverBox} expanded={expanded} />
         <SidebarLink href="/vermittler" active={vermittlerActive} label="Vermittler" icon={Handshake} onHover={updateHoverBox} expanded={expanded} />
         {canViewPartner && <SidebarLink href="/partner" active={pathname?.startsWith("/partner") ?? false} label="Partnerprogramm" icon={Network} onHover={updateHoverBox} expanded={expanded} />}
       </nav>

@@ -559,3 +559,25 @@ create index if not exists monthly_returns_account_month_idx
   on public.monthly_returns (provider_account_id, month_utc desc);
 create index if not exists track_record_metrics_asof_idx
   on public.track_record_metrics (provider_account_id, as_of_utc desc);
+
+-- ── Investor Database ─────────────────────────────────────────────────────────
+create table if not exists public.investor_database (
+  id                uuid primary key default gen_random_uuid(),
+  name              text not null,
+  unternehmen       text,
+  typ               text,           -- HNWI / Angel / Family Office / VC / Unternehmer / Privat
+  email             text,
+  linkedin          text,
+  kapital           text,
+  quelle            text,           -- BaFin / Bundesanzeiger / LinkedIn / BAND / Manual
+  score             int,            -- 1–5
+  status            text not null default 'Neu',
+  naechster_schritt text,
+  letzter_kontakt   date,
+  notizen           text,
+  created_at        timestamptz not null default now()
+);
+alter table public.investor_database enable row level security;
+create policy "Service role full access on investor_database" on public.investor_database
+  using (true) with check (true);
+grant all on public.investor_database to service_role;

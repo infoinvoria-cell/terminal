@@ -1,3 +1,4 @@
+import { PartnerGuard } from "@/components/auth/PartnerGuard";
 import { SignalShell } from "@/components/signal-shell/SignalShell";
 import { getSignalPageData } from "@/lib/signal/signalPageData";
 
@@ -7,5 +8,9 @@ export const revalidate = 0;
 
 export default async function SignalRoute() {
   const data = await getSignalPageData();
-  return <SignalShell data={data} />;
+  return (
+    <PartnerGuard>
+      <SignalShell data={data} />
+    </PartnerGuard>
+  );
 }

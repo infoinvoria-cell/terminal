@@ -13,7 +13,8 @@ export type UserPermission =
   | "view:brain"              // /brain-graph
   | "view:globe"              // /globe
   | "view:sentinel"           // Sentinel AI chat
-  | "view:partner_program";   // /partner — Partnerprogramm
+  | "view:partner_program"    // /partner — Partnerprogramm
+  | "view:execution";         // /engine + /signal — Trading Engine & Signale
 
 const ROLE_PERMISSIONS: Record<UserRole, UserPermission[]> = {
   admin: [
@@ -25,6 +26,7 @@ const ROLE_PERMISSIONS: Record<UserRole, UserPermission[]> = {
     "view:globe",
     "view:sentinel",
     "view:partner_program",
+    "view:execution",
   ],
   analyst: [
     "view:technical_charts",
@@ -34,10 +36,12 @@ const ROLE_PERMISSIONS: Record<UserRole, UserPermission[]> = {
     "view:brain",
     "view:globe",
     "view:sentinel",
+    "view:execution",
   ],
   partner_manager: [
     "view:sentinel",
     "view:partner_program",
+    // no view:execution → Trading Engine + Signale hidden + route-guarded
   ],
 };
 
@@ -58,6 +62,9 @@ export function hasPermission(userId: string, permission: UserPermission): boole
 
 // Convenience: list of routes a partner_manager cannot access.
 export const PARTNER_RESTRICTED_ROUTES = [
+  "/engine",
+  "/signal",
+  "/signals",
   "/monitoring",
   "/analytics",
   "/komponenten",
