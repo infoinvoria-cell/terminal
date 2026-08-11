@@ -3,7 +3,8 @@
 import { memo, useMemo, useState, useEffect } from "react";
 import { useLiveQuotesContext } from "@/contexts/LiveQuotesContext";
 import { applyLiveCandle, liveQuoteKey } from "@/lib/monitoring/liveCandle";
-import MonitoringChart, { type MonitoringChartData } from "@/components/monitoring/MonitoringChart";
+import MonitoringChart from "@/components/monitoring/MonitoringChart";
+import type { MonitoringChartData } from "@/components/monitoring/MonitoringChart";
 import type { AgriAssetStatusSummary } from "@/lib/monitoring/agriFinalStatusTypes";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
 import { formatMonitoringChartCardLabel } from "@/lib/monitoring/monitoringChartLabels";
@@ -12,7 +13,6 @@ import { normalizeTradeVisualLevels, type TradeVisualLevelSource } from "@/lib/m
 import type { MonitoringUiPrefs } from "@/lib/monitoring/monitoringUiPrefs";
 import type { AllTileSize } from "@/lib/monitoring/rankAllMonitoringTiles";
 import type { ManualTradeLevels } from "@/lib/trading/types";
-import AgriStrategyKindButtons from "@/components/agri/AgriStrategyKindButtons";
 import type { AgriStrategyKind } from "@/lib/agri/agri-v2-registry";
 
 // Indizes Macro Valuation Alpha V1 trend EMAs (tradingview_strategy.pine: trendFastLen=200,
@@ -257,7 +257,7 @@ function sourceFromEventsFile(file: string): TradeVisualLevelSource {
 }
 
 function NoDataCell({ text }: { text: string }) {
-  return <div style={{ height: "100%", display: "grid", placeItems: "center", color: "#7B8088", fontSize: 11, fontWeight: 600 }}>{text}</div>;
+  return <div style={{ height: "100%", display: "grid", placeItems: "center", color: "rgba(180,192,210,0.6)", fontSize: 11, fontWeight: 700, letterSpacing: "0.04em", fontFamily: "var(--font-montserrat,'Montserrat',sans-serif)" }}>{text}</div>;
 }
 
 function formatCompactNumber(value: number | null | undefined): string {
@@ -352,10 +352,12 @@ function MonitoringChartCardInner({
   onAgriKindToggle,
   liveClose = null,
 }: MonitoringChartCardProps) {
+  const [headerHovered, setHeaderHovered] = useState(false);
+  const [strategyDropdownOpen, setStrategyDropdownOpen] = useState(false);
   const liveQuotesCtx = useLiveQuotesContext();
   // live_quotes stores bare symbols (FDAX1!); chart codes may carry a TF suffix
   // (FDAX1! 2H / 6E1! 30M), so normalize before lookup.
-  const liveQuote = item?.code ? (liveQuotesCtx.get(liveQuoteKey(item.code) ?? "") ?? null) : null;
+  const liveQuote = item?.code ? (liveQuotesCtx.getQuote(liveQuoteKey(item.code) ?? "") ?? null) : null;
   const resolvedLiveClose = liveClose ?? liveQuote?.close ?? null;
   const liveQuoteTs = liveQuote?.updated_at ?? liveQuote?.timestamp ?? null;
 
@@ -578,25 +580,46 @@ function MonitoringChartCardInner({
       {item && hasBars ? (
         <MonitoringChart
           data={chartData}
-          maxBars={radar ? 160 : (isDashboardMini ? 500 : isAllStrategiesMini ? 800 : (2500))}
-          initialVisibleBars={radar ? (radarActiveSignal ? radarOpenSignalVisibleBars(strategyTrades) : 18) : (isDashboardMini ? 20 : (item?.universeGroup === "Intraday MT" ? intradayInitialVisibleBars(strategyTrades) : (item?.universeGroup === "Indizes" ? indicesInitialVisibleBars(strategyTrades) : undefined)))}
-          allDashboardMode={isDashboardMini || radar}
-          showFullscreenControl
-          onFullscreenRequest={onOpenFullscreen}
-          showManualLevels={showManualLevels}
-          manualLevels={manualLevels}
-          onManualLevelsChange={onManualLevelsChange}
+          allDashboardMode={isDashboardMini}
+          initialVisibleBars={
+            isIntradayCard
+              ? intradayInitialVisibleBars(strategyTrades)
+              : radar
+              ? radarOpenSignalVisibleBars(strategyTrades as unknown as Array<Record<string, unknown>>)
+              : item?.universeGroup === "indizes"
+              ? indicesInitialVisibleBars(strategyTrades as unknown as Array<Record<string, unknown>>)
+              : undefined
+          }
           selectedTradeId={selectedTradeId}
           uiPrefs={uiPrefs}
-          liveChartAutoView={liveChartAutoView && !isDashboardMini}
-          trendEmas={item?.universeGroup === "Indizes" ? INDICES_TREND_EMAS : undefined}
+          liveChartAutoView={liveChartAutoView}
+          manualLevels={manualLevels}
+          showManualLevels={showManualLevels}
+          onManualLevelsChange={onManualLevelsChange}
+          onFullscreenRequest={onOpenFullscreen}
+          showFullscreenControl={!!onOpenFullscreen && !radar}
+          trendEmas={item?.universeGroup === "indizes" ? INDICES_TREND_EMAS : undefined}
         />
       ) : (
         <NoDataCell text={fallbackText} />
       )}
 
-      <div className="assetOverlay monitoring-card-label" data-radar-size={radarTileSize ?? undefined}>
-        <div className="monitoring-card-label-head">
+      <div
+        className="assetOverlay monitoring-card-label"
+        data-radar-size={radarTileSize ?? undefined}
+        style={{ pointerEvents: (radar || isAllStrategiesMini) ? "none" : "auto" }}
+        onMouseEnter={() => { if (!radar && !isAllStrategiesMini) setHeaderHovered(true); }}
+        onMouseLeave={() => { setHeaderHovered(false); if (!strategyDropdownOpen) return; }}
+      >
+        <div
+          className="monitoring-card-label-head"
+          style={{ position: "relative" }}
+          onClick={(e) => {
+            if (radar || isAllStrategiesMini || !item?.strategy) return;
+            e.stopPropagation();
+            setStrategyDropdownOpen((prev) => !prev);
+          }}
+        >
           {assetIconUrl && iconSize > 0 ? (
             <img
               src={assetIconUrl}
@@ -604,8 +627,6 @@ function MonitoringChartCardInner({
               className={`monitoring-card-asset-icon ${isAllStrategiesMini ? "monitoring-card-asset-icon--mini" : ""}`}
               width={iconSize}
               height={iconSize}
-              // Radar tiles override the hard-coded 32px CSS so small tiles get small icons.
-              // Non-radar (Agrar/Intraday dashboards) keep their CSS sizing untouched.
               style={radar ? { width: iconSize, height: iconSize } : undefined}
               decoding="async"
               draggable={false}
@@ -621,7 +642,110 @@ function MonitoringChartCardInner({
               <div className="assetDesc monitoring-card-desc" style={radar ? { fontSize: 8, lineHeight: 1.1 } : undefined}>{item?.name ?? cardLabel.term}</div>
             ) : null}
           </div>
+          {/* Strategy indicator — fades in on header hover when a strategy is assigned */}
+          {!radar && !isAllStrategiesMini && item?.strategy ? (
+            <span
+              style={{
+                marginLeft: 6,
+                opacity: headerHovered || strategyDropdownOpen ? 1 : 0,
+                transition: "opacity 180ms ease",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 18,
+                height: 18,
+                borderRadius: "50%",
+                background: strategyDropdownOpen ? "rgba(214,178,74,0.22)" : "rgba(255,255,255,0.1)",
+                border: strategyDropdownOpen ? "1px solid rgba(214,178,74,0.4)" : "1px solid rgba(255,255,255,0.14)",
+                flexShrink: 0,
+                cursor: "pointer",
+              }}
+              title={`Strategie: ${item.strategy}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setStrategyDropdownOpen((prev) => !prev);
+              }}
+            >
+              <svg width="9" height="9" viewBox="0 0 9 9" fill="none" aria-hidden>
+                <circle cx="4.5" cy="4.5" r="3" stroke="currentColor" strokeWidth="1.4" style={{ color: strategyDropdownOpen ? "#D6B24A" : "rgba(255,255,255,0.65)" }} />
+                <line x1="4.5" y1="2.5" x2="4.5" y2="4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" style={{ color: strategyDropdownOpen ? "#D6B24A" : "rgba(255,255,255,0.65)" }} />
+                <circle cx="4.5" cy="6.2" r="0.7" fill="currentColor" style={{ color: strategyDropdownOpen ? "#D6B24A" : "rgba(255,255,255,0.65)" }} />
+              </svg>
+            </span>
+          ) : null}
         </div>
+
+        {/* Strategy dropdown overlay */}
+        {strategyDropdownOpen && item?.strategy && !radar && !isAllStrategiesMini ? (
+          <div
+            style={{
+              position: "absolute",
+              top: "calc(100% + 6px)",
+              left: 0,
+              minWidth: 180,
+              background: "#1a1a20",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: 8,
+              boxShadow: "0 8px 24px rgba(0,0,0,0.55)",
+              padding: "8px 0",
+              zIndex: 100,
+              pointerEvents: "auto",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{
+              padding: "0 12px 6px",
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.38)",
+              borderBottom: "1px solid rgba(255,255,255,0.06)",
+              marginBottom: 4,
+            }}>
+              Strategie
+            </div>
+            {item.strategy.split(",").map((strat, i) => (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "5px 12px",
+                  fontSize: 11,
+                  color: "#eef2f8",
+                  fontWeight: 500,
+                  cursor: "default",
+                }}
+              >
+                <span style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: "50%",
+                  background: "#D6B24A",
+                  flexShrink: 0,
+                  opacity: 0.85,
+                }} />
+                {strat.trim()}
+              </div>
+            ))}
+            {item?.timeframe ? (
+              <div style={{
+                padding: "5px 12px 0",
+                marginTop: 2,
+                borderTop: "1px solid rgba(255,255,255,0.06)",
+                fontSize: 10,
+                color: "rgba(255,255,255,0.36)",
+                display: "flex",
+                gap: 6,
+              }}>
+                <span>TF</span>
+                <span style={{ color: "rgba(255,255,255,0.55)" }}>{item.timeframe}</span>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       {String(item?.code ?? "").toUpperCase().includes("6B1") ? (
@@ -695,13 +819,6 @@ function MonitoringChartCardInner({
         </div>
       ) : null}
 
-      {agriAvailableKinds && onAgriKindToggle && !radar ? (
-        <AgriStrategyKindButtons
-          availableKinds={agriAvailableKinds}
-          activeKinds={agriActiveKinds}
-          onToggle={onAgriKindToggle}
-        />
-      ) : null}
       {showWarningBadge ? (
         <div
           className={`chartBadge monitoring-card-badge ${badgeClassName(badge)}`}

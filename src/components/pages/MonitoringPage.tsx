@@ -2,9 +2,10 @@
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { Activity, BarChart3, Bell, Clock, RotateCw, Settings } from "lucide-react";
+import { Activity, BarChart3, Bell, Clock, RotateCw, Rows3, Settings } from "lucide-react";
 import MonitoringChart, { type MonitoringChartData } from "@/components/monitoring/MonitoringChart";
 import LiveSignalsPanel from "@/components/monitoring/LiveSignalsPanel";
+import MonitoringLiveFeedDrawer from "@/components/monitoring/MonitoringLiveFeedDrawer";
 import SentinelErrorBoundary from "@/components/monitoring/SentinelErrorBoundary";
 // Dynamic import with ssr:false — Sentinel uses browser APIs (localStorage, speechSynthesis, AudioContext, createPortal)
 // that must never run during SSR. This also means a crash in SentinelPanel cannot propagate to the page.
@@ -13,7 +14,8 @@ const SentinelPanel = dynamic(() => import("@/components/monitoring/SentinelPane
   loading: () => <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", background: "#060709", color: "rgba(255,255,255,0.3)", fontSize: 12 }}>Sentinel lädt…</div>,
 });
 import MonitoringChartCard, { type MonitoringChartCardItem } from "@/components/monitoring/MonitoringChartCard";
-import MonitoringFlexibleGrid from "@/components/monitoring/MonitoringFlexibleGrid";
+import MonitoringFlexibleGrid, { type GridLayoutOverride } from "@/components/monitoring/MonitoringFlexibleGrid";
+import type { SlotConfig as IntradaySlotConfig } from "@/components/monitoring/IntradayCandleGrid";
 import CoreInvestMonitoringGrid from "@/components/core-invest/CoreInvestMonitoringGrid";
 import MonitoringSettingsModal from "@/components/monitoring/MonitoringSettingsModal";
 import MonitoringStrategyWorkspace from "@/components/monitoring/MonitoringStrategyWorkspace";
@@ -25,6 +27,7 @@ import {
   type MonitoringPrimaryTabId,
 } from "@/config/monitoringTabConfig";
 import {
+  getMonitoringAssetIconUrl,
   isActiveMonitoringAgrarSymbol,
   isExcludedMonitoringAsset,
   MONITORING_ACTIVE_AGRAR_SYMBOLS,
@@ -104,7 +107,6 @@ import type { ExecutionParityStatus, ManualTradeLevels, TradeDirection, TradeMod
 import type { TimeseriesResponse } from "@/types";
 import { useAgriStrategySelection } from "@/hooks/useAgriStrategySelection";
 import { getAllAgriAssets, getAgriKindsForAsset } from "@/lib/agri/agri-v2-registry";
-import AgriStrategyKindButtons from "@/components/agri/AgriStrategyKindButtons";
 
 const SecondaryPanelLoader = ({ label }: { label: string }) => (
   <div className="st-empty st-empty-loading">{label}</div>
@@ -134,7 +136,8 @@ function MonitoringHeaderClock() {
         display: "inline-flex",
         alignItems: "center",
         gap: 6,
-        marginRight: 10,
+        paddingLeft: 16,
+        paddingRight: 16,
         color: GOLD,
         fontSize: 12,
         fontWeight: 600,
@@ -152,9 +155,11 @@ function MonitoringHeaderClock() {
 
 // Live-signal column: user-resizable + persisted width.
 const LIVE_PANEL_WIDTH_KEY = "invoria:monitoring:live-panel-width:v1";
-const LIVE_PANEL_WIDTH_MIN = 320;
-const LIVE_PANEL_WIDTH_MAX = 620;
-const LIVE_PANEL_WIDTH_DEFAULT = 404;
+const LIVE_FEED_FULL_DATA_STORAGE_KEY = "monitoring_live_feed_full_data";
+const LIVE_FEED_FULL_DATA_EVENT = "monitoring-live-feed-full-data-change";
+const LIVE_PANEL_WIDTH_MIN = 252;
+const LIVE_PANEL_WIDTH_MAX = 420;
+const LIVE_PANEL_WIDTH_DEFAULT = 292;
 function clampLivePanelWidth(w: number): number {
   const viewportCap = typeof window !== "undefined" ? Math.round(window.innerWidth * 0.45) : LIVE_PANEL_WIDTH_MAX;
   const max = Math.max(LIVE_PANEL_WIDTH_MIN, Math.min(LIVE_PANEL_WIDTH_MAX, viewportCap));
@@ -164,7 +169,7 @@ function clampLivePanelWidth(w: number): number {
 function buildExecCols(kpiW: number, paramsW: number, paramsVis: boolean, hasLive: boolean): string {
   const kpiPart = `6px ${kpiW}px`;
   const paramsPart = paramsVis ? ` 6px ${paramsW}px` : "";
-  if (hasLive) return `minmax(0, 1fr) clamp(360px, 24vw, 440px) ${kpiPart}${paramsPart}`; // live panel width (matches CSS .show-live-signals-panel)
+  if (hasLive) return `minmax(0, 1fr) clamp(280px, 20vw, 340px) ${kpiPart}${paramsPart}`; // live panel width (matches CSS .show-live-signals-panel)
   return `minmax(0, 1fr) ${kpiPart}${paramsPart}`;
 }
 
@@ -206,13 +211,174 @@ const MONITORING_HEADER_TABS: MonitoringHeaderTabItem[] = [
   { key: "intraday", kind: "tab", tabId: "intraday_mt", title: "Intraday" },
   { key: "anomaly", kind: "tab", tabId: "anomaly", title: "Anomaly" },
   { key: "agrar", kind: "tab", tabId: "agrar", title: "Agrar" },
-  { key: "metals", kind: "tab", tabId: "metalle_energie", title: "Metals/En" },
-  { key: "indices", kind: "tab", tabId: "indizes", title: "Indices" },
-  { key: "aktien", kind: "tab", tabId: "aktien", title: "Aktien" },
+  { key: "metals", kind: "tab", tabId: "metals", title: "Metals" },
+  { key: "etfs", kind: "tab", tabId: "etfs", title: "ETFs" },
+  { key: "stocks", kind: "tab", tabId: "stocks", title: "Stocks" },
   { key: "invest", kind: "tab", tabId: "invest", title: "Invest" },
   { key: "forex", kind: "tab", tabId: "fx", title: "Forex" },
   { key: "live", kind: "tab", tabId: "live", title: "Live" },
-  { key: "all", kind: "tab", tabId: "all", title: "All" },
+  { key: "oil", kind: "tab", tabId: "oil", title: "Oil" },
+];
+
+const TAB_CHART_SLOTS: Partial<Record<string, { slots: IntradaySlotConfig[]; columns: number }>> = {
+  agrar: {
+    columns: 4,
+    slots: [
+      { symbol: "ZW1!", timeframe: "1D", displaySymbol: "ZW1!", instrument: "Weizen", exchange: "CBOT", iconUrl: "/asset-icons/corn.png", pricePrecision: 2, minMove: 0.25, strategies: [] },
+      { symbol: "ZC1!", timeframe: "1D", displaySymbol: "ZC1!", instrument: "Mais", exchange: "CBOT", iconUrl: "/asset-icons/corn.png", pricePrecision: 2, minMove: 0.25, strategies: [] },
+      { symbol: "ZS1!", timeframe: "1D", displaySymbol: "ZS1!", instrument: "Soybeans", exchange: "CBOT", iconUrl: "/asset-icons/soybeans.png", pricePrecision: 2, minMove: 0.25, strategies: [] },
+      { symbol: "CC1!", timeframe: "1D", displaySymbol: "CC1!", instrument: "Kakao", exchange: "ICE", iconUrl: "/asset-icons/cocoa.png", pricePrecision: 0, minMove: 1, strategies: [] },
+      { symbol: "KC1!", timeframe: "1D", displaySymbol: "KC1!", instrument: "Kaffee", exchange: "ICE", iconUrl: "/asset-icons/coffee.png", pricePrecision: 2, minMove: 0.05, strategies: [] },
+      { symbol: "SB1!", timeframe: "1D", displaySymbol: "SB1!", instrument: "Zucker", exchange: "ICE", iconUrl: "/asset-icons/sugar.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "CT1!", timeframe: "1D", displaySymbol: "CT1!", instrument: "Baumwolle", exchange: "ICE", iconUrl: "/asset-icons/cotton.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "OJ1!", timeframe: "1D", displaySymbol: "OJ1!", instrument: "OJ Futures", exchange: "ICE", iconUrl: "/asset-icons/coffee.png", pricePrecision: 2, minMove: 0.05, strategies: [] },
+    ],
+  },
+  metals: {
+    columns: 3,
+    slots: [
+      { symbol: "GC1!", timeframe: "1D", displaySymbol: "GC1!", instrument: "Gold", exchange: "COMEX", iconUrl: "/asset-icons/gold.png", pricePrecision: 1, minMove: 0.1, strategies: [] },
+      { symbol: "SI1!", timeframe: "1D", displaySymbol: "SI1!", instrument: "Silber", exchange: "COMEX", iconUrl: "/asset-icons/silver.png", pricePrecision: 3, minMove: 0.001, strategies: [] },
+      { symbol: "HG1!", timeframe: "1D", displaySymbol: "HG1!", instrument: "Kupfer", exchange: "COMEX", iconUrl: "/asset-icons/silber.png", pricePrecision: 4, minMove: 0.0001, strategies: [] },
+      { symbol: "PL1!", timeframe: "1D", displaySymbol: "PL1!", instrument: "Platin", exchange: "NYMEX", iconUrl: "/asset-icons/platinum.png", pricePrecision: 1, minMove: 0.1, strategies: [] },
+      { symbol: "PA1!", timeframe: "1D", displaySymbol: "PA1!", instrument: "Palladium", exchange: "NYMEX", iconUrl: "/asset-icons/palladium.png", pricePrecision: 1, minMove: 0.1, strategies: [] },
+    ],
+  },
+  etfs: {
+    columns: 2,
+    slots: [
+      { symbol: "SPY", timeframe: "1D", displaySymbol: "SPY", instrument: "S&P ETF", exchange: "NYSE", iconUrl: "/asset-icons/SP.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "QQQ", timeframe: "1D", displaySymbol: "QQQ", instrument: "Nasdaq ETF", exchange: "NYSE", iconUrl: "/asset-icons/nasdaq.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "SPMO", timeframe: "1D", displaySymbol: "SPMO", instrument: "Momentum ETF", exchange: "NYSE", iconUrl: "/asset-icons/SP.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "GLD", timeframe: "1D", displaySymbol: "GLD", instrument: "Gold ETF", exchange: "NYSE", iconUrl: "/asset-icons/gold.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+    ],
+  },
+  stocks: {
+    columns: 3,
+    slots: [
+      { symbol: "AAPL", timeframe: "1D", displaySymbol: "AAPL", instrument: "Apple", exchange: "NASDAQ", iconUrl: "/asset-icons/apple.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "MSFT", timeframe: "1D", displaySymbol: "MSFT", instrument: "Microsoft", exchange: "NASDAQ", iconUrl: "/asset-icons/microsoft.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "NVDA", timeframe: "1D", displaySymbol: "NVDA", instrument: "Nvidia", exchange: "NASDAQ", iconUrl: "/asset-icons/nvidia.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "GOOGL", timeframe: "1D", displaySymbol: "GOOGL", instrument: "Google", exchange: "NASDAQ", iconUrl: "/asset-icons/google.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "META", timeframe: "1D", displaySymbol: "META", instrument: "Meta", exchange: "NASDAQ", iconUrl: "/asset-icons/meta.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "AMZN", timeframe: "1D", displaySymbol: "AMZN", instrument: "Amazon", exchange: "NASDAQ", iconUrl: "/asset-icons/amazon.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+    ],
+  },
+  oil: {
+    columns: 3,
+    slots: [
+      { symbol: "CL1!", timeframe: "1D", displaySymbol: "CL1!", instrument: "Crude Oil", exchange: "NYMEX", iconUrl: "/asset-icons/crude_oil.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "NG1!", timeframe: "1D", displaySymbol: "NG1!", instrument: "Nat. Gas", exchange: "NYMEX", iconUrl: "/asset-icons/crude_oil.png", pricePrecision: 3, minMove: 0.001, strategies: [] },
+      { symbol: "RB1!", timeframe: "1D", displaySymbol: "RB1!", instrument: "RBOB Gas", exchange: "NYMEX", iconUrl: "/asset-icons/crude_oil.png", pricePrecision: 4, minMove: 0.0001, strategies: [] },
+    ],
+  },
+  metalle_energie: {
+    columns: 4,
+    slots: [
+      { symbol: "GC1!", timeframe: "1D", displaySymbol: "GC1!", instrument: "Gold", exchange: "COMEX", iconUrl: "/asset-icons/gold.png", pricePrecision: 1, minMove: 0.1, strategies: [] },
+      { symbol: "SI1!", timeframe: "1D", displaySymbol: "SI1!", instrument: "Silber", exchange: "COMEX", iconUrl: "/asset-icons/silver.png", pricePrecision: 3, minMove: 0.001, strategies: [] },
+      { symbol: "HG1!", timeframe: "1D", displaySymbol: "HG1!", instrument: "Kupfer", exchange: "COMEX", iconUrl: "/asset-icons/silber.png", pricePrecision: 4, minMove: 0.0001, strategies: [] },
+      { symbol: "PL1!", timeframe: "1D", displaySymbol: "PL1!", instrument: "Platin", exchange: "NYMEX", iconUrl: "/asset-icons/platinum.png", pricePrecision: 1, minMove: 0.1, strategies: [] },
+      { symbol: "PA1!", timeframe: "1D", displaySymbol: "PA1!", instrument: "Palladium", exchange: "NYMEX", iconUrl: "/asset-icons/palladium.png", pricePrecision: 1, minMove: 0.1, strategies: [] },
+      { symbol: "CL1!", timeframe: "1D", displaySymbol: "CL1!", instrument: "Crude Oil", exchange: "NYMEX", iconUrl: "/asset-icons/crude_oil.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "NG1!", timeframe: "1D", displaySymbol: "NG1!", instrument: "Nat. Gas", exchange: "NYMEX", iconUrl: "/asset-icons/crude_oil.png", pricePrecision: 3, minMove: 0.001, strategies: [] },
+      { symbol: "RB1!", timeframe: "1D", displaySymbol: "RB1!", instrument: "RBOB Gas", exchange: "NYMEX", iconUrl: "/asset-icons/crude_oil.png", pricePrecision: 4, minMove: 0.0001, strategies: [] },
+    ],
+  },
+  indizes: {
+    columns: 3,
+    slots: [
+      { symbol: "FDAX1!", timeframe: "1D", displaySymbol: "FDAX1!", instrument: "DAX Futures", exchange: "EUREX", iconUrl: "/asset-icons/dax.png", pricePrecision: 0, minMove: 1, strategies: [] },
+      { symbol: "ES1!", timeframe: "1D", displaySymbol: "ES1!", instrument: "S&P Futures", exchange: "CME", iconUrl: "/asset-icons/es_s&p.png", pricePrecision: 2, minMove: 0.25, strategies: [] },
+      { symbol: "NQ1!", timeframe: "1D", displaySymbol: "NQ1!", instrument: "Nasdaq Futures", exchange: "CME", iconUrl: "/asset-icons/nasdaq.png", pricePrecision: 2, minMove: 0.25, strategies: [] },
+      { symbol: "YM1!", timeframe: "1D", displaySymbol: "YM1!", instrument: "DJ Futures", exchange: "CME", iconUrl: "/asset-icons/dow_jones.png", pricePrecision: 0, minMove: 1, strategies: [] },
+      { symbol: "UKX!", timeframe: "1D", displaySymbol: "UKX!", instrument: "FTSE 100", exchange: "LSE", iconUrl: "/asset-icons/gbp.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+    ],
+  },
+  fx: {
+    columns: 4,
+    slots: [
+      { symbol: "EURUSD", timeframe: "1D", displaySymbol: "EURUSD", instrument: "EUR/USD", exchange: "FX", iconUrl: "/asset-icons/eurusd.png", pricePrecision: 4, minMove: 0.0001, strategies: [] },
+      { symbol: "GBPUSD", timeframe: "1D", displaySymbol: "GBPUSD", instrument: "GBP/USD", exchange: "FX", iconUrl: "/asset-icons/gbpusd.png", pricePrecision: 4, minMove: 0.0001, strategies: [] },
+      { symbol: "EURGBP", timeframe: "1D", displaySymbol: "EURGBP", instrument: "EUR/GBP", exchange: "FX", iconUrl: "/asset-icons/eur.png", pricePrecision: 4, minMove: 0.0001, strategies: [] },
+      { symbol: "GBPJPY", timeframe: "1D", displaySymbol: "GBPJPY", instrument: "GBP/JPY", exchange: "FX", iconUrl: "/asset-icons/gbp.png", pricePrecision: 3, minMove: 0.001, strategies: [] },
+      { symbol: "MXNUSD", timeframe: "1D", displaySymbol: "MXNUSD", instrument: "MXN/USD", exchange: "FX", iconUrl: "/asset-icons/flag_mxn.png", pricePrecision: 5, minMove: 0.00001, strategies: [] },
+      { symbol: "NOKUSD", timeframe: "1D", displaySymbol: "NOKUSD", instrument: "NOK/USD", exchange: "FX", iconUrl: "/asset-icons/nzd.png", pricePrecision: 5, minMove: 0.00001, strategies: [] },
+      { symbol: "BRLUSD", timeframe: "1D", displaySymbol: "BRLUSD", instrument: "BRL/USD", exchange: "FX", iconUrl: "/asset-icons/Dollar.png", pricePrecision: 5, minMove: 0.00001, strategies: [] },
+      { symbol: "ZARUSD", timeframe: "1D", displaySymbol: "ZARUSD", instrument: "ZAR/USD", exchange: "FX", iconUrl: "/asset-icons/Dollar.png", pricePrecision: 5, minMove: 0.00001, strategies: [] },
+    ],
+  },
+  aktien: {
+    columns: 3,
+    slots: [
+      { symbol: "AAPL", timeframe: "1D", displaySymbol: "AAPL", instrument: "Apple", exchange: "NASDAQ", iconUrl: "/asset-icons/apple.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "MSFT", timeframe: "1D", displaySymbol: "MSFT", instrument: "Microsoft", exchange: "NASDAQ", iconUrl: "/asset-icons/microsoft.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "NVDA", timeframe: "1D", displaySymbol: "NVDA", instrument: "Nvidia", exchange: "NASDAQ", iconUrl: "/asset-icons/nvidia.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "GOOGL", timeframe: "1D", displaySymbol: "GOOGL", instrument: "Google", exchange: "NASDAQ", iconUrl: "/asset-icons/google.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "META", timeframe: "1D", displaySymbol: "META", instrument: "Meta", exchange: "NASDAQ", iconUrl: "/asset-icons/meta.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "AMZN", timeframe: "1D", displaySymbol: "AMZN", instrument: "Amazon", exchange: "NASDAQ", iconUrl: "/asset-icons/amazon.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+    ],
+  },
+  invest: {
+    columns: 3,
+    slots: [
+      { symbol: "SPY", timeframe: "1D", displaySymbol: "SPY", instrument: "S&P ETF", exchange: "NYSE", iconUrl: "/asset-icons/SP.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "QQQ", timeframe: "1D", displaySymbol: "QQQ", instrument: "Nasdaq ETF", exchange: "NYSE", iconUrl: "/asset-icons/nasdaq.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "GLD", timeframe: "1D", displaySymbol: "GLD", instrument: "Gold ETF", exchange: "NYSE", iconUrl: "/asset-icons/gold.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "HG1!", timeframe: "1D", displaySymbol: "HG1!", instrument: "Kupfer", exchange: "COMEX", iconUrl: "/asset-icons/silber.png", pricePrecision: 4, minMove: 0.0001, strategies: [] },
+      { symbol: "6S1!", timeframe: "1D", displaySymbol: "6S1!", instrument: "CHF Futures", exchange: "CME", iconUrl: "/asset-icons/chf.png", pricePrecision: 4, minMove: 0.0001, strategies: [] },
+    ],
+  },
+  anomaly: {
+    columns: 2,
+    slots: [
+      { symbol: "GC1!", timeframe: "1D", displaySymbol: "GC1!", instrument: "Gold", exchange: "COMEX", iconUrl: "/asset-icons/gold.png", pricePrecision: 1, minMove: 0.1, strategies: [] },
+      { symbol: "FDAX1!", timeframe: "1D", displaySymbol: "FDAX1!", instrument: "DAX Futures", exchange: "EUREX", iconUrl: "/asset-icons/dax.png", pricePrecision: 0, minMove: 1, strategies: [] },
+      { symbol: "GLD", timeframe: "1D", displaySymbol: "GLD", instrument: "Gold ETF", exchange: "NYSE", iconUrl: "/asset-icons/gold.png", pricePrecision: 2, minMove: 0.01, strategies: [] },
+      { symbol: "YM1!", timeframe: "1D", displaySymbol: "YM1!", instrument: "DowJones Futures", exchange: "CME", iconUrl: "/asset-icons/dow_jones.png", pricePrecision: 0, minMove: 1, strategies: [] },
+    ],
+  },
+  intraday_mt: {
+    columns: 3,
+    slots: [
+      { symbol: "FDAX1!", timeframe: "2H", displaySymbol: "FDAX1!", instrument: "DAX Futures", exchange: "EUREX", iconUrl: "/asset-icons/dax.png", pricePrecision: 0, minMove: 1, strategies: [] },
+      { symbol: "FDAX1!", timeframe: "1H", displaySymbol: "FDAX1!", instrument: "DAX Futures", exchange: "EUREX", iconUrl: "/asset-icons/dax.png", pricePrecision: 0, minMove: 1, strategies: [] },
+      { symbol: "6E1!", timeframe: "30M", displaySymbol: "6E1!", instrument: "Euro FX Futures", exchange: "CME", iconUrl: "/asset-icons/eur.png", pricePrecision: 4, minMove: 0.0001, strategies: [] },
+    ],
+  },
+};
+
+const DYNAMIC_INTRADAY_TAB_COLUMNS: Partial<Record<MonitoringPrimaryTabId, number>> = {
+  agrar: 4,
+  metals: 3,
+  etfs: 2,
+  stocks: 3,
+  oil: 3,
+  fx: 4,
+};
+
+function shouldUseDynamicIntradaySlots(tabId: MonitoringPrimaryTabId): boolean {
+  return tabId === "agrar"
+    || tabId === "metals"
+    || tabId === "etfs"
+    || tabId === "stocks"
+    || tabId === "oil"
+    || tabId === "fx";
+}
+
+const FALLBACK_METALS_UNIVERSE_ITEMS: UniverseAssetItem[] = [
+  { tab: "Metalle", symbol: "GC1!", requestSymbol: "GC1!", source: "COMEX:GC1!", name: "Gold", timeframe: "D", hasData: true, hasStrategy: false, strategyStatus: "chart_only", buildable: false },
+  { tab: "Metalle", symbol: "SI1!", requestSymbol: "SI1!", source: "COMEX:SI1!", name: "Silver", timeframe: "D", hasData: true, hasStrategy: false, strategyStatus: "chart_only", buildable: false },
+  { tab: "Metalle", symbol: "HG1!", requestSymbol: "HG1!", source: "COMEX:HG1!", name: "Copper", timeframe: "D", hasData: true, hasStrategy: false, strategyStatus: "chart_only", buildable: false },
+  { tab: "Metalle", symbol: "PL1!", requestSymbol: "PL1!", source: "NYMEX:PL1!", name: "Platinum", timeframe: "D", hasData: true, hasStrategy: false, strategyStatus: "chart_only", buildable: false },
+  { tab: "Metalle", symbol: "PA1!", requestSymbol: "PA1!", source: "NYMEX:PA1!", name: "Palladium", timeframe: "D", hasData: true, hasStrategy: false, strategyStatus: "chart_only", buildable: false },
+];
+
+const FALLBACK_ETFS_UNIVERSE_ITEMS: UniverseAssetItem[] = [
+  { tab: "ETFs", symbol: "SPY",  requestSymbol: "SPY",  source: "BATS:SPY",   name: "S&P 500 ETF",    timeframe: "D", hasData: true, hasStrategy: false, strategyStatus: "chart_only", buildable: false },
+  { tab: "ETFs", symbol: "QQQ",  requestSymbol: "QQQ",  source: "NASDAQ:QQQ", name: "Nasdaq ETF",     timeframe: "D", hasData: true, hasStrategy: false, strategyStatus: "chart_only", buildable: false },
+  { tab: "ETFs", symbol: "SPMO", requestSymbol: "SPMO", source: "BATS:SPMO",  name: "S&P Momentum",   timeframe: "D", hasData: true, hasStrategy: false, strategyStatus: "chart_only", buildable: false },
+  { tab: "ETFs", symbol: "GLD",  requestSymbol: "GLD",  source: "AMEX:GLD",   name: "Gold ETF",       timeframe: "D", hasData: true, hasStrategy: false, strategyStatus: "chart_only", buildable: false },
 ];
 
 const FALLBACK_AKTIEN_UNIVERSE_ITEMS: UniverseAssetItem[] = [
@@ -823,9 +989,11 @@ const GROUP_ALIASES: Record<string, string> = {
   indices: "Indizes",
   indizes: "Indizes",
   fx: "FX",
+  etfs: "ETFs",
   stocks: "Aktien",
   aktien: "Aktien",
   invest: "Invest",
+  oil: "Energie",
   bonds: "Invest",
   "intraday / mt": "Intraday MT",
   intraday_mt: "Intraday MT",
@@ -847,6 +1015,14 @@ function normalizeGroup(raw: string): string {
 
 function tabIdToMonitoringLabel(tabId: TabId): MonitoringTabLabel | null {
   switch (tabId) {
+    case "metals":
+      return "Metalle";
+    case "etfs":
+      return "Invest";
+    case "stocks":
+      return "Aktien";
+    case "oil":
+      return "Energie";
     case "agrar":
       return "Agrar";
     case "metalle_energie":
@@ -894,6 +1070,9 @@ function tabConfigById(tabId: TabId) {
 function monitoringTabIdForGroup(group: string): TabId {
   const normalized = normalizeGroup(group);
   if (normalized === "Metalle+Energie") return "metalle_energie";
+  if (normalized === "Metalle") return "metals";
+  if (normalized === "Energie") return "oil";
+  if (normalized === "Aktien") return "stocks";
   const cfg = MONITORING_TAB_CONFIG.find((tab) =>
     tab.universeGroups.some((g) => normalizeGroup(g) === normalized),
   );
@@ -988,6 +1167,66 @@ function buildOrderedIntradayMtUniverseItems(): UniverseAssetItem[] {
     strategyStatus: "mapped",
     buildable: true,
   }));
+}
+
+function slotSymbolFromChartCode(code: string): string {
+  return String(code || "")
+    .trim()
+    .replace(/\s+(30M|1H|2H|4H|1D|D)$/i, "")
+    .trim();
+}
+
+function slotExchangeFromSource(source?: string | null): string {
+  const raw = String(source || "").trim();
+  if (!raw) return "LIVE";
+  const head = raw.includes(":") ? raw.split(":")[0] : raw;
+  return head || "LIVE";
+}
+
+function slotPrecisionFromSymbol(symbol: string): { pricePrecision: number; minMove: number } {
+  const code = String(symbol || "").trim().toUpperCase();
+  if (code === "6E1!" || code === "EURUSD" || code === "GBPUSD" || code === "EURGBP") {
+    return { pricePrecision: 4, minMove: 0.0001 };
+  }
+  if (code === "GBPJPY") {
+    return { pricePrecision: 3, minMove: 0.001 };
+  }
+  if (code === "HG1!" || code === "RB1!") {
+    return { pricePrecision: 4, minMove: 0.0001 };
+  }
+  if (code === "SI1!" || code === "NG1!") {
+    return { pricePrecision: 3, minMove: 0.001 };
+  }
+  if (code === "FDAX1!" || code === "YM1!") {
+    return { pricePrecision: 0, minMove: 1 };
+  }
+  return { pricePrecision: 2, minMove: 0.01 };
+}
+
+function chartItemsToSlots(items: ChartItem[]): IntradaySlotConfig[] {
+  return items.map((item) => {
+    const symbol = slotSymbolFromChartCode(item.short ?? item.code);
+    const timeframe = String(item.timeframe || "1D").toUpperCase();
+    const iconUrl = getMonitoringAssetIconUrl({
+      code: item.short ?? item.code,
+      name: item.name,
+      source: item.tv,
+      assetId: "assetId" in item ? item.assetId : undefined,
+      displaySymbol: item.short ?? item.code,
+    }) ?? "/asset-icons/gold.png";
+    const { pricePrecision, minMove } = slotPrecisionFromSymbol(symbol);
+    return {
+      symbol,
+      timeframe,
+      displaySymbol: item.short ?? item.code,
+      instrument: item.name,
+      exchange: slotExchangeFromSource(item.tv),
+      iconUrl,
+      pricePrecision,
+      minMove,
+      strategies: [],
+    };
+  });
 }
 
 function applyMonitoringUniverseFilters(items: UniverseAssetItem[], options?: { replaceAgrarWithOrdered?: boolean }): UniverseAssetItem[] {
@@ -2302,8 +2541,9 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
   const customEs1EnginePilotEnabled = monitoringFeatureFlags.useCustomEs1EnginePilot;
   const customPa1EnginePilotEnabled = monitoringFeatureFlags.useCustomPa1EnginePilot;
   const customPl1EnginePilotEnabled = monitoringFeatureFlags.useCustomPl1EnginePilot;
-  const ALL_TAB_IDS: TabId[] = ["agrar", "metalle_energie", "indizes", "aktien", "invest", "fx", "anomaly", "intraday_mt", "live", "all"];
-  const [activeTab, setActiveTab] = useState<TabId>("agrar");
+  const ALL_TAB_IDS: TabId[] = ["intraday_mt", "anomaly", "agrar", "metals", "etfs", "stocks", "invest", "fx", "live", "oil"];
+  const [gridLayout, setGridLayout] = useState<"4x2" | "3col" | "2x2">("4x2");
+  const [activeTab, setActiveTab] = useState<TabId>("intraday_mt");
   const setActiveTabPersisted = useCallback((tab: TabId) => {
     try {
       window.localStorage.setItem("monitoring_active_tab", tab);
@@ -2313,7 +2553,15 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
   useEffect(() => {
     try {
       const stored = window.localStorage.getItem("monitoring_active_tab");
-      const normalized = (stored === "indices" ? "indizes" : stored === "intraday" ? "intraday_mt" : stored) as TabId;
+      const normalized = (
+        stored === "indices" ? "etfs"
+          : stored === "indizes" ? "etfs"
+          : stored === "metalle_energie" ? "metals"
+          : stored === "aktien" ? "stocks"
+          : stored === "all" ? "live"
+          : stored === "intraday" ? "intraday_mt"
+          : stored
+      ) as TabId;
       if (ALL_TAB_IDS.includes(normalized)) {
         setActiveTab(normalized);
       }
@@ -2338,13 +2586,16 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
   // Re-derive when active kinds change (getAgriActiveKinds is stable, selection triggers re-render)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getAgriActiveKinds]);
+  const handleAgriKindToggle = useCallback((symbol: string, kind: import("@/lib/agri/agri-v2-registry").AgriStrategyKind) => {
+    toggleAgriKind(symbol, kind);
+  }, [toggleAgriKind]);
 
   // Mirror of activeTab for stable callbacks (refresh handler has [] deps).
   const activeTabRef = useRef<TabId>(activeTab);
   useEffect(() => { activeTabRef.current = activeTab; }, [activeTab]);
   // The "live" tab is a filtered view on the "all" data: it reuses the exact same data
   // loading + item building, then renders only the signal charts (open/fresh/recent-closed).
-  const isAllOrLive = activeTab === "all" || activeTab === "live";
+  const isAllOrLive = activeTab === "live";
   const [universeAssets, setUniverseAssets] = useState<UniverseAssetItem[]>([]);
   const [productionUniverseAssets, setProductionUniverseAssets] = useState<UniverseAssetItem[]>([]);
   const [productionUniverseLoading, setProductionUniverseLoading] = useState(false);
@@ -2379,6 +2630,37 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
   useEffect(() => {
     try { window.localStorage.setItem("monitoring_live_panel_open", liveSignalsOpen ? "1" : "0"); } catch { /* ignore */ }
   }, [liveSignalsOpen]);
+  const [liveFeedDrawerOpen, setLiveFeedDrawerOpen] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return window.localStorage.getItem("monitoring_live_feed_drawer_open") === "1";
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    try { window.localStorage.setItem("monitoring_live_feed_drawer_open", liveFeedDrawerOpen ? "1" : "0"); } catch { /* ignore */ }
+  }, [liveFeedDrawerOpen]);
+  const [liveFeedFullData, setLiveFeedFullData] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return window.localStorage.getItem(LIVE_FEED_FULL_DATA_STORAGE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    const sync = () => {
+      try {
+        setLiveFeedFullData(window.localStorage.getItem(LIVE_FEED_FULL_DATA_STORAGE_KEY) === "1");
+      } catch {
+        setLiveFeedFullData(false);
+      }
+    };
+    sync();
+    window.addEventListener(LIVE_FEED_FULL_DATA_EVENT, sync as EventListener);
+    return () => window.removeEventListener(LIVE_FEED_FULL_DATA_EVENT, sync as EventListener);
+  }, []);
   const [sentinelOpen, setSentinelOpen] = useState<boolean>(false);
   useEffect(() => {
     try { window.localStorage.setItem("monitoring_sentinel_panel_open", sentinelOpen ? "1" : "0"); } catch { /* ignore */ }
@@ -2428,7 +2710,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
   const [strategyPerfLoading, setStrategyPerfLoading] = useState(false);
   const [activePerformance, setActivePerformance] = useState<StrategyPerformanceResult | null>(null);
 
-  // ── Core Invest Tester state ────────────────────────────────────────────────
+  // -- Core Invest Tester state ------------------------------------------------
   const [investSelectedStrategyId, setInvestSelectedStrategyIdRaw] = useState<string>("QQQ_PINE_1");
   const setInvestSelectedStrategyId = useCallback((id: string) => {
     try { window.localStorage.setItem("monitoring_invest_strategy_id", id); } catch { /* ignore */ }
@@ -2458,7 +2740,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
   const mainWorkspaceRef = useRef<HTMLDivElement | null>(null);
   const execLayoutRef = useRef<HTMLDivElement | null>(null);
 
-  // ── Forward Logger ──────────────────────────────────────────────────────────
+  // -- Forward Logger ----------------------------------------------------------
   type FwdTrade = Record<string, string> & { lastClose?: number | null; lastCloseDate?: string | null; unrealizedPct?: number | null };
   type ForwardLoggerData = { available: boolean; asOf?: string; openTrades?: FwdTrade[]; activeSignals?: FwdTrade[]; recentClosed?: FwdTrade[]; counts?: { open: number; activeSignals: number; recentClosed: number } };
   const [forwardLogger, setForwardLogger] = useState<ForwardLoggerData | null>(null);
@@ -2518,16 +2800,20 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
   const lastCompletedRefreshAtRef = useRef<number>(0);
   const isTradeExecutionOpen = activePanel === "tradeExecution";
   const isFullscreen = fullscreenAssetId !== null;
-  const liveSignalsPanelEnabled = liveSignalsOpen;
-  const sentinelPanelEnabled = sentinelOpen;
+  const liveFeedDrawerEnabled = liveFeedDrawerOpen;
+  const liveSignalsPanelEnabled = liveSignalsOpen && !liveFeedDrawerOpen;
+  const sentinelPanelEnabled = sentinelOpen && !liveFeedDrawerOpen;
   // Right side column shows when Live and/or Sentinel is open. When both are open the
   // column is split vertically (Live on top, Sentinel below).
-  const rightColumnEnabled = liveSignalsPanelEnabled || sentinelPanelEnabled;
+  const rightColumnEnabled = liveFeedDrawerEnabled || liveSignalsPanelEnabled || sentinelPanelEnabled;
+  const effectiveLivePanelWidth = liveFeedDrawerEnabled
+    ? clampLivePanelWidth(Math.max(300, Math.min(livePanelWidth, 352)))
+    : livePanelWidth;
   // When the column is narrower than default, scale the cards (and their content) down
   // proportionally; never above 1 (wider just widens the cards, content stays put).
-  const liveCardScale = Math.min(1, Math.max(0.72, livePanelWidth / LIVE_PANEL_WIDTH_DEFAULT));
+  const liveCardScale = Math.min(1, Math.max(0.72, effectiveLivePanelWidth / LIVE_PANEL_WIDTH_DEFAULT));
   // When the Live/Sentinel column is open, the Trade-Ausführen / account-risk column is hidden.
-  const tradeExecutionPanelEnabled = isTradeExecutionOpen && tradeExecutionEnabled && !liveSignalsOpen && !sentinelOpen;
+  const tradeExecutionPanelEnabled = isTradeExecutionOpen && tradeExecutionEnabled && !liveFeedDrawerEnabled && !liveSignalsOpen && !sentinelOpen;
   const showGrid = fullscreenAssetId === null;
   const showStrategyTester = strategyTesterOpen;
   const showStrategyTesterWorkspace = strategyTesterOpen && strategyTesterEnabled && !tradeExecutionPanelEnabled;
@@ -3692,17 +3978,31 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     return [...productionUniverseAssets, ...keep];
   }, [productionUniverseAssets, universeAssets]);
 
-  const fallbackUniverseByTab = useMemo(() => ({
-    aktien: FALLBACK_AKTIEN_UNIVERSE_ITEMS,
-    invest: FALLBACK_INVEST_UNIVERSE_ITEMS,
-    fx: productionUniverseAssets.filter((asset) => normalizeGroup(asset.tab) === "FX"),
-    metalle_energie: productionUniverseAssets.filter((asset) => {
-      const group = normalizeGroup(asset.tab);
-      return group === "Metalle" || group === "Energie";
-    }),
-    live: productionUniverseAssets,
-    all: productionUniverseAssets,
-  }), [productionUniverseAssets]);
+  const fallbackUniverseByTab = useMemo(() => {
+    const productionMetals = productionUniverseAssets.filter((a) => normalizeGroup(a.tab) === "Metalle");
+    const productionMetalSymbols = new Set(productionMetals.map((a) => a.symbol));
+    const mergedMetals: UniverseAssetItem[] = [
+      ...productionMetals,
+      ...FALLBACK_METALS_UNIVERSE_ITEMS.filter((a) => !productionMetalSymbols.has(a.symbol)),
+    ];
+
+    const productionEtfs = productionUniverseAssets.filter((a) => normalizeGroup(a.tab) === "ETFs");
+    const productionEtfSymbols = new Set(productionEtfs.map((a) => a.symbol));
+    const mergedEtfs: UniverseAssetItem[] = [
+      ...productionEtfs,
+      ...FALLBACK_ETFS_UNIVERSE_ITEMS.filter((a) => !productionEtfSymbols.has(a.symbol)),
+    ];
+
+    return {
+      stocks: FALLBACK_AKTIEN_UNIVERSE_ITEMS,
+      etfs: mergedEtfs,
+      invest: FALLBACK_INVEST_UNIVERSE_ITEMS,
+      fx: productionUniverseAssets.filter((asset) => normalizeGroup(asset.tab) === "FX"),
+      metals: mergedMetals,
+      oil: productionUniverseAssets.filter((asset) => normalizeGroup(asset.tab) === "Energie"),
+      live: productionUniverseAssets,
+    };
+  }, [productionUniverseAssets]);
 
   const filteredUniverseItems = useMemo(() => {
     if (activeTab === "intraday_mt") {
@@ -3711,19 +4011,17 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     if (activeTab === "anomaly") {
       return anomalyMtUniverseItems;
     }
-    if (activeTab === "indizes") {
-      return WAVE1_INDICES_ASSETS;
-    }
-    if ((activeTab === "aktien" || activeTab === "invest" || activeTab === "fx" || activeTab === "metalle_energie" || activeTab === "live" || activeTab === "all") && fallbackUniverseByTab[activeTab].length) {
+    if ((activeTab === "stocks" || activeTab === "etfs" || activeTab === "invest" || activeTab === "fx" || activeTab === "metals" || activeTab === "oil" || activeTab === "live") && fallbackUniverseByTab[activeTab].length) {
       return fallbackUniverseByTab[activeTab];
     }
     if (!effectiveUniverseAssets.length) {
-      if (activeTab === "aktien") return FALLBACK_AKTIEN_UNIVERSE_ITEMS;
+      if (activeTab === "stocks") return FALLBACK_AKTIEN_UNIVERSE_ITEMS;
+      if (activeTab === "etfs") return FALLBACK_INVEST_UNIVERSE_ITEMS.filter((asset) => ["SPY", "QQQ", "SPMO", "GLD"].includes(String(asset.symbol || "").toUpperCase()));
       if (activeTab === "invest") return FALLBACK_INVEST_UNIVERSE_ITEMS;
       return [] as UniverseAssetItem[];
     }
     if (isAllOrLive) {
-      const cfg = tabConfigById("all");
+      const cfg = tabConfigById("live");
       const groups = new Set((cfg?.universeGroups ?? []).map((group) => normalizeGroup(group)));
       const scoped = effectiveUniverseAssets.filter((asset) => {
         const group = normalizeGroup(asset.tab);
@@ -4877,7 +5175,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
       ensure(r.itemKey).closedMs = maxMs(raw[r.itemKey].closedMs, parseTradeTimestampValue(r.exitTime ?? r.entryTime));
     }
 
-    // Hero (activeSignal) = a recent open trade (≤ 21 days) OR a fresh still-active entry
+    // Hero (activeSignal) = a recent open trade (= 21 days) OR a fresh still-active entry
     // (today/yesterday) that has NOT been closed. A closed-only signal — however recent —
     // is never a hero. A stale open (> 21 days) is also no longer a hero.
     const RADAR_OPEN_MAX_AGE_MS = 21 * 24 * 60 * 60_000;
@@ -4905,13 +5203,20 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     if (activeTab !== "live") return [] as typeof allItems;
     const SEVEN_DAYS_MS = 7 * 24 * 60 * 60_000;
     const now = Date.now();
+    const liveSymbols = new Set<string>();
+    for (const row of liveSignalsFeed.openTrades) liveSymbols.add(String(row.symbol || "").trim().toUpperCase());
+    for (const row of liveSignalsFeed.entriesToday) liveSymbols.add(String(row.symbol || "").trim().toUpperCase());
+    for (const row of liveSignalsFeed.exitsToday) liveSymbols.add(String(row.symbol || "").trim().toUpperCase());
+    for (const row of (liveSignalsFeed.closedThisWeek ?? [])) liveSymbols.add(String(row.symbol || "").trim().toUpperCase());
     return allItems.filter((it) => {
       const sig = radarSignalState[it.key];
+      const code = slotSymbolFromChartCode(it.short ?? it.code).toUpperCase();
+      if (liveSymbols.has(code)) return true;
       if (!sig) return false;
       if (sig.hasOpenTrade || sig.activeSignal) return true;
       return sig.lastSignalMs != null && now - sig.lastSignalMs <= SEVEN_DAYS_MS;
     });
-  }, [activeTab, allItems, radarSignalState]);
+  }, [activeTab, allItems, liveSignalsFeed, radarSignalState]);
 
   const liveTabCounts = useMemo(() => {
     let open = 0, fresh = 0, closed = 0;
@@ -4924,6 +5229,31 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     }
     return { open, fresh, closed };
   }, [liveTabItems, radarSignalState]);
+
+  const currentUnifiedGridItems = useMemo(() => {
+    if (activeTab === "live") return liveTabItems;
+    if (activeTab === "agrar") return orderedItems;
+    return allItems;
+  }, [activeTab, allItems, liveTabItems, orderedItems]);
+
+  const liveFeedSignalStateBySymbol = useMemo<Record<string, "active" | "none">>(() => {
+    const map: Record<string, "active" | "none"> = {};
+    for (const row of liveSignalsFeed.openTrades) {
+      const symbol = String(row.symbol || "").trim().toUpperCase();
+      if (symbol) map[symbol] = "active";
+    }
+    for (const row of liveSignalsFeed.entriesToday) {
+      const symbol = String(row.symbol || "").trim().toUpperCase();
+      if (symbol) map[symbol] = "active";
+    }
+    return map;
+  }, [liveSignalsFeed]);
+
+  // Symbols currently visible in the chart grid — pinned at top of Live Feed
+  const liveFeedPinnedSymbols = useMemo<string[]>(() => {
+    if (activeTab === "intraday_mt") return ["FDAX1!", "6E1!"];
+    return [];
+  }, [activeTab]);
 
   // Honest per-signal provenance for the Live tab (dezent chip). Derived from the real
   // strategy-events source mode — no "live approved" claim anywhere.
@@ -5964,7 +6294,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
       if (json.ok) {
         lastCompletedRefreshAtRef.current = Date.now();
         if (mode === "manual") {
-          // Backend refresh finished → controlled HARD-RELOAD so the new data is
+          // Backend refresh finished ? controlled HARD-RELOAD so the new data is
           // guaranteed visible without a manual browser refresh. The active tab (and
           // other localStorage-persisted UI state: live-panel open/width, visual
           // settings) survive, so the page returns to the same monitoring tab.
@@ -6031,7 +6361,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     };
   }, [activeTab, strategyTesterChart?.code, strategyTesterChart?.name, strategyTesterChart?.strategy, strategyTesterIsGroupMode, strategyTesterScopeItems.length]);
 
-  // ── Core Invest Tester: context ────────────────────────────────────────────────
+  // -- Core Invest Tester: context ------------------------------------------------
   const INVEST_SLEEVE_META: Record<string, { symbol: string; name: string; strategy: string }> = {
     QQQ_PINE_1: { symbol: "QQQ",  name: "QQQ Pine 1", strategy: "Pine 1 (SMA400/5)" },
     COPPER_HG:      { symbol: "HG1!", name: "Copper/HG",       strategy: "EMA20/50 Valuation" },
@@ -6244,7 +6574,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
               setShowTradeExecutionPaused(false);
             }}
           >
-            <BarChart3 size={13} strokeWidth={1.9} />
+            <BarChart3 size={15} strokeWidth={1.9} />
             <span>Tester</span>
           </button>
           <button
@@ -6255,7 +6585,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
               setLiveSignalsOpen((prev) => !prev);
             }}
           >
-            <Bell size={13} strokeWidth={1.9} />
+            <Bell size={15} strokeWidth={1.9} />
             <span>Live</span>
             {liveSignalsFeed.openCount > 0 ? (
               <span
@@ -6283,14 +6613,36 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           </button>
           <button
             type="button"
+            aria-pressed={liveFeedDrawerOpen}
+            aria-label={liveFeedDrawerOpen ? "Close Live Feed" : "Open Live Feed"}
+            className={`tab tab-action tab-live-feed-drawer ${liveFeedDrawerOpen ? "active" : ""}`}
+            onClick={() => {
+              setLiveFeedDrawerOpen((prev) => !prev);
+            }}
+            title={liveFeedDrawerOpen ? "Live Feed schließen" : "Live Feed öffnen"}
+          >
+            <Rows3 size={15} strokeWidth={1.9} />
+          </button>
+          <button
+            type="button"
             aria-pressed={sentinelOpen}
             className={`tab tab-action tab-sentinel ${sentinelOpen ? "active" : ""}`}
             onClick={() => {
               setSentinelOpen((prev) => !prev);
             }}
           >
-            <img src="/Sentinel.png" alt="" width={14} height={14} style={{ objectFit: "contain" }} />
-            <span>Sentinel</span>
+            {/* Static assembled Aurum logo (no animation) */}
+            <span style={{ position: "relative", width: 26, height: 23, flexShrink: 0, display: "block" }}>
+              {([
+                { left: "44.41%", top: "7.12%",  width: "11.48%", height: "85.43%" },
+                { left: "25.93%", top: "30.79%", width: "10.73%", height: "48.84%" },
+                { left: "63.93%", top: "30.79%", width: "10.13%", height: "48.84%" },
+                { left: "6.41%",  top: "42.22%", width: "36.21%", height: "50.00%" },
+                { left: "57.68%", top: "42.22%", width: "35.92%", height: "50.00%" },
+              ] as const).map((p, i) => (
+                <img key={i} src={`/sentinel-aurum-piece-${i + 1}.png`} alt="" style={{ position: "absolute", left: p.left, top: p.top, width: p.width, height: p.height, objectFit: "contain", display: "block" }} />
+              ))}
+            </span>
           </button>
           <button
             type="button"
@@ -6306,9 +6658,9 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
             title={liveChartAutoView ? "Live-Chart-Ansicht aktiv — klicken zum Deaktivieren" : "Live-Chart-Ansicht aktivieren"}
             aria-label="Live-Chart Auto-View"
           >
-            <Activity size={13} strokeWidth={1.9} />
+            <Activity size={15} strokeWidth={1.9} />
           </button>
-          {/* Refresh-Button entfernt — Auto-Refresh alle 30s */}
+          {/* Grid layout switcher entfernt */}
           <button
             type="button"
             className="tab tab-action tab-monitoring-settings"
@@ -6332,69 +6684,6 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
 
       {activeTab === "live" ? (
         <div className="monitoringContent monitoring-content monitoring-live-tab">
-          <div className="monitoring-live-header">
-            <div className="monitoring-live-title">
-              <span className="monitoring-live-title-main">Live Signale</span>
-              <span className="monitoring-live-sub">Letzte 7 Tage</span>
-            </div>
-            <div className="monitoring-live-chips">
-              <span className="monitoring-live-chip is-open">Open: {liveTabCounts.open}</span>
-              <span className="monitoring-live-chip is-fresh">Fresh: {liveTabCounts.fresh}</span>
-              <span className="monitoring-live-chip is-closed">Closed 7D: {liveTabCounts.closed}</span>
-            </div>
-            <span className="monitoring-live-research" title="Der Live-Tab ist eine gefilterte Research-Ansicht auf bestehende Signalquellen — keine Live-Trading-Freigabe.">
-              Research monitoring · not live approved
-            </span>
-          </div>
-          {forwardLogger?.available && (forwardLogger.openTrades?.length ?? 0) > 0 && (
-            <div className="monitoring-fwd-section">
-              <div className="monitoring-fwd-header">
-                <span className="monitoring-fwd-title">Forward Positionen</span>
-                <span className="monitoring-fwd-count monitoring-live-chip is-open">{forwardLogger.openTrades!.length} offen</span>
-                {forwardLogger.asOf && (
-                  <span className="monitoring-live-sub">Stand: {forwardLogger.asOf.slice(0, 10)}</span>
-                )}
-              </div>
-              <div className="monitoring-fwd-table">
-                <div className="monitoring-fwd-row monitoring-fwd-row--head">
-                  <span>Asset</span>
-                  <span>Strategie</span>
-                  <span>Dir</span>
-                  <span>Entry</span>
-                  <span>SL</span>
-                  <span>TP</span>
-                  <span>RR</span>
-                  <span>P&amp;L %</span>
-                  <span>Entry-Datum</span>
-                </div>
-                {forwardLogger.openTrades!.map((t, i) => {
-                  const dir = (t.direction ?? "").toUpperCase();
-                  const rr = t.model_rr ? `${parseFloat(t.model_rr).toFixed(1)}R` : "–";
-                  const entryP = t.entry_price ? parseFloat(t.entry_price).toLocaleString("de-CH", { maximumFractionDigits: 4 }) : "–";
-                  const slP = t.sl_price ? parseFloat(t.sl_price).toLocaleString("de-CH", { maximumFractionDigits: 4 }) : "–";
-                  const tpP = t.tp_price ? parseFloat(t.tp_price).toLocaleString("de-CH", { maximumFractionDigits: 4 }) : "–";
-                  const pnl = t.unrealizedPct ?? null;
-                  const pnlStr = pnl != null ? `${pnl >= 0 ? "+" : ""}${pnl.toFixed(2)}%` : "–";
-                  const pnlClass = pnl == null ? "" : pnl > 0 ? "is-pnl-pos" : pnl < 0 ? "is-pnl-neg" : "";
-                  return (
-                    <div key={i} className="monitoring-fwd-row">
-                      <span className="monitoring-fwd-symbol">{t.symbol ?? "–"}</span>
-                      <span className="monitoring-fwd-strategy">{t.strategy ?? "–"}</span>
-                      <span className={`monitoring-fwd-dir ${dir === "LONG" ? "is-long" : "is-short"}`}>{dir}</span>
-                      <span>{entryP}</span>
-                      <span className="monitoring-fwd-sl">{slP}</span>
-                      <span className="monitoring-fwd-tp">{tpP}</span>
-                      <span>{rr}</span>
-                      <span className={`monitoring-fwd-pnl ${pnlClass}`} title={t.lastClose != null ? `Close: ${t.lastClose} (${t.lastCloseDate ?? ""})` : "Kein Preis"}>
-                        {pnlStr}
-                      </span>
-                      <span className="monitoring-live-sub">{t.entry_date ?? "–"}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
           {!allTabsEnabled || !nonAgrarGridEnabled ? (
             <div className="monitoring-live-empty">
               <div className="monitoring-live-empty-title">Live-Ansicht pausiert</div>
@@ -6402,16 +6691,17 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           ) : liveTabItems.length ? (
             <div className="monitoring-live-grid">
               <MonitoringFlexibleGrid
-                tabId="live"
+                tabId={activeTab}
                 assets={liveTabItems}
                 radarSignalState={radarSignalState}
                 radarSourceByKey={liveSourceByKey}
                 activeChartId={selectedAssetId}
                 selectedStrategySymbols={selectedStrategySymbols}
                 selectedTradeId={executionFocusTradeId}
-                preferredDensity={tabConfigById("live")?.preferredDensity ?? "compact"}
+                preferredDensity={tabConfigById(activeTab)?.preferredDensity ?? "compact"}
+                gridOverride={gridLayout}
                 onChartSelect={onChartSelect}
-                onIndicatorOpen={onStrategyWorkspaceSelect}
+                onIndicatorOpen={onIndicatorOpen}
                 onOpenFullscreen={fullscreenEnabled ? onOpenFullscreen : undefined}
                 isTradeExecutionOpen={tradeExecutionPanelEnabled}
                 tradeMode={tradeMode}
@@ -6436,9 +6726,9 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           )}
         </div>
       ) : activeTab === "agrar" ? (
-        <div className={`monitoringContent monitoring-content ${isInputPanelOpen ? "input-open" : ""} ${showStrategyTester ? "tester-open" : ""} ${isTradeExecutionOpen ? "execution-open" : ""} ${liveSignalsOpen ? "live-signals-open" : ""}`}>
+        <div className={`monitoringContent monitoring-content ${isInputPanelOpen ? "input-open" : ""} ${showStrategyTester ? "tester-open" : ""} ${isTradeExecutionOpen ? "execution-open" : ""} ${rightColumnEnabled ? "live-signals-open" : ""}`}>
           <div
-            className={`monitoringExecutionLayout ${tradeExecutionPanelEnabled ? "show-side-panel" : ""} ${rightColumnEnabled ? "show-live-signals-panel" : ""} ${showStrategyTesterWorkspace ? "show-strategy-tester" : ""}`}
+            className={`monitoringExecutionLayout ${tradeExecutionPanelEnabled ? "show-side-panel" : ""} ${rightColumnEnabled ? "show-live-signals-panel" : ""} ${showStrategyTesterWorkspace ? "show-strategy-tester" : ""} ${liveFeedDrawerEnabled && liveFeedFullData ? "live-feed-expanded" : ""}`}
             ref={(el) => { execLayoutRef.current = el; }}
             style={showStrategyTesterWorkspace && !useUnifiedAgrarStrategyWorkspace ? {
               gridTemplateColumns: buildExecCols(
@@ -6449,7 +6739,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
               )
             } : rightColumnEnabled ? {
               // Resizable + persisted Live-/Sentinel column width.
-              gridTemplateColumns: `minmax(0, 1fr) ${livePanelWidth}px`,
+              gridTemplateColumns: `minmax(0, 1fr) ${effectiveLivePanelWidth}px`,
             } : undefined}
           >
             <div
@@ -6479,10 +6769,12 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
                       <MonitoringFlexibleGrid
                         tabId={activeTab}
                         assets={orderedItems}
+                        radarSignalState={radarSignalState}
                         activeChartId={selectedAssetId}
                         selectedStrategySymbols={selectedStrategySymbols}
                         selectedTradeId={executionFocusTradeId}
-                        preferredDensity="balanced"
+                        preferredDensity={tabConfigById(activeTab)?.preferredDensity ?? "balanced"}
+                        gridOverride={gridLayout}
                         onChartSelect={onChartSelect}
                         onIndicatorOpen={onStrategyWorkspaceSelect}
                         onOpenFullscreen={fullscreenEnabled ? onOpenFullscreen : undefined}
@@ -6499,9 +6791,9 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
                         agriAuditBySymbol={agriFinalStatus?.assets ?? {}}
                         agriLiveStateBySymbol={agrarCardLiveStateBySymbol}
                         liveChartAutoView={liveChartAutoView}
-                        agriAvailableKindsBySymbol={activeTab === "agrar" ? agriAvailableKindsBySymbol : undefined}
-                        agriActiveKindsBySymbol={activeTab === "agrar" ? agriActiveKindsBySymbol : undefined}
-                        onAgriKindToggle={activeTab === "agrar" ? toggleAgriKind : undefined}
+                        agriAvailableKindsBySymbol={agriAvailableKindsBySymbol}
+                        agriActiveKindsBySymbol={agriActiveKindsBySymbol}
+                        onAgriKindToggle={handleAgriKindToggle}
                       />
                     ) : (
                       <div className="expandedChartPane fullscreenChartPane" style={{ position: "relative" }}>
@@ -6519,19 +6811,12 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
                         ) : (
                           <div className="expanded-empty">No chart data</div>
                         )}
-                        {activeTab === "agrar" && fullscreenItem?.code && agriAvailableKindsBySymbol[fullscreenItem.code] ? (
-                          <AgriStrategyKindButtons
-                            availableKinds={agriAvailableKindsBySymbol[fullscreenItem.code]}
-                            activeKinds={agriActiveKindsBySymbol[fullscreenItem.code] ?? []}
-                            onToggle={(kind) => toggleAgriKind(fullscreenItem.code, kind)}
-                          />
-                        ) : null}
                         <div className="expanded-chart-label">
                           <div className="expanded-chart-symbol">{fullscreenItem?.short ?? fullscreenItem?.code ?? "-"}</div>
                           <div className="expanded-chart-desc">{fullscreenItem?.name ?? "-"}</div>
                         </div>
                         <button type="button" className="expanded-chart-close" onClick={onExitFullscreen} aria-label="Exit fullscreen">
-                          ⊡
+                          ?
                         </button>
                       </div>
                     )
@@ -6543,10 +6828,12 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
                     <MonitoringFlexibleGrid
                       tabId={activeTab}
                       assets={orderedItems}
+                      radarSignalState={radarSignalState}
                       activeChartId={selectedAssetId}
                       selectedStrategySymbols={selectedStrategySymbols}
                       selectedTradeId={executionFocusTradeId}
-                      preferredDensity="balanced"
+                      preferredDensity={tabConfigById(activeTab)?.preferredDensity ?? "balanced"}
+                      gridOverride={gridLayout}
                       onChartSelect={onChartSelect}
                       onIndicatorOpen={onIndicatorOpen}
                       onOpenFullscreen={fullscreenEnabled ? onOpenFullscreen : undefined}
@@ -6563,9 +6850,9 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
                       agriAuditBySymbol={agriFinalStatus?.assets ?? {}}
                       agriLiveStateBySymbol={agrarCardLiveStateBySymbol}
                       liveChartAutoView={liveChartAutoView}
-                      agriAvailableKindsBySymbol={activeTab === "agrar" ? agriAvailableKindsBySymbol : undefined}
-                      agriActiveKindsBySymbol={activeTab === "agrar" ? agriActiveKindsBySymbol : undefined}
-                      onAgriKindToggle={activeTab === "agrar" ? toggleAgriKind : undefined}
+                      agriAvailableKindsBySymbol={agriAvailableKindsBySymbol}
+                      agriActiveKindsBySymbol={agriActiveKindsBySymbol}
+                      onAgriKindToggle={handleAgriKindToggle}
                     />
                   ) : (
                     <div className="expandedChartPane fullscreenChartPane" style={{ position: "relative" }}>
@@ -6583,19 +6870,12 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
                       ) : (
                         <div className="expanded-empty">No chart data</div>
                       )}
-                      {activeTab === "agrar" && fullscreenItem?.code && agriAvailableKindsBySymbol[fullscreenItem.code] ? (
-                        <AgriStrategyKindButtons
-                          availableKinds={agriAvailableKindsBySymbol[fullscreenItem.code]}
-                          activeKinds={agriActiveKindsBySymbol[fullscreenItem.code] ?? []}
-                          onToggle={(kind) => toggleAgriKind(fullscreenItem.code, kind)}
-                        />
-                      ) : null}
                       <div className="expanded-chart-label">
                         <div className="expanded-chart-symbol">{fullscreenItem?.short ?? fullscreenItem?.code ?? "-"}</div>
                         <div className="expanded-chart-desc">{fullscreenItem?.name ?? "-"}</div>
                       </div>
                       <button type="button" className="expanded-chart-close" onClick={onExitFullscreen} aria-label="Exit fullscreen">
-                        ⊡
+                        ?
                       </button>
                     </div>
                   )}
@@ -6691,22 +6971,36 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
             ) : null}
             {rightColumnEnabled ? (
               <div
-                className="monitoringRightColumn"
-                style={{ display: "flex", flexDirection: "column", minHeight: 0, minWidth: 0, height: "100%", position: "relative", isolation: "isolate" }}
+                className={`monitoringRightColumn ${liveFeedDrawerEnabled && liveFeedFullData ? "live-feed-expanded" : ""}`}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  minHeight: 0,
+                  minWidth: 0,
+                  height: "100%",
+                  position: "relative",
+                  isolation: "isolate",
+                  overflow: "visible",
+                }}
               >
-                {/* Mobile close strip — shown on ≤768px via CSS */}
+                {/* Mobile close strip — shown on =768px via CSS */}
                 <div className="mobile-panel-close-btn" style={{ display: "none", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", borderBottom: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
                   <span style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", letterSpacing: "0.04em" }}>
-                    {liveSignalsPanelEnabled && sentinelPanelEnabled ? "Live · Sentinel" : liveSignalsPanelEnabled ? "Live Signale" : "Sentinel"}
+                    {liveFeedDrawerEnabled ? "Live Feed" : liveSignalsPanelEnabled && sentinelPanelEnabled ? "Live · Sentinel" : liveSignalsPanelEnabled ? "Live Signale" : "Sentinel"}
                   </span>
                   <button
                     type="button"
                     style={{ background: "none", border: "none", color: "rgba(255,255,255,0.5)", cursor: "pointer", minHeight: 44, minWidth: 44, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, lineHeight: 1 }}
-                    onClick={() => { if (liveSignalsPanelEnabled) setLiveSignalsOpen(false); if (sentinelPanelEnabled) setSentinelOpen(false); }}
+                    onClick={() => { if (liveFeedDrawerEnabled) setLiveFeedDrawerOpen(false); if (liveSignalsPanelEnabled) setLiveSignalsOpen(false); if (sentinelPanelEnabled) setSentinelOpen(false); }}
                     aria-label="Panel schließen"
-                  >✕</button>
+                  >?</button>
                 </div>
-                {liveSignalsPanelEnabled ? (
+                {liveFeedDrawerEnabled ? (
+                  <div style={{ flex: 1, minHeight: 0 }}>
+                    <MonitoringLiveFeedDrawer signalStateBySymbol={liveFeedSignalStateBySymbol} pinnedSymbols={liveFeedPinnedSymbols} />
+                  </div>
+                ) : null}
+                {!liveFeedDrawerEnabled && liveSignalsPanelEnabled ? (
                   <div style={{ flex: 1, minHeight: 0 }}>
                     <LiveSignalsPanel
                       feed={liveSignalsFeed}
@@ -6719,7 +7013,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
                     />
                   </div>
                 ) : null}
-                {sentinelPanelEnabled ? (
+                {!liveFeedDrawerEnabled && sentinelPanelEnabled ? (
                   <div style={{ flex: 1, minHeight: 0 }}>
                     <SentinelErrorBoundary>
                       <SentinelPanel
@@ -6842,11 +7136,11 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           ) : null}
         </div>
       ) : activeTab === "invest" ? (
-        <div className={`monitoringContent monitoring-content ${showStrategyTester ? "tester-open" : ""} ${liveSignalsOpen ? "live-signals-open" : ""}`}>
+        <div className={`monitoringContent monitoring-content ${showStrategyTester ? "tester-open" : ""} ${rightColumnEnabled ? "live-signals-open" : ""}`}>
           <div
-            className={`monitoringExecutionLayout ${rightColumnEnabled ? "show-live-signals-panel" : ""} ${showStrategyTesterWorkspace ? "show-strategy-tester" : ""}`}
+            className={`monitoringExecutionLayout ${rightColumnEnabled ? "show-live-signals-panel" : ""} ${showStrategyTesterWorkspace ? "show-strategy-tester" : ""} ${liveFeedDrawerEnabled && liveFeedFullData ? "live-feed-expanded" : ""}`}
             ref={(el) => { execLayoutRef.current = el; }}
-            style={rightColumnEnabled ? { gridTemplateColumns: `minmax(0, 1fr) ${livePanelWidth}px` } : undefined}
+            style={rightColumnEnabled ? { gridTemplateColumns: `minmax(0, 1fr) ${effectiveLivePanelWidth}px` } : undefined}
           >
             <div className="monitoringMainWorkspace" ref={(el) => { mainWorkspaceRef.current = el; }}>
               {useUnifiedInvestWorkspace ? (
@@ -6876,17 +7170,25 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
               )}
             </div>
             {rightColumnEnabled ? (
-              <div className={`monitoringRightColumn ${liveSignalsPanelEnabled && sentinelPanelEnabled ? "split" : ""}`}>
+              <div
+                className={`monitoringRightColumn ${liveSignalsPanelEnabled && sentinelPanelEnabled ? "split" : ""} ${liveFeedDrawerEnabled && liveFeedFullData ? "live-feed-expanded" : ""}`}
+                style={{ overflow: "visible" }}
+              >
                 <div className="mobile-panel-close-btn">
                   <button
                     type="button"
                     className="monitoring-ghost-btn"
-                    onClick={() => { if (liveSignalsPanelEnabled) setLiveSignalsOpen(false); if (sentinelPanelEnabled) setSentinelOpen(false); }}
+                    onClick={() => { if (liveFeedDrawerEnabled) setLiveFeedDrawerOpen(false); if (liveSignalsPanelEnabled) setLiveSignalsOpen(false); if (sentinelPanelEnabled) setSentinelOpen(false); }}
                   >
                     Schließen
                   </button>
                 </div>
-                {liveSignalsPanelEnabled ? (
+                {liveFeedDrawerEnabled ? (
+                  <div className="rightPanelSection">
+                    <MonitoringLiveFeedDrawer signalStateBySymbol={liveFeedSignalStateBySymbol} pinnedSymbols={liveFeedPinnedSymbols} />
+                  </div>
+                ) : null}
+                {!liveFeedDrawerEnabled && liveSignalsPanelEnabled ? (
                   <div className="rightPanelSection">
                     <LiveSignalsPanel
                       feed={liveSignalsFeed}
@@ -6898,7 +7200,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
                     />
                   </div>
                 ) : null}
-                {sentinelPanelEnabled ? (
+                {!liveFeedDrawerEnabled && sentinelPanelEnabled ? (
                   <div className="rightPanelSection">
                     <SentinelErrorBoundary>
                       <SentinelPanel
@@ -6922,17 +7224,17 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           <div className="no-strat-text">Tab pausiert</div>
         </div>
       ) : (
-        <div className={`monitoringContent monitoring-content ${isInputPanelOpen ? "input-open" : ""} ${showStrategyTester ? "tester-open" : ""} ${isTradeExecutionOpen ? "execution-open" : ""} ${liveSignalsOpen ? "live-signals-open" : ""}`}>
+        <div className={`monitoringContent monitoring-content ${isInputPanelOpen ? "input-open" : ""} ${showStrategyTester ? "tester-open" : ""} ${isTradeExecutionOpen ? "execution-open" : ""} ${rightColumnEnabled ? "live-signals-open" : ""}`}>
           <div
-            className={`monitoringExecutionLayout ${tradeExecutionPanelEnabled ? "show-side-panel" : ""} ${liveSignalsPanelEnabled ? "show-live-signals-panel" : ""} ${showStrategyTesterWorkspace ? "show-strategy-tester" : ""}`}
+            className={`monitoringExecutionLayout ${tradeExecutionPanelEnabled ? "show-side-panel" : ""} ${rightColumnEnabled ? "show-live-signals-panel" : ""} ${showStrategyTesterWorkspace ? "show-strategy-tester" : ""} ${liveFeedDrawerEnabled && liveFeedFullData ? "live-feed-expanded" : ""}`}
             ref={(el) => { execLayoutRef.current = el; }}
             style={showStrategyTesterWorkspace && !useUnifiedNonAgrarWorkspace ? {
               gridTemplateColumns: liveSignalsPanelEnabled
-                ? `minmax(0, 1fr) ${livePanelWidth}px 6px ${uiPrefs.rightPanelWidthPx ?? 420}px`
+                ? `minmax(0, 1fr) ${effectiveLivePanelWidth}px 6px ${uiPrefs.rightPanelWidthPx ?? 420}px`
                 : `minmax(0, 1fr) 6px ${uiPrefs.rightPanelWidthPx ?? 420}px`
             } : liveSignalsPanelEnabled ? {
               // Resizable + persisted Live-signal column width.
-              gridTemplateColumns: `minmax(0, 1fr) ${livePanelWidth}px`,
+              gridTemplateColumns: `minmax(0, 1fr) ${effectiveLivePanelWidth}px`,
             } : undefined}
           >
             <div
@@ -6958,12 +7260,13 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
                     showGrid ? (
                       <MonitoringFlexibleGrid
                         tabId={activeTab}
-                        assets={allItems}
+                        assets={currentUnifiedGridItems}
                         radarSignalState={radarSignalState}
                         activeChartId={selectedAssetId}
                         selectedStrategySymbols={selectedStrategySymbols}
                         selectedTradeId={executionFocusTradeId}
                         preferredDensity={tabConfigById(activeTab)?.preferredDensity ?? "balanced"}
+                        gridOverride={gridLayout}
                         onChartSelect={onChartSelect}
                         onIndicatorOpen={onStrategyWorkspaceSelect}
                         onOpenFullscreen={fullscreenEnabled ? onOpenFullscreen : undefined}
@@ -7002,7 +7305,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
                           <div className="expanded-chart-desc">{fullscreenItem?.name ?? "-"}</div>
                         </div>
                         <button type="button" className="expanded-chart-close" onClick={onExitFullscreen} aria-label="Exit fullscreen">
-                          ⊡
+                          ?
                         </button>
                       </div>
                     )
@@ -7013,12 +7316,13 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
                   {showGrid ? (
                     <MonitoringFlexibleGrid
                       tabId={activeTab}
-                      assets={allItems}
+                      assets={currentUnifiedGridItems}
                       radarSignalState={radarSignalState}
                       activeChartId={selectedAssetId}
                       selectedStrategySymbols={selectedStrategySymbols}
                       selectedTradeId={executionFocusTradeId}
                       preferredDensity={tabConfigById(activeTab)?.preferredDensity ?? "balanced"}
+                      gridOverride={gridLayout}
                       onChartSelect={onChartSelect}
                       onIndicatorOpen={onIndicatorOpen}
                       onOpenFullscreen={fullscreenEnabled ? onOpenFullscreen : undefined}
@@ -7057,7 +7361,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
                         <div className="expanded-chart-desc">{fullscreenItem?.name ?? "-"}</div>
                       </div>
                       <button type="button" className="expanded-chart-close" onClick={onExitFullscreen} aria-label="Exit fullscreen">
-                        ⊡
+                        ?
                       </button>
                     </div>
                   )}
@@ -7143,22 +7447,36 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
             ) : null}
             {rightColumnEnabled ? (
               <div
-                className="monitoringRightColumn"
-                style={{ display: "flex", flexDirection: "column", minHeight: 0, minWidth: 0, height: "100%", position: "relative", isolation: "isolate" }}
+                className={`monitoringRightColumn ${liveFeedDrawerEnabled && liveFeedFullData ? "live-feed-expanded" : ""}`}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  minHeight: 0,
+                  minWidth: 0,
+                  height: "100%",
+                  position: "relative",
+                  isolation: "isolate",
+                  overflow: "visible",
+                }}
               >
-                {/* Mobile close strip — shown on ≤768px via CSS */}
+                {/* Mobile close strip — shown on =768px via CSS */}
                 <div className="mobile-panel-close-btn" style={{ display: "none", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", borderBottom: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
                   <span style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", letterSpacing: "0.04em" }}>
-                    {liveSignalsPanelEnabled && sentinelPanelEnabled ? "Live · Sentinel" : liveSignalsPanelEnabled ? "Live Signale" : "Sentinel"}
+                    {liveFeedDrawerEnabled ? "Live Feed" : liveSignalsPanelEnabled && sentinelPanelEnabled ? "Live · Sentinel" : liveSignalsPanelEnabled ? "Live Signale" : "Sentinel"}
                   </span>
                   <button
                     type="button"
                     style={{ background: "none", border: "none", color: "rgba(255,255,255,0.5)", cursor: "pointer", minHeight: 44, minWidth: 44, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, lineHeight: 1 }}
-                    onClick={() => { if (liveSignalsPanelEnabled) setLiveSignalsOpen(false); if (sentinelPanelEnabled) setSentinelOpen(false); }}
+                    onClick={() => { if (liveFeedDrawerEnabled) setLiveFeedDrawerOpen(false); if (liveSignalsPanelEnabled) setLiveSignalsOpen(false); if (sentinelPanelEnabled) setSentinelOpen(false); }}
                     aria-label="Panel schließen"
-                  >✕</button>
+                  >?</button>
                 </div>
-                {liveSignalsPanelEnabled ? (
+                {liveFeedDrawerEnabled ? (
+                  <div style={{ flex: 1, minHeight: 0 }}>
+                    <MonitoringLiveFeedDrawer signalStateBySymbol={liveFeedSignalStateBySymbol} pinnedSymbols={liveFeedPinnedSymbols} />
+                  </div>
+                ) : null}
+                {!liveFeedDrawerEnabled && liveSignalsPanelEnabled ? (
                   <div style={{ flex: 1, minHeight: 0 }}>
                     <LiveSignalsPanel
                       feed={liveSignalsFeed}
@@ -7171,7 +7489,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
                     />
                   </div>
                 ) : null}
-                {sentinelPanelEnabled ? (
+                {!liveFeedDrawerEnabled && sentinelPanelEnabled ? (
                   <div style={{ flex: 1, minHeight: 0 }}>
                     <SentinelErrorBoundary>
                       <SentinelPanel
@@ -7269,7 +7587,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           display: flex;
           flex-direction: column;
           overflow: hidden;
-          --monitoring-tabbar-height: 34px;
+          --monitoring-tabbar-height: 44px;
           --monitoring-header-chart-gap: 10px;
           --monitoring-chart-bg: #0A0A0A;
           font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
@@ -7312,7 +7630,8 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           flex-direction: row;
           flex-wrap: nowrap;
           align-items: center;
-          gap: 0;
+          gap: 2px;
+          padding: 0 6px;
           min-width: 0;
           height: 100%;
           overflow-x: auto;
@@ -7336,7 +7655,8 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           overflow-x: hidden;
           overflow-y: hidden;
           padding-left: 0;
-          border-left: 1px solid rgba(255, 255, 255, 0.08);
+          border-left: 1px solid rgba(255, 255, 255, 0.07);
+          background: rgba(11, 12, 15, 0.3);
         }
         .monitoringTopbar {
           position: relative;
@@ -7377,58 +7697,56 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
         .monitoringTabBar .monitoring-tab-card {
           position: relative;
           flex: 0 0 auto;
-          height: 100%;
-          min-height: 100%;
+          height: 28px;
           margin: 0;
-          padding: 0 10px;
+          padding: 0 11px;
           min-width: max-content;
           box-sizing: border-box;
           border: 0;
-          border-right: 1px solid rgba(255, 255, 255, 0.06);
-          border-radius: 0;
+          border-radius: 20px;
           display: inline-flex;
           flex-direction: row;
           align-items: center;
           justify-content: center;
           gap: 6px;
-          font-size: 11px;
-          font-weight: 600;
+          font-size: 12px;
+          font-weight: 500;
           line-height: 1;
           letter-spacing: 0.01em;
           cursor: pointer;
           user-select: none;
           -webkit-tap-highlight-color: transparent;
           background: transparent;
-          color: rgba(212, 217, 225, 0.78);
+          color: rgba(255, 255, 255, 0.42);
           white-space: nowrap;
           box-shadow: none;
-          transition: background 120ms ease, color 120ms ease;
+          transition: background 100ms ease, color 100ms ease;
         }
         .monitoringTabBar .monitoring-tab-card:hover {
-          background: rgba(255, 255, 255, 0.06);
-          color: rgba(244, 247, 251, 0.98);
+          background: rgba(255, 255, 255, 0.07);
+          color: rgba(244, 247, 251, 0.88);
         }
         .monitoringTabBar .monitoring-tab-card:focus-visible {
-          outline: 1px solid rgba(255, 255, 255, 0.35);
-          outline-offset: 1px;
+          outline: 1px solid rgba(255, 255, 255, 0.30);
+          outline-offset: 2px;
         }
         .monitoringTabBar .monitoring-tab-card.active {
-          background: rgba(30, 32, 36, 0.94);
-          color: #ffffff;
+          background: rgba(255, 255, 255, 0.10);
+          color: #f0f2f6;
           font-weight: 600;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+          box-shadow: none;
         }
         .monitoringTabBar .monitoring-tab-card--all {
-          border-right: 0;
+          /* no special border needed in pill mode */
         }
         .monitoringTabBar .monitoring-tab-card--placeholder {
-          opacity: 0.46;
-          color: rgba(163, 169, 178, 0.72);
+          opacity: 0.38;
+          color: rgba(163, 169, 178, 0.60);
           cursor: default;
         }
         .monitoringTabBar .monitoring-tab-card--placeholder:hover {
           background: transparent;
-          color: rgba(163, 169, 178, 0.72);
+          color: rgba(163, 169, 178, 0.60);
         }
         .monitoring-tab-label {
           display: inline-flex;
@@ -7439,8 +7757,8 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 14px;
-          height: 14px;
+          width: 16px;
+          height: 16px;
           flex-shrink: 0;
           opacity: 0.72;
           color: inherit;
@@ -7451,18 +7769,18 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           opacity: 0.98;
         }
         .monitoring-tab-icon-img {
-          width: 14px;
-          height: 14px;
+          width: 16px;
+          height: 16px;
           border-radius: 0;
           object-fit: contain;
           display: block;
         }
         .monitoring-tab-icon-fallback {
           display: block;
-          width: 14px;
-          height: 14px;
+          width: 16px;
+          height: 16px;
           border-radius: 2px;
-          background: rgba(255, 255, 255, 0.08);
+          background: transparent;
         }
         .monitoring-tab-icon-svg {
           color: currentColor;
@@ -7484,19 +7802,19 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           height: 100%;
           min-height: 100%;
           box-sizing: border-box;
-          padding: 0 10px;
+          padding: 0 14px;
           border-radius: 0;
           border: 0;
           border-left: 1px solid rgba(255, 255, 255, 0.08);
           background: transparent;
           color: rgba(224, 228, 236, 0.78);
-          font-size: 10px;
+          font-size: 11px;
           font-weight: 600;
           line-height: 1;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 6px;
+          gap: 7px;
           white-space: nowrap;
           box-shadow: none;
           cursor: pointer;
@@ -7507,7 +7825,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           color: #ffffff;
         }
         .monitoringTabBar .tab-action.active {
-          background: rgba(30, 32, 36, 0.94);
+          background: #17171b;
           color: #ffffff;
           font-weight: 600;
           box-shadow: none;
@@ -7517,29 +7835,72 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           cursor: default;
         }
         .tab-strategy-tester,
+        .tab-live-feed-drawer,
         .tab-live-signals,
         .tab-live-chart-autoview,
         .tab-refresh,
-        .tab-monitoring-settings {
+        .tab-monitoring-settings,
+        .tab-grid-switcher {
           min-width: 0;
+        }
+        .tab-grid-switcher {
+          gap: 2px !important;
+          padding: 0 8px !important;
+          cursor: default !important;
+          border-left: 1px solid rgba(255,255,255,0.08);
+        }
+        .tab-grid-mode-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 24px;
+          height: 22px;
+          border: 1px solid transparent;
+          border-radius: 4px;
+          background: transparent;
+          color: rgba(255,255,255,0.5);
+          cursor: pointer;
+          transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+          padding: 0;
+          pointer-events: auto;
+        }
+        .tab-grid-mode-btn:hover {
+          background: rgba(255,255,255,0.07);
+          color: rgba(255,255,255,0.88);
+          border-color: rgba(255,255,255,0.12);
+        }
+        .tab-grid-mode-btn.active {
+          background: rgba(214,178,74,0.14);
+          border-color: rgba(214,178,74,0.36);
+          color: #D6B24A;
         }
         .tab-refresh,
         .tab-monitoring-settings,
-        .tab-live-chart-autoview {
-          width: 34px;
+        .tab-live-chart-autoview,
+        .tab-live-feed-drawer,
+        .tab-sentinel {
+          width: 44px;
           padding: 0;
           justify-content: center;
-        }
-        .tab-monitoring-settings {
-          width: 36px;
+          flex: 0 0 44px;
         }
         .tab-refresh svg,
         .tab-monitoring-settings svg,
-        .tab-live-chart-autoview svg {
+        .tab-live-chart-autoview svg,
+        .tab-live-feed-drawer svg {
+          flex-shrink: 0;
+          width: 17px !important;
+          height: 17px !important;
+        }
+        .tab-sentinel > span {
           flex-shrink: 0;
         }
         .tab-live-chart-autoview.active {
           color: #7dd3fc;
+        }
+        .tab-live-feed-drawer.active {
+          background: rgba(255, 255, 255, 0.08) !important;
+          color: #f5f7fa !important;
         }
         .tab-refresh.is-error {
           color: #ffd2d2;
@@ -7754,6 +8115,13 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           grid-template-columns: minmax(0, 1fr);
           overflow: hidden;
         }
+        .monitoringExecutionLayout.live-feed-expanded {
+          overflow: visible;
+        }
+        .monitoringExecutionLayout.live-feed-expanded .monitoringMainWorkspace {
+          padding-right: 156px;
+          box-sizing: border-box;
+        }
         .monitoringExecutionLayout.show-side-panel {
           grid-template-columns: minmax(0, 1fr) clamp(320px, 24vw, 420px);
         }
@@ -7761,13 +8129,13 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           grid-template-columns: minmax(0, 1fr) 6px auto;
         }
         .monitoringExecutionLayout.show-live-signals-panel {
-          grid-template-columns: minmax(0, 1fr) clamp(360px, 24vw, 440px);
+          grid-template-columns: minmax(0, 1fr) clamp(280px, 20vw, 340px);
         }
         .monitoringExecutionLayout.show-live-signals-panel.show-side-panel {
-          grid-template-columns: minmax(0, 1fr) clamp(260px, 18vw, 320px) clamp(300px, 22vw, 400px);
+          grid-template-columns: minmax(0, 1fr) clamp(220px, 16vw, 280px) clamp(280px, 20vw, 340px);
         }
         .monitoringExecutionLayout.show-live-signals-panel.show-strategy-tester {
-          grid-template-columns: minmax(0, 1fr) clamp(260px, 18vw, 320px) 6px auto;
+          grid-template-columns: minmax(0, 1fr) clamp(220px, 16vw, 280px) 6px auto;
         }
         .tab-live-signals,
         .tab-sentinel {
@@ -8169,7 +8537,8 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           align-items: center;
           padding: 3px 6px 3px 4px;
           border-radius: 6px;
-          background: var(--monitoring-chart-bg);
+          background: rgba(17,17,20,0.88);
+          border: 1px solid rgba(255,255,255,0.055);
           -webkit-backdrop-filter: blur(8px) saturate(120%);
           backdrop-filter: blur(8px) saturate(120%);
         }
@@ -8192,7 +8561,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           font-size: 11px;
           line-height: 1;
           margin-top: 0;
-          opacity: 0.88;
+          color: rgba(180,192,210,0.6);
         }
         .monitoring-all-strategies-dashboard :global(.monitoring-card-badge) {
           font-size: 7px;
@@ -8424,16 +8793,17 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           min-height: 0;
           width: 100%;
           height: 100%;
-          background: var(--monitoring-chart-bg);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 8px;
+          background: linear-gradient(to bottom, #17171b, #0b0b0e);
+          border: 1px solid rgba(255,255,255,0.055);
+          border-radius: 10px;
           overflow: hidden;
           box-sizing: border-box;
           cursor: default;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.38), 0 1px 3px rgba(0,0,0,0.22);
         }
         .chartCard.is-active {
-          border: 1px solid rgba(255, 255, 255, 0.28);
-          box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.22);
+          box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 2px 14px rgba(0,0,0,0.44);
         }
         :global(.monitoring-chart-shell) {
           position: absolute;
@@ -8486,7 +8856,8 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           min-width: 0;
           padding: 5px 9px 5px 6px;
           border-radius: 8px;
-          background: var(--monitoring-chart-bg);
+          background: rgba(17,17,20,0.88);
+          border: 1px solid rgba(255,255,255,0.055);
           -webkit-backdrop-filter: blur(10px) saturate(120%);
           backdrop-filter: blur(10px) saturate(120%);
         }
@@ -8511,18 +8882,20 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           gap: 6px;
         }
         .monitoring-card-symbol {
-          font-size: 14px;
+          font-size: 11px;
           font-weight: 700;
           color: #f5f7fa;
           line-height: 1.05;
+          letter-spacing: 0.04em;
+          font-family: var(--font-montserrat, 'Montserrat', sans-serif);
         }
         .monitoring-card-desc {
-          font-size: 14px;
+          font-size: 11px;
           font-weight: 500;
           line-height: 1;
-          color: #8a929c;
-          opacity: 0.92;
+          color: rgba(180,192,210,0.6);
           margin-top: 0;
+          font-family: var(--font-montserrat, 'Montserrat', sans-serif);
         }
         .indicatorButton {
           display: inline-flex;
@@ -10130,7 +10503,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
             border-top: 1px solid rgba(255, 255, 255, 0.08);
           }
         }
-        /* ── MVA Strategy Selector: rendered inside .testerWorkspaceSide right rail ── */
+        /* -- MVA Strategy Selector: rendered inside .testerWorkspaceSide right rail -- */
         :global(.mst-panel) {
           display: flex;
           flex-direction: column;
@@ -10311,7 +10684,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
         :global(.mst-td-neg) { color: #e06c75; }
         :global(.mst-trade-more) { font-size: 10px; color: #555; padding: 4px 0; text-align: center; }
 
-        /* ── Panel header two-column layout ──────────────────────────────────── */
+        /* -- Panel header two-column layout ------------------------------------ */
         :global(.mst-panel-title-col) { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
         :global(.mst-panel-sym-row) { display: flex; align-items: center; gap: 4px; }
         :global(.mst-symbol-chip) {
@@ -10320,7 +10693,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           border-radius: 3px; padding: 1px 5px; font-family: monospace;
         }
 
-        /* ── Status bar ──────────────────────────────────────────────────────── */
+        /* -- Status bar -------------------------------------------------------- */
         :global(.mst-status-bar) {
           display: flex; align-items: center; flex-wrap: wrap; gap: 4px;
           padding: 4px 8px; border-bottom: 1px solid rgba(255,255,255,0.04);
@@ -10328,7 +10701,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
         }
         :global(.mst-dirty-count) { font-size: 9px; color: #e6b450; margin-left: 2px; }
 
-        /* ── Section tabs ────────────────────────────────────────────────────── */
+        /* -- Section tabs ------------------------------------------------------ */
         :global(.mst-tab-row) {
           display: flex; gap: 0; border-bottom: 1px solid rgba(255,255,255,0.06);
           flex-shrink: 0;
@@ -10345,7 +10718,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
         :global(.mst-tab-done) { font-size: 8px; color: #56b36d; }
         :global(.mst-tab-content) { flex: 1; overflow-y: auto; }
 
-        /* ── Inputs section ──────────────────────────────────────────────────── */
+        /* -- Inputs section ---------------------------------------------------- */
         :global(.mst-inputs-section) { padding: 4px 0 8px; }
         :global(.mst-inputs-meta-row) {
           padding: 3px 10px; font-size: 9px; color: #555;
@@ -10390,14 +10763,14 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           border-radius: 2px; padding: 0 3px; margin-left: 1px;
         }
 
-        /* ── Metric-only notice ──────────────────────────────────────────────── */
+        /* -- Metric-only notice ------------------------------------------------ */
         :global(.mst-metric-only-notice) {
           margin: 8px 10px; padding: 8px; border-radius: 4px; font-size: 10px;
           color: #b0b4bc; background: rgba(230,180,80,0.06);
           border-left: 2px solid rgba(230,180,80,0.4); line-height: 1.55;
         }
 
-        /* ── Action row ──────────────────────────────────────────────────────── */
+        /* -- Action row -------------------------------------------------------- */
         :global(.mst-action-row) {
           display: flex; align-items: center; gap: 6px; padding: 6px 8px;
           border-top: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;
@@ -10429,7 +10802,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           background: rgba(180,120,220,0.16); border-color: rgba(180,120,220,0.6);
         }
 
-        /* ── Results section ─────────────────────────────────────────────────── */
+        /* -- Results section --------------------------------------------------- */
         :global(.mst-results-section) { padding: 4px 0 8px; }
         :global(.mst-custom-run-notice) {
           margin: 6px 10px 4px; padding: 5px 8px; border-radius: 3px; font-size: 10px;
@@ -10437,7 +10810,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           border-left: 2px solid rgba(180,120,220,0.35);
         }
 
-        /* ── Validation section ──────────────────────────────────────────────── */
+        /* -- Validation section ------------------------------------------------ */
         :global(.mst-validation-section) {
           margin: 6px 8px 4px; padding: 6px 8px; border-radius: 4px;
           background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
@@ -10449,7 +10822,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
         :global(.mst-val-item.info) { color: #e6b450; }
         :global(.mst-val-disclaimer) { font-size: 9px; color: #444; margin-top: 5px; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 4px; }
 
-        /* ── Section placeholders / errors ───────────────────────────────────── */
+        /* -- Section placeholders / errors ------------------------------------- */
         :global(.mst-section-placeholder) {
           display: flex; align-items: center; gap: 5px;
           padding: 16px 10px; font-size: 11px; color: #555; justify-content: center;
@@ -10463,13 +10836,13 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           .testerWorkspaceSide { height: 55vh; }
         }
 
-        /* ── Mobile nav: HIDDEN by default on desktop ──────────────────────── */
+        /* -- Mobile nav: HIDDEN by default on desktop ------------------------ */
         /* These rules sit outside any @media so they are the baseline.        */
         /* The @media(768px) block below overrides only on narrow viewports.   */
         .monitoring-mobile-nav { display: none !important; }
         .mobile-panel-close-btn { display: none !important; }
 
-        /* ── Mobile ≤768px ───────────────────────────────────────────────── */
+        /* -- Mobile =768px ------------------------------------------------- */
         @media (max-width: 768px) {
           /* Swipeable tab bar */
           .monitoringTopbar {
@@ -10527,7 +10900,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
             display: none;
           }
 
-          /* Right column (Live + Sentinel) → full-screen fixed overlay */
+          /* Right column (Live + Sentinel) ? full-screen fixed overlay */
           .monitoringRightColumn {
             position: fixed !important;
             top: 0;
@@ -10609,3 +10982,8 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     </LiveQuotesProvider>
   );
 }
+
+
+
+
+
