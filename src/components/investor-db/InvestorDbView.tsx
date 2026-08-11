@@ -41,12 +41,18 @@ const quelleScores: Record<string, number> = {
   "LinkedIn": 8, "Manual": 5, "BVK": 12,
 };
 
+// Score = interne Priorisierung (Ticket + Typ + Quelle + Firmen-Variation)
+// Kein objektiver Wert — dient der Sortierung im Outreach
 function calcScore(inv: InvestorDb, i: number): number {
-  return Math.min(98, Math.max(12,
-    (ticketScores[inv.kapital ?? ""] ?? 10) +
-    (typScores[inv.typ ?? ""] ?? 5) +
+  const base = inv.unternehmen ?? inv.name ?? "";
+  const nameVariation = base.length >= 2
+    ? (base.charCodeAt(0) + base.charCodeAt(1)) % 20 - 10
+    : ((i * 7) % 9) - 4;
+  return Math.min(95, Math.max(20,
+    (ticketScores[inv.kapital ?? ""] ?? 15) +
+    (typScores[inv.typ ?? ""] ?? 10) +
     (quelleScores[inv.quelle ?? ""] ?? 5) +
-    ((i * 7) % 9) - 4
+    nameVariation
   ));
 }
 
@@ -79,17 +85,24 @@ function parseCsv(text: string): InvestorDb[] {
 
   const parsed = lines.slice(1).filter(Boolean).map((line, i) => {
     const v = parseCsvLine(line);
-    const rawQuelle = get(v, "quelle") ?? get(v, "Quelle") ?? null;
-    const rawTyp    = get(v, "typ")    ?? get(v, "Typ")    ?? get(v, "TYP") ?? null;
+    const rawName       = get(v, "name") ?? "";
+    const rawUnternehmen = get(v, "unternehmen") ?? get(v, "firma") ?? null;
+    const rawQuelle = get(v, "quelle") ?? null;
+    const rawTyp    = get(v, "typ") ?? null;
+    const rawKapital = get(v, "kapital") ?? get(v, "ticket") ?? null;
+    const rawEmail   = get(v, "email") ?? get(v, "e-mail") ?? null;
+    const rawLinkedin = get(v, "linkedin") ?? null;
     const scoreRaw  = get(v, "score");
+    // If name equals unternehmen, this is a firm-only record — no individual contact
+    const resolvedName = (rawName && rawName !== rawUnternehmen) ? rawName : "";
     return {
       id: i + 1,
-      name: get(v, "name") ?? "",
-      unternehmen: get(v, "unternehmen"),
+      name: resolvedName,
+      unternehmen: rawUnternehmen,
       typ:    rawTyp,
-      email:  get(v, "email"),
-      linkedin: get(v, "linkedin"),
-      kapital:  get(v, "kapital"),
+      email:  rawEmail,
+      linkedin: rawLinkedin,
+      kapital:  rawKapital,
       quelle:   rawQuelle,
       score: scoreRaw ? parseInt(scoreRaw, 10) : null,
       status: get(v, "status") ?? "Neu",
@@ -99,7 +112,7 @@ function parseCsv(text: string): InvestorDb[] {
       ort:     get(v, "ort"),
       website: get(v, "website"),
     };
-  }).filter(r => r.name.length > 0);
+  }).filter(r => (r.name.length > 0 || r.unternehmen));
 
   return parsed.map((inv, i) => ({ ...inv, score: calcScore(inv, i) }));
 }
@@ -284,18 +297,18 @@ type ColKey = keyof Omit<InvestorDb,"id">;
 type Col = { key:ColKey; label:string; pct:string; sortable?:boolean };
 
 const COLS: Col[] = [
-  { key:"name",        label:"NAME",        pct:"13%", sortable:true },
-  { key:"unternehmen", label:"UNTERNEHMEN", pct:"14%", sortable:true },
+  { key:"name",        label:"NAME",        pct:"12%", sortable:true },
+  { key:"unternehmen", label:"UNTERNEHMEN", pct:"16%", sortable:true },
   { key:"typ",         label:"TYP",         pct:"9%",  sortable:true },
-  { key:"email",       label:"E-MAIL",      pct:"16%" },
-  { key:"linkedin",    label:"LINKEDIN",    pct:"6%"  },
+  { key:"email",       label:"E-MAIL",      pct:"18%" },
+  { key:"linkedin",    label:"LINKEDIN",    pct:"5%"  },
   { key:"kapital",     label:"KAPITAL",     pct:"8%",  sortable:true },
   { key:"quelle",      label:"QUELLE",      pct:"8%"  },
   { key:"score",       label:"SCORE",       pct:"6%",  sortable:true },
   { key:"status",      label:"STATUS",      pct:"7%",  sortable:true },
 ];
 
-// # = 4%, delete = 5%, cols = 87% → total 96% (remaining is breathing room)
+// # = 3%, delete = 5%, cols = 89% → total ~97%
 
 const TABS = ["Alle","Neu","Kontaktiert","Geantwortet","Call","Investor"] as const;
 type Tab = typeof TABS[number];
@@ -544,7 +557,7 @@ export function InvestorDbView() {
     >
       {/* ── Header ── */}
       <div
-        style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 24px", flexShrink:0, borderBottom:"1px solid rgba(255,255,255,0.07)" }}
+        style={{ display:"flex", alignItems:"center", gap:12, padding:"16px 24px", flexShrink:0, borderBottom:"1px solid rgba(255,255,255,0.07)" }}
         onClick={e=>e.stopPropagation()}
       >
         <span style={{ fontSize:13, fontWeight:800, color:"rgba(255,255,255,0.7)", fontFamily:T, flexShrink:0, letterSpacing:"0.01em" }}>Investor DB</span>
@@ -577,7 +590,7 @@ export function InvestorDbView() {
 
       {/* ── Tabs ── */}
       <div
-        style={{ display:"flex", borderBottom:"1px solid rgba(255,255,255,0.07)", paddingLeft:24, marginBottom:0, flexShrink:0 }}
+        style={{ display:"flex", borderBottom:"1px solid rgba(255,255,255,0.07)", paddingLeft:24, paddingTop:4, marginBottom:0, flexShrink:0 }}
         onClick={e=>e.stopPropagation()}
       >
         {TABS.map(t => {
@@ -613,7 +626,7 @@ export function InvestorDbView() {
         {/* Sticky column header */}
         <div style={{ position:"sticky", top:0, zIndex:10, background:"#0a0a0c", width:"100%", minWidth:900 }}>
           <div style={{ display:"flex", alignItems:"center", width:"100%", borderBottom:"1px solid rgba(255,255,255,0.1)" }}>
-            <div style={{ ...thBase, flex:"0 0 4%", paddingLeft:16 }}>#</div>
+            <div style={{ ...thBase, flex:"0 0 3%", paddingLeft:14 }}>#</div>
             {COLS.map(c => {
               const isSorted = sortCol===c.key;
               return (
@@ -630,7 +643,7 @@ export function InvestorDbView() {
                 </div>
               );
             })}
-            <div style={{ ...thBase, flex:"0 0 5%" }} />
+            <div style={{ ...thBase, flex:"0 0 5%", textAlign:"center" as const }} />
           </div>
         </div>
 
@@ -652,7 +665,7 @@ export function InvestorDbView() {
                 }}
               >
                 {/* # */}
-                <div style={{ ...tdBase, flex:"0 0 4%", paddingLeft:16 }}>
+                <div style={{ ...tdBase, flex:"0 0 3%", paddingLeft:14 }}>
                   <span style={{ fontSize:10, color:"rgba(255,255,255,0.28)", fontFamily:T }}>{ri+1}</span>
                 </div>
                 {/* Columns */}
@@ -671,7 +684,7 @@ export function InvestorDbView() {
                   );
                 })}
                 {/* Delete */}
-                <div style={{ ...tdBase, flex:"0 0 5%" }}>
+                <div style={{ ...tdBase, flex:"0 0 5%", textAlign:"center" as const }}>
                   <button onClick={e=>{ e.stopPropagation(); del(row.id); }} style={{ background:"none", border:"none", color:"rgba(239,68,68,0.28)", cursor:"pointer", fontSize:13, padding:"2px 4px" }} title="Löschen">✕</button>
                 </div>
               </div>
