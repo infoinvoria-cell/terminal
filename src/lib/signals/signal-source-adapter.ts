@@ -1024,7 +1024,6 @@ function loadProductionSleeveCards(): SignalCardModel[] {
   for (const sleeve of json.sleeves) {
     if (!["Final", "Final Candidate"].includes(sleeve.status)) continue;
     for (const asset of sleeve.assets) {
-      if (!["Final", "Final Candidate"].includes(asset.status ?? "")) continue;
       if (existingSymbols.has(asset.asset)) continue;
       // Skip explicitly inactive assets
       if (asset.active === false) continue;
@@ -1126,7 +1125,26 @@ function readCacheCandles(candleFile: string | undefined): MonitoringCandle[] {
 
 function readStrategyFile(source: SignalSource): StrategyFile | null {
   const root = source.strategyFolder === "strategies" ? STRATEGIES_ROOT : SIGNALS_ROOT;
-  return readJson<StrategyFile>(path.join(root, source.strategyFile));
+  const file = readJson<StrategyFile>(path.join(root, source.strategyFile));
+  if (!file) return null;
+  // Normalize openTrade: some engine versions write the trade object directly
+  // into openTrade instead of into openTradeRow. Collapse to boolean + openTradeRow.
+  if (file.openTrade !== null && typeof file.openTrade === "object") {
+    const t = file.openTrade as Record<string, unknown>;
+    return {
+      ...file,
+      openTrade: true,
+      openTradeRow: file.openTradeRow ?? {
+        direction: typeof t["direction"] === "string" ? (t["direction"] as "long" | "short") : undefined,
+        entryTime: typeof t["entryTime"] === "string" ? t["entryTime"] : undefined,
+        entry: typeof t["entry"] === "number" ? t["entry"] : null,
+        sl: typeof t["sl"] === "number" ? t["sl"] : null,
+        tp: typeof t["tp"] === "number" ? t["tp"] : null,
+        exitTime: null,
+      },
+    };
+  }
+  return file;
 }
 
 function latestTrade(file: StrategyFile | null): StrategyTrade | null {

@@ -1,17 +1,18 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import MonitoringChart, { type MonitoringChartData } from "@/components/monitoring/MonitoringChart";
-import StrategyTesterDrawdownChart from "@/components/monitoring/StrategyTesterDrawdownChart";
-import StrategyTesterEquityChart from "@/components/monitoring/StrategyTesterEquityChart";
+import dynamic from "next/dynamic";
 import { useClientMounted } from "@/hooks/use-client-mounted";
 import { useInterval } from "@/hooks/use-interval";
-import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
 import SignalCard from "@/components/signal/SignalCard";
 import LiveWatchlistPanel from "@/components/signals/LiveWatchlistPanel";
 import LivePipelineView from "@/components/signals/LivePipelineView";
-import { ChartAssetOverlay } from "@/components/shared/ChartAssetOverlay";
+import { SignalLiveOhlcChart } from "@/components/signal/SignalLiveOhlcChart";
+import type { Phase } from "@/components/referenzen/ReferenzenPage";
+
+const ReferenceEquityChart   = dynamic(() => import("@/components/referenzen/ReferenceEquityChart"),   { ssr: false });
+const ReferenceDrawdownChart = dynamic(() => import("@/components/referenzen/ReferenceDrawdownChart"), { ssr: false });
 import type {
   SignalCardFilter,
   SignalCardModel,
@@ -19,7 +20,25 @@ import type {
   SignalPageSection,
 } from "@/lib/signals/signal-types";
 
-// ── Drawdown fallback ──────────────────────────────────────────────────────────
+// ── Design tokens — identical to Referenzen ───────────────────────────────────
+
+/** Chart / section container — same as ReferenzenPage BOX */
+const BOX: React.CSSProperties = {
+  background: "linear-gradient(to bottom, #17171b, #0b0b0e)",
+  borderRadius: 10,
+  border: "1px solid rgba(255,255,255,0.055)",
+  overflow: "hidden",
+  position: "relative",
+  flexShrink: 0,
+};
+
+/** KPI card — same as ReferenzenPage KpiCard */
+const KPI_CARD_BG = "linear-gradient(to bottom, #26262d, #111114)";
+
+const MONTSERRAT = "var(--font-montserrat, 'Montserrat', sans-serif)";
+const NUNITO     = "var(--font-numbers, 'Nunito', sans-serif)";
+
+// ── Drawdown fallback ─────────────────────────────────────────────────────────
 
 function computeDrawdownFromEquity(
   equity: Array<{ time: string; value: number }>,
@@ -33,7 +52,7 @@ function computeDrawdownFromEquity(
   });
 }
 
-// ── Filter helpers ─────────────────────────────────────────────────────────────
+// ── Filter helpers ────────────────────────────────────────────────────────────
 
 function nextLabelDaysAhead(label?: string): number | null {
   if (!label) return null;
@@ -53,13 +72,11 @@ function nextLabelDaysAhead(label?: string): number | null {
   return null;
 }
 
-// Cards without a visible top-right status (would show "—") are not signals
 function hasVisibleStatus(card: SignalCardModel): boolean {
   if (card.status === "OPEN" || card.status === "CLOSED") return true;
-  // Active direction (LONG/SHORT) cards are always visible
   if (card.direction === "LONG" || card.direction === "SHORT") return true;
   const days = nextLabelDaysAhead(card.nextSignalLabel);
-  return days != null && days >= 0; // has a future target date
+  return days != null && days >= 0;
 }
 
 function signalDateDaysAhead(signalDate?: string | null): number | null {
@@ -74,11 +91,8 @@ function matchesFilter(card: SignalCardModel, filter: SignalCardFilter): boolean
   if (filter === "all") return true;
 
   if (filter === "open") {
-    // CLOSED trades → last7 only
     if (card.status === "CLOSED") return false;
-    // Actively open trades → always show in AKTUELL
     if (card.status === "OPEN") return true;
-    // Not-yet-open: exclude if signalDate or nextSignalLabel is more than 1 day ahead
     const sdDays = signalDateDaysAhead(card.signalDate);
     if (sdDays != null && sdDays > 1) return false;
     const days = nextLabelDaysAhead(card.nextSignalLabel);
@@ -102,10 +116,8 @@ function matchesFilter(card: SignalCardModel, filter: SignalCardFilter): boolean
     if (card.direction === "PENDING") return true;
     const days = nextLabelDaysAhead(card.nextSignalLabel);
     if (days != null && days > 1) return true;
-    // Cards with signalDate more than 1 day ahead
     const sdDays = signalDateDaysAhead(card.signalDate);
     if (sdDays != null && sdDays > 1) return true;
-    // Non-OPEN cards whose nextSignalLabel has no parseable date → show in pending
     if (card.status !== "OPEN" && card.status !== "CLOSED" && card.nextSignalLabel && days === null) return true;
     return false;
   }
@@ -113,14 +125,15 @@ function matchesFilter(card: SignalCardModel, filter: SignalCardFilter): boolean
   return true;
 }
 
-
-// ── Section panel ──────────────────────────────────────────────────────────────
+// ── Pill tab style ────────────────────────────────────────────────────────────
 
 const FILTER_LABELS: Record<string, string> = {
-  open: "AKTUELL",
-  last7: "LETZTE 7 TAGE",
+  open:   "AKTUELL",
+  last7:  "LETZTE 7 TAGE",
   pending: "AUSSTEHEND",
 };
+
+// ── Section Panel (White Swan / Core Invest) ──────────────────────────────────
 
 function SectionPanel({
   section,
@@ -137,43 +150,57 @@ function SectionPanel({
 }) {
   const [filter, setFilter] = useState<SignalCardFilter>("open");
 
-  const allCards = useMemo(() => section.groups.flatMap((g) => g.cards).filter(hasVisibleStatus), [section.groups]);
-  const visible = useMemo(() => allCards.filter((c) => matchesFilter(c, filter)), [allCards, filter]);
+  const allCards = useMemo(
+    () => section.groups.flatMap((g) => g.cards).filter(hasVisibleStatus),
+    [section.groups],
+  );
+  const visible = useMemo(
+    () => allCards.filter((c) => matchesFilter(c, filter)),
+    [allCards, filter],
+  );
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: 0, flex: 1, overflow: "hidden" }}>
-      {/* Section header */}
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+
+      {/* Header: title + filter tabs */}
       <div style={{
         flexShrink: 0,
         display: "flex", alignItems: "center", gap: 8,
-        padding: "8px 0 6px",
-        borderBottom: "1px solid rgba(255,255,255,0.05)",
-        marginBottom: 8,
+        padding: "10px 14px 8px",
+        borderBottom: "1px solid rgba(255,255,255,0.055)",
       }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={logo} alt={section.title} width={18} height={18} style={{ objectFit: "contain", flexShrink: 0 }} />
+        <img src={logo} alt={section.title} width={15} height={15} style={{ objectFit: "contain", flexShrink: 0 }} />
         <span style={{
-          fontSize: 11, fontWeight: 800,
-          color: "rgba(255,255,255,0.75)",
+          fontSize: 10.5, fontWeight: 800,
+          color: "rgba(255,255,255,0.78)",
           textTransform: "uppercase", letterSpacing: "0.08em",
+          fontFamily: MONTSERRAT, whiteSpace: "nowrap",
         }}>
           {section.title}
         </span>
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)" }}>Live Signals</span>
-        {/* Filter tabs */}
-        <div style={{ marginLeft: "auto", display: "flex", gap: 2 }}>
+        <span style={{
+          fontSize: 9, color: "rgba(255,255,255,0.2)",
+          fontFamily: MONTSERRAT, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+        }}>
+          {section.subtitle}
+        </span>
+
+        {/* Pill filter tabs */}
+        <div style={{ marginLeft: "auto", display: "flex", gap: 3, flexShrink: 0 }}>
           {(["open", "last7", "pending"] as SignalCardFilter[]).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               style={{
-                padding: "3px 8px",
-                background: filter === f ? "rgba(255,255,255,0.08)" : "transparent",
-                border: filter === f ? "1px solid rgba(255,255,255,0.12)" : "1px solid transparent",
-                borderRadius: 4,
-                color: filter === f ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.3)",
-                fontSize: 9, fontWeight: 700, letterSpacing: "0.05em",
-                cursor: "pointer",
+                padding: "3px 9px",
+                background: filter === f ? KPI_CARD_BG : "transparent",
+                border: filter === f ? "1.5px solid rgba(255,255,255,0.22)" : "1.5px solid transparent",
+                borderRadius: 999,
+                color: filter === f ? "rgba(255,255,255,0.88)" : "rgba(255,255,255,0.28)",
+                fontSize: 8.5, fontWeight: 700, letterSpacing: "0.06em",
+                cursor: "pointer", fontFamily: MONTSERRAT,
+                transition: "all 150ms ease", whiteSpace: "nowrap",
               }}
             >
               {FILTER_LABELS[f]}
@@ -182,15 +209,26 @@ function SectionPanel({
         </div>
       </div>
 
-      {/* Card grid — scrollable, invisible scrollbar + bottom fade */}
+      {/* Card list — scrollable */}
       <div style={{ flex: 1, minHeight: 0, position: "relative", overflow: "hidden" }}>
-        <div className="no-scrollbar" style={{ height: "100%", overflowY: "auto", overflowX: "hidden" }}>
+        <div
+          className="no-scrollbar"
+          style={{ height: "100%", overflowY: "auto", overflowX: "hidden", padding: "10px 12px" }}
+        >
           {visible.length === 0 ? (
-            <div style={{ padding: "16px 4px", textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.18)" }}>
-              Keine Signale
+            <div style={{
+              padding: "18px 4px", textAlign: "center",
+              fontSize: 11, color: "rgba(255,255,255,0.18)",
+              fontFamily: MONTSERRAT,
+            }}>
+              Keine aktuellen Signale
             </div>
           ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 8, paddingBottom: 24 }}>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(195px, 1fr))",
+              gap: 8, paddingBottom: 20,
+            }}>
               {visible.map((card) => (
                 <div key={card.id} style={{ position: "relative" }}>
                   <SignalCard
@@ -199,17 +237,18 @@ function SectionPanel({
                     onSelect={onSelect}
                   />
                   {livePositions?.has(card.assetSymbol) && (
-                    <div title="Live-bestätigt (forward_signals)" style={{
-                      position: "absolute", top: 6, right: 6,
-                      display: "flex", alignItems: "center", gap: 3,
-                      background: "rgba(0,200,100,0.12)",
-                      border: "1px solid rgba(0,200,100,0.3)",
-                      borderRadius: 4,
-                      padding: "1px 5px",
-                      fontSize: 8, fontWeight: 700, letterSpacing: "0.06em",
-                      color: "#00c864",
-                      pointerEvents: "none",
-                    }}>
+                    <div
+                      title="Live-bestätigt (forward_signals)"
+                      style={{
+                        position: "absolute", top: 6, right: 6,
+                        display: "flex", alignItems: "center", gap: 3,
+                        background: "rgba(0,200,100,0.12)",
+                        border: "1px solid rgba(0,200,100,0.3)",
+                        borderRadius: 4, padding: "1px 5px",
+                        fontSize: 8, fontWeight: 700, letterSpacing: "0.06em",
+                        color: "#00c864", pointerEvents: "none",
+                      }}
+                    >
                       <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#00c864", display: "inline-block" }} />
                       LIVE
                     </div>
@@ -219,69 +258,86 @@ function SectionPanel({
             </div>
           )}
         </div>
-        {/* Bottom fade hint */}
+        {/* Bottom fade — matches BOX card background */}
         <div style={{
-          pointerEvents: "none", position: "absolute", bottom: 0, left: 0, right: 0, height: 32,
-          background: "linear-gradient(to bottom, transparent, #09090b)",
+          pointerEvents: "none", position: "absolute", bottom: 0, left: 0, right: 0, height: 28,
+          background: "linear-gradient(to bottom, transparent, #0b0b0e)",
         }} />
       </div>
     </div>
   );
 }
 
-// ── KPI metric ─────────────────────────────────────────────────────────────────
+// ── KPI metric card — Referenzen style ───────────────────────────────────────
 
-function Metric({ label, value, tone }: { label: string; value: string; tone?: "positive" | "negative" | "neutral" }) {
-  const valueColor = tone === "negative" ? "#a8a8a8" : "#ffffff";
+function MetricCard({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone?: "positive" | "negative" | "neutral";
+}) {
+  const valueColor = tone === "negative" ? "#a1a1aa" : "#F0F2F6";
   return (
     <div style={{
       flex: 1, minWidth: 0,
-      display: "flex", flexDirection: "column", justifyContent: "space-between",
-      background: "linear-gradient(to bottom, #1F1F1F, #13131A)",
-      border: "1px solid rgba(255,255,255,0.06)",
+      background: KPI_CARD_BG,
       borderRadius: 14,
-      padding: "10px 12px 12px",
+      border: "1px solid rgba(255,255,255,0.055)",
+      padding: "11px 14px 12px",
+      display: "flex", flexDirection: "column", justifyContent: "space-between",
       overflow: "hidden",
     }}>
-      <div style={{
-        fontSize: 11, fontWeight: 500, lineHeight: 1.3,
-        color: "rgba(255,255,255,0.42)",
+      <span style={{
+        fontSize: 12, fontWeight: 400, lineHeight: 1,
+        color: "rgba(180,192,210,0.6)",
+        fontFamily: MONTSERRAT,
         whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
       }}>
         {label}
-      </div>
-      <div style={{
-        fontSize: 22, fontWeight: 700, lineHeight: 1,
-        letterSpacing: "-0.03em",
+      </span>
+      <strong style={{
+        fontSize: 20, fontWeight: 700, lineHeight: 1,
         color: valueColor,
-        whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+        fontFamily: NUNITO,
+        whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums",
       }}>
         {value}
-      </div>
+      </strong>
     </div>
   );
 }
 
-// ── Main page ──────────────────────────────────────────────────────────────────
+// ── Empty KPI fallback labels (when no card is selected) ─────────────────────
+
+const FALLBACK_KPI_LABELS = [
+  "Profit Factor",
+  "Win Rate",
+  "Avg Return",
+  "Expectancy",
+  "Ø Holding",
+];
+
+// ── Main page ─────────────────────────────────────────────────────────────────
 
 export type SignalPageData = SignalPageModel;
 
 export default function SignalPage({ data }: { data: SignalPageData }) {
   const mounted = useClientMounted();
-  const router = useRouter();
+  const router  = useRouter();
 
-  const whiteSwan = data.sections.find((s) => s.id === "white_swan");
+  const whiteSwan  = data.sections.find((s) => s.id === "white_swan");
   const coreInvest = data.sections.find((s) => s.id === "core_invest");
-  const intraday = data.sections.find((s) => s.id === "intraday");
 
-  const firstCard = data.cards[0] ?? null;
+  // Prefer a non-intraday card for the initial chart selection (intraday cards have no equity curve)
+  const firstCard = data.cards.find((c) => c.category !== "intraday_mt") ?? data.cards[0] ?? null;
   const [selectedCardId, setSelectedCardId] = useState<string | null>(firstCard?.id ?? null);
-  const [showWatchlist, setShowWatchlist] = useState(false);
-  const [showPipeline, setShowPipeline] = useState(false);
-  const [fullData, setFullData] = useState(false);
-  const [ohlcBars, setOhlcBars] = useState<MonitoringChartData["bars"] | null>(null);
-  const ohlcFetchRef = useRef<AbortController | null>(null);
-  const [livePositions, setLivePositions] = useState<Set<string>>(new Set());
+  const [showWatchlist, setShowWatchlist]   = useState(false);
+  const [showPipeline,  setShowPipeline]    = useState(false);
+  const [fullData,      setFullData]        = useState(false);
+  const [livePositions, setLivePositions]   = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const load = async () => {
@@ -303,68 +359,27 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
     [data.cards, selectedCardId, firstCard],
   );
   const selectedPreview = selectedCard ? (data.previews[selectedCard.id] ?? null) : null;
-  const selectedIconUrl = selectedCard
-    ? getMonitoringAssetIconUrl({
-        code: selectedCard.assetSymbol,
-        assetId: selectedCard.iconKey,
-        name: selectedCard.assetName,
-        displaySymbol: selectedCard.displaySymbol,
-      })
-    : null;
 
-  // Auto-refresh: router.refresh() every 5s, pause when tab not visible
-  const refresh = useCallback(() => {
-    router.refresh();
-  }, [router]);
+  const refresh = useCallback(() => { router.refresh(); }, [router]);
   useInterval(refresh, 5000);
 
-  // Select card with chart data on mount
+  // Auto-select first non-intraday card with chart/performance data
   useEffect(() => {
     if (!mounted) return;
-    const first = data.cards.find((c) => {
-      const p = data.previews[c.id];
-      return Boolean(p?.chart ?? p?.performance);
-    });
+    const first = data.cards
+      .filter((c) => c.category !== "intraday_mt")
+      .find((c) => {
+        const p = data.previews[c.id];
+        return Boolean(p?.chart ?? p?.performance);
+      });
     if (first) setSelectedCardId(first.id);
   }, [mounted, data.cards, data.previews]);
 
-  // Dynamic OHLC: fetch fresh bars from Supabase whenever selected card changes, refresh every 30s
-  useEffect(() => {
-    const sym = selectedCard?.assetSymbol;
-    if (!sym) { setOhlcBars(null); return; }
-    ohlcFetchRef.current?.abort();
-    const ctrl = new AbortController();
-    ohlcFetchRef.current = ctrl;
-    const load = async () => {
-      try {
-        const r = await fetch(`/api/monitoring/ohlc?symbol=${encodeURIComponent(sym)}&timeframe=1D`, { signal: ctrl.signal });
-        if (!r.ok) return;
-        const d = await r.json() as { bars?: MonitoringChartData["bars"] };
-        if (Array.isArray(d.bars) && d.bars.length > 0) setOhlcBars(d.bars);
-      } catch { /* aborted or network */ }
-    };
-    load();
-    const id = setInterval(load, 30_000);
-    return () => { clearInterval(id); ctrl.abort(); };
-  }, [selectedCard?.assetSymbol]);
+  const [phase, setPhase] = useState<Phase>("All");
 
   const perf = selectedPreview?.performance ?? null;
 
-  // Merge live OHLC bars with preview signals/boxes for the chart
-  const chartData = useMemo<MonitoringChartData | null>(() => {
-    const sym = selectedCard?.displaySymbol ?? "—";
-    const name = selectedCard?.assetName ?? sym;
-    const bars = ohlcBars ?? selectedPreview?.chart?.bars ?? null;
-    if (!bars) return selectedPreview?.chart ?? null;
-    return {
-      ...(selectedPreview?.chart ?? {}),
-      displaySymbol: sym,
-      displayName: name,
-      bars,
-      signals: selectedPreview?.chart?.signals ?? [],
-      boxes: selectedPreview?.chart?.boxes ?? [],
-    };
-  }, [ohlcBars, selectedPreview, selectedCard]);
+  const equityData = useMemo(() => perf?.equityCurve ?? [], [perf]);
 
   const drawdownData = useMemo(() => {
     if (!perf) return [];
@@ -372,6 +387,21 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
     const hasRealDd = dd.some((p) => p.value < 0);
     return hasRealDd ? dd : computeDrawdownFromEquity(perf.equityCurve ?? []);
   }, [perf]);
+
+  const totalReturnPercent = equityData[equityData.length - 1]?.value ?? 0;
+  const yearsSpan = useMemo(() => {
+    if (equityData.length < 2) return 1;
+    const t0 = new Date(equityData[0].time).getTime();
+    const t1 = new Date(equityData[equityData.length - 1].time).getTime();
+    return Math.max((t1 - t0) / (365.25 * 86_400_000), 0.01);
+  }, [equityData]);
+  const cagr = Math.round(((Math.pow(1 + totalReturnPercent / 100, 1 / yearsSpan) - 1) * 100) * 10) / 10;
+
+  const maxDD = useMemo(() => Math.min(0, ...drawdownData.map((p) => p.value)), [drawdownData]);
+  const avgDD = useMemo(() => {
+    const neg = drawdownData.filter((p) => p.value < 0);
+    return neg.length ? neg.reduce((s, p) => s + p.value, 0) / neg.length : 0;
+  }, [drawdownData]);
 
   return (
     <div style={{
@@ -381,38 +411,17 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
       height: "100%",
       overflow: "hidden",
       background: "#09090b",
+      padding: "14px 20px",
+      gap: 14,
+      boxSizing: "border-box",
     }}>
-      {/* ── Live Pipeline Fullscreen ───────────────────────────────────────── */}
+
+      {/* ── Live Pipeline Fullscreen overlay ──────────────────────────────── */}
       {showPipeline && (
         <LivePipelineView onClose={() => setShowPipeline(false)} />
       )}
 
-      {/* ── Pipeline Button (top-right) ────────────────────────────────────── */}
-      <button
-        onClick={() => setShowPipeline(true)}
-        style={{
-          position: "absolute",
-          top: 14,
-          right: 18,
-          zIndex: 40,
-          background: "none",
-          border: "1px solid #C9A84C",
-          borderRadius: 6,
-          color: "#C9A84C",
-          fontSize: 11,
-          fontFamily: "Montserrat, sans-serif",
-          fontWeight: 600,
-          padding: "5px 12px",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-          letterSpacing: "0.04em",
-        }}
-      >
-        ⚡ Live Pipeline
-      </button>
-      {/* ── Pull tab: right edge, vertically centered ─────────────────────── */}
+      {/* ── Live Feed pull tab (right edge) ──────────────────────────────── */}
       <button
         onClick={() => setShowWatchlist((v) => !v)}
         title={showWatchlist ? "Live Feed schließen" : "Live Feed öffnen"}
@@ -422,164 +431,132 @@ export default function SignalPage({ data }: { data: SignalPageData }) {
           top: "50%",
           transform: "translateY(-50%)",
           zIndex: 50,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 6,
-          width: 20,
-          padding: "14px 0",
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          gap: 6, width: 20, padding: "14px 0",
           background: "#161820",
           border: "1px solid rgba(255,255,255,0.10)",
-          borderRight: showWatchlist ? "none" : "1px solid rgba(255,255,255,0.10)",
-          borderRadius: showWatchlist ? "6px 0 0 6px" : "6px 0 0 6px",
-          cursor: "pointer",
-          transition: "right 150ms ease",
+          borderRight: "none",
+          borderRadius: "6px 0 0 6px",
+          cursor: "pointer", transition: "right 150ms ease",
         }}
       >
-        {/* Panel icon */}
         <svg width="11" height="11" viewBox="0 0 11 11" fill="none" style={{ flexShrink: 0 }}>
           <rect x="0.5" y="0.5" width="10" height="10" rx="2" stroke="rgba(255,255,255,0.35)" strokeWidth="1"/>
           <line x1="7.5" y1="0.5" x2="7.5" y2="10.5" stroke="rgba(255,255,255,0.35)" strokeWidth="1"/>
         </svg>
-        {/* Chevron */}
         <svg width="6" height="10" viewBox="0 0 6 10" fill="none" style={{ flexShrink: 0 }}>
           <path
             d={showWatchlist ? "M1 1.5L4.5 5L1 8.5" : "M5 1.5L1.5 5L5 8.5"}
             stroke="rgba(255,255,255,0.35)"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
           />
         </svg>
       </button>
 
-      {/* ── LEFT: signal list ────────────────────────────────────────────────── */}
+      {/* ── LEFT COLUMN (50%): White Swan + Core Invest ───────────────────── */}
       <div style={{
         width: showWatchlist ? "45%" : "50%",
         flexShrink: 0,
-        display: "flex", flexDirection: "column", height: "100%", overflow: "hidden",
-        borderRight: "1px solid rgba(255,255,255,0.05)",
-        padding: "14px 20px 10px 20px",
-        gap: 0,
+        display: "flex", flexDirection: "column",
+        gap: 10,
+        height: "100%",
+        minHeight: 0,
       }}>
-        {whiteSwan && (
-          <SectionPanel
-            section={whiteSwan}
-            logo="/branding/white-swan-icon.png"
-            selectedCardId={selectedCardId}
-            onSelect={(c) => setSelectedCardId(c.id)}
-          />
-        )}
 
-        {/* Gradient fade — replaces hard divider */}
-        <div style={{ flexShrink: 0, height: 24, position: "relative", pointerEvents: "none" }}>
-          <div style={{
-            position: "absolute", top: 0, left: -20, right: -20, height: "100%",
-            background: "linear-gradient(to bottom, rgba(9,9,11,0) 0%, rgba(9,9,11,0.85) 50%, rgba(9,9,11,0) 100%)",
-          }} />
-        </div>
-
-        {coreInvest && (
-          <SectionPanel
-            section={coreInvest}
-            logo="/branding/capitalife-favicon.png"
-            selectedCardId={selectedCardId}
-            onSelect={(c) => setSelectedCardId(c.id)}
-            livePositions={livePositions}
-          />
-        )}
-
-        {intraday && intraday.groups.some((g) => g.cards.length > 0) && (
-          <>
-            <div style={{ flexShrink: 0, height: 24, position: "relative", pointerEvents: "none" }}>
-              <div style={{
-                position: "absolute", top: 0, left: -20, right: -20, height: "100%",
-                background: "linear-gradient(to bottom, rgba(9,9,11,0) 0%, rgba(9,9,11,0.85) 50%, rgba(9,9,11,0) 100%)",
-              }} />
-            </div>
+        {/* White Swan — ~60% height */}
+        <div style={{
+          flex: "3 1 0",
+          minHeight: 0,
+          display: "flex", flexDirection: "column",
+          overflow: "hidden",
+          position: "relative",
+        }}>
+          {whiteSwan ? (
             <SectionPanel
-              section={intraday}
-              logo="/branding/capitalife-favicon.png"
+              section={whiteSwan}
+              logo="/branding/white-swan-icon.png"
               selectedCardId={selectedCardId}
               onSelect={(c) => setSelectedCardId(c.id)}
             />
-          </>
-        )}
+          ) : (
+            <div style={{ padding: 20, fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: MONTSERRAT }}>
+              White Swan — keine Daten verfügbar
+            </div>
+          )}
+        </div>
+
+        {/* Core Invest — ~40% height */}
+        <div style={{
+          flex: "2 1 0",
+          minHeight: 0,
+          display: "flex", flexDirection: "column",
+          overflow: "hidden",
+          position: "relative",
+        }}>
+          {coreInvest ? (
+            <SectionPanel
+              section={coreInvest}
+              logo="/branding/capitalife-favicon.png"
+              selectedCardId={selectedCardId}
+              onSelect={(c) => setSelectedCardId(c.id)}
+              livePositions={livePositions}
+            />
+          ) : (
+            <div style={{ padding: 20, fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: MONTSERRAT }}>
+              Core Invest — keine Daten verfügbar
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* ── MIDDLE: detail panel ─────────────────────────────────────────────── */}
+      {/* ── RIGHT COLUMN (50%): charts + KPIs filling full height ──────────── */}
       <div style={{
-        width: showWatchlist ? "45%" : "50%",
-        flexShrink: 0,
-        display: "flex", flexDirection: "column", height: "100%", overflow: "hidden",
+        flex: 1,
+        minWidth: 0,
+        display: "flex",
+        flexDirection: "column",
+        gap: 10,
+        height: "100%",
+        minHeight: 0,
       }}>
+        <div style={{ ...BOX, flex: "4 1 0", minHeight: 0 }}>
+          <SignalLiveOhlcChart
+            symbol={selectedCard?.assetSymbol ?? "GC1!"}
+            assetName={selectedCard?.assetName ?? "Gold Futures"}
+          />
+        </div>
 
-        {/* OHLC chart */}
-        <div style={{
-          position: "relative",
-          flex: "0 0 44%",
-          minHeight: 0,
-          overflow: "hidden",
-          borderBottom: "1px solid rgba(255,255,255,0.04)",
-          background: "#09090a",
-        }}>
-          {/* Asset overlay — master style, no box, direct on chart */}
-          <div style={{ pointerEvents: "none", position: "absolute", left: 12, top: 12, zIndex: 10 }}>
-            <ChartAssetOverlay
-              iconUrl={selectedIconUrl}
-              symbol={selectedCard?.displaySymbol ?? "—"}
-              assetName={selectedCard?.assetName}
+        <div style={{ ...BOX, flex: "2.5 1 0", minHeight: 0 }}>
+          {mounted && (
+            <ReferenceEquityChart
+              data={equityData}
+              totalReturnPercent={totalReturnPercent}
+              cagr={cagr}
+              phase={phase}
+              onPhaseChange={setPhase}
             />
-          </div>
-
-          {mounted && chartData ? (
-            <MonitoringChart data={chartData} maxBars={320} initialVisibleBars={56} />
-          ) : (
-            <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.2)" }}>
-                Keine OHLC-Daten für {selectedCard?.displaySymbol ?? "dieses Asset"}
-              </div>
-            </div>
           )}
         </div>
 
-        {/* Equity + Drawdown */}
-        <div style={{
-          flex: 1, minHeight: 0, overflow: "hidden",
-          borderBottom: "1px solid rgba(255,255,255,0.04)",
-          display: "flex", flexDirection: "column",
-        }}>
-          {mounted && perf ? (
-            <>
-              <div style={{ flex: "0 0 55%", minHeight: 0, overflow: "hidden", padding: "4px 6px 2px" }}>
-                <StrategyTesterEquityChart data={perf.equityCurve} fillContainer />
-              </div>
-              <div style={{ flex: "0 0 45%", minHeight: 0, overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.04)", padding: "2px 6px 4px" }}>
-                <StrategyTesterDrawdownChart
-                  data={drawdownData}
-                  maxDrawdownPercent={perf.summary?.maxDrawdownPercent}
-                  fillContainer
-                />
-              </div>
-            </>
-          ) : (
-            <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.15)" }}>Kein Backtest verfügbar</span>
-            </div>
+        <div style={{ ...BOX, flex: "2.5 1 0", minHeight: 0 }}>
+          {mounted && (
+            <ReferenceDrawdownChart
+              data={drawdownData}
+              maxDrawdownPercent={Math.abs(maxDD)}
+              avgDrawdownPercent={Math.abs(avgDD)}
+              phase={phase}
+              onPhaseChange={setPhase}
+            />
           )}
         </div>
 
-        {/* KPI row */}
-        <div style={{
-          flex: "0 0 88px", flexShrink: 0, minHeight: 0,
-          display: "flex", flexDirection: "row",
-          gap: 6, padding: "6px 8px 10px",
-          alignItems: "stretch",
-        }}>
-          {(selectedPreview?.kpis ?? []).slice(0, 5).map((kpi) => (
-            <Metric key={kpi.label} label={kpi.label} value={kpi.value} tone={kpi.tone} />
-          ))}
+        {/* KPI row — 5 metric cards */}
+        <div style={{ flex: "0 0 84px", display: "flex", gap: 8 }}>
+          <MetricCard label="Profit Factor" value={perf ? perf.summary.profitFactor.toFixed(2) : "—"} />
+          <MetricCard label="Win Rate"      value={perf ? `${perf.summary.winRatePercent.toFixed(1)}%` : "—"} />
+          <MetricCard label="Expectancy"    value={perf ? `${perf.summary.expectancyPercent > 0 ? "+" : ""}${perf.summary.expectancyPercent.toFixed(2)}%` : "—"} />
+          <MetricCard label="Sharpe"        value={perf ? perf.summary.sharpeRatio.toFixed(2) : "—"} />
+          <MetricCard label="Calmar"        value={perf ? perf.summary.calmarRatio.toFixed(2) : "—"} />
         </div>
       </div>
 

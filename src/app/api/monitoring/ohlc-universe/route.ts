@@ -31,29 +31,35 @@ export async function GET() {
   try {
     const db = createSupabaseServiceClient();
     const today = new Date().toISOString().slice(0, 10);
-    const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+    // Accept up to 3 calendar days to cover Monday-after-weekend (Friday close + Sunday overnight futures)
+    const freshCutoff = new Date(Date.now() - 3 * 86_400_000).toISOString().slice(0, 10);
 
-    // Get latest date per symbol from Supabase
-    const { data: ohlcData } = await db
-      .from("monitoring_ohlc")
-      .select("asset,timeframe,date")
-      .order("date", { ascending: false })
-      .limit(1000);
-
+    // Paginate through monitoring_ohlc (date DESC) to find latest date per symbol.
+    // A single .limit(1000) misses stale symbols whose last row predates the 1000 most
+    // recent rows. We stop early once every universe key has been seen.
+    const universalKeyCount = universalSymbols.length;
     const latestBySymbol = new Map<string, string>();
-    if (ohlcData) {
-      for (const row of ohlcData) {
+    const PAGE_SIZE = 1000;
+    let offset = 0;
+    while (latestBySymbol.size < universalKeyCount) {
+      const { data: ohlcPage } = await db
+        .from("monitoring_ohlc")
+        .select("asset,timeframe,date")
+        .order("date", { ascending: false })
+        .range(offset, offset + PAGE_SIZE - 1);
+      if (!ohlcPage || ohlcPage.length === 0) break;
+      for (const row of ohlcPage) {
         const key = `${row.asset}:${row.timeframe}`;
-        if (!latestBySymbol.has(key)) {
-          latestBySymbol.set(key, String(row.date).slice(0, 10));
-        }
+        if (!latestBySymbol.has(key)) latestBySymbol.set(key, String(row.date).slice(0, 10));
       }
+      if (ohlcPage.length < PAGE_SIZE) break;
+      offset += PAGE_SIZE;
     }
 
     const results = universalSymbols.map((item) => {
       const tfKey = item.timeframe === "D" ? "1D" : item.timeframe;
       const lastDate = latestBySymbol.get(`${item.symbol}:${tfKey}`) ?? latestBySymbol.get(`${item.symbol}:${item.timeframe}`);
-      const isFresh = lastDate === today || lastDate === yesterday;
+      const isFresh = Boolean(lastDate && lastDate >= freshCutoff);
       return {
         symbol: item.symbol,
         timeframe: item.timeframe,
