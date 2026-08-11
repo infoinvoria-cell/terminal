@@ -56,6 +56,10 @@ function calcScore(inv: InvestorDb, i: number): number {
   ));
 }
 
+function toStars(score: number | null): number {
+  return Math.max(1, Math.min(5, Math.ceil((score ?? 0) / 20)));
+}
+
 // ── CSV loader ────────────────────────────────────────────────────────────────
 
 function parseCsvLine(line: string): string[] {
@@ -85,34 +89,34 @@ function parseCsv(text: string): InvestorDb[] {
 
   const parsed = lines.slice(1).filter(Boolean).map((line, i) => {
     const v = parseCsvLine(line);
-    const rawName       = get(v, "name") ?? "";
+    const rawName        = get(v, "name") ?? "";
     const rawUnternehmen = get(v, "unternehmen") ?? get(v, "firma") ?? null;
-    const rawQuelle = get(v, "quelle") ?? null;
-    const rawTyp    = get(v, "typ") ?? null;
-    const rawKapital = get(v, "kapital") ?? get(v, "ticket") ?? null;
-    const rawEmail   = get(v, "email") ?? get(v, "e-mail") ?? null;
-    const rawLinkedin = get(v, "linkedin") ?? null;
-    const scoreRaw  = get(v, "score");
-    // If name equals unternehmen, this is a firm-only record — no individual contact
+    const rawQuelle      = get(v, "quelle") ?? null;
+    const rawTyp         = get(v, "typ") ?? null;
+    const rawKapital     = get(v, "kapital") ?? get(v, "ticket") ?? null;
+    const rawEmail       = get(v, "email") ?? get(v, "e-mail") ?? null;
+    const rawLinkedin    = get(v, "linkedin") ?? null;
+    const scoreRaw       = get(v, "score");
+    // If name equals unternehmen this is a firm-only record — no individual contact
     const resolvedName = (rawName && rawName !== rawUnternehmen) ? rawName : "";
     return {
       id: i + 1,
       name: resolvedName,
       unternehmen: rawUnternehmen,
-      typ:    rawTyp,
-      email:  rawEmail,
+      typ:      rawTyp,
+      email:    rawEmail,
       linkedin: rawLinkedin,
       kapital:  rawKapital,
       quelle:   rawQuelle,
-      score: scoreRaw ? parseInt(scoreRaw, 10) : null,
-      status: get(v, "status") ?? "Neu",
+      score:    scoreRaw ? parseInt(scoreRaw, 10) : null,
+      status:   get(v, "status") ?? "Neu",
       naechsterSchritt: null,
       letzterKont: null,
       notizen: "",
       ort:     get(v, "ort"),
       website: get(v, "website"),
     };
-  }).filter(r => (r.name.length > 0 || r.unternehmen));
+  }).filter(r => r.name.length > 0 || !!r.unternehmen);
 
   return parsed.map((inv, i) => ({ ...inv, score: calcScore(inv, i) }));
 }
@@ -223,9 +227,7 @@ const TYP_COLOR: Record<string,{bg:string;text:string;border:string}> = {
   "Privat":        {bg:"rgba(255,255,255,0.05)",text:"rgba(255,255,255,0.5)",border:"rgba(255,255,255,0.08)"},
 };
 
-const NEUTRAL_BADGE = {bg:"rgba(255,255,255,0.07)",text:"rgba(255,255,255,0.65)",border:"rgba(255,255,255,0.1)"};
-
-// ── Quelle cell ───────────────────────────────────────────────────────────────
+// ── QuelleCell ────────────────────────────────────────────────────────────────
 
 function QuelleCell({ quelle }: { quelle: string | null }) {
   if (!quelle) return null;
@@ -240,19 +242,26 @@ function QuelleCell({ quelle }: { quelle: string | null }) {
     );
   }
   return (
-    <span style={{ display:"inline-block", padding:"2px 6px", borderRadius:4, fontSize:10, fontWeight:600, fontFamily:T, background:NEUTRAL_BADGE.bg, color:NEUTRAL_BADGE.text, border:`1px solid ${NEUTRAL_BADGE.border}`, whiteSpace:"nowrap" }}>
+    <span style={{
+      display:"inline-block", padding:"2px 6px", borderRadius:4,
+      fontSize:10, fontWeight:600, fontFamily:T, whiteSpace:"nowrap",
+      background:"rgba(255,255,255,0.07)",
+      color:"rgba(255,255,255,0.6)",
+      border:"1px solid rgba(255,255,255,0.08)",
+    }}>
       {quelle}
     </span>
   );
 }
 
-// ── Badge / Stars ─────────────────────────────────────────────────────────────
+// ── Badge / StarRow ───────────────────────────────────────────────────────────
 
 const T = "var(--font-text)";
 
 function Badge({ label, map }: { label:string|null; map:Record<string,{bg:string;text:string;border:string}> }) {
   if (!label) return null;
-  const c = map[label] ?? NEUTRAL_BADGE;
+  const NEUTRAL = {bg:"rgba(255,255,255,0.07)",text:"rgba(255,255,255,0.65)",border:"rgba(255,255,255,0.1)"};
+  const c = map[label] ?? NEUTRAL;
   return (
     <span style={{ display:"inline-block", padding:"2px 7px", borderRadius:4, fontSize:10, fontWeight:700, fontFamily:T, letterSpacing:"0.03em", background:c.bg, color:c.text, border:`1px solid ${c.border}`, whiteSpace:"nowrap" }}>
       {label}
@@ -260,12 +269,12 @@ function Badge({ label, map }: { label:string|null; map:Record<string,{bg:string
   );
 }
 
-function Stars({ n }: { n:number|null }) {
-  const v = n ?? 0;
+function StarRow({ score }: { score: number | null }) {
+  const filled = toStars(score);
   return (
     <span style={{ display:"inline-flex", gap:1 }}>
-      {[1,2,3,4,5].map(i => (
-        <span key={i} style={{ color:i<=Math.round(v/20)?"#D4AF37":"rgba(255,255,255,0.15)", fontSize:11, lineHeight:1 }}>★</span>
+      {Array.from({ length: 5 }, (_, i) => (
+        <span key={i} style={{ color: i < filled ? "#D4AF37" : "rgba(255,255,255,0.15)", fontSize:12, lineHeight:1 }}>★</span>
       ))}
     </span>
   );
@@ -291,29 +300,28 @@ const btnSt: React.CSSProperties = {
   cursor:"pointer", fontSize:11, fontWeight:700, fontFamily:T, letterSpacing:"0.04em",
 };
 
-// ── Column definitions — percentage-based for full-width layout ───────────────
+// ── Column definitions — KAPITAL removed, percentage-based ────────────────────
 
 type ColKey = keyof Omit<InvestorDb,"id">;
 type Col = { key:ColKey; label:string; pct:string; sortable?:boolean };
 
 const COLS: Col[] = [
-  { key:"name",        label:"NAME",        pct:"12%", sortable:true },
-  { key:"unternehmen", label:"UNTERNEHMEN", pct:"16%", sortable:true },
-  { key:"typ",         label:"TYP",         pct:"9%",  sortable:true },
-  { key:"email",       label:"E-MAIL",      pct:"18%" },
-  { key:"linkedin",    label:"LINKEDIN",    pct:"5%"  },
-  { key:"kapital",     label:"KAPITAL",     pct:"8%",  sortable:true },
-  { key:"quelle",      label:"QUELLE",      pct:"8%"  },
-  { key:"score",       label:"SCORE",       pct:"6%",  sortable:true },
-  { key:"status",      label:"STATUS",      pct:"7%",  sortable:true },
+  { key:"name",        label:"NAME",        pct:"14%", sortable:true },
+  { key:"unternehmen", label:"UNTERNEHMEN", pct:"18%", sortable:true },
+  { key:"typ",         label:"TYP",         pct:"10%", sortable:true },
+  { key:"email",       label:"E-MAIL",      pct:"20%" },
+  { key:"linkedin",    label:"LINKEDIN",    pct:"6%"  },
+  { key:"quelle",      label:"QUELLE",      pct:"9%"  },
+  { key:"score",       label:"SCORE",       pct:"8%",  sortable:true },
+  { key:"status",      label:"STATUS",      pct:"8%",  sortable:true },
 ];
 
-// # = 3%, delete = 5%, cols = 89% → total ~97%
+// # = 4%, delete = 3%, cols = 93% → total 100%
 
 const TABS = ["Alle","Neu","Kontaktiert","Geantwortet","Call","Investor"] as const;
 type Tab = typeof TABS[number];
 
-const ROW_H = 36;
+const ROW_H = 34;
 
 // ── Edit cell ─────────────────────────────────────────────────────────────────
 
@@ -329,7 +337,7 @@ function EditCell({ col, value, onSave, onClose }: { col:ColKey; value:string|nu
   if (col==="score") return (
     <select autoFocus style={selSt} value={draft} onChange={e=>{ setDraft(e.target.value); commit(e.target.value); }} onBlur={()=>commit(draft)}>
       <option value="">—</option>
-      {Array.from({length:87},(_,i)=>12+i).map(n=><option key={n} value={n}>{n}</option>)}
+      {Array.from({length:76},(_,i)=>20+i).map(n=><option key={n} value={n}>{n}</option>)}
     </select>
   );
   if (dropOpts) return (
@@ -371,13 +379,12 @@ function AddModal({ onClose, onAdd }: { onClose:()=>void; onAdd:(row:Omit<Invest
         </div>
         <form onSubmit={submit}>
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
-            {([{k:"name" as const,label:"Name *"},{k:"unternehmen" as const,label:"Unternehmen"},{k:"email" as const,label:"E-Mail"},{k:"linkedin" as const,label:"LinkedIn URL"},{k:"kapital" as const,label:"Kapital"}] as {k:keyof Omit<InvestorDb,"id">;label:string}[]).map(({k,label})=>(
+            {([{k:"name" as const,label:"Name *"},{k:"unternehmen" as const,label:"Unternehmen"},{k:"email" as const,label:"E-Mail"},{k:"linkedin" as const,label:"LinkedIn URL"}] as {k:keyof Omit<InvestorDb,"id">;label:string}[]).map(({k,label})=>(
               <div key={k}>{lbl(label)}<input style={inp} value={(form[k] as string)??"" } onChange={e=>set(k,e.target.value||null)} /></div>
             ))}
             {([{k:"typ" as const,label:"Typ",opts:TYP_OPTS},{k:"quelle" as const,label:"Quelle",opts:QUELLE_OPTS},{k:"status" as const,label:"Status",opts:STATUS_OPTS}] as {k:keyof Omit<InvestorDb,"id">;label:string;opts:string[]}[]).map(({k,label,opts})=>(
               <div key={k}>{lbl(label)}<select style={inp} value={(form[k] as string)??"" } onChange={e=>set(k,e.target.value||null)}><option value="">—</option>{opts.map(o=><option key={o}>{o}</option>)}</select></div>
             ))}
-            <div>{lbl("Score (12–98)")}<input style={inp} type="number" min={12} max={98} value={form.score?.toString()??"" } onChange={e=>set("score" as keyof Omit<InvestorDb,"id">,e.target.value||null)} /></div>
           </div>
           {err && <p style={{ color:"#f87171", fontSize:11, marginTop:6, fontFamily:T }}>{err}</p>}
           <div style={{ display:"flex", justifyContent:"flex-end", gap:8, marginTop:14 }}>
@@ -419,7 +426,7 @@ function CsvModal({ onClose, onImport }: { onClose:()=>void; onImport:(rows:Omit
           <span style={{ fontSize:13, fontWeight:800, color:"rgba(255,255,255,0.7)", fontFamily:T }}>CSV importieren</span>
           <button onClick={onClose} style={{ background:"none", border:"none", color:"rgba(255,255,255,0.35)", cursor:"pointer", fontSize:16, lineHeight:1 }}>✕</button>
         </div>
-        <p style={{ margin:"0 0 8px", fontSize:10, color:"rgba(255,255,255,0.3)", fontFamily:T }}>Spalten: name, unternehmen, typ, email, linkedin, kapital, quelle, score, status</p>
+        <p style={{ margin:"0 0 8px", fontSize:10, color:"rgba(255,255,255,0.3)", fontFamily:T }}>Spalten: name, unternehmen, typ, email, linkedin, quelle, score, status</p>
         <textarea style={{...inp,height:150,resize:"vertical"}} placeholder={"name,email,status\nMax Mustermann,max@example.com,Neu"} value={text} onChange={e=>setText(e.target.value)} />
         {err && <p style={{ color:"#f87171", fontSize:11, marginTop:4, fontFamily:T }}>{err}</p>}
         <div style={{ display:"flex", justifyContent:"flex-end", gap:8, marginTop:12 }}>
@@ -435,14 +442,14 @@ function CsvModal({ onClose, onImport }: { onClose:()=>void; onImport:(rows:Omit
 
 export function InvestorDbView() {
   const nextId = useRef(MOCK.length + 1);
-  const [rows, setRows]         = useState<InvestorDb[]>(MOCK);
-  const [search, setSearch]     = useState("");
-  const [tab, setTab]           = useState<Tab>("Alle");
+  const [rows, setRows]             = useState<InvestorDb[]>(MOCK);
+  const [search, setSearch]         = useState("");
+  const [tab, setTab]               = useState<Tab>("Alle");
   const [activeCell, setActiveCell] = useState<string|null>(null);
-  const [showAdd, setShowAdd]   = useState(false);
-  const [showCsv, setShowCsv]   = useState(false);
-  const [sortCol, setSortCol]   = useState<ColKey>("score");
-  const [sortDir, setSortDir]   = useState<"asc"|"desc">("desc");
+  const [showAdd, setShowAdd]       = useState(false);
+  const [showCsv, setShowCsv]       = useState(false);
+  const [sortCol, setSortCol]       = useState<ColKey>("score");
+  const [sortDir, setSortDir]       = useState<"asc"|"desc">("desc");
 
   useEffect(() => {
     fetch("/data/investors_real.csv")
@@ -487,8 +494,8 @@ export function InvestorDbView() {
     let result = rows.filter(r => {
       if (tab!=="Alle" && r.status!==tab) return false;
       if (!search) return true;
-      const q=search.toLowerCase();
-      return (["name","unternehmen","email"] as ColKey[]).some(k=>(r[k]??"").toString().toLowerCase().includes(q));
+      const q = search.toLowerCase();
+      return (["name","unternehmen","email"] as ColKey[]).some(k => (r[k]??"").toString().toLowerCase().includes(q));
     });
     result = [...result].sort((a,b) => {
       const va = a[sortCol];
@@ -512,66 +519,84 @@ export function InvestorDbView() {
   });
   const vItems = virtualizer.getVirtualItems();
 
-  // ── Column header / cell base styles ────────────────────────────────────────
+  // ── Base styles ─────────────────────────────────────────────────────────────
   const thBase: React.CSSProperties = {
-    padding:"0 12px", height:30, textAlign:"left", verticalAlign:"middle",
+    padding:"0 10px", height:30,
+    textAlign:"left", verticalAlign:"middle",
     fontSize:10, fontWeight:700, color:"rgba(255,255,255,0.55)", fontFamily:T,
     letterSpacing:"0.07em", textTransform:"uppercase", whiteSpace:"nowrap",
     userSelect:"none", borderBottom:"1px solid rgba(255,255,255,0.1)",
     boxSizing:"border-box", flexShrink:0,
   };
   const tdBase: React.CSSProperties = {
-    padding:"0 12px", height:ROW_H, verticalAlign:"middle", textAlign:"left",
-    whiteSpace:"nowrap", overflow:"hidden", boxSizing:"border-box", flexShrink:0,
+    padding:"0 10px", height:ROW_H,
+    textAlign:"left", verticalAlign:"middle",
+    whiteSpace:"nowrap", overflow:"hidden",
+    boxSizing:"border-box", flexShrink:0,
   };
 
-  function renderCell(row:InvestorDb, col:Col) {
-    const key=col.key; const val=row[key];
-    if (key==="status")  return <Badge label={val as string|null} map={STATUS_COLOR} />;
-    if (key==="typ")     return <Badge label={val as string|null} map={TYP_COLOR} />;
-    if (key==="quelle")  return <QuelleCell quelle={val as string|null} />;
-    if (key==="score")   return (
-      <span style={{ fontSize:11, color:"rgba(255,255,255,0.65)", fontFamily:T, fontWeight:600 }}>{val as number|null ?? ""}</span>
-    );
-    if (key==="linkedin") {
+  function renderCell(row: InvestorDb, col: Col) {
+    const key = col.key;
+    const val = row[key];
+
+    if (key === "status") return <Badge label={val as string|null} map={STATUS_COLOR} />;
+    if (key === "typ")    return <Badge label={val as string|null} map={TYP_COLOR} />;
+    if (key === "quelle") return <QuelleCell quelle={val as string|null} />;
+
+    if (key === "score") return <StarRow score={val as number|null} />;
+
+    if (key === "linkedin") {
       if (!val) return null;
       const href = (val as string).startsWith("http") ? (val as string) : `https://${val as string}`;
       return (
-        <a href={href} target="_blank" rel="noopener noreferrer" onClick={e=>e.stopPropagation()}>
+        <a href={href} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
           <img src="/logos/linkedin.jpg" alt="LinkedIn" style={{ height:16, width:16, objectFit:"contain", display:"block", borderRadius:2 }} />
         </a>
       );
     }
+
+    // name: show only if distinct from unternehmen (firm-only records get empty name)
+    if (key === "name") {
+      const display = row.name && row.name !== row.unternehmen ? row.name : null;
+      if (!display) return null;
+      return <span style={{ fontSize:12, fontFamily:T, color:"rgba(255,255,255,0.82)", display:"block" }}>{display}</span>;
+    }
+
     if (!val) return null;
-    // name and unternehmen: no ellipsis, clip at cell boundary
-    if (key==="name" || key==="unternehmen") {
+
+    if (key === "unternehmen") {
       return <span style={{ fontSize:12, fontFamily:T, color:"rgba(255,255,255,0.82)", display:"block" }}>{val as string}</span>;
     }
-    return <span style={{ fontSize:12, fontFamily:T, color:"rgba(255,255,255,0.72)", display:"block", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{val as string}</span>;
+
+    return (
+      <span style={{ fontSize:12, fontFamily:T, color:"rgba(255,255,255,0.72)", display:"block", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+        {val as string}
+      </span>
+    );
   }
 
   return (
     <div
       style={{ display:"flex", flexDirection:"column", height:"100%", minHeight:0, background:"#0a0a0c", color:"#e4e4e7", position:"relative" }}
-      onClick={()=>setActiveCell(null)}
+      onClick={() => setActiveCell(null)}
     >
       {/* ── Header ── */}
       <div
-        style={{ display:"flex", alignItems:"center", gap:12, padding:"16px 24px", flexShrink:0, borderBottom:"1px solid rgba(255,255,255,0.07)" }}
-        onClick={e=>e.stopPropagation()}
+        style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 24px 20px", flexShrink:0, borderBottom:"1px solid rgba(255,255,255,0.07)" }}
+        onClick={e => e.stopPropagation()}
       >
         <span style={{ fontSize:13, fontWeight:800, color:"rgba(255,255,255,0.7)", fontFamily:T, flexShrink:0, letterSpacing:"0.01em" }}>Investor DB</span>
         <input
           style={{ width:180, flexShrink:0, background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:5, color:"#e4e4e7", fontSize:12, padding:"5px 10px", fontFamily:T, outline:"none" }}
-          placeholder="Suche Name, Firma, E-Mail…" value={search} onChange={e=>setSearch(e.target.value)}
+          placeholder="Suche Name, Firma, E-Mail…" value={search} onChange={e => setSearch(e.target.value)}
         />
-        <div style={{ flex:1, display:"flex", alignItems:"center", gap:0, overflow:"hidden" }}>
+        <div style={{ flex:1, display:"flex", alignItems:"center", overflow:"hidden" }}>
           {[
-            { label:"Gesamt",    value:String(rows.length) },
-            { label:"Investoren",value:String(rows.filter(r=>r.status==="Investor").length) },
-            { label:"Warm",      value:String(rows.filter(r=>["Geantwortet","Call"].includes(r.status)).length) },
-            { label:"Gefiltert", value:String(filtered.length) },
-          ].map(k=>(
+            { label:"Gesamt",     value:String(rows.length) },
+            { label:"Investoren", value:String(rows.filter(r=>r.status==="Investor").length) },
+            { label:"Warm",       value:String(rows.filter(r=>["Geantwortet","Call"].includes(r.status)).length) },
+            { label:"Gefiltert",  value:String(filtered.length) },
+          ].map(k => (
             <div key={k.label} style={{ display:"flex", alignItems:"baseline", gap:4, padding:"0 14px", borderLeft:"1px solid rgba(255,255,255,0.07)", flexShrink:0 }}>
               <span style={{ fontSize:9, fontWeight:700, color:"rgba(255,255,255,0.28)", fontFamily:T, letterSpacing:"0.07em", textTransform:"uppercase" }}>{k.label}</span>
               <span style={{ fontSize:14, fontWeight:800, color:"rgba(255,255,255,0.72)", fontFamily:T }}>{k.value}</span>
@@ -579,10 +604,10 @@ export function InvestorDbView() {
           ))}
         </div>
         <div style={{ display:"flex", gap:6, flexShrink:0 }}>
-          <button onClick={()=>setShowCsv(true)} style={{...btnSt,color:"rgba(255,255,255,0.5)"}}>
+          <button onClick={() => setShowCsv(true)} style={{...btnSt, color:"rgba(255,255,255,0.5)"}}>
             <Upload size={11} strokeWidth={1.8} />CSV
           </button>
-          <button onClick={()=>setShowAdd(true)} style={btnSt}>
+          <button onClick={() => setShowAdd(true)} style={btnSt}>
             <MessageSquare size={11} strokeWidth={1.65} />+ Investor
           </button>
         </div>
@@ -590,28 +615,31 @@ export function InvestorDbView() {
 
       {/* ── Tabs ── */}
       <div
-        style={{ display:"flex", borderBottom:"1px solid rgba(255,255,255,0.07)", paddingLeft:24, paddingTop:4, marginBottom:0, flexShrink:0 }}
-        onClick={e=>e.stopPropagation()}
+        style={{ display:"flex", borderBottom:"1px solid rgba(255,255,255,0.07)", paddingLeft:24, paddingTop:4, marginBottom:16, flexShrink:0 }}
+        onClick={e => e.stopPropagation()}
       >
         {TABS.map(t => {
-          const active = tab===t;
+          const active = tab === t;
           return (
-            <button key={t} onClick={()=>setTab(t)} style={{
+            <button key={t} onClick={() => setTab(t)} style={{
               background:"none", border:"none",
-              borderBottom:active?"1.5px solid rgba(212,175,55,0.75)":"1.5px solid transparent",
+              borderBottom: active ? "1.5px solid rgba(212,175,55,0.75)" : "1.5px solid transparent",
               padding:"8px 14px", cursor:"pointer",
-              color:active?"rgba(255,255,255,0.7)":"rgba(255,255,255,0.28)",
+              color: active ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.28)",
               fontSize:10, fontWeight:700, fontFamily:T, letterSpacing:"0.06em",
               textTransform:"uppercase", transition:"color 120ms, border-color 120ms",
               marginBottom:-1, display:"flex", alignItems:"center", gap:5,
             }}>
-              {t} <span style={{ color:active?"rgba(255,255,255,0.35)":"rgba(255,255,255,0.15)", fontWeight:600 }}>{tabCount(t)}</span>
+              {t}
+              <span style={{ color: active ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.15)", fontWeight:600 }}>
+                {tabCount(t)}
+              </span>
             </button>
           );
         })}
       </div>
 
-      {/* ── Scrollable table wrapper ── */}
+      {/* ── Scrollable table ── */}
       <style>{`
         .inv-scroll::-webkit-scrollbar{width:4px;height:4px}
         .inv-scroll::-webkit-scrollbar-track{background:transparent}
@@ -621,17 +649,19 @@ export function InvestorDbView() {
         ref={parentRef}
         className="inv-scroll"
         style={{ flex:1, minHeight:0, overflow:"auto", scrollbarWidth:"thin", scrollbarColor:"rgba(255,255,255,0.2) transparent" }}
-        onClick={e=>e.stopPropagation()}
+        onClick={e => e.stopPropagation()}
       >
         {/* Sticky column header */}
-        <div style={{ position:"sticky", top:0, zIndex:10, background:"#0a0a0c", width:"100%", minWidth:900 }}>
+        <div style={{ position:"sticky", top:0, zIndex:10, background:"#0a0a0c", width:"100%", minWidth:860 }}>
           <div style={{ display:"flex", alignItems:"center", width:"100%", borderBottom:"1px solid rgba(255,255,255,0.1)" }}>
-            <div style={{ ...thBase, flex:"0 0 3%", paddingLeft:14 }}>#</div>
+            <div style={{ ...thBase, flex:"0 0 4%", paddingLeft:14 }}>#</div>
             {COLS.map(c => {
-              const isSorted = sortCol===c.key;
+              const isSorted = sortCol === c.key;
               return (
-                <div key={c.key} style={{ ...thBase, flex:`0 0 ${c.pct}`, cursor:c.sortable?"pointer":"default", background:isSorted?"rgba(255,255,255,0.02)":"transparent" }}
-                  onClick={c.sortable?()=>handleSort(c.key):undefined}>
+                <div key={c.key}
+                  style={{ ...thBase, flex:`0 0 ${c.pct}`, cursor:c.sortable?"pointer":"default", background:isSorted?"rgba(255,255,255,0.02)":"transparent" }}
+                  onClick={c.sortable ? () => handleSort(c.key) : undefined}
+                >
                   <span style={{ display:"inline-flex", alignItems:"center", gap:3 }}>
                     {c.label}
                     {c.sortable && (
@@ -643,12 +673,12 @@ export function InvestorDbView() {
                 </div>
               );
             })}
-            <div style={{ ...thBase, flex:"0 0 5%", textAlign:"center" as const }} />
+            <div style={{ ...thBase, flex:"0 0 3%" }} />
           </div>
         </div>
 
         {/* Virtual rows */}
-        <div style={{ height:virtualizer.getTotalSize(), position:"relative", width:"100%", minWidth:900 }}>
+        <div style={{ height:virtualizer.getTotalSize(), position:"relative", width:"100%", minWidth:860 }}>
           {vItems.map(vRow => {
             const row = filtered[vRow.index];
             const ri  = vRow.index;
@@ -659,38 +689,42 @@ export function InvestorDbView() {
                   position:"absolute", top:0, left:0, width:"100%",
                   transform:`translateY(${vRow.start}px)`,
                   height:ROW_H, display:"flex", alignItems:"center",
-                  background:ri%2===0?"transparent":"rgba(255,255,255,0.012)",
+                  background: ri%2===0 ? "transparent" : "rgba(255,255,255,0.012)",
                   borderBottom:"1px solid rgba(255,255,255,0.035)",
-                  minWidth:900,
+                  minWidth:860,
                 }}
               >
                 {/* # */}
-                <div style={{ ...tdBase, flex:"0 0 3%", paddingLeft:14 }}>
+                <div style={{ ...tdBase, flex:"0 0 4%", paddingLeft:14 }}>
                   <span style={{ fontSize:10, color:"rgba(255,255,255,0.28)", fontFamily:T }}>{ri+1}</span>
                 </div>
-                {/* Columns */}
+
+                {/* Data columns */}
                 {COLS.map(col => {
-                  const cellId=`${row.id}:${col.key}`;
-                  const isActive=activeCell===cellId;
+                  const cellId  = `${row.id}:${col.key}`;
+                  const isActive = activeCell === cellId;
                   return (
                     <div key={col.key}
                       style={{ ...tdBase, flex:`0 0 ${col.pct}`, background:isActive?"rgba(255,255,255,0.06)":undefined, boxShadow:isActive?"inset 0 0 0 1px rgba(255,255,255,0.15)":undefined }}
-                      onClick={e=>{ e.stopPropagation(); setActiveCell(cellId); }}>
-                      {isActive ? (
-                        <EditCell col={col.key} value={row[col.key]?.toString()??null}
-                          onSave={v=>patch(row.id,col.key,v)} onClose={()=>setActiveCell(null)} />
-                      ) : renderCell(row,col)}
+                      onClick={e => { e.stopPropagation(); setActiveCell(cellId); }}
+                    >
+                      {isActive
+                        ? <EditCell col={col.key} value={row[col.key]?.toString()??null} onSave={v=>patch(row.id,col.key,v)} onClose={()=>setActiveCell(null)} />
+                        : renderCell(row, col)
+                      }
                     </div>
                   );
                 })}
+
                 {/* Delete */}
-                <div style={{ ...tdBase, flex:"0 0 5%", textAlign:"center" as const }}>
+                <div style={{ ...tdBase, flex:"0 0 3%" }}>
                   <button onClick={e=>{ e.stopPropagation(); del(row.id); }} style={{ background:"none", border:"none", color:"rgba(239,68,68,0.28)", cursor:"pointer", fontSize:13, padding:"2px 4px" }} title="Löschen">✕</button>
                 </div>
               </div>
             );
           })}
-          {filtered.length===0 && (
+
+          {filtered.length === 0 && (
             <div style={{ position:"absolute", top:0, left:0, right:0, display:"flex", alignItems:"center", justifyContent:"center", height:60, color:"rgba(255,255,255,0.18)", fontSize:11, fontFamily:T, letterSpacing:"0.05em" }}>
               Keine Treffer
             </div>
