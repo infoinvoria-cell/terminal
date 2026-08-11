@@ -1,8 +1,7 @@
-import { InvestorDbShell } from "@/components/investor-db/InvestorDbShell";
+import { InvestorDbView } from "@/components/investor-db/InvestorDbView";
 
 export const metadata = { title: "Investor DB - Capitalife Terminal" };
-export const dynamic = "force-dynamic";
 
 export default function InvestorDbPage() {
-  return <InvestorDbShell />;
+  return <InvestorDbView />;
 }
