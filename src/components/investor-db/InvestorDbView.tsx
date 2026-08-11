@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { MessageSquare, Upload } from "lucide-react";
 
@@ -20,7 +20,56 @@ export type InvestorDb = {
   naechsterSchritt: string | null;
   letzterKont: string | null;
   notizen: string | null;
+  ort?: string | null;
+  website?: string | null;
 };
+
+// ── CSV loader ────────────────────────────────────────────────────────────────
+
+function parseCsvLine(line: string): string[] {
+  const result: string[] = [];
+  let current = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') { inQuotes = !inQuotes; }
+    else if (ch === "," && !inQuotes) { result.push(current); current = ""; }
+    else { current += ch; }
+  }
+  result.push(current);
+  return result;
+}
+
+function parseCsv(text: string): InvestorDb[] {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+  const headers = parseCsvLine(lines[0]).map(h => h.trim().toLowerCase().replace(/"/g, ""));
+  const get = (vals: string[], key: string) => {
+    const idx = headers.indexOf(key);
+    return idx >= 0 ? (vals[idx]?.trim() || null) : null;
+  };
+  return lines.slice(1).filter(Boolean).map((line, i) => {
+    const v = parseCsvLine(line);
+    const scoreRaw = get(v, "score");
+    return {
+      id: i + 1,
+      name: get(v, "name") ?? "",
+      unternehmen: get(v, "unternehmen"),
+      typ: get(v, "typ"),
+      email: get(v, "email"),
+      linkedin: get(v, "linkedin"),
+      kapital: get(v, "kapital"),
+      quelle: get(v, "quelle"),
+      score: scoreRaw ? parseInt(scoreRaw, 10) : null,
+      status: get(v, "status") ?? "Neu",
+      naechsterSchritt: null,
+      letzterKont: null,
+      notizen: "",
+      ort: get(v, "ort"),
+      website: get(v, "website"),
+    };
+  }).filter(r => r.name.length > 0);
+}
 
 // ── Deterministic 10 000-entry generator ──────────────────────────────────────
 
@@ -346,6 +395,21 @@ export function InvestorDbView() {
   const [rows, setRows]         = useState<InvestorDb[]>(MOCK);
   const [search, setSearch]     = useState("");
   const [tab, setTab]           = useState<Tab>("Alle");
+
+  // Load real CSV data if available — falls back silently to MOCK
+  useEffect(() => {
+    fetch("/data/investors_real.csv")
+      .then(r => r.ok ? r.text() : null)
+      .then(text => {
+        if (!text) return;
+        const parsed = parseCsv(text);
+        if (parsed.length > 0) {
+          setRows(parsed);
+          nextId.current = parsed.length + 1;
+        }
+      })
+      .catch(() => {/* MOCK stays active */});
+  }, []);
   const [activeCell, setActiveCell] = useState<string|null>(null);
   const [showAdd, setShowAdd]   = useState(false);
   const [showCsv, setShowCsv]   = useState(false);
