@@ -5,8 +5,10 @@ import { runScenario } from "@/lib/portfolio-simulator/scenario-engine";
 import { runMonteCarlo } from "@/lib/portfolio-simulator/monte-carlo";
 
 function writeJson(filePath: string, payload: unknown) {
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, JSON.stringify(payload, null, 2), "utf8");
+  try {
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, JSON.stringify(payload, null, 2), "utf8");
+  } catch { /* .runtime/ may be absent or read-only in cloud environments */ }
 }
 
 export function writePortfolioLabQaScenarios(bootstrap: PortfolioLabBootstrap) {

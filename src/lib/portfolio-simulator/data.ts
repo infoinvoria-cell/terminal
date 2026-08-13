@@ -34,6 +34,9 @@ type AuditArtifact = {
 
 function loadAuditArtifact(): AuditArtifact {
   const auditPath = path.join(process.cwd(), ".runtime", "white-swan", "WHITE_SWAN_17_CAPITAL_RISK_AUDIT_V1.json");
+  if (!fs.existsSync(auditPath)) {
+    return { artifact: "WHITE_SWAN_17_CAPITAL_RISK_AUDIT_V1", masterTable: [], strategies: 0, weightsSumPct: 0, rawRegistryUsedForCalculations: false, acceptance: { WHITE_SWAN_17_CAPITAL_RISK_TRUTH: "" } };
+  }
   return JSON.parse(fs.readFileSync(auditPath, "utf8")) as AuditArtifact;
 }
 
@@ -239,8 +242,10 @@ function ensureDir(dirPath: string) {
 }
 
 function writeJson(filePath: string, payload: unknown) {
-  ensureDir(path.dirname(filePath));
-  fs.writeFileSync(filePath, JSON.stringify(payload, null, 2), "utf8");
+  try {
+    ensureDir(path.dirname(filePath));
+    fs.writeFileSync(filePath, JSON.stringify(payload, null, 2), "utf8");
+  } catch { /* .runtime/ may be absent or read-only in cloud environments */ }
 }
 
 export function getPortfolioLabBootstrap(): PortfolioLabBootstrap {
