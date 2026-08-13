@@ -1,4 +1,4 @@
-import liveQuoteState from "../../../.runtime/market-data/live-quote-state.json";
+import liveQuoteState from "@/data/capitalife/runtime-stubs/live-quote-state.json";
 
 export type WhiteSwanExecutionProfileId =
   | "WHITE_SWAN_IBKR_10K_USD_V1"

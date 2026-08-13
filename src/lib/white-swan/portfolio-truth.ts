@@ -1,7 +1,7 @@
 import analyticsGenerated from "@/data/capitalife/analytics-generated.json";
 import whiteSwanOfficialKpis from "@/data/capitalife/white-swan-official-kpis.json";
-import portfolioOperationalHealth from "../../../.runtime/institutional/portfolio-operational-health.json";
-import strategyOperationalMatrix from "../../../.runtime/institutional/strategy-operational-matrix.json";
+import portfolioOperationalHealth from "@/data/capitalife/runtime-stubs/portfolio-operational-health.json";
+import strategyOperationalMatrix from "@/data/capitalife/runtime-stubs/strategy-operational-matrix.json";
 import { WS_STRATEGIES, type StrategyRow } from "@/lib/components/ws-strategy-data";
 import {
   WHITE_SWAN_EXECUTION_BY_ID,

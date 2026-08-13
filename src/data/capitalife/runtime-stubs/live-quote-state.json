@@ -1,0 +1,15 @@
+{
+  "EURUSD":  { "price": 0, "snapshotUpdatedUtc": "" },
+  "DE30EUR": { "price": 0, "snapshotUpdatedUtc": "" },
+  "GLD":     { "price": 0, "snapshotUpdatedUtc": "" },
+  "SPY":     { "price": 0, "snapshotUpdatedUtc": "" },
+  "YM1!":    { "price": 0, "snapshotUpdatedUtc": "" },
+  "GC1!":    { "price": 0, "snapshotUpdatedUtc": "" },
+  "CL1!":    { "price": 0, "snapshotUpdatedUtc": "" },
+  "HG1!":    { "price": 0, "snapshotUpdatedUtc": "" },
+  "ZC1!":    { "price": 0, "snapshotUpdatedUtc": "" },
+  "ZW1!":    { "price": 0, "snapshotUpdatedUtc": "" },
+  "ZS1!":    { "price": 0, "snapshotUpdatedUtc": "" },
+  "SB1!":    { "price": 0, "snapshotUpdatedUtc": "" },
+  "CC1!":    { "price": 0, "snapshotUpdatedUtc": "" }
+}
