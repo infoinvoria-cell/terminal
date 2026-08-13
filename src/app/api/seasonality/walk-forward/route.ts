@@ -69,7 +69,8 @@ const DEFAULT_CONFIG: WalkForwardConfig = {
 };
 
 function workspaceRoot(): string {
-  const cwd = process.cwd();
+  // turbopackIgnore: dynamic cwd is intentional — seasonality WF runs server-side only
+  const cwd = /*turbopackIgnore: true*/ process.cwd();
   return path.basename(cwd).toLowerCase() === "frontend" ? path.dirname(cwd) : cwd;
 }
 

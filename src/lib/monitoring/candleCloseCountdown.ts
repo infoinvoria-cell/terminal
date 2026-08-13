@@ -404,7 +404,7 @@ export function formatAxisPrice(value: number): string {
 
   const abs = Math.abs(value);
 
-  const fractionDigits = abs >= 1000 ? 2 : abs >= 10 ? 2 : abs >= 1 ? 4 : 5;
+  const fractionDigits = abs >= 1000 ? 0 : abs >= 10 ? 2 : abs >= 1 ? 4 : 5;
 
   return new Intl.NumberFormat("de-DE", {
 

@@ -5,7 +5,7 @@ import type { GeoEventsResponse, GeoEventItem } from "@/lib/globe/globe-types";
 // GDELT geo endpoint (/api/v2/geo/geo) returns 404 (removed) and the DOC API is
 // hard rate-limited from shared edge IPs. We use known conflict hotspots with
 // live intensity derived from NewsAPI.org (a single request, proven reliable).
-const NEWS_API_KEY = process.env.NEXT_PUBLIC_NEWS_API_KEY ?? "";
+const NEWS_API_KEY = process.env.NEWS_API_KEY ?? "";
 
 type ConflictRegion = {
   name: string;

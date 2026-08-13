@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useSentinelSession } from "@/components/sentinel/sentinel-session-provider";
-import { TokenRing } from "@/components/sentinel/TokenRing";
+import { SentinelCapacityPanel } from "@/components/sentinel/SentinelCapacityPanel";
 import { lsGet, lsSet } from "@/lib/sentinel/sentinel-session-store";
 import type { ChatEntry, SourceItem } from "@/lib/sentinel/sentinel-session-store";
 
@@ -996,7 +996,7 @@ export function MobileSentinelView() {
                 {currentRun.provider ?? status?.activeProvider}
               </span>
             )}
-            <TokenRing activeProvider={currentRun.provider ?? status?.activeProvider ?? null} />
+            <SentinelCapacityPanel activeProvider={currentRun.provider ?? status?.activeProvider ?? null} />
           </div>
         </div>
       </div>

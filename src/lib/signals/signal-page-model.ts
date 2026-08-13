@@ -6,6 +6,7 @@ const WHITE_SWAN_GROUPS: SignalPageSectionGroup[] = [
   { id: "valuation", title: "Valuation", cards: [] },
   { id: "macro", title: "Macro", cards: [] },
   { id: "seasonal", title: "Seasonal", cards: [] },
+  { id: "intraday_mt", title: "Intraday MT", cards: [] },
 ];
 
 const CORE_INVEST_GROUPS: SignalPageSectionGroup[] = [

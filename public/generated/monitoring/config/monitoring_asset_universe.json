@@ -413,7 +413,7 @@
       "symbol": "UKX!",
       "short": "UKX",
       "requestSymbol": "UKX!",
-      "source": "TVC:UKX!",
+      "source": "TVC:UKX",
       "timeframe": "D",
       "csvFile": null,
       "hasData": true,

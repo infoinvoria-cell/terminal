@@ -37,7 +37,9 @@ export async function buildTrackRecordOverview(): Promise<TrackRecordOverview> {
       normalizedClosedTradeCount: historical.normalizedClosedTradeCount,
       visibleAccount2TradeCount: historical.visibleAccount2TradeCount,
       historicalDataQuality: historical.historicalDataQuality,
+      account1: historical.account1,
       importAudit: historical.importAudit,
+      official: historical.official,
     },
     capabilities: {
       supabaseConfigured: env.hasSupabase,

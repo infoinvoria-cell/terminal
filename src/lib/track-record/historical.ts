@@ -27,7 +27,25 @@ type LocalStatement = {
     statement_period_first_close?: string;
     statement_period_last_close?: string;
     total_closed_trades?: number;
+    raw_rows_total?: number;
+    balance_operations_total?: number;
+    deposit_count?: number;
+    withdrawal_count?: number;
+    other_balance_count?: number;
+    source_format?: string;
+    source_file_count?: number;
+    source_files?: string[];
+    legacy_partial_trade_count?: number;
+    legacy_partial_overlap?: number;
   };
+  balance_operations?: Array<{
+    ticket?: string | number;
+    time?: string;
+    kind?: string;
+    amount?: number;
+    comment?: string | null;
+    source_file?: string;
+  }>;
   trades: Array<{
     ticket?: string | number;
     open_time?: string;
@@ -49,6 +67,7 @@ export function getHistoricalTrackRecordSummary() {
   assertHistoricalImportIntegrity(importAudit);
   const monthlyRows = buildHistoricalMonthlyReturns();
   const closedTrades = buildHistoricalClosedTrades(statement);
+  const account1Stats = summarizeAccount1Trades(statement);
   return {
     monthlySource: "src/data/capitalife/performance-monthly.json",
     statementSource: ACCOUNT_1_PATH,
@@ -64,15 +83,42 @@ export function getHistoricalTrackRecordSummary() {
     historicalDataQuality: statement
       ? "partial" as const
       : "insufficient" as const,
-    importAudit,
-    annualizationMethods: getHistoricalAnnualizationMethods(),
     account1: {
       statementAvailableLocally: Boolean(statement),
+      broker: statement?.meta.broker ?? null,
+      currency: statement?.meta.currency ?? null,
       statementGenerated: statement?.meta.statement_generated ?? null,
       statementPeriodFirstClose: statement?.meta.statement_period_first_close ?? null,
       statementPeriodLastClose: statement?.meta.statement_period_last_close ?? null,
       totalClosedTrades: statement?.meta.total_closed_trades ?? 0,
+      rawRowsTotal: statement?.meta.raw_rows_total ?? 0,
+      balanceOperationsTotal: statement?.meta.balance_operations_total ?? 0,
+      depositCount: statement?.meta.deposit_count ?? 0,
+      withdrawalCount: statement?.meta.withdrawal_count ?? 0,
+      otherBalanceCount: statement?.meta.other_balance_count ?? 0,
+      sourceFormat: statement?.meta.source_format ?? null,
+      sourceFileCount: statement?.meta.source_file_count ?? 0,
+      sourceFiles: statement?.meta.source_files ?? [],
+      legacyPartialTradeCount: statement?.meta.legacy_partial_trade_count ?? 0,
+      legacyPartialOverlap: statement?.meta.legacy_partial_overlap ?? 0,
+      winningTrades: account1Stats.winningTrades,
+      losingTrades: account1Stats.losingTrades,
+      flatTrades: account1Stats.flatTrades,
+      winRatePct: account1Stats.winRatePct,
+      winRateIncludesFlatTrades: account1Stats.winRateIncludesFlatTrades,
+      grossProfit: account1Stats.grossProfit,
+      grossLoss: account1Stats.grossLoss,
+      profitFactor: account1Stats.profitFactor,
+      netTradingPnl: account1Stats.netTradingPnl,
+      commissionTotal: account1Stats.commissionTotal,
+      swapTotal: account1Stats.swapTotal,
+      avgHoldHours: account1Stats.avgHoldHours,
+      medianHoldHours: account1Stats.medianHoldHours,
+      tradesPerMonth: account1Stats.tradesPerMonth,
+      tradesPerYear: account1Stats.tradesPerYear,
     },
+    importAudit,
+    annualizationMethods: getHistoricalAnnualizationMethods(),
     account2: {
       source: account2Trades.meta.source,
       visibleTrades: account2Trades.meta.total_visible_trades,
@@ -133,7 +179,7 @@ export function buildHistoricalTrackRecordBundle(): TrackRecordSnapshotBundle {
     openPositions: [],
     openOrders: [],
     closedTrades,
-    cashflows: [],
+    cashflows: buildHistoricalCashflows(statement),
     metrics: buildHistoricalMetrics(runAt, monthlyReturns, closedTrades),
     syncStatus: [{
       source: "broker_raw",
@@ -144,14 +190,14 @@ export function buildHistoricalTrackRecordBundle(): TrackRecordSnapshotBundle {
       staleAfterUtc: null,
       health: statement ? "ok" : "idle",
       message: statement
-        ? `Historische Basis normalisiert: ${monthlyReturns.length} Monate, ${statement.trades.length} maschinenlesbare Teilhistorie-Trades`
+        ? `Historische Basis normalisiert: ${monthlyReturns.length} Monate, ${statement.trades.length} geschlossene Account-1-Trades und ${(statement.balance_operations ?? []).length} separate Balance-Operationen`
         : `Historische Monatsbasis verfügbar; lokale Statement-Rohdatei ${ACCOUNT_1_PATH} fehlt`,
       requestsUsed: 0,
       mode: "live",
     }],
     unavailable: [
       "Keine vollständige tägliche Equity-Zeitreihe vorhanden.",
-      "Account 1 Statement ist nur für 01.04.2026 bis 02.07.2026 vollständig maschinenlesbar.",
+      "Account 1 ist maschinenlesbar vorhanden, aber der Gesamt-Track-Record ist noch nicht über alle Evidenzquellen institutionell konsolidiert.",
       "Account 2 enthält nur öffentlich sichtbare Myfxbook-Transaktionen und darf nicht als vollständige Trade-Historie gelten.",
       "Broker-Zeitzone der lokalen Statementdatei ist nicht belegt; lokale Zeitstempel werden nicht als UTC ausgegeben.",
     ],
@@ -232,6 +278,24 @@ function buildHistoricalClosedTrades(statement: LocalStatement | null): ClosedTr
   return [...account1, ...account2];
 }
 
+function buildHistoricalCashflows(statement: LocalStatement | null) {
+  return [...(statement?.balance_operations ?? [])]
+    .sort((left, right) => String(left.time).localeCompare(String(right.time)))
+    .map((row) => ({
+      source: "broker_raw" as const,
+      provider: "historical" as const,
+      providerAccountId: ACCOUNT_1_ID,
+      stableCashflowId: stableId([ACCOUNT_1_ID, row.ticket, row.time, row.kind, row.amount]),
+      flowType: normalizeCashflowType(row.kind),
+      amount: finiteOrNull(row.amount),
+      currency: statement?.meta.currency ?? "EUR",
+      occurredAtUtc: null,
+      occurredAtLocal: row.time ?? null,
+      brokerTimezone: null,
+      note: row.comment ?? null,
+    }));
+}
+
 function buildHistoricalMetrics(
   asOfUtc: string,
   monthlyReturns: MonthlyReturnRow[],
@@ -247,7 +311,7 @@ function buildHistoricalMetrics(
   const grossProfit = profitRows.reduce((sum, trade) => sum + Math.max(0, trade.profit ?? 0), 0);
   const grossLoss = Math.abs(profitRows.reduce((sum, trade) => sum + Math.min(0, trade.profit ?? 0), 0));
   const winning = profitRows.filter((trade) => (trade.profit ?? 0) > 0);
-  const source = "Performance Report + lokale Teilstatements; keine Quellenvermischung";
+  const source = "Performance Report + lokaler Account-1-Primärexport; keine Quellenvermischung";
   const make = (metricName: string, metricValue: number | string, verified: boolean): TrackRecordMetricRow => ({
     source: "internal_computed",
     provider: "historical",
@@ -270,9 +334,9 @@ function buildHistoricalMetrics(
     make("max_drawdown_reported_pct", whiteSwanOfficialKpis.official_kpis.max_drawdown_pct, true),
     make("sharpe_reported", whiteSwanOfficialKpis.official_kpis.sharpe, true),
     make("calmar_reported", whiteSwanOfficialKpis.official_kpis.calmar, true),
-    make("partial_statement_trade_count", account1Trades.length, false),
-    make("partial_statement_win_rate_pct", profitRows.length ? round((winning.length / profitRows.length) * 100, 2) : 0, false),
-    make("partial_statement_profit_factor", grossLoss > 0 ? round(grossProfit / grossLoss, 4) : "nicht berechenbar", false),
+    make("account1_statement_trade_count", account1Trades.length, false),
+    make("account1_statement_win_rate_pct", profitRows.length ? round((winning.length / profitRows.length) * 100, 2) : 0, false),
+    make("account1_statement_profit_factor", grossLoss > 0 ? round(grossProfit / grossLoss, 4) : "nicht berechenbar", false),
   ];
 }
 
@@ -373,7 +437,9 @@ function auditHistoricalImport(statement: LocalStatement | null) {
       costRows: trades.filter((trade) => Number.isFinite(trade.commission) && Number.isFinite(trade.swap)).length,
       accountCount: statement ? 1 : 0,
       hash: sha256Json(trades),
-      classification: "Maschinenlesbare Teilhistorie; keine vollständige Broker-Trade-Historie",
+      classification: statement
+        ? "Account 1 Primärhistorie vorhanden · Gesamt-Track-Record noch nicht vollständig konsolidiert"
+        : "Keine lokale Account-1-Primärhistorie geladen",
     },
   };
 }
@@ -384,8 +450,7 @@ function assertHistoricalImportIntegrity(audit: ReturnType<typeof auditHistorica
     || !audit.monthly.sorted
     || !audit.monthly.finitePercentValues
     || (audit.partialTrades.count > 0 && (
-      audit.partialTrades.count !== 89
-      || audit.partialTrades.duplicateCount > 0
+      audit.partialTrades.duplicateCount > 0
       || !audit.partialTrades.sorted
       || audit.partialTrades.invalidCount > 0
       || audit.partialTrades.accountCount !== 1
@@ -402,6 +467,99 @@ function loadLocalStatement(): LocalStatement | null {
   } catch {
     return null;
   }
+}
+
+function summarizeAccount1Trades(statement: LocalStatement | null) {
+  const trades = statement?.trades ?? [];
+  if (trades.length === 0) {
+    return {
+      winningTrades: 0,
+      losingTrades: 0,
+      flatTrades: 0,
+      winRatePct: null,
+      winRateIncludesFlatTrades: true,
+      grossProfit: null,
+      grossLoss: null,
+      profitFactor: null,
+      netTradingPnl: null,
+      commissionTotal: null,
+      swapTotal: null,
+      avgHoldHours: null,
+      medianHoldHours: null,
+      tradesPerMonth: null,
+      tradesPerYear: null,
+    };
+  }
+
+  const durations = trades
+    .map((trade) => {
+      const open = Date.parse(trade.open_time ?? "");
+      const close = Date.parse(trade.close_time ?? "");
+      return Number.isFinite(open) && Number.isFinite(close) && close >= open
+        ? (close - open) / 3_600_000
+        : null;
+    })
+    .filter((value): value is number => value !== null)
+    .sort((left, right) => left - right);
+
+  const profits = trades
+    .map((trade) => finiteOrNull(trade.profit))
+    .filter((value): value is number => value !== null);
+
+  const wins = profits.filter((value) => value > 0);
+  const losses = profits.filter((value) => value < 0);
+  const flats = profits.filter((value) => value === 0);
+  const grossProfit = wins.reduce((sum, value) => sum + value, 0);
+  const grossLoss = Math.abs(losses.reduce((sum, value) => sum + value, 0));
+  const commissionTotal = round(trades.reduce((sum, trade) => sum + (finiteOrNull(trade.commission) ?? 0), 0), 2);
+  const swapTotal = round(trades.reduce((sum, trade) => sum + (finiteOrNull(trade.swap) ?? 0), 0), 2);
+  const netTradingPnl = round(
+    trades.reduce(
+      (sum, trade) => sum + (finiteOrNull(trade.profit) ?? 0) + (finiteOrNull(trade.commission) ?? 0) + (finiteOrNull(trade.swap) ?? 0),
+      0,
+    ),
+    2,
+  );
+
+  const firstClose = Date.parse(statement?.meta.statement_period_first_close ?? "");
+  const lastClose = Date.parse(statement?.meta.statement_period_last_close ?? "");
+  const periodDays = Number.isFinite(firstClose) && Number.isFinite(lastClose) && lastClose > firstClose
+    ? (lastClose - firstClose) / 86_400_000
+    : null;
+  const tradesPerMonth = periodDays && periodDays > 0 ? round(trades.length / (periodDays / 30.4375), 2) : null;
+  const tradesPerYear = periodDays && periodDays > 0 ? round(trades.length / (periodDays / 365.2425), 2) : null;
+
+  return {
+    winningTrades: wins.length,
+    losingTrades: losses.length,
+    flatTrades: flats.length,
+    winRatePct: profits.length ? round((wins.length / profits.length) * 100, 2) : null,
+    winRateIncludesFlatTrades: true,
+    grossProfit: round(grossProfit, 2),
+    grossLoss: round(grossLoss, 2),
+    profitFactor: grossLoss > 0 ? round(grossProfit / grossLoss, 4) : null,
+    netTradingPnl,
+    commissionTotal,
+    swapTotal,
+    avgHoldHours: durations.length ? round(durations.reduce((sum, value) => sum + value, 0) / durations.length, 2) : null,
+    medianHoldHours: durations.length
+      ? round(
+        durations.length % 2 === 1
+          ? durations[Math.floor(durations.length / 2)]!
+          : (durations[durations.length / 2 - 1]! + durations[durations.length / 2]!) / 2,
+        2,
+      )
+      : null,
+    tradesPerMonth,
+    tradesPerYear,
+  };
+}
+
+function normalizeCashflowType(kind: string | undefined) {
+  if (kind === "DEPOSIT") return "deposit" as const;
+  if (kind === "WITHDRAWAL") return "withdrawal" as const;
+  if (kind === "FEE") return "fee" as const;
+  return "unknown" as const;
 }
 
 function finiteOrNull(value: number | undefined) {

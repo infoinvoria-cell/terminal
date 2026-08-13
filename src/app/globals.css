@@ -78,15 +78,14 @@ canvas {
   pointer-events: auto !important;
 }
 
-/* Hide lightweight-charts branding (v5 injects a link/table after canvas) */
+/* LWC branding hidden: attribution link is a div/a outside the plot table in v5 */
 .tv-lightweight-charts a,
 .tv-lightweight-charts a[href],
-.tv-lightweight-charts tr:last-child,
-.tv-lightweight-charts tr:last-child td,
 canvas + div a {
   display: none !important;
   visibility: hidden !important;
 }
+
 
 /* LAYER 4: Named visual-only canvases (belt-and-suspenders)
    .brain-canvas = Brain sphere canvas — clicks handled by container div
@@ -142,7 +141,7 @@ body { padding-left: var(--mobile-preview-left); transition: padding-left 220ms 
   --color-negative:  #EF4444;
 
   /* Font system — uses Next.js injected CSS vars with fallbacks */
-  --font-numbers: var(--font-nunito, 'Nunito', sans-serif);
+  --font-numbers: var(--font-nunito, var(--font-montserrat), 'Montserrat', sans-serif);
   --font-text:    var(--font-montserrat, 'Montserrat', sans-serif);
 }
 
@@ -161,6 +160,7 @@ body { padding-left: var(--mobile-preview-left); transition: padding-left 220ms 
 }
 
 body {
+  font-family: var(--font-text);
   background-color: var(--background);
   color: var(--foreground);
   min-height: 100vh;
@@ -171,9 +171,36 @@ body {
   );
 }
 
+button,
+input,
+select,
+textarea,
+label,
+span,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+th,
+td,
+li,
+a {
+  font-family: inherit;
+}
+
 .dashboard-content-shell > * {
   min-height: 0;
   flex: 1 1 auto;
+  box-sizing: border-box;
+}
+
+.inno-qa-toggle:focus-visible {
+  outline: 2px solid rgba(229, 234, 240, 0.42);
+  outline-offset: 2px;
+  border-radius: 8px;
 }
 
 /* Scrollbars are hidden everywhere (dark/invisible) — scrolling still works.
@@ -212,3 +239,4 @@ nextjs-portal,
   visibility: hidden !important;
   pointer-events: none !important;
 }
+

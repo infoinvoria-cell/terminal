@@ -1,47 +1,72 @@
 export const runtime = "edge";
 import { NextRequest, NextResponse } from "next/server";
-
+// Symbol map sourced from the unified asset registry — no local copy needed.
+// NOTE: edge runtime cannot import from asset-registry.ts (Node-only deps),
+// so we maintain a minimal edge-safe copy here that mirrors the registry.
+// When adding assets, update both asset-registry.ts AND this map.
 const ASSET_TV_MAP: Record<string, string> = {
-  gld_etf: "NYSE:GLD",
-  gld_ci: "NYSE:GLD",
-  gc1: "COMEX:GC1!",
-  ym1: "CME_MINI:YM1!",
-  nq1: "CME_MINI:NQ1!",
-  ct1: "ICEEUR:CT1!",
+  // Intraday MT
+  eurusd_30m: "CME:6E1!",   gbpusd_30m: "CME:6B1!",
+  dax_1h: "EUREX:FDAX1!",   dax_2h: "EUREX:FDAX1!",
+  // White Swan
+  gld_etf: "NYSE:GLD",      gld_ci: "NYSE:GLD",
+  gc1: "COMEX:GC1!",        ym1: "CME_MINI:YM1!",
+  nq1: "CME_MINI:NQ1!",     ct1: "ICEEUR:CT1!",
   ukx: "TVC:UKX",
-  eurusd_30m: "OANDA:EURUSD",
-  dax_1h: "EUREX:FDAX1!",
-  gbpusd_30m: "OANDA:GBPUSD",
-  dax_2h: "EUREX:FDAX1!",
-  qqq: "BATS:SPY",
-  spmo: "BATS:SPY",
-  spy: "BATS:SPY",
-  hg1: "COMEX:HG1!",
-  "6s1": "CME:6S1!",
-  glgg: "BATS:SPY",
-  fiw: "BATS:SPY",
-  "6e1": "CME:6E1!",
-  "6b1": "CME:6B1!",
-  "6j1": "CME:6J1!",
-  "6s1_fx": "CME:6S1!",
-  "6a1": "CME:6A1!",
-  "6c1": "CME:6C1!",
-  dxy: "TVC:DXY",
-  vix: "TVC:VIX",
-  tnx: "TVC:US10Y",
-  crude: "NYMEX:CL1!",
-  brent: "NYMEX:BB1!",
-  natgas: "NYMEX:NG1!",
-  silver: "COMEX:SI1!",
-  // Legacy
-  gold: "COMEX:GC1!",
-  copper: "COMEX:HG1!",
-  sp500: "CME_MINI:ES1!",
-  nasdaq: "CME_MINI:NQ1!",
-  dax: "EUREX:FDAX1!",
-  eurusd: "OANDA:EURUSD",
-  gbpusd: "OANDA:GBPUSD",
-  usdchf: "OANDA:USDCHF",
+  // Core Invest
+  qqq: "BATS:QQQ",          spmo: "BATS:SPMO",
+  spy: "BATS:SPY",           hg1: "COMEX:HG1!",
+  "6s1": "CME:6S1!",        glgg: "LSE:GLGG",    fiw: "BATS:FIW",
+  // CME Forex Futures
+  "6e1": "CME:6E1!",        "6b1": "CME:6B1!",
+  "6j1": "CME:6J1!",        "6s1_fx": "CME:6S1!",
+  "6a1": "CME:6A1!",        "6c1": "CME:6C1!",
+  // Macro
+  dxy: "TVC:DXY",           vix: "TVC:VIX",
+  tnx: "TVC:US10Y",         us2y: "TVC:US02Y",
+  // Major FX
+  usdjpy: "OANDA:USDJPY",   audusd: "OANDA:AUDUSD",
+  usdcad: "OANDA:USDCAD",   nzdusd: "OANDA:NZDUSD",
+  usdchf_fx: "OANDA:USDCHF",
+  // Cross Pairs
+  eurgbp_fx: "OANDA:EURGBP", eurjpy_fx: "OANDA:EURJPY",
+  gbpjpy_fx: "OANDA:GBPJPY", audcad_fx: "OANDA:AUDCAD",
+  eurchf_fx: "OANDA:EURCHF", usdmxn_fx: "OANDA:USDMXN",
+  usdzar_fx: "OANDA:USDZAR", usdtry_fx: "OANDA:USDTRY",
+  // Indices
+  sp500_idx: "CME_MINI:ES1!", nasdaq_idx: "CME_MINI:NQ1!",
+  dow_idx: "CME_MINI:YM1!",  russell2k: "CME_MINI:RTY1!",
+  dax_idx: "EUREX:FDAX1!",   cac40_idx: "EURONEXT:CAC40",
+  eurostoxx_idx: "EUREX:FESX1!", nikkei_idx: "OSE:NK225",
+  hsi_idx: "HKEX:HSI",       asx200_idx: "ASX:XJO",
+  // Stocks
+  aapl: "BATS:AAPL",         msft: "BATS:MSFT",
+  nvda: "BATS:NVDA",         tsla: "BATS:TSLA",
+  meta_s: "BATS:META",       amzn: "BATS:AMZN",
+  googl: "BATS:GOOGL",       jpm: "NYSE:JPM",
+  bac: "NYSE:BAC",           gs: "NYSE:GS",
+  xom: "NYSE:XOM",           cvx: "NYSE:CVX",
+  tsm: "NYSE:TSM",           sap_de: "XETR:SAP",
+  // Metals
+  silver: "COMEX:SI1!",      platinum: "NYMEX:PL1!",
+  palladium: "NYMEX:PA1!",   copper_spot: "COMEX:HG1!",
+  // Energy
+  crude: "NYMEX:CL1!",       brent: "NYMEX:BB1!",
+  natgas: "NYMEX:NG1!",      heating_oil: "NYMEX:HO1!",
+  gasoline: "NYMEX:RB1!",    uranium: "NYSE:URA",
+  // Agriculture
+  corn_f: "CBOT:ZC1!",       wheat_f: "CBOT:ZW1!",
+  soybean_f: "CBOT:ZS1!",    coffee_f: "ICEUS:KC1!",
+  cocoa_f: "ICEUS:CC1!",     sugar_f: "ICEUS:SB1!",
+  oj_f: "ICEUS:OJ1!",        cattle_f: "CME:LE1!",
+  hogs_f: "CME:HE1!",        lumber_f: "CME:LBS1!",
+  // Bonds
+  zb1: "CBOT:ZB1!",          zn1: "CBOT:ZN1!",
+  // Legacy aliases
+  gold: "COMEX:GC1!",        copper: "COMEX:HG1!",
+  sp500: "CME_MINI:ES1!",    nasdaq: "CME_MINI:NQ1!",
+  dax: "EUREX:FDAX1!",       eurusd: "CME:6E1!",
+  gbpusd: "CME:6B1!",        usdchf: "OANDA:USDCHF",
 };
 
 const INTRADAY_TF_MAP: Record<string, Record<string, string>> = {
@@ -114,48 +139,6 @@ async function tryLocalOhlc(assetId: string, tf: string, baseUrl: string) {
   }
 }
 
-// Yahoo Finance ticker per asset (for on-demand assets not in local cache)
-const ASSET_YAHOO_MAP: Record<string, string> = {
-  // White Swan Portfolio
-  gld_etf: "GLD", gld_ci: "GLD", gc1: "GC=F", ym1: "YM=F", nq1: "NQ=F", ct1: "CT=F", ukx: "^FTSE",
-  // Intraday MT
-  eurusd_30m: "EURUSD=X", gbpusd_30m: "GBPUSD=X", dax_1h: "^GDAXI", dax_2h: "^GDAXI",
-  // Core Invest
-  qqq: "QQQ", spmo: "SPMO", spy: "SPY", hg1: "HG=F", "6s1": "CHF=X", glgg: "GLGG.L", fiw: "FIW",
-  // Forex (CME futures → FX spot symbols for pricing)
-  "6e1": "EURUSD=X", "6b1": "GBPUSD=X", "6j1": "JPY=X", "6s1_fx": "CHF=X", "6a1": "AUDUSD=X", "6c1": "CAD=X",
-  // Macro
-  dxy: "DX-Y.NYB", vix: "^VIX", tnx: "^TNX", us2y: "^IRX",
-  // Major FX
-  usdjpy: "JPY=X", audusd: "AUDUSD=X", usdcad: "CAD=X", nzdusd: "NZDUSD=X", usdchf_fx: "CHF=X",
-  // Cross Pairs
-  eurgbp_fx: "EURGBP=X", eurjpy_fx: "EURJPY=X", gbpjpy_fx: "GBPJPY=X",
-  audcad_fx: "AUDCAD=X", eurchf_fx: "EURCHF=X", usdmxn_fx: "MXN=X", usdzar_fx: "ZAR=X", usdtry_fx: "TRY=X",
-  // Equities indices
-  sp500_idx: "^GSPC", nasdaq_idx: "^IXIC", dow_idx: "^DJI", russell2k: "^RUT",
-  dax_idx: "^GDAXI", cac40_idx: "^FCHI", eurostoxx_idx: "^STOXX50E",
-  nikkei_idx: "^N225", hsi_idx: "^HSI", asx200_idx: "^AXJO", ibex_idx: "^IBEX", mib_idx: "FTSEMIB.MI",
-  // Stocks
-  aapl: "AAPL", msft: "MSFT", nvda: "NVDA", tsla: "TSLA",
-  meta_s: "META", amzn: "AMZN", googl: "GOOGL", jpm: "JPM",
-  bac: "BAC", gs: "GS", xom: "XOM", cvx: "CVX", tsm: "TSM", sap_de: "SAP",
-  // Metals
-  silver: "SI=F", platinum: "PL=F", palladium: "PA=F", copper_spot: "HG=F",
-  // Energy
-  crude: "CL=F", brent: "BZ=F", natgas: "NG=F", heating_oil: "HO=F", gasoline: "RB=F", uranium: "URA",
-  // Agriculture
-  corn_f: "ZC=F", wheat_f: "ZW=F", soybean_f: "ZS=F", coffee_f: "KC=F", cocoa_f: "CC=F",
-  sugar_f: "SB=F", oj_f: "OJ=F", cattle_f: "LE=F", hogs_f: "HE=F", lumber_f: "LBS=F",
-  // Bonds
-  zb1: "ZB=F", zn1: "ZN=F",
-  // Legacy
-  gold: "GC=F", copper: "HG=F", sp500: "ES=F", nasdaq: "NQ=F", dax: "^GDAXI",
-  eurusd: "EURUSD=X", gbpusd: "GBPUSD=X", usdchf: "CHF=X",
-};
-
-const YAHOO_RANGE: Record<string, string> = { D: "2y", W: "5y", M: "10y", "4H": "60d", "1H": "30d" };
-const YAHOO_INTERVAL: Record<string, string> = { D: "1d", W: "1wk", M: "1mo", "4H": "1h", "1H": "1h" };
-
 async function trySupabaseOhlc(assetId: string, tf: string): Promise<LocalBar[] | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
@@ -176,41 +159,6 @@ async function trySupabaseOhlc(assetId: string, tf: string): Promise<LocalBar[] 
   }
 }
 
-async function tryYahooOhlc(assetId: string, tf: string): Promise<LocalBar[] | null> {
-  // Custom on-demand assets carry their Yahoo ticker in the id: custom_AAPL → AAPL
-  const lower = assetId.toLowerCase();
-  const sym = lower.startsWith("custom_")
-    ? assetId.slice("custom_".length)
-    : ASSET_YAHOO_MAP[lower];
-  if (!sym) return null;
-  const range = YAHOO_RANGE[tf] ?? "2y";
-  const interval = YAHOO_INTERVAL[tf] ?? "1d";
-  try {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=${range}&interval=${interval}`;
-    const res = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0", Accept: "application/json" },
-      signal: AbortSignal.timeout?.(6000),
-    });
-    if (!res.ok) return null;
-    const data = await res.json() as {
-      chart?: { result?: Array<{ timestamp?: number[]; indicators?: { quote?: Array<{ open?: number[]; high?: number[]; low?: number[]; close?: number[]; volume?: number[] }> } }> };
-    };
-    const r = data?.chart?.result?.[0];
-    const ts = r?.timestamp ?? [];
-    const q = r?.indicators?.quote?.[0];
-    if (!ts.length || !q) return null;
-    const bars: LocalBar[] = [];
-    for (let i = 0; i < ts.length; i++) {
-      const o = q.open?.[i], h = q.high?.[i], l = q.low?.[i], c = q.close?.[i];
-      if (o == null || h == null || l == null || c == null) continue;
-      bars.push({ time: ts[i], open: o, high: h, low: l, close: c, volume: q.volume?.[i] ?? 0 });
-    }
-    return bars.length ? bars.slice(-500) : null;
-  } catch {
-    return null;
-  }
-}
-
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ assetId: string }> },
@@ -220,7 +168,8 @@ export async function GET(
 
   const origin = req.nextUrl.origin;
 
-  // Priority chain: local cache → Supabase monitoring_ohlc → Yahoo Finance → synthetic
+  // Priority chain: local TV cache → Supabase monitoring_ohlc
+  // Yahoo Finance is NOT used — no external third-party price data.
   const localBars = await tryLocalOhlc(assetId, tf, origin);
   if (localBars?.length) {
     const tail = localBars.slice(-500);
@@ -228,6 +177,8 @@ export async function GET(
       assetId,
       symbol: assetId.toUpperCase(),
       source: "local_cache",
+      status: "delayed",
+      delayMinutes: 15,
       updatedAt: new Date().toISOString(),
       ohlcv: tail.map(barToOhlcv),
       supplyDemand: { demand: [], supply: [] },
@@ -242,6 +193,8 @@ export async function GET(
       assetId,
       symbol: assetId.toUpperCase(),
       source: "supabase_ohlc",
+      status: "delayed",
+      delayMinutes: 15,
       updatedAt: new Date().toISOString(),
       ohlcv: supabaseBars.map(barToOhlcv),
       supplyDemand: { demand: [], supply: [] },
@@ -250,44 +203,18 @@ export async function GET(
     });
   }
 
-  const yahooBars = await tryYahooOhlc(assetId, tf);
-  if (yahooBars?.length) {
-    return NextResponse.json({
-      assetId,
-      symbol: assetId.toUpperCase(),
-      source: "yahoo_finance",
-      updatedAt: new Date().toISOString(),
-      ohlcv: yahooBars.map(barToOhlcv),
-      supplyDemand: { demand: [], supply: [] },
-    }, {
-      headers: { "Cache-Control": "public, max-age=300, stale-while-revalidate=600" },
-    });
-  }
-
-  // Fallback: return empty with 80 synthetic bars so the chart isn't blank
-  const points = [];
-  let price = 100 + Math.random() * 900;
-  const now = Date.now();
-  for (let i = 79; i >= 0; i--) {
-    const t = new Date(now - i * 24 * 60 * 60 * 1000).toISOString();
-    const change = (Math.random() - 0.49) * price * 0.018;
-    const open = price;
-    const close = Math.max(price + change, 1);
-    const high = Math.max(open, close) * (1 + Math.random() * 0.008);
-    const low = Math.min(open, close) * (1 - Math.random() * 0.008);
-    const volume = Math.round(10000 + Math.random() * 90000);
-    points.push({ t, open: +open.toFixed(4), high: +high.toFixed(4), low: +low.toFixed(4), close: +close.toFixed(4), volume });
-    price = close;
-  }
-
+  // No data available — return empty, never synthetic/fabricated prices.
   return NextResponse.json({
     assetId,
     symbol: assetId.toUpperCase(),
-    source: "fallback_synthetic",
+    source: "unavailable",
+    status: "unavailable",
+    delayMinutes: null,
     updatedAt: new Date().toISOString(),
-    ohlcv: points,
+    ohlcv: [],
     supplyDemand: { demand: [], supply: [] },
   }, {
-    headers: { "Cache-Control": "public, max-age=60" },
+    status: 200,
+    headers: { "Cache-Control": "public, max-age=30" },
   });
 }

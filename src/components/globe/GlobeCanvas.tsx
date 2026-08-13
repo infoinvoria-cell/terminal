@@ -72,6 +72,7 @@ type Props = {
   geoFocusTarget?: { lat: number; lng: number; altitude: number } | null;
   onGeoFocusHandled?: () => void;
   satelliteMode?: boolean;
+  onGlobeClick?: () => void;
 };
 
 function fmtGlobePrice(p: number): string {
@@ -336,6 +337,7 @@ function GlobeCanvasComponent({
   onEventClick,
   highlightedAssetIds,
   satelliteMode = false,
+  onGlobeClick,
 }: Props) {
   const globeRef = useRef<any>(null);
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -1976,6 +1978,7 @@ function GlobeCanvasComponent({
           ringRepeatPeriod={900}
           onPointClick={(point: MarkerPoint) => onPointClick(point)}
           onPointHover={onPointHover}
+          onGlobeClick={() => { onGlobeClick?.(); }}
           onPolygonClick={(feat: any, _ev: MouseEvent, coords: { lat: number; lng: number }) => {
             const raw = countryNameOf(feat);
             if (raw && onCountryClick) {

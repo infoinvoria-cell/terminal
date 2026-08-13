@@ -16,13 +16,14 @@ const EMPTY_KPI: DashboardKpis = {
   strategiesCount: 0,
 };
 
+// Cloud/Vercel preview: portfolio.json is not available, so all computed KPIs are null.
+// No hardcoded return values — display "—" for missing data.
 const UNIVERSAL: UniversalKpiStrings = {
   riskAdjustedAum: "EUR 0",
   marketVolume: "EUR 0",
-  totalReturn24m: "+97.2%",
-  maxDrawdown: "-11.76%",
-  compoundedReturn: "+114.6%",
-  annualizedReturn: "35.2%",
+  totalReturn24m: null,
+  maxDrawdown: null,
+  annualizedReturn: null,
 };
 
 export async function getDashboardPageData() {
@@ -37,5 +38,6 @@ export async function getDashboardPageData() {
     fsportfolio: undefined,
     capalifeData,
     trackRecordOverview,
+    accountViews: [], // no runtime data in cloud preview
   };
 }

@@ -24,12 +24,16 @@ type Placement = {
   gridRow: string;
 };
 
+export type GridLayoutOverride = "4x2" | "3col" | "2x2";
+
 type MonitoringFlexibleGridProps = {
   tabId: string;
   assets: GridItem[];
   activeChartId: string | null;
   selectedStrategySymbols?: string[];
   preferredDensity?: "compact" | "balanced" | "spacious";
+  /** Override the auto-computed grid layout. Only applies to non-all/live tabs. */
+  gridOverride?: GridLayoutOverride;
   onChartSelect: (item: any) => void;
   onIndicatorOpen?: (item: any) => void;
   onOpenFullscreen?: (item: any) => void;
@@ -152,12 +156,36 @@ function getLayout(countRaw: number, preferredDensity: "compact" | "balanced" | 
   };
 }
 
+function gridOverrideToLayout(override: GridLayoutOverride): { gridTemplateColumns: string; gridTemplateRows: string; placements: Placement[] } {
+  if (override === "3col") {
+    return {
+      gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+      gridTemplateRows: "repeat(2, minmax(0, 1fr))",
+      placements: [],
+    };
+  }
+  if (override === "2x2") {
+    return {
+      gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+      gridTemplateRows: "repeat(2, minmax(0, 1fr))",
+      placements: [],
+    };
+  }
+  // 4x2 default
+  return {
+    gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+    gridTemplateRows: "repeat(2, minmax(0, 1fr))",
+    placements: [],
+  };
+}
+
 function MonitoringFlexibleGridInner({
   tabId,
   assets,
   activeChartId,
   selectedStrategySymbols = [],
   preferredDensity = "balanced",
+  gridOverride,
   onChartSelect,
   onIndicatorOpen,
   onOpenFullscreen,
@@ -188,8 +216,10 @@ function MonitoringFlexibleGridInner({
     [assets, isAllStrategiesTab],
   );
   const layout = useMemo(
-    () => getLayout(visibleAssets.length, preferredDensity, tabId),
-    [preferredDensity, visibleAssets.length, tabId],
+    () => (!isAllStrategiesTab && gridOverride)
+      ? gridOverrideToLayout(gridOverride)
+      : getLayout(visibleAssets.length, preferredDensity, tabId),
+    [preferredDensity, visibleAssets.length, tabId, isAllStrategiesTab, gridOverride],
   );
 
   const renderCard = (item: GridItem, idx: number, placement: Placement | null, ranked?: RankedAllTile) => {
@@ -230,6 +260,7 @@ function MonitoringFlexibleGridInner({
         onAgriKindToggle={onAgriKindToggle ? (kind) => onAgriKindToggle(item.code, kind) : undefined}
         radarTileSize={ranked?.tileSize}
         radarActiveSignal={ranked?.activeSignal ?? false}
+        attachedStrategies={(item as any).attachedStrategies}
       />
     );
     // Radar tiles render the card directly (the mosaic cell is the wrapper).
@@ -252,7 +283,7 @@ function MonitoringFlexibleGridInner({
           className="monitoring-grid-empty"
           style={{
             width: "100%",
-            height: "calc(100vh - var(--monitoring-tabbar-height))",
+            height: "100%",
             display: "grid",
             placeItems: "center",
             background: uiPrefs?.backgroundColor ?? MONITORING_CHART_BACKGROUND,
@@ -286,7 +317,7 @@ function MonitoringFlexibleGridInner({
         className="monitoring-grid-empty"
         style={{
           width: "100%",
-          height: "calc(100vh - var(--monitoring-tabbar-height))",
+          height: "100%",
           display: "grid",
           placeItems: "center",
           background: uiPrefs?.backgroundColor ?? MONITORING_CHART_BACKGROUND,
@@ -311,8 +342,9 @@ function MonitoringFlexibleGridInner({
       data-tab-id={tabId}
       style={{
         width: "100%",
-        height: "calc(100vh - var(--monitoring-tabbar-height))",
+        height: "100%",
         minHeight: 0,
+        flex: "1 1 0",
         display: "grid",
         gridTemplateColumns: layout.gridTemplateColumns,
         gridTemplateRows: layout.gridTemplateRows,

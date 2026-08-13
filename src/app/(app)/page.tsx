@@ -1,8 +1,12 @@
 import { FundManagerHome } from "@/components/dashboard/fund-manager-home";
-import { getCachedDashboardPageData } from "@/lib/server/page-cache";
+import { getCachedDashboardPageData, getCachedSpyDailyReturns } from "@/lib/server/page-cache";
 
 export const revalidate = 300;
 
 export default async function HomePage() {
-  return <FundManagerHome {...(await getCachedDashboardPageData())} />;
+  const [data, spyDailyReturns] = await Promise.all([
+    getCachedDashboardPageData(),
+    getCachedSpyDailyReturns(),
+  ]);
+  return <FundManagerHome {...data} spyDailyReturns={spyDailyReturns} />;
 }

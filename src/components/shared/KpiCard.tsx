@@ -51,8 +51,8 @@ export function KpiCard({
       <div
         title={title}
         style={{
-          background: "#0D0F12",
-          border: "1px solid rgba(255,255,255,0.06)",
+          background: "linear-gradient(to bottom, #26262d, #111114)",
+          border: "1px solid rgba(255,255,255,0.055)",
           borderRadius: 10,
           padding: "10px 14px",
           ...style,
@@ -102,8 +102,8 @@ export function KpiCard({
       title={title}
       style={style}
       className={cn(
-        "flex h-full min-h-[132px] flex-col justify-between rounded-[20px] border border-white/[0.06]",
-        "bg-gradient-to-b from-[#1F1F1F] to-[#13131A]",
+        "flex h-full min-h-[132px] flex-col justify-between rounded-[14px] border border-white/[0.055]",
+        "bg-gradient-to-b from-[#26262d] to-[#111114]",
         "px-5 pb-6 pt-5 shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]",
         title && "cursor-help",
         className,

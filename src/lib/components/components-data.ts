@@ -259,7 +259,7 @@ const INTRADAY_MT: AssetComponent[] = [
       itMode("Intraday", "intraday",
         { wfOos: "5/8", profitFactor: "1.478", trades: "81",
           cagr: "+5.4%", maxDrawdown: "-19.9%", calmar: "0.270", winrate: "44.4%", sharpe: "1.526" },
-        { detailNames: ["Gewicht: 15% · V4 Long-Only · 7/8 OOS-Jahre +", "IS PF 1.453 · Sweep+EMA · Sess 09–11 UTC", "SL ATR×0.8 · TP 3R · IB 1.5pt / ~50pt SL"] }),
+        { detailNames: ["Gewicht: 15% · V4 Long-Only · 7/8 OOS-Jahre +", "IS PF 1.453 · Sweep+EMA · Backtest-Sess: 09–11 UTC", "SL ATR×0.8 · TP 3R · IB 1.5pt / ~50pt SL"] }),
     ],
   },
   {
@@ -270,7 +270,7 @@ const INTRADAY_MT: AssetComponent[] = [
       itMode("Intraday", "intraday",
         { wfOos: "5/8", profitFactor: "1.484", trades: "335",
           cagr: "+10.7%", maxDrawdown: "-12.4%", calmar: "0.865", winrate: "33.4%", sharpe: "2.683" },
-        { detailNames: ["Gewicht: 40% · Archiv SL40/TP2.5R/BE1.5R", "SL 40pt · TP 2.5R · BE 1.5R next-bar · EMA 2", "IB 1.5pt RT / 40pt SL · Long-only · 07–12 UTC"] }),
+        { detailNames: ["Gewicht: 40% · Archiv SL40/TP2.5R/BE1.5R", "SL 40pt · TP 2.5R · BE 1.5R next-bar · EMA 2", "IB 1.5pt RT / 40pt SL · Long-only · Backtest-Sess: 07–12 UTC"] }),
     ],
   },
   {

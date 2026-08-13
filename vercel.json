@@ -1,5 +1,6 @@
 {
   "github": {
     "autoAlias": true
-  }
+  },
+  "buildCommand": "next build"
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useGlobalPage, type GlobalPage } from "@/context/global-page-context";
 import { TabsRow } from "@/components/dashboard/tabs-row";
 import {
@@ -18,6 +18,7 @@ import { SentinelFloatingWindow } from "@/components/sentinel/SentinelFloatingWi
 import type { CapalifeData } from "@/lib/capitalife-data";
 import type { FSPortfolioSnapshot } from "@/lib/fsportfolio/types";
 import type { TrackRecordOverview } from "@/lib/track-record/types";
+import type { PortfolioDailySeriesPoint } from "@/components/dashboard/performance-report-chart";
 import {
   applyRrReportingMode,
   deserializeTrades,
@@ -26,6 +27,9 @@ import {
   type SerializedTrade,
 } from "@/lib/trades-analytics";
 import type { ParsedBalanceRow, ParsedReportTrade } from "@/lib/mt-report-parser";
+import type { SpyDailyReturn } from "@/lib/benchmark/spy-data";
+import { computeSpyKpis, type SpyBenchmarkKpis } from "@/lib/benchmark/spy-kpis";
+import type { AccountViewData, AccountViewId } from "@/lib/dashboard/dashboard-page-data";
 
 const PortfolioSection = dynamic(
   () => import("@/components/portfolio/portfolio-section").then((m) => m.PortfolioSection),
@@ -72,7 +76,19 @@ type FundManagerHomeProps = {
   fsportfolio: FSPortfolioSnapshot | undefined;
   capalifeData: CapalifeData;
   trackRecordOverview: TrackRecordOverview | null;
+  spyDailyReturns?: SpyDailyReturn[];
   initialPage?: DashboardPage;
+  accountViews?: AccountViewData[];
+};
+
+type TradeEventPoint = {
+  closeTimeUtc: string;
+  closeTimeEpoch: number;
+  cumulativeReturn: number;
+  tradeId: string;
+  symbol: string;
+  side: string;
+  netProfitLocal: number;
 };
 
 type HomeShellProps = {
@@ -82,6 +98,10 @@ type HomeShellProps = {
   fsportfolio: FSPortfolioSnapshot | undefined;
   capalifeData: CapalifeData;
   trackRecordOverview: TrackRecordOverview | null;
+  spyDailyReturns?: SpyDailyReturn[];
+  performanceSeries?: PortfolioDailySeriesPoint[];
+  tradeEventSeries?: TradeEventPoint[];
+  accountViews?: AccountViewData[];
 };
 
 export function FundManagerHome({
@@ -93,7 +113,9 @@ export function FundManagerHome({
   fsportfolio,
   capalifeData,
   trackRecordOverview,
+  spyDailyReturns,
   initialPage,
+  accountViews,
 }: FundManagerHomeProps) {
   return (
     <HomeDashboardProvider
@@ -108,6 +130,10 @@ export function FundManagerHome({
         fsportfolio={fsportfolio}
         capalifeData={capalifeData}
         trackRecordOverview={trackRecordOverview}
+        spyDailyReturns={spyDailyReturns}
+        performanceSeries={universal.performanceSeries}
+        tradeEventSeries={universal.tradeEventSeries}
+        accountViews={accountViews}
       />
     </HomeDashboardProvider>
   );
@@ -118,6 +144,8 @@ const VALID_PAGES: DashboardPage[] = [
   "manager-overview", "sub-ib-system", "investor-analytics",
 ];
 
+const VALID_ACCOUNT_VIEWS: AccountViewId[] = ["account_a", "account_b", "combined"];
+
 function HomeShell({
   serialized,
   portfolioKpisBaseline,
@@ -125,16 +153,40 @@ function HomeShell({
   fsportfolio,
   capalifeData,
   trackRecordOverview,
+  spyDailyReturns = [],
+  performanceSeries,
+  tradeEventSeries,
+  accountViews,
 }: HomeShellProps) {
   const { page, homeTab, rrReportingMode, setPage } = useHomeDashboard();
+  const [showBenchmark, setShowBenchmark] = useState(false);
+  const [activeView, setActiveView] = useState<AccountViewId>("combined");
+
+  // Portfolio period anchors (from official KPIs)
+  const SPY_START = "2024-04-11";
+  const SPY_END = "2026-07-01";
+
+  const spyBenchmarkKpis = useMemo<SpyBenchmarkKpis | null>(
+    () =>
+      spyDailyReturns.length > 0
+        ? computeSpyKpis(spyDailyReturns, SPY_START, SPY_END)
+        : null,
+    [spyDailyReturns]
+  );
   const { setCurrentPage } = useGlobalPage();
 
   // Restore page from ?page= query param when navigating from /monitoring or other routes.
   // Read via window.location.search (client-only) to avoid useSearchParams() causing SSR suspension.
   useEffect(() => {
-    const param = new URLSearchParams(window.location.search).get("page") as DashboardPage | null;
-    if (param && VALID_PAGES.includes(param)) {
-      setPage(param);
+    const params = new URLSearchParams(window.location.search);
+    const pageParam = params.get("page") as DashboardPage | null;
+    if (pageParam && VALID_PAGES.includes(pageParam)) {
+      setPage(pageParam);
+    }
+    // Also restore track record view from URL
+    const viewParam = params.get("trackRecordView") as AccountViewId | null;
+    if (viewParam && VALID_ACCOUNT_VIEWS.includes(viewParam)) {
+      setActiveView(viewParam);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -163,14 +215,62 @@ function HomeShell({
     [effectiveRows]
   );
 
+  // ── Track record view switching ──────────────────────────────────────────────
+  function handleViewChange(view: AccountViewId) {
+    setActiveView(view);
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set("trackRecordView", view);
+      window.history.pushState({}, "", url.toString());
+    } catch { /* ignore */ }
+  }
+
+  const activeAccountView = useMemo(
+    () => accountViews?.find((v) => v.id === activeView),
+    [accountViews, activeView],
+  );
+
+  // When not combined, override the universal KPI strings with per-view values
+  const effectiveUniversal = useMemo<UniversalKpiStrings>(() => {
+    if (activeView === "combined" || !activeAccountView) return universal;
+    return {
+      ...universal,
+      totalReturn24m: activeAccountView.totalReturn24m,
+      maxDrawdown: activeAccountView.maxDrawdown,
+      annualizedReturn: activeAccountView.annualizedReturn,
+      calmar: activeAccountView.calmar,
+      sharpe: activeAccountView.sharpe,
+      volatility: activeAccountView.volatility,
+      profitFactor: activeAccountView.profitFactor,
+      positiveMonths: activeAccountView.positiveMonths,
+      portfolioTotalTrades: activeAccountView.portfolioTotalTrades,
+      portfolioStartDate: activeAccountView.portfolioStartDate,
+      portfolioEndDate: activeAccountView.portfolioEndDate,
+      assetsUnderManagementEur: activeAccountView.assetsUnderManagementEur,
+      riskAdjustedAum:
+        activeAccountView.assetsUnderManagementEur != null
+          ? `EUR ${Math.round(activeAccountView.assetsUnderManagementEur).toLocaleString("de-DE")}`
+          : "EUR —",
+    };
+  }, [activeView, activeAccountView, universal]);
+
+  const effectiveTradeEventSeries = useMemo(
+    () => activeAccountView?.tradeEventSeries ?? tradeEventSeries,
+    [activeAccountView, tradeEventSeries],
+  );
+
   return (
     <>
       <SentinelFloatingWindow />
-      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden pb-2 pl-0 pr-4 pt-3">
+      <div className={`flex min-h-0 flex-1 flex-col gap-4 overflow-hidden ${page === "chat" ? "p-0" : page === "home" ? "pb-[14px] pl-4 pr-4 pt-3" : "pb-2 pl-4 pr-4 pt-3"}`}>
           {page === "home" ? (
             <>
               <div className="shrink-0">
-                <UniversalKpiStrip universal={universal} />
+                <UniversalKpiStrip
+                  universal={effectiveUniversal}
+                  showBenchmark={showBenchmark}
+                  spyKpis={spyBenchmarkKpis}
+                />
               </div>
               <div className="shrink-0">
                 <TabsRow />
@@ -182,22 +282,26 @@ function HomeShell({
                     kpis={portfolioKpisBaseline}
                     capalifeData={capalifeData}
                     trackRecordOverview={trackRecordOverview}
+                    spyDailyReturns={spyDailyReturns}
+                    showBenchmark={showBenchmark}
+                    onBenchmarkChange={setShowBenchmark}
+                    spyKpis={spyBenchmarkKpis}
+                    performanceSeries={performanceSeries}
+                    tradeEventSeries={effectiveTradeEventSeries}
+                    universal={effectiveUniversal}
+                    activeView={activeView}
+                    onViewChange={handleViewChange}
+                    accountViews={accountViews}
                   />
                 ) : null}
                 {homeTab === "risk" ? (
-                  <div className="h-full min-h-0 overflow-y-auto overflow-x-hidden pr-1">
-                    <RiskDashboard trades={effectiveSerialized} />
-                  </div>
+                  <div className="h-full min-h-0" />
                 ) : null}
                 {homeTab === "trades" ? (
-                  <div className="flex h-full min-h-0 flex-col overflow-hidden">
-                    <TradesDashboard trades={effectiveSerialized} />
-                  </div>
+                  <div className="h-full min-h-0" />
                 ) : null}
                 {homeTab === "quant" ? (
-                  <div className="h-full min-h-0 overflow-y-auto overflow-x-hidden pr-1">
-                    <QuantDashboard trades={effectiveSerialized} />
-                  </div>
+                  <div className="h-full min-h-0" />
                 ) : null}
               </div>
             </>

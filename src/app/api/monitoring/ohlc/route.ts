@@ -46,6 +46,16 @@ function isTickBuilt(raw: string): boolean {
 }
 
 /**
+ * Assets whose intraday bars come exclusively from the TV chart-series pipeline
+ * (tools/live-feed/tv_live_feed.py CHART_SERIES_CONFIGS). For these assets the
+ * tick-built Z-rows carry contaminated H/L from the TV DAY session extreme fields
+ * (high_price / low_price) and must NEVER be returned — not even for the forming
+ * candle. The current bar is built by the LiveBarAccumulator in LWChart.tsx using
+ * close ticks only, which is clean.
+ */
+const TV_SERIES_ASSETS = new Set(["6E1!_30M", "6B1!_30M", "FDAX1!_1H", "FDAX1!_2H"]);
+
+/**
  * One row per period, ascending.
  *
  * A TradingView-history row always beats a tick-built row; a tick row survives
@@ -175,7 +185,7 @@ export async function GET(request: Request) {
     const isDaily = timeframe === "D";
     const nowMs = Date.now();
 
-    const shaped: ShapedBar[] = dedupeByPeriod(data as OhlcRow[], isDaily).map(({ key, row, tick }) => {
+    const shapedRaw: ShapedBar[] = dedupeByPeriod(data as OhlcRow[], isDaily).map(({ key, row, tick }) => {
       const open = Number(row.open);
       const close = Number(row.close);
       const high = Number(row.high);
@@ -186,7 +196,31 @@ export async function GET(request: Request) {
       return { time, open, high, low, close, tick };
     });
 
-    const quality = validateAndRepairOhlc(pruneStaleTickBars(shaped, isDaily), {
+    // Second-pass epoch dedup: "T24:00:00" (bar-end notation) and "T00:00:00"
+    // next day both parse to the same Unix epoch but survive dedupeByPeriod with
+    // different text keys. Deduplicate here by epoch; history rows (tick=false)
+    // beat tick rows, then later key beats earlier key (TV history wins).
+    const shaped: ShapedBar[] = (() => {
+      const epochMap = new Map<number, ShapedBar>();
+      for (const b of shapedRaw) {
+        const epoch = Math.floor(new Date(b.time).getTime() / 1000);
+        if (!isFinite(epoch) || epoch <= 0) continue;
+        const prev = epochMap.get(epoch);
+        if (!prev || (prev.tick && !b.tick)) epochMap.set(epoch, b);
+      }
+      return [...epochMap.values()].sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+    })();
+
+    // Hard-exclude all tick-built Z-rows for TV-series-covered assets.
+    // These assets get clean OHLC from the chart-series pipeline; their Z-rows
+    // carry contaminated day-session H/L and must never reach the chart.
+    const compositeKey = isDaily ? symbol : `${symbol}_${timeframe}`;
+    const isTvSeriesAsset = TV_SERIES_ASSETS.has(compositeKey);
+    const shapedClean = isTvSeriesAsset ? shaped.filter(b => !b.tick) : shaped;
+
+    const pruned = pruneStaleTickBars(shapedClean, isDaily);
+    repairStuckSessionExtremes(pruned);
+    const quality = validateAndRepairOhlc(pruned, {
       intraday: !isDaily,
       nowMs,
     });

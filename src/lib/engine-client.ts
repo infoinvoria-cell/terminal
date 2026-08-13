@@ -1,29 +1,53 @@
 "use client";
 
+"use client";
+
+import { logClientFailure } from "@/lib/runtime/capitalife-errors";
+
 const ENGINE_URL =
   (typeof window !== "undefined" && process.env.NEXT_PUBLIC_ENGINE_URL) ||
   process.env.NEXT_PUBLIC_ENGINE_URL ||
   "http://localhost:5000";
 
 async function get<T>(path: string): Promise<T> {
-  const res = await fetch(`${ENGINE_URL}${path}`, {
-    cache: "no-store",
-    signal: AbortSignal.timeout(10_000),
-  });
-  if (!res.ok) throw new Error(`Engine ${res.status}: ${path}`);
-  return res.json() as Promise<T>;
+  try {
+    const res = await fetch(`${ENGINE_URL}${path}`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!res.ok) throw new Error(`ENGINE_HTTP_${res.status}`);
+    return res.json() as Promise<T>;
+  } catch (error) {
+    logClientFailure({
+      route: "/engine",
+      module: `engine-client:${path}`,
+      error,
+      errorCode: "ENGINE_DATA_FAILURE",
+    });
+    throw error;
+  }
 }
 
 async function post<T>(path: string, body: unknown): Promise<T> {
-  const res = await fetch(`${ENGINE_URL}${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-    cache: "no-store",
-    signal: AbortSignal.timeout(30_000),
-  });
-  if (!res.ok) throw new Error(`Engine ${res.status}: ${path}`);
-  return res.json() as Promise<T>;
+  try {
+    const res = await fetch(`${ENGINE_URL}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      cache: "no-store",
+      signal: AbortSignal.timeout(30_000),
+    });
+    if (!res.ok) throw new Error(`ENGINE_HTTP_${res.status}`);
+    return res.json() as Promise<T>;
+  } catch (error) {
+    logClientFailure({
+      route: "/engine",
+      module: `engine-client:${path}`,
+      error,
+      errorCode: "ENGINE_DATA_FAILURE",
+    });
+    throw error;
+  }
 }
 
 export const engineClient = {

@@ -411,13 +411,20 @@ export default function TradeExecutionPanel({
           status,
         }),
       });
+      const payload = (await response.json().catch(() => ({}))) as {
+        message?: string;
+        error?: string;
+        blockedReasons?: string[];
+        intentId?: string;
+      };
       if (!response.ok) {
-        const payload = (await response.json().catch(() => ({}))) as { error?: string };
-        setActionMessage(payload.error || "Log fehlgeschlagen");
+        const blocked = Array.isArray(payload.blockedReasons) && payload.blockedReasons.length > 0
+          ? payload.blockedReasons[0]
+          : null;
+        setActionMessage(blocked || payload.message || payload.error || "Log fehlgeschlagen");
         return false;
       }
-      const payload = (await response.json()) as { path?: string };
-      setActionMessage(`Geloggt: ${payload.path ?? "trade_execution"}`);
+      setActionMessage(payload.intentId ? `${payload.message ?? "Aktion verarbeitet"} · ${payload.intentId}` : (payload.message ?? "Aktion verarbeitet"));
       return true;
     } catch {
       setActionMessage("Log fehlgeschlagen");

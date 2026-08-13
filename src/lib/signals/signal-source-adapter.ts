@@ -1494,8 +1494,20 @@ export async function loadSignalSources(): Promise<Array<{ card: SignalCardModel
       ageDays: ageDays(signalDate),
       price,
       changePct,
-      tp: source.forcedTp ?? toNumber(trade?.tp) ?? undefined,
-      sl: source.forcedSl ?? toNumber(trade?.sl) ?? undefined,
+      tp: (() => {
+        if (source.forcedTp != null) return source.forcedTp;
+        const tpAbs = toNumber(trade?.tp);
+        const entryAbs = toNumber(trade?.entry);
+        if (tpAbs == null || entryAbs == null || entryAbs === 0) return undefined;
+        return ((tpAbs - entryAbs) / entryAbs) * 100;
+      })(),
+      sl: (() => {
+        if (source.forcedSl != null) return source.forcedSl;
+        const slAbs = toNumber(trade?.sl);
+        const entryAbs = toNumber(trade?.entry);
+        if (slAbs == null || entryAbs == null || entryAbs === 0) return undefined;
+        return ((slAbs - entryAbs) / entryAbs) * 100;
+      })(),
       dataStatus,
       nextSignalLabel: computeNextSignalLabel(source.nextSignalSchedule, source.nextSignalDate),
       monitoringTarget: source.monitoringTarget,

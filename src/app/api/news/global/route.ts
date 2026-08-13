@@ -2,7 +2,7 @@ export const runtime = "edge";
 import { NextResponse } from "next/server";
 import type { NewsResponse, NewsItem } from "@/lib/globe/globe-types";
 
-const NEWS_API_KEY = process.env.NEXT_PUBLIC_NEWS_API_KEY ?? "";
+const NEWS_API_KEY = process.env.NEWS_API_KEY ?? "";
 
 // ── NewsAPI.org (preferred when key present) ────────────────────
 

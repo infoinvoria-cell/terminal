@@ -64,10 +64,11 @@ describe("Core Invest Active Alpha 2 source-of-truth consistency", () => {
     expect(etfRows.some((r) => r.ticker === "BIL" && r.weight === -40)).toBe(true);
   });
 
-  it("keeps the seasonal evidence register at seven found and three explicit gaps", () => {
-    expect(INNO_SEASONAL_PATTERNS).toHaveLength(10);
-    expect(INNO_SEASONAL_PATTERNS.filter((row) => row.found)).toHaveLength(7);
-    expect(INNO_SEASONAL_PATTERNS.filter((row) => !row.found)).toHaveLength(3);
+  it("keeps the seasonal evidence register at twelve found patterns (WS v2.0, rolling WF validated)", () => {
+    // WS v2.0: 12 LIVE patterns, all validated — zero explicit gaps remaining
+    expect(INNO_SEASONAL_PATTERNS).toHaveLength(12);
+    expect(INNO_SEASONAL_PATTERNS.filter((row) => row.found)).toHaveLength(12);
+    expect(INNO_SEASONAL_PATTERNS.filter((row) => !row.found)).toHaveLength(0);
     expect(INNO_SEASONAL_PATTERNS.every((row) => row.productionReady === false)).toBe(true);
   });
 
@@ -78,12 +79,14 @@ describe("Core Invest Active Alpha 2 source-of-truth consistency", () => {
     expect(INNO_IBKR_ROWS.some((row) => row.productType === "CFD")).toBe(false);
   });
 
-  it("blocks both analytics modes until the canonical engine has parity", () => {
+  it("returns APPROVED_LIVE v2.0 status with empty series when no live/reference data loaded", () => {
+    // Engine parity confirmed (OOS Sharpe 1.153, CAGR +17.69%); status is now APPROVED_LIVE v2.0.
+    // performanceSeries stays empty until real broker or reference data is wired up.
     const data = {} as CapalifeData;
     for (const mode of ["backtest", "live"] as const) {
       const dataset = getAnalyticsDataset("invest", mode, undefined, data);
       expect(dataset.performanceSeries).toEqual([]);
-      expect(dataset.metrics.status).toBe("Validation blockiert");
+      expect(dataset.metrics.status).toBe("APPROVED_LIVE v2.0");
     }
   });
 

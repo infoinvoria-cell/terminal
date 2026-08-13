@@ -2,7 +2,7 @@ import type { MonitoringPrimaryTabId } from "@/config/monitoringTabConfig";
 import type { MonitoringChartData } from "@/components/monitoring/MonitoringChart";
 import type { StrategyPerformanceResult } from "@/lib/monitoring/types";
 
-export type SignalCardDirection = "LONG" | "SHORT" | "CASH" | "PENDING";
+export type SignalCardDirection = "LONG" | "SHORT" | "CASH" | "NONE" | "PENDING";
 export type SignalCardStatus = "OPEN" | "CLOSED" | "VALIDATION" | "PAPER_ONLY" | "PARITY_PENDING";
 export type SignalDataStatus = "ok" | "partial" | "missing";
 export type SignalCardFilter = "all" | "long" | "short" | "cash" | "open" | "validation" | "last7" | "pending";
@@ -41,6 +41,20 @@ export type SignalCardModel = {
     asset: string;
     strategyId?: string;
   };
+  // Backend signal state (intraday MT)
+  signalState?: "ACTIVE" | "POTENTIAL" | "NONE";
+  lastEvaluatedBar?: string;       // ISO datetime of last bar the engine evaluated
+  nextEvaluationUtc?: string;      // ISO datetime of next bar close
+  evaluationSchedule?: string;     // human-readable: "2H CET: 10,12,14,16,18"
+  // Raw absolute prices (no frontend recalculation)
+  entryAbsolute?: number;
+  slAbsolute?: number;
+  tpAbsolute?: number;
+  beAbsolute?: number;
+  // Market variant: "FDAX_FUTURES" | "DE30EUR_CFD" | "6E_FUTURES" | "EURUSD_SPOT"
+  marketVariant?: string;
+  validatedOn?: string;
+  timeframe?: string;
 };
 
 export type SignalCardPreview = {

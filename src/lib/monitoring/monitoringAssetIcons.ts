@@ -367,6 +367,10 @@ type MonitoringAssetIconLookup = {
 
 /** Top-left / first chart per tab — used for tab bar icons. */
 const MONITORING_TAB_TOP_ASSET: Record<Exclude<MonitoringPrimaryTabId, "fx" | "all" | "live" | "anomaly">, MonitoringAssetIconLookup> = {
+  metals: { code: "GC1!", name: "Gold" },
+  etfs: { code: "SPY", name: "S&P 500 ETF" },
+  stocks: { code: "AAPL", name: "Apple", assetId: "apple" },
+  oil: { code: "CL1!", name: "Crude Oil" },
   agrar: { code: "ZW1!", assetId: "wheat", name: "Wheat", tv: "CBOT:ZW1!", source: "CBOT:ZW1!" },
   metalle_energie: { code: "GC1!", name: "Gold" },
   indizes: { code: "ES1!", name: "S&P 500" },

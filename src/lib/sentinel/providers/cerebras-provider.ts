@@ -1,4 +1,6 @@
-import type { ChatResult, ProviderHealth, SentinelProvider } from "./types";
+import type { ChatResult, ProviderHealth, SentinelChatArgs, SentinelProvider } from "./types";
+import { calculateOutputBudget, estimateTokens } from "./model-capabilities";
+import { makeOpenAISSEStream, throwProviderHttpError } from "@/lib/sentinel/usage/streaming";
 
 const DEFAULT_MODEL = "llama-3.3-70b";
 const CEREBRAS_ENDPOINT = "https://api.cerebras.ai/v1/chat/completions";
@@ -11,51 +13,31 @@ export const cerebrasProvider: SentinelProvider = {
   id: "cerebras",
   label: "Cerebras",
   type: "custom",
-  supportsStreaming: false,
+  supportsStreaming: true,
 
   async healthCheck(): Promise<ProviderHealth> {
     const key = getApiKey();
     const model = process.env.CEREBRAS_MODEL?.trim() || DEFAULT_MODEL;
     if (!key) {
-      return {
-        configured: false,
-        available: false,
-        usable: false,
-        enabled: false,
-        reason: "key_missing",
-        message: "CEREBRAS_API_KEY missing",
-        model,
-        models: [],
-        supportsStreaming: false,
-      };
+      return { configured: false, available: false, usable: false, enabled: false, reason: "key_missing", message: "CEREBRAS_API_KEY missing", model, models: [], supportsStreaming: true };
     }
-    return {
-      configured: true,
-      available: true,
-      usable: true,
-      enabled: true,
-      reason: "ready",
-      message: "Cerebras ready",
-      model,
-      models: [model],
-      supportsStreaming: false,
-    };
+    return { configured: true, available: true, usable: true, enabled: true, reason: "ready", message: "Cerebras ready", model, models: [model], supportsStreaming: true };
   },
 
-  async sendMessage({ messages }): Promise<ChatResult> {
+  async sendMessage({ messages, signal }: SentinelChatArgs & { signal?: AbortSignal }): Promise<ChatResult> {
     const key = getApiKey();
     if (!key) throw new Error("CEREBRAS_API_KEY missing");
     const model = process.env.CEREBRAS_MODEL?.trim() || DEFAULT_MODEL;
+    const inputTokens = estimateTokens(JSON.stringify(messages));
+    const max_tokens = calculateOutputBudget("cerebras", model, inputTokens);
 
     let response: Response;
     try {
       response = await fetch(CEREBRAS_ENDPOINT, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${key}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ model, messages, max_tokens: 1024 }),
+        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ model, messages, max_tokens }),
+        signal,
       });
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : String(error));
@@ -63,7 +45,7 @@ export const cerebrasProvider: SentinelProvider = {
 
     if (!response.ok) {
       const text = await response.text().catch(() => response.statusText);
-      throw new Error(`Cerebras ${response.status}: ${text}`);
+      throwProviderHttpError("cerebras", response.status, text);
     }
 
     const data = await response.json() as {
@@ -73,5 +55,27 @@ export const cerebrasProvider: SentinelProvider = {
     const answer = data.choices?.[0]?.message?.content?.trim() ?? "";
     if (!answer) throw new Error("Cerebras returned empty answer");
     return { answer, model, provider: "cerebras", tokensUsed: data.usage?.total_tokens };
+  },
+
+  async streamMessage({ messages, signal }: SentinelChatArgs & { signal?: AbortSignal }): Promise<ReadableStream<Uint8Array>> {
+    const key = getApiKey();
+    if (!key) throw new Error("CEREBRAS_API_KEY missing");
+    const model = process.env.CEREBRAS_MODEL?.trim() || DEFAULT_MODEL;
+    const inputTokens = estimateTokens(JSON.stringify(messages));
+    const max_tokens = calculateOutputBudget("cerebras", model, inputTokens);
+
+    const response = await fetch(CEREBRAS_ENDPOINT, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model, messages, max_tokens, stream: true }),
+      signal,
+    });
+
+    if (!response.ok) {
+      const text = await response.text().catch(() => response.statusText);
+      throw new Error(`Cerebras stream ${response.status}: ${text}`);
+    }
+
+    return makeOpenAISSEStream(response, { providerId: "cerebras", modelId: model });
   },
 };

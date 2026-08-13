@@ -8,9 +8,9 @@ import {
   ABOUT_WS_SLEEVES, ABOUT_CI_ALLOC, ABOUT_CORRELATION,
 } from "@/lib/about/about-data";
 
-const M = "var(--font-text), sans-serif";
-const N = "var(--font-numbers), sans-serif";
-const CARD = "rounded-[18px] border border-white/[0.07] bg-gradient-to-b from-[#1e1f22] to-[#151618] shadow-[0_12px_32px_-12px_rgba(0,0,0,0.6)]";
+const M = "var(--font-montserrat, 'Montserrat', sans-serif)";
+const N = "var(--font-numbers, 'Nunito', sans-serif)";
+const CARD = "rounded-[14px] border border-white/[0.055] bg-gradient-to-b from-[#26262d] to-[#111114] shadow-[0_12px_32px_-12px_rgba(0,0,0,0.6)]";
 const SHADES = ["var(--dash-accent)", "rgba(226,202,122,0.62)", "rgba(226,202,122,0.38)", "rgba(255,255,255,0.16)", "rgba(255,255,255,0.09)"];
 
 const ICON_MAP: Record<string, React.ReactNode> = {
@@ -85,7 +85,7 @@ export function AboutOverviewView() {
           <SectionBar icon={<BarChart2 size={12} />} label="Vergleich - risiko-adjustiert" note="Sharpe & Calmar verifiziert - Benchmarks geschaetzt" />
           <div className="min-h-0 flex-1 overflow-auto">
             <table className="w-full">
-              <thead className="sticky top-0 bg-[#1a1b1e]">
+              <thead className="sticky top-0 bg-[#111114]">
                 <tr className="border-b border-white/[0.05]">
                   {["Asset", "CAGR p.a.", "Max DD", "Sharpe", "Calmar", "Korr. SPY"].map((h) => (
                     <th key={h} className="px-4 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{h}</th>
@@ -140,8 +140,8 @@ export function AboutOverviewView() {
 function MiniStat({ label, value, color }: { label: string; value: string; color: "gold" | "red" | "white" }) {
   const c = color === "gold" ? "text-[color:var(--dash-accent)]" : color === "red" ? "text-red-400/90" : "text-white";
   return (
-    <div className="rounded-[10px] border border-white/[0.05] bg-white/[0.03] px-2.5 py-2">
-      <p className="text-[8px] uppercase tracking-wider text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{label}</p>
+    <div className="rounded-[10px] border border-white/[0.055] bg-white/[0.025] px-2.5 py-2">
+      <p className="text-[8px] uppercase tracking-wider" style={{ fontFamily: M, color: "rgba(180,192,210,0.6)", letterSpacing: "0.04em" }}>{label}</p>
       <p className={`mt-0.5 text-[16px] font-bold leading-none ${c}`} style={{ fontFamily: N }}>{value}</p>
     </div>
   );
@@ -202,20 +202,20 @@ function KV({ k, v }: { k: string; v: string }) {
 function SectionHead({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
     <div className="flex shrink-0 items-center gap-1.5">
-      <span className="shrink-0 text-[color:var(--dash-accent)]">{icon}</span>
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-[color:var(--dash-accent)]" style={{ fontFamily: M }}>{label}</p>
+      <span className="shrink-0" style={{ color: "#D6B24A" }}>{icon}</span>
+      <p className="text-[11px] font-[700] uppercase" style={{ fontFamily: M, color: "#f5f7fa", letterSpacing: "0.04em" }}>{label}</p>
     </div>
   );
 }
 
 function SectionBar({ icon, label, note }: { icon: React.ReactNode; label: string; note: string }) {
   return (
-    <div className="flex shrink-0 items-center justify-between border-b border-white/[0.05] px-4 py-2.5">
+    <div className="flex shrink-0 items-center justify-between border-b border-white/[0.055] px-4 py-2.5">
       <div className="flex items-center gap-1.5">
-        <span className="text-[color:var(--dash-accent)]">{icon}</span>
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-[color:var(--dash-accent)]" style={{ fontFamily: M }}>{label}</p>
+        <span style={{ color: "#D6B24A" }}>{icon}</span>
+        <p className="text-[11px] font-[700] uppercase" style={{ fontFamily: M, color: "#f5f7fa", letterSpacing: "0.04em" }}>{label}</p>
       </div>
-      <p className="text-[9px] text-[color:var(--dash-muted)]" style={{ fontFamily: M }}>{note}</p>
+      <p className="text-[9px]" style={{ fontFamily: M, color: "rgba(180,192,210,0.6)" }}>{note}</p>
     </div>
   );
 }

@@ -47,6 +47,7 @@ function IconExpand() {
 
 function SentinelMini({ size = 24, animate = false }: { size?: number; animate?: boolean }) {
   return (
+    // eslint-disable-next-line @next/next/no-img-element
     <img
       src="/assets/sentinel/sentinel-robot.png"
       alt="Sentinel"

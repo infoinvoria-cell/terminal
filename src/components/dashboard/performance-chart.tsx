@@ -47,7 +47,7 @@ export function PerformanceChart({
             >
               <stop offset="0%" stopColor="#3f3f46" />
               <stop offset="58%" stopColor="#6f6d65" />
-              <stop offset="100%" stopColor="#C9A84C" />
+              <stop offset="100%" stopColor="#D6B24A" />
             </linearGradient>
           </defs>
           <CartesianGrid
@@ -64,7 +64,7 @@ export function PerformanceChart({
             dataKey="name"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#6b6b6b", fontSize: 11 }}
+            tick={{ fill: "rgba(180,192,210,0.5)", fontSize: 11 }}
             interval={tickInterval}
             height={30}
             angle={data.length > 14 ? -32 : data.length > 8 ? -22 : 0}
@@ -75,7 +75,7 @@ export function PerformanceChart({
             ticks={buildTicks(yMin, yMax)}
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#6b6b6b", fontSize: 11 }}
+            tick={{ fill: "rgba(180,192,210,0.5)", fontSize: 11 }}
             width={40}
           />
           <Tooltip
@@ -84,11 +84,11 @@ export function PerformanceChart({
               if (!active || !payload?.length) return null;
               const total = (payload[0]?.payload as ChartPoint)?.total;
               return (
-                <div className="rounded-xl border border-[#2a2b30] bg-[#1F1F1F] px-3.5 py-2.5 shadow-[0_16px_40px_rgba(0,0,0,0.55)]">
-                  <p className="text-[11px] font-medium text-[#8a8a8a] [font-family:var(--font-text),sans-serif]">
+                <div className="rounded-xl border border-[rgba(255,255,255,0.055)] bg-[#26262d] px-3.5 py-2.5 shadow-[0_16px_40px_rgba(0,0,0,0.55)]">
+                  <p className="text-[11px] font-medium text-[rgba(180,192,210,0.6)] [font-family:var(--font-montserrat,'Montserrat',sans-serif)]">
                     {label}
                   </p>
-                  <p className="mt-1 text-sm font-semibold text-white [font-family:var(--font-numbers),sans-serif]">
+                  <p className="mt-1 text-sm font-semibold text-[#F0F2F6] [font-family:var(--font-numbers,'Nunito',sans-serif)]">
                     {typeof total === "number"
                       ? `${total > 0 ? "+" : ""}${total.toFixed(2)}%`
                       : "—"}

@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useMemo, useState, useEffect } from "react";
+import { memo, useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { useLiveQuotesContext } from "@/contexts/LiveQuotesContext";
 import { applyLiveCandle, liveQuoteKey } from "@/lib/monitoring/liveCandle";
 import MonitoringChart, { type MonitoringChartData } from "@/components/monitoring/MonitoringChart";
@@ -12,7 +12,6 @@ import { normalizeTradeVisualLevels, type TradeVisualLevelSource } from "@/lib/m
 import type { MonitoringUiPrefs } from "@/lib/monitoring/monitoringUiPrefs";
 import type { AllTileSize } from "@/lib/monitoring/rankAllMonitoringTiles";
 import type { ManualTradeLevels } from "@/lib/trading/types";
-import AgriStrategyKindButtons from "@/components/agri/AgriStrategyKindButtons";
 import type { AgriStrategyKind } from "@/lib/agri/agri-v2-registry";
 
 // Indizes Macro Valuation Alpha V1 trend EMAs (tradingview_strategy.pine: trendFastLen=200,
@@ -100,6 +99,12 @@ type MonitoringPayload = {
   boxes: MonitoringChartData["boxes"];
 };
 
+export type AttachedStrategy = {
+  id: string;
+  name: string;
+  tab?: string;
+};
+
 export type MonitoringChartCardItem = {
   key: string;
   code: string;
@@ -113,6 +118,8 @@ export type MonitoringChartCardItem = {
   dataMismatch?: boolean;
   timeframe?: string;
   universeGroup?: string;
+  /** Canonical multi-strategy attachment — all strategies mapped to this market+timeframe */
+  attachedStrategies?: AttachedStrategy[];
 };
 
 type MonitoringChartCardLiveState = {
@@ -157,6 +164,8 @@ type MonitoringChartCardProps = {
   agriActiveKinds?: AgriStrategyKind[];
   /** Agrar v2.0: callback when a kind button is toggled */
   onAgriKindToggle?: (kind: AgriStrategyKind) => void;
+  /** Canonical multi-strategy Eye: all strategies attached to this market+timeframe */
+  attachedStrategies?: AttachedStrategy[];
 };
 
 function normalizeSourceKey(value: string | null | undefined): string {
@@ -351,13 +360,31 @@ function MonitoringChartCardInner({
   agriActiveKinds = [],
   onAgriKindToggle,
   liveClose = null,
+  attachedStrategies,
 }: MonitoringChartCardProps) {
   const liveQuotesCtx = useLiveQuotesContext();
   // live_quotes stores bare symbols (FDAX1!); chart codes may carry a TF suffix
   // (FDAX1! 2H / 6E1! 30M), so normalize before lookup.
-  const liveQuote = item?.code ? (liveQuotesCtx.get(liveQuoteKey(item.code) ?? "") ?? null) : null;
+  const liveQuote = item?.code ? (liveQuotesCtx.getQuote(liveQuoteKey(item.code) ?? "") ?? null) : null;
   const resolvedLiveClose = liveClose ?? liveQuote?.close ?? null;
   const liveQuoteTs = liveQuote?.updated_at ?? liveQuote?.timestamp ?? null;
+
+  const [eyeOpen, setEyeOpen] = useState(false);
+  const eyeRef = useRef<HTMLDivElement>(null);
+  const hasEye = (attachedStrategies?.length ?? 0) >= 1;
+  const toggleEye = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEyeOpen((v) => !v);
+  }, []);
+  // Close Eye popup on outside click
+  useEffect(() => {
+    if (!eyeOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (eyeRef.current && !eyeRef.current.contains(e.target as Node)) setEyeOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [eyeOpen]);
 
   // Intraday charts refresh their OHLC every 5s (delayed TV data via Supabase) so
   // newly-closed 30M/1H/2H bars appear without a page reload. The current bar keeps
@@ -624,6 +651,75 @@ function MonitoringChartCardInner({
         </div>
       </div>
 
+      {hasEye ? (
+        <div
+          ref={eyeRef}
+          style={{ position: "absolute", top: 8, right: 8, zIndex: 30 }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            type="button"
+            onClick={toggleEye}
+            title={`${attachedStrategies!.length} strateg${attachedStrategies!.length === 1 ? "y" : "ies"} attached`}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              background: eyeOpen ? "rgba(100,160,255,0.18)" : "rgba(22,26,32,0.75)",
+              border: `1px solid ${eyeOpen ? "rgba(100,160,255,0.4)" : "rgba(255,255,255,0.13)"}`,
+              borderRadius: 4,
+              padding: "2px 6px",
+              cursor: "pointer",
+              color: eyeOpen ? "#a8c8ff" : "rgba(230,235,245,0.7)",
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.04em",
+            }}
+          >
+            <svg width="11" height="8" viewBox="0 0 11 8" fill="none" aria-hidden="true">
+              <ellipse cx="5.5" cy="4" rx="5.5" ry="4" fill="currentColor" fillOpacity="0.18"/>
+              <ellipse cx="5.5" cy="4" rx="5.5" ry="4" stroke="currentColor" strokeWidth="1"/>
+              <circle cx="5.5" cy="4" r="1.8" fill="currentColor"/>
+            </svg>
+            {attachedStrategies!.length}
+          </button>
+          {eyeOpen && (
+            <div style={{
+              position: "absolute",
+              top: "100%",
+              right: 0,
+              marginTop: 4,
+              minWidth: 180,
+              background: "rgba(18,22,30,0.97)",
+              border: "1px solid rgba(255,255,255,0.14)",
+              borderRadius: 6,
+              padding: "8px 0",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+            }}>
+              <div style={{ padding: "0 10px 6px", fontSize: 9, fontWeight: 700, color: "rgba(180,190,210,0.6)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                Strategies · {item?.code} {item?.timeframe}
+              </div>
+              {attachedStrategies!.map((s) => (
+                <div key={s.id} style={{
+                  padding: "5px 10px",
+                  borderTop: "1px solid rgba(255,255,255,0.06)",
+                  display: "grid",
+                  gap: 1,
+                }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: "#e0e8f8" }}>{s.id}</div>
+                  {s.name && s.name !== s.id ? (
+                    <div style={{ fontSize: 9, color: "rgba(160,175,200,0.8)" }}>{s.name}</div>
+                  ) : null}
+                  {s.tab ? (
+                    <div style={{ fontSize: 8, color: "rgba(120,140,170,0.65)", letterSpacing: "0.04em" }}>{s.tab}</div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : null}
+
       {String(item?.code ?? "").toUpperCase().includes("6B1") ? (
         <div
           style={{
@@ -695,13 +791,6 @@ function MonitoringChartCardInner({
         </div>
       ) : null}
 
-      {agriAvailableKinds && onAgriKindToggle && !radar ? (
-        <AgriStrategyKindButtons
-          availableKinds={agriAvailableKinds}
-          activeKinds={agriActiveKinds}
-          onToggle={onAgriKindToggle}
-        />
-      ) : null}
       {showWarningBadge ? (
         <div
           className={`chartBadge monitoring-card-badge ${badgeClassName(badge)}`}

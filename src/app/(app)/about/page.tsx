@@ -5,7 +5,11 @@ import { AboutOverviewView } from "@/components/about/AboutOverviewView";
 
 export const metadata: Metadata = { title: "Bibel - Capitalife" };
 
-export default async function AboutPage(props: PageProps<"/about">) {
+type AboutPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function AboutPage(props: AboutPageProps) {
   const searchParams = await props.searchParams;
   if (searchParams?.mode === "inno") redirect("/about/inno");
 

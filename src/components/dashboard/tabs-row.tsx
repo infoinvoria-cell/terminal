@@ -1,11 +1,13 @@
 ﻿"use client";
 
 import { BarChart2, Circle, Layers, Sparkles } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { InjectPillCss } from "@/components/ui/pill-button";
 import {
   useHomeDashboard,
   type HomeSubTab,
 } from "@/context/home-dashboard-context";
+
+const M = "var(--font-montserrat,'Montserrat',sans-serif)";
 
 const HOME_TABS: { id: HomeSubTab; label: string; icon: typeof Layers }[] = [
   { id: "portfolio", label: "Portfolio", icon: Layers },
@@ -18,31 +20,36 @@ export function TabsRow() {
   const { homeTab, setHomeTab } = useHomeDashboard();
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      {HOME_TABS.map((tab) => {
-        const Icon = tab.icon;
-        const active = homeTab === tab.id;
-        return (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => setHomeTab(tab.id)}
-            aria-pressed={active}
-            className={cn(
-              "flex items-center gap-1.5 text-[12px] font-medium transition-colors [font-family:var(--font-text),sans-serif]",
-              active
-                ? "rounded-full border border-[#C9A84C]/45 bg-gradient-to-b from-[#1F1F1F] to-[#13131A] px-3.5 py-1.5 font-semibold text-white shadow-[inset_0_-1px_0_0_rgba(226,202,122,0.45)]"
-                : "border-0 bg-transparent px-2 py-1.5 text-zinc-500 hover:text-zinc-300"
-            )}
-          >
-            <Icon
-              className={cn("h-4 w-4 shrink-0", active ? "text-[#C9A84C]" : "")}
-              strokeWidth={1.65}
-            />
-            {tab.label}
-          </button>
-        );
-      })}
-    </div>
+    <>
+      <InjectPillCss />
+      <div className="flex flex-wrap items-center gap-2">
+        {HOME_TABS.map((tab) => {
+          const Icon = tab.icon;
+          const active = homeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setHomeTab(tab.id)}
+              aria-pressed={active}
+              className={`rc-pill ${active ? "rc-active" : "rc-inactive"}`}
+              style={{
+                fontFamily: M,
+                padding: "7px 14px",
+                fontSize: 12,
+                fontWeight: active ? 600 : 400,
+                color: active ? "#F3F3F4" : "#6a6e7a",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <Icon style={{ width: 14, height: 14, flexShrink: 0, opacity: active ? 0.85 : 0.5 }} strokeWidth={1.65} />
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+    </>
   );
 }

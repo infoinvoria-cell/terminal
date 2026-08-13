@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import React, { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
 import type { SignalCardModel } from "@/lib/signals/signal-types";
 
@@ -216,15 +216,13 @@ export function SignalCard({
 
   const cardBackground: CSSProperties = isActive
     ? {
-        backgroundColor: "#151719",
-        backgroundImage: `
-          radial-gradient(circle at 100% 100%, rgba(247,226,157,0.34) 0%, rgba(216,188,103,0.20) 24%, rgba(216,188,103,0.07) 48%, rgba(216,188,103,0) 72%),
-          linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0))
+        background: `
+          radial-gradient(circle at 100% 100%, rgba(247,226,157,0.28) 0%, rgba(216,188,103,0.13) 32%, rgba(216,188,103,0) 64%),
+          linear-gradient(to bottom, #2e2c35, #181720)
         `,
       }
     : {
-        backgroundColor: "#121417",
-        backgroundImage: `linear-gradient(145deg, rgba(255,255,255,0.025), rgba(255,255,255,0))`,
+        background: "linear-gradient(to bottom, #26262d, #111114)",
       };
 
   const renderState = () => {
@@ -491,6 +489,54 @@ function deriveState(card: SignalCardModel): SignalCardProps["state"] {
 
 // ── Default export: wrapper accepting SignalCardModel ─────────────────────────
 
+// ── Intraday clock badge — shows next bar evaluation time ─────────────────────
+
+function IntradayClockBadge({ nextEvaluationUtc, evaluationSchedule }: {
+  nextEvaluationUtc?: string;
+  evaluationSchedule?: string;
+}) {
+  const [label, setLabel] = React.useState("");
+
+  useEffect(() => {
+    function tick() {
+      if (!nextEvaluationUtc) { setLabel(""); return; }
+      const ms = new Date(nextEvaluationUtc).getTime() - Date.now();
+      if (ms <= 0) { setLabel(""); return; }
+      const totalMin = Math.floor(ms / 60_000);
+      const h = Math.floor(totalMin / 60);
+      const m = totalMin % 60;
+      setLabel(h > 0 ? `${h}h ${m}m` : `${m}m`);
+    }
+    tick();
+    const id = setInterval(tick, 30_000);
+    return () => clearInterval(id);
+  }, [nextEvaluationUtc]);
+
+  if (!evaluationSchedule) return null;
+
+  return (
+    <div style={{
+      display: "flex", alignItems: "center", gap: 4,
+      marginTop: 4, padding: "2px 6px",
+      background: "rgba(255,255,255,0.04)",
+      borderRadius: 4,
+      border: "1px solid rgba(255,255,255,0.06)",
+    }}>
+      <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+        <circle cx="4" cy="4" r="3.25" stroke="rgba(255,255,255,0.3)" strokeWidth="0.9"/>
+        <line x1="4" y1="4" x2="4" y2="1.5" stroke="rgba(255,255,255,0.5)" strokeWidth="0.9" strokeLinecap="round"/>
+        <line x1="4" y1="4" x2="5.5" y2="4" stroke="rgba(255,255,255,0.4)" strokeWidth="0.9" strokeLinecap="round"/>
+      </svg>
+      <span style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-montserrat,'Montserrat',sans-serif)", letterSpacing: "0.04em" }}>
+        {evaluationSchedule}
+        {label ? ` · ${label}` : ""}
+      </span>
+    </div>
+  );
+}
+
+// ── Default export: wrapper accepting SignalCardModel ─────────────────────────
+
 export default function SignalCardFromModel({
   card,
   active,
@@ -520,20 +566,28 @@ export default function SignalCardFromModel({
       : undefined;
 
   return (
-    <SignalCard
-      symbol={card.displaySymbol}
-      assetName={card.assetName}
-      icon={iconUrl ?? card.displaySymbol.charAt(0)}
-      strategyName={card.strategyName}
-      direction={direction}
-      tp={card.tp ?? 0}
-      sl={card.sl ?? 0}
-      state={state}
-      pnl={card.changePct ?? 0}
-      targetTime={targetTime}
-      closedAt={closedAt}
-      isActive={active}
-      onClick={() => onSelect(card)}
-    />
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <SignalCard
+        symbol={card.displaySymbol}
+        assetName={card.assetName}
+        icon={iconUrl ?? card.displaySymbol.charAt(0)}
+        strategyName={card.strategyName}
+        direction={direction}
+        tp={card.tp ?? 0}
+        sl={card.sl ?? 0}
+        state={state}
+        pnl={card.changePct ?? 0}
+        targetTime={targetTime}
+        closedAt={closedAt}
+        isActive={active}
+        onClick={() => onSelect(card)}
+      />
+      {card.evaluationSchedule && (
+        <IntradayClockBadge
+          nextEvaluationUtc={card.nextEvaluationUtc}
+          evaluationSchedule={card.evaluationSchedule}
+        />
+      )}
+    </div>
   );
 }

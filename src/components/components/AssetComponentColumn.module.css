@@ -41,8 +41,9 @@
 .iconFallback {
   font-size: 9px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(180, 192, 210, 0.45);
   letter-spacing: 0.02em;
+  font-family: var(--font-numbers, 'Nunito', sans-serif);
 }
 
 .names {
@@ -55,19 +56,21 @@
 .symbol {
   font-size: 11px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.92);
-  letter-spacing: 0.01em;
+  color: #F0F2F6;
+  letter-spacing: 0.02em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-family: var(--font-numbers, 'Nunito', sans-serif);
 }
 
 .labelText {
   font-size: 9px;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(180, 192, 210, 0.6);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-family: var(--font-montserrat, 'Montserrat', sans-serif);
 }
 
 /* ── Meta — fixed min-height so modes start at same Y across all columns ── */
@@ -89,12 +92,16 @@
 
 .metaKey {
   font-size: 8px;
-  color: rgba(255, 255, 255, 0.32);
+  color: rgba(180, 192, 210, 0.45);
+  font-family: var(--font-montserrat, 'Montserrat', sans-serif);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .metaVal {
   font-size: 8px;
-  color: rgba(255, 255, 255, 0.52);
+  color: rgba(180, 192, 210, 0.65);
+  font-family: var(--font-numbers, 'Nunito', sans-serif);
 }
 
 /* ── Divider ── */
@@ -127,28 +134,31 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.62);
+  color: rgba(180, 192, 210, 0.65);
   font-size: 10px;
   text-align: left;
   transition: background 0.12s, color 0.12s;
   border-radius: 5px;
+  font-family: var(--font-montserrat, 'Montserrat', sans-serif);
+  font-weight: 600;
 }
 
 .modeBtn:hover {
   background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.88);
+  color: #F0F2F6;
 }
 
 .modeLabel {
   flex: 1;
   font-size: 10px;
-  font-weight: 500;
+  font-weight: 600;
   color: inherit;
 }
 
 .modeCount {
   font-size: 9px;
-  color: rgba(255, 255, 255, 0.42);
+  color: rgba(180, 192, 210, 0.45);
+  font-family: var(--font-numbers, 'Nunito', sans-serif);
 }
 
 .coreDot {
@@ -161,7 +171,7 @@
 
 .modeChevron {
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.28);
+  color: rgba(180, 192, 210, 0.35);
   flex-shrink: 0;
   line-height: 1;
 }
@@ -169,21 +179,23 @@
 /* ── Collapsed summary ── */
 .modeSummary {
   font-size: 8px;
-  color: rgba(255, 255, 255, 0.38);
+  color: rgba(180, 192, 210, 0.45);
   padding: 0 5px 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-family: var(--font-numbers, 'Nunito', sans-serif);
 }
 
 /* ── Expanded details: stat grid ── */
 .modeDetails {
   padding: 5px 6px 7px;
-  background: rgba(0, 0, 0, 0.22);
+  background: rgba(0, 0, 0, 0.28);
   border-radius: 0 0 5px 5px;
   display: flex;
   flex-direction: column;
   gap: 5px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .statGrid {
@@ -194,13 +206,17 @@
 
 .statKey {
   font-size: 9px;
-  color: rgba(255, 255, 255, 0.40);
+  color: rgba(180, 192, 210, 0.5);
+  font-family: var(--font-montserrat, 'Montserrat', sans-serif);
+  letter-spacing: 0.03em;
 }
 
 .statVal {
   font-size: 9px;
-  color: rgba(255, 255, 255, 0.78);
+  color: #F0F2F6;
   text-align: right;
+  font-family: var(--font-numbers, 'Nunito', sans-serif);
+  font-weight: 600;
 }
 
 /* ── Detail names ── */
@@ -214,8 +230,10 @@
 
 .detailName {
   font-size: 8px;
-  color: rgba(255, 255, 255, 0.50);
+  color: rgba(180, 192, 210, 0.6);
   background: rgba(255, 255, 255, 0.04);
   padding: 1px 5px;
   border-radius: 3px;
+  font-family: var(--font-montserrat, 'Montserrat', sans-serif);
+  letter-spacing: 0.02em;
 }

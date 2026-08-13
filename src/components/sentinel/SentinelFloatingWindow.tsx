@@ -194,9 +194,9 @@ export function SentinelFloatingWindow() {
           zIndex: 2147483001,
           display: "flex",
           flexDirection: "column",
-          background: "#0d0e11",
-          border: "1px solid rgba(255,255,255,0.12)",
-          borderRadius: 16,
+          background: "linear-gradient(to bottom, #26262d, #111114)",
+          border: "1px solid rgba(255,255,255,0.055)",
+          borderRadius: 14,
           boxShadow: "0 24px 80px rgba(0,0,0,0.70), 0 0 0 1px rgba(255,255,255,0.04)",
           overflow: "hidden",
           transition: "height 150ms ease",
@@ -214,14 +214,14 @@ export function SentinelFloatingWindow() {
             paddingRight: 8,
             gap: 8,
             cursor: "grab",
-            background: "rgba(255,255,255,0.025)",
-            borderBottom: minimised ? "none" : "1px solid rgba(255,255,255,0.08)",
+            background: "rgba(255,255,255,0.02)",
+            borderBottom: minimised ? "none" : "1px solid rgba(255,255,255,0.055)",
             userSelect: "none",
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/Sentinel.png" alt="" width={18} height={18} style={{ opacity: 0.7, objectFit: "contain" }} />
-          <span style={{ fontSize: 13, fontWeight: 600, color: "#ffffff", fontFamily: "var(--font-text)", flex: 1 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: "#F0F2F6", fontFamily: "var(--font-montserrat,'Montserrat',sans-serif)", flex: 1 }}>
             Sentinel
           </span>
           {/* Snap position picker */}
@@ -235,7 +235,7 @@ export function SentinelFloatingWindow() {
                 onClick={() => { setSnapPos(sp); setPos(null); }}
                 style={{
                   width: 7, height: 7, borderRadius: 2, border: "none", cursor: "pointer", padding: 0,
-                  background: snapPos === sp ? "#C9A84C" : "rgba(255,255,255,0.15)",
+                  background: snapPos === sp ? "#D6B24A" : "rgba(255,255,255,0.15)",
                   transition: "background 0.1s",
                 }}
               />
@@ -311,6 +311,6 @@ export function SentinelFloatingWindow() {
 
 const iconBtnStyle: React.CSSProperties = {
   width: 26, height: 26, borderRadius: 6, border: "none", background: "none",
-  color: "rgba(255,255,255,0.45)", cursor: "pointer", display: "flex",
+  color: "rgba(180,192,210,0.6)", cursor: "pointer", display: "flex",
   alignItems: "center", justifyContent: "center", transition: "color 0.1s, background 0.1s",
 };

@@ -80,7 +80,7 @@ export function buildInnoTrackRecordRuntimeModel(
       {
         label: "Datenqualität / CTO",
         value: `${dataQualityStatus} · ${overview.readiness.completed}/${overview.readiness.total}`,
-        sub: `${overview.historical.normalizedClosedTradeCount} normalisierte Teilhistorie-Trades · ${databaseStatus} · ${overview.readiness.blockers.length} Blocker`,
+        sub: `${overview.historical.normalizedClosedTradeCount} normalisierte Account-1-Trades · ${databaseStatus} · ${overview.readiness.blockers.length} Blocker`,
         source: "Track-Record-Service v2",
       },
     ],

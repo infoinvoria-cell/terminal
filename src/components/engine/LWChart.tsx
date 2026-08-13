@@ -1,9 +1,20 @@
 'use client'
 
 /**
- * Engine Candlestick Chart
- * Visual: 1:1 copy of ReferenceCandlestickChart (Referenzen page).
- * Data:   engine bars (port 5000) + live quote from Supabase context.
+ * Engine Candlestick Chart — UTC-native pipeline
+ *
+ * Timestamps everywhere are pure UTC epoch seconds (no Berlin-offset baked in).
+ * LWC localisation.timeFormatter formats them to Europe/Berlin for the X-axis.
+ *
+ * Current bucket is determined EXCLUSIVELY from the provider timestamp of the
+ * live quote.  Browser Date.now() is never used as a bucket indicator.
+ *
+ * OHLC rules
+ *   open  = first tick of the bucket (seeded from monitoring bar open)
+ *   high  = running maximum of real ticks received after mount
+ *   low   = running minimum of real ticks received after mount
+ *   close = last tick received
+ *   Never uses session high/low from live_quotes (stuck-session-extreme bug)
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -15,6 +26,7 @@ import {
   CrosshairMode,
   LineStyle,
   ColorType,
+  TickMarkType,
   type UTCTimestamp,
   type ISeriesApi,
 } from 'lightweight-charts'
@@ -31,6 +43,7 @@ import {
 } from '@/lib/monitoring/candleCloseCountdown'
 import { useLiveQuotesContext } from '@/contexts/LiveQuotesContext'
 import type { SignalData } from '@/lib/engine-client'
+import { LiveBarAccumulator, normalizeToSlot, providerBucketUtc as providerBucketUtcFromTs } from '@/lib/engine/bar-aggregation'
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -47,43 +60,32 @@ interface Props {
   showEmaFast?: boolean
   showEmaSlow?: boolean
   visibleDays?: number | null
-  /** e.g. "6E1!", "FDAX1!" — used for live quote lookup */
+  initialBars?: number
   liveSymbol:   string
-  /** e.g. "30M", "1H", "2H", "D" — for countdown */
   timeframe:    string
-  /** Display symbol, e.g. "6E1!" */
   symbol:       string
-  /** Display name, e.g. "EUR/USD Futures" */
   name:         string
-  /** Exchange label, e.g. "CME" */
   exchange:     string
-  /** Icon path, e.g. "/asset-icons/eur.png" */
   icon:         string
-  /** Price decimal places for Y-axis labels, e.g. 4 for EURUSD, 0 for DAX */
   priceDecimals?: number
+  onLivePriceUpdate?: (providerPrice: number, openBarClose: number) => void
+  onLiveDiagnostics?: (stats: {
+    tickCount: number
+    dupTicks: number
+    oooTicks: number
+    currentBucketSec: number
+  }) => void
 }
 
-// ─── Constants — identical to ReferenceCandlestickChart ──────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const GOLD            = '#C9A84C'
 const FONT            = "var(--font-montserrat, 'Montserrat', sans-serif)"
 const FONT_NUNITO     = "var(--font-nunito, 'Nunito', sans-serif)"
 const MONITORING_FONT = "-apple-system, BlinkMacSystemFont, 'Trebuchet MS', Roboto, Ubuntu, sans-serif"
 const TIME_AXIS_H     = 32
-// Berlin CEST offset: chart timestamps are shifted by +2 h so the X-axis reads local time.
-// Adjust to 3600 in winter (CET = UTC+1).
-const TZ_OFFSET_SEC   = 2 * 3600
 
-// ─── Types (identical to ReferenceCandlestickChart) ──────────────────────────
-
-type PriceLine  = { x1: number; x2: number; y: number; stroke: string }
-type PriceLabel = {
-  top: number; left: number; width: number
-  priceText: string; countdownText: string | null
-  tone: CandleCloseTone; backgroundColor: string
-}
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// ─── Time helpers — all pure UTC, zero Berlin-offset arithmetic ───────────────
 
 function toSec(t: number): number { return t > 1e10 ? Math.floor(t / 1000) : t }
 
@@ -91,29 +93,38 @@ function tfStepSec(tf: string): number {
   const u = tf.toUpperCase()
   const m = /^(\d+)M$/.exec(u); if (m) return Number(m[1]) * 60
   const h = /^(\d+)H$/.exec(u); if (h) return Number(h[1]) * 3600
-  return 86400 // daily fallback
+  return 86400
 }
 
-/** Current open bar's start time as a Berlin-offset display timestamp (for chart coords). */
-function currentBarTimeSec(tf: string): number {
-  const step = tfStepSec(tf)
-  return Math.floor(Date.now() / 1000 / step) * step + TZ_OFFSET_SEC
+/**
+ * Berlin-timezone formatter for LWC crosshair tooltip — full date + time.
+ * LWC passes UTC epoch seconds; Intl handles DST automatically.
+ */
+function berlinTimeFormatter(utcSec: number): string {
+  return new Intl.DateTimeFormat('de-DE', {
+    timeZone: 'Europe/Berlin',
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  }).format(new Date(utcSec * 1000))
 }
 
-/** Current open bar's start time in UTC seconds (for countdown / boundary logic). */
-function currentBarTimeUtc(tf: string): number {
-  const step = tfStepSec(tf)
-  return Math.floor(Date.now() / 1000 / step) * step
-}
-
-/** Whitespace bars from lastTimeSec+step up to today's current bar + 5 extra bars */
-function buildFutureBars(lastTimeSec: number, tf: string): { time: number }[] {
-  const step    = tfStepSec(tf)
-  const target  = currentBarTimeSec(tf) + step * 5   // 5 bars past current bar
-  const result: { time: number }[] = []
-  let t = lastTimeSec
-  while (t < target) { t += step; result.push({ time: t }) }
-  return result
+/**
+ * Berlin-timezone formatter for X-axis tick mark labels.
+ * Shows time for intraday ticks and date at day/month/year boundaries.
+ * Replaces LWC's UTC-based default tick mark labels.
+ */
+function berlinTickMarkFormatter(time: number, tickMarkType: TickMarkType, _locale: string): string {
+  const d = new Date(time * 1000)
+  const fmt = (opts: Intl.DateTimeFormatOptions) =>
+    new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', ...opts }).format(d)
+  switch (tickMarkType) {
+    case TickMarkType.Year:        return fmt({ year: 'numeric' })
+    case TickMarkType.Month:       return fmt({ month: 'short', year: 'numeric' })
+    case TickMarkType.DayOfMonth:  return fmt({ day: '2-digit', month: 'short' })
+    case TickMarkType.Time:
+    case TickMarkType.TimeWithSeconds:
+    default:                       return fmt({ hour: '2-digit', minute: '2-digit' })
+  }
 }
 
 function getPriceAxisWidth(chart: ReturnType<typeof createChart>): number {
@@ -123,7 +134,6 @@ function getPriceAxisWidth(chart: ReturnType<typeof createChart>): number {
     return w > 10 ? w : 65
   } catch { return 65 }
 }
-
 
 function StrategyChip({ label, active, onToggle }: { label: string; active: boolean; onToggle: () => void }) {
   const [hovered, setHovered] = useState(false)
@@ -151,8 +161,11 @@ export default function LWChart({
   emaFastData = [], emaSlowData = [],
   showEma = false, showEmaFast = true, showEmaSlow = true,
   visibleDays = 7,
+  initialBars,
   liveSymbol, timeframe, symbol, name, exchange, icon,
   priceDecimals = 4,
+  onLivePriceUpdate,
+  onLiveDiagnostics,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const headerRef    = useRef<HTMLDivElement>(null)
@@ -160,21 +173,27 @@ export default function LWChart({
   const chartRef     = useRef<ReturnType<typeof createChart> | null>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const seriesRef    = useRef<any>(null)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const emaFastRef   = useRef<ISeriesApi<'Line'> | null>(null)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const emaSlowRef   = useRef<ISeriesApi<'Line'> | null>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const markersPluginRef = useRef<any>(null)
   const visTimerRef      = useRef<ReturnType<typeof setTimeout> | null>(null)
-  // Stable refs — initialized to null/empty, synced in effects below
   const dataRef       = useRef(data)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const liveQuoteRef  = useRef<any>(null)
   const signalRef     = useRef(signal)
   const timeframeRef  = useRef(timeframe)
+  // Last provider timestamp processed — skip duplicate ticks
+  const lastTickTsRef = useRef<string | null>(null)
+  // Counter for diagnostic tick logging (first 20 ticks per mount)
+  const tickLogCountRef = useRef(0)
+  // Live diagnostics counters (reset on bucket transition)
+  const liveBucketSecRef  = useRef<number>(0)
+  const liveTickCountRef  = useRef<number>(0)
+  const dupTickCountRef   = useRef<number>(0)
+  const oooTickCountRef   = useRef<number>(0)
+  const lastEpochSecRef   = useRef<number>(0)
 
-  // ── State — identical names to ReferenceCandlestickChart ─────────────────
   const [pluginReady,     setPluginReady]     = useState(0)
   const [signalTriangles, setSignalTriangles] = useState<Array<{ x: number; y: number; dir: 'up' | 'down'; color: string; name: string }>>([])
   const [signalLevels,    setSignalLevels]    = useState<Array<{ x: number; y: number; color: string; label: string }>>([])
@@ -183,27 +202,32 @@ export default function LWChart({
   const [activeTradeBg,   setActiveTradeBg]   = useState<Set<string>>(new Set())
   const activeTradeBgRef = useRef<Set<string>>(new Set())
   const [tradeBgRects,    setTradeBgRects]    = useState<Array<{ xStart: number; xEnd: number; yEntry: number; ySL: number; yBE: number; yTP: number }>>([])
-  // Tracks running OHLC of the current live bar across 5-second ticks
-  const liveBarRef = useRef<{ time: number; open: number; high: number; low: number } | null>(null)
+
+  // Live bar OHLC accumulator
+  const liveAccRef = useRef(new LiveBarAccumulator())
+
+  // Stable DOM refs for price overlay — direct attribute updates, no React re-render per tick
+  const priceGuideElRef      = useRef<SVGSVGElement>(null)
+  const priceLineElRef       = useRef<SVGLineElement>(null)
+  const priceLabelElRef      = useRef<HTMLDivElement>(null)
+  const priceLabelPriceRef   = useRef<HTMLSpanElement>(null)
+  const priceLabelCountRef   = useRef<HTMLSpanElement>(null)
+  // Provider time anchor for monotonic countdown — updated on each real tick
+  const providerAnchorSecRef = useRef<number | null>(null)
+  const localAnchorMsRef     = useRef<number | null>(null)
 
   const syncSignalTrianglesRef = useRef<() => void>(() => {})
-  const [priceLine,   setPriceLine]   = useState<PriceLine | null>(null)
-  const [priceLabel,  setPriceLabel]  = useState<PriceLabel | null>(null)
   const [headerSize,  setHeaderSize]  = useState<{ w: number; h: number } | null>(null)
   const [showStrategies, setShowStrategies] = useState(true)
   const [activeStrategies, setActiveStrategies] = useState<Set<string>>(new Set(['Signal']))
 
-  // Live quote
   const { getQuote } = useLiveQuotesContext()
   const liveQuote = getQuote(liveSymbol)
 
-  // Keep refs in sync so callbacks can read latest values without stale closure issues
   useEffect(() => { dataRef.current = data }, [data])
   useEffect(() => { liveQuoteRef.current = liveQuote }, [liveQuote])
   useEffect(() => { signalRef.current = signal }, [signal])
   useEffect(() => { timeframeRef.current = timeframe }, [timeframe])
-
-  // ── Derived signal values ─────────────────────────────────────────────────
 
   const hasSignal = !!signal && signal.direction !== 'flat' && signal.entry != null && signal.sl != null
   const signalDir = signal?.direction as 'long' | 'short' | undefined
@@ -218,105 +242,208 @@ export default function LWChart({
     return () => ro.disconnect()
   }, [])
 
-  // ── syncOverlay — live price line + label ─────────────────────────────────
+  // ── syncOverlay — price line + label, pure UTC coordinates ───────────────
 
-  // Use useCallback with empty deps — reads latest values via refs to avoid render loops
   const syncOverlay = useCallback(() => {
-    const chart   = chartRef.current
-    const series  = seriesRef.current
+    const chart     = chartRef.current
+    const series    = seriesRef.current
     const container = containerRef.current
-    const data    = dataRef.current
-    const liveQ   = liveQuoteRef.current
-    const tf      = timeframeRef.current
-    if (!chart || !series || !container || !data.length) return
+    const data      = dataRef.current
+    const liveQ     = liveQuoteRef.current
+    const tf        = timeframeRef.current
+    if (!chart || !series || !container || !data.length) {
+      const g = priceGuideElRef.current; if (g) g.style.display = 'none'
+      const l = priceLabelElRef.current; if (l) l.style.display = 'none'
+      return
+    }
 
-    const lastBar    = data[data.length - 1]
-    const liveClose  = liveQ?.close ?? lastBar.close
-    // TZ-offset bar time for chart coordinates; UTC bar time for countdown math
-    const liveBT     = currentBarTimeSec(tf)
-    const liveBT_utc = currentBarTimeUtc(tf)
-    const lastBarDisplay = toSec(lastBar.time) + TZ_OFFSET_SEC
+    const stepSec   = tfStepSec(tf)
+    const lastBar   = data[data.length - 1]
+    const liveClose = liveQ?.close ?? lastBar.close
+
+    // Current bar coordinates — accumulator's UTC bucket (never browser time)
+    const accSnap       = liveAccRef.current.snapshot()
+    const currentBucket = accSnap?.barUtcSec ?? null
+    const lastBarUtc    = normalizeToSlot(toSec(lastBar.time), stepSec)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const priceY = series.priceToCoordinate(liveClose) as any
-    if (priceY == null || !Number.isFinite(Number(priceY))) { setPriceLine(null); return }
+    if (priceY == null || !Number.isFinite(Number(priceY))) {
+      const g = priceGuideElRef.current; if (g) g.style.display = 'none'
+      const l = priceLabelElRef.current; if (l) l.style.display = 'none'
+      return
+    }
 
     const priceAxisW = getPriceAxisWidth(chart)
     const w  = container.clientWidth
     const x2 = w - priceAxisW
-    // Anchor price line at current bar position (if visible) else last engine bar
+
+    // Anchor at current bar's x-coordinate; fall back to last closed bar
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const liveBarX = chart.timeScale().timeToCoordinate(liveBT as any) as any
+    const currentBarX = currentBucket != null ? chart.timeScale().timeToCoordinate(currentBucket as any) as any : null
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const lastBarX = chart.timeScale().timeToCoordinate(lastBarDisplay as any) as any
-    const anchorX = (liveBarX != null && Number.isFinite(Number(liveBarX)) && Number(liveBarX) > 0 && Number(liveBarX) < x2)
-      ? Number(liveBarX)
+    const lastBarX    = chart.timeScale().timeToCoordinate(lastBarUtc as any) as any
+    const anchorX = (currentBarX != null && Number.isFinite(Number(currentBarX)) && Number(currentBarX) > 0 && Number(currentBarX) < x2)
+      ? Number(currentBarX)
       : (lastBarX != null && Number.isFinite(Number(lastBarX)) && Number(lastBarX) > 0 && Number(lastBarX) < x2)
         ? Number(lastBarX)
         : null
     const MIN_LINE_PX = 40
     const x1 = Math.max(0, anchorX != null ? Math.min(anchorX, x2 - MIN_LINE_PX) : x2 - MIN_LINE_PX)
 
-    // Open price: use the current bar's actual open (from monitoring data if available)
-    const liveOpen = lastBarDisplay === liveBT ? lastBar.open : lastBar.close
-    // Pass UTC bar time to countdown (countdown is wall-clock based, not offset-based)
-    const label = buildLivePriceAxisLabel({ barTime: liveBT_utc * 1000, open: liveOpen, close: liveClose, timeframe: tf })
+    const liveOpen  = accSnap?.open ?? lastBar.close
+    const barTimeMs = (currentBucket ?? lastBarUtc) * 1000
+
+    // Monotonic provider-time countdown — avoids browser-time drift on delayed feeds.
+    // providerAnchorSecRef stores the exchange event epoch at last tick;
+    // performance.now() delta advances provider time between polls.
+    const provAnchor  = providerAnchorSecRef.current
+    const localAnchor = localAnchorMsRef.current
+    const provNowMs   = (provAnchor != null && localAnchor != null)
+      ? (provAnchor + (performance.now() - localAnchor) / 1000) * 1000
+      : undefined
+
+    const label = buildLivePriceAxisLabel({ barTime: barTimeMs, open: liveOpen, close: liveClose, timeframe: tf, nowMs: provNowMs })
     const tone  = label?.tone ?? candleCloseTone(liveOpen, liveClose)
 
-    setPriceLine({ x1, x2, y: Number(priceY), stroke: priceAxisGuideStrokeColor(tone) })
-    setPriceLabel({
-      top: Number(priceY), left: x2, width: priceAxisW,
-      priceText: label?.priceText ?? formatAxisPrice(liveClose),
-      countdownText: label?.countdownText ?? null,
-      tone, backgroundColor: label?.backgroundColor ?? priceAxisBackgroundColor(tone),
-    })
+    // Update DOM directly — stable elements, no React re-render per tick
+    const lineEl  = priceLineElRef.current
+    const guideEl = priceGuideElRef.current
+    const labelEl = priceLabelElRef.current
+    if (lineEl && guideEl) {
+      lineEl.setAttribute('x1', String(x1))
+      lineEl.setAttribute('y1', String(Number(priceY)))
+      lineEl.setAttribute('x2', String(x2))
+      lineEl.setAttribute('y2', String(Number(priceY)))
+      lineEl.setAttribute('stroke', priceAxisGuideStrokeColor(tone))
+      guideEl.style.display = ''
+    }
+    if (labelEl) {
+      labelEl.style.display    = 'flex'
+      labelEl.style.top        = `${Number(priceY)}px`
+      labelEl.style.left       = `${x2}px`
+      labelEl.style.width      = `${priceAxisW}px`
+      labelEl.style.background = label?.backgroundColor ?? priceAxisBackgroundColor(tone)
+      labelEl.style.border     = `1px solid ${priceAxisLabelBorderColor(tone)}`
+      labelEl.style.boxShadow  = `0 0 0 1px ${priceAxisLabelShadowColor(tone)}, 0 2px 8px rgba(0,0,0,0.38)`
+      labelEl.setAttribute('data-tone', tone)
+      if (priceLabelPriceRef.current) {
+        priceLabelPriceRef.current.textContent = label?.priceText ?? formatAxisPrice(liveClose)
+      }
+      const cntEl = priceLabelCountRef.current
+      if (cntEl) {
+        // When no real provider timestamp is available (anonymous TV = 15-min delayed, lp_time = null),
+        // show "Delayed" instead of a browser-time countdown that implies live data.
+        const countdownDisplay = provNowMs == null ? 'Delayed' : (label?.countdownText ?? null)
+        if (countdownDisplay) {
+          cntEl.textContent = countdownDisplay
+          cntEl.style.display = ''
+          // Gold (bull) background needs dark timer text for legibility
+          cntEl.style.color = tone === 'bull' ? 'rgba(0,0,0,0.78)' : '#9CA3AF'
+        } else { cntEl.style.display = 'none' }
+      }
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Re-run syncOverlay when data loads; live quote is handled by the 1s interval
   useEffect(() => { syncOverlay() }, [data, syncOverlay])
 
-  // ── Live bar — push current-bar OHLC into the series on every 5s liveQuote tick ──
+  // ── Live bar — accumulate OHLC from real ticks ────────────────────────────
+
   useEffect(() => {
     const series = seriesRef.current
-    const d      = dataRef.current
     const tf     = timeframeRef.current
-    if (!series || !d.length) return
+    if (!series) return
     const liveQ = liveQuoteRef.current
     if (!liveQ?.close) return
 
-    const liveClose  = liveQ.close
-    const step       = tfStepSec(tf)
-    const liveBT_utc = Math.floor(Date.now() / 1000 / step) * step  // UTC bar boundary
-    const liveBT     = liveBT_utc + TZ_OFFSET_SEC                   // Berlin-offset for chart
-    const lastBar    = d[d.length - 1]
+    // Only the real exchange/provider event timestamp is accepted.
+    // updated_at is the DB insert time (≈ browser time) — using it would create
+    // phantom future candles when the feed is delayed.
+    const provTs = liveQ.timestamp   // exchange event time only — no updated_at fallback
+    if (!provTs) return              // no real event timestamp → no candle update
+    if (provTs === lastTickTsRef.current) { dupTickCountRef.current++; return }  // duplicate tick
+    lastTickTsRef.current = provTs
 
-    // Reset running OHLC when bar boundary flips, then accumulate across ticks.
-    // Never derive high/low from open vs tick alone — that resets on every 5s poll.
-    if (!liveBarRef.current || liveBarRef.current.time !== liveBT_utc) {
-      const isCurrentInData = toSec(lastBar.time) === liveBT_utc
-      const barOpen = isCurrentInData ? lastBar.open : lastBar.close
-      liveBarRef.current = { time: liveBT_utc, open: barOpen, high: liveClose, low: liveClose }
+    const stepSec   = tfStepSec(tf)
+    const epochSec  = Math.floor(new Date(provTs).getTime() / 1000)
+    if (!Number.isFinite(epochSec) || epochSec <= 0) return
+
+    if (lastEpochSecRef.current > 0 && epochSec < lastEpochSecRef.current) {
+      oooTickCountRef.current++
     }
-    liveBarRef.current.high = Math.max(liveBarRef.current.high, liveClose)
-    liveBarRef.current.low  = Math.min(liveBarRef.current.low,  liveClose)
+    lastEpochSecRef.current = epochSec
+
+    const tickPrice = liveQ.close
+    const bar = liveAccRef.current.update(tickPrice, epochSec, stepSec)
+
+    // Bucket transition — reset per-bucket counters
+    if (bar.barUtcSec !== liveBucketSecRef.current) {
+      liveBucketSecRef.current = bar.barUtcSec
+      liveTickCountRef.current = 0
+    }
+    liveTickCountRef.current++
+
+    // Store provider time anchor for monotonic countdown (avoids browser-time drift)
+    providerAnchorSecRef.current = epochSec
+    localAnchorMsRef.current     = performance.now()
+
+    // Strict OHLC invariant
+    if (bar.high < Math.max(bar.open, bar.close) || bar.low > Math.min(bar.open, bar.close)) {
+      console.error('[LWChart] OHLC invariant violated — dropping tick', bar)
+      return
+    }
+
+    // Diagnostic: first 20 ticks per mount
+    if (tickLogCountRef.current < 20) {
+      tickLogCountRef.current++
+      const n = tickLogCountRef.current
+      const bucketBerlin = new Intl.DateTimeFormat('de-DE', {
+        timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit',
+      }).format(new Date(bar.barUtcSec * 1000))
+      const tickBerlin = new Intl.DateTimeFormat('de-DE', {
+        timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit', second: '2-digit',
+      }).format(new Date(epochSec * 1000))
+      console.groupCollapsed(`[LWChart tick ${n}/20] ${liveQ.symbol} provTs=${provTs.slice(11,19)}`)
+      console.table({
+        providerEventTs:  provTs,                                       // exchange event time (bucket source)
+        dbUpdatedAt:      liveQ.updated_at ?? '—',                      // DB insert time — NOT used
+        tickUTC:          new Date(epochSec * 1000).toISOString(),
+        tickBerlin,
+        tickPrice:        tickPrice.toFixed(5),
+        bucketStartUTC:   new Date(bar.barUtcSec * 1000).toISOString(),
+        bucketBerlin,
+        bar_open:         bar.open.toFixed(5),
+        bar_high:         bar.high.toFixed(5),
+        bar_low:          bar.low.toFixed(5),
+        bar_close:        bar.close.toFixed(5),
+      })
+      console.groupEnd()
+    }
 
     try {
-      series.update({
-        time:  liveBT as UTCTimestamp,
-        open:  liveBarRef.current.open,
-        high:  liveBarRef.current.high,
-        low:   liveBarRef.current.low,
-        close: liveClose,
-      })
-    } catch { /* series may not be ready yet */ }
+      // Pure UTC bucket-start timestamp — LWC's timeFormatter displays it as Berlin time
+      series.update({ time: bar.barUtcSec as UTCTimestamp, open: bar.open, high: bar.high, low: bar.low, close: bar.close })
+    } catch { /* series may be mid-recreate */ }
 
-    // Keep overlay in sync with the live bar
+    if (onLivePriceUpdate && liveQ?.close != null) {
+      onLivePriceUpdate(liveQ.close, bar.close)
+    }
+
+    if (onLiveDiagnostics) {
+      onLiveDiagnostics({
+        tickCount:        liveTickCountRef.current,
+        dupTicks:         dupTickCountRef.current,
+        oooTicks:         oooTickCountRef.current,
+        currentBucketSec: liveBucketSecRef.current,
+      })
+    }
+
     syncOverlay()
     syncSignalTrianglesRef.current()
-  }, [liveQuote, syncOverlay])
+  }, [liveQuote, syncOverlay, onLivePriceUpdate, onLiveDiagnostics])
 
-  // ── syncSignalTriangles — identical logic to ReferenceCandlestickChart ────
+  // ── syncSignalTriangles ───────────────────────────────────────────────────
 
   const syncSignalTriangles = useCallback(() => {
     const chart  = chartRef.current
@@ -324,7 +451,6 @@ export default function LWChart({
     const data   = dataRef.current
     const sig    = signalRef.current
     const tf     = timeframeRef.current
-    // Show levels when entry+sl are known (even when flat = "watching these levels")
     const hasLevels = !!sig && sig.entry != null && sig.sl != null
     const hasEntry  = hasLevels && (sig!.direction === 'long' || sig!.direction === 'short')
     if (!chart || !series || !showStrategies || !hasLevels || !data.length) {
@@ -336,21 +462,22 @@ export default function LWChart({
       return
     }
 
-    const lastBar  = data[data.length - 1]
-    const entry    = sig!.entry!
-    const sl       = sig!.sl!
-    const dir      = (sig!.direction === 'long' || sig!.direction === 'short') ? sig!.direction : 'long'
-    const risk     = Math.abs(entry - sl)
-    // Use engine TP if provided, otherwise compute 3R target
-    const tp       = sig!.tp != null ? sig!.tp : (dir === 'long' ? entry + risk * 3 : entry - risk * 3)
-    const be       = dir === 'long' ? entry + risk : entry - risk
-    const levels   = { entry, sl, be, tp }
-    // Anchor at current live bar time (TZ-offset to match chart timestamps)
-    const liveBT   = currentBarTimeSec(tf)
-    const lastBarDisplay = toSec(lastBar.time) + TZ_OFFSET_SEC
-    const barTimeSec = liveBT > lastBarDisplay ? liveBT : lastBarDisplay
+    const stepSec = tfStepSec(tf)
+    const lastBar = data[data.length - 1]
+    const entry   = sig!.entry!
+    const sl      = sig!.sl!
+    const dir     = (sig!.direction === 'long' || sig!.direction === 'short') ? sig!.direction : 'long'
+    const risk    = Math.abs(entry - sl)
+    const tp      = sig!.tp != null ? sig!.tp : (dir === 'long' ? entry + risk * 3 : entry - risk * 3)
+    const be      = dir === 'long' ? entry + risk : entry - risk
+    const levels  = { entry, sl, be, tp }
 
-    // ── Entry triangle — only when actively long/short ──
+    // Current bar time: accumulator bucket → pure UTC
+    const accSnap    = liveAccRef.current.snapshot()
+    const currentUtc = accSnap?.barUtcSec ?? normalizeToSlot(toSec(lastBar.time), stepSec)
+    const lastBarUtc = normalizeToSlot(toSec(lastBar.time), stepSec)
+    const barTimeSec = currentUtc > lastBarUtc ? currentUtc : lastBarUtc
+
     const triangles: typeof signalTriangles = []
     if (hasEntry) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -368,12 +495,9 @@ export default function LWChart({
     }
     setSignalTriangles(triangles)
 
-    // ── Level markers — pinned to right edge of chart ──
     const chartW = containerRef.current?.clientWidth ?? 0
     const chartH = (containerRef.current?.clientHeight ?? 9999) - TIME_AXIS_H
-    const step   = tfStepSec(tf)
     const svgLevels: typeof signalLevels = []
-    // Pin x to right edge (price axis starts ~65px from right; place arrow just to its left)
     const lx = Math.max(chartW - 80, 8)
     if (chartW > 0) {
       const items: [number, string, string][] = [
@@ -391,19 +515,15 @@ export default function LWChart({
       }
     }
     setSignalLevels(svgLevels)
-
-    // ── No exit triangle or trade lines for live signals ──
     setExitTriangles([])
     setTradeLines([])
 
-    // ── Trade background rect (on click) ──
     const bgs: typeof tradeBgRects = []
     if (activeTradeBgRef.current.has('Signal')) {
-      // Show zone from last bar → last bar + 5 steps
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const xStart = Number(chart.timeScale().timeToCoordinate(barTimeSec as any))
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const xEnd   = Number(chart.timeScale().timeToCoordinate((barTimeSec + step * 5) as any))
+      const xEnd   = Number(chart.timeScale().timeToCoordinate((barTimeSec + stepSec * 5) as any))
       if (Number.isFinite(xStart) && Number.isFinite(xEnd)) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const yEntry = Number(series.priceToCoordinate(levels.entry as any))
@@ -419,7 +539,6 @@ export default function LWChart({
       }
     }
     setTradeBgRects(bgs)
-  // data/signal/timeframe read via refs — only re-create when UI state changes
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showStrategies, activeStrategies, activeTradeBg])
 
@@ -433,19 +552,52 @@ export default function LWChart({
     })
   }, [])
 
-  // ── LWC chart — created once when data arrives ────────────────────────────
+  // ── LWC chart creation ────────────────────────────────────────────────────
 
   useEffect(() => {
     if (!data.length) return
     const container = containerRef.current; if (!container) return
 
-    const normalizedBars = data.map(d => ({
-      time:  (toSec(d.time) + TZ_OFFSET_SEC) as UTCTimestamp,
-      open:  Number(d.open), high: Number(d.high), low: Number(d.low), close: Number(d.close),
-    })).filter(d => d.open > 0 && d.high >= d.low)
+    const stepSec  = tfStepSec(timeframe)
+    const liveQ    = liveQuoteRef.current
 
-    if (!normalizedBars.length) return
+    // ── 1. Normalise all timestamps to bucket-start UTC ──────────────────
+    // Input bars may carry bar-end times (12:29:59) or bar-start times (12:30:00).
+    // normalizeToSlot always produces a valid bucket-start (minute ∈ {0, 30} for 30M).
+    type NBar = { _utc: number; open: number; high: number; low: number; close: number }
+    const allNorm: NBar[] = []
+    for (const d of data) {
+      const rawSec  = toSec(d.time)
+      const slotSec = normalizeToSlot(rawSec, stepSec)
+      if (slotSec <= 0 || !Number.isFinite(slotSec)) { console.warn('[LWChart] invalid timestamp, skipped', d.time); continue }
+      const open = Number(d.open), high = Number(d.high), low = Number(d.low), close = Number(d.close)
+      if (open <= 0 || high < low) { console.warn('[LWChart] invalid OHLC, skipped', d); continue }
+      allNorm.push({ _utc: slotSec, open, high, low, close })
+    }
+    // Sort ascending, deduplicate by slot (last value wins for each slot)
+    allNorm.sort((a, b) => a._utc - b._utc)
+    const dedupMap = new Map<number, NBar>()
+    for (const b of allNorm) dedupMap.set(b._utc, b)
+    const sorted = [...dedupMap.values()].sort((a, b) => a._utc - b._utc)
+    if (!sorted.length) return
 
+    // ── 2. Determine current bucket from EXCHANGE EVENT TIMESTAMP only ───
+    // Returns null when no real provider timestamp is available yet.
+    // In that case ALL bars are shown as closed history — no phantom candle.
+    const currentBucket = providerBucketUtcFromTs(liveQ?.timestamp, stepSec)
+
+    // Bars whose slot < currentBucket are closed history.
+    // If currentBucket is null (no live quote yet) all bars are history.
+    const closedBars = currentBucket != null
+      ? sorted.filter(b => b._utc < currentBucket)
+      : sorted
+    const currentMonBar = currentBucket != null
+      ? sorted.find(b => b._utc === currentBucket) ?? null
+      : null
+
+    if (!closedBars.length && !currentMonBar) return
+
+    // ── 3. Create chart ──────────────────────────────────────────────────
     const chart = createChart(container, {
       autoSize: true,
       layout: {
@@ -454,6 +606,11 @@ export default function LWChart({
         fontFamily: FONT,
         fontSize: 11,
         attributionLogo: false,
+      },
+      localization: {
+        // Display UTC epoch seconds as Europe/Berlin time on the X-axis.
+        // No Berlin offset is baked into any stored timestamp.
+        timeFormatter: berlinTimeFormatter,
       },
       grid: { vertLines: { visible: false }, horzLines: { visible: false } },
       crosshair: {
@@ -466,7 +623,8 @@ export default function LWChart({
       timeScale: {
         visible: true, borderVisible: false, timeVisible: true, secondsVisible: false,
         minimumHeight: TIME_AXIS_H, fixLeftEdge: false, fixRightEdge: false,
-        lockVisibleTimeRangeOnResize: false, rightOffset: 5,
+        lockVisibleTimeRangeOnResize: false, rightOffset: 10,
+        tickMarkFormatter: berlinTickMarkFormatter,
       },
       handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
       handleScale:  { mouseWheel: true, pinch: true, axisPressedMouseMove: true, axisDoubleClickReset: true },
@@ -484,11 +642,94 @@ export default function LWChart({
     })
     seriesRef.current = series
 
-    const futureBars = buildFutureBars(normalizedBars[normalizedBars.length - 1].time as number, timeframe)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    series.setData([...normalizedBars, ...futureBars] as any)
+    // ── 4. setData: closed bars + future whitespace timepoints ──────────
+    // Whitespace entries carry only `time` — no OHLC, invisible on chart,
+    // but they extend the X-axis so future time labels appear in the right-offset area.
+    // They are NEVER passed to Python or treated as market data.
+    const lwcBars = closedBars.map(b => ({
+      time:  b._utc as UTCTimestamp,
+      open:  b.open, high: b.high, low: b.low, close: b.close,
+    }))
+    series.setData(lwcBars)
 
-    // EMA lines
+    // ── 5. Show current forming bar ──────────────────────────────────────
+    // Source-of-truth priority:
+    //   1. TV chart series monitoring bar (currentMonBar) — real OHLC from provider
+    //   2. LiveBarAccumulator — close-tick range for the current bucket (fallback only)
+    // When a TV series bar exists for the current bucket, use it directly.
+    // The accumulator still seeds for live-tick refinement within the bucket.
+    liveAccRef.current.reset()
+    tickLogCountRef.current = 0
+    lastTickTsRef.current   = null
+
+    if (currentBucket != null) {
+      if (currentMonBar) {
+        // TV series bar available — render it immediately as the authoritative current bar.
+        // Also seed the accumulator so subsequent ticks can refine H/L within the bucket.
+        liveAccRef.current.initFromData(currentMonBar.open, currentBucket)
+        try {
+          series.update({
+            time:  currentBucket as UTCTimestamp,
+            open:  currentMonBar.open,
+            high:  currentMonBar.high,
+            low:   currentMonBar.low,
+            close: currentMonBar.close,
+          })
+        } catch { /* ignore */ }
+      } else if (closedBars.length) {
+        // No TV series bar yet for current bucket — seed accumulator from last closed bar
+        liveAccRef.current.initFromData(closedBars[closedBars.length - 1].close, currentBucket)
+      }
+
+      // Apply live quote tick immediately so we don't wait for the 5s poll.
+      // Only the real exchange event timestamp is accepted — server time fallback is
+      // acceptable here because bucket rounding makes it equivalent for 30M/1H/2H/D.
+      const provTs       = liveQ?.timestamp
+      const provEpochSec = provTs ? Math.floor(new Date(provTs).getTime() / 1000) : null
+      if (liveQ?.close && provTs && provEpochSec != null && Number.isFinite(provEpochSec) && provEpochSec > 0) {
+        const tickBar = liveAccRef.current.update(liveQ.close, provEpochSec, stepSec)
+        lastTickTsRef.current = provTs
+        // Only override with accumulator when no TV series bar is available for this bucket
+        if (tickBar && !currentMonBar) {
+          try { series.update({ time: tickBar.barUtcSec as UTCTimestamp, open: tickBar.open, high: tickBar.high, low: tickBar.low, close: tickBar.close }) } catch { /* ignore */ }
+        }
+      }
+    }
+
+    // Dev diagnostic
+    if (process.env.NODE_ENV === 'development') {
+      const nowBerlin = new Intl.DateTimeFormat('de-DE', {
+        timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit', second: '2-digit',
+      }).format(new Date())
+      const provTs      = liveQ?.timestamp     // exchange event time only
+      const updatedAt   = liveQ?.updated_at    // DB insert time — shown separately for comparison
+      const fmt = (ts: string | undefined, opts: Intl.DateTimeFormatOptions) =>
+        ts ? new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', ...opts }).format(new Date(ts)) : '—'
+      const hms = { hour: '2-digit' as const, minute: '2-digit' as const, second: '2-digit' as const }
+      const hm  = { hour: '2-digit' as const, minute: '2-digit' as const }
+      const bucketBerlin = currentBucket ? fmt(new Date(currentBucket * 1000).toISOString(), hm) : '—'
+      const snap = liveAccRef.current.snapshot()
+      console.groupCollapsed('[LWChart mount diagnostic]')
+      console.table({
+        browserTime:            nowBerlin,
+        providerEventTs:        fmt(provTs, hms),        // exchange/provider event time (used for bucket)
+        providerEventUTC:       provTs ? new Date(provTs).toISOString().slice(11, 19) : '—',
+        dbUpdatedAt:            fmt(updatedAt, hms),     // DB insert time — NOT used for bucket
+        dbUpdatedAtUTC:         updatedAt ? new Date(updatedAt).toISOString().slice(11, 19) : '—',
+        currentBucketUTC:       currentBucket ? new Date(currentBucket * 1000).toISOString().slice(11, 16) : '—',
+        currentBucketBerlin:    bucketBerlin,
+        closedBarsCount:        closedBars.length,
+        lastClosedBarUTC:       closedBars.length ? new Date(closedBars[closedBars.length - 1]._utc * 1000).toISOString().slice(11, 16) : '—',
+        currentBarO:            snap?.open.toFixed(5)  ?? '—',
+        currentBarH:            snap?.high.toFixed(5)  ?? '—',
+        currentBarL:            snap?.low.toFixed(5)   ?? '—',
+        currentBarC:            snap?.close.toFixed(5) ?? '—',
+        lastTimestampToLWC:     snap ? new Date(snap.barUtcSec * 1000).toISOString().slice(11, 16) + ' UTC' : '—',
+      })
+      console.groupEnd()
+    }
+
+    // ── 6. EMA lines ─────────────────────────────────────────────────────
     const emaFastSeries = chart.addSeries(LineSeries, { color: GOLD, lineWidth: 1, priceLineVisible: false, lastValueVisible: false })
     const emaSlowSeries = chart.addSeries(LineSeries, { color: '#555', lineWidth: 1, priceLineVisible: false, lastValueVisible: false })
     emaFastRef.current = emaFastSeries
@@ -498,10 +739,14 @@ export default function LWChart({
     markersPluginRef.current = createSeriesMarkers(series)
     setPluginReady(n => n + 1)
 
-    // Initial visible range — scroll to current live bar (past the future whitespace)
-    const totalBars  = normalizedBars.length + futureBars.length
-    const visibleBars = visibleDays === null ? normalizedBars.length : Math.min(normalizedBars.length, Math.round(visibleDays * 86400 / tfStepSec(timeframe)))
-    chart.timeScale().setVisibleLogicalRange({ from: totalBars - visibleBars, to: totalBars + 5 })
+    // Initial visible range — +10 right offset gives breathing room to the right
+    const totalBars   = closedBars.length
+    const visibleBars = initialBars != null
+      ? Math.min(closedBars.length, initialBars)
+      : visibleDays === null
+        ? closedBars.length
+        : Math.min(closedBars.length, Math.round(visibleDays * 86400 / stepSec))
+    chart.timeScale().setVisibleLogicalRange({ from: totalBars - visibleBars, to: totalBars + 10 })
 
     // Subscribe
     chart.timeScale().subscribeVisibleLogicalRangeChange(() => {
@@ -552,40 +797,76 @@ export default function LWChart({
       seriesRef.current = null
       emaFastRef.current = null
       emaSlowRef.current = null
+      liveAccRef.current.reset()
+      tickLogCountRef.current = 0
+      lastTickTsRef.current   = null
       try { chart.remove() } catch { /* ignore */ }
     }
-  // Re-create chart when data length changes (new strategy selected)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.length, timeframe])
 
-  // ── Update candle data when bars change ──────────────────────────────────
+  // ── Data update (gap-fill / strategy switch) ──────────────────────────────
 
   useEffect(() => {
-    const series = seriesRef.current; const chart = chartRef.current
-    if (!series || !chart || !data.length) return
-    const normalized = data.map(d => ({
-      time:  (toSec(d.time) + TZ_OFFSET_SEC) as UTCTimestamp,
-      open:  Number(d.open), high: Number(d.high), low: Number(d.low), close: Number(d.close),
-    })).filter(d => d.open > 0 && d.high >= d.low)
-    if (!normalized.length) return
-    const future = buildFutureBars(normalized[normalized.length - 1].time as number, timeframe)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    series.setData([...normalized, ...future] as any)
-    // Re-scroll to current bar after data update (setData resets the range)
-    const totalBars  = normalized.length + future.length
-    const visibleBars = visibleDays === null ? normalized.length : Math.min(normalized.length, Math.round((visibleDays ?? 7) * 86400 / tfStepSec(timeframe)))
-    chart.timeScale().setVisibleLogicalRange({ from: totalBars - visibleBars, to: totalBars + 5 })
+    const series = seriesRef.current
+    if (!series || !data.length) return
+
+    const stepSec = tfStepSec(timeframe)
+    const liveQ   = liveQuoteRef.current
+
+    type NBar = { _utc: number; open: number; high: number; low: number; close: number }
+    const allNorm: NBar[] = []
+    for (const d of data) {
+      const slotSec = normalizeToSlot(toSec(d.time), stepSec)
+      if (slotSec <= 0 || !Number.isFinite(slotSec)) continue
+      const open = Number(d.open), high = Number(d.high), low = Number(d.low), close = Number(d.close)
+      if (open <= 0 || high < low) continue
+      allNorm.push({ _utc: slotSec, open, high, low, close })
+    }
+    allNorm.sort((a, b) => a._utc - b._utc)
+    const dedupMap = new Map<number, NBar>()
+    for (const b of allNorm) dedupMap.set(b._utc, b)
+    const sorted = [...dedupMap.values()].sort((a, b) => a._utc - b._utc)
+    if (!sorted.length) return
+
+    const currentBucket  = providerBucketUtcFromTs(liveQ?.timestamp, stepSec)
+    const closedBars     = currentBucket != null ? sorted.filter(b => b._utc < currentBucket) : sorted
+    const currentMonBar  = currentBucket != null ? sorted.find(b => b._utc === currentBucket) ?? null : null
+
+    if (!closedBars.length && !currentMonBar) return
+
+    const lwcBars = closedBars.map(b => ({
+      time: b._utc as UTCTimestamp,
+      open: b.open, high: b.high, low: b.low, close: b.close,
+    }))
+    series.setData(lwcBars)
+
+    // Re-seed accumulator (no-op if already seeded for this bucket)
+    if (currentBucket != null) {
+      if (currentMonBar) {
+        liveAccRef.current.initFromData(currentMonBar.open, currentBucket)
+      } else if (closedBars.length) {
+        liveAccRef.current.initFromData(closedBars[closedBars.length - 1].close, currentBucket)
+      }
+      const snap = liveAccRef.current.snapshot()
+      if (snap) {
+        try { series.update({ time: snap.barUtcSec as UTCTimestamp, open: snap.open, high: snap.high, low: snap.low, close: snap.close }) } catch { /* ignore */ }
+      }
+    }
+
     requestAnimationFrame(syncOverlay)
     requestAnimationFrame(() => syncSignalTrianglesRef.current())
-  }, [data, timeframe, syncOverlay, visibleDays])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, timeframe, syncOverlay])
 
   // ── Trade markers ─────────────────────────────────────────────────────────
 
   useEffect(() => {
     const api = markersPluginRef.current; if (!api) return
     if (!trades.length) { api.setMarkers([]); return }
+    const stepSec = tfStepSec(timeframe)
     api.setMarkers(trades.map(t => ({
-      time:     (toSec(t.time) + TZ_OFFSET_SEC) as UTCTimestamp,
+      time:     normalizeToSlot(toSec(t.time), stepSec) as UTCTimestamp,
       position: t.dir === 'long' ? 'belowBar' : 'aboveBar',
       color:    t.win ? '#F5F5F5' : '#9CA3AF',
       shape:    t.dir === 'long' ? 'arrowUp' : 'arrowDown',
@@ -594,7 +875,7 @@ export default function LWChart({
         : `${t.win ? '+' : ''}${(t.pnlPct * 100).toFixed(0)}%`,
       size: 1,
     })))
-  }, [trades])
+  }, [trades, timeframe])
 
   // ── EMA lines ─────────────────────────────────────────────────────────────
 
@@ -603,30 +884,37 @@ export default function LWChart({
     emaFastRef.current.applyOptions({ visible: showEma && showEmaFast })
     emaSlowRef.current.applyOptions({ visible: showEma && showEmaSlow })
     if (showEma && emaFastData.length) {
-      emaFastRef.current.setData(emaFastData.map(d => ({ ...d, time: (toSec(d.time) + TZ_OFFSET_SEC) as UTCTimestamp })))
-      if (emaSlowData.length) emaSlowRef.current.setData(emaSlowData.map(d => ({ ...d, time: (toSec(d.time) + TZ_OFFSET_SEC) as UTCTimestamp })))
+      const stepSec = tfStepSec(timeframe)
+      // Deduplicate by slot before setData — two bars that map to the same slot
+      // (e.g. "T24:00:00" vs "T00:00:00" next day) would otherwise throw:
+      // "data must be asc ordered by time". Last value per slot wins (TV history).
+      const toSlotMap = (data: typeof emaFastData) => {
+        const m = new Map<number, number>()
+        for (const d of data) m.set(normalizeToSlot(toSec(d.time), stepSec), d.value)
+        return [...m.entries()].sort((a, b) => a[0] - b[0]).map(([t, v]) => ({ value: v, time: t as UTCTimestamp }))
+      }
+      emaFastRef.current.setData(toSlotMap(emaFastData))
+      if (emaSlowData.length) emaSlowRef.current.setData(toSlotMap(emaSlowData))
     }
-  }, [emaFastData, emaSlowData, showEma, showEmaFast, showEmaSlow])
+  }, [emaFastData, emaSlowData, showEma, showEmaFast, showEmaSlow, timeframe])
 
-  // ─── Render — identical JSX structure to ReferenceCandlestickChart ────────
+  // ─── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div style={{ position: 'relative', height: '100%', width: '100%', background: '#0e0e12', overflow: 'hidden' }}>
+    <div data-testid="engine-6e30m-source-fixed" style={{ position: 'relative', height: '100%', width: '100%', background: '#0e0e12', overflow: 'hidden' }}>
 
-      {/* LWC canvas — same class as Referenzen for pointer-events CSS */}
       <div ref={containerRef} className="monitoring-chart-shell" style={{ position: 'absolute', inset: 0 }} />
 
-      {/* ── Price guide line ── */}
-      {priceLine ? (
-        <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 5, overflow: 'visible' }}>
-          <line data-price-guide="1"
-            x1={priceLine.x1} y1={priceLine.y} x2={priceLine.x2} y2={priceLine.y}
-            stroke={priceLine.stroke} strokeOpacity={0.92} strokeWidth={1}
-            strokeDasharray="3 3" shapeRendering="geometricPrecision" pointerEvents="none" />
-        </svg>
-      ) : null}
+      {/* Price guide line — stable DOM element, updated via ref, never remounted */}
+      <svg ref={priceGuideElRef}
+        style={{ display: 'none', position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 5, overflow: 'visible' }}>
+        <line ref={priceLineElRef} data-price-guide="1"
+          x1="0" y1="0" x2="0" y2="0"
+          stroke="#ffffff" strokeOpacity={0.92} strokeWidth={1}
+          strokeDasharray="3 3" shapeRendering="geometricPrecision" pointerEvents="none" />
+      </svg>
 
-      {/* ── Trade background fills ── */}
+      {/* Trade background fills */}
       {tradeBgRects.map((b, i) => {
         const w = b.xEnd - b.xStart
         const slZoneY = Math.min(b.yEntry, b.ySL); const slZoneH = Math.abs(b.ySL - b.yEntry)
@@ -643,7 +931,7 @@ export default function LWChart({
         )
       })}
 
-      {/* ── Signal entry triangles (clickable) ── */}
+      {/* Signal entry triangles */}
       {signalTriangles.map((t) => {
         const S = 7
         const isActive = activeTradeBg.has(t.name)
@@ -660,7 +948,7 @@ export default function LWChart({
         )
       })}
 
-      {/* ── Level arrows (Entry, SL, BE, TP) — small right-pointing triangle only ── */}
+      {/* Level arrows */}
       {signalLevels.map((l, i) => {
         const H = 5; const W = 10
         const points = `${l.x - W},${l.y - H} ${l.x - W},${l.y + H} ${l.x},${l.y}`
@@ -671,7 +959,7 @@ export default function LWChart({
         )
       })}
 
-      {/* ── Trade lines entry → exit ── */}
+      {/* Trade lines */}
       {tradeLines.map((l, i) => (
         <svg key={i} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 5, overflow: 'hidden' }}>
           <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}
@@ -679,7 +967,7 @@ export default function LWChart({
         </svg>
       ))}
 
-      {/* ── Exit triangles (◀ purple) ── */}
+      {/* Exit triangles */}
       {exitTriangles.map((t, i) => {
         const H = 6; const W = 11
         const points = `${t.x},${t.y} ${t.x + W},${t.y - H} ${t.x + W},${t.y + H}`
@@ -690,31 +978,22 @@ export default function LWChart({
         )
       })}
 
-      {/* ── Price/countdown label ── */}
-      {priceLabel ? (
-        <div className="monitoring-price-axis-label" data-tone={priceLabel.tone}
-          style={{
-            position: 'absolute', left: priceLabel.left, top: priceLabel.top, width: priceLabel.width,
-            transform: 'translateY(-50%)', zIndex: 6, pointerEvents: 'none',
-            display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center',
-            gap: 1, minHeight: 20, padding: '1px 5px', boxSizing: 'border-box', borderRadius: 3,
-            background: priceLabel.backgroundColor,
-            border: `1px solid ${priceAxisLabelBorderColor(priceLabel.tone)}`,
-            lineHeight: 1, fontFamily: MONITORING_FONT, fontSize: 10,
-            boxShadow: `0 0 0 1px ${priceAxisLabelShadowColor(priceLabel.tone)}, 0 2px 8px rgba(0,0,0,0.38)`,
-          }}>
-          <span style={{ fontSize: 10, fontWeight: 700, fontFamily: FONT_NUNITO, color: PRICE_AXIS_TEXT_COLOR, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>
-            {priceLabel.priceText}
-          </span>
-          {priceLabel.countdownText ? (
-            <span style={{ fontSize: 10, fontWeight: 400, color: '#9CA3AF', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
-              {priceLabel.countdownText}
-            </span>
-          ) : null}
-        </div>
-      ) : null}
+      {/* Price/countdown label — stable DOM element, updated via ref, never remounted */}
+      <div ref={priceLabelElRef} className="monitoring-price-axis-label"
+        style={{
+          display: 'none', position: 'absolute', left: 0, top: 0, width: 65,
+          transform: 'translateY(-50%)', zIndex: 6, pointerEvents: 'none',
+          flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center',
+          gap: 1, minHeight: 20, padding: '1px 5px', boxSizing: 'border-box', borderRadius: 3,
+          lineHeight: 1, fontFamily: MONITORING_FONT, fontSize: 10,
+        }}>
+        <span ref={priceLabelPriceRef}
+          style={{ fontSize: 10, fontWeight: 700, fontFamily: FONT_NUNITO, color: PRICE_AXIS_TEXT_COLOR, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap', letterSpacing: '-0.01em' }} />
+        <span ref={priceLabelCountRef}
+          style={{ fontSize: 10, fontWeight: 400, color: '#9CA3AF', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap', display: 'none' }} />
+      </div>
 
-      {/* ── Blur hinter Header ── */}
+      {/* Header blur */}
       {headerSize && (
         <div aria-hidden style={{
           position: 'absolute', top: 0, left: 0,
@@ -726,13 +1005,12 @@ export default function LWChart({
         }} />
       )}
 
-      {/* ── Instrument Header — identical to ReferenceCandlestickChart ── */}
+      {/* Instrument header */}
       <div ref={headerRef} style={{
         position: 'absolute', top: 12, left: 12, zIndex: 10,
         pointerEvents: 'auto', userSelect: 'none',
         display: 'flex', flexDirection: 'column', gap: 8,
       }}>
-        {/* Instrument row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={icon} alt="" style={{ width: 34, height: 34, objectFit: 'contain', flexShrink: 0 }} />
@@ -742,14 +1020,12 @@ export default function LWChart({
               <span style={{ color: '#ffffff', fontWeight: 700 }}>·</span>
               <span style={{ fontFamily: FONT_NUNITO, fontWeight: 700 }}>{timeframe.toUpperCase()}</span>
             </div>
-            {/* Source row + eye button */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: FONT, fontSize: 11, fontWeight: 400, color: 'rgba(255,255,255,0.45)', lineHeight: 1.2, whiteSpace: 'nowrap' }}>
                 <span>{name}</span>
                 <span style={{ color: 'rgba(255,255,255,0.25)' }}>·</span>
                 <span>{exchange}</span>
               </div>
-              {/* Eye toggle — only show if there's a live signal */}
               {hasSignal && (
                 <button type="button" onClick={() => setShowStrategies(v => !v)}
                   title={showStrategies ? 'Signal ausblenden' : 'Signal einblenden'}
@@ -774,7 +1050,6 @@ export default function LWChart({
           </div>
         </div>
 
-        {/* Strategy chip */}
         {showStrategies && hasSignal && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
             <StrategyChip

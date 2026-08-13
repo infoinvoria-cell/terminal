@@ -333,21 +333,21 @@ const ANOMALY: StrategyRow[] = [
 // GBP was removed after failing the standalone OOS gate.
 const INTRADAY: StrategyRow[] = [
   {
-    id: "eurusd_30m", ticker: "6E1!", label: "EUR/USD Futures · 6E", group: "Intraday",
-    engine: "Liquidity Sweep · ATR SL · TP 3R · BE 1R · 07–10:30 UTC", pillar: "intraday", weight: 13,
+    id: "eurusd_30m", ticker: "EURUSD", label: "EUR/USD 30M · EURUSD", group: "Intraday",
+    engine: "Liquidity Sweep · ATR SL · TP 3R · BE 1R", pillar: "intraday", weight: 13,
     sharpeOos: 1.535, cagr: "+21.4%", maxDd: "−18.7%", calmar: 1.145, pf: 1.325, trades: 1358, wfOos: "7/8",
     status: "active", exchange: "CME", intradayId: "EUR30m", codexGroup: "intraday", codexSymbol: "EURUSD_30M",
     isNotes: "TV-Parity 80.7% (988/1224) · Backtrader: 268 trades (regime), PF 1.097, Sharpe +0.09 · APPROVED_LIVE 2026-08-01",
   },
   {
     id: "dax_1h", ticker: "DAX 1H / MT", label: "DAX 1H", group: "Intraday",
-    engine: "SL 40pt · TP 2.5R · BE 1.5R · 07–12 UTC", pillar: "intraday", weight: 13,
+    engine: "SL 1.0 ATR · TP 5.0 ATR · BE 0.5 ATR", pillar: "intraday", weight: 13,
     sharpeOos: 2.683, cagr: "+10.7%", maxDd: "−12.4%", calmar: 0.865, pf: 1.484, trades: 335, wfOos: "5/8",
     status: "active", exchange: "EUREX", intradayId: "DAX1H", codexGroup: "intraday", codexSymbol: "DAX_1H",
   },
   {
     id: "dax_2h", ticker: "DAX 2H", label: "DAX 2H", group: "Intraday",
-    engine: "SL ATR×0.8 · TP 3R · V4 Long-Only · 09–11 UTC", pillar: "intraday", weight: 7,
+    engine: "SL 0.8 ATR · TP 4.0 RR · BE 0.5 ATR · V4 Long-Only", pillar: "intraday", weight: 7,
     sharpeOos: 2.459, cagr: "+5.4%", maxDd: "−19.9%", calmar: 0.270, pf: 1.478, trades: 81, wfOos: "5/8",
     status: "active", exchange: "EUREX", intradayId: "DAX2H", codexGroup: "intraday", codexSymbol: "DAX_2H",
   },

@@ -1,8 +1,8 @@
 export type MessageRole = "system" | "user" | "assistant";
 
 export type SentinelProviderType = "local" | "anthropic" | "custom";
-export type SentinelProviderId = "local" | "ollama" | "groq" | "cerebras" | "mistral" | "cohere" | "anthropic" | "custom";
-export type SentinelRouterMode = "auto" | "local" | "ollama" | "groq" | "cerebras" | "mistral" | "cohere" | "anthropic" | "custom";
+export type SentinelProviderId = "local" | "ollama" | "groq" | "cerebras" | "mistral" | "cohere" | "anthropic" | "custom" | "openrouter" | "gemini" | "github-models" | "cloudflare" | "huggingface";
+export type SentinelRouterMode = "auto" | "local" | "ollama" | "groq" | "cerebras" | "mistral" | "cohere" | "anthropic" | "custom" | "openrouter" | "gemini" | "github-models" | "cloudflare" | "huggingface";
 export type ProviderAvailabilityReason =
   | "ready"
   | "key_missing"
@@ -58,6 +58,7 @@ export type SentinelChatArgs = {
   messages: ChatMessage[];
   model?: string;
   category?: "general" | "coding" | "reasoning";
+  signal?: AbortSignal;
 };
 
 export type SentinelStreamChunk = {
