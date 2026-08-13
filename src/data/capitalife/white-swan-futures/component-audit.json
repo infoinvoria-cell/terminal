@@ -6,13 +6,12 @@
   "costScenariosNote": "Scenario A = zero cost | Scenario B = 0.85 EUR per execution (INNO) | Scenario C = 0.95 USD per execution (INNO). 1 round trip = 2 executions.",
   "dataIntegrityStatement": "16 of 17 components computed from actual repo price data. GLD reclassified: Thursday-Long rule applied to COMEX_GC1_D.csv futures prices (1OZ mult=1), not ETF — now FUTURES_REPLICATION_POSSIBLE. EURUSD 30M: EMA(20/50) on 266k OANDA 30M bars (2002–2026), M6E mult=12500. DAX 1H: EMA(20/50) on DE30EUR 30M resampled to 1H (2004–2026), FDXS mult=1. EEM/IWM: 1-share ETF seasonal per execution-truth.ts historicalSizingMode=one_share_calendar_pattern — RESEARCH_ETF_ONLY. ZM1: BLOCKED — CBOT_ZM1_D.csv not found anywhere in repo.",
   "aggregateSummary": {
-    "totalTrades": 10791,
-    "grossUSD": 93594,
-    "grossEUR": 20470,
-    "futuresReplicationPossible": 13,
-    "researchEtfOnly": 2,
-    "blocked": 1,
-    "notComputed": 1
+    "ready": 14,
+    "blocked": 3,
+    "totalTrades_ready": 10308,
+    "grossUSD_ready": 93536,
+    "grossEUR_ready": 20470,
+    "blockedStrategies": ["eem_sea", "iwm_sea", "zm1_sea"]
   },
   "components": [
     {
@@ -239,18 +238,19 @@
       "multiplier": 50,
       "currency": "USD",
       "portfolioWeightPct": 4,
-      "dataStatus": "RESEARCH_ETF_ONLY",
-      "simulationType": "RESEARCH_BACKTEST",
-      "dataSourceFile": "data/core-invest/canonical/EEM.csv",
-      "backtestStartDate": "2003-12-22",
-      "backtestEndDate": "2025-12-22",
-      "backtestTradeCount": 23,
+      "dataStatus": "NO_TRADE_DATA",
+      "simulationType": "BLOCKED",
+      "dataSourceFile": null,
+      "backtestStartDate": null,
+      "backtestEndDate": null,
+      "backtestTradeCount": null,
       "gross1ContractCur": "USD",
-      "gross1ContractAmount": 10,
-      "winRatePct": 87.0,
-      "profitFactor": 48.30,
-      "formula": "M12D20 Long +5d: entry=OPEN on/after Dec 20; exit=CLOSE +5 trading days. (exit−entry)×1 share (ETF scale).",
-      "notes": "historicalSizingMode=one_share_calendar_pattern (execution-truth.ts). Signal/research instrument=EEM ETF (ARCA). Production=MME (ICE MSCI EM Futures, mult=50). No MME price CSV in repo — ETF only. $10.36 gross = 1-share ETF gains, not futures scale."
+      "gross1ContractAmount": null,
+      "winRatePct": null,
+      "profitFactor": null,
+      "formula": "M12D20 Long +5d: entry=OPEN on/after Dec 20; exit=CLOSE +5 trading days. (exit−entry)×50.",
+      "blockerStatement": "FEHLENDE INFORMATION: MXEF-Indexserie oder ICE MME Futures OHLCV (taeglich). DURCHSUCHTE QUELLEN: data/core-invest/canonical/, data/historical/, .playwright-mcp/, src/data/, public/, Capitalife Brain history_parts — 0 Treffer fuer MXEF, MME, MSCI_EM-Futures. WARUM NICHT REKONSTRUIERBAR: Nur EEM-ETF-Preis vorhanden (BATS-EEM-1D.csv = ETF, kein Futures-/Indexpreis). ETF-Preis * MME-Multiplier = unzulaessiger Proxy. MSCI.csv in Brain = MSCI Inc. Aktie (NYSE), nicht der MSCI EM Index. EXAKT WELCHE EINE DATENQUELLE: MXEF daily OHLCV 2003-2026 (TradingView: MSCI:MXEF oder ICE:MME1!) ODER ICE_MME1_D.csv (MME Continuous Futures).",
+      "notes": "Repo-weite Suche bestaetigt: kein MXEF-Index, kein MME-Futures-Preis verfuegbar. RESEARCH_ETF_ONLY ist laut Statusregel nicht akzeptiert. Strategie BLOCKED."
     },
     {
       "strategyId": "zc1_sea",
@@ -336,18 +336,19 @@
       "multiplier": 5,
       "currency": "USD",
       "portfolioWeightPct": 3,
-      "dataStatus": "RESEARCH_ETF_ONLY",
-      "simulationType": "RESEARCH_BACKTEST",
-      "dataSourceFile": "data/core-invest/canonical/IWM.csv",
-      "backtestStartDate": "2003-05-27",
-      "backtestEndDate": "2026-05-26",
-      "backtestTradeCount": 24,
+      "dataStatus": "NO_TRADE_DATA",
+      "simulationType": "BLOCKED",
+      "dataSourceFile": null,
+      "backtestStartDate": null,
+      "backtestEndDate": null,
+      "backtestTradeCount": null,
       "gross1ContractCur": "USD",
-      "gross1ContractAmount": 48,
-      "winRatePct": 79.2,
-      "profitFactor": 5.77,
-      "formula": "M05D25 Long +5d: entry=OPEN on/after May 25; exit=CLOSE +5 trading days. (exit−entry)×1 share.",
-      "notes": "historicalSizingMode=one_share_calendar_pattern. Signal/research=IWM ETF. Production=M2K (CME, mult=5). RTY.csv only starts 2017, insufficient. $47.94 gross = 1-share ETF gains."
+      "gross1ContractAmount": null,
+      "winRatePct": null,
+      "profitFactor": null,
+      "formula": "M05D25 Long +5d: entry=OPEN on/after May 25; exit=CLOSE +5 trading days. (exit−entry)×5.",
+      "blockerStatement": "FEHLENDE INFORMATION: RTY1 Continuous Futures OHLCV vor 2017-07-10 ODER RUT Index OHLCV 2008-2016. DURCHSUCHTE QUELLEN: data/core-invest/canonical/RTY.csv, .playwright-mcp/CME-MINI-DL-RTY1-1D.csv, .vercel/...CME_MINI_RTY1_D.json, Capitalife Brain history_parts/US2000.csv — alle starten 2017-07-10. WARUM NICHT REKONSTRUIERBAR: M2K-Futures-Kontrakt existiert seit 2017. E-mini RTY Daten vor 2017 nicht im Repo. IWM-ETF-Preis x M2K-Multiplier = unzulaessiger Proxy. RUT-Index nicht vorhanden. EXAKT WELCHE EINE DATENQUELLE: RTY1_D.csv (CME E-mini Russell 2000 Continuous, taeglich, 2000-2017) ODER RUT_D.csv (Russell 2000 Index, taeglich, 1988+) — von TradingView: CME_MINI:RTY1! oder INDEX:RUT.",
+      "notes": "Repo-weite Suche: alle 4 Kopien der RTY-Daten starten 2017-07-10 (Contract-Launch M2K). Kein Pre-2017-Backfill verfuegbar. RESEARCH_ETF_ONLY nicht akzeptiert. BLOCKED."
     }
   ]
 }
