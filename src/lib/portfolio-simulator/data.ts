@@ -51,7 +51,8 @@ function buildWhiteSwanTradeRows(capitalRows: CapitalRequirementRecord[]): Portf
   const rows: PortfolioTradeRow[] = [];
 
   for (const trade of eurusdEvents.trades) {
-    rows.push({
+    if (trade.isOpen || trade.exitTime == null) continue;
+    const row: PortfolioTradeRow = {
       id: `eurusd-${trade.entryTime}`,
       portfolio: "White Swan",
       strategy: byId.get("eurusd_mt_30m_eurusd_30m")?.displayName ?? "EURUSD 30M",
@@ -70,11 +71,12 @@ function buildWhiteSwanTradeRows(capitalRows: CapitalRequirementRecord[]): Portf
       pnlUsd: trade.pnl,
       pnlPct: null,
       status: "CANONICAL",
-    });
+    };
+    rows.push(row);
   }
 
   for (const trade of dax1hEvents.trades) {
-    rows.push({
+    const row: PortfolioTradeRow = {
       id: `dax1h-${trade.entryTime}`,
       portfolio: "White Swan",
       strategy: byId.get("mt_dax_1h_de30eur_1h")?.displayName ?? "DAX 1H",
@@ -87,17 +89,18 @@ function buildWhiteSwanTradeRows(capitalRows: CapitalRequirementRecord[]): Portf
       executableQuantity: 0,
       executionFeasibility: "NOT_GRANULAR",
       entryDate: trade.entryTime.slice(0, 10),
-      exitDate: trade.exitTime.slice(0, 10),
+      exitDate: trade.exitTime?.slice(0, 10) ?? null,
       entry: trade.entry,
       exit: trade.exit,
       pnlUsd: trade.pnl,
       pnlPct: null,
       status: "CANONICAL",
-    });
+    };
+    rows.push(row);
   }
 
   for (const trade of dax2hEvents.trades.slice(0, 500)) {
-    rows.push({
+    const row: PortfolioTradeRow = {
       id: String(trade.id),
       portfolio: "White Swan",
       strategy: byId.get("trend_momentum_dax_2h_de30eur_2h")?.displayName ?? "DAX 2H",
@@ -116,11 +119,12 @@ function buildWhiteSwanTradeRows(capitalRows: CapitalRequirementRecord[]): Portf
       pnlUsd: Number(trade.grossR) * 100,
       pnlPct: null,
       status: "CANONICAL",
-    });
+    };
+    rows.push(row);
   }
 
   for (const trade of gldThursday.trades) {
-    rows.push({
+    const row: PortfolioTradeRow = {
       id: `gld-${trade.entry_time}`,
       portfolio: "White Swan",
       strategy: byId.get("FP10_GLD_THURSDAY_LONG")?.displayName ?? "GLD Thursday Long",
@@ -139,11 +143,12 @@ function buildWhiteSwanTradeRows(capitalRows: CapitalRequirementRecord[]): Portf
       pnlUsd: Number(trade.pnl),
       pnlPct: null,
       status: "CANONICAL",
-    });
+    };
+    rows.push(row);
   }
 
   for (const trade of ym1Tat.trades) {
-    rows.push({
+    const row: PortfolioTradeRow = {
       id: `ym1-${trade.entry_time}`,
       portfolio: "White Swan",
       strategy: byId.get("FP10_YM1_TAT")?.displayName ?? "YM1 TAT",
@@ -162,7 +167,8 @@ function buildWhiteSwanTradeRows(capitalRows: CapitalRequirementRecord[]): Portf
       pnlUsd: Number(trade.pnl),
       pnlPct: null,
       status: "CANONICAL",
-    });
+    };
+    rows.push(row);
   }
 
   return rows;
@@ -215,26 +221,29 @@ function buildCoreInvestCapitalRequirements(): CapitalRequirementRecord[] {
 }
 
 function buildCoreInvestTrades(): PortfolioTradeRow[] {
-  return qqqInvestTrades.trades.map((trade) => ({
-    id: `qqq-pine-${trade.entryDate}`,
-    portfolio: "Core Invest",
-    strategy: "QQQ Pine 1",
-    family: "Strategy",
-    evidenceType: "CANONICAL",
-    direction: "LONG",
-    signalInstrument: "QQQ",
-    executionInstrument: "QQQ",
-    modelQuantity: Number(trade.quantity),
-    executableQuantity: 1,
-    executionFeasibility: "EXECUTION_APPROXIMATE",
-    entryDate: trade.entryDate,
-    exitDate: trade.exitDate,
-    entry: Number(trade.entryPrice),
-    exit: Number(trade.exitPrice),
-    pnlUsd: Number(trade.netPnl),
-    pnlPct: Number(trade.returnPct),
-    status: "CANONICAL",
-  }));
+  return qqqInvestTrades.trades.map((trade) => {
+    const row: PortfolioTradeRow = {
+      id: `qqq-pine-${trade.entryDate}`,
+      portfolio: "Core Invest",
+      strategy: "QQQ Pine 1",
+      family: "Strategy",
+      evidenceType: "CANONICAL",
+      direction: "LONG",
+      signalInstrument: "QQQ",
+      executionInstrument: "QQQ",
+      modelQuantity: Number(trade.quantity),
+      executableQuantity: 1,
+      executionFeasibility: "EXECUTION_APPROXIMATE",
+      entryDate: trade.entryDate,
+      exitDate: trade.exitDate,
+      entry: Number(trade.entryPrice),
+      exit: Number(trade.exitPrice),
+      pnlUsd: Number(trade.netPnl),
+      pnlPct: Number(trade.returnPct),
+      status: "CANONICAL",
+    };
+    return row;
+  });
 }
 
 function ensureDir(dirPath: string) {

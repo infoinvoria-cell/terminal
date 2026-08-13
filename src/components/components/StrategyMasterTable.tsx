@@ -887,14 +887,6 @@ function ExpandedRow({ row, accountSize }: { row: DisplayRow; accountSize: numbe
       items: [
         { k: "Portfolio Weight", v: row.weight != null ? `${row.weight.toFixed(2)}%` : "—" },
         { k: "Account", v: `USD ${accountSize.toLocaleString("en-US", { maximumFractionDigits: 0 })}` },
-        { k: "Risk / Trade %", v: selectedSizing?.riskPerTradePctEquity != null ? `${selectedSizing.riskPerTradePctEquity.toFixed(2)}%` : "—" },
-        {
-          k: "Risk / Trade",
-          v:
-            selectedSizing?.riskPerTradeAccountCurrency != null
-              ? `${selectedProfile.accountCurrency} ${selectedSizing.riskPerTradeAccountCurrency.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
-              : "—",
-        },
         { k: "Signal", v: executionTruth?.signalInstrument ?? row.signalInstrument ?? "—" },
         { k: "Execution", v: executionTruth?.executionInstrument ?? row.executionInstrument ?? "—" },
         {
@@ -907,11 +899,15 @@ function ExpandedRow({ row, accountSize }: { row: DisplayRow; accountSize: numbe
         },
         {
           k: "Resolved Expiry",
-          v: getWhiteSwanResolvedExpiry() ?? getWhiteSwanResolvedContractStatus(),
+          v: scenarioRow?.resolvedContractExpiry ?? getWhiteSwanResolvedContractStatus(scenarioRow),
+        },
+        {
+          k: "Resolved Contract",
+          v: scenarioRow?.resolvedContractLabel ?? "DATA_PENDING",
         },
         {
           k: "Qualification",
-          v: getWhiteSwanBrokerQualificationStatus(),
+          v: getWhiteSwanBrokerQualificationStatus(scenarioRow),
         },
         {
           k: "Model Qty",
@@ -927,11 +923,13 @@ function ExpandedRow({ row, accountSize }: { row: DisplayRow; accountSize: numbe
         },
         {
           k: "Initial Margin",
-          v: scenarioRow?.initialMargin != null
-              ? `${selectedProfile.accountCurrency} ${scenarioRow.initialMargin.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
-              : selectedSizing?.initialMargin != null
-                ? `${selectedProfile.accountCurrency} ${selectedSizing.initialMargin.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
-              : formatUsd(row.initialMarginUsd),
+          v: scenarioRow?.statusReason?.includes("BEFORE_MARGIN")
+              ? "— NOT EVALUATED"
+              : scenarioRow?.initialMargin != null
+                  ? `${selectedProfile.accountCurrency} ${scenarioRow.initialMargin.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
+                  : selectedSizing?.initialMargin != null
+                    ? `${selectedProfile.accountCurrency} ${selectedSizing.initialMargin.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
+                  : formatUsd(row.initialMarginUsd),
         },
         {
           k: "Maint. Margin",

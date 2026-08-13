@@ -12,11 +12,14 @@ import type {
 } from "@/lib/portfolio-simulator/types";
 import {
   getWhiteSwanMarkSnapshot,
-  getWhiteSwanMarkPrice,
   WHITE_SWAN_EXECUTION_PROFILES,
   WHITE_SWAN_EXECUTION_TRUTH,
   type WhiteSwanExecutionEntry,
 } from "@/lib/white-swan/execution-truth";
+import {
+  getWhiteSwanExecutionReferenceQuote,
+  resolveWhiteSwanCurrentContract,
+} from "@/lib/white-swan/execution-runtime";
 
 const EXACT_THRESHOLD_PCT = 2;
 const APPROXIMATE_THRESHOLD_PCT = 15;
@@ -53,7 +56,7 @@ const CONTRACT_EQUIVALENT_RATIO: Record<string, number> = {
   CC: 1,
   SB: 1,
   MES: 1,
-  EI: 1,
+  MME: 1,
   M2K: 1,
   M6E: 1,
 } as const;
@@ -293,10 +296,18 @@ function getReferenceUnit(entry: WhiteSwanExecutionEntry, row: CapitalRequiremen
   if (entry.signalInstrument === "IWM") return "IWM_SHARE";
   if (entry.signalInstrument === "EEM") return "EEM_SHARE";
   if (entry.signalInstrument === "GLD") return "GLD_SHARE";
-  if (row.historicalReferenceUnit?.includes("GC1!")) return "GC_STANDARD_CONTRACT";
-  if (row.historicalReferenceUnit?.includes("FDAX1!")) return "FDAX_STANDARD_CONTRACT";
-  if (row.historicalReferenceUnit?.includes("YM1!")) return "YM_STANDARD_CONTRACT";
-  return "REFERENCE_UNIT";
+  if (entry.signalInstrument === "DE30EUR") return "FDAX_STANDARD_CONTRACT";
+  if (entry.signalInstrument === "YM1!") return "YM_STANDARD_CONTRACT";
+  if (entry.signalInstrument === "ZM1!") return "ZM_STANDARD_CONTRACT";
+  if (entry.signalInstrument === "SB1!") return "SB_STANDARD_CONTRACT";
+  if (entry.signalInstrument === "HG1!") return "HG_STANDARD_CONTRACT";
+  if (entry.signalInstrument === "GC1!") return "GC_STANDARD_CONTRACT";
+  if (entry.signalInstrument === "CL1!") return "CL_STANDARD_CONTRACT";
+  if (entry.signalInstrument === "ZC1!") return "ZC_STANDARD_CONTRACT";
+  if (entry.signalInstrument === "ZW1!") return "ZW_STANDARD_CONTRACT";
+  if (entry.signalInstrument === "ZS1!") return "ZS_STANDARD_CONTRACT";
+  if (entry.signalInstrument === "CC1!") return "CC_STANDARD_CONTRACT";
+  return row.historicalReferenceUnit || "REFERENCE_UNIT";
 }
 
 function getFutureContractExposureUnit(entry: WhiteSwanExecutionEntry) {
@@ -386,10 +397,12 @@ export function resolveWhiteSwanExecutionTranslation(
 
   const markSnapshot = getWhiteSwanMarkSnapshot(entry);
   const markPriceRaw = markSnapshot.price > 0 ? Number(markSnapshot.price.toFixed(6)) : null;
-  const priceStatus =
-    markPriceRaw == null
-      ? "DATA_PENDING"
-      : markSnapshot.source.includes("runtime") ? "LIVE" : "SNAPSHOT";
+  const referenceQuote = getWhiteSwanExecutionReferenceQuote(entry);
+  const referenceQuotePrice =
+    referenceQuote.price != null && referenceQuote.price > 0
+      ? Number(referenceQuote.price.toFixed(6))
+      : null;
+  const contractResolution = resolveWhiteSwanCurrentContract(entry);
   const referenceUnit = getReferenceUnit(entry, row);
   const referenceExposureUnit = getReferenceExposureUnit(entry);
   const futureContractExposureUnit = getFutureContractExposureUnit(entry);
@@ -415,6 +428,10 @@ export function resolveWhiteSwanExecutionTranslation(
     entry.signalInstrument === "EEM"
       ? "APPROXIMATE_MAPPING"
       : "FAITHFUL_MAPPING";
+  const benchmarkBasisStatus =
+    entry.signalInstrument === "EEM"
+      ? "APPROXIMATE"
+      : "FAITHFUL";
 
   let modelReferenceQty: number | null = model.modelTargetBrokerQuantity;
   let economicExposureUnit = referenceExposureUnit;
@@ -422,6 +439,8 @@ export function resolveWhiteSwanExecutionTranslation(
   let futureUnitExposure: number | null = null;
   let idealFutureQty: number | null = null;
   let candidateExposurePerBrokerUnit = getCandidateExposurePerBrokerUnit(entry);
+  let conversionMethod: string | null = null;
+  let goldOuncesEquivalent: number | null = null;
 
   if (entry.ibkrSymbol === "M6E") {
     modelReferenceQty = model.modelTargetBrokerQuantity;
@@ -430,6 +449,7 @@ export function resolveWhiteSwanExecutionTranslation(
     futureUnitExposure = 12_500;
     idealFutureQty = economicExposure != null ? Number((economicExposure / futureUnitExposure).toFixed(6)) : null;
     candidateExposurePerBrokerUnit = futureUnitExposure;
+    conversionMethod = "EUR_NOTIONAL_DIVIDED_BY_M6E_EUR_PER_CONTRACT";
   } else if (isShareToFutureConversion(entry)) {
     modelReferenceQty = model.modelTargetBrokerQuantity;
     economicExposureUnit = entry.signalInstrument === "GLD" ? "USD_GOLD_NOTIONAL" : "USD_EQUITY_NOTIONAL";
@@ -437,9 +457,20 @@ export function resolveWhiteSwanExecutionTranslation(
       modelReferenceQty != null && markPriceRaw != null
         ? Number((modelReferenceQty * markPriceRaw).toFixed(6))
         : null;
-    futureUnitExposure = null;
+    // Share strategies are not identity-mapped to futures contracts — idealFutureQty is always null.
+    // Economic exposure and unit references are computed for informational display only.
+    if (entry.signalInstrument === "GLD" && markPriceRaw != null && referenceQuotePrice != null) {
+      goldOuncesEquivalent = Number((economicExposure! / referenceQuotePrice).toFixed(6));
+      futureUnitExposure = referenceQuotePrice;
+      conversionMethod = "GLD_USD_NOTIONAL_DIVIDED_BY_1OZ_FUTURES_USD_NOTIONAL";
+    } else if (entry.signalInstrument !== "GLD" && economicExposure != null && referenceQuotePrice != null) {
+      futureUnitExposure = Number((referenceQuotePrice * (entry.multiplier ?? 1)).toFixed(6));
+      conversionMethod = `${entry.signalInstrument}_USD_NOTIONAL_DIVIDED_BY_${entry.ibkrSymbol}_USD_NOTIONAL`;
+    } else {
+      futureUnitExposure = null;
+    }
     idealFutureQty = null;
-    candidateExposurePerBrokerUnit = 0;
+    candidateExposurePerBrokerUnit = futureUnitExposure ?? 0;
   } else {
     const standardEquivalentQty = Number(
       (model.modelTargetBrokerQuantity * contractEquivalentRatio(entry)).toFixed(6),
@@ -450,6 +481,7 @@ export function resolveWhiteSwanExecutionTranslation(
     futureUnitExposure = contractEquivalentRatio(entry);
     idealFutureQty = model.modelTargetBrokerQuantity;
     candidateExposurePerBrokerUnit = futureUnitExposure;
+    conversionMethod = "CANONICAL_FUTURES_EQUIVALENT_RATIO";
   }
 
   const roundedTargetQty = idealFutureQty ?? 0;
@@ -709,7 +741,9 @@ export function resolveWhiteSwanExecutionTranslation(
     signalBenchmark,
     executionBenchmark,
     benchmarkMethodologyMismatch,
+    benchmarkBasisStatus,
     executionFidelityStatus,
+    conversionMethod,
     brokerQuantity,
     candidateFloorQuantity: roundedCandidates.floorQty,
     candidateCeilQuantity: roundedCandidates.ceilQty,
@@ -732,7 +766,27 @@ export function resolveWhiteSwanExecutionTranslation(
     priceInstrument: entry.signalInstrument,
     priceTimestamp: markSnapshot.asOfUtc || null,
     priceSource: markSnapshot.source || null,
-    priceStatus,
+    priceStatus: markSnapshot.status,
+    executionReferencePrice: referenceQuotePrice,
+    executionReferencePriceInstrument: referenceQuote.instrument,
+    executionReferencePriceTimestamp: referenceQuote.asOfUtc,
+    executionReferencePriceSource: referenceQuote.source,
+    executionReferencePriceStatus: referenceQuote.status,
+    goldOuncesEquivalent,
+    resolvedContractRootSymbol: contractResolution.rootSymbol,
+    resolvedContractEligibleDeliveryMonths: contractResolution.eligibleDeliveryMonths,
+    resolvedContractRule: contractResolution.contractSelectionRule,
+    resolvedContractExpiry: contractResolution.resolvedExpiry,
+    resolvedContractLabel: contractResolution.resolvedContractLabel,
+    resolvedContractStatus: contractResolution.resolvedContractStatus,
+    brokerQualificationStatus: "DATA_PENDING",
+    brokerQualifiedConId: null,
+    brokerQualifiedLocalSymbol: null,
+    brokerQualifiedMultiplier: null,
+    brokerQualifiedMinTick: null,
+    brokerQualifiedTradingClass: null,
+    availableFundsChange: null,
+    commissionEstimate: null,
     positionNotionalAccountCurrency,
     cashRequired,
     initialMargin,
