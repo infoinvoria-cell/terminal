@@ -88,6 +88,74 @@ export function buildWhiteSwanCapitalRequirements(audit: AuditArtifact): Capital
   }));
 }
 
+type ExecutionTruthEntry = {
+  canonicalStrategyId: string;
+  portfolioWeightPct: number;
+  strategyLabel: string;
+  assetClass: string;
+  signalInstrument: string;
+  executionInstrument: string;
+  minimumQuantity: number | null;
+};
+
+type CapitalScalingEntry = {
+  historicalSizingMode: string;
+  historicalReferenceQty: number | "NOT_FIXED" | null;
+  historicalReferenceCapitalUsd: number | null;
+  largestLossUsd: number | null;
+  plannedRiskPerReferenceUnit: number | "NOT_DEFINED" | "NOT_APPLICABLE_NO_HARD_STOP" | null;
+};
+
+// Builds CapitalRequirementRecord[] from committed execution truth + canonical scaling values.
+// Use this instead of buildWhiteSwanCapitalRequirements() to avoid static imports from gitignored .runtime/.
+export function buildWhiteSwanCapitalRequirementsFromTruth(
+  executionTruth: ExecutionTruthEntry[],
+  scalingMap: Record<string, CapitalScalingEntry>,
+): CapitalRequirementRecord[] {
+  return executionTruth.map((entry) => {
+    const scaling = scalingMap[entry.canonicalStrategyId];
+    if (!scaling) throw new Error(`Missing capital scaling for ${entry.canonicalStrategyId}`);
+    const loss = scaling.largestLossUsd;
+    const hasStop = scaling.plannedRiskPerReferenceUnit !== "NOT_APPLICABLE_NO_HARD_STOP";
+    return {
+      strategyId: entry.canonicalStrategyId,
+      displayName: entry.strategyLabel,
+      family: entry.assetClass,
+      portfolioWeightPct: entry.portfolioWeightPct,
+      historicalSizingMode: scaling.historicalSizingMode,
+      historicalReferenceInstrument: entry.signalInstrument,
+      historicalReferenceQuantity: scaling.historicalReferenceQty,
+      historicalReferenceUnit: entry.executionInstrument,
+      historicalReferenceCapitalUsd: scaling.historicalReferenceCapitalUsd,
+      evidenceType: toEvidenceType("CANONICAL_TRADE_LIST"),
+      authoritativeEvidenceType: "CANONICAL_TRADE_LIST",
+      largestLossEvidenceType: "CANONICAL_TRADE_LIST",
+      largestReliableWinUsd: null,
+      largestReliableLossUsd: loss,
+      reconstructedLargestLossUsd: null,
+      largestLossUsedForCapitalCalculation: loss,
+      maxDrawdownUsd: null,
+      maxDrawdownPct: null,
+      hasHardStop: hasStop,
+      plannedRiskPerReferenceUnit: scaling.plannedRiskPerReferenceUnit,
+      capitalForWorstLossAt1Pct: capitalFromLoss(loss, 0.01),
+      capitalForWorstLossAt2Pct: capitalFromLoss(loss, 0.02),
+      capitalForWorstLossAt3Pct: capitalFromLoss(loss, 0.03),
+      capitalForWorstLossAt5Pct: capitalFromLoss(loss, 0.05),
+      capitalForWorstLossAt10Pct: capitalFromLoss(loss, 0.1),
+      modelReferenceUnits: Number((entry.portfolioWeightPct / 100).toFixed(4)),
+      fractionalReferenceUnitsRequired: null,
+      minimumBrokerExecutableUnit: entry.minimumQuantity,
+      sourceArtifact: "WHITE_SWAN_EXECUTION_TRUTH_V1",
+      canonicalStatus: null,
+      canonicalSummaryAvailable: true,
+      canonicalLargestLossAvailable: loss != null,
+      confidence: "HIGH",
+      granularityClassification: null,
+    };
+  });
+}
+
 export function classifyExecutionFeasibility(
   modelUnits: number,
   minimumExecutableUnit: number | null,

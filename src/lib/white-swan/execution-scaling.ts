@@ -11,6 +11,7 @@ import type {
   WhiteSwanMarginConfidence,
 } from "@/lib/portfolio-simulator/types";
 import {
+  getWhiteSwanMarkSnapshot,
   getWhiteSwanMarkPrice,
   WHITE_SWAN_EXECUTION_PROFILES,
   WHITE_SWAN_EXECUTION_TRUTH,
@@ -218,9 +219,13 @@ function deriveModelTargetBrokerQuantity(
       referenceCapitalUsd != null && referenceCapitalUsd > 0
         ? sleeveCapitalUsd / referenceCapitalUsd
         : 0;
+    const canonicalPackageUnit =
+      entry.ibkrSymbol === "M6E" && row.minimumBrokerExecutableUnit != null && row.minimumBrokerExecutableUnit > 0
+        ? row.minimumBrokerExecutableUnit
+        : entry.minimumQuantity ?? 1;
     const referenceBrokerQuantity =
-      riskPerMinUnit > 0 && entry.minimumQuantity != null
-        ? (row.plannedRiskPerReferenceUnit / riskPerMinUnit) * entry.minimumQuantity
+      riskPerMinUnit > 0
+        ? (row.plannedRiskPerReferenceUnit / riskPerMinUnit) * canonicalPackageUnit
         : 0;
     return {
       historicalReferenceUnits: 1,
@@ -253,13 +258,17 @@ function deriveModelTargetBrokerQuantity(
 }
 
 function getReferenceExposureUnit(entry: WhiteSwanExecutionEntry) {
+  if (entry.ibkrSymbol === "M6E") return "EUR_NOTIONAL";
+  if (entry.signalInstrument === "SPY") return "USD_EQUITY_NOTIONAL";
+  if (entry.signalInstrument === "IWM") return "USD_EQUITY_NOTIONAL";
+  if (entry.signalInstrument === "EEM") return "USD_EQUITY_NOTIONAL";
+  if (entry.signalInstrument === "GLD") return "USD_GOLD_NOTIONAL";
   if (entry.assetClass === "future") {
-    if (entry.ibkrSymbol === "M6E") return "EURUSD_FUTURES_EQUIVALENT";
     if (entry.ibkrSymbol === "FDXS") return "FDAX_EQUIVALENT";
     if (entry.ibkrSymbol === "MYM") return "YM_EQUIVALENT";
     if (entry.ibkrSymbol === "MES") return "SPX_FUTURES_EQUIVALENT";
     if (entry.ibkrSymbol === "M2K") return "RUSSELL2000_FUTURES_EQUIVALENT";
-    if (entry.ibkrSymbol === "EI") return "EMERGING_INDEX_FUTURES_EQUIVALENT";
+    if (entry.ibkrSymbol === "MME") return "MSCI_EM_INDEX_FUTURES_EQUIVALENT";
     if (entry.ibkrSymbol === "MGC" || entry.ibkrSymbol === "1OZ") return "GC_EQUIVALENT";
     if (entry.ibkrSymbol === "MCL") return "CL_EQUIVALENT";
     if (entry.ibkrSymbol === "MZC") return "ZC_EQUIVALENT";
@@ -274,7 +283,43 @@ function getReferenceExposureUnit(entry: WhiteSwanExecutionEntry) {
 }
 
 function getCandidateExposurePerBrokerUnit(entry: WhiteSwanExecutionEntry) {
+  if (entry.ibkrSymbol === "M6E") return 12_500;
   return contractEquivalentRatio(entry);
+}
+
+function getReferenceUnit(entry: WhiteSwanExecutionEntry, row: CapitalRequirementRecord) {
+  if (entry.ibkrSymbol === "M6E") return "EUR_NOTIONAL";
+  if (entry.signalInstrument === "SPY") return "SPY_SHARE";
+  if (entry.signalInstrument === "IWM") return "IWM_SHARE";
+  if (entry.signalInstrument === "EEM") return "EEM_SHARE";
+  if (entry.signalInstrument === "GLD") return "GLD_SHARE";
+  if (row.historicalReferenceUnit?.includes("GC1!")) return "GC_STANDARD_CONTRACT";
+  if (row.historicalReferenceUnit?.includes("FDAX1!")) return "FDAX_STANDARD_CONTRACT";
+  if (row.historicalReferenceUnit?.includes("YM1!")) return "YM_STANDARD_CONTRACT";
+  return "REFERENCE_UNIT";
+}
+
+function getFutureContractExposureUnit(entry: WhiteSwanExecutionEntry) {
+  if (entry.ibkrSymbol === "M6E") return "M6E_CONTRACT";
+  if (entry.ibkrSymbol === "MES") return "MES_CONTRACT";
+  if (entry.ibkrSymbol === "M2K") return "M2K_CONTRACT";
+  if (entry.ibkrSymbol === "MME") return "MME_CONTRACT";
+  if (entry.ibkrSymbol === "1OZ") return "ONE_OUNCE_GOLD_FUTURE";
+  if (entry.ibkrSymbol === "FDXS") return "FDXS_CONTRACT";
+  if (entry.ibkrSymbol === "MYM") return "MYM_CONTRACT";
+  if (entry.ibkrSymbol === "MZM") return "MZM_CONTRACT";
+  if (entry.ibkrSymbol === "MHG") return "MHG_CONTRACT";
+  if (entry.ibkrSymbol === "MCL") return "MCL_CONTRACT";
+  if (entry.ibkrSymbol === "MZC") return "MZC_CONTRACT";
+  if (entry.ibkrSymbol === "MZW") return "MZW_CONTRACT";
+  if (entry.ibkrSymbol === "MZS") return "MZS_CONTRACT";
+  if (entry.ibkrSymbol === "CC") return "CC_CONTRACT";
+  if (entry.ibkrSymbol === "SB") return "SB_CONTRACT";
+  return "FUTURE_CONTRACT";
+}
+
+function isShareToFutureConversion(entry: WhiteSwanExecutionEntry) {
+  return entry.signalInstrument === "SPY" || entry.signalInstrument === "IWM" || entry.signalInstrument === "EEM" || entry.signalInstrument === "GLD";
 }
 
 function roundBrokerQuantity(
@@ -339,45 +384,122 @@ export function resolveWhiteSwanExecutionTranslation(
       ? { ...entry, quantityStep: 1, minimumQuantity: 1 }
       : entry;
 
-  const { floorQty, ceilQty } = roundBrokerQuantity(roundingEntry, model.modelTargetBrokerQuantity);
+  const markSnapshot = getWhiteSwanMarkSnapshot(entry);
+  const markPriceRaw = markSnapshot.price > 0 ? Number(markSnapshot.price.toFixed(6)) : null;
+  const priceStatus =
+    markPriceRaw == null
+      ? "DATA_PENDING"
+      : markSnapshot.source.includes("runtime") ? "LIVE" : "SNAPSHOT";
+  const referenceUnit = getReferenceUnit(entry, row);
   const referenceExposureUnit = getReferenceExposureUnit(entry);
-  const candidateExposurePerBrokerUnit = getCandidateExposurePerBrokerUnit(entry);
-  const modelExposureInReferenceUnits = Number(
-    (model.modelTargetBrokerQuantity * candidateExposurePerBrokerUnit).toFixed(6),
-  );
-  const floorExposure = Number((floorQty * candidateExposurePerBrokerUnit).toFixed(6));
-  const ceilExposure = Number((ceilQty * candidateExposurePerBrokerUnit).toFixed(6));
+  const futureContractExposureUnit = getFutureContractExposureUnit(entry);
+  const signalBenchmark =
+    entry.signalInstrument === "EEM" ? "MSCI Emerging Markets Index (Net)" :
+    entry.signalInstrument === "SPY" ? "S&P 500 via SPY ETF" :
+    entry.signalInstrument === "IWM" ? "Russell 2000 via IWM ETF" :
+    entry.signalInstrument === "GLD" ? "Gold via GLD ETF" :
+    entry.signalInstrument === "EURUSD" ? "EUR/USD FX rate" :
+    null;
+  const executionBenchmark =
+    entry.ibkrSymbol === "MME" ? "MSCI Emerging Markets Index (Price)" :
+    entry.ibkrSymbol === "MES" ? "S&P 500 futures index notional" :
+    entry.ibkrSymbol === "M2K" ? "Russell 2000 futures index notional" :
+    entry.ibkrSymbol === "1OZ" && entry.signalInstrument === "GLD" ? "1-ounce COMEX gold future" :
+    entry.ibkrSymbol === "M6E" ? "EUR notional per M6E contract" :
+    null;
+  const benchmarkMethodologyMismatch =
+    entry.signalInstrument === "EEM"
+      ? "EEM benchmark = MSCI Emerging Markets Index (Net); MME future = MSCI Emerging Markets price index future."
+      : null;
+  const executionFidelityStatus =
+    entry.signalInstrument === "EEM"
+      ? "APPROXIMATE_MAPPING"
+      : "FAITHFUL_MAPPING";
+
+  let modelReferenceQty: number | null = model.modelTargetBrokerQuantity;
+  let economicExposureUnit = referenceExposureUnit;
+  let economicExposure: number | null = model.modelTargetBrokerQuantity;
+  let futureUnitExposure: number | null = null;
+  let idealFutureQty: number | null = null;
+  let candidateExposurePerBrokerUnit = getCandidateExposurePerBrokerUnit(entry);
+
+  if (entry.ibkrSymbol === "M6E") {
+    modelReferenceQty = model.modelTargetBrokerQuantity;
+    economicExposureUnit = "EUR_NOTIONAL";
+    economicExposure = model.modelTargetBrokerQuantity;
+    futureUnitExposure = 12_500;
+    idealFutureQty = economicExposure != null ? Number((economicExposure / futureUnitExposure).toFixed(6)) : null;
+    candidateExposurePerBrokerUnit = futureUnitExposure;
+  } else if (isShareToFutureConversion(entry)) {
+    modelReferenceQty = model.modelTargetBrokerQuantity;
+    economicExposureUnit = entry.signalInstrument === "GLD" ? "USD_GOLD_NOTIONAL" : "USD_EQUITY_NOTIONAL";
+    economicExposure =
+      modelReferenceQty != null && markPriceRaw != null
+        ? Number((modelReferenceQty * markPriceRaw).toFixed(6))
+        : null;
+    futureUnitExposure = null;
+    idealFutureQty = null;
+    candidateExposurePerBrokerUnit = 0;
+  } else {
+    const standardEquivalentQty = Number(
+      (model.modelTargetBrokerQuantity * contractEquivalentRatio(entry)).toFixed(6),
+    );
+    modelReferenceQty = standardEquivalentQty;
+    economicExposureUnit = referenceExposureUnit;
+    economicExposure = standardEquivalentQty;
+    futureUnitExposure = contractEquivalentRatio(entry);
+    idealFutureQty = model.modelTargetBrokerQuantity;
+    candidateExposurePerBrokerUnit = futureUnitExposure;
+  }
+
+  const roundedTargetQty = idealFutureQty ?? 0;
+  const roundedCandidates = roundBrokerQuantity(roundingEntry, roundedTargetQty);
+  const floorExposure =
+    economicExposure != null && futureUnitExposure != null
+      ? Number((roundedCandidates.floorQty * futureUnitExposure).toFixed(6))
+      : 0;
+  const ceilExposure =
+    economicExposure != null && futureUnitExposure != null
+      ? Number((roundedCandidates.ceilQty * futureUnitExposure).toFixed(6))
+      : 0;
 
   const floorErrorPct =
-    modelExposureInReferenceUnits > 0
-      ? (Math.abs(floorExposure - modelExposureInReferenceUnits) / modelExposureInReferenceUnits) * 100
+    economicExposure != null && economicExposure > 0
+      ? (Math.abs(floorExposure - economicExposure) / economicExposure) * 100
       : 100;
   const ceilErrorPct =
-    modelExposureInReferenceUnits > 0
-      ? (Math.abs(ceilExposure - modelExposureInReferenceUnits) / modelExposureInReferenceUnits) * 100
+    economicExposure != null && economicExposure > 0
+      ? (Math.abs(ceilExposure - economicExposure) / economicExposure) * 100
       : 100;
 
-  const preferCeil = ceilQty > 0 && ceilErrorPct < floorErrorPct;
-  const brokerQuantity = preferCeil ? ceilQty : floorQty;
-  const brokerExposureInReferenceUnits = Number(
-    (brokerQuantity * candidateExposurePerBrokerUnit).toFixed(6),
-  );
+  const preferCeil = roundedCandidates.ceilQty > 0 && ceilErrorPct < floorErrorPct;
+  const brokerQuantity = idealFutureQty == null ? 0 : preferCeil ? roundedCandidates.ceilQty : roundedCandidates.floorQty;
+  const brokerExposureInReferenceUnits =
+    economicExposure != null && futureUnitExposure != null
+      ? Number((brokerQuantity * futureUnitExposure).toFixed(6))
+      : 0;
   const absoluteExposureError = Number(
-    (brokerExposureInReferenceUnits - modelExposureInReferenceUnits).toFixed(6),
+    ((economicExposure == null ? 0 : brokerExposureInReferenceUnits - economicExposure)).toFixed(6),
   );
   const relativeExposureErrorPct =
-    modelExposureInReferenceUnits > 0
+    economicExposure != null && economicExposure > 0
       ? Number(
           (
-            (Math.abs(brokerExposureInReferenceUnits - modelExposureInReferenceUnits) /
-              modelExposureInReferenceUnits) *
+            (Math.abs(brokerExposureInReferenceUnits - economicExposure) /
+              economicExposure) *
             100
           ).toFixed(4),
         )
       : 100;
 
-  const exposureStatus = classifyFromError(relativeExposureErrorPct);
-  const markPrice = brokerQuantity > 0 ? Number(getWhiteSwanMarkPrice(entry).toFixed(6)) : null;
+  const conversionDataPending =
+    model.modelTargetBrokerQuantity > 0 &&
+    (economicExposure == null || futureUnitExposure == null || idealFutureQty == null);
+  const exposureStatus =
+    conversionDataPending
+      ? "NOT_GRANULAR_ENOUGH"
+      : classifyFromError(relativeExposureErrorPct);
+  const markPrice = brokerQuantity > 0 ? markPriceRaw : markPriceRaw;
   const existingMargin =
     entry.assetClass === "fx"
       ? { initialMargin: null, maintenanceMargin: null, minimumAccountRequired: null }
@@ -485,6 +607,9 @@ export function resolveWhiteSwanExecutionTranslation(
   } else if (model.modelTargetBrokerQuantity <= 0) {
     finalExecutionStatus = "NOT_GRANULAR_ENOUGH";
     statusReason = "TARGET_EXPOSURE_BELOW_MINIMUM_BROKER_STEP";
+  } else if (conversionDataPending) {
+    finalExecutionStatus = "DATA_PENDING";
+    statusReason = "ECONOMIC_TO_FUTURES_CONVERSION_DATA_PENDING";
   } else if (exposureStatus === "NOT_GRANULAR_ENOUGH" || brokerQuantity <= 0) {
     finalExecutionStatus = "NOT_GRANULAR_ENOUGH";
     statusReason = "EXPOSURE_GRANULARITY_REJECTED_BEFORE_MARGIN";
@@ -564,19 +689,30 @@ export function resolveWhiteSwanExecutionTranslation(
     historicalReferenceUnits: model.historicalReferenceUnits,
     historicalQuantityAtSignal: model.historicalQuantityAtSignal,
     scenarioScaledQuantityTarget: model.scenarioScaledQuantityTarget,
+    referenceUnit,
+    modelReferenceQty,
     referenceExposureUnit,
-    modelExposureInReferenceUnits,
+    modelExposureInReferenceUnits: economicExposure ?? 0,
+    economicExposureUnit,
+    economicExposure,
     candidateExposurePerBrokerUnit,
+    futureContractExposureUnit,
+    futureUnitExposure,
     brokerExposureInReferenceUnits,
-    modelTargetExposure: modelExposureInReferenceUnits,
-    modelTargetBrokerQuantity: model.modelTargetBrokerQuantity,
+    modelTargetExposure: economicExposure ?? 0,
+    modelTargetBrokerQuantity: modelReferenceQty ?? 0,
+    idealFutureQty,
     selectedInstrument: entry.executionInstrument,
     selectedIbkrSymbol: entry.ibkrSymbol,
     selectedSecType: entry.secType,
     selectedExchange: entry.exchange,
+    signalBenchmark,
+    executionBenchmark,
+    benchmarkMethodologyMismatch,
+    executionFidelityStatus,
     brokerQuantity,
-    candidateFloorQuantity: floorQty,
-    candidateCeilQuantity: ceilQty,
+    candidateFloorQuantity: roundedCandidates.floorQty,
+    candidateCeilQuantity: roundedCandidates.ceilQty,
     candidateUnitExposureRatio: candidateExposurePerBrokerUnit,
     executableExposure: brokerExposureInReferenceUnits,
     absoluteExposureError,
@@ -593,6 +729,10 @@ export function resolveWhiteSwanExecutionTranslation(
           ? "Cash-account affordability evaluated locally; fractional eligibility and exact IBKR entity still unverified"
           : "IBKR non-IRA margin account assumption",
     markPrice,
+    priceInstrument: entry.signalInstrument,
+    priceTimestamp: markSnapshot.asOfUtc || null,
+    priceSource: markSnapshot.source || null,
+    priceStatus,
     positionNotionalAccountCurrency,
     cashRequired,
     initialMargin,

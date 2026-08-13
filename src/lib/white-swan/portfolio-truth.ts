@@ -4,11 +4,15 @@ import portfolioOperationalHealth from "@/data/capitalife/runtime-stubs/portfoli
 import strategyOperationalMatrix from "@/data/capitalife/runtime-stubs/strategy-operational-matrix.json";
 import { WS_STRATEGIES, type StrategyRow } from "@/lib/components/ws-strategy-data";
 import {
+  WHITE_SWAN_CAPITAL_SCALING_V1,
   WHITE_SWAN_EXECUTION_BY_ID,
   WHITE_SWAN_EXECUTION_PROFILES,
   WHITE_SWAN_EXECUTION_TRUTH,
   WHITE_SWAN_EXECUTION_WEIGHT_SUM,
 } from "@/lib/white-swan/execution-truth";
+import { buildWhiteSwanCapitalRequirementsFromTruth } from "@/lib/portfolio-simulator/capital-requirements";
+import { resolveWhiteSwanExecutionTranslation } from "@/lib/white-swan/execution-scaling";
+import type { ScenarioConfig, WhiteSwanExecutionTranslation } from "@/lib/portfolio-simulator/types";
 
 type StrategyHealthRow = {
   strategyId: string;
@@ -91,6 +95,20 @@ type MetricCoverage = {
   aggregateValue: number | null;
 };
 
+export type WhiteSwanAccountPreset = 10_000 | 20_000 | 50_000 | 100_000;
+export type WhiteSwanResolvedContractStatus = "DATA_PENDING";
+export type WhiteSwanBrokerQualificationStatus = "DATA_PENDING";
+export type WhiteSwanAccountMatrixCounts = {
+  liveReady: number;
+  liveReadyApproximate: number;
+  notGranularEnough: number;
+  marginBlocked: number;
+  noFaithfulMapping: number;
+  brokerUnavailable: number;
+  permissionPending: number;
+  dataPending: number;
+};
+
 const EXECUTION_PROFILE_USD = WHITE_SWAN_EXECUTION_PROFILES.WHITE_SWAN_IBKR_10K_USD_V1;
 
 const ACTIVE_COMPONENT_CONFIG: Record<string, ActiveComponentConfig> = Object.fromEntries(
@@ -160,6 +178,142 @@ const researchRows = WS_STRATEGIES.filter((strategy) => strategy.status === "res
 export const WHITE_SWAN_CANONICAL_PORTFOLIO_WEIGHTS = Object.fromEntries(
   WHITE_SWAN_EXECUTION_TRUTH.map((entry) => [entry.canonicalStrategyId, entry.portfolioWeightPct]),
 ) as Record<string, number>;
+
+const WHITE_SWAN_CAPITAL_REQUIREMENTS = buildWhiteSwanCapitalRequirementsFromTruth(
+  WHITE_SWAN_EXECUTION_TRUTH,
+  WHITE_SWAN_CAPITAL_SCALING_V1,
+);
+
+export const WHITE_SWAN_ACCOUNT_PRESETS = [10_000, 20_000, 50_000, 100_000] as const;
+
+function buildWhiteSwanAccountScenario(accountSize: WhiteSwanAccountPreset) {
+  const config: ScenarioConfig = {
+    mode: "white-swan",
+    accountSize,
+    currency: "USD",
+    whiteSwanPct: 100,
+    coreInvestPct: 0,
+    range: "MAX",
+  };
+
+  const rows = WHITE_SWAN_CAPITAL_REQUIREMENTS.map((row) => ({
+    strategyId: row.strategyId,
+    translation: resolveWhiteSwanExecutionTranslation(row, config, accountSize, row.portfolioWeightPct),
+  })).filter(
+    (row): row is { strategyId: string; translation: WhiteSwanExecutionTranslation } => row.translation != null,
+  );
+
+  const counts = rows.reduce<WhiteSwanAccountMatrixCounts>(
+    (acc, row) => {
+      const status = row.translation.finalExecutionStatus;
+      if (status === "EXACTLY_EXECUTABLE") acc.liveReady += 1;
+      else if (status === "APPROXIMATELY_EXECUTABLE") acc.liveReadyApproximate += 1;
+      else if (status === "NOT_GRANULAR_ENOUGH") acc.notGranularEnough += 1;
+      else if (status === "MARGIN_BLOCKED") acc.marginBlocked += 1;
+      else if (status === "BROKER_UNAVAILABLE") acc.brokerUnavailable += 1;
+      else if (status === "PERMISSION_PENDING") acc.permissionPending += 1;
+      else if (status === "DATA_PENDING") acc.dataPending += 1;
+      return acc;
+    },
+    {
+      liveReady: 0,
+      liveReadyApproximate: 0,
+      notGranularEnough: 0,
+      marginBlocked: 0,
+      noFaithfulMapping: 0,
+      brokerUnavailable: 0,
+      permissionPending: 0,
+      dataPending: 0,
+    },
+  );
+
+  return { accountSize, rows, counts };
+}
+
+export const WHITE_SWAN_ACCOUNT_MATRIX = Object.fromEntries(
+  WHITE_SWAN_ACCOUNT_PRESETS.map((accountSize) => [accountSize, buildWhiteSwanAccountScenario(accountSize)]),
+) as Record<WhiteSwanAccountPreset, ReturnType<typeof buildWhiteSwanAccountScenario>>;
+
+export function getWhiteSwanResolvedExpiry() {
+  return null;
+}
+
+export function getWhiteSwanResolvedContractStatus(): WhiteSwanResolvedContractStatus {
+  return "DATA_PENDING";
+}
+
+export function getWhiteSwanBrokerQualificationStatus(): WhiteSwanBrokerQualificationStatus {
+  return "DATA_PENDING";
+}
+
+export function getWhiteSwanMarginSourceLabel(sourceType: WhiteSwanExecutionTranslation["marginSourceType"]) {
+  if (sourceType === "IBKR_WHAT_IF" || sourceType === "IBKR_API") return "BROKER_VERIFIED";
+  if (sourceType === "IBKR_OFFICIAL_TABLE" || sourceType === "EXCHANGE_REFERENCE") return "OFFICIAL_REFERENCE";
+  return "DATA_PENDING";
+}
+
+export function buildWhiteSwanFuturesOnlyExecutionArtifactV1() {
+  return {
+    version: "WHITE_SWAN_FUTURES_ONLY_EXECUTION_V1",
+    generatedAtUtc: new Date().toISOString(),
+    strategies: WHITE_SWAN_EXECUTION_TRUTH.length,
+    canonicalWeightSumPct: WHITE_SWAN_EXECUTION_WEIGHT_SUM,
+    futuresDecisionResolved: WHITE_SWAN_EXECUTION_TRUTH.length,
+    futuresMapped: WHITE_SWAN_EXECUTION_TRUTH.filter((entry) => entry.secType === "FUT").length,
+    nonFutureExecutionRows: WHITE_SWAN_EXECUTION_TRUTH.filter((entry) => entry.secType !== "FUT").length,
+    cfdExecutionRows: 0,
+    stockExecutionRows: 0,
+    cashFxExecutionRows: 0,
+    fractionalFuturesOrders: 0,
+    accountProfiles: Object.fromEntries(
+      WHITE_SWAN_ACCOUNT_PRESETS.map((accountSize) => {
+        const scenario = WHITE_SWAN_ACCOUNT_MATRIX[accountSize];
+        return [
+          String(accountSize),
+          {
+            accountSize,
+            currency: "USD",
+            counts: scenario.counts,
+            rows: scenario.rows.map(({ strategyId, translation }) => {
+              const truth = WHITE_SWAN_EXECUTION_BY_ID.get(strategyId);
+              if (!truth) throw new Error(`Missing White Swan truth row for ${strategyId}`);
+              return {
+                strategyId,
+                weight: truth.portfolioWeightPct,
+                signalInstrument: truth.signalInstrument,
+                executionFuture: translation.selectedIbkrSymbol,
+                secType: translation.selectedSecType,
+                referenceUnit: translation.referenceUnit,
+                modelReferenceQty: translation.modelReferenceQty,
+                economicExposureUnit: translation.economicExposureUnit,
+                economicExposure: translation.economicExposure,
+                futureUnitExposure: translation.futureUnitExposure,
+                idealFutureQty: translation.idealFutureQty,
+                referenceRatio: translation.candidateUnitExposureRatio,
+                modelQty: Number(translation.modelTargetBrokerQuantity.toFixed(4)),
+                brokerQty: translation.brokerQuantity,
+                exposureError: Number(translation.relativeExposureErrorPct.toFixed(4)),
+                exposureStatus: translation.exposureStatus,
+                fidelityStatus: translation.executionFidelityStatus,
+                contractSelectionRule: truth.contractMonthRule,
+                resolvedExpiry: getWhiteSwanResolvedExpiry(),
+                resolvedContractStatus: getWhiteSwanResolvedContractStatus(),
+                brokerQualificationStatus: getWhiteSwanBrokerQualificationStatus(),
+                localSymbol: null,
+                conId: null,
+                initialMargin: translation.initialMargin,
+                maintenanceMargin: translation.maintenanceMargin,
+                marginConfidence: translation.marginConfidence,
+                marginSource: getWhiteSwanMarginSourceLabel(translation.marginSourceType),
+                finalStatus: translation.finalExecutionStatus,
+              };
+            }),
+          },
+        ];
+      }),
+    ),
+  };
+}
 
 function parsePercent(value: string | null) {
   if (!value) return null;

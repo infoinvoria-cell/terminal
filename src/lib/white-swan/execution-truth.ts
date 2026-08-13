@@ -205,9 +205,9 @@ const CME_MICRO_EURO_SOURCE: WhiteSwanSource = {
   sourceCurrency: "USD",
 };
 
-const CME_FTSE_EM_SOURCE: WhiteSwanSource = {
-  sourceName: "CME E-mini FTSE Emerging Index overview",
-  sourceUrl: "https://www.cmegroup.com/markets/equities/international-indices/e-mini-ftse-emerging-index.html",
+const ICE_MSCI_EM_SOURCE: WhiteSwanSource = {
+  sourceName: "ICE MSCI Emerging Markets Index Futures",
+  sourceUrl: "https://www.ice.com/products/31196851/MSCI-Emerging-Markets-Index-Futures",
   retrievedAtUtc: NOW_UTC,
   sourceType: "exchange",
   sourceCurrency: "USD",
@@ -562,30 +562,30 @@ const WHITE_SWAN_EXECUTION_TRUTH_BASE: WhiteSwanExecutionEntry[] = [
     strategyLabel: "EEM Seasonal",
     signalInstrument: "EEM",
     researchInstrument: "EEM",
-    productionInstrument: "EI",
-    executionInstrument: "E-mini FTSE Emerging Index Futures",
+    productionInstrument: "MME",
+    executionInstrument: "MSCI Emerging Markets Index Futures",
     assetClass: "future",
-    ibkrSymbol: "EI",
+    ibkrSymbol: "MME",
     secType: "FUT",
-    exchange: "CME",
+    exchange: "ICEUS",
     currency: "USD",
-    contractMonthRule: "front liquid quarterly FTSE Emerging contract rolled before expiry; treated as approximate benchmark mapping versus EEM.",
-    multiplier: 100,
+    contractMonthRule: "front liquid quarterly ICE MSCI Emerging Markets Index future rolled before expiry; approximate mapping versus EEM because the ETF benchmark is MSCI Emerging Markets Index (Net) while the future settles to the price index.",
+    multiplier: 50,
     tickSize: 0.1,
-    tickValue: 10,
+    tickValue: 5,
     minimumQuantity: 1,
     quantityStep: 1,
     fractionalEligible: false,
     smallerContractSymbol: "NO_FAITHFUL_SMALLER_CONTRACT_VERIFIED",
     executionStatusUsd10k: "EXECUTABLE_10K_VALIDATED_PROXY",
     executionStatusEur10k: "EXECUTABLE_10K_VALIDATED_PROXY",
-    statusReason: "EEM remains the historical signal identity; the only currently evidenced exchange-listed futures route in scope is E-mini FTSE Emerging, which is treated as an approximate rather than exact mapping.",
-    primarySource: CME_FTSE_EM_SOURCE,
+    statusReason: "EEM remains the historical signal identity; the current official futures route in scope is ICE MSCI Emerging Markets Index Futures (MME). This remains approximate because EEM benchmarks MSCI Emerging Markets Index (Net), while MME references the price index future.",
+    primarySource: ICE_MSCI_EM_SOURCE,
     secondarySource: {
-      sourceName: "CME equity index product overview",
-      sourceUrl: "https://www.cmegroup.com/markets/equities.html",
+      sourceName: "iShares EEM benchmark reference",
+      sourceUrl: "https://www.ishares.com/us/products/239637/ishares-msci-emerging-markets-etf",
       retrievedAtUtc: NOW_UTC,
-      sourceType: "exchange",
+      sourceType: "fund-provider",
       sourceCurrency: "USD",
     },
     usd10k: sizing(),
@@ -1248,8 +1248,12 @@ export function getWhiteSwanExecutionStatus(
     : entry.executionStatusUsd10k;
 }
 
+export function getWhiteSwanMarkSnapshot(entry: WhiteSwanExecutionEntry) {
+  return getQuote(entry);
+}
+
 export function getWhiteSwanMarkPrice(entry: WhiteSwanExecutionEntry) {
-  return getQuote(entry).price;
+  return getWhiteSwanMarkSnapshot(entry).price;
 }
 
 function countStatuses(profileId: WhiteSwanExecutionProfileId) {
@@ -1344,3 +1348,32 @@ export const WHITE_SWAN_FUTURES_ONLY_EXECUTION_ARTIFACT = {
 } as const;
 
 export const WHITE_SWAN_EXECUTION_ARTIFACT = WHITE_SWAN_FUTURES_ONLY_EXECUTION_ARTIFACT;
+
+// Canonical capital-scaling values per strategy — accepted from WHITE_SWAN_17_CAPITAL_RISK_AUDIT_V1.
+// These are the minimal fields required for execution-scaling calculations in portfolio-truth.
+// The .runtime audit JSON must NOT be statically imported in production; this const is the committed source.
+export const WHITE_SWAN_CAPITAL_SCALING_V1: Record<string, {
+  historicalSizingMode: string;
+  historicalReferenceQty: number | "NOT_FIXED" | null;
+  historicalReferenceCapitalUsd: number | null;
+  largestLossUsd: number | null;
+  plannedRiskPerReferenceUnit: number | "NOT_DEFINED" | "NOT_APPLICABLE_NO_HARD_STOP" | null;
+}> = {
+  eurusd_mt_30m_eurusd_30m:         { historicalSizingMode: "fixed_risk_package_unit",           historicalReferenceQty: null,        historicalReferenceCapitalUsd: null,   largestLossUsd: -100,     plannedRiskPerReferenceUnit: 100 },
+  mt_dax_1h_de30eur_1h:             { historicalSizingMode: "fixed_risk_package_unit",           historicalReferenceQty: null,        historicalReferenceCapitalUsd: null,   largestLossUsd: -100,     plannedRiskPerReferenceUnit: 100 },
+  FP10_GLD_THURSDAY_LONG:           { historicalSizingMode: "dynamic_equity_backtest",           historicalReferenceQty: "NOT_FIXED", historicalReferenceCapitalUsd: 100000, largestLossUsd: -6125.17, plannedRiskPerReferenceUnit: "NOT_DEFINED" },
+  FP10_YM1_TAT:                     { historicalSizingMode: "dynamic_equity_backtest",           historicalReferenceQty: "NOT_FIXED", historicalReferenceCapitalUsd: 100000, largestLossUsd: -1302.79, plannedRiskPerReferenceUnit: "NOT_DEFINED" },
+  trend_momentum_dax_2h_de30eur_2h: { historicalSizingMode: "fixed_risk_package_unit",           historicalReferenceQty: null,        historicalReferenceCapitalUsd: null,   largestLossUsd: -109.97,  plannedRiskPerReferenceUnit: 100 },
+  spy_sea:                          { historicalSizingMode: "one_share_calendar_pattern",             historicalReferenceQty: 1, historicalReferenceCapitalUsd: null, largestLossUsd: -5.35,    plannedRiskPerReferenceUnit: "NOT_APPLICABLE_NO_HARD_STOP" },
+  zm1_sea:                          { historicalSizingMode: "one_standard_contract_calendar_pattern", historicalReferenceQty: 1, historicalReferenceCapitalUsd: null, largestLossUsd: -4800,    plannedRiskPerReferenceUnit: "NOT_APPLICABLE_NO_HARD_STOP" },
+  sb1_sea_l:                        { historicalSizingMode: "one_standard_contract_calendar_pattern", historicalReferenceQty: 1, historicalReferenceCapitalUsd: null, largestLossUsd: -1198.4,  plannedRiskPerReferenceUnit: "NOT_APPLICABLE_NO_HARD_STOP" },
+  eem_sea:                          { historicalSizingMode: "one_share_calendar_pattern",             historicalReferenceQty: 1, historicalReferenceCapitalUsd: null, largestLossUsd: -0.3,     plannedRiskPerReferenceUnit: "NOT_APPLICABLE_NO_HARD_STOP" },
+  hg1_sea:                          { historicalSizingMode: "one_standard_contract_calendar_pattern", historicalReferenceQty: 1, historicalReferenceCapitalUsd: null, largestLossUsd: -7075,    plannedRiskPerReferenceUnit: "NOT_APPLICABLE_NO_HARD_STOP" },
+  gc1_sea:                          { historicalSizingMode: "one_standard_contract_calendar_pattern", historicalReferenceQty: 1, historicalReferenceCapitalUsd: null, largestLossUsd: -7350,    plannedRiskPerReferenceUnit: "NOT_APPLICABLE_NO_HARD_STOP" },
+  cl1_sea:                          { historicalSizingMode: "one_standard_contract_calendar_pattern", historicalReferenceQty: 1, historicalReferenceCapitalUsd: null, largestLossUsd: -9110,    plannedRiskPerReferenceUnit: "NOT_APPLICABLE_NO_HARD_STOP" },
+  zc1_sea:                          { historicalSizingMode: "one_standard_contract_calendar_pattern", historicalReferenceQty: 1, historicalReferenceCapitalUsd: null, largestLossUsd: -4325,    plannedRiskPerReferenceUnit: "NOT_APPLICABLE_NO_HARD_STOP" },
+  zw1_sea:                          { historicalSizingMode: "one_standard_contract_calendar_pattern", historicalReferenceQty: 1, historicalReferenceCapitalUsd: null, largestLossUsd: -2825,    plannedRiskPerReferenceUnit: "NOT_APPLICABLE_NO_HARD_STOP" },
+  zs1_sea:                          { historicalSizingMode: "one_standard_contract_calendar_pattern", historicalReferenceQty: 1, historicalReferenceCapitalUsd: null, largestLossUsd: -8850,    plannedRiskPerReferenceUnit: "NOT_APPLICABLE_NO_HARD_STOP" },
+  cc1_sea:                          { historicalSizingMode: "one_standard_contract_calendar_pattern", historicalReferenceQty: 1, historicalReferenceCapitalUsd: null, largestLossUsd: -3200,    plannedRiskPerReferenceUnit: "NOT_APPLICABLE_NO_HARD_STOP" },
+  iwm_sea:                          { historicalSizingMode: "one_share_calendar_pattern",             historicalReferenceQty: 1, historicalReferenceCapitalUsd: null, largestLossUsd: -3.11,    plannedRiskPerReferenceUnit: "NOT_APPLICABLE_NO_HARD_STOP" },
+} as const;

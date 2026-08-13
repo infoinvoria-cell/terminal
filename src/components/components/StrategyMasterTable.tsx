@@ -15,6 +15,13 @@ import {
   CI_PORTFOLIO_KPIS,
 } from "@/lib/components/ws-strategy-data";
 import {
+  getWhiteSwanBrokerQualificationStatus,
+  getWhiteSwanMarginSourceLabel,
+  getWhiteSwanResolvedContractStatus,
+  getWhiteSwanResolvedExpiry,
+  type WhiteSwanAccountPreset,
+  WHITE_SWAN_ACCOUNT_MATRIX,
+  WHITE_SWAN_ACCOUNT_PRESETS,
   WHITE_SWAN_COMPONENT_KPIS,
   WHITE_SWAN_PORTFOLIO_TRUTH,
   activeWhiteSwanComponents,
@@ -673,15 +680,13 @@ function dataRangeLabel(pillar: string, intradayId?: string): string {
 }
 
 // ── expanded row — candle chart left, equity/drawdown/KPIs right ──────────────
-function ExpandedRow({ row }: { row: DisplayRow }) {
+function ExpandedRow({ row, accountSize }: { row: DisplayRow; accountSize: number }) {
   const [data, setData]         = useState<StrategyData | null>(null);
   const [intraday, setIntraday] = useState<IntradayStrategy | null>(null);
   const [codexEq, setCodexEq]   = useState<EP[] | null>(null);
   const [codexDd, setCodexDd]   = useState<EP[] | null>(null);
   const [brainEq, setBrainEq]   = useState<EP[] | null>(null);
   const [showInfo, setShowInfo] = useState(false);
-  const [executionProfileId, setExecutionProfileId] =
-    useState<WhiteSwanExecutionProfileId>("WHITE_SWAN_IBKR_10K_USD_V1");
 
   const isRealtime = row.pillarKey === "anomaly" || row.pillarKey === "intraday";
   const refreshSecs = isRealtime ? 5 : 30;
@@ -870,14 +875,18 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
 
   if (row.section === "ws" && row.status === "active" && row.canonicalStrategyId) {
     const executionTruth = WHITE_SWAN_EXECUTION_BY_ID.get(row.canonicalStrategyId);
-    const selectedProfile = WHITE_SWAN_EXECUTION_PROFILES[executionProfileId];
-    const selectedSizing = executionTruth ? getWhiteSwanExecutionSizing(executionTruth, executionProfileId) : null;
-    const selectedStatus = executionTruth ? getWhiteSwanExecutionStatus(executionTruth, executionProfileId) : row.executionStatus;
+    const selectedProfile = WHITE_SWAN_EXECUTION_PROFILES.WHITE_SWAN_IBKR_10K_USD_V1;
+    const selectedSizing = executionTruth ? getWhiteSwanExecutionSizing(executionTruth, "WHITE_SWAN_IBKR_10K_USD_V1") : null;
+    const selectedStatus = executionTruth ? getWhiteSwanExecutionStatus(executionTruth, "WHITE_SWAN_IBKR_10K_USD_V1") : row.executionStatus;
+    const selectedScenario = accountSize in WHITE_SWAN_ACCOUNT_MATRIX
+      ? WHITE_SWAN_ACCOUNT_MATRIX[accountSize as keyof typeof WHITE_SWAN_ACCOUNT_MATRIX]
+      : null;
+    const scenarioRow = selectedScenario?.rows.find((entry: { strategyId: string }) => entry.strategyId === row.canonicalStrategyId)?.translation ?? null;
     infoBoxes.push({
-      title: "Execution 10k",
+      title: "Live Futures",
       items: [
         { k: "Portfolio Weight", v: row.weight != null ? `${row.weight.toFixed(2)}%` : "—" },
-        { k: "Profile", v: selectedProfile.accountCurrency === "USD" ? "USD 10K" : "EUR 10K" },
+        { k: "Account", v: `USD ${accountSize.toLocaleString("en-US", { maximumFractionDigits: 0 })}` },
         { k: "Risk / Trade %", v: selectedSizing?.riskPerTradePctEquity != null ? `${selectedSizing.riskPerTradePctEquity.toFixed(2)}%` : "—" },
         {
           k: "Risk / Trade",
@@ -889,19 +898,63 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
         { k: "Signal", v: executionTruth?.signalInstrument ?? row.signalInstrument ?? "—" },
         { k: "Execution", v: executionTruth?.executionInstrument ?? row.executionInstrument ?? "—" },
         {
-          k: "Contract",
+          k: "Future",
           v: executionTruth ? `${executionTruth.ibkrSymbol} · ${executionTruth.exchange}` : "—",
         },
-        { k: "Qty", v: formatQty(selectedSizing?.executionQuantity ?? row.executionQty) },
+        {
+          k: "Contract Rule",
+          v: executionTruth?.contractMonthRule ?? "—",
+        },
+        {
+          k: "Resolved Expiry",
+          v: getWhiteSwanResolvedExpiry() ?? getWhiteSwanResolvedContractStatus(),
+        },
+        {
+          k: "Qualification",
+          v: getWhiteSwanBrokerQualificationStatus(),
+        },
+        {
+          k: "Model Qty",
+          v: scenarioRow ? formatQty(Number(scenarioRow.modelTargetBrokerQuantity.toFixed(4))) : "—",
+        },
+        {
+          k: "Broker Qty",
+          v: scenarioRow ? formatQty(scenarioRow.brokerQuantity) : formatQty(selectedSizing?.executionQuantity ?? row.executionQty),
+        },
+        {
+          k: "Exposure Error",
+          v: scenarioRow ? `${scenarioRow.relativeExposureErrorPct.toFixed(2)}%` : "—",
+        },
         {
           k: "Initial Margin",
-          v:
-            selectedSizing?.initialMargin != null
-              ? `${selectedProfile.accountCurrency} ${selectedSizing.initialMargin.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
+          v: scenarioRow?.initialMargin != null
+              ? `${selectedProfile.accountCurrency} ${scenarioRow.initialMargin.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
+              : selectedSizing?.initialMargin != null
+                ? `${selectedProfile.accountCurrency} ${selectedSizing.initialMargin.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
               : formatUsd(row.initialMarginUsd),
         },
-        { k: "Status", v: executionStatusLabel(selectedStatus) },
-        ...(executionTruth?.statusReason ? [{ k: "Hinweis", v: executionTruth.statusReason }] : row.executionNote ? [{ k: "Hinweis", v: row.executionNote }] : []),
+        {
+          k: "Maint. Margin",
+          v: scenarioRow?.maintenanceMargin != null
+            ? `${selectedProfile.accountCurrency} ${scenarioRow.maintenanceMargin.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
+            : "—",
+        },
+        {
+          k: "Margin Confidence",
+          v: scenarioRow?.marginConfidence ?? "DATA_PENDING",
+        },
+        {
+          k: "Margin Source",
+          v: scenarioRow ? getWhiteSwanMarginSourceLabel(scenarioRow.marginSourceType) : "DATA_PENDING",
+        },
+        { k: "Status", v: executionStatusLabel(scenarioRow?.finalExecutionStatus ?? selectedStatus) },
+        ...(scenarioRow?.statusReason
+          ? [{ k: "Reason", v: scenarioRow.statusReason }]
+          : executionTruth?.statusReason
+            ? [{ k: "Reason", v: executionTruth.statusReason }]
+            : row.executionNote
+              ? [{ k: "Reason", v: row.executionNote }]
+              : []),
       ],
     });
   }
@@ -971,32 +1024,6 @@ function ExpandedRow({ row }: { row: DisplayRow }) {
       {/* Info panel — 4 thematic boxes in one row */}
       {showInfo && (
         <div style={{ borderTop: `1px solid ${RBORD}`, padding: "14px 16px 18px", background: "rgba(255,255,255,0.014)" }}>
-          {row.section === "ws" && row.status === "active" && row.canonicalStrategyId && (
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 6, marginBottom: 10 }}>
-              {([
-                { id: "WHITE_SWAN_IBKR_10K_USD_V1", label: "USD 10K" },
-                { id: "WHITE_SWAN_IBKR_10K_EUR_V1", label: "EUR 10K" },
-              ] as const).map((profile) => (
-                <button
-                  key={profile.id}
-                  type="button"
-                  onClick={() => setExecutionProfileId(profile.id)}
-                  className={`rc-pill ${executionProfileId === profile.id ? "rc-active" : "rc-inactive"}`}
-                  style={{
-                    fontFamily: FONT_UI,
-                    fontSize: 10,
-                    fontWeight: executionProfileId === profile.id ? 700 : 500,
-                    padding: "5px 12px",
-                    color: executionProfileId === profile.id ? "#F3F3F4" : "#6a6e7a",
-                    letterSpacing: ".06em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {profile.label}
-                </button>
-              ))}
-            </div>
-          )}
           <div style={{ display: "grid", gridTemplateColumns: `repeat(${infoBoxes.length}, minmax(0, 1fr))`, gap: 10 }}>
             {infoBoxes.map(box => (
               <div key={box.title} style={{ background: CARD, border: `1px solid ${CBORD}`, borderRadius: 10, padding: "10px 12px", display: "flex", flexDirection: "column" as const, gap: 8 }}>
@@ -1040,6 +1067,7 @@ export default function StrategyMasterTable() {
   const [expandedId, setExpId]    = useState<string | null>(null);
   const [sortKey, setSortKey]     = useState<SortKey | null>("weight");
   const [sortDir, setSortDir]     = useState<SortDir>("desc");
+  const [wsAccountSize, setWsAccountSize] = useState<WhiteSwanAccountPreset>(10_000);
   const [liveCols, setLiveCols]   = useState(false);
   const [liveData, setLiveData]   = useState<Map<string, LiveFeedItem>>(new Map());
   const [liveTrades, setLiveTrades] = useState<LiveTrade[]>([]);
@@ -1196,6 +1224,7 @@ export default function StrategyMasterTable() {
   ];
   const sections = portfolio === "ws" ? wsSecs : ciSecs;
   const kpis     = portfolio === "ws" ? WS_KPIS : CI_KPIS;
+  const wsAccountTruth = WHITE_SWAN_ACCOUNT_MATRIX[wsAccountSize];
   const LIVE_EXTRA = 3;
   let rowNum = 0;
 
@@ -1234,18 +1263,70 @@ export default function StrategyMasterTable() {
         </div>
       </div>
       {portfolio === "ws" && (
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12, flexShrink: 0 }}>
-          <span style={{
-            fontFamily: FONT_UI, fontSize: 10, fontWeight: 600,
-            color: GOLD, letterSpacing: ".04em",
-            background: "rgba(214,178,74,0.10)", border: "1px solid rgba(214,178,74,0.24)",
-            borderRadius: 6, padding: "2px 8px", whiteSpace: "nowrap" as const,
-          }}>
-            Canonical Truth
-          </span>
-          <span style={{ fontFamily: FONT_UI, fontSize: 10, color: MUTED }}>
-            {WHITE_SWAN_TRUTH_NOTE}
-          </span>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 12, flexShrink: 0, flexWrap: "wrap" as const }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" as const }}>
+            <span style={{
+              fontFamily: FONT_UI, fontSize: 10, fontWeight: 600,
+              color: GOLD, letterSpacing: ".04em",
+              background: "rgba(214,178,74,0.10)", border: "1px solid rgba(214,178,74,0.24)",
+              borderRadius: 6, padding: "2px 8px", whiteSpace: "nowrap" as const,
+            }}>
+              Canonical Truth
+            </span>
+            <span style={{ fontFamily: FONT_UI, fontSize: 10, color: MUTED }}>
+              {WHITE_SWAN_TRUTH_NOTE}
+            </span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const, justifyContent: "flex-end" }}>
+            <div style={{ display: "flex", gap: 5 }}>
+              {WHITE_SWAN_ACCOUNT_PRESETS.map((accountSize) => (
+                <button
+                  key={accountSize}
+                  type="button"
+                  onClick={() => {
+                    setWsAccountSize(accountSize);
+                    setExpId(null);
+                  }}
+                  className={`rc-pill ${wsAccountSize === accountSize ? "rc-active" : "rc-inactive"}`}
+                  style={{
+                    fontFamily: FONT_UI,
+                    fontSize: 10,
+                    fontWeight: wsAccountSize === accountSize ? 700 : 500,
+                    padding: "5px 12px",
+                    color: wsAccountSize === accountSize ? "#F3F3F4" : "#6a6e7a",
+                    letterSpacing: ".06em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {accountSize >= 1000 ? `${accountSize / 1000}k` : accountSize}
+                </button>
+              ))}
+            </div>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const }}>
+              {[
+                { label: "Ready", value: wsAccountTruth.counts.liveReady },
+                { label: "Approx", value: wsAccountTruth.counts.liveReadyApproximate },
+                { label: "Granular", value: wsAccountTruth.counts.notGranularEnough },
+                { label: "Margin", value: wsAccountTruth.counts.marginBlocked },
+                { label: "Pending", value: wsAccountTruth.counts.dataPending + wsAccountTruth.counts.permissionPending + wsAccountTruth.counts.brokerUnavailable + wsAccountTruth.counts.noFaithfulMapping },
+              ].map((item) => (
+                <span
+                  key={item.label}
+                  style={{
+                    fontFamily: FONT_UI,
+                    fontSize: 10,
+                    color: item.value > 0 && item.label !== "Ready" ? GOLD : MUTED,
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: 999,
+                    padding: "4px 8px",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {item.label} {item.value}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
       )}
       {portfolio === "ci" && (
@@ -1445,7 +1526,7 @@ export default function StrategyMasterTable() {
                   <tr key={`${row.id}_x`}>
                     <td colSpan={14 + (liveCols ? LIVE_EXTRA : 0)} style={{ padding: 0, border: "none" }}>
                       <div style={{ maxHeight: isExp ? "4000px" : "0", overflow: "hidden", transition: "max-height 0.38s cubic-bezier(0.4,0,0.2,1)" }}>
-                        {isExp && <ExpandedRow row={row} />}
+                        {isExp && <ExpandedRow row={row} accountSize={wsAccountSize} />}
                       </div>
                     </td>
                   </tr>

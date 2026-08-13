@@ -172,7 +172,9 @@ describe("white swan execution translation", () => {
       14,
     );
     expect(translation?.referenceExposureUnit).toBe("EUR_NOTIONAL");
-    expect(translation?.modelTargetBrokerQuantity).toBeCloseTo(21538.461538, 3);
+    expect(translation?.modelReferenceQty).toBeCloseTo(21538.461538, 3);
+    expect(translation?.futureUnitExposure).toBe(12500);
+    expect(translation?.idealFutureQty).toBeCloseTo(1.723077, 3);
     expect(translation?.relativeExposureErrorPct).toBeLessThan(100);
   });
 
@@ -316,7 +318,7 @@ describe("white swan execution translation", () => {
     expect(translation?.finalExecutionStatus).toBe("NOT_GRANULAR_ENOUGH");
   });
 
-  it("keeps ETF cash requirement separate from margin", () => {
+  it("marks share-to-futures conversion data pending when the required execution price layer is unavailable", () => {
     const rows = buildWhiteSwanCapitalRequirements({
       artifact: "x",
       masterTable: [
@@ -359,9 +361,202 @@ describe("white swan execution translation", () => {
       5,
     );
     expect(translation?.initialMargin).toBeNull();
-    expect(translation?.cashRequired).not.toBeNull();
-    expect(translation?.positionNotionalAccountCurrency).not.toBeNull();
+    expect(translation?.referenceUnit).toBe("SPY_SHARE");
+    expect(translation?.economicExposureUnit).toBe("USD_EQUITY_NOTIONAL");
+    expect(translation?.idealFutureQty).toBeNull();
+    expect(translation?.cashRequired).toBeNull();
+    expect(translation?.positionNotionalAccountCurrency).toBe(0);
     expect(translation?.marginConfidence).toBe("DATA_PENDING");
+    expect(translation?.finalExecutionStatus).toBe("DATA_PENDING");
+  });
+
+  it("does not identity-map SPY shares to MES futures contracts", () => {
+    const row = buildWhiteSwanCapitalRequirements({
+      artifact: "x",
+      masterTable: [
+        {
+          strategy: "spy_sea",
+          label: "SPY",
+          family: "Seasonal",
+          whiteSwanWeightPct: 5,
+          historicalSizingMode: "one_share_calendar_pattern",
+          historicalReferenceInstrument: "SPY",
+          historicalReferenceQty: 1,
+          historicalReferenceUnit: "1 share",
+          historicalReferenceCapitalUsd: 5000,
+          authoritativeEvidenceType: "CANONICAL",
+          largestLossEvidenceType: "CANONICAL",
+          largestWinUsd: 100,
+          largestLossUsd: -500,
+          reconstructedLargestLossUsd: -500,
+          largestLossUsedForCapitalCalculation: -500,
+          maxDrawdownUsd: 1000,
+          maxDrawdownPct: 1,
+          hardStop: false,
+          plannedRiskPerReferenceUnitUsd: "NOT_DEFINED",
+          fractionalReferenceUnitsRequired: 0.1,
+          minimumBrokerExecutableUnit: 1,
+          pnlEvidenceType: "CANONICAL",
+          summarySource: "artifact",
+          seasonalCanonicalStatus: "CANONICAL",
+          canonicalSummaryAvailable: true,
+          canonicalLargestLossAvailable: true,
+          confidence: "HIGH",
+          granularityClassification: "EXECUTABLE",
+        },
+      ],
+    } as never)[0]!;
+    const translation = resolveWhiteSwanExecutionTranslation(
+      row,
+      { mode: "white-swan", accountSize: 10000, currency: "USD", whiteSwanPct: 100, coreInvestPct: 0, range: "MAX" },
+      10000,
+      5,
+    );
+    expect(translation?.referenceUnit).toBe("SPY_SHARE");
+    expect(translation?.futureContractExposureUnit).toBe("MES_CONTRACT");
+    expect(translation?.idealFutureQty).toBeNull();
+  });
+
+  it("does not identity-map IWM shares to M2K futures contracts", () => {
+    const row = buildWhiteSwanCapitalRequirements({
+      artifact: "x",
+      masterTable: [
+        {
+          strategy: "iwm_sea",
+          label: "IWM",
+          family: "Seasonal",
+          whiteSwanWeightPct: 3,
+          historicalSizingMode: "one_share_calendar_pattern",
+          historicalReferenceInstrument: "IWM",
+          historicalReferenceQty: 1,
+          historicalReferenceUnit: "1 share",
+          historicalReferenceCapitalUsd: 5000,
+          authoritativeEvidenceType: "CANONICAL",
+          largestLossEvidenceType: "CANONICAL",
+          largestWinUsd: 100,
+          largestLossUsd: -500,
+          reconstructedLargestLossUsd: -500,
+          largestLossUsedForCapitalCalculation: -500,
+          maxDrawdownUsd: 1000,
+          maxDrawdownPct: 1,
+          hardStop: false,
+          plannedRiskPerReferenceUnitUsd: "NOT_DEFINED",
+          fractionalReferenceUnitsRequired: 0.1,
+          minimumBrokerExecutableUnit: 1,
+          pnlEvidenceType: "CANONICAL",
+          summarySource: "artifact",
+          seasonalCanonicalStatus: "CANONICAL",
+          canonicalSummaryAvailable: true,
+          canonicalLargestLossAvailable: true,
+          confidence: "HIGH",
+          granularityClassification: "EXECUTABLE",
+        },
+      ],
+    } as never)[0]!;
+    const translation = resolveWhiteSwanExecutionTranslation(
+      row,
+      { mode: "white-swan", accountSize: 10000, currency: "USD", whiteSwanPct: 100, coreInvestPct: 0, range: "MAX" },
+      10000,
+      3,
+    );
+    expect(translation?.referenceUnit).toBe("IWM_SHARE");
+    expect(translation?.futureContractExposureUnit).toBe("M2K_CONTRACT");
+    expect(translation?.idealFutureQty).toBeNull();
+  });
+
+  it("does not identity-map EEM shares to MME futures contracts", () => {
+    const row = buildWhiteSwanCapitalRequirements({
+      artifact: "x",
+      masterTable: [
+        {
+          strategy: "eem_sea",
+          label: "EEM",
+          family: "Seasonal",
+          whiteSwanWeightPct: 4,
+          historicalSizingMode: "one_share_calendar_pattern",
+          historicalReferenceInstrument: "EEM",
+          historicalReferenceQty: 1,
+          historicalReferenceUnit: "1 share",
+          historicalReferenceCapitalUsd: 5000,
+          authoritativeEvidenceType: "CANONICAL",
+          largestLossEvidenceType: "CANONICAL",
+          largestWinUsd: 100,
+          largestLossUsd: -500,
+          reconstructedLargestLossUsd: -500,
+          largestLossUsedForCapitalCalculation: -500,
+          maxDrawdownUsd: 1000,
+          maxDrawdownPct: 1,
+          hardStop: false,
+          plannedRiskPerReferenceUnitUsd: "NOT_DEFINED",
+          fractionalReferenceUnitsRequired: 0.1,
+          minimumBrokerExecutableUnit: 1,
+          pnlEvidenceType: "CANONICAL",
+          summarySource: "artifact",
+          seasonalCanonicalStatus: "CANONICAL",
+          canonicalSummaryAvailable: true,
+          canonicalLargestLossAvailable: true,
+          confidence: "HIGH",
+          granularityClassification: "EXECUTABLE",
+        },
+      ],
+    } as never)[0]!;
+    const translation = resolveWhiteSwanExecutionTranslation(
+      row,
+      { mode: "white-swan", accountSize: 10000, currency: "USD", whiteSwanPct: 100, coreInvestPct: 0, range: "MAX" },
+      10000,
+      4,
+    );
+    expect(translation?.referenceUnit).toBe("EEM_SHARE");
+    expect(translation?.futureContractExposureUnit).toBe("MME_CONTRACT");
+    expect(translation?.executionFidelityStatus).toBe("APPROXIMATE_MAPPING");
+    expect(translation?.idealFutureQty).toBeNull();
+  });
+
+  it("does not identity-map GLD shares to 1OZ futures contracts", () => {
+    const row = buildWhiteSwanCapitalRequirements({
+      artifact: "x",
+      masterTable: [
+        {
+          strategy: "FP10_GLD_THURSDAY_LONG",
+          label: "GLD",
+          family: "Dynamic",
+          whiteSwanWeightPct: 10,
+          historicalSizingMode: "dynamic_equity_backtest",
+          historicalReferenceInstrument: "GLD",
+          historicalReferenceQty: "NOT_FIXED",
+          historicalReferenceUnit: "dynamic",
+          historicalReferenceCapitalUsd: 100000,
+          authoritativeEvidenceType: "CANONICAL",
+          largestLossEvidenceType: "CANONICAL",
+          largestWinUsd: 1000,
+          largestLossUsd: -100,
+          reconstructedLargestLossUsd: -100,
+          largestLossUsedForCapitalCalculation: -100,
+          maxDrawdownUsd: 1000,
+          maxDrawdownPct: 1,
+          hardStop: false,
+          plannedRiskPerReferenceUnitUsd: "NOT_APPLICABLE_NO_HARD_STOP",
+          fractionalReferenceUnitsRequired: 0.1,
+          minimumBrokerExecutableUnit: 1,
+          pnlEvidenceType: "CANONICAL",
+          summarySource: "artifact",
+          seasonalCanonicalStatus: "CANONICAL",
+          canonicalSummaryAvailable: true,
+          canonicalLargestLossAvailable: true,
+          confidence: "HIGH",
+          granularityClassification: "EXECUTABLE",
+        },
+      ],
+    } as never)[0]!;
+    const translation = resolveWhiteSwanExecutionTranslation(
+      row,
+      { mode: "white-swan", accountSize: 10000, currency: "USD", whiteSwanPct: 100, coreInvestPct: 0, range: "MAX" },
+      10000,
+      10,
+    );
+    expect(translation?.referenceUnit).toBe("GLD_SHARE");
+    expect(translation?.futureContractExposureUnit).toBe("ONE_OUNCE_GOLD_FUTURE");
+    expect(translation?.idealFutureQty).toBeNull();
   });
 });
 
