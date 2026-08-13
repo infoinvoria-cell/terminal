@@ -14,7 +14,6 @@ const SentinelPanel = dynamic(() => import("@/components/monitoring/SentinelPane
 });
 import MonitoringChartCard, { type MonitoringChartCardItem } from "@/components/monitoring/MonitoringChartCard";
 import MonitoringFlexibleGrid from "@/components/monitoring/MonitoringFlexibleGrid";
-import CoreInvestMonitoringGrid from "@/components/core-invest/CoreInvestMonitoringGrid";
 import MonitoringSettingsModal from "@/components/monitoring/MonitoringSettingsModal";
 import MonitoringStrategyWorkspace from "@/components/monitoring/MonitoringStrategyWorkspace";
 import { MonitoringTabIcon } from "@/components/monitoring/monitoringTabPresentation";
@@ -104,7 +103,6 @@ import type { ExecutionParityStatus, ManualTradeLevels, TradeDirection, TradeMod
 import type { TimeseriesResponse } from "@/types";
 import { useAgriStrategySelection } from "@/hooks/useAgriStrategySelection";
 import { getAllAgriAssets, getAgriKindsForAsset } from "@/lib/agri/agri-v2-registry";
-import AgriStrategyKindButtons from "@/components/agri/AgriStrategyKindButtons";
 
 const SecondaryPanelLoader = ({ label }: { label: string }) => (
   <div className="st-empty st-empty-loading">{label}</div>
@@ -204,15 +202,16 @@ type MonitoringHeaderTabItem =
 
 const MONITORING_HEADER_TABS: MonitoringHeaderTabItem[] = [
   { key: "intraday", kind: "tab", tabId: "intraday_mt", title: "Intraday" },
-  { key: "anomaly", kind: "tab", tabId: "anomaly", title: "Anomaly" },
-  { key: "agrar", kind: "tab", tabId: "agrar", title: "Agrar" },
-  { key: "metals", kind: "tab", tabId: "metalle_energie", title: "Metals/En" },
-  { key: "indices", kind: "tab", tabId: "indizes", title: "Indices" },
-  { key: "aktien", kind: "tab", tabId: "aktien", title: "Aktien" },
-  { key: "invest", kind: "tab", tabId: "invest", title: "Invest" },
-  { key: "forex", kind: "tab", tabId: "fx", title: "Forex" },
-  { key: "live", kind: "tab", tabId: "live", title: "Live" },
-  { key: "all", kind: "tab", tabId: "all", title: "All" },
+  { key: "anomaly",  kind: "tab", tabId: "anomaly",     title: "Anomaly" },
+  { key: "agrar",   kind: "tab", tabId: "agrar",        title: "Agrar" },
+  { key: "metals",  kind: "tab", tabId: "metals",       title: "Metals" },
+  { key: "etfs",    kind: "tab", tabId: "etfs",         title: "ETFs" },
+  { key: "stocks",  kind: "tab", tabId: "stocks",       title: "Stocks" },
+  { key: "invest",  kind: "tab", tabId: "invest",       title: "Invest" },
+  { key: "forex",   kind: "tab", tabId: "fx",           title: "Forex" },
+  { key: "oil",     kind: "tab", tabId: "oil",          title: "Oil" },
+  { key: "live",    kind: "tab", tabId: "live",         title: "Live" },
+  { key: "all",     kind: "tab", tabId: "all",          title: "All" },
 ];
 
 const FALLBACK_AKTIEN_UNIVERSE_ITEMS: UniverseAssetItem[] = [
@@ -225,15 +224,55 @@ const FALLBACK_AKTIEN_UNIVERSE_ITEMS: UniverseAssetItem[] = [
 ];
 
 const FALLBACK_INVEST_UNIVERSE_ITEMS: UniverseAssetItem[] = [
-  // CI v2.0 — ETF Core (passive)
-  { tab: "Invest", symbol: "SPY",           requestSymbol: "SPY",   source: "BATS:SPY",    name: "S&P 500 ETF (SPY)",      timeframe: "D", hasData: true,  hasStrategy: false, strategyStatus: "passive",  buildable: false },
-  { tab: "Invest", symbol: "QQQ_PASSIVE",   requestSymbol: "QQQ",   source: "NASDAQ:QQQ",  name: "Nasdaq ETF passiv (QQQ)", timeframe: "D", hasData: false, hasStrategy: false, strategyStatus: "passive",  buildable: false },
-  { tab: "Invest", symbol: "SPMO",          requestSymbol: "SPMO",  source: "BATS:SPMO",   name: "S&P Momentum (SPMO)",    timeframe: "D", hasData: false, hasStrategy: false, strategyStatus: "passive",  buildable: false },
-  { tab: "Invest", symbol: "GLD",           requestSymbol: "GLD",   source: "AMEX:GLD",    name: "Gold ETF (GLD)",         timeframe: "D", hasData: false, hasStrategy: false, strategyStatus: "passive",  buildable: false },
+  // CI v2.0 — ETF Core (passive) — QQQ|D covered by FALLBACK_ETF_UNIVERSE_ITEMS
+  { tab: "Invest", symbol: "SPY",  requestSymbol: "SPY",  source: "BATS:SPY",  name: "S&P 500 ETF (SPY)",   timeframe: "D", hasData: true,  hasStrategy: false, strategyStatus: "passive", buildable: false },
+  { tab: "Invest", symbol: "SPMO", requestSymbol: "SPMO", source: "BATS:SPMO", name: "S&P Momentum (SPMO)", timeframe: "D", hasData: false, hasStrategy: false, strategyStatus: "passive", buildable: false },
+  { tab: "Invest", symbol: "GLD",  requestSymbol: "GLD",  source: "AMEX:GLD",  name: "Gold ETF (GLD)",      timeframe: "D", hasData: false, hasStrategy: false, strategyStatus: "passive", buildable: false },
   // CI v2.0 — Active Sleeves
-  { tab: "Invest", symbol: "QQQ_PINE_1",    requestSymbol: "QQQ",   source: "NASDAQ:QQQ",  name: "QQQ Pine 1",             timeframe: "D", hasData: false, hasStrategy: true,  strategyStatus: "mapped",   buildable: true,  strategyId: "QQQ_PINE_1" },
-  { tab: "Invest", symbol: "HG1!",          requestSymbol: "HG1!",  source: "COMEX:HG1!",  name: "Copper Sleeve (HG1!)",   timeframe: "D", hasData: false, hasStrategy: true,  strategyStatus: "mapped",   buildable: true,  strategyId: "COPPER_HG" },
-  { tab: "Invest", symbol: "6S1!",          requestSymbol: "6S1!",  source: "CME:6S1!",    name: "CHF Sleeve (6S1!)",      timeframe: "D", hasData: false, hasStrategy: true,  strategyStatus: "mapped",   buildable: true,  strategyId: "CHF_6S" },
+  { tab: "Invest", symbol: "HG1!",       requestSymbol: "HG1!", source: "COMEX:HG1!",  name: "Copper Sleeve (HG1!)", timeframe: "D", hasData: false, hasStrategy: true, strategyStatus: "mapped", buildable: true, strategyId: "COPPER_HG" },
+  { tab: "Invest", symbol: "6S1!",       requestSymbol: "6S1!", source: "CME:6S1!",    name: "CHF Sleeve (6S1!)",    timeframe: "D", hasData: false, hasStrategy: true, strategyStatus: "mapped", buildable: true, strategyId: "CHF_6S" },
+];
+
+const FALLBACK_ETF_UNIVERSE_ITEMS: UniverseAssetItem[] = [
+  { tab: "ETFs", symbol: "SPY",  requestSymbol: "SPY",  source: "BATS:SPY",   name: "S&P 500 ETF",     timeframe: "D", hasData: true,  hasStrategy: false, strategyStatus: "passive", buildable: false },
+  { tab: "ETFs", symbol: "QQQ",  requestSymbol: "QQQ",  source: "NASDAQ:QQQ", name: "Nasdaq ETF",      timeframe: "D", hasData: true,  hasStrategy: false, strategyStatus: "passive", buildable: false },
+  { tab: "ETFs", symbol: "SPMO", requestSymbol: "SPMO", source: "BATS:SPMO",  name: "S&P Momentum",    timeframe: "D", hasData: false, hasStrategy: false, strategyStatus: "passive", buildable: false },
+  { tab: "ETFs", symbol: "GLD",  requestSymbol: "GLD",  source: "AMEX:GLD",   name: "Gold ETF",        timeframe: "D", hasData: false, hasStrategy: false, strategyStatus: "passive", buildable: false },
+];
+
+// All 5 canonical Indizes daily assets — needed in the All union builder which has no
+// dedicated Indizes source (anomaly items use display-symbol names, not canonical keys).
+const FALLBACK_INDIZES_UNIVERSE_ITEMS: UniverseAssetItem[] = [
+  { tab: "Indizes", symbol: "YM1!",   requestSymbol: "YM1!",   source: "CBOT_MINI:YM1!",  name: "Dow Jones (YM1!)",  timeframe: "D", hasData: true, hasStrategy: true, strategyStatus: "mapped", buildable: true },
+  { tab: "Indizes", symbol: "UKX!",   requestSymbol: "UKX!",   source: "TVC:UKX",          name: "FTSE 100 (UKX!)",   timeframe: "D", hasData: true, hasStrategy: true, strategyStatus: "mapped", buildable: true },
+  { tab: "Indizes", symbol: "NQ1!",   requestSymbol: "NQ1!",   source: "CME_MINI:NQ1!",    name: "Nasdaq 100 (NQ1!)", timeframe: "D", hasData: true, hasStrategy: true, strategyStatus: "mapped", buildable: true },
+  { tab: "Indizes", symbol: "FDAX1!", requestSymbol: "FDAX1!",  source: "EUREX:FDAX1!",    name: "DAX (FDAX1!)",      timeframe: "D", hasData: true, hasStrategy: true, strategyStatus: "mapped", buildable: true },
+  { tab: "Indizes", symbol: "ES1!",   requestSymbol: "ES1!",   source: "CME_MINI:ES1!",    name: "S&P 500 (ES1!)",    timeframe: "D", hasData: true, hasStrategy: true, strategyStatus: "mapped", buildable: true },
+];
+
+const FALLBACK_FX_UNIVERSE_ITEMS: UniverseAssetItem[] = [
+  { tab: "FX", symbol: "EURGBP", requestSymbol: "EURGBP", source: "VANTAGE:EURGBP", name: "EUR/GBP",                 timeframe: "D",  hasData: true,  hasStrategy: false, strategyStatus: "none", buildable: false },
+  { tab: "FX", symbol: "GBPJPY", requestSymbol: "GBPJPY", source: "VANTAGE:GBPJPY", name: "GBP/JPY",                 timeframe: "D",  hasData: true,  hasStrategy: false, strategyStatus: "none", buildable: false },
+  { tab: "FX", symbol: "MXNUSD", requestSymbol: "MXNUSD", source: "FX_IDC:MXNUSD", name: "MXN/USD",                 timeframe: "D",  hasData: true,  hasStrategy: false, strategyStatus: "none", buildable: false },
+  { tab: "FX", symbol: "CLPUSD", requestSymbol: "CLPUSD", source: "FX_IDC:CLPUSD", name: "CLP/USD",                 timeframe: "D",  hasData: true,  hasStrategy: false, strategyStatus: "none", buildable: false },
+  { tab: "FX", symbol: "SEKUSD", requestSymbol: "SEKUSD", source: "FX_IDC:SEKUSD", name: "SEK/USD",                 timeframe: "D",  hasData: true,  hasStrategy: false, strategyStatus: "none", buildable: false },
+  { tab: "FX", symbol: "BRLUSD", requestSymbol: "BRLUSD", source: "FX_IDC:BRLUSD", name: "BRL/USD",                 timeframe: "D",  hasData: false, hasStrategy: false, strategyStatus: "none", buildable: false },
+  { tab: "FX", symbol: "ZARUSD", requestSymbol: "ZARUSD", source: "FX_IDC:ZARUSD", name: "ZAR/USD",                 timeframe: "D",  hasData: true,  hasStrategy: false, strategyStatus: "none", buildable: false },
+  { tab: "FX", symbol: "NOK1!",  requestSymbol: "NOK1!",  source: "CME:NOK1!",     name: "Norwegian Krone (NOK1!)", timeframe: "1W", hasData: false, hasStrategy: false, strategyStatus: "none", buildable: false },
+];
+
+const FALLBACK_METALS_UNIVERSE_ITEMS: UniverseAssetItem[] = [
+  { tab: "Metalle", symbol: "GC1!", requestSymbol: "GC1!", source: "COMEX:GC1!", name: "Gold",      timeframe: "D", hasData: true, hasStrategy: true, strategyStatus: "mapped", buildable: true },
+  { tab: "Metalle", symbol: "SI1!", requestSymbol: "SI1!", source: "COMEX:SI1!", name: "Silver",    timeframe: "D", hasData: true, hasStrategy: true, strategyStatus: "mapped", buildable: true },
+  { tab: "Metalle", symbol: "PA1!", requestSymbol: "PA1!", source: "NYMEX:PA1!", name: "Palladium", timeframe: "D", hasData: true, hasStrategy: true, strategyStatus: "mapped", buildable: true },
+  { tab: "Metalle", symbol: "PL1!", requestSymbol: "PL1!", source: "NYMEX:PL1!", name: "Platinum",  timeframe: "D", hasData: true, hasStrategy: true, strategyStatus: "mapped", buildable: true },
+  { tab: "Metalle", symbol: "HG1!", requestSymbol: "HG1!", source: "COMEX:HG1!", name: "Copper",    timeframe: "D", hasData: true, hasStrategy: true, strategyStatus: "mapped", buildable: true },
+];
+
+const FALLBACK_OIL_UNIVERSE_ITEMS: UniverseAssetItem[] = [
+  { tab: "Energie", symbol: "CL1!", requestSymbol: "CL1!", source: "NYMEX:CL1!", name: "Crude Oil",     timeframe: "D", hasData: true, hasStrategy: true, strategyStatus: "mapped", buildable: true },
+  { tab: "Energie", symbol: "NG1!", requestSymbol: "NG1!", source: "NYMEX:NG1!", name: "Natural Gas",   timeframe: "D", hasData: true, hasStrategy: true, strategyStatus: "mapped", buildable: true },
+  { tab: "Energie", symbol: "RB1!", requestSymbol: "RB1!", source: "NYMEX:RB1!", name: "RBOB Gasoline", timeframe: "D", hasData: true, hasStrategy: true, strategyStatus: "mapped", buildable: true },
 ];
 
 const INVEST_WORKSPACE_ASSETS = [
@@ -246,6 +285,7 @@ const isInvestStrategyId = (value: string): value is (typeof INVEST_STRATEGY_IDS
   (INVEST_STRATEGY_IDS as readonly string[]).includes(value);
 
 type UniverseAssetItem = {
+  id?: string;
   tab: string;
   symbol: string;
   requestSymbol?: string;
@@ -264,6 +304,7 @@ type UniverseAssetItem = {
 
 type UniverseConfig = {
   assets?: Array<{
+    id?: string;
     tab?: string;
     symbol?: string;
     requestSymbol?: string;
@@ -553,6 +594,7 @@ type ChartItem = {
   variant: "large" | "compact";
   timeframe?: string;
   eventsFile?: string;
+  attachedStrategies?: import("@/components/monitoring/MonitoringChartCard").AttachedStrategy[];
 };
 
 type AgrarAssetConfig = {
@@ -2277,6 +2319,7 @@ const CompactGrid = memo(function CompactGrid({
               onOpenFullscreen={onOpenFullscreen ? () => onOpenFullscreen(item) : undefined}
               selectedTradeId={selectedAssetId === item.key ? selectedTradeId : null}
               uiPrefs={uiPrefs}
+              attachedStrategies={(item as ChartItem).attachedStrategies}
             />
           ))}
         </div>
@@ -2302,8 +2345,10 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
   const customEs1EnginePilotEnabled = monitoringFeatureFlags.useCustomEs1EnginePilot;
   const customPa1EnginePilotEnabled = monitoringFeatureFlags.useCustomPa1EnginePilot;
   const customPl1EnginePilotEnabled = monitoringFeatureFlags.useCustomPl1EnginePilot;
-  const ALL_TAB_IDS: TabId[] = ["agrar", "metalle_energie", "indizes", "aktien", "invest", "fx", "anomaly", "intraday_mt", "live", "all"];
+  const ALL_TAB_IDS: TabId[] = ["agrar", "metals", "etfs", "stocks", "invest", "fx", "oil", "anomaly", "intraday_mt", "live", "all"];
   const [activeTab, setActiveTab] = useState<TabId>("agrar");
+  const [liveReplayMode, setLiveReplayMode] = useState(false);
+  const [devLiveStateIdx, setDevLiveStateIdx] = useState(0);
   const setActiveTabPersisted = useCallback((tab: TabId) => {
     try {
       window.localStorage.setItem("monitoring_active_tab", tab);
@@ -2313,7 +2358,16 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
   useEffect(() => {
     try {
       const stored = window.localStorage.getItem("monitoring_active_tab");
-      const normalized = (stored === "indices" ? "indizes" : stored === "intraday" ? "intraday_mt" : stored) as TabId;
+      // Normalize legacy stored tab values to current tab IDs
+      const legacyMap: Record<string, TabId> = {
+        indices: "agrar",
+        indizes: "agrar",
+        aktien: "stocks",
+        metalle_energie: "metals",
+        intraday: "intraday_mt",
+      };
+      const raw = stored ?? "";
+      const normalized = (legacyMap[raw] ?? raw) as TabId;
       if (ALL_TAB_IDS.includes(normalized)) {
         setActiveTab(normalized);
       }
@@ -3692,17 +3746,81 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     return [...productionUniverseAssets, ...keep];
   }, [productionUniverseAssets, universeAssets]);
 
-  const fallbackUniverseByTab = useMemo(() => ({
-    aktien: FALLBACK_AKTIEN_UNIVERSE_ITEMS,
-    invest: FALLBACK_INVEST_UNIVERSE_ITEMS,
-    fx: productionUniverseAssets.filter((asset) => normalizeGroup(asset.tab) === "FX"),
-    metalle_energie: productionUniverseAssets.filter((asset) => {
-      const group = normalizeGroup(asset.tab);
-      return group === "Metalle" || group === "Energie";
-    }),
-    live: productionUniverseAssets,
-    all: productionUniverseAssets,
-  }), [productionUniverseAssets]);
+  const fallbackUniverseByTab = useMemo(() => {
+    const prodMetals = productionUniverseAssets.filter((a) => normalizeGroup(a.tab) === "Metalle");
+    const prodEnergy = productionUniverseAssets.filter((a) => normalizeGroup(a.tab) === "Energie");
+    return {
+      aktien: FALLBACK_AKTIEN_UNIVERSE_ITEMS,
+      stocks: FALLBACK_AKTIEN_UNIVERSE_ITEMS,
+      invest: FALLBACK_INVEST_UNIVERSE_ITEMS,
+      etfs: FALLBACK_ETF_UNIVERSE_ITEMS,
+      metals: prodMetals.length > 0 ? prodMetals : FALLBACK_METALS_UNIVERSE_ITEMS,
+      oil: prodEnergy.length > 0 ? prodEnergy : FALLBACK_OIL_UNIVERSE_ITEMS,
+      fx: productionUniverseAssets.filter((asset) => normalizeGroup(asset.tab) === "FX"),
+      metalle_energie: productionUniverseAssets.filter((asset) => {
+        const group = normalizeGroup(asset.tab);
+        return group === "Metalle" || group === "Energie";
+      }),
+      live: productionUniverseAssets,
+      all: productionUniverseAssets,
+    };
+  }, [productionUniverseAssets]);
+
+  // Maps tvSymbol+timeframe from strategy runtime routes to all strategyIds (1:n).
+  const strategyRoutesByChartKey = useMemo(() => {
+    const map = new Map<string, { strategyIds: string[]; names: string[] }>();
+    for (const route of strategyRuntimeRoutes) {
+      if (!route.tvSymbol || !route.timeframe || !route.strategyId) continue;
+      const rawSymbol = String(route.tvSymbol).includes(":")
+        ? String(route.tvSymbol).split(":")[1]
+        : String(route.tvSymbol);
+      const tf = String(route.timeframe).toUpperCase();
+      const chartKey = `${rawSymbol}|${tf}`;
+      const entry = map.get(chartKey) ?? { strategyIds: [], names: [] };
+      const sid = String(route.strategyId).trim();
+      if (sid && !entry.strategyIds.includes(sid)) {
+        entry.strategyIds.push(sid);
+        entry.names.push(sid);
+      }
+      map.set(chartKey, entry);
+    }
+    if (process.env.NODE_ENV !== "production") {
+      // TEST fixture: NAS100USD D — 2 strategies for multi-strategy QA
+      const testKey = "NAS100USD|D";
+      const existing = map.get(testKey) ?? { strategyIds: [], names: [] };
+      const testIds = ["e_step_invest_nas100usd_d", "only_long_valuation_trend_ema_nas100usd_d"];
+      for (const sid of testIds) {
+        if (!existing.strategyIds.includes(sid)) {
+          existing.strategyIds.push(sid);
+          existing.names.push(sid);
+        }
+      }
+      map.set(testKey, existing);
+    }
+    return map;
+  }, [strategyRuntimeRoutes]);
+
+  // Canonical strategy attachment map: chartKey (symbol|tf) → all strategies across all tabs.
+  // Uses raw universeAssets JSON (all 46 assets) to capture cross-tab multi-strategy charts.
+  // Must use universeAssets (not effectiveUniverseAssets) so that both Indizes+Invest NQ1! entries
+  // are included with their id-based strategyIds before production dedup filtering removes duplicates.
+  const canonicalChartStrategyMap = useMemo(() => {
+    const map = new Map<string, { strategyIds: string[]; tabs: string[]; names: string[] }>();
+    for (const asset of universeAssets) {
+      const tf = String(asset.timeframe || "D").toUpperCase();
+      const chartKey = `${asset.symbol}|${tf}`;
+      const entry = map.get(chartKey) ?? { strategyIds: [], tabs: [], names: [] };
+      const sid = String(asset.strategyId || "").trim();
+      if (sid && !entry.strategyIds.includes(sid)) {
+        entry.strategyIds.push(sid);
+        entry.names.push(String(asset.name || sid));
+      }
+      const tab = normalizeGroup(asset.tab);
+      if (tab && !entry.tabs.includes(tab)) entry.tabs.push(tab);
+      map.set(chartKey, entry);
+    }
+    return map;
+  }, [universeAssets]);
 
   const filteredUniverseItems = useMemo(() => {
     if (activeTab === "intraday_mt") {
@@ -3714,7 +3832,66 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     if (activeTab === "indizes") {
       return WAVE1_INDICES_ASSETS;
     }
+    // New canonical tabs — merge API data with fallback so partial API results don't hide assets
+    if (activeTab === "metals") {
+      const fromProd = productionUniverseAssets.filter((a) => normalizeGroup(a.tab) === "Metalle");
+      const prodSymbols = new Set(fromProd.map((a) => a.symbol));
+      const missing = FALLBACK_METALS_UNIVERSE_ITEMS.filter((a) => !prodSymbols.has(a.symbol));
+      return fromProd.length > 0 ? [...fromProd, ...missing] : FALLBACK_METALS_UNIVERSE_ITEMS;
+    }
+    if (activeTab === "oil") {
+      const fromProd = productionUniverseAssets.filter((a) => normalizeGroup(a.tab) === "Energie");
+      const prodSymbols = new Set(fromProd.map((a) => a.symbol));
+      const missing = FALLBACK_OIL_UNIVERSE_ITEMS.filter((a) => !prodSymbols.has(a.symbol));
+      return fromProd.length > 0 ? [...fromProd, ...missing] : FALLBACK_OIL_UNIVERSE_ITEMS;
+    }
+    if (activeTab === "stocks") return FALLBACK_AKTIEN_UNIVERSE_ITEMS;
+    if (activeTab === "etfs") return FALLBACK_ETF_UNIVERSE_ITEMS;
+    // Existing tabs with fallback
     if ((activeTab === "aktien" || activeTab === "invest" || activeTab === "fx" || activeTab === "metalle_energie" || activeTab === "live" || activeTab === "all") && fallbackUniverseByTab[activeTab].length) {
+      if (isAllOrLive) {
+        // For All/Live: build a complete union from all canonical tab sources
+        const prodMetals = productionUniverseAssets.filter((a) => normalizeGroup(a.tab) === "Metalle");
+        const prodEnergy = productionUniverseAssets.filter((a) => normalizeGroup(a.tab) === "Energie");
+        const metalsProdSymbols = new Set(prodMetals.map((a) => a.symbol));
+        const energyProdSymbols = new Set(prodEnergy.map((a) => a.symbol));
+        const metalsItems = prodMetals.length > 0
+          ? [...prodMetals, ...FALLBACK_METALS_UNIVERSE_ITEMS.filter((a) => !metalsProdSymbols.has(a.symbol))]
+          : FALLBACK_METALS_UNIVERSE_ITEMS;
+        const oilItems = prodEnergy.length > 0
+          ? [...prodEnergy, ...FALLBACK_OIL_UNIVERSE_ITEMS.filter((a) => !energyProdSymbols.has(a.symbol))]
+          : FALLBACK_OIL_UNIVERSE_ITEMS;
+        const agrarItems = applyMonitoringUniverseFilters(
+          productionUniverseAssets.filter((a) => normalizeGroup(a.tab) === "Agrar"),
+          { replaceAgrarWithOrdered: true },
+        );
+        // DEV-only TEST fixture: NAS100USD D is in strategy_runtime_routes with 2 real strategy IDs
+        // but is NOT in monitoring_asset_universe.json (csv_reference, research-only).
+        // Injected here only in dev so the multi-strategy Eye can be verified without polluting
+        // any canonical tab's universe.
+        const devMultiStrategyFixture: UniverseAssetItem[] = process.env.NODE_ENV !== "production"
+          ? [{ tab: "Invest", symbol: "NAS100USD", requestSymbol: "NAS100USD", source: "OANDA:NAS100USD", name: "NAS100 USD [TEST]", timeframe: "D", hasData: true, hasStrategy: true, strategyStatus: "mapped", buildable: true }]
+          : [];
+        return [
+          ...intradayMtUniverseItems,
+          ...anomalyMtUniverseItems,
+          ...FALLBACK_INDIZES_UNIVERSE_ITEMS,
+          ...agrarItems,
+          ...metalsItems,
+          ...FALLBACK_ETF_UNIVERSE_ITEMS,
+          ...FALLBACK_AKTIEN_UNIVERSE_ITEMS,
+          ...FALLBACK_INVEST_UNIVERSE_ITEMS,
+          ...(() => {
+            const prodFx = productionUniverseAssets.filter((a) => normalizeGroup(a.tab) === "FX");
+            const prodFxSymbols = new Set(prodFx.map((a) => a.symbol));
+            return prodFx.length > 0
+              ? [...prodFx, ...FALLBACK_FX_UNIVERSE_ITEMS.filter((a) => !prodFxSymbols.has(a.symbol))]
+              : FALLBACK_FX_UNIVERSE_ITEMS;
+          })(),
+          ...oilItems,
+          ...devMultiStrategyFixture,
+        ];
+      }
       return fallbackUniverseByTab[activeTab];
     }
     if (!effectiveUniverseAssets.length) {
@@ -3737,7 +3914,7 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     const scoped = effectiveUniverseAssets.filter((asset) => groups.has(normalizeGroup(asset.tab)));
     const replaceAgrar = activeTab === "agrar" || groups.has("Agrar");
     return applyMonitoringUniverseFilters(scoped, { replaceAgrarWithOrdered: replaceAgrar });
-  }, [activeTab, anomalyMtUniverseItems, effectiveUniverseAssets, fallbackUniverseByTab, intradayMtUniverseItems]);
+  }, [activeTab, anomalyMtUniverseItems, effectiveUniverseAssets, fallbackUniverseByTab, intradayMtUniverseItems, isAllOrLive, productionUniverseAssets]);
 
   useEffect(() => {
     const activeKeys: string[] = [];
@@ -4405,9 +4582,29 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
       }
       return labeled;
     });
-    if (isAllOrLive) return mapped;
+    if (isAllOrLive) {
+      // Dedup by chartKey (symbol|timeframe) — each market+timeframe appears exactly once.
+      // Attach all strategies mapped to that chartKey via canonicalChartStrategyMap.
+      const seen = new Set<string>();
+      const deduped: ChartItem[] = [];
+      for (const item of mapped) {
+        const tf = String(item.timeframe || "D").toUpperCase();
+        const chartKey = `${item.code}|${tf}`;
+        if (seen.has(chartKey)) continue;
+        seen.add(chartKey);
+        const entry = canonicalChartStrategyMap.get(chartKey);
+        const routeEntry = strategyRoutesByChartKey.get(chartKey);
+        const mergedIds = [...new Set([...(routeEntry?.strategyIds ?? []), ...(entry?.strategyIds ?? [])])];
+        const mergedNames = mergedIds.map((id, i) => routeEntry?.names[routeEntry.strategyIds.indexOf(id)] ?? entry?.names[i] ?? id);
+        const attachedStrategies = mergedIds.length > 0
+          ? mergedIds.map((id, i) => ({ id, name: mergedNames[i] ?? id, tab: entry?.tabs[entry.strategyIds.indexOf(id)] ?? undefined }))
+          : undefined;
+        deduped.push(attachedStrategies ? { ...item, attachedStrategies } : item);
+      }
+      return deduped;
+    }
     return mapped.slice(0, MAX_GRID_CHARTS);
-  }, [activeTab, agrarParityAuditMap, candleScaleAuditMap, filteredUniverseItems, payloads, strategyRuntimeRoutes, uiPrefs.language, wave1Prepared.payloadBySymbol]);
+  }, [activeTab, agrarParityAuditMap, candleScaleAuditMap, canonicalChartStrategyMap, filteredUniverseItems, payloads, strategyRoutesByChartKey, strategyRuntimeRoutes, uiPrefs.language, wave1Prepared.payloadBySymbol]);
 
   const chartScopeItems = useMemo(() => (
     activeTab === "agrar" ? orderedItems : allItems
@@ -4898,32 +5095,73 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
     return map;
   }, [liveSignalsFeed]);
 
+  // DEV-only: deterministic state machine for Live tab transition testing.
+  // Cycles through FLAT→NEW→OPEN→OLD_OPEN→RECENTLY_CLOSED→EXPIRED for the NAS100USD test asset.
+  // Does not touch production signal data.
+  const DEV_LIVE_TEST_KEY = "Invest:NAS100USD";
+  const DEV_LIVE_STATES = process.env.NODE_ENV !== "production" ? [
+    { label: "FLAT",             sig: null },
+    { label: "NEW",              sig: { activeSignal: true,  hasOpenTrade: false, isClosedSignal: false, lastSignalMs: Date.now() - 12 * 60 * 60_000 } },
+    { label: "OPEN",             sig: { activeSignal: true,  hasOpenTrade: true,  isClosedSignal: false, lastSignalMs: Date.now() -  3 * 24 * 60 * 60_000 } },
+    { label: "OLD_OPEN",         sig: { activeSignal: true,  hasOpenTrade: true,  isClosedSignal: false, lastSignalMs: Date.now() - 15 * 24 * 60 * 60_000 } },
+    { label: "RECENTLY_CLOSED",  sig: { activeSignal: false, hasOpenTrade: false, isClosedSignal: true,  lastSignalMs: Date.now() -  3 * 24 * 60 * 60_000 } },
+    { label: "EXPIRED",          sig: { activeSignal: false, hasOpenTrade: false, isClosedSignal: true,  lastSignalMs: Date.now() - 10 * 24 * 60 * 60_000 } },
+  ] as const : null;
+  const devLiveState = DEV_LIVE_STATES ? DEV_LIVE_STATES[devLiveStateIdx % DEV_LIVE_STATES.length] : null;
+  const devEffectiveRadarState = useMemo(() => {
+    if (!devLiveState || activeTab !== "live") return radarSignalState;
+    if (devLiveState.sig === null) {
+      const copy = { ...radarSignalState };
+      delete copy[DEV_LIVE_TEST_KEY];
+      return copy;
+    }
+    return { ...radarSignalState, [DEV_LIVE_TEST_KEY]: devLiveState.sig } as typeof radarSignalState;
+  }, [radarSignalState, devLiveState, activeTab]);
+
   // Live tab = the All-tab items filtered to charts that actually carry a signal in the
   // last 7 days (open trades, fresh active signals, recently-closed). Signal-less charts
   // are dropped so the Live tab renders far fewer charts than All. Pure filter, no fetch.
   const liveTabItems = useMemo(() => {
     if (activeTab !== "live") return [] as typeof allItems;
-    const SEVEN_DAYS_MS = 7 * 24 * 60 * 60_000;
     const now = Date.now();
+    if (liveReplayMode) {
+      // REPLAY: real historical signals in 90-day window from lifecycle data.
+      // Never fake or synthesized — uses actual trade history files.
+      const REPLAY_MS = 90 * 24 * 60 * 60_000;
+      return allItems.filter((it) => {
+        const sig = radarSignalState[it.key];
+        if (sig?.hasOpenTrade || sig?.activeSignal) return true;
+        if (sig?.lastSignalMs != null && now - sig.lastSignalMs <= REPLAY_MS) return true;
+        // Fall back to lifecycle trade data for 90-day window
+        const lifecycle = lifecycleTradesByItemKey[it.key];
+        if (!lifecycle?.length) return false;
+        const latestMs = Math.max(...lifecycle.map((t) => {
+          const ts = parseTradeTimestampValue(t.exitTime ?? t.entryTime);
+          return ts ?? 0;
+        }));
+        return latestMs > 0 && now - latestMs <= REPLAY_MS;
+      });
+    }
+    const SEVEN_DAYS_MS = 7 * 24 * 60 * 60_000;
     return allItems.filter((it) => {
-      const sig = radarSignalState[it.key];
+      const sig = devEffectiveRadarState[it.key];
       if (!sig) return false;
       if (sig.hasOpenTrade || sig.activeSignal) return true;
       return sig.lastSignalMs != null && now - sig.lastSignalMs <= SEVEN_DAYS_MS;
     });
-  }, [activeTab, allItems, radarSignalState]);
+  }, [activeTab, allItems, devEffectiveRadarState, liveReplayMode, lifecycleTradesByItemKey]);
 
   const liveTabCounts = useMemo(() => {
     let open = 0, fresh = 0, closed = 0;
     for (const it of liveTabItems) {
-      const sig = radarSignalState[it.key];
+      const sig = devEffectiveRadarState[it.key];
       if (!sig) continue;
       if (sig.hasOpenTrade) open += 1;
       else if (sig.activeSignal) fresh += 1;
       else closed += 1;
     }
     return { open, fresh, closed };
-  }, [liveTabItems, radarSignalState]);
+  }, [liveTabItems, devEffectiveRadarState]);
 
   // Honest per-signal provenance for the Live tab (dezent chip). Derived from the real
   // strategy-events source mode — no "live approved" claim anywhere.
@@ -6335,13 +6573,36 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           <div className="monitoring-live-header">
             <div className="monitoring-live-title">
               <span className="monitoring-live-title-main">Live Signale</span>
-              <span className="monitoring-live-sub">Letzte 7 Tage</span>
+              <span className="monitoring-live-sub">{liveReplayMode ? "REPLAY · 90 Tage" : "Letzte 7 Tage"}</span>
+              {liveReplayMode && (
+                <span className="monitoring-live-replay-badge" title="Historische Signaldaten — kein Echtzeit-Feed. Replay zeigt reale vergangene Trades im erweiterten Zeitfenster.">REPLAY</span>
+              )}
             </div>
             <div className="monitoring-live-chips">
               <span className="monitoring-live-chip is-open">Open: {liveTabCounts.open}</span>
               <span className="monitoring-live-chip is-fresh">Fresh: {liveTabCounts.fresh}</span>
-              <span className="monitoring-live-chip is-closed">Closed 7D: {liveTabCounts.closed}</span>
+              <span className="monitoring-live-chip is-closed">{liveReplayMode ? "Closed 90D:" : "Closed 7D:"} {liveTabCounts.closed}</span>
             </div>
+            {process.env.NODE_ENV !== "production" && (
+              <button
+                type="button"
+                className={`monitoring-live-replay-btn${liveReplayMode ? " is-active" : ""}`}
+                onClick={() => setLiveReplayMode((v) => !v)}
+                title={liveReplayMode ? "Replay deaktivieren (zurück zu 7 Tage)" : "REPLAY aktivieren: zeigt reale historische Signale im 90-Tage-Fenster"}
+              >
+                {liveReplayMode ? "Exit Replay" : "Replay (90D)"}
+              </button>
+            )}
+            {process.env.NODE_ENV !== "production" && DEV_LIVE_STATES && (
+              <button
+                type="button"
+                className="monitoring-live-replay-btn"
+                onClick={() => setDevLiveStateIdx((i) => (i + 1) % DEV_LIVE_STATES.length)}
+                title={`DEV state transition test — NAS100USD. Current: ${devLiveState?.label ?? "FLAT"}. Click to advance.`}
+              >
+                {`DEV: ${devLiveState?.label ?? "FLAT"}`}
+              </button>
+            )}
             <span className="monitoring-live-research" title="Der Live-Tab ist eine gefilterte Research-Ansicht auf bestehende Signalquellen — keine Live-Trading-Freigabe.">
               Research monitoring · not live approved
             </span>
@@ -6519,13 +6780,6 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
                         ) : (
                           <div className="expanded-empty">No chart data</div>
                         )}
-                        {activeTab === "agrar" && fullscreenItem?.code && agriAvailableKindsBySymbol[fullscreenItem.code] ? (
-                          <AgriStrategyKindButtons
-                            availableKinds={agriAvailableKindsBySymbol[fullscreenItem.code]}
-                            activeKinds={agriActiveKindsBySymbol[fullscreenItem.code] ?? []}
-                            onToggle={(kind) => toggleAgriKind(fullscreenItem.code, kind)}
-                          />
-                        ) : null}
                         <div className="expanded-chart-label">
                           <div className="expanded-chart-symbol">{fullscreenItem?.short ?? fullscreenItem?.code ?? "-"}</div>
                           <div className="expanded-chart-desc">{fullscreenItem?.name ?? "-"}</div>
@@ -6583,13 +6837,6 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
                       ) : (
                         <div className="expanded-empty">No chart data</div>
                       )}
-                      {activeTab === "agrar" && fullscreenItem?.code && agriAvailableKindsBySymbol[fullscreenItem.code] ? (
-                        <AgriStrategyKindButtons
-                          availableKinds={agriAvailableKindsBySymbol[fullscreenItem.code]}
-                          activeKinds={agriActiveKindsBySymbol[fullscreenItem.code] ?? []}
-                          onToggle={(kind) => toggleAgriKind(fullscreenItem.code, kind)}
-                        />
-                      ) : null}
                       <div className="expanded-chart-label">
                         <div className="expanded-chart-symbol">{fullscreenItem?.short ?? fullscreenItem?.code ?? "-"}</div>
                         <div className="expanded-chart-desc">{fullscreenItem?.name ?? "-"}</div>
@@ -6861,18 +7108,58 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
                   uiPrefs={uiPrefs}
                   intradayEventsUrl={investEventsUrl}
                   adapterLabel="Core Invest"
-                  topContent={(
-                    <CoreInvestMonitoringGrid
-                      onStrategySelect={setInvestSelectedStrategyId}
-                      selectedStrategyId={investSelectedStrategyId}
-                    />
-                  )}
+                  topContent={
+                    showGrid ? (
+                      <MonitoringFlexibleGrid
+                        tabId={activeTab}
+                        assets={allItems}
+                        activeChartId={selectedAssetId}
+                        selectedStrategySymbols={selectedStrategySymbols}
+                        selectedTradeId={executionFocusTradeId}
+                        preferredDensity={tabConfigById(activeTab)?.preferredDensity ?? "balanced"}
+                        onChartSelect={onChartSelect}
+                        onIndicatorOpen={onStrategyWorkspaceSelect}
+                        onOpenFullscreen={fullscreenEnabled ? onOpenFullscreen : undefined}
+                        isTradeExecutionOpen={tradeExecutionPanelEnabled}
+                        tradeMode={tradeMode}
+                        manualLevelsBySymbol={manualLevelsBySymbol}
+                        onManualLevelsChange={handleManualLevelsChange}
+                        missingBuild={missingBuild}
+                        loadStatusBySymbol={effectiveLoadStateBySymbol}
+                        strategyEventsByFile={effectiveStrategyEventsByFile}
+                        tradingViewTradesBySource={tradingViewTradesBySource}
+                        preparedTradesByItemKey={preparedTradesByItemKey}
+                        uiPrefs={uiPrefs}
+                      />
+                    ) : null
+                  }
                 />
               ) : (
-                <CoreInvestMonitoringGrid
-                  onStrategySelect={setInvestSelectedStrategyId}
-                  selectedStrategyId={investSelectedStrategyId}
-                />
+                <>
+                  {showGrid ? (
+                    <MonitoringFlexibleGrid
+                      tabId={activeTab}
+                      assets={allItems}
+                      activeChartId={selectedAssetId}
+                      selectedStrategySymbols={selectedStrategySymbols}
+                      selectedTradeId={executionFocusTradeId}
+                      preferredDensity={tabConfigById(activeTab)?.preferredDensity ?? "balanced"}
+                      onChartSelect={onChartSelect}
+                      onIndicatorOpen={onIndicatorOpen}
+                      onOpenFullscreen={fullscreenEnabled ? onOpenFullscreen : undefined}
+                      isTradeExecutionOpen={tradeExecutionPanelEnabled}
+                      tradeMode={tradeMode}
+                      manualLevelsBySymbol={manualLevelsBySymbol}
+                      onManualLevelsChange={handleManualLevelsChange}
+                      missingBuild={missingBuild}
+                      loadStatusBySymbol={effectiveLoadStateBySymbol}
+                      strategyEventsByFile={effectiveStrategyEventsByFile}
+                      tradingViewTradesBySource={tradingViewTradesBySource}
+                      preparedTradesByItemKey={preparedTradesByItemKey}
+                      uiPrefs={uiPrefs}
+                    />
+                  ) : null}
+                </>
               )}
             </div>
             {rightColumnEnabled ? (
@@ -7629,6 +7916,39 @@ export default function MonitoringPage({ initialAgriFinalStatus = null }: Monito
           font-size: 9px;
           color: #5a606e;
           letter-spacing: 0.04em;
+        }
+        .monitoring-live-replay-badge {
+          font-size: 8px;
+          font-weight: 800;
+          letter-spacing: 0.08em;
+          padding: 1px 5px;
+          border-radius: 3px;
+          color: #f59e0b;
+          background: rgba(245, 158, 11, 0.15);
+          border: 1px solid rgba(245, 158, 11, 0.4);
+          text-transform: uppercase;
+        }
+        .monitoring-live-replay-btn {
+          font-size: 9px;
+          font-weight: 600;
+          padding: 2px 8px;
+          border-radius: 5px;
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          background: rgba(255, 255, 255, 0.04);
+          color: #8b95a3;
+          cursor: pointer;
+          letter-spacing: 0.03em;
+          transition: color 0.15s, border-color 0.15s, background 0.15s;
+        }
+        .monitoring-live-replay-btn:hover {
+          color: #f5f7fa;
+          border-color: rgba(245, 158, 11, 0.5);
+          background: rgba(245, 158, 11, 0.08);
+        }
+        .monitoring-live-replay-btn.is-active {
+          color: #f59e0b;
+          border-color: rgba(245, 158, 11, 0.6);
+          background: rgba(245, 158, 11, 0.12);
         }
         .monitoring-live-grid {
           flex: 1 1 auto;

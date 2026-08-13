@@ -58,6 +58,32 @@ function loadStaticCoverageIndex(): Map<string, { startUtc: string; endUtc: stri
   return map;
 }
 
+// Load canonical strategy/slot identifiers from the routes config.
+// universeSymbol entries where universeSymbol !== asset are strategy IDs, not real instruments.
+// Used as the primary filter in buildDedupedLiveFeedUniverse (supersedes underscore heuristic).
+let _knownStrategyIds: Set<string> | null = null;
+
+function loadKnownStrategyIds(): Set<string> {
+  if (_knownStrategyIds) return _knownStrategyIds;
+  const filePath = path.join(
+    process.cwd(),
+    "public", "generated", "monitoring", "config", "strategy_runtime_routes.json",
+  );
+  const set = new Set<string>();
+  try {
+    const json = JSON.parse(fs.readFileSync(filePath, "utf8")) as {
+      routes?: Array<{ universeSymbol?: string; asset?: string }>;
+    };
+    for (const route of json.routes ?? []) {
+      const u = String(route.universeSymbol ?? "").trim().toUpperCase();
+      const a = String(route.asset ?? "").trim().toUpperCase();
+      if (u && a && u !== a) set.add(u);
+    }
+  } catch { /* graceful no-op if file missing */ }
+  _knownStrategyIds = set;
+  return set;
+}
+
 type QueryBuilder = {
   from: (table: string) => {
     select: (columns: string) => any;
@@ -133,7 +159,7 @@ function classifyCoverageStatus(startUtc: string | null, endUtc: string | null):
   return "partial";
 }
 
-async function fetchYahooLastPrice(symbol: string): Promise<{ price: number | null; asOf: string | null }> {
+async function fetchYahooLastPrice(symbol: string, signal?: AbortSignal): Promise<{ price: number | null; asOf: string | null }> {
   const mapped = DIRECT_YAHOO_SYMBOLS[symbol];
   if (!mapped) return { price: null, asOf: null };
 
@@ -142,6 +168,7 @@ async function fetchYahooLastPrice(symbol: string): Promise<{ price: number | nu
       `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(mapped)}?range=5d&interval=1d`,
       {
         cache: "no-store",
+        signal,
         headers: {
           "User-Agent": "Mozilla/5.0",
           Referer: "https://finance.yahoo.com/",
@@ -177,13 +204,14 @@ async function fetchYahooLastPrice(symbol: string): Promise<{ price: number | nu
   }
 }
 
-export async function buildMonitoringLiveFeedView(db: QueryBuilder): Promise<MonitoringLiveFeedResponse> {
+export async function buildMonitoringLiveFeedView(db: QueryBuilder, signal?: AbortSignal): Promise<MonitoringLiveFeedResponse> {
   const monitoringUniverse = loadMonitoringUniverse();
   const whiteSwanUniverse = loadWhiteSwanUniverse();
   const { assets: dedupedUniverse } = buildDedupedLiveFeedUniverse(
     monitoringUniverse,
     whiteSwanUniverse,
     CORE_INVEST_MONITOR_SYMBOLS,
+    loadKnownStrategyIds(),
   );
   const canonicalUniverse = buildTerminalUniverse();
   const canonicalByTicker = new Map<string, (typeof canonicalUniverse.entries)[number]>();
@@ -199,12 +227,19 @@ export async function buildMonitoringLiveFeedView(db: QueryBuilder): Promise<Mon
     latestTvBySymbol.set(key, row);
   }
 
-  const { data: liveRows } = await db
-    .from("live_quotes")
-    .select("symbol,close,timestamp,updated_at")
-    .in("symbol", symbols)
-    .order("updated_at", { ascending: false })
-    .limit(symbols.length * 4);
+  const applySignal = (builder: unknown) =>
+    signal && typeof (builder as any).abortSignal === "function"
+      ? (builder as any).abortSignal(signal)
+      : builder;
+
+  const { data: liveRows } = await applySignal(
+    db
+      .from("live_quotes")
+      .select("symbol,close,timestamp,updated_at")
+      .in("symbol", symbols)
+      .order("updated_at", { ascending: false })
+      .limit(symbols.length * 4),
+  );
 
   const latestLiveBySymbol = new Map<string, LiveQuoteRow>();
   for (const row of (liveRows ?? []) as LiveQuoteRow[]) {
@@ -213,23 +248,26 @@ export async function buildMonitoringLiveFeedView(db: QueryBuilder): Promise<Mon
     latestLiveBySymbol.set(key, row);
   }
 
-  const { data: monitoringRows } = await db
-    .from("monitoring_ohlc")
-    .select("asset,date,close")
-    .in("asset", symbols)
-    .eq("timeframe", "D")
-    .order("date", { ascending: false })
-    .limit(symbols.length * 4);
+  const { data: monitoringRows } = await applySignal(
+    db
+      .from("monitoring_ohlc")
+      .select("asset,date,close")
+      .in("asset", symbols)
+      .eq("timeframe", "D")
+      .order("date", { ascending: false })
+      .limit(symbols.length * 4),
+  );
 
-  const { data: investRows } = await db
-    .from("invest_ohlc")
-    .select("symbol,date,close")
-    .in("symbol", symbols)
-    .order("date", { ascending: false })
-    .limit(symbols.length * 4);
+  const { data: investRows } = await applySignal(
+    db
+      .from("invest_ohlc")
+      .select("symbol,date,close")
+      .in("symbol", symbols)
+      .order("date", { ascending: false })
+      .limit(symbols.length * 4),
+  );
 
   const latestOhlcBySymbol = new Map<string, OhlcRow>();
-  const coverageBySymbol = new Map<string, { startUtc: string | null; endUtc: string | null; rowCount: number }>();
 
   for (const row of [...((monitoringRows ?? []) as OhlcRow[]), ...((investRows ?? []) as OhlcRow[])]) {
     const key = String(row.asset || row.symbol || "").trim().toUpperCase();
@@ -237,36 +275,9 @@ export async function buildMonitoringLiveFeedView(db: QueryBuilder): Promise<Mon
     latestOhlcBySymbol.set(key, row);
   }
 
-  const { data: monitoringCoverageRows } = await db
-    .from("monitoring_ohlc")
-    .select("asset,date")
-    .in("asset", symbols)
-    .eq("timeframe", "D")
-    .order("date", { ascending: true })
-    .limit(50000);
-
-  const { data: investCoverageRows } = await db
-    .from("invest_ohlc")
-    .select("symbol,date")
-    .in("symbol", symbols)
-    .order("date", { ascending: true })
-    .limit(50000);
-
-  for (const row of [...((monitoringCoverageRows ?? []) as OhlcRow[]), ...((investCoverageRows ?? []) as OhlcRow[])]) {
-    const key = String(row.asset || row.symbol || "").trim().toUpperCase();
-    const date = row.date ? String(row.date).slice(0, 10) : null;
-    if (!key || !date) continue;
-    const current = coverageBySymbol.get(key);
-    if (!current) {
-      coverageBySymbol.set(key, { startUtc: date, endUtc: date, rowCount: 1 });
-      continue;
-    }
-    coverageBySymbol.set(key, {
-      startUtc: current.startUtc ?? date,
-      endUtc: date,
-      rowCount: current.rowCount + 1,
-    });
-  }
+  // Coverage start/end is read from the pre-generated static JSON index (loaded
+  // once per process, no Supabase query needed). The two prior LIMIT 50000
+  // coverage queries fetched the entire OHLC history on every request — removed.
 
   const staticCoverageIndex = loadStaticCoverageIndex();
   const yahooFallbackByTicker = new Map<string, { price: number | null; asOf: string | null }>();
@@ -289,7 +300,7 @@ export async function buildMonitoringLiveFeedView(db: QueryBuilder): Promise<Mon
         .filter(Boolean);
 
       for (const candidate of yahooCandidates) {
-        const hit = await fetchYahooLastPrice(candidate);
+        const hit = await fetchYahooLastPrice(candidate, signal);
         if (hit.price != null && Number.isFinite(hit.price)) {
           yahooFallbackByTicker.set(asset.ticker, hit);
           return;
@@ -313,7 +324,6 @@ export async function buildMonitoringLiveFeedView(db: QueryBuilder): Promise<Mon
       const live = candidates.map((candidate) => latestLiveBySymbol.get(candidate)).find(Boolean);
       const tv = candidates.map((candidate) => latestTvBySymbol.get(candidate)).find(Boolean);
       const fallback = candidates.map((candidate) => latestOhlcBySymbol.get(candidate)).find(Boolean);
-      const coverage = candidates.map((candidate) => coverageBySymbol.get(candidate)).find(Boolean);
       const yahoo = yahooFallbackByTicker.get(ticker);
       const liveTimestamp = live?.timestamp || live?.updated_at || null;
       const liveAgeMs = liveTimestamp ? nowMs - new Date(liveTimestamp).getTime() : null;
@@ -341,16 +351,15 @@ export async function buildMonitoringLiveFeedView(db: QueryBuilder): Promise<Mon
       const staticCov = staticCoverageIndex.get(ticker);
       const dataStartUtc =
         sanitizeCoverageDate(asset.startDate) ??
-        sanitizeCoverageDate(coverage?.startUtc) ??
         sanitizeCoverageDate(staticCov?.startUtc) ??
         null;
       const dataEndUtc =
         sanitizeCoverageDate(asset.endDate) ??
-        sanitizeCoverageDate(coverage?.endUtc) ??
+        sanitizeCoverageDate(staticCov?.endUtc) ??
         sanitizeCoverageDate(fallback?.date) ??
         sanitizeCoverageDate(tv?.bar_time) ??
+        sanitizeCoverageDate(liveTimestamp) ??
         sanitizeCoverageDate(yahoo?.asOf) ??
-        sanitizeCoverageDate(staticCov?.endUtc) ??
         null;
       const sourceQuality: MonitoringLiveFeedRow["sourceQuality"] =
         feedStatus === "realtime"
@@ -382,7 +391,7 @@ export async function buildMonitoringLiveFeedView(db: QueryBuilder): Promise<Mon
         lastUpdateUtc: liveTimestamp || tv?.fetched_at || tv?.bar_time || fallback?.date || yahoo?.asOf || null,
         dataStartUtc,
         dataEndUtc,
-        dataRowCount: coverage?.rowCount ?? null,
+        dataRowCount: null,
         coverageStatus: classifyCoverageStatus(dataStartUtc, dataEndUtc),
       };
     })
@@ -398,6 +407,12 @@ export async function buildMonitoringLiveFeedView(db: QueryBuilder): Promise<Mon
       whiteSwan: canonicalUniverse.counts.whiteSwanCount,
       coreInvest: canonicalUniverse.counts.coreInvestCount,
       deduped: canonicalUniverse.counts.dedupedTotalCount,
+    },
+    dataHealth: {
+      sourceHealth: hasRealtime ? "live" : items.some((item) => item.price != null) ? "degraded" : "unavailable",
+      lastSuccessfulFetchUtc: items.find((item) => item.lastUpdateUtc)?.lastUpdateUtc ?? null,
+      dataTimestampUtc: items.find((item) => item.lastUpdateUtc)?.lastUpdateUtc ?? null,
+      ageSeconds: items.find((item) => item.freshnessSeconds != null)?.freshnessSeconds ?? null,
     },
   };
 }

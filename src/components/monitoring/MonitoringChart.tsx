@@ -321,6 +321,10 @@ type MonitoringChartProps = {
   // Trend EMA overlays (e.g. Indizes Macro Valuation Alpha V1: Fast EMA 200, Slow EMA 280).
   // Computed from the chart candles; omitted (undefined) for strategies that don't use them.
   trendEmas?: Array<{ key: string; len: number; color: string }>;
+  // "referenz": native LWC crosshair (gray/dashed), wheel zoom, no custom canvas crosshair.
+  interactionMode?: "default" | "referenz";
+  /** Override LWC chart background. Accepts any LWC Background object (Solid or VerticalGradient). */
+  chartBackground?: { type: ColorType.Solid; color: string } | { type: ColorType.VerticalGradient; topColor: string; bottomColor: string };
 };
 
 const DEFAULT_MAX_BARS = 120;
@@ -1059,6 +1063,8 @@ function MonitoringChartInner({
   uiPrefs,
   liveChartAutoView = false,
   trendEmas,
+  interactionMode,
+  chartBackground,
 }: MonitoringChartProps) {
   const overlayEnabled = monitoringFeatureFlags.enableSvgTradeOverlay;
   const debugRenderingEnabled = monitoringFeatureFlags.enableDebugRendering;
@@ -1277,27 +1283,17 @@ function MonitoringChartInner({
     const chart = chartRef.current;
     if (!chart) return;
     chart.applyOptions({
-      crosshair: {
+      crosshair: interactionMode === "referenz" ? {
+        mode: CrosshairMode.Normal,
+        vertLine: { visible: true, labelVisible: true, width: 1, style: 2, color: "rgba(210, 214, 220, 0.65)", labelBackgroundColor: "#4B5563" },
+        horzLine: { visible: true, labelVisible: true, width: 1, style: 2, color: "rgba(210, 214, 220, 0.65)", labelBackgroundColor: "#4B5563" },
+      } : {
         mode: CrosshairMode.MagnetOHLC,
-        vertLine: {
-          color: "rgba(180, 185, 200, 0.6)",
-          width: 1,
-          style: 0,
-          labelVisible: true,
-          labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
-          visible: true,
-        },
-        horzLine: {
-          color: "rgba(180, 185, 200, 0.6)",
-          width: 1,
-          style: 0,
-          labelVisible: true,
-          labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
-          visible: true,
-        },
+        vertLine: { color: "rgba(180, 185, 200, 0.6)", width: 1, style: 0, labelVisible: true, labelBackgroundColor: "rgba(22, 26, 32, 0.9)", visible: true },
+        horzLine: { color: "rgba(180, 185, 200, 0.6)", width: 1, style: 0, labelVisible: true, labelBackgroundColor: "rgba(22, 26, 32, 0.9)", visible: true },
       },
     });
-  }, [hovered]);
+  }, [hovered, interactionMode]);
 
   useEffect(() => {
     const chart = chartRef.current;
@@ -1308,7 +1304,7 @@ function MonitoringChartInner({
     const candleDownColor = uiPrefs?.candleDownColor ?? "#C9A84C";
     chart.applyOptions({
       layout: {
-        background: { type: ColorType.Solid, color: backgroundColor },
+        background: chartBackground ?? { type: ColorType.Solid, color: backgroundColor },
       },
     });
     candle.applyOptions({
@@ -1317,7 +1313,7 @@ function MonitoringChartInner({
       wickUpColor: candleUpColor,
       wickDownColor: candleDownColor,
     });
-  }, [uiPrefs?.backgroundColor, uiPrefs?.candleUpColor, uiPrefs?.candleDownColor]);
+  }, [uiPrefs?.backgroundColor, uiPrefs?.candleUpColor, uiPrefs?.candleDownColor, chartBackground]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -1339,7 +1335,7 @@ function MonitoringChartInner({
       width: Math.max(80, Math.floor(host.clientWidth)),
       height: Math.max(56, Math.floor(host.clientHeight)),
       layout: {
-        background: { type: ColorType.Solid, color: backgroundColor },
+        background: chartBackground ?? { type: ColorType.Solid, color: backgroundColor },
         textColor: monitoringAxisTextColor(isDashboard, isCompact),
         fontSize: monitoringAxisFontSize(isDashboard, isCompact, isIntraday),
         fontFamily: MONITORING_CHART_FONT_FAMILY,
@@ -1349,24 +1345,14 @@ function MonitoringChartInner({
         vertLines: { visible: false },
         horzLines: { visible: false },
       },
-      crosshair: {
+      crosshair: interactionMode === "referenz" ? {
+        mode: CrosshairMode.Normal,
+        vertLine: { visible: true, labelVisible: true, width: 1, style: 2, color: "rgba(210, 214, 220, 0.65)", labelBackgroundColor: "#4B5563" },
+        horzLine: { visible: true, labelVisible: true, width: 1, style: 2, color: "rgba(210, 214, 220, 0.65)", labelBackgroundColor: "#4B5563" },
+      } : {
         mode: CrosshairMode.MagnetOHLC,
-        vertLine: {
-          color: "rgba(180, 185, 200, 0.6)",
-          width: 1,
-          style: 0,
-          labelVisible: true,
-          labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
-          visible: true,
-        },
-        horzLine: {
-          color: "rgba(180, 185, 200, 0.6)",
-          width: 1,
-          style: 0,
-          labelVisible: true,
-          labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
-          visible: true,
-        },
+        vertLine: { color: "rgba(180, 185, 200, 0.6)", width: 1, style: 0, labelVisible: true, labelBackgroundColor: "rgba(22, 26, 32, 0.9)", visible: true },
+        horzLine: { color: "rgba(180, 185, 200, 0.6)", width: 1, style: 0, labelVisible: true, labelBackgroundColor: "rgba(22, 26, 32, 0.9)", visible: true },
       },
       localization: {
         priceFormatter: (price: number) => formatAxisPrice(price),
@@ -1389,27 +1375,27 @@ function MonitoringChartInner({
         fixLeftEdge: false,
         fixRightEdge: false,
         lockVisibleTimeRangeOnResize: false,
-        timeVisible: isCompact || isIntradayChartTf(data.timeframe),
+        timeVisible: interactionMode === "referenz" ? true : (isCompact || isIntradayChartTf(data.timeframe)),
         secondsVisible: false,
         ticksVisible: true,
-        minimumHeight: isDashboard ? 14 : isCompact ? 16 : 20,
-        barSpacing: isDashboard ? 2.5 : isCompact ? 5 : undefined,
-        minBarSpacing: isDashboard ? 1.5 : isCompact ? 3 : undefined,
+        minimumHeight: isDashboard ? 14 : isCompact ? 16 : interactionMode === "referenz" ? 32 : 20,
+        barSpacing: isDashboard ? 2.5 : isCompact ? 5 : interactionMode === "referenz" ? 10 : undefined,
+        minBarSpacing: isDashboard ? 1.5 : isCompact ? 3 : interactionMode === "referenz" ? 3 : undefined,
         // Intraday: render X-axis tick labels in Europe/Berlin (data stays UTC).
         ...(isIntraday ? { tickMarkFormatter: berlinIntradayTickMarkFormatter } : {}),
       },
       handleScroll: {
-        mouseWheel: false, // custom onWheel handler handles all wheel events
-        pressedMouseMove: true, // TradingView-style: drag to pan
+        mouseWheel: interactionMode === "referenz",
+        pressedMouseMove: true,
         horzTouchDrag: true,
-        vertTouchDrag: true,
+        vertTouchDrag: interactionMode !== "referenz",
       },
       kineticScroll: {
         touch: true,
-        mouse: false,
+        mouse: interactionMode === "referenz",
       },
       handleScale: {
-        mouseWheel: false, // wheel pans (TV-style); pinch zooms on touch
+        mouseWheel: interactionMode === "referenz",
         pinch: true,
         axisPressedMouseMove: {
           time: true,
@@ -1603,6 +1589,8 @@ function MonitoringChartInner({
     });
 
     const onWheel = (event: WheelEvent) => {
+      // In referenz mode, wheel zoom is handled natively by LWC (handleScale.mouseWheel: true)
+      if (interactionMode === "referenz") return;
       const absX = Math.abs(event.deltaX);
       const absY = Math.abs(event.deltaY);
       const isHorizontal = absX > 0 && absX >= absY * 0.45;
@@ -1624,10 +1612,43 @@ function MonitoringChartInner({
       });
       syncAutoFollowFromRange();
     };
-    host.addEventListener("wheel", onWheel, { passive: false });
-    const unregisterWheel = registerMonitoringSubscription(() => {
-      host.removeEventListener("wheel", onWheel);
-    });
+    // In referenz mode LWC handles wheel natively — skip custom pan listener entirely.
+    if (interactionMode !== "referenz") {
+      host.addEventListener("wheel", onWheel, { passive: false });
+      registerMonitoringSubscription(() => {
+        host.removeEventListener("wheel", onWheel);
+      });
+    }
+    const unregisterWheel = () => { /* handled above */ };
+
+    // Referenz mode: clear native LWC crosshair on pointer leave and when over axes
+    let unregisterReferenzLeave: (() => void) | null = null;
+    let unregisterReferenzAxisCheck: (() => void) | null = null;
+    if (interactionMode === "referenz") {
+      const onReferenzLeave = () => { try { chart.clearCrosshairPosition(); } catch { /* ignore */ } };
+      host.addEventListener("pointerleave", onReferenzLeave);
+      host.addEventListener("touchend", onReferenzLeave);
+      host.addEventListener("touchcancel", onReferenzLeave);
+      unregisterReferenzLeave = registerMonitoringSubscription(() => {
+        host.removeEventListener("pointerleave", onReferenzLeave);
+        host.removeEventListener("touchend", onReferenzLeave);
+        host.removeEventListener("touchcancel", onReferenzLeave);
+      });
+
+      const onReferenzAxisMove = (e: PointerEvent) => {
+        const rect = host.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const pw = safePriceScaleWidth(chart) ?? PRICE_AXIS_FALLBACK_WIDTH;
+        if (x > rect.width - pw || y > rect.height - 44) {
+          try { chart.clearCrosshairPosition(); } catch { /* ignore */ }
+        }
+      };
+      host.addEventListener("pointermove", onReferenzAxisMove);
+      unregisterReferenzAxisCheck = registerMonitoringSubscription(() => {
+        host.removeEventListener("pointermove", onReferenzAxisMove);
+      });
+    }
 
     const onChartClick = (param: { point?: { x: number; y: number } }) => {
       const point = param?.point;
@@ -1685,6 +1706,8 @@ function MonitoringChartInner({
       unregisterCrosshairMove();
       unregisterChartClick();
       unregisterWheel();
+      if (unregisterReferenzLeave) unregisterReferenzLeave();
+      if (unregisterReferenzAxisCheck) unregisterReferenzAxisCheck();
       unregisterPanSync();
       unregisterVisibleLogical();
       if (unregisterVisibleTime) unregisterVisibleTime();
@@ -1736,7 +1759,7 @@ function MonitoringChartInner({
       totalBarsRef.current = 0;
       prevCandleDataRef.current = null;
     };
-  }, [allDashboardMode, data.displaySymbol, data.variant, initialVisibleBars, initialRightOffset, overlayEnabled, showManualLevels]);
+  }, [allDashboardMode, data.displaySymbol, data.variant, initialVisibleBars, initialRightOffset, overlayEnabled, showManualLevels, interactionMode]);
 
   // Live Auto: re-fit the Y (price) scale on data changes so the candles stay in
   // view. Intentionally do NOT reset the X (time) range here: resetting it on every
@@ -1770,39 +1793,24 @@ function MonitoringChartInner({
     const priceScaleMinWidth = monitoringRightPriceScaleMinWidth(isDashboard, isCompact, isIntradayTf, isForex);
 
     chart.applyOptions({
-      // TradingView-style interaction — re-asserted on every data update so the
-      // 5s refresh can't silently re-lock the chart. Wheel pans (custom onWheel),
-      // drag pans (handleScroll.pressedMouseMove).
       handleScroll: {
-        mouseWheel: false, // custom onWheel handles all wheel events
+        mouseWheel: interactionMode === "referenz",
         pressedMouseMove: true,
         horzTouchDrag: true,
-        vertTouchDrag: true,
+        vertTouchDrag: interactionMode !== "referenz",
       },
       kineticScroll: {
         touch: true,
-        mouse: false,
+        mouse: interactionMode === "referenz",
       },
-      // Re-assert crosshair settings on every data update so the 5s refresh
-      // cannot silently revert mode or color.
-      crosshair: {
+      crosshair: interactionMode === "referenz" ? {
+        mode: CrosshairMode.Normal,
+        vertLine: { visible: true, labelVisible: true, width: 1, style: 2, color: "rgba(210, 214, 220, 0.65)", labelBackgroundColor: "#4B5563" },
+        horzLine: { visible: true, labelVisible: true, width: 1, style: 2, color: "rgba(210, 214, 220, 0.65)", labelBackgroundColor: "#4B5563" },
+      } : {
         mode: CrosshairMode.MagnetOHLC,
-        vertLine: {
-          color: "rgba(180, 185, 200, 0.6)",
-          width: 1,
-          style: 0,
-          labelVisible: true,
-          labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
-          visible: true,
-        },
-        horzLine: {
-          color: "rgba(180, 185, 200, 0.6)",
-          width: 1,
-          style: 0,
-          labelVisible: true,
-          labelBackgroundColor: "rgba(22, 26, 32, 0.9)",
-          visible: true,
-        },
+        vertLine: { color: "rgba(180, 185, 200, 0.6)", width: 1, style: 0, labelVisible: true, labelBackgroundColor: "rgba(22, 26, 32, 0.9)", visible: true },
+        horzLine: { color: "rgba(180, 185, 200, 0.6)", width: 1, style: 0, labelVisible: true, labelBackgroundColor: "rgba(22, 26, 32, 0.9)", visible: true },
       },
       layout: {
         textColor: monitoringAxisTextColor(isDashboard, isCompact),
@@ -1823,14 +1831,15 @@ function MonitoringChartInner({
         minimumWidth: priceScaleMinWidth,
       },
       timeScale: {
-        timeVisible: isCompact || isIntradayChartTf(data.timeframe),
+        visible: true,
+        timeVisible: interactionMode === "referenz" ? true : (isCompact || isIntradayChartTf(data.timeframe)),
         secondsVisible: false,
         ticksVisible: true,
-        minimumHeight: isDashboard ? 14 : isCompact ? 16 : 20,
+        minimumHeight: isDashboard ? 14 : isCompact ? 16 : interactionMode === "referenz" ? 32 : 20,
         ...(isIntradayTf ? { tickMarkFormatter: berlinIntradayTickMarkFormatter } : {}),
       },
       handleScale: {
-        mouseWheel: false, // wheel pans; pinch/axis-drag zooms
+        mouseWheel: interactionMode === "referenz",
         pinch: true,
         axisPressedMouseMove: {
           time: true,
@@ -2055,11 +2064,9 @@ function MonitoringChartInner({
       ctx.clearRect(0, 0, width, height);
 
       // Custom crosshair — drawn on the top overlay canvas so it is guaranteed to
-      // render above every layer. The native lightweight-charts crosshair proved
-      // unreliable in this stack, so we own it here: vertical + horizontal dashed
-      // lines following the cursor, plus a right-axis price label.
+      // render above every layer. In referenz mode the native LWC crosshair is used instead.
       const cross = crosshairPosRef.current;
-      if (cross && cross.x >= 0 && cross.x <= width && cross.y >= 0 && cross.y <= height) {
+      if (cross && cross.x >= 0 && cross.x <= width && cross.y >= 0 && cross.y <= height && interactionMode !== "referenz") {
         ctx.save();
         ctx.strokeStyle = "rgba(196, 162, 74, 0.88)";
         ctx.lineWidth = 1;
@@ -2829,7 +2836,7 @@ function MonitoringChartInner({
       autoFollowRef.current = atRight;
       setShowGoToLatest(!atRight);
     }
-  }, [allDashboardMode, debugRenderingEnabled, initialVisibleBars, initialRightOffset, liveChartAutoView, manualHover, manualLevels, overlayEnabled, prepared, selectedTradeId, showManualLevels]);
+  }, [allDashboardMode, debugRenderingEnabled, initialVisibleBars, initialRightOffset, interactionMode, liveChartAutoView, manualHover, manualLevels, overlayEnabled, prepared, selectedTradeId, showManualLevels]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -3027,6 +3034,9 @@ function MonitoringChartInner({
       onMouseLeave={() => {
         setHovered(false);
         setFullscreenZoneActive(false);
+        if (interactionMode === "referenz") {
+          try { chartRef.current?.clearCrosshairPosition(); } catch { /* ignore */ }
+        }
       }}
     >
       <div

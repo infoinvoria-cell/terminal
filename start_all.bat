@@ -18,9 +18,18 @@ if %errorlevel%==0 (
     exit /b 0
 )
 
-rem Stop old processes
+rem Stop old processes — targeted PID kill only (no broadcast python.exe kill)
+rem Node.js is always the Terminal dev server, safe to kill by image name
 taskkill /F /IM node.exe >nul 2>&1
-taskkill /F /IM python.exe >nul 2>&1
+
+rem Python processes: kill only tracked PIDs via PID files
+rem This prevents destroying unrelated python.exe processes (e.g. other tools)
+call :kill_by_pidfile "%ROOT%\tools\live-feed\tv_live_feed.pid"
+call :kill_by_pidfile "%ENGINE_ROOT%\bridge\flask_engine.pid"
+call :kill_by_pidfile "%ENGINE_ROOT%\sentinel_proxy\proxy.pid"
+call :kill_by_pidfile "%ENGINE_ROOT%\signal_loop.pid"
+call :kill_by_pidfile "%ENGINE_ROOT%\production_runner.pid"
+
 timeout /t 2 /nobreak >nul
 
 rem Obsidian
@@ -65,6 +74,15 @@ if exist "%ENGINE_ROOT%\signal_loop.py" (
     echo Signal Loop nicht gefunden, ueberspringe.
 )
 
+rem Production strategy runner (DAX 2H, DAX 1H, EUR 30M catch-up + continuous)
+if exist "%ENGINE_ROOT%\production_strategy_runner.py" (
+    start "ProdRunner" /min cmd /k "cd /d %ENGINE_ROOT% && python production_strategy_runner.py"
+    echo Production Runner gestartet.
+    timeout /t 2 /nobreak >nul
+) else (
+    echo Production Runner nicht gefunden, ueberspringe.
+)
+
 rem Terminal
 start "Terminal" /min cmd /k "cd /d %ROOT% && npm run dev"
 echo Terminal gestartet. Warte auf Port 3000...
@@ -90,3 +108,15 @@ start "" "%APP_URL%"
 
 echo === ALLE SERVICES GESTARTET ===
 exit /b 0
+
+:kill_by_pidfile
+rem Kill a process by its PID file, then delete the stale file.
+rem Usage: call :kill_by_pidfile "path\to\process.pid"
+if exist "%~1" (
+    set /p _pid=<"%~1"
+    if defined _pid (
+        taskkill /F /PID %_pid% >nul 2>&1
+    )
+    del "%~1" >nul 2>&1
+)
+goto :eof

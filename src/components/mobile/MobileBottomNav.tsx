@@ -180,10 +180,10 @@ const ALL_SIDEBAR_GROUPS: NavGroupDef[] = [
     ],
   },
   {
-    label: "Manager",
+    label: "Portfolio",
     items: [
       { href: "/m/about",         label: "Info Panel",   Icon: IconInfo       },
-      { href: "/m/manager",       label: "Manager",      Icon: IconBriefcase  },
+      { href: "/m/manager",       label: "Portfolio Lab", Icon: IconBriefcase  },
       { href: "/m/investors-crm", label: "Investoren",   Icon: IconPieChart   },
       { href: "/m/onboarding",    label: "Onboarding",   Icon: IconUsers      },
       { href: "/m/vermittler",    label: "Vermittler",   Icon: IconNetwork    },

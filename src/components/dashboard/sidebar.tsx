@@ -10,10 +10,10 @@ import {
   Blocks,
   BellRing,
   BookText,
-  BriefcaseBusiness,
   CalendarRange,
   ChartColumn,
   ChartCandlestick,
+  Calculator,
   Globe,
   HandCoins,
   Home,
@@ -663,7 +663,7 @@ export function Sidebar() {
       </div>
 
       <nav className={cn("mt-1", navClass)} aria-label="Clients">
-        <SidebarLink href="/manager" active={managerActive} label="Manager" icon={BriefcaseBusiness} onHover={updateHoverBox} expanded={expanded} />
+        <SidebarLink href="/manager" active={managerActive} label="Portfolio Lab" icon={Calculator} onHover={updateHoverBox} expanded={expanded} />
         <SidebarLink href="/investors" active={investorsActive} label="Investors" icon={HandCoins} onHover={updateHoverBox} expanded={expanded} />
         <SidebarLink href="/onboarding" active={investorsCRMActive} label="Onboarding" icon={UserRoundPlus} onHover={updateHoverBox} expanded={expanded} />
         <SidebarLink href="/investor-db" active={investorDbActive} label="Investor DB" icon={Users} onHover={updateHoverBox} expanded={expanded} />

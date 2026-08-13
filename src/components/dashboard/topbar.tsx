@@ -4,9 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { BadgeCheck, Bell, Check, LogOut, MessageSquare, Search, X } from "lucide-react";
+import { BadgeCheck, Bell, Check, Layers, LogOut, Search, X } from "lucide-react";
 import { useHomeDashboard } from "@/context/home-dashboard-context";
-import { useHeaderState } from "@/context/header-state-context";
 
 const EXPANDED_H = 72;
 
@@ -18,16 +17,17 @@ const PAGES = [
   { label: "Brain Graph", sub: "Obsidian Vault Graph", href: "/brain" },
   { label: "Signale", sub: "Live Signal Feed", href: "/signal" },
   { label: "Komponenten", sub: "UI Component Library", href: "/komponenten" },
+  { label: "Portfolio Lab", sub: "Capital Scenario Engine", href: "/manager" },
   { label: "Settings", sub: "Preferences & Config", href: "/settings" },
 ];
 
 type TopbarProps = {
   sectionLabel: string;
+  visible: boolean;
 };
 
-export function Topbar({ sectionLabel }: TopbarProps) {
+export function Topbar({ sectionLabel, visible }: TopbarProps) {
   const { activeProfile, profiles, setActiveProfile } = useHomeDashboard();
-  const { headerHidden: hidden } = useHeaderState();
   const router = useRouter();
   const [profileOpen, setProfileOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -57,16 +57,24 @@ export function Topbar({ sectionLabel }: TopbarProps) {
       )
     : PAGES;
 
-  const h = hidden ? 0 : EXPANDED_H;
+  const h = visible ? EXPANDED_H : 0;
 
   return (
-    <div style={{ height: h, overflow: "clip", transition: "height 200ms ease", flexShrink: 0 }}>
-      <header className="flex shrink-0 items-center justify-between gap-4 pb-3 pl-4 pr-4 pt-4" style={{ overflow: "visible" }}>
+    <div
+      style={{
+        height: h,
+        overflow: "clip",
+        opacity: visible ? 1 : 0,
+        transition: "height 260ms cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms ease",
+        flexShrink: 0,
+      }}
+    >
+      <header className="flex shrink-0 items-center justify-between gap-4 pb-3 pl-6 pr-4 pt-4" style={{ overflow: "visible" }}>
         <div>
-          <h1 className="text-[24px] font-bold leading-tight tracking-tight text-white [font-family:var(--font-text),sans-serif]">
+          <h1 className="text-[21px] font-bold leading-tight tracking-tight text-white [font-family:var(--font-text),sans-serif]">
             Welcome back, {activeProfile.name}!
           </h1>
-          <p className="mt-0.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-[color:var(--dash-section-label)] [font-family:var(--font-text),sans-serif]">
+          <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--dash-section-label)] [font-family:var(--font-text),sans-serif]">
             {sectionLabel}
           </p>
         </div>
@@ -127,12 +135,29 @@ export function Topbar({ sectionLabel }: TopbarProps) {
 
           <button
             type="button"
+            onClick={() => router.push("/preview-workspace")}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#2a2b30]/80 bg-[#13131A] text-zinc-400 transition-colors hover:border-[rgba(214,184,108,0.25)] hover:text-[#C9A84C]"
+            aria-label="Preview Workspace"
+            title="Preview Workspace"
+          >
+            <Layers className="h-[16px] w-[16px]" strokeWidth={1.9} />
+          </button>
+
+          <button
+            type="button"
             onClick={() => window.dispatchEvent(new CustomEvent("sentinel-butler-toggle"))}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#2a2b30]/80 bg-[#13131A] text-zinc-400 transition-colors hover:border-[rgba(214,184,108,0.25)] hover:text-[#C9A84C]"
             aria-label="Sentinel Chat"
             title="Sentinel Chat"
           >
-            <MessageSquare className="h-[16px] w-[16px]" strokeWidth={1.9} />
+            {/* MessageSquare + real Sentinel logo PNG inside, monochrome */}
+            <span style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center", width: 16, height: 16 }}>
+              <svg viewBox="0 0 24 24" fill="none" style={{ width: "100%", height: "100%" }} aria-hidden>
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/sentinel-logo.png" alt="" aria-hidden style={{ position: "absolute", width: "56%", height: "56%", objectFit: "contain", filter: "brightness(0) invert(1)", top: "10%", opacity: 0.9 }} />
+            </span>
           </button>
 
           <button

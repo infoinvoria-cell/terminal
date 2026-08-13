@@ -165,3 +165,25 @@ data/historical/intraday/
 # MT5 connector — local Python venv and runtime snapshots
 .venv-mt5/
 .runtime/
+
+# Dev/QA debug artifacts — browser screenshots, playwright captures, codex artifacts
+.playwright-mcp/
+.codex-artifacts/
+.codex-*.png
+.codex-*.txt
+.tmp-browser-*.json
+data/core-invest/.tmp-configs/
+data/core-invest/scenarios/
+
+# Root-level debug screenshots from development sessions
+/01-modeling-overview.png
+/02-selector-open.png
+/03-selector-scrolled.png
+/04-mc-3d-active.png
+/analytics-current.png
+/backtest-mode.png
+/debug-analytics-state.png
+/engine_*.png
+/engine_A_*.png
+/final_ss*.png
+/inno-*.png

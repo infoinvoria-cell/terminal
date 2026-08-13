@@ -5,8 +5,9 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "rec
 import {
   WS_STRATEGIES, PILLAR_META, type StrategyRow, type Pillar,
   CI_STRATEGIES, CI_META, type CoreInvestRow, type CIPillar,
-  WS_PORTFOLIO_KPIS, CI_PORTFOLIO_KPIS,
+  CI_PORTFOLIO_KPIS,
 } from "@/lib/components/ws-strategy-data";
+import { WHITE_SWAN_COMPONENT_KPIS, WHITE_SWAN_PORTFOLIO_TRUTH } from "@/lib/white-swan/portfolio-truth";
 
 // ── design tokens ──────────────────────────────────────────────────────────────
 const GOLD  = "#C9A84C";
@@ -85,11 +86,11 @@ const WS_ROWS = WS_STRATEGIES.map(wsRow);
 const CI_ROWS = CI_STRATEGIES.map(ciRow);
 
 const WS_KPIS = [
-  { label: "Sharpe OOS", value: WS_PORTFOLIO_KPIS.sharpe },
-  { label: "CAGR OOS",   value: WS_PORTFOLIO_KPIS.cagr   },
-  { label: "Max DD",     value: WS_PORTFOLIO_KPIS.maxDd  },
-  { label: "Calmar",     value: WS_PORTFOLIO_KPIS.calmar  },
-  { label: "Strategien", value: WS_PORTFOLIO_KPIS.strategies },
+  { label: "Sharpe OOS", value: WHITE_SWAN_COMPONENT_KPIS.sharpe },
+  { label: "CAGR OOS",   value: WHITE_SWAN_COMPONENT_KPIS.cagr   },
+  { label: "Max DD",     value: WHITE_SWAN_COMPONENT_KPIS.maxDd  },
+  { label: "Calmar",     value: WHITE_SWAN_COMPONENT_KPIS.calmar  },
+  { label: "Strategien", value: WHITE_SWAN_COMPONENT_KPIS.strategies },
 ];
 const CI_KPIS = [
   { label: "Sharpe OOS", value: CI_PORTFOLIO_KPIS.sharpe    },
@@ -98,6 +99,8 @@ const CI_KPIS = [
   { label: "Calmar",     value: CI_PORTFOLIO_KPIS.calmar     },
   { label: "Komponenten", value: CI_PORTFOLIO_KPIS.components },
 ];
+
+const WHITE_SWAN_TRUTH_NOTE = `Aktiv ${WHITE_SWAN_PORTFOLIO_TRUTH.activeWhiteSwanStrategies} · Σ ${WHITE_SWAN_PORTFOLIO_TRUTH.activeWeightSumPct?.toFixed(2)}% · Watch ${WHITE_SWAN_PORTFOLIO_TRUTH.watchRows} · Research ${WHITE_SWAN_PORTFOLIO_TRUTH.researchRows} · Reserve ${WHITE_SWAN_PORTFOLIO_TRUTH.cashMarginReservePct}%`;
 
 // ── OHLC cache ─────────────────────────────────────────────────────────────────
 type OhlcCacheEntry = { bars: OhlcBar[]; ts: number };
@@ -762,6 +765,11 @@ export function MobileKomponentenView() {
             </div>
           ))}
         </div>
+        {portfolio === "ws" && (
+          <div style={{ padding: "8px 12px 0", fontSize: 10, color: MUTED, fontFamily: "var(--font-text),sans-serif" }}>
+            {WHITE_SWAN_TRUTH_NOTE}
+          </div>
+        )}
 
         {/* Filter pills + mini search + live — more spacing above */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "16px 12px 10px" }}>

@@ -3,6 +3,17 @@
   "generatedAt": "2026-05-22T14:57:22Z",
   "routes": [
     {
+      "strategyId": "de30eur_30m_canonical_source",
+      "group": "Intraday MT",
+      "asset": "DE30EUR",
+      "tvSymbol": "OANDA:DE30EUR",
+      "timeframe": "30M",
+      "universeSymbol": "DE30EUR_30M",
+      "sourceMode": "supabase_live",
+      "candleFile": "public/generated/monitoring/tradingview_data_cache/30M/OANDA_DE30EUR_30M.json",
+      "_note": "Canonical 30M feed required for production_v1 DAX 1H/2H bar aggregation"
+    },
+    {
       "strategyId": "trend_momentum_dax_2h_de30eur_2h",
       "group": "Intraday MT",
       "asset": "DE30EUR",
@@ -373,7 +384,7 @@
       "strategyId": "ukx_ukx_d",
       "group": "Indizes",
       "asset": "UKX!",
-      "tvSymbol": "TVC:UKX!",
+      "tvSymbol": "TVC:UKX",
       "timeframe": "D",
       "universeSymbol": "UKX!",
       "sourceMode": "base",

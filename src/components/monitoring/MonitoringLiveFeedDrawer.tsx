@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Rows3 } from "lucide-react";
 import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
 import type {
+  DataHealthSourceStatus,
   MonitoringLiveFeedResponse,
   MonitoringLiveFeedRow,
   MonitoringLiveFeedStatus,
@@ -21,6 +22,7 @@ type Props = {
 const FALLBACK_POLLING_SECONDS = 30;
 const FULL_DATA_STORAGE_KEY = "monitoring_live_feed_full_data";
 const FULL_DATA_EVENT = "monitoring-live-feed-full-data-change";
+const FULL_DATA_EXPAND_LEFT_PX = 188;
 
 function readStoredFullData(): boolean {
   if (typeof window === "undefined") return false;
@@ -188,6 +190,7 @@ export default function MonitoringLiveFeedDrawer({ signalStateBySymbol, pinnedSy
   const [fullData, setFullData] = useState<boolean>(readStoredFullData);
   const [pollingSeconds, setPollingSeconds] = useState(FALLBACK_POLLING_SECONDS);
   const [countdownMode, setCountdownMode] = useState<"polling" | "live">("polling");
+  const [sourceHealth, setSourceHealth] = useState<DataHealthSourceStatus>("live");
   const [lastAsOf, setLastAsOf] = useState<string | null>(null);
   const [ageLabel, setAgeLabel] = useState<string>("—");
   const [priceDirectionBySymbol, setPriceDirectionBySymbol] = useState<Record<string, PriceDirection>>({});
@@ -251,10 +254,13 @@ export default function MonitoringLiveFeedDrawer({ signalStateBySymbol, pinnedSy
         }
 
         const nextPollingSeconds = payload.pollingSeconds || FALLBACK_POLLING_SECONDS;
-        setItems(payload.items);
+        const health = payload.dataHealth?.sourceHealth ?? "live";
+        // Only replace displayed items when we have fresh data or a non-empty LKG.
+        if (payload.items.length > 0) setItems(payload.items);
         setPriceDirectionBySymbol(nextDirections);
         setPollingSeconds(nextPollingSeconds);
         setCountdownMode(payload.countdownMode);
+        setSourceHealth(health);
         if (payload.asOf) setLastAsOf(payload.asOf);
         setLoading(false);
 
@@ -295,7 +301,10 @@ export default function MonitoringLiveFeedDrawer({ signalStateBySymbol, pinnedSy
     return () => clearInterval(id);
   }, [lastAsOf]);
 
-  const columns = fullData ? "28px minmax(0,1fr) 72px 40px 144px" : "28px minmax(0,1fr) 72px 40px";
+  const columns = fullData
+    ? "28px minmax(0,1fr) 76px 44px 156px"
+    : "28px minmax(0,1fr) 76px 44px";
+  const expandLeftPx = fullData ? FULL_DATA_EXPAND_LEFT_PX : 0;
 
   const pinnedSet = useMemo(() => new Set(pinnedSymbols), [pinnedSymbols]);
 
@@ -321,13 +330,13 @@ export default function MonitoringLiveFeedDrawer({ signalStateBySymbol, pinnedSy
         flexDirection: "column",
         height: "100%",
         minHeight: 0,
-        width: "100%",
-        marginLeft: 0,
+        width: expandLeftPx > 0 ? `calc(100% + ${expandLeftPx}px)` : "100%",
+        marginLeft: expandLeftPx > 0 ? `-${expandLeftPx}px` : 0,
         background: "#090b0f",
         borderLeft: "1px solid rgba(255,255,255,0.05)",
         boxShadow: "-14px 0 34px rgba(0,0,0,0.34)",
         overflow: "hidden",
-        zIndex: 3,
+        zIndex: expandLeftPx > 0 ? 6 : 3,
       }}
     >
       <div
@@ -344,8 +353,28 @@ export default function MonitoringLiveFeedDrawer({ signalStateBySymbol, pinnedSy
         <span style={{ fontSize: 13, fontWeight: 700, color: "#f3f4f6", letterSpacing: "0.01em" }}>
           Live Feed
         </span>
-        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.52)", fontVariantNumeric: "tabular-nums" }}>
-          {countdownMode === "live" ? "LIVE" : ageLabel}
+        <span
+          style={{
+            fontSize: 11,
+            fontVariantNumeric: "tabular-nums",
+            color:
+              sourceHealth === "degraded" ? "#e8a838" :
+              sourceHealth === "stale"    ? "#d97706" :
+              sourceHealth === "unavailable" ? "rgba(255,80,80,0.85)" :
+              "rgba(255,255,255,0.52)",
+          }}
+          title={
+            sourceHealth === "degraded"    ? "Last-known-good data (< 5 min old) — upstream temporarily unavailable" :
+            sourceHealth === "stale"       ? "Stale data (> 5 min old) — upstream unavailable" :
+            sourceHealth === "unavailable" ? "No data available — upstream unreachable" :
+            undefined
+          }
+        >
+          {sourceHealth === "degraded"    ? "DEGRADED" :
+           sourceHealth === "stale"       ? "STALE" :
+           sourceHealth === "unavailable" ? "UNAVAILABLE" :
+           countdownMode === "live"       ? "LIVE" :
+           ageLabel}
         </span>
         <button
           type="button"

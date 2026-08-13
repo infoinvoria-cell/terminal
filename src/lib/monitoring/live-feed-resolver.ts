@@ -66,10 +66,12 @@ export function toTicker(asset: Pick<MonitoringUniverseAsset, "requestSymbol" | 
   return String(asset.requestSymbol || asset.symbol || "").trim().toUpperCase();
 }
 
-// Strategy identifiers contain underscores (e.g. DE30EUR_1H, EURUSD_30M, QQQ_PASSIVE).
-// Real market instruments never do in our universes (EURUSD, GBPUSD, GLD, SPY, etc.).
-function isStrategyId(ticker: string): boolean {
-  return ticker.includes("_");
+// Determine if a ticker is a strategy/slot identifier rather than a real market symbol.
+// Primary check: canonical route map from strategy_runtime_routes.json (universeSymbol != asset).
+// Fallback: underscore in ticker (QQQ_PASSIVE and any future slot IDs not yet in the routes file).
+// Real market instruments (EURUSD, GBPUSD, USDCHF, GLD, SPY, SPMO, etc.) never contain underscores.
+function isStrategyId(ticker: string, knownStrategyIds: ReadonlySet<string>): boolean {
+  return knownStrategyIds.has(ticker) || ticker.includes("_");
 }
 
 // Map WS group label to monitoring tab label.
@@ -85,6 +87,7 @@ export function buildDedupedLiveFeedUniverse(
   monitoringUniverse: MonitoringUniverseAsset[],
   whiteSwanUniverse: WhiteSwanUniverseAsset[] = [],
   ciMonitorSymbols: CIMonitorSymbol[] = [],
+  knownStrategyIds: ReadonlySet<string> = new Set(),
 ): {
   assets: DedupedMonitoringUniverseAsset[];
   counts: MonitoringLiveFeedUniverseCounts;
@@ -117,7 +120,7 @@ export function buildDedupedLiveFeedUniverse(
   let whiteSwanCount = 0;
   for (const wsAsset of whiteSwanUniverse) {
     const ticker = String(wsAsset.symbol || "").trim().toUpperCase();
-    if (!ticker || isStrategyId(ticker)) continue;
+    if (!ticker || isStrategyId(ticker, knownStrategyIds)) continue;
 
     if (deduped.has(ticker)) {
       // Already present from monitoring — mark as used by WS.

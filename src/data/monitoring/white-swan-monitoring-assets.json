@@ -205,7 +205,7 @@
       "name": "FTSE 100",
       "group": "Indices",
       "exchange": "n/a",
-      "source": "TVC:UKX!",
+      "source": "TVC:UKX",
       "timeframes": [
         "1D"
       ],

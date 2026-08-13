@@ -8,7 +8,7 @@ export const maxDuration = 15;
 import { NextResponse } from "next/server";
 import type { ShipTrackingResponse, ShipTrackingItem } from "@/lib/globe/globe-types";
 
-const AIS_KEY = process.env.AIS_API_KEY ?? process.env.NEXT_PUBLIC_AIS_KEY ?? "";
+const AIS_KEY = process.env.AIS_API_KEY ?? "";
 
 type AisMessage = {
   MessageType?: string;

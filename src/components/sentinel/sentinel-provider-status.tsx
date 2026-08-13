@@ -180,12 +180,12 @@ export function SentinelProviderStatusBar({
         .sps-wrap { max-width:min(100%, 640px); min-width:0; overflow:hidden; padding-top:2px; }
         .sps-row { display:flex; align-items:center; gap:10px; min-width:0; flex-wrap:wrap; overflow:hidden; padding-bottom:4px; }
         .sps-row::-webkit-scrollbar { display:none; }
-        .sps-chip { display:inline-flex; align-items:center; gap:7px; flex:0 0 auto; min-height:28px; padding:5px 11px; border-radius:999px; border:1px solid rgba(255,255,255,0.14); background:linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04)); backdrop-filter:blur(12px); box-shadow:inset 0 1px 0 rgba(255,255,255,0.035), 0 8px 24px rgba(0,0,0,0.18); white-space:nowrap; }
+        .sps-chip { display:inline-flex; align-items:center; gap:7px; flex:0 0 auto; min-height:28px; padding:5px 11px; border-radius:999px; border:1px solid rgba(255,255,255,0.14); background:linear-gradient(to bottom, #26262d, #111114); backdrop-filter:blur(12px); box-shadow:inset 0 1px 0 rgba(255,255,255,0.035), 0 8px 24px rgba(0,0,0,0.18); white-space:nowrap; }
         .sps-chip-compact { gap:7px; }
         .sps-dot { width:7px; height:7px; border-radius:999px; box-shadow:0 0 0 1px rgba(255,255,255,0.07), 0 0 10px rgba(255,255,255,0.05); flex:0 0 auto; }
-        .sps-label, .sps-value { font-size:11px; line-height:1; }
-        .sps-label { letter-spacing:0.01em; opacity:0.92; }
-        .sps-value { opacity:0.98; margin-left:1px; }
+        .sps-label, .sps-value { font-size:11px; line-height:1; font-family:var(--font-montserrat,'Montserrat',sans-serif); }
+        .sps-label { letter-spacing:0.04em; opacity:0.92; font-weight:700; }
+        .sps-value { opacity:0.98; margin-left:1px; font-weight:600; }
         @media (max-width: 1100px) {
           .sps-wrap { max-width:560px; }
         }

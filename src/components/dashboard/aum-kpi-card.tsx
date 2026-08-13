@@ -1,23 +1,15 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
+import { Database } from "lucide-react";
 
 const LS_KEY = "fund-manager:aum-visible";
 
-function EyeIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-}
-
 function EyeOffIcon() {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
       <line x1="1" y1="1" x2="23" y2="23" />
     </svg>
   );
@@ -30,6 +22,11 @@ export function AumKpiCard({ value }: { value: string }) {
   useEffect(() => {
     setMounted(true);
     try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("previewHideAum") === "1") {
+        setVisible(false);
+        return;
+      }
       const stored = localStorage.getItem(LS_KEY);
       if (stored === "false") setVisible(false);
     } catch { /* ignore */ }
@@ -49,9 +46,9 @@ export function AumKpiCard({ value }: { value: string }) {
         flexDirection: "column",
         justifyContent: "space-between",
         minHeight: 132,
-        borderRadius: 20,
-        border: "1px solid rgba(255,255,255,0.06)",
-        background: "linear-gradient(180deg,#1F1F1F 0%,#13131A 100%)",
+        borderRadius: 14,
+        border: "1px solid rgba(255,255,255,0.055)",
+        background: "linear-gradient(to bottom, #26262d, #111114)",
         boxShadow: "0 20px 40px -16px rgba(0,0,0,0.55)",
         padding: "20px 20px 24px",
       }}
@@ -62,48 +59,54 @@ export function AumKpiCard({ value }: { value: string }) {
             fontSize: 14,
             fontWeight: 500,
             lineHeight: 1.3,
-            color: "var(--dash-muted, #6b6b6b)",
-            fontFamily: "var(--font-text)",
+            color: "rgba(180,192,210,0.6)",
+            fontFamily: "var(--font-montserrat, 'Montserrat', sans-serif)",
             margin: 0,
           }}
         >
-          Risk adjusted AuM
+          Assets Under Management
         </p>
-        <button
-          type="button"
-          onClick={toggle}
-          aria-label={visible ? "AuM verbergen" : "AuM anzeigen"}
-          style={{
-            background: "none",
-            border: "none",
-            padding: 2,
-            cursor: "pointer",
-            color: "#4a4d54",
-            lineHeight: 0,
-            flexShrink: 0,
-            transition: "color 0.15s",
-          }}
-          onMouseEnter={e => (e.currentTarget.style.color = "#a0a3aa")}
-          onMouseLeave={e => (e.currentTarget.style.color = "#4a4d54")}
-        >
-          {mounted ? (visible ? <EyeIcon /> : <EyeOffIcon />) : <EyeIcon />}
-        </button>
+        <Database size={22} style={{ color: "rgba(180,192,210,0.6)", flexShrink: 0 }} strokeWidth={1.6} />
       </div>
-      <p
+
+      {/* Clickable value — toggles visibility */}
+      <button
+        type="button"
+        onClick={toggle}
+        aria-label={mounted && !visible ? "AuM anzeigen" : "AuM verbergen"}
         style={{
-          fontSize: 30,
-          fontWeight: 700,
-          lineHeight: 1,
-          letterSpacing: "-0.02em",
-          color: "#ffffff",
-          fontFamily: "var(--font-numbers)",
+          background: "none",
+          border: "none",
+          padding: 0,
           margin: 0,
+          cursor: "pointer",
+          textAlign: "left",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          lineHeight: 1,
           transition: "opacity 0.2s",
-          opacity: mounted && !visible ? 0.35 : 1,
         }}
       >
-        {mounted && !visible ? "—" : value}
-      </p>
+        {mounted && !visible ? (
+          <span style={{ color: "rgba(180,192,210,0.35)", lineHeight: 0 }}>
+            <EyeOffIcon />
+          </span>
+        ) : (
+          <span
+            style={{
+              fontSize: 30,
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
+              color: "#F0F2F6",
+              fontFamily: "var(--font-numbers, 'Nunito', sans-serif)",
+              lineHeight: 1,
+            }}
+          >
+            {value}
+          </span>
+        )}
+      </button>
     </div>
   );
 }

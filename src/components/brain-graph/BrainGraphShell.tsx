@@ -1,7 +1,9 @@
 ﻿"use client";
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import Link from "next/link";
 import useSWR from "swr";
+import { CapitalifeStatusPanel } from "@/components/ui/CapitalifeStatusPanel";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -13,6 +15,10 @@ type NetworkNode = {
   degree: number;
   community: number | null;
   source: "brain" | "dashboard";
+  /** Present on system (dashboard) nodes only */
+  nodeType?: string;
+  /** Navigation actions for system nodes: surface → URL */
+  navActions?: Record<string, string>;
 };
 
 type NetworkLink = { source: string; target: string };
@@ -27,21 +33,39 @@ type StatusData = {
 // ── Folder metadata ───────────────────────────────────────────────────────────
 
 const FOLDER_COLORS: Record<string, string> = {
+  // User Brain vault folders
   "00_Index":                  "#f0dfa0",
   "04_Strategies":             "#C9A84C",
   "09_AI":                     "#ffffff",
   "13_Manuals":                "#c8cdd4",
   "16_Backtesting_Validation": "#9ca0aa",
   "17_Haftungsdach_QA":        "#6b7280",
+  // System / Dashboard nodes (source: "dashboard")
+  "00_System/Portfolio":   "#C9A84C",
+  "00_System/Strategy":    "#e8b84b",
+  "00_System/Instrument":  "#60a5fa",
+  "00_System/Market":      "#34d399",
+  "00_System/Dataset":     "#a78bfa",
+  "00_System/Runtime":     "#f87171",
+  "00_System/Asset":       "#fb923c",
 };
 
 const FOLDER_LABELS: Record<string, string> = {
+  // User Brain vault folders
   "00_Index":                  "Index",
   "04_Strategies":             "Strategies",
   "09_AI":                     "AI",
   "13_Manuals":                "Manuals",
   "16_Backtesting_Validation": "Backtesting",
   "17_Haftungsdach_QA":        "Haftung",
+  // System folders
+  "00_System/Portfolio":   "Portfolio",
+  "00_System/Strategy":    "Strategy",
+  "00_System/Instrument":  "Instrument",
+  "00_System/Market":      "Market",
+  "00_System/Dataset":     "Dataset",
+  "00_System/Runtime":     "Runtime",
+  "00_System/Asset":       "Asset",
 };
 
 // ── Random uniform sphere ─────────────────────────────────────────────────────
@@ -342,16 +366,31 @@ function GlobeCanvas({ data, spinning, onSelect, selected }: CanvasProps) {
 
 // ── Node detail panel ─────────────────────────────────────────────────────────
 
+const ACTION_LABELS: Record<string, string> = {
+  ENGINE:     "Engine",
+  SIGNALS:    "Signals",
+  COMPONENTS: "Components",
+  MONITORING: "Monitoring",
+  ANALYTICS:  "Analytics",
+  MODELING:   "Modeling",
+  BRAIN:      "Brain",
+};
+
 function NodePanel({ node, onClose }: { node: NetworkNode; onClose: () => void }) {
   const color = FOLDER_COLORS[node.folder] ?? "#888888";
   const folderLabel = FOLDER_LABELS[node.folder] ?? node.folder;
+  const isSystem = node.source === "dashboard";
+  const actions = node.navActions ? Object.entries(node.navActions) : [];
+
   return (
     <div
       className="absolute right-0 top-0 h-full w-[260px] border-l border-white/[0.05] bg-[#08090c]/96 backdrop-blur-sm"
       style={{ boxShadow: "-8px 0 32px rgba(0,0,0,0.6)", zIndex: 20 }}
     >
       <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#555]">Node</span>
+        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#555]">
+          {isSystem ? (node.nodeType ?? "System") : "Node"}
+        </span>
         <button type="button" onClick={onClose} className="text-[#555] hover:text-white transition text-sm">✕</button>
       </div>
       <div className="p-4 text-[11px]">
@@ -359,13 +398,37 @@ function NodePanel({ node, onClose }: { node: NetworkNode; onClose: () => void }
           <span className="mt-[3px] h-2 w-2 shrink-0 rounded-full inline-block" style={{ background: color }} />
           <span className="break-all font-medium text-[#e8eaed] leading-[1.5]">{node.label}</span>
         </div>
-        <Row label="Ordner"       value={folderLabel} accent={color} />
+        <Row label="Typ"          value={folderLabel} accent={color} />
         <Row label="Verbindungen" value={String(node.degree)} accent="#C9A84C" />
-        <Row label="Quelle"       value={node.source === "brain" ? "Capitalife Brain" : "Dashboard"} />
+        <Row label="Quelle"       value={isSystem ? "Capitalife System" : "Capitalife Brain"} />
         {node.preview && (
           <div className="mt-4">
-            <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#555]">Vorschau</div>
+            <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#555]">Info</div>
             <p className="text-[10px] leading-[1.6] text-[#7a8090] break-words whitespace-pre-wrap">{node.preview}</p>
+          </div>
+        )}
+        {actions.length > 0 && (
+          <div className="mt-4">
+            <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#555]">Navigate</div>
+            <div className="flex flex-wrap gap-1.5">
+              {actions.map(([surface, href]) => (
+                <Link
+                  key={surface}
+                  href={href}
+                  style={{
+                    display: "inline-flex", alignItems: "center",
+                    padding: "3px 9px", borderRadius: 5,
+                    border: "1px solid rgba(201,168,76,0.25)",
+                    background: "rgba(201,168,76,0.07)",
+                    fontSize: 9, fontWeight: 700, letterSpacing: "0.07em",
+                    color: "rgba(201,168,76,0.85)", textDecoration: "none",
+                    whiteSpace: "nowrap", textTransform: "uppercase",
+                  }}
+                >
+                  {ACTION_LABELS[surface] ?? surface} ↗
+                </Link>
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -443,11 +506,18 @@ function StatusStrip({ status, nodeCount, linkCount, dataSource }: {
 
 // ── Shell ─────────────────────────────────────────────────────────────────────
 
-const swrFetcher = (url: string) => fetch(url).then((r) => r.json());
+async function swrFetcher<T>(url: string): Promise<T> {
+  const response = await fetch(url, { cache: "no-store" });
+  const body = (await response.json().catch(() => null)) as T | { error?: string; message?: string } | null;
+  if (!response.ok) {
+    throw new Error((body as { error?: string; message?: string } | null)?.error ?? `HTTP_${response.status}`);
+  }
+  return body as T;
+}
 
 export function BrainGraphShell() {
   const { data: status }  = useSWR<StatusData>("/api/brain-graph/status",  swrFetcher, { refreshInterval: 3_600_000 });
-  const { data: network } = useSWR<NetworkData>("/api/brain-graph/network", swrFetcher, { refreshInterval: 3_600_000 });
+  const { data: network, error: networkError, isLoading: networkLoading } = useSWR<NetworkData>("/api/brain-graph/network", swrFetcher, { refreshInterval: 3_600_000 });
   const [selected, setSelected] = useState<NetworkNode | null>(null);
   const [spinning, setSpinning] = useState(true);
 
@@ -460,7 +530,15 @@ export function BrainGraphShell() {
 
   return (
     <main className="relative min-h-0 flex-1 overflow-hidden">
-      {hasGraph ? (
+      {networkLoading ? (
+        <CapitalifeStatusPanel tone="loading" title="Brain wird geladen" detail="Graph, Status und Verknüpfungen werden aufgebaut." />
+      ) : networkError ? (
+        <CapitalifeStatusPanel
+          tone="unavailable"
+          title="Brain API ist nicht verfügbar"
+          detail={`Code: ${networkError.message || "BRAIN_API_UNAVAILABLE"}`}
+        />
+      ) : hasGraph ? (
         <>
           <GlobeCanvas
             data={network}
@@ -471,18 +549,13 @@ export function BrainGraphShell() {
           {selected && <NodePanel node={selected} onClose={() => setSelected(null)} />}
         </>
       ) : (
-        <div className="flex h-full flex-col items-center justify-center gap-2">
-          <div className="text-sm text-[#555]">
-            {network ? "Graph nicht verfügbar" : "Lade Graph…"}
-          </div>
-          {network && (network as { message?: string }).message && (
-            <div className="max-w-sm text-center text-xs text-[#444]">
-              {(network as { message?: string }).message}
-            </div>
-          )}
-        </div>
+        <CapitalifeStatusPanel
+          tone="degraded"
+          title="Brain Graph ist aktuell nicht verfügbar"
+          detail={(network as { message?: string } | undefined)?.message ?? "Keine synchronisierten Brain-Daten vorhanden."}
+        />
       )}
-      <StatusStrip status={status ?? null} nodeCount={nodeCount} linkCount={linkCount} dataSource={network?.source} />
+      {!networkError ? <StatusStrip status={status ?? null} nodeCount={nodeCount} linkCount={linkCount} dataSource={network?.source} /> : null}
       {hasGraph && (
         <PlayButton spinning={spinning} onToggle={() => setSpinning((s) => !s)} />
       )}

@@ -1,7 +1,7 @@
 export const runtime = "edge";
 import { NextResponse } from "next/server";
 
-const NEWS_API_KEY = process.env.NEXT_PUBLIC_NEWS_API_KEY ?? "";
+const NEWS_API_KEY = process.env.NEWS_API_KEY ?? "";
 
 export type NewsHeatmapEntry = {
   country: string;

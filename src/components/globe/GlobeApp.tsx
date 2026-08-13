@@ -36,6 +36,8 @@ import { designTokens } from "@/lib/globe/designTokens";
 import { buildGlobeSeasonalityAnalysis } from "@/lib/globe/globeSeasonality";
 import { iconUrlForAsset } from "@/lib/globe/icons";
 import { ChartAssetOverlay } from "@/components/shared/ChartAssetOverlay";
+import { CapalifeChart } from "@/components/ui/capitalife-chart";
+import type { MonitoringChartData } from "@/components/monitoring/MonitoringChart";
 import { buildDisplayMarkers } from "@/lib/globe/markers";
 import { DEFAULT_GLOBE_STATE, hasPersistedGlobeState, loadInitialGlobeState, persistGlobeState } from "@/lib/globe/state";
 import type {
@@ -59,7 +61,7 @@ import type {
   TimeseriesResponse,
 } from "@/lib/globe/globe-types";
 
-const CandleChart = lazy(() => import("@/components/globe/charts/CandleChart"));
+// CandleChart replaced by CapalifeChart
 const EvaluationChart = lazy(() => import("@/components/globe/charts/EvaluationChart"));
 const GlobeSeasonalityChart = lazy(() => import("@/components/globe/charts/GlobeSeasonalityChart"));
 const ASSET_USAGE_STORAGE_KEY = "clf_globe_asset_usage_v1";
@@ -326,7 +328,15 @@ void MARKET_CACHE_MS;
 void mixHex;
 
 // ── Slim news column ────────────────────────────────────────────
-type GlobeNewsColumnProps = { items: import("@/lib/globe/globe-types").NewsItem[]; title: string; goldThemeEnabled?: boolean };
+type GlobeNewsColumnProps = {
+  items: import("@/lib/globe/globe-types").NewsItem[];
+  title: string;
+  goldThemeEnabled?: boolean;
+  filter: NewsFilter;
+  sort: NewsSort;
+  onFilterChange: (f: NewsFilter) => void;
+  onSortToggle: () => void;
+};
 
 function timeAgo(iso: string | undefined): string {
   if (!iso) return "";
@@ -410,10 +420,7 @@ function newsScore(title: string, description?: string): number {
   return 1;
 }
 
-function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
-  const [filter, setFilter] = useState<NewsFilter>("all");
-  const [sort, setSort] = useState<NewsSort>("newest");
-
+function GlobeNewsColumn({ items, filter, sort, onFilterChange: _onFilterChange, onSortToggle: _onSortToggle }: GlobeNewsColumnProps) {
   const filtered = useMemo(() => {
     // Drop crypto headlines + non-finance noise (sports/entertainment with no finance signal)
     let list = items.filter((item) => {
@@ -444,43 +451,8 @@ function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
     return list;
   }, [items, filter, sort]);
 
-  const FILTER_TABS: Array<{ id: NewsFilter; label: string }> = [
-    { id: "all", label: "All" },
-    { id: "breaking", label: "🔴 Break" },
-    { id: "markets", label: "📊 Mkt" },
-    { id: "macro", label: "🌍 Macro" },
-  ];
-
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
-      {/* Filter bar */}
-      <div className="flex shrink-0 items-center gap-1 px-2 py-1.5 border-b border-white/5">
-        <div className="flex gap-0.5 overflow-x-auto no-scrollbar">
-          {FILTER_TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setFilter(tab.id)}
-              className="shrink-0 rounded px-1.5 py-[2px] text-[8.5px] font-semibold transition"
-              style={{
-                background: filter === tab.id ? "rgba(255,255,255,0.12)" : "transparent",
-                color: filter === tab.id ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.35)",
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-        <button
-          type="button"
-          onClick={() => setSort(sort === "score" ? "newest" : "score")}
-          className="ml-auto shrink-0 rounded px-1.5 py-[2px] text-[8px] transition"
-          style={{ color: "rgba(255,255,255,0.30)", background: "transparent" }}
-          title={sort === "score" ? "Sort: Priority" : "Sort: Newest"}
-        >
-          {sort === "score" ? "★ Prio" : "↓ New"}
-        </button>
-      </div>
       <div className="no-scrollbar min-h-0 flex-1 space-y-[3px] overflow-y-auto overflow-x-hidden px-2 pt-1 pb-8">
         {filtered.length === 0 && (
           <div className="pt-6 text-center text-[11px] text-white/20">No news</div>
@@ -522,7 +494,7 @@ function GlobeNewsColumn({ items }: GlobeNewsColumnProps) {
       </div>
       {/* Black fade at bottom instead of scrollbar */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8"
-        style={{ background: "linear-gradient(to bottom, transparent, #06070a)" }} />
+        style={{ background: "linear-gradient(to bottom, transparent, #111114)" }} />
     </div>
   );
 }
@@ -602,18 +574,17 @@ function GlobeOverlayControl({ overlayState, overlayLoadingState, onToggleOverla
               onClick={() => onToggleOverlay(key)}
               aria-pressed={active}
               title={OVERLAY_DESC[key] ?? OVERLAY_LABELS[key] ?? key}
-              className="flex items-center gap-2 rounded-[8px] px-2.5 py-2 text-left transition"
-              style={{
-                background: active ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.03)",
-                border: `1px solid ${active ? "rgba(200,200,208,0.50)" : "rgba(255,255,255,0.07)"}`,
-              }}
+              className="flex items-center gap-2 rounded-[10px] px-2.5 py-2 text-left transition"
+              style={active
+                ? { background: "linear-gradient(to bottom, #26262d, #111114)", border: "1px solid rgba(255,255,255,0.28)" }
+                : { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.055)" }}
             >
               <span style={{ fontSize: 15, lineHeight: 1, flexShrink: 0, opacity: active ? 1 : 0.45 }}>
                 {OVERLAY_EMOJI[key] ?? "◦"}
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[10px] font-semibold leading-snug"
-                  style={{ color: active ? "#ffffff" : "rgba(255,255,255,0.65)" }}>
+                  style={{ color: active ? "#F3F3F4" : "#6a6e7a" }}>
                   {OVERLAY_LABELS[key] ?? key}{loading ? " …" : ""}
                 </span>
               </span>
@@ -680,7 +651,12 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   const [chartTimeframe, setChartTimeframe] = useState<"M" | "W" | "D" | "4H" | "1H">("D");
   const [globePrices, setGlobePrices] = useState<Record<string, number>>({});
   const [globeChanges, setGlobeChanges] = useState<Record<string, number>>({});
+  const [assetNewsFilter, setAssetNewsFilter] = useState<NewsFilter>("all");
+  const [assetNewsSort, setAssetNewsSort] = useState<NewsSort>("newest");
+  const [globalNewsFilter, setGlobalNewsFilter] = useState<NewsFilter>("all");
+  const [globalNewsSort, setGlobalNewsSort] = useState<NewsSort>("newest");
   const [bottomPanelTab, setBottomPanelTab] = useState<"chart" | "analytics">("chart");
+  const [globeChartData, setGlobeChartData] = useState<MonitoringChartData | null>(null);
   const [enabledAssets, setEnabledAssets] = useState<string[]>(initialPersisted.enabledAssets ?? []);
   const [overlayState, setOverlayState] = useState<OverlayToggleState>(initialOverlayState);
   const [selectedOverlay, setSelectedOverlay] = useState<OverlayMode>(initialOverlay);
@@ -1317,7 +1293,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
         .catch(() => {/* ignore */});
     };
     fetchPrices();
-    const interval = setInterval(fetchPrices, 60_000);
+    const interval = setInterval(fetchPrices, 30_000);
     return () => { cancelled = true; clearInterval(interval); };
   }, [isPageActive]);
 
@@ -1861,6 +1837,31 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
     () => assets.find((a) => a.id === selectedAssetId) ?? assets[0] ?? null,
     [assets, selectedAssetId],
   );
+  // Fetch OHLC bars for CapalifeChart when selected asset changes
+  useEffect(() => {
+    const sym = selectedAsset?.symbol;
+    // Reset chart while loading
+    setGlobeChartData(null);
+    if (!sym) return;
+    let cancelled = false;
+    fetch(`/api/monitoring/ohlc?symbol=${encodeURIComponent(sym)}&timeframe=1D&limit=500`)
+      .then(r => r.json())
+      .then((json: { bars?: Array<{ time: string; open: number; high: number; low: number; close: number }> }) => {
+        if (cancelled || !json.bars?.length) return;
+        // Pass ISO-string bars directly — CapalifeChart handles dedup + coordinate system internally
+        setGlobeChartData({
+          displaySymbol: sym,
+          displayName: selectedAsset?.name ?? sym,
+          timeframe: "1D",
+          bars: json.bars,
+          signals: [],
+          boxes: [],
+        });
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [selectedAsset?.symbol, selectedAsset?.name]);
+
   const emptyLocations = useMemo<Array<{ lat: number; lng: number; label: string }>>(() => [], []);
   const selectedAssetLocations = useMemo(
     () => selectedAsset?.locations ?? emptyLocations,
@@ -2630,11 +2631,11 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   const dashboardLoadingActive = Boolean(shellLoading || panelLoading || apiLoading.active || overlayLoadingLabels.length > 0);
   const dashboardLoadingHeadline = dashboardLoadingLabels[0] || "Loading data...";
 
-  // Shared Analytics-style card styles
-  const CARD = "flex min-h-0 flex-col overflow-hidden rounded-[18px] border shadow-[0_18px_45px_rgba(0,0,0,0.50)]";
-  const CARD_BORDER = { borderColor: "rgba(255,255,255,0.06)", background: "rgba(12,13,18,0.72)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)" } as const;
+  // Shared Analytics-style card styles — Referenz design tokens
+  const CARD = "flex min-h-0 flex-col overflow-hidden rounded-[10px] border shadow-[0_18px_45px_rgba(0,0,0,0.50)]";
+  const CARD_BORDER = { borderColor: "rgba(255,255,255,0.055)", background: "linear-gradient(to bottom, #191a1f, #0d0e12)" };
   const CARD_HEADER = "shrink-0 border-b border-white/[0.06] px-4 py-2.5";
-  const CARD_LABEL = "text-[11px] font-medium tracking-[0.05em] text-[#8d8f98] uppercase";
+  const CARD_LABEL = "text-[11px] font-bold tracking-[0.04em] text-[#f5f7fa] uppercase";
 
   const globeCanvasProps = {
     markers: visibleMarkers,
@@ -2677,6 +2678,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
     geoFocusTarget,
     onGeoFocusHandled: () => setGeoFocusTarget(null),
     satelliteMode,
+    onGlobeClick: () => setGlobeRotateMode(prev => prev === "off" ? "slow" : "off"),
   };
 
   // ── MOBILE LAYOUT ─────────────────────────────────────────────────────────
@@ -2689,7 +2691,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
           height: "100%",
           overflowY: "auto",
           overflowX: "hidden",
-          background: "#06070a",
+          background: "#0B0C0F",
           color: "#fff",
           display: "flex",
           flexDirection: "column",
@@ -2918,6 +2920,8 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
               overlayLoadingState={overlayLoadingState}
               onToggleOverlay={onToggleOverlay}
               hideOverlayControls
+              prices={globePrices}
+              changes={globeChanges}
             />
           </div>
         </div>
@@ -2935,6 +2939,10 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
               items={globalNews}
               title="Global News"
               goldThemeEnabled={goldThemeEnabled}
+              filter={globalNewsFilter}
+              sort={globalNewsSort}
+              onFilterChange={setGlobalNewsFilter}
+              onSortToggle={() => setGlobalNewsSort(s => s === "score" ? "newest" : "score")}
             />
           </div>
         </div>
@@ -2952,6 +2960,10 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
               items={assetNews}
               title={`${selectedAsset?.name ?? "Asset"} News`}
               goldThemeEnabled={goldThemeEnabled}
+              filter={assetNewsFilter}
+              sort={assetNewsSort}
+              onFilterChange={setAssetNewsFilter}
+              onSortToggle={() => setAssetNewsSort(s => s === "score" ? "newest" : "score")}
             />
           </div>
         </div>
@@ -2984,34 +2996,17 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
             </div>
           </div>
           <div style={{ height: 300 }}>
-            <Suspense fallback={<div style={{ display: "grid", height: "100%", placeItems: "center", fontSize: 12, color: "rgba(255,255,255,0.3)" }}>Loading chart…</div>}>
-              <CandleChart
-                payload={timeseries}
-                evaluation={evaluation}
-                seasonality={seasonality}
-                dataSource={dataSource}
-                title={chartHeaderLabel}
-                sourceLabel={chartSourceLabel}
-                goldThemeEnabled={goldThemeEnabled}
-                themePrimary={GOLD_PRIMARY}
-                isPanelLoading={panelLoading}
-                isFullscreen={false}
-                active={isPageActive}
-                onToggleFullscreen={noop}
-                loopReplayTick={visualLoopTick}
-                onTimeRangeChange={onSharedTimeRangeChange}
-                onRecentSignalChange={setRecentSignal}
-                onTimeframeChange={setChartTimeframe}
-                hideBuiltinChartToolbar
-                topLeftOverlay={
-                  <ChartAssetOverlay
-                    iconUrl={selectedAsset ? iconUrlForAsset(selectedAsset) : null}
-                    symbol={chartHeaderLabel}
-                    assetName={selectedAsset?.category}
-                  />
-                }
-              />
-            </Suspense>
+            <CapalifeChart
+              key={selectedAsset?.symbol ?? "globe-chart-mobile"}
+              symbol={selectedAsset?.symbol ?? ""}
+              instrument={selectedAsset?.name ?? ""}
+              timeframe="1D"
+              showHeader={true}
+              showPriceOverlay={true}
+              showRangeBar={true}
+              showResetButton={true}
+              data={globeChartData}
+            />
           </div>
         </div>
 
@@ -3023,21 +3018,18 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   // ── END MOBILE LAYOUT ─────────────────────────────────────────────────────
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-[#06070a] text-white">
+    <div className="relative h-full w-full overflow-hidden bg-[#0B0C0F] text-white">
       <div
         className="grid h-full w-full p-3"
         style={mobileMode
           ? { gridTemplateColumns: "100%", gridTemplateRows: "100%", gap: 0, padding: 0 }
-          : { gridTemplateColumns: "20% 50% 30%", gridTemplateRows: "100%", gap: 12 }}
+          : { gridTemplateColumns: "2fr 5fr 3fr", gridTemplateRows: "100%", gap: 12, padding: "12px 12px 12px 12px" }}
       >
 
         {/* ── LEFT: Watchlist + Overlay Control ── */}
         <div className="flex min-h-0 flex-col gap-3 overflow-hidden" style={mobileMode ? { display: "none" } : undefined}>
-          {/* Watchlist card — 60% */}
-          <div className={CARD} style={{ ...CARD_BORDER, flex: "0 0 60%" }}>
-            <div className={CARD_HEADER}>
-              <span className={CARD_LABEL}>Watchlist</span>
-            </div>
+          {/* Watchlist card — 65% */}
+          <div className={CARD} style={{ ...CARD_BORDER, flex: "0 0 65%" }}>
             <div className="min-h-0 flex-1 overflow-hidden">
               <SettingsPanel
                 assets={assets}
@@ -3057,6 +3049,8 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                 overlayLoadingState={overlayLoadingState}
                 onToggleOverlay={onToggleOverlay}
                 hideOverlayControls
+                prices={globePrices}
+                changes={globeChanges}
               />
             </div>
           </div>
@@ -3326,143 +3320,92 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
         </div>
 
         {/* ── RIGHT: Asset News (30%) → Global News (flex) → Chart (30%) ── */}
-        <div className="flex min-h-0 flex-col gap-3 overflow-hidden" style={mobileMode ? { display: "none" } : undefined}>
-          {/* Asset News card — 30% */}
-          <div className={CARD} style={{ ...CARD_BORDER, flex: "0 0 30%" }}>
-            <div className={CARD_HEADER}>
+        <div className="flex min-h-0 flex-col gap-3 overflow-hidden" style={mobileMode ? { display: "none" } : { paddingRight: 4 }}>
+          {/* Asset News card — 180px fixed */}
+          <div className={CARD} style={{ ...CARD_BORDER, flex: "0 0 180px" }}>
+            <div className="shrink-0 flex items-center gap-2 border-b border-white/[0.06] px-3 py-2">
               <span className={CARD_LABEL}>{selectedAsset?.name ?? "Asset"} News</span>
+              <div className="ml-auto flex items-center gap-0.5">
+                {(["all", "breaking", "markets", "macro"] as NewsFilter[]).map((f) => (
+                  <button key={f} type="button" onClick={() => setAssetNewsFilter(f)}
+                    className="shrink-0 rounded-full px-2 py-[2px] text-[8px] font-semibold transition"
+                    style={assetNewsFilter === f
+                      ? { background: "linear-gradient(to bottom, #26262d, #111114)", border: "1px solid rgba(255,255,255,0.28)", color: "#F3F3F4" }
+                      : { background: "transparent", border: "1px solid rgba(255,255,255,0.06)", color: "#6a6e7a" }}
+                  >
+                    {f === "all" ? "All" : f === "breaking" ? "🔴" : f === "markets" ? "📊" : "🌍"}
+                  </button>
+                ))}
+                <button type="button" onClick={() => setAssetNewsSort(s => s === "score" ? "newest" : "score")}
+                  className="ml-1 shrink-0 rounded-full px-2 py-[2px] text-[8px] transition"
+                  style={{ color: "#6a6e7a", border: "1px solid rgba(255,255,255,0.06)" }}
+                  title={assetNewsSort === "score" ? "Sort: Priority" : "Sort: Newest"}
+                >
+                  {assetNewsSort === "score" ? "★" : "↓"}
+                </button>
+              </div>
             </div>
             <div className="relative min-h-0 flex-1 overflow-hidden">
               <GlobeNewsColumn
                 items={assetNews}
                 title={`${selectedAsset?.name ?? "Asset"} News`}
                 goldThemeEnabled={goldThemeEnabled}
+                filter={assetNewsFilter}
+                sort={assetNewsSort}
+                onFilterChange={setAssetNewsFilter}
+                onSortToggle={() => setAssetNewsSort(s => s === "score" ? "newest" : "score")}
               />
             </div>
           </div>
-          {/* Global News card — flex */}
-          <div className={CARD} style={{ ...CARD_BORDER, flex: "1 1 0" }}>
-            <div className={CARD_HEADER}>
+          {/* Global News card — flex remaining */}
+          <div className={CARD} style={{ ...CARD_BORDER, flex: "1 1 0", minHeight: 100 }}>
+            <div className="shrink-0 flex items-center gap-2 border-b border-white/[0.06] px-3 py-2">
               <span className={CARD_LABEL}>Global News</span>
+              <div className="ml-auto flex items-center gap-0.5">
+                {(["all", "breaking", "markets", "macro"] as NewsFilter[]).map((f) => (
+                  <button key={f} type="button" onClick={() => setGlobalNewsFilter(f)}
+                    className="shrink-0 rounded-full px-2 py-[2px] text-[8px] font-semibold transition"
+                    style={globalNewsFilter === f
+                      ? { background: "linear-gradient(to bottom, #26262d, #111114)", border: "1px solid rgba(255,255,255,0.28)", color: "#F3F3F4" }
+                      : { background: "transparent", border: "1px solid rgba(255,255,255,0.06)", color: "#6a6e7a" }}
+                  >
+                    {f === "all" ? "All" : f === "breaking" ? "🔴" : f === "markets" ? "📊" : "🌍"}
+                  </button>
+                ))}
+                <button type="button" onClick={() => setGlobalNewsSort(s => s === "score" ? "newest" : "score")}
+                  className="ml-1 shrink-0 rounded-full px-2 py-[2px] text-[8px] transition"
+                  style={{ color: "#6a6e7a", border: "1px solid rgba(255,255,255,0.06)" }}
+                >
+                  {globalNewsSort === "score" ? "★" : "↓"}
+                </button>
+              </div>
             </div>
             <div className="relative min-h-0 flex-1 overflow-hidden">
               <GlobeNewsColumn
                 items={globalNews}
                 title="Global News"
                 goldThemeEnabled={goldThemeEnabled}
+                filter={globalNewsFilter}
+                sort={globalNewsSort}
+                onFilterChange={setGlobalNewsFilter}
+                onSortToggle={() => setGlobalNewsSort(s => s === "score" ? "newest" : "score")}
               />
             </div>
           </div>
-          {/* Chart / Analytics card — 30% (bottom right) */}
-          <div className={CARD} style={{ ...CARD_BORDER, flex: "0 0 30%" }}>
-            {/* Tab header */}
-            <div className="shrink-0 flex items-center justify-between border-b border-white/[0.06] px-3 py-2">
-              <div className="flex items-center gap-2 min-w-0">
-                {/* Tab switcher */}
-                <div className="flex items-center gap-0.5 rounded-md border border-white/[0.08] bg-white/[0.03] p-0.5">
-                  {(["chart", "analytics"] as const).map((tab) => (
-                    <button
-                      key={tab}
-                      type="button"
-                      onClick={() => setBottomPanelTab(tab)}
-                      className={`rounded px-2 py-[2px] text-[9px] font-semibold transition ${
-                        bottomPanelTab === tab
-                          ? "bg-white/10 text-white"
-                          : "text-white/40 hover:text-white/60"
-                      }`}
-                    >
-                      {tab === "chart" ? "Chart" : "Analytics"}
-                    </button>
-                  ))}
-                </div>
-                {bottomPanelTab === "chart" && (
-                  <>
-                    {selectedAsset?.iconKey && (
-                      <img
-                        src={`/asset-icons/${GLOBE_ICON_MAP[selectedAsset.iconKey] ?? `${selectedAsset.iconKey}.png`}`}
-                        alt=""
-                        width={16}
-                        height={16}
-                        className="shrink-0 rounded-sm object-contain"
-                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                      />
-                    )}
-                    <span className="truncate text-[11px] font-medium text-white/70">{chartHeaderLabel}</span>
-                  </>
-                )}
-              </div>
-              {/* Timeframe pills — only visible in chart mode */}
-              {bottomPanelTab === "chart" && (
-                <div className="flex shrink-0 items-center gap-1">
-                  {(["D", "4H", "W"] as const).map((tf) => (
-                    <button
-                      key={tf}
-                      type="button"
-                      onClick={() => setChartTimeframe(tf)}
-                      className={`rounded px-1.5 py-[2px] text-[9px] font-semibold transition ${
-                        chartTimeframe === tf
-                          ? "border border-white/30 bg-white/10 text-white"
-                          : "border border-white/10 bg-transparent text-white/40 hover:text-white/60"
-                      }`}
-                    >
-                      {tf === "D" ? "1d" : tf === "4H" ? "4h" : "1w"}
-                    </button>
-                  ))}
-                  <select
-                    value={chartTimeframe}
-                    onChange={(e) => setChartTimeframe(e.target.value as typeof chartTimeframe)}
-                    className="rounded border border-white/10 bg-transparent px-1 py-[2px] text-[9px] text-white/40 outline-none hover:text-white/60"
-                    style={{ background: "rgba(20,21,25,0.9)" }}
-                  >
-                    {([["1H","1H"],["4H","4H"],["D","1D"],["W","1W"],["M","1M"]] as [typeof chartTimeframe, string][]).map(([key, label]) => (
-                      <option key={key} value={key} style={{ background: "#14151a" }}>{label}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </div>
-            <div key={bottomPanelTab} className="clf-panel-fade min-h-0 flex-1 overflow-hidden">
-              {bottomPanelTab === "chart" ? (
-                <Suspense fallback={<div className="grid h-full place-items-center text-xs text-white/40">Loading chart...</div>}>
-                  <CandleChart
-                    payload={timeseries}
-                    evaluation={evaluation}
-                    seasonality={seasonality}
-                    dataSource={dataSource}
-                    title={chartHeaderLabel}
-                    sourceLabel={chartSourceLabel}
-                    goldThemeEnabled={goldThemeEnabled}
-                    themePrimary={GOLD_PRIMARY}
-                    isPanelLoading={panelLoading}
-                    isFullscreen={false}
-                    active={isPageActive}
-                    onToggleFullscreen={noop}
-                    loopReplayTick={visualLoopTick}
-                    onTimeRangeChange={onSharedTimeRangeChange}
-                    onRecentSignalChange={setRecentSignal}
-                    onTimeframeChange={setChartTimeframe}
-                    hideBuiltinChartToolbar
-                    topLeftOverlay={
-                      <ChartAssetOverlay
-                        iconUrl={selectedAsset ? iconUrlForAsset(selectedAsset) : null}
-                        symbol={chartHeaderLabel}
-                        assetName={selectedAsset?.category}
-                      />
-                    }
-                  />
-                </Suspense>
-              ) : (
-                <GlobeAnalyticsPanel
-                  assets={assets}
-                  priceData={{ prices: globePrices, changes: globeChanges }}
-                  conflictEvents={conflictEvents}
-                  earthquakeEvents={earthquakeEvents}
-                  commodityStressRegions={commodityStressRegions}
-                  shippingDisruptionEvents={shippingDisruptionEvents}
-                  globalNews={globalNews}
-                  onSelectAsset={(id) => { setSelectedAssetId(id); setBottomPanelTab("chart"); }}
-                />
-              )}
+          {/* Chart card — fixed ~2D-map height */}
+          <div className={CARD} style={{ ...CARD_BORDER, flex: "0 0 220px" }}>
+            <div className="min-h-0 flex-1" style={{ position: "relative", overflow: "hidden" }}>
+              <CapalifeChart
+                key={selectedAsset?.symbol ?? "globe-chart"}
+                symbol={selectedAsset?.symbol ?? ""}
+                instrument={selectedAsset?.name ?? ""}
+                timeframe="1D"
+                showHeader={true}
+                showPriceOverlay={true}
+                showRangeBar={true}
+                showResetButton={true}
+                data={globeChartData}
+              />
             </div>
           </div>
         </div>

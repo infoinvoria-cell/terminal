@@ -181,6 +181,19 @@ export function UserGate({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
+      const params = new URLSearchParams(window.location.search);
+      const localPreviewBypass =
+        window.location.hostname === "localhost"
+        && params.get("preview") === "1";
+
+      if (localPreviewBypass) {
+        const fallbackUser = APP_USERS.find((entry) => entry.id === "joris") ?? APP_USERS[0] ?? null;
+        setGateOk(true);
+        setUserState(fallbackUser);
+        setReady(true);
+        return;
+      }
+
       const gateOk = localStorage.getItem(CL_GATE_KEY) === "1";
       const userId = localStorage.getItem(CL_USER_KEY) as AppUser["id"] | null;
       const user = userId ? (APP_USERS.find(u => u.id === userId) ?? null) : null;

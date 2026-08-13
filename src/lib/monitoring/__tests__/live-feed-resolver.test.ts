@@ -37,15 +37,20 @@ describe("buildDedupedLiveFeedUniverse", () => {
     expect(result.assets.find((a) => a.ticker === "GC1!")?.usedBy).toEqual(["White Swan"]);
   });
 
-  it("excludes WS strategy identifiers (ticker contains underscore)", () => {
+  it("excludes WS strategy identifiers — primary: canonical route set, fallback: underscore", () => {
+    // Canonical set from strategy_runtime_routes.json (universeSymbol != asset).
+    const canonicalStrategyIds = new Set(["DE30EUR_1H", "DE30EUR_2H", "EURUSD_30M", "GBPUSD_30M"]);
+
     const result = buildDedupedLiveFeedUniverse(
       [{ tab: "Indizes", symbol: "ES1!", requestSymbol: "ES1!" }],
       [
-        { symbol: "EURUSD_30M" },
-        { symbol: "DE30EUR_1H" },
-        { symbol: "NAS100USD_E_STEP_INVEST" },
-        { symbol: "EURUSD", group: "Forex" }, // real instrument — should be added
+        { symbol: "EURUSD_30M" },        // in canonical set → excluded
+        { symbol: "DE30EUR_1H" },        // in canonical set → excluded
+        { symbol: "NAS100USD_E_STEP_INVEST" }, // not in set but has _ → fallback excludes
+        { symbol: "EURUSD", group: "Forex" },  // real instrument → included
       ],
+      [],
+      canonicalStrategyIds,
     );
 
     expect(result.assets.map((a) => a.ticker)).not.toContain("EURUSD_30M");

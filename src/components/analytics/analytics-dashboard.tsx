@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { Layers, TrendingUp } from "lucide-react";
+import { Layers, Sigma, TrendingUp } from "lucide-react";
+import { ModelingStudio } from "@/components/modeling/ModelingStudio";
 import { InjectPillCss } from "@/components/ui/pill-button";
 import { useRouter } from "next/navigation";
 import {
@@ -21,6 +22,11 @@ import {
 } from "recharts";
 
 import { cn } from "@/lib/utils";
+import {
+  WHITE_SWAN_ANALYTICS_ENABLED,
+  WHITE_SWAN_ANALYTICS_GROUPS,
+  WHITE_SWAN_ANALYTICS_WEIGHTS,
+} from "@/lib/white-swan/portfolio-truth";
 import {
   type AnalyticsDataset,
   type AnalyticsMode,
@@ -90,65 +96,15 @@ const LIVE_ORIGINAL_WEIGHTS: Record<string, number> = { SPY: 5, SPMO: 5, QQQ: 45
 const LIVE_ASSET_SYMBOLS = ["SPY", "SPMO", "QQQ", "GLD", "WHITE_SWAN_NAS_EMA", "COPPER_HG", "CHF_6S"] as const;
 const LIVE_ASSET_LABELS: Record<string, string> = { SPY: "SPY", SPMO: "SPMO", QQQ: "QQQ passive", GLD: "GLD", WHITE_SWAN_NAS_EMA: "QQQ Pine 1", COPPER_HG: "Copper/HG", CHF_6S: "CHF/6S" };
 
-// ── White Swan v2.0 constants ─────────────────────────────────────────────────
-// Seasonal (40%) + Intraday (33%) + Anomaly (27%)
-// Seasonal sleeve has no single backtest file — filtered from live chart by stratMonthlyR check.
-const WS_STRATEGY_IDS = [
-  "Seasonal Sleeve",
-  "GC1 Friday Long", "GLD Thursday Long", "YM1 TAT",
-  "Intraday MT v3-F",
-  "UKX Valuation", "CT1 Macro A", "NQ1 Trend LO",
-  "NVDA Valuation", "ZARUSD Valuation", "GC1 Valuation",
-  "MSFT Valuation", "BRLUSD Valuation", "SEKUSD Valuation",
-] as const;
-const WS_FROZEN_WEIGHTS: Record<string, number> = {
-  "Seasonal Sleeve":   40,  // 12 WF-validated seasonal patterns · v2.0 · 40%
-  "GC1 Friday Long":   9,   // Anomaly — WF approved
-  "GLD Thursday Long": 9,   // Anomaly — WF approved
-  "YM1 TAT":           9,   // Anomaly — WF approved
-  "Intraday MT v3-F":  33,  // EUR 13% / DAX1H 13% / DAX2H 7%
-  "UKX Valuation":     0,   // Research
-  "CT1 Macro A":       0,   // Research
-  "NQ1 Trend LO":      0,   // Research
-  "NVDA Valuation":    0,   // Research
-  "ZARUSD Valuation":  0,   // Research
-  "GC1 Valuation":     0,   // Research
-  "MSFT Valuation":    0,   // Research
-  "BRLUSD Valuation":  0,   // Research
-  "SEKUSD Valuation":  0,   // Research
-};
-// All portfolio strategies enabled by default (anomaly now fully in portfolio)
-const WS_DEFAULT_ENABLED: Record<string, boolean> = {
-  "Seasonal Sleeve":   true,
-  "GC1 Friday Long":   true,
-  "GLD Thursday Long": true,
-  "YM1 TAT":           true,
-  "Intraday MT v3-F":  true,
-  "UKX Valuation":     false,
-  "CT1 Macro A":       false,
-  "NQ1 Trend LO":      false,
-  "NVDA Valuation":    false,
-  "ZARUSD Valuation":  false,
-  "GC1 Valuation":     false,
-  "MSFT Valuation":    false,
-  "BRLUSD Valuation":  false,
-  "SEKUSD Valuation":  false,
-};
+// ── White Swan central truth constants ────────────────────────────────────────
+const WS_STRATEGY_IDS = Object.keys(WHITE_SWAN_ANALYTICS_ENABLED) as Array<keyof typeof WHITE_SWAN_ANALYTICS_ENABLED>;
+const WS_FROZEN_WEIGHTS: Record<string, number> = { ...WHITE_SWAN_ANALYTICS_WEIGHTS };
+const WS_DEFAULT_ENABLED: Record<string, boolean> = { ...WHITE_SWAN_ANALYTICS_ENABLED };
 const WS_STRATEGY_SHORT: Record<string, string> = {
   "Seasonal Sleeve":   "Seasonal",
-  "GC1 Friday Long":   "GC1 Friday",
   "GLD Thursday Long": "GLD Thursday",
   "YM1 TAT":           "YM1 TAT",
-  "UKX Valuation":     "UKX Val",
-  "CT1 Macro A":       "CT1 Macro",
-  "NQ1 Trend LO":      "NQ1 Trend",
   "Intraday MT v3-F":  "Intraday",
-  "NVDA Valuation":    "NVDA Val",
-  "ZARUSD Valuation":  "ZAR Val",
-  "GC1 Valuation":     "GC1 Val",
-  "MSFT Valuation":    "MSFT Val",
-  "BRLUSD Valuation":  "BRL Val",
-  "SEKUSD Valuation":  "SEK Val",
 };
 const WS_INTRADAY_ID = "Intraday MT v3-F" as const;
 
@@ -957,11 +913,13 @@ function TopTabs({
   mode,
   onTabChange,
   onModeChange,
+  onModelingMode,
 }: {
   tab: AnalyticsTab;
   mode: AnalyticsMode;
   onTabChange: (tab: AnalyticsTab) => void;
   onModeChange: (mode: AnalyticsMode) => void;
+  onModelingMode: () => void;
 }) {
   return (
     <div className="flex h-11 shrink-0 items-center justify-between gap-4">
@@ -997,7 +955,42 @@ function TopTabs({
       </div>
 
       <div className="flex items-center gap-2">
-{(["live", "backtest"] as AnalyticsMode[]).map((item) => (
+        {/* Modeling Studio entry — unauffällig, links von Live/Backtest */}
+        <button
+          type="button"
+          title="Modeling Studio"
+          onClick={onModelingMode}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 4,
+            background: "transparent",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 6,
+            padding: "4px 9px",
+            color: "rgba(140,155,175,0.55)",
+            cursor: "pointer",
+            fontFamily: "var(--font-montserrat,'Montserrat',sans-serif)",
+            fontSize: 10,
+            letterSpacing: "0.06em",
+            transition: "color 0.15s, border-color 0.15s",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.color = "rgba(201,168,76,0.85)";
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(201,168,76,0.25)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.color = "rgba(140,155,175,0.55)";
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.08)";
+          }}
+        >
+          <Sigma size={12} strokeWidth={1.8} />
+        </button>
+
+        <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.07)" }} />
+
+        {(["live", "backtest"] as AnalyticsMode[]).map((item) => (
           <button
             key={item}
             type="button"
@@ -2483,17 +2476,15 @@ function WsLiveControlPanel({
 }) {
   const activeIds = WS_STRATEGY_IDS.filter(id => enabled[id] !== false);
   const totalW = activeIds.reduce((s, id) => s + (weights[id] ?? 0), 0);
-
-  // 6 WS strategies in 3 rows of 2; Intraday gets its own full-width row
-  const wsPairs: Array<[string, string]> = [
-    ["GC1 Friday Long", "GLD Thursday Long"],
-    ["YM1 TAT",         "UKX Valuation"],
-    ["CT1 Macro A",     "NQ1 Trend LO"],
+  const wsRows: string[][] = [
+    ["Seasonal Sleeve", "GLD Thursday Long"],
+    ["YM1 TAT", "Intraday MT v3-F"],
   ];
 
-  function StratCell({ id, wide = false }: { id: string; wide?: boolean }) {
+  function StratCell({ id }: { id: string }) {
     const isOn = enabled[id] !== false;
     const isIntraday = id === WS_INTRADAY_ID;
+    const groupMeta = WHITE_SWAN_ANALYTICS_GROUPS.find((group) => group.id === id);
     return (
       <div className={cn(
         "flex items-center gap-1 rounded-[8px] border px-1.5 py-0.5 transition-colors",
@@ -2508,13 +2499,13 @@ function WsLiveControlPanel({
             "block truncate text-[8px] font-medium leading-tight [font-family:var(--font-text),sans-serif]",
             isOn ? (isIntraday ? "text-amber-300" : "text-zinc-200") : "text-zinc-600",
           )}>
-            {WS_STRATEGY_SHORT[id]}
+            {WS_STRATEGY_SHORT[id] ?? id}
           </span>
           <span className={cn(
             "text-[7px] [font-family:var(--font-text),sans-serif]",
             isIntraday ? "text-amber-700" : "text-zinc-700",
           )}>
-            {isIntraday ? "White Swan · EUR/DAX1H/DAX2H" : isOn ? "on" : "off"}
+            {isIntraday ? "White Swan · EUR/DAX1H/DAX2H" : groupMeta ? `${groupMeta.strategies} Strategien` : isOn ? "on" : "off"}
           </span>
         </button>
         <input
@@ -2533,17 +2524,11 @@ function WsLiveControlPanel({
     <Card>
       <CardHeader title="Gewichtung anpassen" />
       <div className="flex flex-1 flex-col px-3 py-1.5 gap-0.5">
-        {/* 6 WS strategies in 2-column grid */}
-        {wsPairs.map(([left, right]) => (
-          <div key={left} className="grid grid-cols-2 gap-1">
-            <StratCell id={left} />
-            <StratCell id={right} />
+        {wsRows.map((pair) => (
+          <div key={pair.join("-")} className="grid grid-cols-2 gap-1">
+            {pair.map((id) => <StratCell key={id} id={id} />)}
           </div>
         ))}
-        {/* Intraday group — full-width, visually distinct */}
-        <div className="border-t border-amber-500/20 pt-0.5">
-          <StratCell id={WS_INTRADAY_ID} wide />
-        </div>
         {/* Footer */}
         <div className="flex items-center justify-between px-0.5 pt-0.5">
           <span className="text-[8px] text-zinc-600 [font-family:var(--font-text),sans-serif]">
@@ -2578,6 +2563,7 @@ function WsLiveControlPanel({
 
 export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio: FSPortfolioSnapshot | undefined; capalifeData: CapalifeData }) {
   const router = useRouter();
+  const [isModelingMode, setIsModelingMode] = useState(false);
   const [tab, setTab] = useState<AnalyticsTab>("whiteSwan");
   const [mode, setMode] = useState<AnalyticsMode>("live");
   const [startFilter, setStartFilter] = useState<StartFilter>("Max");
@@ -2701,6 +2687,24 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
   }, []);
 
   const baseDataset = useMemo(() => getAnalyticsDataset(tab, mode, fsportfolio, capalifeData), [tab, mode, fsportfolio, capalifeData]);
+  // Modeling Studio always needs backtest data (groupSeries is empty in live mode).
+  // For invest tab, merge in strategy series from analyticsGenerated which coreInvestReference lacks.
+  const modelingBaseDataset = useMemo(() => {
+    const base = getAnalyticsDataset(tab, "backtest", fsportfolio, capalifeData);
+    if (tab === "invest") {
+      const rawStrategySeries = (capalifeData.analyticsGenerated.investBacktest as { strategySeries?: Record<string, unknown> }).strategySeries ?? {};
+      const merged: Record<string, AnalyticsSeriesPoint[]> = {};
+      for (const [k, v] of Object.entries(rawStrategySeries)) {
+        merged[k] = (v as Array<{ date: string; value: number | null }>)
+          .filter((p) => p.value !== null)
+          .map((p) => ({ date: p.date, value: p.value as number }));
+      }
+      if (Object.keys(merged).length) {
+        return { ...base, strategySeries: { ...(base.strategySeries ?? {}), ...merged } };
+      }
+    }
+    return base;
+  }, [tab, fsportfolio, capalifeData]);
   // Merge trade-level anomaly curves + Brain valuation daily curves into the base groupSeries
   const baseDatasetWithTrades = useMemo(() => {
     const extra = { ...anomalyGroupSeries, ...brainValSeries };
@@ -2899,10 +2903,23 @@ export function AnalyticsDashboard({ fsportfolio, capalifeData }: { fsportfolio:
         return true;
       });
 
+  if (isModelingMode) {
+    return (
+      <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
+        <ModelingStudio
+          dataset={modelingBaseDataset}
+          tab={tab}
+          onTabChange={setTab}
+          onClose={() => setIsModelingMode(false)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-1 min-h-0 flex-col gap-4 overflow-hidden">
       <InjectPillCss />
-      <TopTabs tab={tab} mode={mode} onTabChange={setTab} onModeChange={setMode} />
+      <TopTabs tab={tab} mode={mode} onTabChange={setTab} onModeChange={setMode} onModelingMode={() => setIsModelingMode(true)} />
 
       <div className="flex-1 min-h-0 overflow-y-auto xl:overflow-hidden pr-1">
         <div className="grid min-h-full grid-cols-12 gap-4 xl:h-full xl:grid-rows-[minmax(0,5fr)_minmax(0,3fr)_minmax(0,4fr)]">

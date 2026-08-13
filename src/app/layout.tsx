@@ -1,22 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Montserrat, Nunito } from "next/font/google";
+import { Montserrat, Nunito_Sans } from "next/font/google";
 import { ClientProviders } from "@/components/providers";
 import { MobileRedirect } from "@/components/mobile/MobileRedirect";
 import { EngineStatusProvider } from "@/components/engine/EngineStatusProvider";
 import "./globals.css";
 
 const montserrat = Montserrat({
-  variable: "--font-montserrat",
   subsets: ["latin"],
+  variable: "--font-montserrat",
   display: "swap",
-  weight: ["500", "600", "700"],
 });
 
-const nunito = Nunito({
-  variable: "--font-nunito",
+const nunitoSans = Nunito_Sans({
   subsets: ["latin"],
+  variable: "--font-nunito",
   display: "swap",
-  weight: ["500", "600", "700", "800"],
 });
 
 export const viewport: Viewport = {
@@ -42,10 +40,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${montserrat.variable} ${nunito.variable} h-full antialiased`}
+      className={`${montserrat.variable} ${nunitoSans.variable} h-full antialiased`}
     >
       <body className="h-full overflow-hidden bg-[#0c0d10] text-white">
-        {/* --header-height default set in globals.css :root — no inline style needed */}
         <MobileRedirect />
         <EngineStatusProvider />
         <ClientProviders initialHeaderHidden={true}>

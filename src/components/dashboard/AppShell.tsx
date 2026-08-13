@@ -7,6 +7,7 @@ import { Sidebar } from "@/components/dashboard/sidebar";
 import { Topbar } from "@/components/dashboard/topbar";
 import { HeaderDivider } from "@/components/dashboard/header-divider";
 import { useHeaderState } from "@/context/header-state-context";
+import { CapitalifeModuleErrorBoundary } from "@/components/ui/CapitalifeModuleErrorBoundary";
 
 const SECTION_LABELS: Record<string, string> = {
   "/": "HOME",
@@ -21,7 +22,7 @@ const SECTION_LABELS: Record<string, string> = {
   "/preview-workspace": "PREVIEW",
   "/sentinel": "SENTINEL",
   "/investors-crm": "INVESTORS CRM",
-  "/manager": "MANAGER",
+  "/manager": "PORTFOLIO LAB",
   "/investors": "INVESTORS",
   "/onboarding": "ONBOARDING",
   "/vermittler": "VERMITTLER",
@@ -56,7 +57,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <HomeDashboardProvider initialReportTrades={[]} initialBalanceRows={[]}>
         <div className="flex h-[100dvh] min-h-0 min-w-0 overflow-hidden bg-[#0a0a0c]">
           <div className="dashboard-content-shell flex min-h-0 flex-1 overflow-hidden pl-[10px] pt-0">
-            {children}
+            <CapitalifeModuleErrorBoundary route={pathname} module={sectionLabel || "PREVIEW"}>
+              {children}
+            </CapitalifeModuleErrorBoundary>
           </div>
         </div>
       </HomeDashboardProvider>
@@ -120,7 +123,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             className="dashboard-content-shell flex min-h-0 overflow-hidden pl-[8px]"
             style={{ height: "calc(100dvh - var(--header-height, 0px))" }}
           >
-            {children}
+            <CapitalifeModuleErrorBoundary route={pathname} module={sectionLabel || "APP"}>
+              {children}
+            </CapitalifeModuleErrorBoundary>
           </div>
         </div>
       </div>

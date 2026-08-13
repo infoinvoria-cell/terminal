@@ -84,16 +84,44 @@ describe("track record quantitative audit", () => {
       lastMonth: "2026-07",
     });
     expect(audit.partialTrades).toMatchObject({
-      count: 89,
+      count: 444,
       duplicateCount: 0,
       sorted: true,
       invalidCount: 0,
-      costRows: 89,
+      costRows: 444,
       accountCount: 1,
     });
-    expect(audit.partialTrades.symbols).toEqual(["DE40", "EURUSD", "GBPJPY", "GBPUSD"]);
-    expect(audit.partialTrades.classification).toContain("Teilhistorie");
+    expect(audit.partialTrades.symbols).toEqual([
+      "AUDCHF",
+      "AUDUSD",
+      "CADJPY",
+      "DE40",
+      "EURJPY",
+      "EURUSD",
+      "GBPCHF",
+      "GBPJPY",
+      "GBPUSD",
+      "USDCHF",
+      "USTECH",
+    ]);
+    expect(audit.partialTrades.classification).toContain("Account 1 Primärhistorie");
     expect(overview.historical.historicalDataQuality).toBe("partial");
+    expect(overview.historical.account1.totalClosedTrades).toBe(444);
+    expect(overview.historical.account1.winningTrades).toBe(158);
+    expect(overview.historical.account1.losingTrades).toBe(284);
+    expect(overview.historical.account1.flatTrades).toBe(2);
+    expect(overview.historical.account1.winRateIncludesFlatTrades).toBe(true);
+    expect(overview.historical.account1.winRatePct).toBe(35.59);
+    expect(overview.historical.account1.grossProfit).toBe(852.98);
+    expect(overview.historical.account1.grossLoss).toBe(715.79);
+    expect(overview.historical.account1.profitFactor).toBe(1.1917);
+    expect(overview.historical.account1.netTradingPnl).toBe(97.79);
+    expect(overview.historical.account1.commissionTotal).toBe(-33.79);
+    expect(overview.historical.account1.swapTotal).toBe(-5.61);
+    expect(overview.historical.account1.avgHoldHours).toBe(4.16);
+    expect(overview.historical.account1.medianHoldHours).toBe(1.3);
+    expect(overview.historical.account1.depositCount).toBe(1);
+    expect(overview.historical.account1.withdrawalCount).toBe(0);
   });
 
   it("keeps Myfxbook-visible history separate from broker history", () => {

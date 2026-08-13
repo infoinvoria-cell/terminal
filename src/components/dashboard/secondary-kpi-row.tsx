@@ -1,15 +1,27 @@
-﻿import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { deserializeTrades, compoundGains } from "@/lib/trades-analytics";
 import type { DashboardKpis, SerializedTrade } from "@/lib/trades-analytics";
 import type { CapalifeData } from "@/lib/capitalife-data";
+import type { SpyBenchmarkKpis } from "@/lib/benchmark/spy-kpis";
+import type { UniversalKpiStrings } from "@/components/dashboard/universal-kpi-strip";
 
 type SecondaryKpiRowProps = {
   kpis: DashboardKpis;
   trades?: SerializedTrade[];
   capalifeData?: CapalifeData;
+  showBenchmark?: boolean;
+  spyKpis?: SpyBenchmarkKpis | null;
+  /** Portfolio API KPIs — takes precedence over capalifeData official_kpis when present */
+  universal?: Pick<UniversalKpiStrings, "calmar" | "sharpe" | "profitFactor" | "positiveMonths" | "volatility" | "portfolioStartDate">;
 };
 
-function computeMonthlyStats(trades: SerializedTrade[]) {
+type BenchmarkMini = {
+  diff: string;
+  diffColor: "gold" | "red" | "muted";
+  spyValue: string;
+};
+
+function computeMonthlyStats(trades: SerializedTrade[], maxDrawdownPct?: number) {
   if (!trades.length) return null;
   const rows = deserializeTrades(trades);
   const map = new Map<string, number[]>();
@@ -24,39 +36,34 @@ function computeMonthlyStats(trades: SerializedTrade[]) {
   const worst = Math.min(...monthly);
   const pos = monthly.filter((m) => m >= 0).length;
   const total = monthly.length;
-  const calmar = kpiCalmar(compoundGains(rows.map((r) => r.gainPct)), rows);
+  const totalReturn = compoundGains(monthly);
+  const dd = maxDrawdownPct != null && maxDrawdownPct > 0.01 ? maxDrawdownPct : null;
+  const calmar = dd != null
+    ? ((Math.pow(1 + totalReturn / 100, 12 / total) - 1) * 100) / dd
+    : null;
   return { best, worst, pos, total, calmar };
-}
-
-function kpiCalmar(totalReturnPct: number, rows: ReturnType<typeof deserializeTrades>) {
-  if (!rows.length) return null;
-  let equity = 100, peak = 100, maxDd = 0;
-  for (const r of rows) {
-    equity *= 1 + r.gainPct / 100;
-    peak = Math.max(peak, equity);
-    if (peak > 0) maxDd = Math.max(maxDd, ((peak - equity) / peak) * 100);
-  }
-  if (maxDd < 0.01) return null;
-  const months = rows.length;
-  const annualized = (Math.pow(1 + totalReturnPct / 100, 12 / months) - 1) * 100;
-  return annualized / maxDd;
 }
 
 type SecondaryCardProps = {
   label: string;
   value: string;
-  delta?: string;
+  benchmarkMini?: BenchmarkMini;
   sub?: string;
   title?: string;
 };
 
-function SecondaryCard({ label, value, delta, sub, title }: SecondaryCardProps) {
-  const neg = delta?.trim().startsWith("-");
+const DIFF_COLORS: Record<BenchmarkMini["diffColor"], string> = {
+  gold: "#C9A84C",
+  red: "#ef4444",
+  muted: "#6b7280",
+};
+
+function SecondaryCard({ label, value, benchmarkMini, sub, title }: SecondaryCardProps) {
   return (
     <div
       title={title}
       className={cn(
-        "flex min-h-[118px] w-full min-w-0 flex-col justify-between rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1F1F1F] to-[#13131A] px-4 pb-5 pt-4 shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]",
+        "flex min-h-[118px] w-full min-w-0 flex-col justify-between rounded-[14px] border border-white/[0.055] bg-gradient-to-b from-[#26262d] to-[#111114] px-4 pb-4 pt-4 shadow-[0_12px_32px_-12px_rgba(0,0,0,0.55)]",
         title && "cursor-help"
       )}
     >
@@ -68,19 +75,65 @@ function SecondaryCard({ label, value, delta, sub, title }: SecondaryCardProps) 
           <p className="min-w-0 flex-1 truncate text-[26px] font-bold leading-none tracking-tight text-white [font-family:var(--font-numbers),sans-serif]">
             {value}
           </p>
-          {delta ? (
-            <div className="flex shrink-0 flex-col items-end justify-end pb-0.5">
-              {neg ? (
-                <span className="text-right text-[11px] font-semibold tracking-tight text-zinc-500 [font-family:var(--font-numbers),sans-serif]">
-                  {delta}
-                </span>
-              ) : (
-                <span className="inline-flex max-w-[5.5rem] items-center gap-0.5 rounded-full border border-[#C9A84C]/35 bg-transparent px-1.5 py-0.5 text-[11px] font-semibold leading-tight text-[#C9A84C] [font-family:var(--font-numbers),sans-serif]">
-                  <span className="truncate">{delta}</span>
-                </span>
+          {/* Benchmark mini: diff | separator | S&P value | logo */}
+          {benchmarkMini && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 3,
+                flexShrink: 0,
+                paddingBottom: 2,
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 11.5,
+                  fontWeight: 700,
+                  color: DIFF_COLORS[benchmarkMini.diffColor],
+                  fontFamily: "var(--font-numbers,'Nunito',sans-serif)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {benchmarkMini.diff}
+              </span>
+              {benchmarkMini.spyValue && (
+                <>
+                  <span
+                    style={{
+                      width: 1,
+                      height: 11,
+                      background: "rgba(255,255,255,0.12)",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontSize: 11.5,
+                      fontWeight: 700,
+                      color: "#ef5555",
+                      fontFamily: "var(--font-numbers,'Nunito',sans-serif)",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {benchmarkMini.spyValue}
+                  </span>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/assets/invest/spy.png"
+                    alt="SPY"
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      flexShrink: 0,
+                    }}
+                  />
+                </>
               )}
             </div>
-          ) : null}
+          )}
         </div>
         {sub ? (
           <p className="text-[10px] text-zinc-600 [font-family:var(--font-text),sans-serif]">
@@ -100,57 +153,149 @@ function computeMonthlyStatsFromJson(data: CapalifeData) {
   const worst = Math.min(...monthly);
   const pos = monthly.filter((m) => m >= 0).length;
   const total = monthly.length;
-  const totalReturn = compoundGains(monthly);
-  let equity = 100, peak = 100, maxDd = 0;
-  for (const r of monthly) {
-    equity *= 1 + r / 100;
-    peak = Math.max(peak, equity);
-    if (peak > 0) maxDd = Math.max(maxDd, ((peak - equity) / peak) * 100);
-  }
-  const calmar = maxDd > 0.01 ? ((Math.pow(1 + totalReturn / 100, 12 / total) - 1) * 100) / maxDd : null;
+  const officialCalmar = data.whiteSwanCombinedEvidence?.official_kpis?.calmar;
+  const calmar = (officialCalmar != null && officialCalmar > 0) ? officialCalmar : null;
   return { best, worst, pos, total, calmar };
 }
 
-export function SecondaryKpiRow({ kpis: _kpis, trades, capalifeData }: SecondaryKpiRowProps) {
+function numDelta(portfolioVal: number, spyVal: number, higherIsBetter: boolean): BenchmarkMini {
+  const diff = portfolioVal - spyVal;
+  const better = higherIsBetter ? diff > 0 : diff < 0;
+  const diffColor: BenchmarkMini["diffColor"] =
+    Math.abs(diff) < 0.005 ? "muted" : better ? "gold" : "red";
+  const sign = diff >= 0 ? "+" : "";
+  return {
+    diff: `${sign}${diff.toFixed(2)}`,
+    diffColor,
+    spyValue: spyVal.toFixed(2),
+  };
+}
+
+export function SecondaryKpiRow({ kpis, trades, capalifeData, showBenchmark, spyKpis, universal }: SecondaryKpiRowProps) {
   const m = (trades && trades.length > 0)
-    ? computeMonthlyStats(trades)
+    ? computeMonthlyStats(trades, kpis.maxDrawdownPct)
     : (capalifeData ? computeMonthlyStatsFromJson(capalifeData) : null);
   const fmtPct = (n: number) => `${n >= 0 ? "+" : ""}${n.toFixed(1)}%`;
+  void fmtPct;
+
+  const active = showBenchmark && spyKpis != null;
+
+  // Primary: use portfolio API values from universal (combined-track-record.json).
+  // Fallback to capalifeData official_kpis only when universal values are absent.
+  const officialKpis = capalifeData?.whiteSwanCombinedEvidence?.official_kpis;
+
+  const calmar = (() => {
+    if (universal?.calmar != null) { const n = parseFloat(universal.calmar); return isNaN(n) ? null : n; }
+    const c = officialKpis?.calmar; return c != null && c > 0 ? c : m?.calmar ?? null;
+  })();
+  const sharpe = (() => {
+    if (universal?.sharpe != null) { const n = parseFloat(universal.sharpe); return isNaN(n) ? null : n; }
+    return officialKpis?.sharpe ?? null;
+  })();
+  const pf = (() => {
+    if (universal?.profitFactor != null) { const n = parseFloat(universal.profitFactor); return isNaN(n) ? null : n; }
+    return officialKpis?.profit_factor ?? null;
+  })();
+
+  // Positive months: prefer universal (from portfolio API daily series)
+  const posMonthoStr = universal?.positiveMonths ?? null; // e.g. "16/29"
+
+  // Annualized volatility: prefer universal (from portfolio API daily series std dev × √252)
+  const volatility = (() => {
+    if (universal?.volatility != null) {
+      const n = parseFloat(universal.volatility.replace(/[^0-9.\-]/g, ""));
+      return isNaN(n) ? null : n;
+    }
+    // Legacy: std dev of monthly returns × √12
+    const rows = capalifeData?.performanceMonthly?.monthly_returns;
+    if (!rows || rows.length < 2) return null;
+    const vals = rows.map(r => r.return_pct);
+    const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const variance = vals.reduce((s, v) => s + (v - mean) ** 2, 0) / (vals.length - 1);
+    return Math.sqrt(variance) * Math.sqrt(12);
+  })();
+
+  // Pos.Months benchmark: integer diff + SPY count
+  // Parse positive months from universal if available (format: "16/29")
+  const parsedPosMonths = posMonthoStr ? (() => {
+    const parts = posMonthoStr.split("/");
+    const pos = parseInt(parts[0] ?? "", 10);
+    const total = parseInt(parts[1] ?? "", 10);
+    return (!isNaN(pos) && !isNaN(total)) ? { pos, total } : null;
+  })() : null;
+  const posMonthsDisplay = parsedPosMonths
+    ? `${parsedPosMonths.pos} / ${parsedPosMonths.total}`
+    : (m ? `${m.pos} / ${m.total}` : "—");
+  const posMini: BenchmarkMini | undefined = (() => {
+    if (!active || !spyKpis) return undefined;
+    const portfPos = parsedPosMonths?.pos ?? m?.pos;
+    if (portfPos == null) return undefined;
+    const spyPos = spyKpis.posMonths;
+    const diff = portfPos - spyPos;
+    const diffColor: BenchmarkMini["diffColor"] =
+      Math.abs(diff) < 1 ? "muted" : diff > 0 ? "gold" : "red";
+    return {
+      diff: `${diff >= 0 ? "+" : ""}${diff}`,
+      diffColor,
+      spyValue: `${spyPos}/${spyKpis.totalMonths}`,
+    };
+  })();
+
   return (
     <div className="w-full min-w-0">
       <div className="grid w-full grid-cols-6 gap-3">
         <SecondaryCard
           label="Calmar Ratio"
-          value={m?.calmar != null ? m.calmar.toFixed(1) : "—"}
-          title="Calmar Ratio = Annualized Return / Max Drawdown. Computed from track record."
+          value={calmar != null ? calmar.toFixed(1) : "—"}
+          title="Calmar Ratio = Annualized Return / Max Drawdown. Source: official performance statement KPIs."
+          benchmarkMini={
+            active && calmar != null
+              ? numDelta(calmar, spyKpis!.calmar, true)
+              : undefined
+          }
         />
         <SecondaryCard
-          label="Best Month"
-          value={m ? fmtPct(m.best) : "—"}
-          delta={m ? fmtPct(m.best) : undefined}
-          title="Best monthly compounded return from track record."
+          label="Sharpe Ratio"
+          value={sharpe != null && sharpe > 0 ? sharpe.toFixed(1) : "—"}
+          title="Risk-adjusted return (Sharpe Ratio). Source: official performance statement KPIs."
+          benchmarkMini={
+            active && sharpe != null
+              ? numDelta(sharpe, spyKpis!.sharpe, true)
+              : undefined
+          }
         />
         <SecondaryCard
-          label="Worst Month"
-          value={m ? fmtPct(m.worst) : "—"}
-          delta={m ? fmtPct(m.worst) : undefined}
-          title="Worst monthly compounded return from track record."
+          label="Profit Factor"
+          value={pf != null && pf > 0 ? pf.toFixed(2) : "—"}
+          title="Gross profit / gross loss (Profit Factor). Source: official performance statement KPIs."
         />
         <SecondaryCard
           label="Pos. Months"
-          value={m ? `${m.pos} / ${m.total}` : "—"}
-          title="Positive months of total months in track record."
+          value={posMonthsDisplay}
+          title="Positive months of total months in track record. Source: portfolio API daily series."
+          benchmarkMini={posMini}
         />
         <SecondaryCard
-          label="Assets"
-          value="35"
-          title="35 active Production Entries from final_production_sleeves.json v2 (2026-07-04)"
+          label="Volatility"
+          value={volatility != null ? `${volatility.toFixed(1)}%` : "—"}
+          title="Annualized volatility (std dev of monthly returns × √12)."
+          benchmarkMini={
+            active && spyKpis != null && volatility != null
+              ? numDelta(volatility, spyKpis.volatilityPct, false)
+              : undefined
+          }
         />
         <SecondaryCard
-          label="Strategies"
-          value="56"
-          sub="10 approaches"
-          title="56 total strategies across 10 approach categories. 5 active Production Sleeves."
+          label="Start Date"
+          value={(() => {
+            const d = universal?.portfolioStartDate;
+            if (!d) return "15.04.2024";
+            try {
+              const dt = new Date(d);
+              return `${String(dt.getUTCDate()).padStart(2, "0")}.${String(dt.getUTCMonth() + 1).padStart(2, "0")}.${dt.getUTCFullYear()}`;
+            } catch { return d; }
+          })()}
+          title="Track record inception date (UTC)."
         />
       </div>
     </div>

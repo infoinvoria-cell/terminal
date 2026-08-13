@@ -153,7 +153,8 @@ function readTradingViewCacheBars(symbol: string) {
       close: Number(row.close),
       volume: row.volume ?? null,
     }))
-    .filter((row) => row.date && [row.open, row.high, row.low, row.close].every((value) => Number.isFinite(value)));
+    .filter((row): row is typeof row & { date: string } =>
+      !!row.date && [row.open, row.high, row.low, row.close].every((value) => Number.isFinite(value)));
   const manifest = getTradingViewManifest();
   const status = manifest.symbols[symbol]?.intervals?.["1D"];
   return {

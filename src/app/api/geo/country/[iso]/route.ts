@@ -108,7 +108,7 @@ export async function GET(
     return NextResponse.json({ error: "Unknown ISO" }, { status: 404 });
   }
 
-  const NEWS_API_KEY = process.env.NEXT_PUBLIC_NEWS_API_KEY ?? "";
+  const NEWS_API_KEY = process.env.NEWS_API_KEY ?? "";
 
   const [indexData, fxData, news] = await Promise.all([
     meta.indexSym ? fetchYahoo(meta.indexSym) : Promise.resolve({ price: null, changePercent: null }),

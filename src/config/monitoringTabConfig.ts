@@ -1,4 +1,8 @@
 export type MonitoringPrimaryTabId =
+  | "metals"
+  | "etfs"
+  | "stocks"
+  | "oil"
   | "agrar"
   | "metalle_energie"
   | "indizes"
@@ -30,6 +34,50 @@ export type MonitoringTabDefinition = {
 
 export const MONITORING_TAB_CONFIG: MonitoringTabDefinition[] = [
   {
+    tabId: "metals",
+    title: "Metals",
+    assets: ["GC1!", "SI1!", "HG1!", "PL1!", "PA1!"],
+    gridMode: "flex",
+    defaultTimeframe: "D",
+    strategyMode: "event_json_engine",
+    dataSourceMode: "tv_cache_first",
+    preferredDensity: "balanced",
+    universeGroups: ["Metalle"],
+  },
+  {
+    tabId: "etfs",
+    title: "ETFs",
+    assets: ["SPY", "QQQ", "SPMO", "GLD"],
+    gridMode: "flex",
+    defaultTimeframe: "D",
+    strategyMode: "event_json_engine",
+    dataSourceMode: "tv_cache_first",
+    preferredDensity: "balanced",
+    universeGroups: ["Invest"],
+  },
+  {
+    tabId: "stocks",
+    title: "Stocks",
+    assets: ["AAPL", "MSFT", "NVDA", "GOOGL", "META", "AMZN"],
+    gridMode: "flex",
+    defaultTimeframe: "D",
+    strategyMode: "event_json_engine",
+    dataSourceMode: "tv_cache_first",
+    preferredDensity: "balanced",
+    universeGroups: ["Aktien"],
+  },
+  {
+    tabId: "oil",
+    title: "Oil",
+    assets: ["CL1!", "NG1!", "RB1!"],
+    gridMode: "flex",
+    defaultTimeframe: "D",
+    strategyMode: "event_json_engine",
+    dataSourceMode: "tv_cache_first",
+    preferredDensity: "balanced",
+    universeGroups: ["Energie"],
+  },
+  {
     tabId: "agrar",
     title: "Agrar",
     assets: ["ZW1!", "ZC1!", "ZS1!", "CC1!", "KC1!", "SB1!", "CT1!", "OJ1!"],
@@ -50,6 +98,7 @@ export const MONITORING_TAB_CONFIG: MonitoringTabDefinition[] = [
     dataSourceMode: "tv_cache_first",
     preferredDensity: "balanced",
     universeGroups: ["Metalle", "Energie"],
+    hidden: true,
   },
   {
     tabId: "indizes",
@@ -61,11 +110,12 @@ export const MONITORING_TAB_CONFIG: MonitoringTabDefinition[] = [
     dataSourceMode: "tv_cache_first",
     preferredDensity: "balanced",
     universeGroups: ["Indizes"],
+    hidden: true,
   },
   {
     tabId: "fx",
     title: "FX (Forex8)",
-    assets: ["EURGBP", "GBPJPY", "MXNUSD", "NOKUSD", "CLPUSD", "SEKUSD", "BRLUSD", "ZARUSD"],
+    assets: ["EURGBP", "GBPJPY", "MXNUSD", "NOK1!", "CLPUSD", "SEKUSD", "BRLUSD", "ZARUSD"],
     gridMode: "flex",
     defaultTimeframe: "D",
     strategyMode: "event_json_engine",
@@ -83,11 +133,12 @@ export const MONITORING_TAB_CONFIG: MonitoringTabDefinition[] = [
     dataSourceMode: "tv_cache_first",
     preferredDensity: "balanced",
     universeGroups: ["Aktien"],
+    hidden: true,
   },
   {
     tabId: "invest",
     title: "Invest",
-    assets: ["SPY", "QQQ_PASSIVE", "SPMO", "GLD", "QQQ_PINE_1", "HG1!", "6S1!"],
+    assets: ["SPY", "QQQ_PASSIVE", "SPMO", "GLD", "HG1!", "6S1!"],
     gridMode: "flex",
     defaultTimeframe: "D",
     strategyMode: "event_json_engine",
@@ -129,7 +180,7 @@ export const MONITORING_TAB_CONFIG: MonitoringTabDefinition[] = [
     strategyMode: "event_json_engine",
     dataSourceMode: "tv_cache_first",
     preferredDensity: "compact",
-    universeGroups: ["Agrar", "Metalle", "Energie", "Indizes", "Aktien", "Invest", "Intraday MT"],
+    universeGroups: ["Agrar", "Metalle", "Energie", "Indizes", "Aktien", "Invest", "Intraday MT", "FX", "Anomaly", "ETFs"],
   },
   {
     tabId: "all",
@@ -140,7 +191,8 @@ export const MONITORING_TAB_CONFIG: MonitoringTabDefinition[] = [
     strategyMode: "event_json_engine",
     dataSourceMode: "tv_cache_first",
     preferredDensity: "compact",
-    universeGroups: ["Agrar", "Metalle", "Energie", "Indizes", "Aktien", "Invest", "Intraday MT"],
+    universeGroups: ["Agrar", "Metalle", "Energie", "Indizes", "Aktien", "Invest", "Intraday MT", "FX", "Anomaly", "ETFs"],
+    hidden: true,
   },
 ];
 

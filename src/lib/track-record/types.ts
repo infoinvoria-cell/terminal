@@ -211,6 +211,40 @@ export type TrackRecordOverview = {
     normalizedClosedTradeCount: number;
     visibleAccount2TradeCount: number;
     historicalDataQuality: "complete" | "partial" | "insufficient";
+    account1: {
+      statementAvailableLocally: boolean;
+      broker: string | null;
+      currency: string | null;
+      statementGenerated: string | null;
+      statementPeriodFirstClose: string | null;
+      statementPeriodLastClose: string | null;
+      totalClosedTrades: number;
+      rawRowsTotal: number;
+      balanceOperationsTotal: number;
+      depositCount: number;
+      withdrawalCount: number;
+      otherBalanceCount: number;
+      sourceFormat: string | null;
+      sourceFileCount: number;
+      sourceFiles: string[];
+      legacyPartialTradeCount: number;
+      legacyPartialOverlap: number;
+      winningTrades: number;
+      losingTrades: number;
+      flatTrades: number;
+      winRatePct: number | null;
+      winRateIncludesFlatTrades: boolean;
+      grossProfit: number | null;
+      grossLoss: number | null;
+      profitFactor: number | null;
+      netTradingPnl: number | null;
+      commissionTotal: number | null;
+      swapTotal: number | null;
+      avgHoldHours: number | null;
+      medianHoldHours: number | null;
+      tradesPerMonth: number | null;
+      tradesPerYear: number | null;
+    };
     importAudit: {
       monthly: {
         count: number;
@@ -234,6 +268,12 @@ export type TrackRecordOverview = {
         hash: string;
         classification: string;
       };
+    };
+    official: {
+      combinedReturnPct: number;
+      compoundedReturnPct: number;
+      maxDrawdownPct: number;
+      annualizedReturnPct: number;
     };
   };
   capabilities: {

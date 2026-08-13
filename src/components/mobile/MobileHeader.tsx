@@ -10,7 +10,7 @@ const PAGES = [
   { label: "Signale",     href: "/m/signale"     },
   { label: "Onboarding",  href: "/m/onboarding"  },
   { label: "Analytics",   href: "/m/analytics"   },
-  { label: "Manager",     href: "/m/manager"     },
+  { label: "Portfolio Lab", href: "/m/manager"   },
   { label: "Investoren",  href: "/m/investors-crm" },
   { label: "Brain",       href: "/m/brain"       },
   { label: "Settings",    href: "/m/settings"    },

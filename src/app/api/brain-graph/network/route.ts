@@ -1,5 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServiceClient } from "@/lib/supabase-server";
+import { buildSystemGraph } from "@/lib/brain-graph/system-graph";
+import { getFailureRequestId, shouldInjectFailure } from "@/lib/server/capitalife-failure-injection";
+import { logServerFailure } from "@/lib/runtime/capitalife-errors";
 
 // Node metadata is synced into Supabase by scripts/sync-brain-to-supabase.mjs
 // (labels, folder, degree, community, preview snippet — no raw file content).
@@ -17,9 +20,13 @@ type BrainLinkRow = { source: string; target: string };
 const NODE_CAP = 5000;
 const LINK_CAP = 12000;
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    if (shouldInjectFailure(request, "brain-api")) {
+      throw new Error("BRAIN_API_FAILURE");
+    }
     const db = createSupabaseServiceClient();
+    const systemGraph = buildSystemGraph();
 
     const [nodesRes, linksRes] = await Promise.all([
       db.from("brain_nodes")
@@ -33,22 +40,34 @@ export async function GET() {
 
     if (nodesRes.error) {
       return NextResponse.json(
-        { error: nodesRes.error.message, nodes: [], links: [] },
+        {
+          error: nodesRes.error.message,
+          contractVersion: "2026-08-11.system-graph.v2",
+          nodes: [],
+          links: [],
+        },
         { status: 200 },
       );
     }
-
     const rawNodes = (nodesRes.data ?? []) as BrainNodeRow[];
+
     if (rawNodes.length === 0) {
+      // No user Brain data — return system graph only
       return NextResponse.json({
-        nodes: [],
-        links: [],
-        source: "supabase",
-        message: "Brain-Graph noch nicht synchronisiert (0 Nodes in Supabase).",
+        contractVersion: "2026-08-11.system-graph.v2",
+        nodes: systemGraph.nodes,
+        links: systemGraph.links,
+        source: "system-only",
+        meta: {
+          systemNodeCount: systemGraph.nodes.length,
+          systemLinkCount: systemGraph.links.length,
+          mergedUserBrain: false,
+        },
+        message: "Brain-Graph noch nicht synchronisiert. Zeige Capitalife System-Entities.",
       });
     }
 
-    const nodes = rawNodes.map((n) => ({
+    const brainNodes = rawNodes.map((n) => ({
       id: n.id,
       label: n.label ?? n.id,
       folder: n.folder ?? "",
@@ -58,19 +77,42 @@ export async function GET() {
       source: "brain" as const,
     }));
 
-    // Only keep links whose endpoints both survived the node cap.
-    const keep = new Set(nodes.map((n) => n.id));
-    const links = ((linksRes.data ?? []) as BrainLinkRow[])
-      .filter((l) => keep.has(l.source) && keep.has(l.target));
+    // Merge: user brain nodes first, then system nodes (system nodes have namespaced IDs — no collisions)
+    const allNodes = [...brainNodes, ...systemGraph.nodes];
+
+    // Brain links: only keep those whose endpoints survived the node cap
+    const brainIds = new Set(brainNodes.map((n) => n.id));
+    const allIds = new Set(allNodes.map((n) => n.id));
+    const brainLinks = ((linksRes.data ?? []) as BrainLinkRow[])
+      .filter((l) => brainIds.has(l.source) && brainIds.has(l.target));
+    const systemLinks = systemGraph.links.filter((l) => allIds.has(l.source) && allIds.has(l.target));
 
     return NextResponse.json({
-      nodes,
-      links,
+      contractVersion: "2026-08-11.system-graph.v2",
+      nodes: allNodes,
+      links: [...brainLinks, ...systemLinks],
       source: "supabase",
+      meta: {
+        systemNodeCount: systemGraph.nodes.length,
+        systemLinkCount: systemGraph.links.length,
+        mergedUserBrain: true,
+      },
     });
   } catch (err) {
+    logServerFailure({
+      route: "/api/brain-graph/network",
+      module: "brain-graph-network",
+      error: err,
+      errorCode: "BRAIN_API_FAILURE",
+      requestId: getFailureRequestId(request),
+    });
     return NextResponse.json(
-      { error: String(err), nodes: [], links: [] },
+      {
+        error: String(err),
+        contractVersion: "2026-08-11.system-graph.v2",
+        nodes: [],
+        links: [],
+      },
       { status: 200 },
     );
   }

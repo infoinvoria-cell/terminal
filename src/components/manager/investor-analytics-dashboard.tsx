@@ -21,7 +21,7 @@ import { formatUsdCompact } from "@/lib/trades-analytics";
 import { KpiCard } from "@/components/shared/KpiCard";
 
 const CARD_CLASS =
-  "rounded-[20px] border border-white/[0.06] bg-gradient-to-b from-[#1F1F1F] to-[#13131A] shadow-[0_20px_40px_-16px_rgba(0,0,0,0.55)]";
+  "rounded-[10px] border border-white/[0.055] bg-gradient-to-b from-[#26262d] to-[#111114] shadow-[0_12px_32px_-12px_rgba(0,0,0,0.55)]";
 
 export function InvestorAnalyticsDashboard() {
   const { metrics, trades, setPage } = useHomeDashboard();

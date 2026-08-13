@@ -72,7 +72,12 @@ export function getSentinelEnvConfig(): SentinelEnvConfig {
     mode === "mistral" ||
     mode === "cohere" ||
     mode === "anthropic" ||
-    mode === "custom"
+    mode === "custom" ||
+    mode === "openrouter" ||
+    mode === "gemini" ||
+    mode === "github-models" ||
+    mode === "cloudflare" ||
+    mode === "huggingface"
       ? mode
       : "auto";
   const normalizedProvider: SentinelProviderId =
@@ -82,7 +87,12 @@ export function getSentinelEnvConfig(): SentinelEnvConfig {
     defaultProvider === "mistral" ||
     defaultProvider === "cohere" ||
     defaultProvider === "anthropic" ||
-    defaultProvider === "custom"
+    defaultProvider === "custom" ||
+    defaultProvider === "openrouter" ||
+    defaultProvider === "gemini" ||
+    defaultProvider === "github-models" ||
+    defaultProvider === "cloudflare" ||
+    defaultProvider === "huggingface"
       ? defaultProvider
       : "local";
   const enforcedMode: SentinelRouterMode = !paidApisEnabled && !allowCustomApi ? "local" : normalizedMode;

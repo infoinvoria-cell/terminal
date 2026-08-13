@@ -5,10 +5,10 @@
   "timeframe": "2H",
   "source": "engine_futures",
   "hasStrategy": true,
-  "generatedAt": "2026-07-30T20:00:11Z",
+  "generatedAt": "2026-08-13T10:30:13Z",
   "dateRange": {
-    "first": "2024-10-10T04:00:00",
-    "last": "2026-07-30T18:00:00"
+    "first": "2024-10-23T18:00:00",
+    "last": "2026-08-13T10:00:00"
   },
   "barPolicy": {
     "excludeFormingIntradayBar": true,
@@ -18,119 +18,9 @@
   "openTradeRow": null,
   "openCount": 0,
   "tradeCounts": {
-    "total": 560
+    "total": 551
   },
   "trades": [
-    {
-      "direction": "long",
-      "entryTime": "2024-10-11T18:00:00Z",
-      "exitTime": "2024-10-14T00:00:00Z",
-      "entry": 19521.0,
-      "sl": 19482.82857142857,
-      "tp": 19635.514285714286,
-      "exit": 19479.0,
-      "exitReason": "sl",
-      "pnl": -110.03
-    },
-    {
-      "direction": "long",
-      "entryTime": "2024-10-14T06:00:00Z",
-      "exitTime": "2024-10-14T08:00:00Z",
-      "entry": 19607.0,
-      "sl": 19567.85714285714,
-      "tp": 19724.428571428572,
-      "exit": 19541.0,
-      "exitReason": "signal_exit",
-      "pnl": -168.61
-    },
-    {
-      "direction": "short",
-      "entryTime": "2024-10-14T08:00:00Z",
-      "exitTime": "2024-10-14T12:00:00Z",
-      "entry": 19541.0,
-      "sl": 19584.657142857144,
-      "tp": 19410.02857142857,
-      "exit": 19584.66,
-      "exitReason": "sl",
-      "pnl": -100.0
-    },
-    {
-      "direction": "long",
-      "entryTime": "2024-10-14T14:00:00Z",
-      "exitTime": "2024-10-15T12:00:00Z",
-      "entry": 19643.0,
-      "sl": 19644.0,
-      "tp": 19776.714285714286,
-      "exit": 19677.0,
-      "exitReason": "signal_exit",
-      "pnl": 76.28
-    },
-    {
-      "direction": "short",
-      "entryTime": "2024-10-15T12:00:00Z",
-      "exitTime": "2024-10-15T14:00:00Z",
-      "entry": 19677.0,
-      "sl": 19676.0,
-      "tp": 19550.657142857144,
-      "exit": 19676.0,
-      "exitReason": "sl",
-      "pnl": 2.37
-    },
-    {
-      "direction": "short",
-      "entryTime": "2024-10-16T08:00:00Z",
-      "exitTime": "2024-10-16T12:00:00Z",
-      "entry": 19548.0,
-      "sl": 19592.457142857143,
-      "tp": 19414.628571428573,
-      "exit": 19592.46,
-      "exitReason": "sl",
-      "pnl": -100.0
-    },
-    {
-      "direction": "long",
-      "entryTime": "2024-10-17T16:00:00Z",
-      "exitTime": "2024-10-17T18:00:00Z",
-      "entry": 19710.0,
-      "sl": 19661.77142857143,
-      "tp": 19854.685714285715,
-      "exit": 19686.0,
-      "exitReason": "signal_exit",
-      "pnl": -49.76
-    },
-    {
-      "direction": "short",
-      "entryTime": "2024-10-17T18:00:00Z",
-      "exitTime": "2024-10-18T06:00:00Z",
-      "entry": 19686.0,
-      "sl": 19685.0,
-      "tp": 19542.685714285715,
-      "exit": 19685.0,
-      "exitReason": "sl",
-      "pnl": 2.09
-    },
-    {
-      "direction": "short",
-      "entryTime": "2024-10-18T12:00:00Z",
-      "exitTime": "2024-10-18T14:00:00Z",
-      "entry": 19739.0,
-      "sl": 19788.14285714286,
-      "tp": 19591.571428571428,
-      "exit": 19788.14,
-      "exitReason": "sl",
-      "pnl": -100.0
-    },
-    {
-      "direction": "short",
-      "entryTime": "2024-10-22T14:00:00Z",
-      "exitTime": "2024-10-23T06:00:00Z",
-      "entry": 19553.0,
-      "sl": 19552.0,
-      "tp": 19391.514285714286,
-      "exit": 19578.0,
-      "exitReason": "sl",
-      "pnl": -46.44
-    },
     {
       "direction": "long",
       "entryTime": "2024-10-25T06:00:00Z",
@@ -6173,13 +6063,24 @@
     {
       "direction": "long",
       "entryTime": "2026-07-30T10:00:00Z",
-      "exitTime": "2026-07-30T18:00:00Z",
+      "exitTime": "2026-07-31T06:00:00Z",
       "entry": 25616.0,
       "sl": 25617.0,
       "tp": 25942.742857142857,
-      "exit": 25762.0,
-      "exitReason": "end_of_data",
-      "pnl": 134.05
+      "exit": 25942.74,
+      "exitReason": "tp",
+      "pnl": 300.0
+    },
+    {
+      "direction": "short",
+      "entryTime": "2026-07-31T10:00:00Z",
+      "exitTime": "2026-07-31T12:00:00Z",
+      "entry": 25798.0,
+      "sl": 25797.0,
+      "tp": 25551.314285714285,
+      "exit": 25798.0,
+      "exitReason": "sl",
+      "pnl": 0.0
     }
   ]
 }

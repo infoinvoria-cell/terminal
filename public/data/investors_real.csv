@@ -1,247 +1,451 @@
-name,unternehmen,typ,email,linkedin,kapital,quelle,score,status,ort,website
-Dieter von Holtzbrinck,DvH Ventures GmbH,Family Office,,linkedin.com/in/dvh-ventures,500k+,Manual,88,Neu,Köln,dvhventures.de
-Reimann Investors GmbH,Reimann Investors GmbH,Family Office,,,500k+,Manual,85,Neu,München,reimann-investors.com
-SKion GmbH,SKion GmbH,Family Office,,,500k+,Manual,85,Neu,Bad Homburg,skion.de
-AQTON SE,AQTON SE,Family Office,,,500k+,Manual,85,Neu,Bad Homburg,aqton.com
-Athos Service GmbH,Athos Service GmbH,Family Office,,,500k+,Manual,85,Neu,München,athos.de
-Cura Vermögensverwaltung,Cura Vermögensverwaltung GmbH,Family Office,,,500k+,Manual,85,Neu,Hamburg,
-Custodia Holding GmbH,Custodia Holding GmbH,Family Office,,,500k+,Manual,85,Neu,München,custodia-ag.de
-Deutsche Oppenheim Family Office,"Deutsche Oppenheim Family Office AG",Family Office,,,500k+,Manual,85,Neu,Köln,deutsche-oppenheim.de
-FINVIA Family Office,FINVIA Family Office GmbH,Family Office,,,500k+,Manual,85,Neu,Frankfurt am Main,finvia.fo
-FOCAM AG,FOCAM AG,Family Office,,,500k+,Manual,85,Neu,Frankfurt am Main,focam.de
-HQ Trust GmbH,HQ Trust GmbH,Family Office,,,500k+,Manual,85,Neu,Bad Homburg,hqtrust.de
-Harald Quandt Industriebeteiligungen,Harald Quandt Industriebeteiligungen GmbH,Family Office,,,500k+,Manual,85,Neu,Bad Homburg,hq-ib.com
-Harald Quandt Family Office,Harald Quandt Family Office GmbH,Family Office,,,500k+,Manual,85,Neu,Bad Homburg,haraldquandt.de
-Kontora Family Office,Kontora Family Office GmbH,Family Office,,,500k+,Manual,85,Neu,Hamburg,kontora.com
-"Lennertz & Co.","Lennertz & Co. GmbH",Family Office,,,500k+,Manual,85,Neu,Hamburg,lennertz.com
-Beisheim Holding,Beisheim Holding GmbH,Family Office,,,500k+,Manual,85,Neu,Baar,beisheim.com
-Flossbach von Storch Family Office,Flossbach von Storch AG,Family Office,,,500k+,Manual,85,Neu,Köln,flossbachvonstorch.de
-"Franz Haniel & Cie. GmbH","Franz Haniel & Cie. GmbH",Family Office,,,500k+,Manual,85,Neu,Duisburg,haniel.de
-IHO Holding GmbH,IHO Holding GmbH,Family Office,,,500k+,Manual,85,Neu,Herzogenaurach,
-Hasso Plattner Ventures,Hasso Plattner Ventures GmbH,Family Office,,,500k+,Manual,85,Neu,Potsdam,
-Hopp Family Office,dievini Hopp BioTech holding GmbH,Family Office,,,500k+,Manual,85,Neu,Walldorf,dievini.de
-"BV & P Vermögen AG","BV & P Vermögen AG",Family Office,,,500k+,Manual,85,Neu,Kempten,bvp-vermoegen.de
-"Becker & Kries GmbH","Becker & Kries GmbH",Family Office,,,500k+,Manual,85,Neu,Berlin,becker-kries.de
-E.R. Capital Holding GmbH,E.R. Capital Holding GmbH,Family Office,,,500k+,Manual,85,Neu,Hamburg,er-capital.com
-Erich Sixt Vermögensverwaltung,Erich Sixt Vermögensverwaltung GmbH,Family Office,,,500k+,Manual,85,Neu,Pullach,
-Viessmann Generations Group,Viessmann Generations Group GmbH,Family Office,,,500k+,Manual,85,Neu,Allendorf,viessmann.group
-Salvia GmbH,Salvia GmbH,Family Office,,,500k+,Manual,85,Neu,Holzkirchen,salvia.de
-Aquila Capital,Aquila Capital Holding GmbH,Family Office,,,500k+,Manual,85,Neu,Hamburg,aquila-capital.de
-Bregal Unternehmerkapital,Bregal Unternehmerkapital GmbH,Family Office,,,500k+,Manual,85,Neu,München,bu-partners.com
-Extorel GmbH,Extorel GmbH,Family Office,,,500k+,Manual,85,Neu,München,extorel.de
-FERI AG,FERI AG,Family Office,,,500k+,Manual,85,Neu,Bad Homburg,feri.de
-"Marcard Stein & Co","Marcard Stein & Co AG",Family Office,,,500k+,Manual,85,Neu,Hamburg,marcard.de
-Oldendorff Carriers,Oldendorff Carriers GmbH,Family Office,,,500k+,Manual,85,Neu,Lübeck,oldendorff.com
-Palatina Multi Family Office,Palatina Multi Family Office GmbH,Family Office,,,500k+,Manual,85,Neu,Angelbachtal,palatina-mfo.de
-Profunda Verwaltungs GmbH,Profunda Verwaltungs GmbH,Family Office,,,500k+,Manual,85,Neu,Ingelheim am Rhein,
-Spudy Family Office,Spudy Invest GmbH,Family Office,,,500k+,Manual,85,Neu,München,spudy.com
-TruVenturo GmbH,TruVenturo GmbH,Family Office,,,500k+,Manual,85,Neu,Hamburg,
-Astutia Ventures GmbH,Astutia Ventures GmbH,Family Office,,,500k+,Manual,85,Neu,,astutia.de
-Alstin GmbH,"Alstin GmbH (Maschmeyer Group)",Family Office,,,500k+,Manual,85,Neu,,alstin.de
-Dr. August Oetker KG,Dr. August Oetker KG,Family Office,,,500k+,Manual,85,Neu,Bielefeld,oetker.com
-Capitell AG,Capitell Vermögens-Management AG,Family Office,,,500k+,Manual,85,Neu,Hannover,capitell-ag.de
-HRK LUNIS AG,HRK LUNIS AG,Family Office,,,500k+,Manual,85,Neu,Frankfurt am Main,hrklunis.de
-Hannover Finanz Group,Hannover Finanz GmbH,Family Office,,,500k+,Manual,85,Neu,Hannover,hannoverfinanz.de
-"Eyb & Wallwitz","Eyb & Wallwitz Vermögensmanagement GmbH",Family Office,,,500k+,Manual,85,Neu,München,
-Simon Capital GmbH,Simon Capital GmbH,Family Office,,,500k+,Manual,85,Neu,Düsseldorf,simoncapital.com
-Carsten Maschmeyer,seed + speed Ventures GmbH,HNWI,,linkedin.com/in/carsten-maschmeyer/,100k–500k,LinkedIn,78,Neu,Hannover,seedandspeed.com
-Frank Thelen,Freigeist Capital GmbH,HNWI,,linkedin.com/in/frank-thelen,100k–500k,LinkedIn,78,Neu,Bonn,freigeist.com
-Ralph Müller,,HNWI,,linkedin.com/in/dr-ralph-mueller-b27728150,100k–500k,LinkedIn,78,Neu,Frankfurt am Main,
-Maximilian Tayenthal,N26 GmbH,HNWI,,linkedin.com/in/maximilian-tayenthal-04019a68/,100k–500k,LinkedIn,78,Neu,Berlin,
-Carlo Kölzer,360T,HNWI,,,250k–1M,Manual,73,Neu,Frankfurt am Main,
-Andrew Bosomworth,,HNWI,,,100k–500k,Manual,73,Neu,Hamburg,
-Rheingau Founders GmbH,Rheingau Founders GmbH,Angel,,,100k–500k,BVK,70,Neu,Berlin,rheingau-founders.com
-Felix Haas,IDnow GmbH,Angel,,linkedin.com/in/felixhaas,100k–500k,LinkedIn,66,Neu,München,
-Tamaz Georgadze,Raisin GmbH,Angel,,linkedin.com/in/tamas-giorgadse-91a33b2/,100k–500k,LinkedIn,66,Neu,Frankfurt am Main,
-André M. Bajorat,Deutsche Bank AG,Angel,,linkedin.com/in/abajorat,100k–500k,LinkedIn,66,Neu,Hamburg,
-Michael Brehm,Redstone Digital GmbH,Angel,,linkedin.com/in/michaelbrehm,100k–500k,LinkedIn,66,Neu,Berlin,redstone.vc
-Christian Vollmann,nebenan.de,Angel,,linkedin.com/in/christianvollmann,100k–500k,LinkedIn,66,Neu,Berlin,
-Robin Haak,Robin Capital GmbH,Angel,,linkedin.com/in/robinhaak,100k–500k,LinkedIn,66,Neu,Berlin,
-Matthias Hilpert,MH2 Capital GmbH,Angel,,linkedin.com/in/matthiashilpert,100k–500k,LinkedIn,66,Neu,Berlin,
-Dr. Cornelius Boersch,Mountain Partners AG,Angel,,linkedin.com/in/connyboersch,100k–500k,LinkedIn,66,Neu,Berlin,
-Stefan Glänzer,,Angel,,linkedin.com/in/stefanglaenzer,100k–500k,LinkedIn,66,Neu,Berlin,
-Christophe Maire,Atlantic Labs GmbH,Angel,,linkedin.com/in/christophe-maire,100k–500k,LinkedIn,66,Neu,Berlin,atlanticlabs.de
-Philipp Kloeckner,,Angel,,linkedin.com/in/kloeckner,100k–500k,LinkedIn,66,Neu,Berlin,
-Kilian Thalhammer,Pearlscout GmbH,Angel,,linkedin.com/in/kilianthalhammer,100k–500k,LinkedIn,66,Neu,München,
-Frank Freund,Raisin GmbH,Angel,,linkedin.com/in/ffreund/,100k–500k,LinkedIn,66,Neu,Berlin,
-Michael Stephan,Raisin DS GmbH,Angel,,linkedin.com/in/michaeltobiasstephan/,100k–500k,LinkedIn,66,Neu,Berlin,
-Marko Wenthin,Dock Financial GmbH,Angel,,linkedin.com/in/markowenthin,100k–500k,LinkedIn,66,Neu,Berlin,
-Ingo Weber,Carcharodon Capital GmbH,Angel,,linkedin.com/in/iweber/,100k–500k,LinkedIn,66,Neu,Stuttgart,
-Rouven Dresselhaus,Cavalry Ventures GmbH,Angel,,linkedin.com/in/rouvendresselhaus/,100k–500k,LinkedIn,66,Neu,Berlin,cavalry.vc
-Tim Schumacher,World Fund GmbH,Angel,,linkedin.com/in/timschumacher,100k–500k,LinkedIn,66,Neu,Köln,
-Feliks Eyser,JETPACK GmbH,Angel,,linkedin.com/in/eyser/,100k–500k,LinkedIn,66,Neu,Berlin,
-Philipp Moehring,,Angel,,linkedin.com/in/moehring,100k–500k,LinkedIn,66,Neu,Berlin,
-Michael Hock,Motive Ventures GmbH,Angel,,linkedin.com/in/michaelhock2/,100k–500k,LinkedIn,66,Neu,Berlin,
-Marcus Börner,OptioPay GmbH,Angel,,linkedin.com/in/marcusb1,100k–500k,LinkedIn,66,Neu,Berlin,
-Christian Reber,Pitch GmbH,Angel,,linkedin.com/in/christianreber,100k–500k,LinkedIn,66,Neu,Berlin,
-Christian Gaiser,Bonial International Group,Angel,,linkedin.com/in/christiangaiser,100k–500k,LinkedIn,66,Neu,,
-SEK Ventures / Flixfounders,SEK Ventures GmbH,Angel,,,100k–500k,Manual,63,Neu,,
-MM Opportunity Ventures GmbH,MM Opportunity Ventures GmbH,Angel,,,100k–500k,Manual,63,Neu,Berlin,
-Jacobo Invest GmbH,Jacobo Invest GmbH,Angel,,,100k–500k,Manual,63,Neu,Ulm,
-Volker Jacobs,,Angel,,,100k–500k,Manual,63,Neu,Hamburg,
-Markus Franke,,Angel,,,100k–500k,Manual,63,Neu,Hamburg,
-Rubin Ritter,Zalando SE,Unternehmer,,linkedin.com/in/rubin-ritter-03268546,100k–500k,LinkedIn,60,Neu,Berlin,
-Jochen Engert,FlixBus GmbH,Unternehmer,,linkedin.com/in/jochen-engert-61a4a31/,100k–500k,LinkedIn,60,Neu,München,
-Kai Hansen,lieferando.de,Unternehmer,,linkedin.com/in/hansenkai/,100k–500k,LinkedIn,60,Neu,Berlin,
-Dominik Richter,HelloFresh SE,Unternehmer,,linkedin.com/in/dominik-s-richter-905b7939/,100k–500k,LinkedIn,60,Neu,Berlin,
-Hanno Renner,Personio GmbH,Unternehmer,,linkedin.com/in/hanno-renner,100k–500k,LinkedIn,60,Neu,München,
-Lukasz Gadowski,Team Global GmbH,Unternehmer,,linkedin.com/in/lukaszgadowski/,100k–500k,LinkedIn,60,Neu,Berlin,
-seed + speed Ventures GmbH,seed + speed Ventures GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,seedandspeed.com
-Blockwall Capital GmbH,Blockwall Capital GmbH,VC,,,100k–500k,BVK,60,Neu,Frankfurt am Main,blockwall.vc
-tokentus investment AG,tokentus investment AG,VC,,,100k–500k,BVK,60,Neu,Frankfurt am Main,tokentus.com
-Börse Stuttgart Digital Ventures,Börse Stuttgart Digital Ventures GmbH,VC,,,100k–500k,BVK,60,Neu,Stuttgart,bsdigital.com
-CommerzVentures GmbH,CommerzVentures GmbH,VC,,,100k–500k,BVK,60,Neu,Frankfurt am Main,commerzventures.com
-neosfer GmbH,neosfer GmbH,VC,,,100k–500k,BVK,60,Neu,Frankfurt am Main,neosfer.de
-Futury Venture GmbH,Futury Venture GmbH,VC,,,100k–500k,BVK,60,Neu,Frankfurt am Main,futuryvc.de
-Capnamic Ventures,Capnamic Ventures Management GmbH,VC,,,100k–500k,BVK,60,Neu,Köln,capnamic.com
-Coparion GmbH,"Coparion GmbH & Co. KG",VC,,,100k–500k,BVK,60,Neu,Köln,coparion.vc
-Crossventures GmbH,Crossventures GmbH,VC,,,100k–500k,BVK,60,Neu,Köln,crossventures.de
-IBB Beteiligungsgesellschaft,IBB Beteiligungsgesellschaft GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,ibbventures.de
-Global Founders Capital,Global Founders Capital GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,globalfounderscapital.com
-Point Nine Capital,Point Nine Capital GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,pointnine.com
-Redstone Digital GmbH,Redstone Digital GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,redstone.vc
-Cherry Ventures GmbH,Cherry Ventures GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,cherry.vc
-Cavalry Ventures GmbH,Cavalry Ventures GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,cavalry.vc
-468 Capital GmbH,468 Capital GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,468cap.com
-Project A Ventures,Project A Ventures GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,project-a.vc
-Atlantic Labs GmbH,Atlantic Labs GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,atlanticlabs.de
-Fly Ventures GmbH,Fly Ventures GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,fly.vc
-Join Capital GmbH,Join Capital GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,join.capital
-Lunar Ventures,Lunar Ventures GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,lunar.vc
-Square One VC,Square One VC GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,squareone.vc
-Revent GmbH,Revent GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,revent.vc
-Vireo Ventures GmbH,Vireo Ventures GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,vireo.vc
-BlueYard Capital,BlueYard Capital GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,blueyard.com
-Digital Health Ventures,Digital Health Ventures GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,dhventures.de
-Bitkraft Ventures,Bitkraft Ventures GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,bitkraft.vc
-Freigeist Capital GmbH,Freigeist Capital GmbH,VC,,,100k–500k,BVK,60,Neu,Bonn,freigeist.com
-Spotlight Ventures,Spotlight Ventures GmbH,VC,,,100k–500k,BVK,60,Neu,Bonn,spotlightventures.de
-HighTech Gründerfonds,HighTech Gründerfonds Management GmbH,VC,,,100k–500k,BVK,60,Neu,Bonn,htgf.de
-Earlybird Venture Capital,Earlybird Venture Capital GmbH,VC,,,100k–500k,BVK,60,Neu,München,earlybird.com
-Target Partners GmbH,Target Partners GmbH,VC,,,100k–500k,BVK,60,Neu,München,targetpartners.de
-Munich Venture Partners,Munich Venture Partners GmbH,VC,,,100k–500k,BVK,60,Neu,München,munichvp.com
-42 Cap GmbH,42 Cap GmbH,VC,,,100k–500k,BVK,60,Neu,München,42cap.com
-Wellington Partners,Wellington Partners GmbH,VC,,,100k–500k,BVK,60,Neu,München,wellington-partners.com
-Vsquared Ventures,Vsquared Ventures Management GmbH,VC,,,100k–500k,BVK,60,Neu,München,vsquared.vc
-UVC Partners GmbH,UVC Partners GmbH,VC,,,100k–500k,BVK,60,Neu,München,
-Tengelmann Ventures,Tengelmann Ventures GmbH,VC,,,100k–500k,BVK,60,Neu,München,tengelmann-ventures.com
-Redalpine Venture Partners,Redalpine Venture Partners GmbH,VC,,,100k–500k,BVK,60,Neu,München,redalpine.com
-Senovo Capital Management,Senovo Capital Management GmbH,VC,,,100k–500k,BVK,60,Neu,München,senovo.vc
-Muzungu GmbH,Muzungu GmbH,VC,,,100k–500k,BVK,60,Neu,München,muzungu-capital.com
-rethink ventures GmbH,rethink ventures GmbH,VC,,,100k–500k,BVK,60,Neu,München,rethinkventures.com
-Target Global GmbH,Target Global GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,targetglobal.vc
-Bayern Kapital GmbH,Bayern Kapital GmbH,VC,,,100k–500k,BVK,60,Neu,Landshut,bayernkapital.de
-eCapital AG,eCapital AG,VC,,,100k–500k,BVK,60,Neu,Münster,ecapital.vc
-Grazia Equity GmbH,Grazia Equity GmbH,VC,,,100k–500k,BVK,60,Neu,Stuttgart,grazia.com
-LBBW Venture Capital,LBBW Venture Capital GmbH,VC,,,100k–500k,BVK,60,Neu,Stuttgart,lbbwvc.de
-TRUMPF Venture GmbH,TRUMPF Venture GmbH,VC,,,100k–500k,BVK,60,Neu,Ditzingen,trumpf.com
-Cusp Capital Partners,Cusp Capital Partners GmbH,VC,,,100k–500k,BVK,60,Neu,Essen,cuspcapital.com
-RAG Innovation Hub,RAG Stiftung,VC,,,100k–500k,BVK,60,Neu,Essen,rag-stiftung.de
-Hannover Digital Investments,Hannover Digital Investments GmbH,VC,,,100k–500k,BVK,60,Neu,Hannover,hannover-digital-invest.com
-Saarländische Wagnisfinanzierung,Saarländische Wagnisfinanzierungsgesellschaft mbH,VC,,,100k–500k,BVK,60,Neu,Saarbrücken,swgmbh.de
-DTCP GmbH,Digital Transformation Capital Partners GmbH,VC,,,100k–500k,BVK,60,Neu,Hamburg,dtcp.capital
-Planet A GmbH,Planet A GmbH,VC,,,100k–500k,BVK,60,Neu,Hamburg,planet-a.com
-iVentureCapital GmbH,iVentureCapital GmbH,VC,,,100k–500k,BVK,60,Neu,Hamburg,iventuregroup.com
-Vorwerk Ventures GmbH,Vorwerk Ventures GmbH,VC,,,100k–500k,BVK,60,Neu,Wuppertal,vorwerkventures.com
-Munich Business Angel Network,Munich Business Angel Network e.V.,Angel,,,50k–200k,BAND,60,Neu,München,
-Munich Investors Circle,Munich Investors Circle e.V.,Angel,,,50k–200k,BAND,60,Neu,München,
-Business Angels FrankfurtRheinMain,Business Angels FrankfurtRheinMain e.V.,Angel,,,50k–200k,BAND,60,Neu,Frankfurt am Main,
-Caesar Business Angels,Caesar Business Angels GmbH,Angel,,,50k–200k,BAND,60,Neu,,
-Picus Capital GmbH,Picus Capital GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,
-Holtzbrinck Ventures,Holtzbrinck Ventures GmbH,VC,,,100k–500k,BVK,60,Neu,München,
-LEA Partners GmbH,LEA Partners GmbH,VC,,,100k–500k,BVK,60,Neu,,
-Heilemann Ventures,Heilemann Ventures GmbH,VC,,,100k–500k,BVK,60,Neu,,
-Flex Capital GmbH,Flex Capital GmbH,VC,,,100k–500k,BVK,60,Neu,,
-BurdaPrincipal Investments,BurdaPrincipal Investments GmbH,VC,,,100k–500k,BVK,60,Neu,,
-Bertelsmann Digital Media Investments,Bertelsmann Digital Media Investments GmbH,VC,,,100k–500k,BVK,60,Neu,Gütersloh,bdmifund.com
-Evonik Venture Capital GmbH,Evonik Venture Capital GmbH,VC,,,100k–500k,BVK,60,Neu,Hanau,venturing.evonik.com
-Phoenix Contact Innovation Ventures,Phoenix Contact Innovation Ventures GmbH,VC,,,100k–500k,BVK,60,Neu,Blomberg,phoenixcontact-innovationventures.com
-Robert Bosch Venture Capital,Robert Bosch Venture Capital GmbH,VC,,,100k–500k,BVK,60,Neu,Gerlingen,bosch.ventures
-Unternehmertum Venture Capital,Unternehmertum Venture Capital GmbH,VC,,,100k–500k,BVK,60,Neu,Garching,unternehmertum.de
-Technologiegründerfonds Sachsen,Technologiegründerfonds Sachsen GmbH,VC,,,100k–500k,BVK,60,Neu,,cfh.de
-Boehringer Ingelheim Venture Fund,Boehringer Ingelheim Venture Fund GmbH,VC,,,100k–500k,BVK,60,Neu,Ingelheim,boehringer-ingelheim-venture.com
-MIG Capital AG,MIG Capital AG,VC,,,100k–500k,BVK,60,Neu,,
-BayWa Venture GmbH,BayWa Venture GmbH,VC,,,100k–500k,BVK,60,Neu,München,venture.baywa.com
-EnBW New Ventures GmbH,EnBW New Ventures GmbH,VC,,,100k–500k,BVK,60,Neu,,
-Greenfield Capital,Greenfield Capital GmbH,VC,,,100k–500k,BVK,60,Neu,Berlin,
-Julius Göllner,ARRtist Summit GmbH,Angel,,linkedin.com/in/julius-goellner,50k–200k,LinkedIn,54,Neu,Berlin,
-Andreas Kupke,Finanzcheck.de,Angel,,linkedin.com/in/andreas-kupke-25186313,50k–200k,LinkedIn,54,Neu,Hamburg,
-Martin Enderle,allmyhomes GmbH,Angel,,linkedin.com/in/martinenderle,50k–200k,LinkedIn,54,Neu,München,
-Roland Grenke,Acapela GmbH,Angel,,linkedin.com/in/roland-grenke-42133180,50k–200k,LinkedIn,54,Neu,Berlin,
-Cadence Growth Capital,Cadence Growth Capital GmbH,VC,,,100k–500k,Manual,53,Neu,Frankfurt am Main,cadencegrowthcapital.com
-Atlantis Ventures GmbH,Atlantis Ventures GmbH,VC,,,100k–500k,Manual,53,Neu,München,atlantis-ventures.com
-BambooVentures,BambooVentures GmbH,VC,,,100k–500k,Manual,53,Neu,München,bambooventures.net
-Capmont Technology GmbH,Capmont Technology GmbH,VC,,,100k–500k,Manual,53,Neu,München,cmont.vc
-Isartal Ventures,Isartal Ventures GmbH,VC,,,100k–500k,Manual,53,Neu,München,isartal-ventures.de
-RIVUS Capital GmbH,RIVUS Capital GmbH,VC,,,100k–500k,Manual,53,Neu,München,rivuscapital.com
-"Dr. Engelhardt Kaupp Kiefer","Dr. Engelhardt Kaupp Kiefer GmbH",VC,,,100k–500k,Manual,53,Neu,Stuttgart,ekkco.de
-1750 Ventures VGH,1750 Ventures VGH Versicherungen GmbH,VC,,,100k–500k,Manual,53,Neu,Hannover,1750.ventures
-CologneInvest GmbH,CologneInvest GmbH,VC,,,100k–500k,Manual,53,Neu,Köln,cologne-invest.com
-Apollo Ventures Holding,Apollo Ventures Holding GmbH,VC,,,100k–500k,Manual,53,Neu,Hamburg,apollo.vc
-STARTHUB Ventures GmbH,STARTHUB Ventures GmbH,VC,,,100k–500k,Manual,53,Neu,Hamburg,starthub-ventures.com
-Vorsprung Partners GmbH,Vorsprung Partners GmbH,VC,,,100k–500k,Manual,53,Neu,Hamburg,vorsprungpartners.com
-Velvet Ventures GmbH,Velvet Ventures GmbH,VC,,,100k–500k,Manual,53,Neu,Hamburg,velvetventures.de
-Hevella Beteiligungen GmbH,Hevella Beteiligungen GmbH,VC,,,100k–500k,Manual,53,Neu,Hamburg,hevella-capital.com
-"J.C.M.B. Beteiligungs GmbH","J.C.M.B. Beteiligungs GmbH",VC,,,100k–500k,Manual,53,Neu,Hamburg,jcmb.de
-VAERING GmbH,VAERING GmbH,VC,,,100k–500k,Manual,53,Neu,Hamburg,vaering.de
-be exponential GmbH,be exponential GmbH,VC,,,100k–500k,Manual,53,Neu,Leipzig,be-exponential.com
-Smart Infrastructure Ventures,Smart Infrastructure Ventures GmbH,VC,,,100k–500k,Manual,53,Neu,Leipzig,smartinfrastructure.ventures
-Summiteer GmbH,Summiteer GmbH,VC,,,100k–500k,Manual,53,Neu,Ravensburg,summiteer.com
-Vality Ventures GmbH,Vality Ventures GmbH,VC,,,100k–500k,Manual,53,Neu,Taunusstein,vality-ventures.de
-another.vc GmbH,another.vc GmbH,VC,,,100k–500k,Manual,53,Neu,Mülheim-Ruhr,another.vc
-TS Ventures GmbH,TS Ventures GmbH,VC,,,100k–500k,Manual,53,Neu,Bergisch Gladbach,tsventures.io
-Monkfish Equity GmbH,Monkfish Equity GmbH,VC,,,100k–500k,Manual,53,Neu,Schmallenberg,monkfish-equity.com
-AM Ventures GmbH,AM Ventures GmbH,VC,,,100k–500k,Manual,53,Neu,Starnberg,amventures.com
-Floor13 GmbH,Floor13 GmbH,VC,,,100k–500k,Manual,53,Neu,Utting am Ammersee,floor13.de
-Apeiron Investment Group,Apeiron Investment Group Ltd.,VC,,,100k–500k,Manual,53,Neu,Malta,apeiron-investments.com
-Allygatr GmbH,Allygatr GmbH,VC,,,100k–500k,Manual,53,Neu,Berlin,allygatr.com
-AENU Advisor GmbH,AENU Advisor GmbH,VC,,,100k–500k,Manual,53,Neu,Berlin,aenu.com
-building10 GmbH,building10 GmbH,VC,,,100k–500k,Manual,53,Neu,Berlin,b10.vc
-Ananda Impact Ventures,Ananda Impact Ventures GmbH,VC,,,100k–500k,Manual,53,Neu,Berlin,angelinvest.ventures
-Found Fair Ventures GmbH,Found Fair Ventures GmbH,VC,,,100k–500k,Manual,53,Neu,Berlin,foundfair.de
-Green Generation Fund,Green Generation Fund GmbH,VC,,,100k–500k,Manual,53,Neu,Berlin,greengenerationfund.com
-Invisible Hand Ventures,Invisible Hand Ventures GmbH,VC,,,100k–500k,Manual,53,Neu,Berlin,i-hand.de
-Richmond View Ventures,Richmond View Ventures GmbH,VC,,,100k–500k,Manual,53,Neu,Berlin,rvv.tv
-Tane Fund GmbH,Tane Fund GmbH,VC,,,100k–500k,Manual,53,Neu,Berlin,
-BLS Venture Capital GmbH,BLS Venture Capital GmbH,VC,,,100k–500k,Manual,53,Neu,Berlin,bls-venture.de
-Freiraum Ventures GmbH,Freiraum Ventures GmbH,VC,,,100k–500k,Manual,53,Neu,München,freiraum.vc
-YZR Capital GmbH,YZR Capital GmbH,VC,,,100k–500k,Manual,53,Neu,München,yzr-capital.com
-WENWEST CAPITAL GmbH,WENWEST CAPITAL GmbH,VC,,,100k–500k,Manual,53,Neu,München,wenvest.capital
-"K5 Advisors GmbH","K5 Advisors GmbH & Co. KG",VC,,,100k–500k,Manual,53,Neu,München,k5.ag
-Alpha Future Funds GmbH,Alpha Future Funds GmbH,VC,,,100k–500k,Manual,53,Neu,München,alphafuturefunds.com
-PDV Inter-Media Venture GmbH,PDV Inter-Media Venture GmbH,VC,,,100k–500k,Manual,53,Neu,Augsburg,pddigital.de
-LBBW Digital Ventures,LBBW Digital Ventures GmbH,VC,,,100k–500k,Manual,53,Neu,Stuttgart,
-Brose Ventures GmbH,Brose Ventures GmbH,VC,,,100k–500k,Manual,53,Neu,Coburg,brose.com
-Check24 Ventures GmbH,Check24 Ventures GmbH,VC,,,100k–500k,Manual,53,Neu,München,check24.de
-Christian Orsinger,,Angel,,,50k–200k,Manual,51,Neu,Bergisch Gladbach,
-Arthur Steinmetz,,Angel,,,50k–200k,Manual,51,Neu,,
-Dirk Breitbach,,Angel,,,50k–200k,Manual,51,Neu,,
-Wilhelm Kisker,,Angel,,,50k–200k,Manual,51,Neu,,
-Ronald Hoppmann,,Angel,,,50k–200k,Manual,51,Neu,,
-Wolfgang Schmidt,,Angel,,,50k–200k,Manual,51,Neu,,
-Bertold Wagner,,Angel,,,50k–200k,Manual,51,Neu,,
-Alfred Spieker,,Angel,,,50k–200k,Manual,51,Neu,,
-Stefan Schmölz,,Angel,,,50k–200k,Manual,51,Neu,,
-Guido Lang,,Angel,,,50k–200k,Manual,51,Neu,,
-Pierre Cardonne,,Angel,,,50k–200k,Manual,51,Neu,,
-Oliver Diezmann,,Angel,,,50k–200k,Manual,51,Neu,,
-Marc Hegemeister,,Angel,,,50k–200k,Manual,51,Neu,,
-Jens Schumann,,Angel,,,50k–200k,Manual,51,Neu,,
-Alexander Fuchs,,Angel,,,50k–200k,Manual,51,Neu,,
-Matthias Urlichs,,Angel,,,50k–200k,Manual,51,Neu,,
-Thomas Knaack,,Angel,,,50k–200k,Manual,51,Neu,,
-Nils Glagau,,Unternehmer,,linkedin.com/in/nilsglagau/,50k–200k,LinkedIn,48,Neu,Köln,
-Rolf Schromgens,leadership.sprouts GmbH,Unternehmer,,linkedin.com/in/rolf-schroemgens-4a456a3,50k–200k,LinkedIn,48,Neu,Düsseldorf,
-Lawrence Leuschner,TIER Mobility GmbH,Unternehmer,,linkedin.com/in/lawrence-leuschner-8112776,50k–200k,LinkedIn,48,Neu,Berlin,
-Heiko Hubertz,Oxolo GmbH,Unternehmer,,linkedin.com/in/heikohubertz/,50k–200k,LinkedIn,48,Neu,Hamburg,
-Roman Kirsch,Rapid Pioneers Group,Unternehmer,,linkedin.com/in/romankirsch,50k–200k,LinkedIn,48,Neu,Berlin,
-Michael Wax,Forto GmbH,Unternehmer,,linkedin.com/in/themikewax/,50k–200k,LinkedIn,48,Neu,München,
-Daniel Krauss,FlixBus GmbH,Unternehmer,,linkedin.com/in/danielmkrauss/,50k–200k,LinkedIn,48,Neu,Berlin,
-Ralf Dümmel,DS Produkte GmbH,Unternehmer,,linkedin.com/in/ralf-duemmel,50k–200k,LinkedIn,48,Neu,Hamburg,
-Felix Jahn,McMakler GmbH,Unternehmer,,linkedin.com/in/felixjahn/,50k–200k,LinkedIn,48,Neu,Berlin,
-Martin Sinner,360dialog GmbH,Unternehmer,,linkedin.com/in/martinsinner,50k–200k,LinkedIn,48,Neu,Berlin,
-Robert Maier,Visual Meta GmbH,Unternehmer,,linkedin.com/in/robert-maier-02742b15/,50k–200k,LinkedIn,48,Neu,Berlin,
-Verena Pausder,,Angel,,linkedin.com/in/verenapausder,25k–75k,LinkedIn,41,Neu,Berlin,
-Gloria Bäuerlein,,Angel,,linkedin.com/in/gloria-baeuerlein,25k–75k,LinkedIn,41,Neu,,
-Lea-Sophie Cramer,Starstrike Ventures GmbH,Unternehmer,,,50k–200k,Manual,40,Neu,Berlin,
-Diana zur Löwen,,Unternehmer,,linkedin.com/in/dianazurloewen,25k–75k,LinkedIn,35,Neu,Berlin,
+name,unternehmen,typ,email,linkedin,kapital,quelle,score,status,ort,website,rolle
+Peter Richarz,DvH Ventures GmbH,VC,contact@dvhventures.de,https://www.linkedin.com/in/peterricharz/,500k+,Web,5,Neu,"Köln, Germany",https://dvhventures.de,Managing Partner
+Samuel Schuler,Reimann Investors GmbH,Family Office,info@reimann-investors.com,,500k+,Web,4,Neu,"München, Germany",https://www.reimann-investors.com,"Managing Director, Venture Management"
+Susanne Klatten,SKion GmbH,Family Office,info@skion.de,,500k+,Web,4,Neu,"Bad Homburg v.d. Höhe, Germany",https://www.skion.de,Managing Director / Owner
+Stefan Quandt,AQTON SE,Family Office,info@aqton.eu,,500k+,Web,4,Neu,"Bad Homburg v. d. Höhe, Germany",https://www.aqton.eu,Chairman of the Board & Executive Director
+Thomas Peter Maier,Athos Service GmbH,Family Office,,,500k+,Web,3,Neu,"München, Germany",athos.de,Managing Director
+Henning Eggers,Cura Vermögensverwaltung GmbH,Family Office,,,500k+,Web,3,Neu,"Hamburg, Germany",https://www.ece.com/en/about-us/otto-family-as-investors,Managing Director
+Fabian-R. Schneider,Custodia Holding GmbH,Family Office,,,500k+,Web,2,Neu,"Baierbrunn (München), Bayern, Germany",https://custodia-ag.de,Geschäftsführer (Managing Director)
+Volker Hecht,Deutsche Oppenheim Family Office AG,Multi Family Office,info@deutsche-oppenheim.de,,500k+,Web,4,Neu,"Köln, Germany",https://www.deutsche-oppenheim.de,Sprecher des Vorstands (CEO)
+Lothar Henning,FINVIA Family Office GmbH,Multi Family Office,info@finvia.fo,https://de.linkedin.com/in/lothar-henning-3a09521b8,500k+,Web,5,Neu,"Frankfurt am Main, Germany",https://www.finvia.fo,Managing Partner
+Stefan Krause,FOCAM AG,Multi Family Office,info@focam.de,https://www.linkedin.com/in/stefan-krause-7275a9204/,500k+,Web,5,Neu,"Frankfurt am Main, Germany",https://focam.de,Vorstand (Board Member / CEO)
+Helmut Quast,HQ Trust GmbH,Multi Family Office,kontakt@hqtrust.de,https://de.linkedin.com/in/helmut-quast-15790392,500k+,Web,5,Neu,"Bad Homburg, Hesse, Germany",https://www.hqtrust.de,Managing Partner
+Gregor Harald May,Harald Quandt Industriebeteiligungen GmbH,Family Office,gm@hq-ib.com,,500k+,Web,4,Neu,"Bad Homburg v. d. Höhe, Germany",https://hq-ib.com,Managing Partner
+Philipp Geller,Harald Quandt Family Office GmbH,Family Office,info@haraldquandt.de,,500k+,Web,4,Neu,"Bad Homburg, Germany",https://haraldquandt.de,Managing Director
+Dr. Patrick Maurenbrecher,Kontora Family Office GmbH,Multi Family Office,contact@kontora.com,,500k+,Web,4,Neu,"Hamburg, Germany",https://www.kontora.com,"Managing Partner, CIO"
+Philipp Lennertz,Lennertz & Co. GmbH,Multi Family Office,info@lennertz.com,,500k+,Web,4,Neu,"Hamburg, Germany",https://www.lennertz.com,Managing Partner / Founder
+Dr. Fredy Raas,Beisheim Holding GmbH,Family Office,info@beisheim.com,,500k+,Web,4,Neu,"Baar, Zug, Switzerland",https://www.beisheim.com,Managing Director
+Dr. Bert Flossbach,Flossbach von Storch AG,Asset Manager,info@fvs.com,,500k+,Web,4,Neu,"Köln, Germany",https://www.flossbachvonstorch.de,Co-Founder & Managing Director
+Joachim Drees,Franz Haniel & Cie. GmbH,Family Office,info@haniel.de,,500k+,Web,4,Neu,"Duisburg, Germany",https://www.haniel.de,Chairman of the Management Board (CEO)
+Georg F. W. Schaeffler,IHO Holding GmbH,Family Office,,,500k+,Web,3,Neu,"Herzogenaurach, Bayern, Germany",https://www.schaeffler.com/en/investor-relations/credit-relations/iho-holding/,Owner / Chairman of Supervisory Board (Schaeffler AG)
+Rouven Westphal,Hasso Plattner Ventures GmbH,Family Office,,,500k+,Web,3,Neu,"Potsdam, Germany",http://www.hp-ventures.com/,Managing Director
+Mathias Hothum,dievini Hopp BioTech holding GmbH,Family Office,contact@dievini.com,,500k+,Web,4,Neu,"Walldorf, Baden-Württemberg, Germany",https://www.dievini.de,Managing Director
+Anton Vetter,BV & P Vermögen AG,Asset Manager,info@bvp-vermoegen.de,https://de.linkedin.com/in/anton-vetter-a1388222,500k+,Web,5,Neu,"Kempten, Bavaria, Germany",https://bvp-vermoegen.de,Vorstand (Board Member / Founding Partner)
+Stefanie Frensch,Becker & Kries GmbH,Family Office,info@buk.de,https://de.linkedin.com/in/stefanie-frensch-126a7b18a,500k+,Web,5,Neu,"Berlin, Germany",https://www.beckerundkries.de/,CEO / Geschäftsführerin
+Erck Rickmers,E.R. Capital Holding GmbH,Family Office,info@er-capital.com,,500k+,Web,4,Neu,"Hamburg, Germany",https://www.er-capital.com,Founder / Managing Director
+Alexander Sixt,Erich Sixt Vermögensverwaltung GmbH,Family Office,,,500k+,Web,2,Neu,"Pullach im Isartal, Germany",,Geschäftsführer (Managing Director)
+Boris Scukanec Hopinski,Viessmann Generations Group GmbH,Family Office,communications@viessmann.com,https://de.linkedin.com/in/borisscukanec,500k+,Web,5,Neu,"Battenberg (Eder), Hesse, Germany",https://www.viessmann.group/,Chief Operating Officer and Member of the Executive Board
+Helmut Jeggle,Salvia GmbH,Family Office,info@salvia.de,,500k+,Web,4,Neu,"Holzkirchen, Bavaria, Germany",https://salvia.de,Founder & Managing Partner
+Roman Rosslenbroich,Aquila Capital Holding GmbH,Asset Manager,info@aquila-capital.de,https://de.linkedin.com/in/roman-rosslenbroich,500k+,Web,5,Neu,"Hamburg, Germany",https://www.aquila-capital.de,CEO and Co-Founder
+Florian Schick,Bregal Unternehmerkapital GmbH,VC,info@bu-partners.de,https://www.linkedin.com/in/florian-schick-684927bb/,500k+,Web,5,Neu,"München, Germany",https://www.bu-partners.com,"Co-Founder, Managing Partner and Chairman of the Investment Committee"
+Mathias Lindermeir,Extorel GmbH,Family Office,info@extorel.de,,500k+,Web,4,Neu,"München, Germany",https://www.extorel.de,Managing Director
+Marcel Renné,FERI AG,Multi Family Office,,https://www.linkedin.com/in/marcel-renne-feri-vermoegensverwaltung/,500k+,Web,4,Neu,"Bad Homburg, Germany",https://www.feri.de,CEO / Vorstandsvorsitzender
+Dr. Christoph Kind,Marcard Stein & Co AG,Multi Family Office,marcard@marcard.de,https://www.linkedin.com/in/dr-christoph-kind-009a592a/,500k+,Web,5,Neu,"Hamburg, Germany",https://www.marcard.de,Chief Investment Officer
+Sina Timm,Oldendorff Carriers GmbH,Family Office,info@oldendorff.com,,500k+,Web,3,Neu,"Lübeck, Germany",https://www.oldendorff.com,CIO Private Markets / Investment Director Private Markets
+Jörg Lilla,Palatina Multi Family Office GmbH,Multi Family Office,office@palatina-mfo.de,,500k+,Web,4,Neu,"Angelbachtal / Heidelberg, Germany",https://www.palatina-mfo.de,Geschäftsführer (Managing Director)
+Stephan Andreas Bach,Profunda Verwaltungs GmbH,Family Office,,,500k+,Web,2,Neu,"Ingelheim am Rhein, Germany",,Authorized Signatory / Asset Management
+Jens Spudy,Spudy Invest GmbH,Multi Family Office,,,500k+,Web,2,Neu,"Hamburg, Germany",https://spudy.com,Founder & Managing Partner
+Felix Schneider,TruVenturo GmbH,Family Office,info@truventuro.com,https://de.linkedin.com/in/felix-schneider-50b26999,500k+,Web,5,Neu,"Hamburg, Germany",https://www.truventuro.com/,Managing Director
+Benedict Rodenstock,Astutia Ventures GmbH,VC,businessplan@astutia.de,https://de.linkedin.com/in/astutia,500k+,Web,5,Neu,"Munich, Germany",https://www.astutia.de,Founder and CEO
+Dr. Andreas Schenk,Alstin GmbH (Maschmeyer Group),VC,info@alstin.capital,https://www.linkedin.com/in/andreas-schenk-vc/,500k+,Web,5,Neu,"Munich, Germany",https://alstin.capital,Partner
+Ute Gerbaulet,Dr. August Oetker KG,Family Office,,,500k+,Web,3,Neu,"Bielefeld, Germany",https://www.oetker-gruppe.de/en,"General Partner (Other Interests, Finance, Be8 Ventures, Oetker Digital)"
+Sven Karkossa,Capitell Vermögens-Management AG,Asset Manager,info@capitell-ag.de,https://www.linkedin.com/in/sven-karkossa-43857267/,500k+,Web,5,Neu,"Hannover, Germany",https://capitell-ag.de,"Vorstand (Board Member) — Acquisition, Client Coverage & Branch Manager Hannover"
+Artur J. Montanhas,HRK LUNIS AG,Multi Family Office,artur.montanhas@hrklunis.de,,500k+,Web,4,Neu,"Frankfurt am Main, Germany",https://www.hrklunis.de,Mitglied des Vorstandes
+Robert Pauli,Hannover Finanz GmbH,VC,mail@hannoverfinanz.de,,500k+,Web,4,Neu,"Hannover, Germany",https://www.hannoverfinanz.de,Managing Partner
+Stephan Bannier,Eyb & Wallwitz Vermögensmanagement GmbH,Asset Manager,sales@eybwallwitz.de,https://www.linkedin.com/in/stephan-bannier-5ba948255/,500k+,Web,5,Neu,"München, Germany",https://www.eybwallwitz.de,Geschäftsführer / Head of Sales
+Stefan Gielok,Simon Capital GmbH,VC,hello@simoncapital.com,,500k+,Web,4,Neu,"Düsseldorf, Germany",https://www.simoncapital.com,Managing Partner
+Alexander Kölpin,seed + speed Ventures GmbH,VC,info@seedandspeed.com,https://www.linkedin.com/in/koelpin/,100k–500k,Web,5,Neu,Hannover (registered) / Berlin (operational),https://www.seedandspeed.com,Founder and Managing Director
+Marc Sieberger,Freigeist Capital GmbH,VC,office@freigeist.com,https://www.linkedin.com/in/sieberger/,100k–500k,Web,5,Neu,"Bonn, Germany",https://freigeist.com,Founder & Partner
+Dr. Ralph Müller,,Angel,,https://de.linkedin.com/in/dr-ralph-m%C3%BCller-b27728150,100k–500k,Web,3,Neu,"Frankfurt am Main, Germany",,Board member / COO at ING Deutschland; Angel Investor
+Maximilian Tayenthal,N26 GmbH,Angel,,https://de.linkedin.com/in/maximilian-tayenthal,100k–500k,Web,4,Neu,"Berlin, Germany",https://n26.com/en-eu/maximilian-tayenthal,Co-Founder & former Co-CEO (N26); Angel Investor
+Carlo Kölzer,360T,Angel,,,250k–1M,Web,2,Neu,"Frankfurt am Main, Germany",https://www.360t.com,Founder & Group CEO (360T); Global Head of FX & Digital Assets (Deutsche Börse Group); Angel Investor
+Andrew Bosomworth,,Angel,,,100k–500k,Web,2,Neu,"Hamburg, Germany",https://www.pimco.com,"Managing Director & Head of Portfolio Management Germany, PIMCO"
+Philipp Hartmann,Rheingau Founders GmbH,VC,ideas@rheingau-founders.com,https://www.linkedin.com/in/philipphartmann20/,100k–500k,Web,5,Neu,"Berlin, Germany",https://rheingau-founders.com,Founding Partner
+Felix Haas,IDnow GmbH,Angel,,https://www.linkedin.com/in/felixhaas,100k–500k,Web,3,Neu,"Munich, Germany",https://www.10xfounders.com,"Co-Founder & Executive Chairman (IDnow); Founding Partner (10x Founders, FLEX Capital)"
+Tamaz Georgadze,Raisin GmbH,Angel,,,100k–500k,Web,2,Neu,"Frankfurt, Germany",https://www.raisin.com,"Co-Founder & CEO, Raisin GmbH; Angel Investor"
+André M. Bajorat,Deutsche Bank AG,Angel,,https://www.linkedin.com/in/abajorat,100k–500k,Web,4,Neu,"Hamburg, Germany",https://paymentandbanking.com,"Head of Strategy Corporate Bank at Deutsche Bank; Founder & Publisher, Payment & Banking"
+Michael Brehm,Redstone Digital GmbH,VC,,https://www.linkedin.com/in/michaelbrehm/,100k–500k,Web,4,Neu,"Berlin, Germany",https://redstone.vc,General Partner & Founder
+Christian Vollmann,nebenan.de,Angel,,https://www.linkedin.com/in/christianvollmann,100k–500k,Web,4,Neu,"Berlin, Germany",https://www.nebenan.de,Co-Founder / Angel Investor
+Robin Haak,Robin Capital GmbH,VC,ciao@robincap.com,https://www.linkedin.com/in/robinhaak,100k–500k,Web,5,Neu,"Berlin, Germany",https://robincap.com,Founder & Managing Partner (Solo GP)
+Matthias Hilpert,MH2 Capital GmbH,Angel,matthias.hilpert@mh2capital.com,https://www.linkedin.com/in/matthiashilpert/,100k–500k,Web,5,Neu,"Berlin, Germany",https://www.matthiashilpert.com,"CEO / Founder, MH2 Capital GmbH"
+Dr. Cornelius Boersch,Mountain Partners AG,Angel,,https://www.linkedin.com/in/connyboersch,100k–500k,Web,4,Neu,"Berlin, Germany / Switzerland",https://www.connyboersch.com,Founder & Super Angel
+Stefan Glänzer,,Angel,,,100k–500k,Web,2,Neu,"London, United Kingdom (German origin)",https://www.crunchbase.com/person/stefan-glaenzer,Angel Investor / Founding Partner
+Christophe Maire,Atlantic Labs GmbH,VC,,,100k–500k,Web,2,Neu,"Berlin, Germany",https://atlantic.vc,Founder & Managing Partner
+Philipp Klöckner,,Angel,,https://www.linkedin.com/in/kloeckner,100k–500k,LinkedIn,4,Neu,"Berlin, Germany",https://pip.net,Angel Investor & Advisor
+Kilian Thalhammer,Pearlscout GmbH,Angel,,https://www.linkedin.com/in/kilianthalhammer,100k–500k,Web,3,Neu,"Munich, Germany",https://www.kilianthalhammer.com,"Managing Partner, Pearlscout GmbH"
+Michael Stephan,Raisin DS GmbH,Angel,,https://www.linkedin.com/in/michaeltobiasstephan/,100k–500k,Web,3,Neu,"Berlin, Germany",https://www.raisin.com,"Co-Founder & COO, Raisin DS GmbH; Angel Investor"
+Marko Wenthin,Dock Financial GmbH,Angel,,https://www.linkedin.com/in/markowenthin/,100k–500k,Web,3,Neu,"Munich, Germany",https://www.dock.financial,"CEO & Founder, Dock Financial GmbH; Angel Investor"
+Ingo Weber,Carcharodon Capital GmbH,Angel,info@carcap.vc,https://www.linkedin.com/in/iweber/,100k–500k,Web,5,Neu,"Stuttgart, Germany",https://carcap.vc/en/,Founder & CEO / Business Angel
+Rouven Dresselhaus,Cavalry Ventures GmbH,VC,hello@cavalry.vc,https://www.linkedin.com/in/rouvendresselhaus/,100k–500k,Web,5,Neu,"Berlin, Germany",https://cavalry.vc,Co-Founder & Managing Partner (departed September 2024)
+Tim Schumacher,World Fund GmbH,VC,,https://www.linkedin.com/in/timschumacher/,100k–500k,Web,4,Neu,Berlin / Cologne / Munich / Amsterdam,https://www.worldfund.vc,General Partner / Co-Founder
+Feliks Eyser,JETPACK GmbH,Angel,,https://www.linkedin.com/in/eyser/,100k–500k,LinkedIn,3,Neu,"Berlin, Germany",https://www.jetpack.berlin/,Founding Partner
+Philipp Moehring,,Angel,,https://www.linkedin.com/in/moehring/,100k–500k,Web,4,Neu,"Berlin, Germany",https://tiny.vc/,Founding Partner
+Michael Hock,Motive Ventures GmbH,VC,,https://www.linkedin.com/in/michaelhock2/,100k–500k,Web,4,Neu,"Berlin, Germany",https://www.motivepartners.com,General Partner / Co-Founder
+Marcus Börner,OptioPay GmbH,Angel,,,100k–500k,Web,2,Neu,"Berlin, Germany",https://www.optiopay.com,"Founder & CEO, Angel Investor"
+Christian Reber,Pitch GmbH,Angel,,https://www.linkedin.com/in/christianreber,100k–500k,Web,4,Neu,"Berlin, Germany",https://christianreber.com,Founder / Angel Investor
+Christian Gaiser,Bonial International Group,Angel,,https://www.linkedin.com/in/christiangaiser,100k–500k,Web,3,Neu,"Berlin, Germany",http://christian-gaiser.com,Co-Founder & CEO (Numa Group); former CEO Bonial International Group; Angel Investor
+André Schwämmlein,SEK Ventures GmbH,Angel,,https://www.linkedin.com/in/andr%C3%A9-schw%C3%A4mmlein,100k–500k,Web,3,Neu,"Gräfelfing / Munich, Germany",https://flixfounders.com,Co-Founder & Managing Director
+Marc Andre Müller,MM Opportunity Ventures GmbH,Angel,,,100k–500k,Web,2,Neu,"Berlin, Germany",,Founder / Managing Director (former)
+Andreas Burike,Jacobo Invest GmbH,Angel,,,100k–500k,Web,2,Neu,"Ulm, Baden-Württemberg, Germany",,Managing Director; Co-Founder & CFO at AnyDesk
+Volker Jacobs,,Angel,,https://www.linkedin.com/in/volker-jacobs/,100k–500k,Web,3,Neu,"Hamburg, Germany",https://tipeople.io,Co-founder & CEO (TI People / FOUNT Global); Angel Investor
+Rubin Ritter,Zalando SE,Unternehmer,,https://www.linkedin.com/in/rubin-ritter-03268546,100k–500k,Web,3,Neu,"Berlin, Germany",,Individual Angel / Unternehmer Investor; interim CEO Kinnevik (since March 2026)
+Jochen Engert,FlixBus GmbH,Unternehmer,,https://www.linkedin.com/in/jochen-engert-61a4a31,100k–500k,Web,3,Neu,"Munich, Germany",https://www.flixbus.de,"Co-Founder & CEO, FlixBus / Flix SE; Partner, FlixFounders"
+Kai Hansen,lieferando.de,Unternehmer,,https://www.linkedin.com/in/hansenkai/,100k–500k,LinkedIn,3,Neu,"Berlin, Germany",,Founder & Angel Investor / Managing Director Mercurius Ventures GmbH
+Dominik Richter,HelloFresh SE,Unternehmer,,https://www.linkedin.com/in/dominik-s-richter-905b7939/,100k–500k,Web,3,Neu,"Berlin, Germany",https://www.hellofresh.de,"Co-Founder & CEO, HelloFresh SE"
+Hanno Renner,Personio GmbH,Unternehmer,,https://www.linkedin.com/in/hanno-renner,100k–500k,Web,4,Neu,"Munich, Bavaria, Germany",https://www.personio.com,"Co-Founder & CEO, Personio GmbH"
+Lukasz Gadowski,Team Global GmbH,Unternehmer,info@teamglobal.net,https://www.linkedin.com/in/lukaszgadowski/,100k–500k,Web,5,Neu,"Berlin, Germany",https://teamglobal.net,Founder & CEO
+Dominic Briggs,Blockwall Capital GmbH,VC,hello@blockwall.vc,https://www.linkedin.com/in/dobriggs,100k–500k,Web,5,Neu,"Frankfurt am Main, Germany",https://www.blockwall.vc,Co-Founder & Managing Partner
+Oliver Michel,tokentus investment AG,VC,info@tokentus.com,https://www.linkedin.com/in/oliver-michel-tokentus,100k–500k,Web,5,Neu,"Frankfurt am Main, Germany",https://tokentus.com,"CEO & Founder, Management Board"
+Dr. Ulli Spankowski,Börse Stuttgart Digital Ventures GmbH,VC,,https://www.linkedin.com/in/dr-ulli-spankowski-08652916,100k–500k,Web,3,Neu,"Stuttgart, Germany",https://www.bsdigital.com,Managing Director / Chief Digital Officer
+Stefan Tirtey,CommerzVentures GmbH,VC,,https://www.linkedin.com/in/stirtey,100k–500k,Web,4,Neu,"Frankfurt, Germany",https://www.commerzventures.com,Managing Partner
+Matthias Lais,neosfer GmbH,VC,dennis.eberlein@neosfer.com,https://www.linkedin.com/in/matthias-lais-2b109384/,100k–500k,BVK,4,Neu,"Frankfurt am Main, Germany",https://neosfer.de,Founder & Managing Director
+Holger Follmann,Futury Venture GmbH,VC,info@futuryvc.de,,100k–500k,Web,3,Neu,"Frankfurt am Main, Germany",https://futurycapital.vc,Founder & Managing Director
+Olaf Jacobi,Capnamic Ventures Management GmbH,VC,info@capnamic.com,https://www.linkedin.com/in/olafjacobi/,100k–500k,Web,5,Neu,"Cologne, Germany",https://capnamic.com,Managing Partner
+Christian Schulte,Coparion GmbH & Co. KG,VC,info@coparion.vc,https://de.linkedin.com/in/crs4coparion,100k–500k,Web,5,Neu,"Cologne, Germany",https://www.coparion.vc,Managing Director
+Sven C. Sixt,Crossventures GmbH,VC,info@crossventures.de,https://www.linkedin.com/in/sven-c-sixt-84716aa,100k–500k,Web,5,Neu,"Cologne, Germany",https://www.crossventures.de,Managing Partner & Founder
+Katrin Robeck,IBB Beteiligungsgesellschaft GmbH,VC,info@ibbventures.de,https://www.linkedin.com/in/katrinrobeck/,100k–500k,Web,5,Neu,"Berlin, Germany",https://www.ibbventures.de,Managing Director
+Oliver Samwer,Global Founders Capital GmbH,VC,contact@globalfounderscapital.com,,100k–500k,Web,4,Neu,"Berlin, Germany",https://www.globalfounderscapital.com,Managing Partner / Co-Founder
+Christoph Janz,Point Nine Capital GmbH,VC,,https://www.linkedin.com/in/christophjanz/,100k–500k,Web,4,Neu,"Berlin, Germany",https://www.pointnine.com,Co-Founder & Partner
+Filip Dames,Cherry Ventures GmbH,VC,opportunity@cherry.vc,https://www.linkedin.com/in/filipdames,100k–500k,Web,5,Neu,"Berlin, Germany",https://www.cherry.vc,Founding Partner
+Alexander Kudlich,468 Capital GmbH,VC,contact@468cap.com,https://www.linkedin.com/in/alexanderkudlich,100k–500k,Web,5,Neu,"Berlin, Germany",https://468cap.com,General Partner & Co-Founder
+Florian Heinemann,Project A Ventures GmbH,VC,founders@project-a.vc,https://www.linkedin.com/in/fheinemann,100k–500k,Web,5,Neu,"Berlin, Germany",https://www.project-a.vc,Founding Partner / General Partner
+Gabriel Matuschka,Fly Ventures GmbH,VC,,https://www.linkedin.com/in/gabrielmatuschka/,100k–500k,Web,4,Neu,"Berlin, Germany",https://fly.vc,Partner / Managing Director
+Tobias Schirmer,Join Capital GmbH,VC,info@join.capital,https://de.linkedin.com/in/tobiasschirmer,100k–500k,Web,5,Neu,"Berlin, Germany",https://www.join.capital,Founding Partner
+Elad Verbin,Lunar Ventures GmbH,VC,hello@lunar.vc,https://www.linkedin.com/in/elad-verbin,100k–500k,Web,5,Neu,"Berlin, Germany",https://www.lunar.vc,Lead Scientist & Founding Partner
+Christian Buchenau,Square One VC GmbH,VC,info@squareone.vc,https://www.linkedin.com/in/christian-buchenau-1b769638/,100k–500k,Web,5,Neu,"Berlin, Germany",https://www.squareone.vc,Managing Partner / Co-Founder
+Otto Birnbaum,Revent GmbH,VC,,https://www.linkedin.com/in/ottobirnbaum,100k–500k,Web,3,Neu,"Berlin, Germany",https://www.revent.vc,General Partner & Co-Founder
+Felix Krause,Vireo Ventures GmbH,VC,hello@vireo.vc,https://www.linkedin.com/in/felixkrause/,100k–500k,Web,5,Neu,"Berlin, Germany",https://vireo.vc,Managing Partner & Co-Founder
+Ciarán O'Leary,BlueYard Capital GmbH,VC,,https://www.linkedin.com/in/ciaranoleary/,100k–500k,Web,3,Neu,"Berlin, Germany",https://blueyard.com,General Partner and Co-Founder
+Ulli Jendrik Koop,Digital Health Ventures GmbH,VC,pitchdecks@dhventures.de,https://www.linkedin.com/in/ullijendrikkoop,100k–500k,Web,5,Neu,"Berlin, Germany",https://www.dhventures.de,Founder & Managing Partner
+Jens Hilgers,Bitkraft Ventures GmbH,VC,pitch@bitkraft.vc,https://www.linkedin.com/in/jenshilgers,100k–500k,Web,5,Neu,"Berlin, Germany",https://www.bitkraft.vc,Founding General Partner
+Sophia Tran,Spotlight Ventures GmbH,VC,hello@spotlightventures.de,https://www.linkedin.com/in/sophiatran,100k–500k,Web,4,Neu,"Bonn, Germany",https://spotlightventures.de,Founder & CEO / Managing Director
+Romy Schnelle,HighTech Gründerfonds Management GmbH,VC,info@htgf.de,https://www.linkedin.com/in/romyschnelle,100k–500k,Web,5,Neu,"Bonn, Germany",https://www.htgf.de,Managing Director
+Dr. Christian Nagel,Earlybird Venture Capital GmbH,VC,,https://www.linkedin.com/in/chnagel,100k–500k,Web,4,Neu,"Munich / Berlin, Germany",https://earlybird.com,Co-Founder and General Partner
+Dr. Berthold von Freyberg,Target Partners GmbH,VC,berthold@targetpartners.de,https://www.linkedin.com/in/bertholdvonfreyberg,100k–500k,Web,5,Neu,"München, Germany",https://www.targetpartners.de,Partner (Co-founder)
+Dr. Walter Grassl,Munich Venture Partners GmbH,VC,office@munichvp.com,https://www.linkedin.com/in/walter-grassl-64563/,100k–500k,Web,4,Neu,"Munich, Germany",https://munichvp.com,Co-Founder & Managing Director
+Thomas Wilke,42 Cap GmbH,VC,,https://www.linkedin.com/in/wilkethomas/,100k–500k,Web,3,Neu,"Munich, Germany",https://www.42cap.com,General Partner & Co-Founder
+Dr. Rainer Strohmenger,Wellington Partners GmbH,VC,info@wellington-partners.com,https://www.linkedin.com/in/rainer-strohmenger-92914,100k–500k,Web,5,Neu,"Munich, Germany",https://www.wellington-partners.com,Managing Partner
+Thomas Oehl,Vsquared Ventures Management GmbH,VC,future@vsquared.vc,https://www.linkedin.com/in/thomas-oehl-2a54121,100k–500k,Web,5,Neu,"Munich, Germany",https://vsquared.vc,General Partner (Founding Partner)
+Johannes von Borries,UVC Partners GmbH,VC,,https://www.linkedin.com/in/johannes-von-borries-8b62b/,100k–500k,Web,4,Neu,"Munich, Germany",https://www.uvcpartners.com,Managing Partner
+Dr. Götz Müller,Tengelmann Ventures GmbH,VC,ventureinvestment@tengelmann.de,,100k–500k,Web,3,Neu,"Munich, Germany",https://tengelmann-ventures.com,Managing Director
+Sebastian Becker,Redalpine Venture Partners GmbH,VC,,https://www.linkedin.com/in/sebastian-becker-13359aa9/,100k–500k,Web,3,Neu,"Berlin, Germany (HQ: Zurich, Switzerland)",https://redalpine.com,General Partner
+Dr. Alexander Buchberger,Senovo Capital Management GmbH,VC,alex@senovo.vc,https://www.linkedin.com/in/abuchberger/,100k–500k,Web,5,Neu,"Munich, Germany",https://senovo.vc,Partner (Co-Founder)
+Ronald Paul,Muzungu GmbH,VC,info@muzungu-capital.com,https://www.linkedin.com/in/paulronald,100k–500k,Web,5,Neu,"München, Germany",https://muzungu-capital.com,Founder & CEO
+Jens-Philipp Klein,rethink ventures GmbH,VC,,https://www.linkedin.com/in/jensphilippklein/,100k–500k,Web,4,Neu,"München, Germany",https://rethinkventures.com,Co-Founder & General Partner
+Yaron Valler,Target Global GmbH,VC,info@targetglobal.vc,https://www.linkedin.com/in/yaron-valler-70620b/,100k–500k,Web,5,Neu,"Berlin, Germany",https://www.targetglobal.vc,Co-founder & General Partner
+Monika Steger,Bayern Kapital GmbH,VC,,https://www.linkedin.com/in/monika-steger-453664318/,100k–500k,Web,4,Neu,"Landshut, Germany",https://bayernkapital.de,Geschäftsführerin (Managing Director)
+Willi Mannheims,eCapital AG,VC,info@ecapital.vc,https://www.linkedin.com/in/willi-mannheims-72587b123/,100k–500k,Web,5,Neu,"Münster, Germany",https://ecapital.vc,Managing Partner (Vorstand)
+Alec Rauschenbusch,Grazia Equity GmbH,VC,info@grazia.com,https://www.linkedin.com/in/alec-rauschenbusch-812a58125/,100k–500k,Web,5,Neu,"Stuttgart, Germany",https://grazia.com,Founder & Managing Partner
+Andreas von Richter,LBBW Venture Capital GmbH,VC,future@lbbwvc.de,https://www.linkedin.com/in/avonrichter/,100k–500k,Web,5,Neu,"Stuttgart, Germany",https://www.lbbwvc.de/,Managing Director
+Florian Meßner-Schmitt,TRUMPF Venture GmbH,VC,venture@trumpf.com,https://de.linkedin.com/in/florian-me%C3%9Fner-schmitt,100k–500k,Web,5,Neu,"Ditzingen, Germany",https://www.trumpf.com/en_US/company/additional-fields-of-activity/trumpf-venture/,Managing Director
+Christian Winter,Cusp Capital Partners GmbH,VC,admin@cuspcapital.com,https://de.linkedin.com/in/winterchristian,100k–500k,Web,5,Neu,"Essen, Germany",https://cuspcapital.com,General Partner
+Philipp Herrmann,RAG Stiftung,VC,info@bryckstartupalliance.com,https://de.linkedin.com/in/philippherrmann,100k–500k,Web,4,Neu,"Essen, Germany",https://www.rag-stiftung.de,"Co-Founder & Managing Director, BRYCK (RAG Innovation Hub)"
+Martin Weldi,Hannover Digital Investments GmbH,VC,contact@hannover-digital-invest.com,https://de.linkedin.com/in/martin-weldi-91a350251,100k–500k,Web,4,Neu,"Hannover, Germany",https://www.hannover-digital-invest.com,"Managing Director / Head of Group Corporate Development, Talanx"
+Michael Schmidt,Saarländische Wagnisfinanzierungsgesellschaft mbH,VC,michael.schmidt@swgmbh.de,https://www.linkedin.com/in/michael-schmidt-9487a1158/,100k–500k,Web,5,Neu,"Saarbrücken, Germany",https://swgmbh.de,Geschäftsführer
+Vicente Vento Bosch,Digital Transformation Capital Partners GmbH,VC,info@dtcp.capital,https://www.linkedin.com/in/vicente-vento-b011a8,100k–500k,Web,5,Neu,"Hamburg, Germany",https://www.dtcp.capital,"Founder & CEO, Managing Partner"
+Nick de la Forge,Planet A GmbH,VC,imprint@planet-a.com,https://www.linkedin.com/in/nick-de-la-forge/,100k–500k,Web,5,Neu,"Berlin, Germany",https://planet-a.com,Co-Founder & General Partner
+Michael Reul,iVentureCapital GmbH,VC,info@iVentureGroup.com,https://de.linkedin.com/in/michaelreul/en,100k–500k,Web,4,Neu,"Hamburg, Germany",https://www.iventuregroup.com,CEO / Managing Director
+Dirk Meurer,Vorwerk Ventures GmbH,VC,vorwerk-ventures@vorwerkventures.com,https://www.linkedin.com/in/dirk-meurer-a301a9/,100k–500k,Web,5,Neu,"Berlin, Germany",https://vorwerkventures.com,Managing Partner
+Curt Winnen,Munich Business Angel Network e.V.,Angel,info@munichnetwork.com,https://www.linkedin.com/in/curtwinnen/,50k–200k,BVK,1,Aufgelost,"München, Germany",https://www.munichnetwork.com,Managing Director
+,Munich Investors Circle e.V.,Angel,,,50k–200k,Web,1,Aufgelost,"München, Germany",http://www.mun-ic.com,
+Ricarda Cramer,Business Angels FrankfurtRheinMain e.V.,Angel,info@ba-frm.de,https://www.linkedin.com/in/ricarda-cramer-mba-8121b3b/,50k–200k,Web,5,Neu,"Frankfurt am Main, Germany",https://www.ba-frm.de/,Geschäftsführendes Mitglied des Vorstandes (Executive Managing Board Member)
+Gregor Henrik Unger,Caesar Business Angels GmbH,Angel,info@caesarangels.com,https://www.linkedin.com/in/gregor-henrik-unger-2593a584,50k–200k,Web,5,Neu,"Munich, Germany",https://caesarangels.com,Managing Director / Managing Partner
+Alexander Samwer,Picus Capital GmbH,VC,info@picuscap.com,https://www.linkedin.com/in/alexander-samwer-4b37671/,100k–500k,Web,5,Neu,"Munich, Germany",https://www.picuscap.com/,Founding Partner
+Rainer Märkle,Holtzbrinck Ventures GmbH,VC,info@hvcapital.com,https://de.linkedin.com/in/rainer-maerkle,100k–500k,Web,5,Neu,"München, Germany",https://www.hvcapital.com,General Partner & Founding Partner
+Sebastian Müller,LEA Partners GmbH,VC,info@leapartners.de,https://www.linkedin.com/in/sebastian-m%C3%BCller-9187b3a/,100k–500k,Web,5,Neu,"Karlsruhe, Germany",https://www.leapartners.de/,Managing Partner
+Fabian Heilemann,Heilemann Ventures GmbH,VC,info@heilemann-ventures.com,https://www.linkedin.com/in/fabian-heilemann/,100k–500k,Web,1,Inaktiv,"Berlin, Germany",https://heilemann-ventures.com,Co-Founder and Managing Director
+Christoph Jost,Flex Capital GmbH,VC,kontakt@flex.capital,https://de.linkedin.com/in/christophjost,100k–500k,Web,4,Neu,"Berlin, Germany",https://www.flex.capital,Founder & Managing Partner
+Christian Teichmann,BurdaPrincipal Investments GmbH,VC,,https://www.linkedin.com/in/christian-teichmann-aba1b09,100k–500k,Web,3,Neu,"Munich, Germany",https://www.burdaprincipalinvestments.com,Managing Director & CEO
+Urs Cete,Bertelsmann Digital Media Investments GmbH,VC,info@bdmifund.com,https://www.linkedin.com/in/urscete/,100k–500k,Web,4,Neu,"Gütersloh, Germany",https://bdmifund.com,Managing Partner
+Dr. Bernhard Mohr,Evonik Venture Capital GmbH,VC,,https://www.linkedin.com/in/bernhard-mohr-70b38418,100k–500k,Web,3,Neu,"Hanau, Germany",https://www.evonik.com/en/company/Innovation/venture-capital.html,Managing Director
+Marcus Böker,Phoenix Contact Innovation Ventures GmbH,VC,contact@phoenixinnovation.de,https://www.linkedin.com/in/marcus-boeker/,100k–500k,Web,5,Neu,"Blomberg, Germany",https://www.phoenixcontact-innovationventures.com,Managing Director
+Dr. Ingo Ramesohl,Robert Bosch Venture Capital GmbH,VC,Info.RBVC@de.bosch.com,https://www.linkedin.com/in/dr-ingo-ramesohl-603a7492/,100k–500k,Web,5,Neu,"Gerlingen, Germany",https://www.bosch.ventures,Managing Director and Executive Vice President Technology
+Sören Schuster,Technologiegründerfonds Sachsen GmbH,VC,soeren.schuster@cfh.de,https://www.linkedin.com/in/soeren-schuster-2392782/,100k–500k,Web,5,Neu,"Leipzig, Germany",https://www.cfh.de,"Managing Director, TGFS"
+Dr. Detlev Mennerich,Boehringer Ingelheim Venture Fund GmbH,VC,venture@boehringer-ingelheim.com,https://www.linkedin.com/in/detlev-mennerich-388aaa32/,100k–500k,Web,5,Neu,"Ingelheim am Rhein, Germany",https://www.boehringer-ingelheim-venture.com,Global Head of BI Venture Fund
+Michael Motschmann,MIG Capital AG,VC,info@mig.ag,https://de.linkedin.com/in/michael-motschmann-71a76371,100k–500k,Web,5,Neu,"Munich, Germany",https://www.mig.ag,General Partner / Vorstand (Co-Founder)
+Kristal Golan,BayWa Venture GmbH,VC,kristal.golan@baywa.de,https://de.linkedin.com/in/kristal-golan,100k–500k,Web,5,Neu,"München, Germany",https://venture.baywa.com,Managing Director (Geschäftsführerin)
+Crispin Leick,EnBW New Ventures GmbH,VC,dealflow@env.vc,https://www.linkedin.com/in/crispin-leick-venture-capital/,100k–500k,Web,5,Neu,"Karlsruhe, Germany",https://www.env.vc,Managing Director
+Jascha Samadi,Greenfield Capital GmbH,VC,info@greenfieldcapital.com,https://www.linkedin.com/in/jaschasamadi/,100k–500k,Web,5,Neu,"Hamburg, Germany",https://greenfieldcapital.com,Co-Founder and Managing Director
+Julius Göllner,ARRtist Summit GmbH,Angel,,https://www.linkedin.com/in/julius-goellner/,50k–200k,Web,3,Neu,"Berlin, Germany",https://www.enugget-ventures.com/,"Angel Investor, Managing Director at eNugget Ventures, Co-Founder at ARRtist Summit"
+Andreas Kupke,Finanzcheck.de,Angel,,https://www.linkedin.com/in/andreas-kupke-25186313,50k–200k,Web,2,Neu,"Hamburg, Germany",,Angel investor and entrepreneur; Investment Partner at Alpine Space Ventures; Founder of Kupke GmbH (single family office)
+Martin Enderle,allmyhomes GmbH,Angel,,https://www.linkedin.com/in/martin-enderle-187763110/,50k–200k,Web,3,Neu,"München, Germany",https://www.allmyhomes.com,Co-founder & Board Member at allmyhomes GmbH; Angel Investor
+Roland Grenke,Acapela GmbH,Angel,,https://de.linkedin.com/in/roland-grenke-42133180,50k–200k,Web,3,Neu,"Berlin, Germany",,Angel investor; co-founder of Dubsmash and Acapela GmbH (liquidated Dec 2023)
+Sebastian Eiseler,Cadence Growth Capital GmbH,VC,,,100k–500k,Web,2,Neu,"Berlin, Germany",https://www.cadencegrowthcapital.com,Managing Partner & Founder
+Finn Wentzler,Atlantis Ventures GmbH,VC,,https://www.linkedin.com/in/finnwentzler/,100k–500k,Web,3,Neu,"München, Germany",https://www.atlantis-ventures.com,Founding Partner / CEO
+Michael Streich,BambooVentures GmbH,VC,,,100k–500k,Web,1,Aufgelost,"München, Germany",bambooventures.net,Founding Partner / Liquidator
+Dr. Torsten Kreindl,Capmont Technology GmbH,VC,info@cmont.com,https://www.linkedin.com/in/torsten-kreindl-907ba9/,100k–500k,Web,5,Neu,"München, Germany",https://cmont.vc,Founding & Managing Partner
+Kai Langohr,Isartal Ventures GmbH,VC,info@isartal-ventures.de,https://www.linkedin.com/in/kai-langohr/,100k–500k,Web,5,Neu,"Baierbrunn, Germany",https://isartal-ventures.de,Managing Director
+Michael Peter,RIVUS Capital GmbH,Family Office,info@rivuscap.com,https://www.linkedin.com/in/michael-peter-founder/,100k–500k,Web,5,Neu,"München, Germany",https://www.rivuscapital.com,Founder & Managing Director
+Roman Loch,Dr. Engelhardt Kaupp Kiefer GmbH,VC,info@ekkco.de,https://www.linkedin.com/in/romanloch/,100k–500k,Web,4,Neu,"Stuttgart, Germany",https://ekkco.de,Managing Partner
+Mirco Grützmacher,1750 Ventures VGH Versicherungen GmbH,VC,info@1750.ventures,https://www.linkedin.com/in/mirco-gr%C3%BCtzmacher-27b5325/,100k–500k,Web,5,Neu,"Hannover, Germany",https://www.1750.ventures,Managing Director
+Dr. Ardeschir Habibi,CologneInvest GmbH,VC,info@cologne-invest.com,https://de.linkedin.com/in/ardeschir-dr-habibi-993a26203,100k–500k,Web,4,Neu,"Köln, Germany",https://cologne-invest.com,Geschäftsführender Partner (Managing Partner)
+Nils Regge,Apollo Ventures Holding GmbH,VC,info@apollo.vc,https://www.linkedin.com/in/nils-regge-62ab7a28/,100k–500k,Web,5,Neu,"Hamburg, Germany",https://apollo.vc,Co-Founder & Managing Director
+Jan Frahnert,STARTHUB Ventures GmbH,VC,,https://de.linkedin.com/in/janfrahnert,100k–500k,Web,3,Neu,"Hamburg, Germany",https://starthub-ventures.com,Geschäftsführer (Managing Director)
+Florian Lahnstein,Vorsprung Partners GmbH,VC,info@vorsprungpartners.com,https://www.linkedin.com/in/florian-lahnstein-22666140/,100k–500k,Web,4,Neu,"Hamburg, Germany",https://www.vorsprungpartners.com,Founder & Managing Partner
+Thomas Promny,Velvet Ventures GmbH,Unternehmer,initiativbewerbung@velvetventures.de,https://de.linkedin.com/in/thomaspromny,100k–500k,Web,4,Neu,"Hamburg, Germany",https://velvetventures.de,Managing Director (Geschäftsführer)
+Rolf Elgeti,Hevella Beteiligungen GmbH,Family Office,info@hevella-capital.com,,100k–500k,Web,3,Neu,"Potsdam, Germany",https://www.hevella-capital.com,Geschäftsführer (Managing Director)
+Marcel Uhlemann,J.C.M.B. Beteiligungs GmbH,Family Office,info@jcmb.de,,100k–500k,Web,3,Neu,"Hamburg, Germany",https://www.jcmb.de,Managing Partner (Geschäftsführender Gesellschafter)
+Moritz Koch,VAERING GmbH,Family Office,kontakt@vaering.de,https://www.linkedin.com/in/moritzkoch/,100k–500k,Web,5,Neu,"Hamburg, Germany",https://vaering.de,Co-Managing Director
+Thomas Schmidt,be exponential GmbH,Angel,mail@be-exponential.com,https://www.linkedin.com/in/thomas--schmidt/,100k–500k,Web,5,Neu,"Leipzig, Germany",https://be-exponential.com,"Founder, Business Angel & Investor"
+Björn Bauermeister,Smart Infrastructure Ventures GmbH,VC,,https://de.linkedin.com/in/bbsiventures,100k–500k,Web,3,Neu,"Leipzig, Germany",https://www.siventures.de,Co-Founder & General Partner
+Sven Schulz,Summiteer GmbH,VC,info@summiteer.com,https://www.linkedin.com/in/sven-schulz-72a121137/,100k–500k,Web,5,Neu,"Ravensburg, Germany",https://www.summiteer.com,Founder
+Wolfram Michallik,Vality Ventures GmbH,Family Office,w.michallik@vality-ventures.de,https://de.linkedin.com/in/wolfram-michallik-6b580a192,100k–500k,Web,5,Neu,"Taunusstein, Germany",https://vality-ventures.de,Geschäftsführer (Managing Director)
+Falk Haurenherm,another.vc GmbH,VC,hello@another.vc,https://www.linkedin.com/in/falk-haurenherm-b10352161/,100k–500k,Web,5,Neu,"Mülheim an der Ruhr, Germany",https://another.vc,Managing Director & Partner
+Tim Schumacher,TS Ventures GmbH,VC,,,100k–500k,Web,2,Neu,"Bergisch Gladbach, Germany",https://tsventures.io,Partner / Managing Director
+Stephan Stubner,Monkfish Equity GmbH,VC,,https://de.linkedin.com/in/stephanstubner,100k–500k,Web,3,Neu,"Leipzig, Germany",https://monkfish-equity.com,Co-Founder and Managing Director
+Arno G. Held,AM Ventures GmbH,VC,info@amventures.com,https://www.linkedin.com/in/arno-held/,100k–500k,Web,5,Neu,"Starnberg, Germany",https://amventures.com,Managing Partner
+Stefan Michael Schneider,Floor13 GmbH,Family Office,info@floor13.de,,100k–500k,Web,3,Neu,"Utting am Ammersee, Germany",https://www.floor13.de,Geschäftsführer (Managing Director)
+Christian Angermayer,Apeiron Investment Group Ltd.,Family Office,,https://www.linkedin.com/in/christian-angermayer,100k–500k,Web,3,Neu,"Sliema, Malta",https://apeiron-investments.com,Founder & Owner
+Benjamin Visser,Allygatr GmbH,VC,contact@allygatr.com,https://www.linkedin.com/in/benjaminvisser/,100k–500k,Web,4,Neu,"Berlin, Germany",https://allygatr.com,Founder & CEO / Managing Director
+Fabian Heilemann,AENU Advisor GmbH,VC,connect@aenu.com,https://www.linkedin.com/in/fabian-heilemann,100k–500k,Web,5,Neu,"Berlin, Germany",https://www.aenu.com,Founder & CEO
+Henri Kühnert,building10 GmbH,VC,henri.kuehnert@b10.vc,https://www.linkedin.com/in/henrikuehnert/,100k–500k,Web,5,Neu,"Berlin, Germany",https://b10.vc,Co-Founder & Partner
+Johannes Weber,Ananda Impact Ventures GmbH,VC,info@ananda.vc,https://www.linkedin.com/in/jweberananda,100k–500k,Web,5,Neu,"Munich, Germany",https://ananda.vc,General Partner & Founder
+Burckhardt Bonello,Found Fair Ventures GmbH,VC,info@foundfair.de,https://de.linkedin.com/in/burckhardtbonello,100k–500k,Web,4,Neu,"Berlin, Germany",https://foundfair.de,Founding Partner / CEO
+Dr. Manon Sarah Littek,Green Generation Fund GmbH,VC,,https://www.linkedin.com/in/dr-manon-sarah-littek-51353a39,100k–500k,Web,3,Neu,"Berlin, Germany",https://www.ggf.vc,Founding General Partner
+Norbert Neef,Invisible Hand Ventures GmbH,VC,info@i-hand.de,,100k–500k,Web,3,Neu,"Berlin, Germany",https://www.i-hand.de,Managing Director
+Frederik Fleck,Richmond View Ventures GmbH,VC,,https://www.linkedin.com/in/frederikfleck/,100k–500k,Web,3,Neu,"Berlin, Germany",https://rvv.tv,Founding Partner
+Niklas Grunewald,Tane Fund GmbH,VC,berlin@redstone.vc,https://www.linkedin.com/in/niklas-grunewald-b5857154/,100k–500k,Web,5,Neu,"Berlin, Germany",https://www.tane.fund,Fund Managing Partner
+Bernhard Böhm,BLS Venture Capital GmbH,VC,info@bls-venture.de,,100k–500k,Web,3,Neu,"Berlin, Germany",https://bls-venture.de,Founder / Senior Partner
+Prof. Dr. Klaus Sailer,Freiraum Ventures GmbH,VC,klaus.sailer@sce.de,,100k–500k,Web,4,Neu,"München, Germany",https://freiraum.vc,"Managing Director (Geschäftsführer), CEO of SCE"
+Markus Feuerecker,YZR Capital GmbH,VC,hello@yzr-capital.com,https://www.linkedin.com/in/markus-feuerecker-80b30160/,100k–500k,Web,5,Neu,"München, Germany",https://yzr-capital.com,Co-Founder & Managing Partner
+Bernd Wendeln,WENWEST CAPITAL GmbH,VC,info@wenvest.capital,https://www.linkedin.com/in/bernard-bernd-wendeln-4611a3/,100k–500k,Web,5,Neu,"München, Germany",https://www.wenvest.capital/,Managing Partner
+Dr. Julius Neuberger,K5 Advisors GmbH & Co. KG,Family Office,office@k5.ag,https://de.linkedin.com/in/dr-julius-neuberger-ll-m-4b6736127,100k–500k,Web,5,Neu,"München, Germany",https://k5.ag,Managing Director
+Benedikt Sobotka,Alpha Future Funds GmbH,VC,,https://lu.linkedin.com/in/benedikt-sobotka-8a1847169,100k–500k,Web,3,Neu,"München, Germany",https://alphafuturefunds.com,CEO
+Daniel Kempf,PDV Inter-Media Venture GmbH,VC,,https://de.linkedin.com/in/danielkempf,100k–500k,Web,3,Neu,"Augsburg, Bavaria, Germany",https://www.pddigital.de,Geschäftsführer (Managing Director)
+Andreas von Richter,LBBW Digital Ventures GmbH,VC,future@lbbwvc.de,https://www.linkedin.com/in/avonrichter/,100k–500k,Web,5,Neu,"Stuttgart, Germany",https://www.lbbwvc.de/,Managing Director
+Kai Engelhardt,Brose Ventures GmbH,VC,,https://de.linkedin.com/in/kai-engelhardt-98884b14,100k–500k,Web,4,Neu,"Berlin, Germany (parent HQ: Coburg)",https://www.brose.com/de-en/company/brose-ventures/,"Managing Director, Brose Ventures"
+Matthias Orlopp,Check24 Ventures GmbH,VC,impact@check24.de,https://de.linkedin.com/in/matthias-orlopp-b954697,100k–500k,Web,4,Neu,"München, Germany",https://impact.check24.de/,Managing Director
+Christian Orsinger,,HNWI,,,50k–200k,Web,1,Neu,"Bergisch Gladbach, Germany",,Managing Director / Geschäftsführer
+Arthur Steinmetz,,Angel,,https://www.linkedin.com/in/asteinmetz,50k–200k,Web,4,Neu,"New York City, NY, USA",https://artsteinmetz.com,"Private Investor / Former Chairman, CEO & President of OppenheimerFunds"
+Dirk Breitbach,,Unternehmer,,,50k–200k,Web,2,Neu,"Bonn, Germany",http://dirk-breitbach.de,"Managing Director (Polymer-Chemie GmbH, Zykla GmbH)"
+Cornelius Kisker,,Unternehmer,info@kisker-brennereien.de,,50k–200k,Web,3,Neu,"Halle (Westfalen), Nordrhein-Westfalen, Germany",https://www.kisker-brennereien.de,Managing Director (Geschäftsführer)
+Ronald Hoppmann,,Unternehmer,contact@wiska.de,https://de.linkedin.com/in/ronald-hoppmann-51299831,50k–200k,Web,5,Neu,"Kaltenkirchen, Germany",https://www.wiska.com,Unternehmensinhaber / Geschäftsführer
+Alfred Spieker,,Angel,,,50k–200k,Web,1,Neu,Germany,,Angel Investor / Self-employed
+Stefan Schmölz,,Angel,,,50k–200k,Web,1,Neu,Germany,,Angel Investor
+Oliver Diezmann,,Angel,,,50k–200k,Web,2,Neu,"Hamburg, Germany",https://www.willy-martini.de,Geschäftsführer (Managing Director)
+Marc Hegemeister,,Angel,,,50k–200k,Web,1,Neu,"Barcelona, Spain",,Founder / Shareholder
+Jens Schumann,,Angel,,,50k–200k,Web,2,Neu,"Hamburg, Germany",,Business Angel / Co-founder (Tipp24 / ZEAL Network SE)
+Alexander Fuchs,,Unternehmer,,,50k–200k,Web,1,Neu,"Altusried, Bayern, Germany",,Geschäftsführer
+Matthias Urlichs,,Unternehmer,,,50k–200k,Web,2,Neu,"Nuremberg, Germany",https://matthias.urlichs.de/en/,Co-founder / Managing Director
+Thomas Knaack,,Angel,,https://www.linkedin.com/in/thomas-knaack-1315043/,50k–200k,Web,3,Neu,"Cologne, Germany",https://rotonda.io,Founder & CEO / Business Angel
+Nils Glagau,,Angel,info@nils-glagau.de,https://de.linkedin.com/in/nilsglagau,50k–200k,Web,5,Neu,"Leverkusen / Köln, Germany",https://www.nils-glagau.de/,Inhaber & Geschäftsführer (Orthomol + Rock B(r)and GmbH)
+Rolf Schrömgens,leadership.sprouts GmbH,Unternehmer,,https://de.linkedin.com/in/rolf-schroemgens-4a456a3,50k–200k,Web,3,Neu,"Berlin, Germany (registered: Düsseldorf)",https://leadershipsprouts.org,Co-Founder & Managing Director
+Lawrence Leuschner,TIER Mobility GmbH,Unternehmer,,https://de.linkedin.com/in/lawrence-leuschner-8112776,50k–200k,Web,3,Neu,"Berlin, Germany",https://www.blueimpact.ventures,"Co-Founder & CEO (TIER Mobility); Founder (Capacity.eco, Blue Impact Ventures)"
+Heiko Hubertz,Oxolo GmbH,Unternehmer,team@oxolo.com,https://de.linkedin.com/in/heikohubertz,50k–200k,Web,5,Neu,"Hamburg, Germany",https://www.oxolo.com,Founder & CEO
+Roman Kirsch,Rapid Pioneers Group,Unternehmer,,https://de.linkedin.com/in/romankirsch,50k–200k,Web,4,Neu,"Berlin, Germany",https://rapid-pioneers.com,Founder & CEO
+Michael Wax,Forto GmbH,Angel,,https://www.linkedin.com/in/mikewax,50k–200k,Web,3,Neu,"Munich, Germany",https://forto.com,"Co-Founder & Former CEO, Forto GmbH; Angel Investor"
+Ralf Dümmel,DS Produkte GmbH,Unternehmer,hallo@dspro.de,,50k–200k,Web,3,Neu,"Stapelfeld bei Hamburg, Germany",https://www.dspro.de,Geschäftsführer / Managing Director
+Felix Jahn,McMakler GmbH,Angel,,https://www.linkedin.com/in/felixjahn,50k–200k,Web,4,Neu,"Berlin, Germany",https://www.felixjahn.com,"Founder & Angel Investor (ex-CEO McMakler, co-founder home24)"
+Martin Sinner,360dialog GmbH,Angel,,https://de.linkedin.com/in/martinsinner,50k–200k,Web,3,Neu,"Berlin, Germany",https://www.360dialog.com,Co-founder / COO (360dialog); Founder (Idealo); Angel Investor
+Robert Maier,Visual Meta GmbH,Angel,,https://de.linkedin.com/in/robert-maier-robbi,50k–200k,Web,3,Neu,"Berlin, Germany",https://www.robbi.de,Founder / Business Angel
+Verena Pausder,,Angel,info@verenapausder.de,https://www.linkedin.com/in/verenapausder,25k–75k,Web,5,Neu,"Berlin, Germany",https://www.verenapausder.de,"Founder, Angel Investor"
+Gloria Bäuerlein,,VC,,https://de.linkedin.com/in/gloria-baeuerlein,25k–75k,Web,4,Neu,"Berlin, Germany",https://www.puzzle-ventures.com,Founding Partner & Managing Director
+Lea-Sophie Cramer,Starstrike Ventures GmbH,Angel,,https://www.linkedin.com/in/lea-sophie-cramer/,50k–200k,Web,3,Neu,"Berlin, Germany",,Founder & Partner
+Diana zur Löwen,,Unternehmer,mail@dianazurloewen.de,https://de.linkedin.com/in/dianazurloewen,25k–75k,Web,5,Neu,"Berlin, Germany",https://dianazurloewen.de,"Founder, Content Creator, Business Angel"
+Dr. Rasmus Rothe,Merantix Capital,VC,,,,web-research,2,Neu,Berlin,https://merantix-capital.com/,Co-Founder and General Partner
+Founderful,,VC,,,,web-research,1,Neu,Zurich,https://founderful.com,
+Klaus Hommels,Lakestar,VC,,,,web-research,2,Neu,Zurich,https://lakestar.com,Founder
+Stefan Kuentz,Swisscom Ventures,Corporate VC,,,,web-research,2,Neu,Zurich,https://ventures.swisscom.com,Joint Managing Partner
+Dr. Cornelius Boersch,Mountain Partners,VC,,,,web-research,2,Neu,Zurich,https://mountain.partners,"Founder, CEO & Executive Chairman of the Board of Directors"
+Dr. Andreas Wicki,HBM Partners Ltd,Private Equity / Growth,,,,web-research,2,Neu,Zug,https://www.hbmpartners.com,CEO
+David Layton,Partners Group Holding AG,Private Equity / Growth,,,,web-research,2,Neu,Baar,https://www.partnersgroup.com,Chief Executive Officer
+Jochen Wermuth,Wermuth Asset Management GmbH,Family Office,info@wermutham.com,,,web-research,3,Neu,Berlin,https://wermutham.com,Co-founder & Senior Fund Partner
+D11Z. Ventures GmbH & Co. KG,,Family Office,,,,web-research,1,Neu,Heilbronn,https://d11z.com,
+Dr. Marcus Erken,Sunfish Partners,VC,info@sunfish.vc,,,web-research,3,Neu,Berlin,https://www.sunfish-partners.com/,Partner
+Malte Unger,adesso ventures GmbH,Corporate VC,Malte.Unger@adesso.de,,,web-research,4,Neu,Berlin,https://www.adesso.vc/,Managing Partner
+Dr. Christoph Klink,Antler CE | Fund Manager GmbH,VC,,,,web-research,2,Neu,Berlin,https://www.antler.co/,Partner
+Alf Arnold,BAND – Business Angels Netzwerk Deutschland e.V.,Other,,,,web-research,2,Neu,,https://www.business-angels.de,Geschäftsführer (Managing Director)
+BACB Geschäftsstelle,Business Angels Club Berlin-Brandenburg e.V.,Other,kontakt@bacb.de,,,web-research,3,Neu,Berlin,https://bacb.de,Network Office
+Dr. Carolin Plagmann,BayStartUP GmbH,Other,plagmann@baystartup.de,,,web-research,4,Neu,Munich (Bavaria),https://www.baystartup.de,Contact for Private Investors / Financing Network
+Dr. Andreas Chatzis,Business Angels Region Stuttgart e.V.,Other,businessangels@business-angels-region-stuttgart.de,,,web-research,3,Neu,Stuttgart,https://www.business-angels-region-stuttgart.de,Leiter der BARS-Geschäftsstelle (Head of Office)
+Dr. Ute Günther,Business Angels Agentur Ruhr e.V.,Other,info@baar-ev.de,,,web-research,3,Neu,Essen,https://www.baar-ev.de,Board Representative (Vorstand)
+Berthold Baurek-Karlic,Venionaire Capital,VC,office@venionaire.com,https://www.linkedin.com/in/berthold-baurek-karlic-30228045/,,web-research,4,Neu,Vienna,https://venionaire.com,CEO & Founder
+Athos Service GmbH,,Family Office,,,,web-research,1,Neu,,https://www.athos-service.de,
+Claude Ritter,NAP — The Expert Founder Fund,VC,,https://www.linkedin.com/in/critter/,,web-research,3,Neu,Berlin,https://www.nap.vc/,Founding Partner
+THI Investments GmbH,,Family Office,info@thi-investments.com,,,web-research,2,Neu,Stuttgart,https://thi-investments.com,
+Dr. Conrad von Stechow,MAYFAIR Vermögensverwaltungs SE,Family Office,info@mayfair-hamburg.de,,,web-research,3,Neu,Hamburg,https://www.mayfair-hamburg.de,Managing Director
+WIRTGEN INVEST Holding GmbH,,Family Office,info@wirtgen-invest.de,,,web-research,2,Neu,Neustadt (Wied),https://www.wirtgen-invest.de,
+Ralf Flore,Ufenau Capital Partners AG,Private Equity / Growth,info@ucp.ch,,,web-research,3,Neu,Pfäffikon SZ,https://ucp.ch,Managing Partner
+Dr. Christoph Kausch,MTIP AG,Private Equity / Growth,info@mtip.ch,,,web-research,3,Neu,Basel,https://www.mtip.ch,Managing Partner
+Frederic Wohlwend,Forestay Capital,VC,,,,web-research,2,Neu,Geneva,https://www.forestay.vc,Managing Partner
+B-FLEXION,,Family Office,,,,web-research,1,Neu,,https://bflexion.com,
+Gina Domanig,Emerald Technology Ventures,VC,,,,web-research,2,Neu,Zurich,https://emerald.vc,"Managing Partner, CEO"
+Anja Koenig,Novartis Venture Fund,Corporate VC,,,,web-research,2,Neu,Basel,https://www.nvfund.com,Global Head of NVF
+Reuben Brothers,,Family Office,investor@reuben.biz,,,web-research,2,Neu,Geneva,https://www.reubenbrothers.com,
+Christina Kistler,Swiss ICT Investor Club (SICTIC),Other,info@sictic.ch,https://www.linkedin.com/in/christina-kistler/,,web-research,4,Neu,Zürich,https://www.sictic.ch,VP Partnerships & Ecosystem
+Ramon Zurbuchen,Business Angels Switzerland,Other,,,,web-research,2,Neu,Worb,https://businessangels.ch,General Manager
+Danube Angels (operated by PUTZ Consulting Group),,Other,info@danubeangels.com,,,web-research,2,Neu,Wien,https://putzconsultinggroup.com/danubeangels/,
+Carsten Maschmeyer,Carsten Maschmeyer / Maschmeyer Group,HNWI,info@maschmeyer-group.de,,,web-research,3,Neu,,https://www.carsten-maschmeyer.de,Founder & Principal Investor
+Marcus Behrendt,BMW i Ventures,Corporate VC,,https://www.linkedin.com/in/marcus-behrendt-5a62408/,,web-research,3,Neu,München,https://www.bmwiventures.com,Managing Partner
+Lak Ananth,next47 / N47 Capital,Corporate VC,,,,web-research,2,Neu,,https://www.n47.com,Global Managing Partner
+Dr. Nazim Cetin,Allianz X,Corporate VC,,https://www.linkedin.com/in/dr-nazim-cetin-b602a557/,,web-research,3,Neu,München,https://allianzx.com,CEO
+Ulrich Thiem,Porsche Ventures,Corporate VC,,https://www.linkedin.com/in/ulrich-thiem/,,web-research,3,Neu,Stuttgart,https://porsche.ventures,Managing Director
+Carsten Coesfeld,Bertelsmann Investments,Corporate VC,,,,web-research,2,Neu,Gütersloh,https://www.bertelsmann-investments.com,CEO / Executive Board Member Bertelsmann
+Heike Pfistner,BASF Venture Capital GmbH,Corporate VC,vanessa.holzhaeuser@basf.com,,,web-research,4,Neu,Ludwigshafen,https://www.basf-vc.de,Managing Director
+Hakan Goker,M Ventures,Corporate VC,info@m-ventures.com,,,web-research,3,Neu,Amsterdam,https://www.m-ventures.com,Managing Director
+Daniel Keiper-Knorr,Speedinvest,VC,,,,web-research,2,Neu,Vienna,https://www.speedinvest.com,General Partner
+Peter Lasinger,3VC,VC,hello@three.vc,https://www.linkedin.com/in/lasinger/,,web-research,4,Neu,Vienna,https://three.vc,Founder & Partner
+Patrik Cesky MA,aws Gründungsfonds,VC,,https://at.linkedin.com/in/patrikcesky,,web-research,3,Neu,Wien,https://www.gruendungsfonds.at,Geschäftsführer (CEO)
+Joseph Hefele,Acton Capital,VC,info@actoncapital.com,,,web-research,3,Neu,Munich,https://www.actoncapital.com,Partner
+Philipp Hartmann,Rheingau Founders,VC,ideas@rheingau-founders.com,https://www.linkedin.com/in/philipphartmann20/,,web-research,4,Neu,Berlin,https://rheingaufounders.com,Partner
+Heiko von Dewitz,AGIC Capital,Corporate VC,contactus@agic-group.com,,,web-research,3,Neu,Munich,https://agic-group.com,"Managing Partner, Head of Europe"
+APX,,Corporate VC,hello@apx.vc,,,web-research,2,Neu,Berlin,https://apx.vc,
+Wiebke Heusermann,Hamburg Investors Network (HIN),Other,heusermann@innovationsstarter.com,,,web-research,4,Neu,Hamburg,https://innovationsstarter.com/hin/,Head of Hamburg Investors Network
+aws i2 Business Angels,,Other,,,,web-research,1,Neu,Wien,https://www.aws.at/en/aws-i2-business-angels-1/,
+Dr. Heino Freudenberg,PALATINA Business Angels Rhein-Neckar e.V.,Other,info@palatina-angels.de,,,web-research,3,Neu,Mannheim,https://palatina-angels.de,Board Member (Vorstandsmitglied)
+Maximilian Schausberger,Elevator Ventures,Corporate VC,office@elevator-ventures.com,https://www.linkedin.com/in/maxschausberger/,,web-research,4,Neu,Vienna,https://www.elevator-ventures.com,Managing Director
+Ludwig Calice,Constantia New Business GmbH (CNB Capital),VC,office@cnb.capital,,,web-research,3,Neu,Vienna,https://cnb.capital,Investment Team
+Alexander Christen,Groundshift (formerly FiveT Fintech),VC,hello@groundshift.co,https://www.linkedin.com/in/alexchristen/,,web-research,4,Neu,Zurich,https://groundshift.co,"CEO, Partner"
+La Famiglia VC,,VC,ciao@lafamiglia.vc,,,web-research,2,Neu,Berlin,https://lafamiglia.vc,
+Headline,,VC,hello@headline.com,,,web-research,2,Neu,Berlin,https://headline.com,
+Kizoo,,VC,hello@kizoo.com,,,web-research,2,Neu,,https://kizoo.com,
+Adrian Bührer,Übermorgen Ventures,VC,hello@uebermorgen.vc,,,web-research,3,Neu,,https://uebermorgen.vc,Managing Partner / Founding Partner
+Frank Maene,Volta Ventures,VC,,https://www.linkedin.com/in/frankmaene/,,web-research,3,Neu,Ghent,https://volta.ventures,Managing Partner
+Boris Bogaert,Pitchdrive,VC,,,,web-research,2,Neu,Antwerp,https://www.pitchdrive.com,Co-founder & Managing Partner
+David Van Tieghem,Seeder Fund,VC,dvt@seederfund.be,,,web-research,4,Neu,,https://www.seederfund.be,Partner
+Dries Crevits,Korys,Family Office,,,,web-research,2,Neu,,https://www.korys.be,Partner
+Roberto Italia,Verlinvest,Family Office,,,,web-research,2,Neu,Brussels,https://www.verlinvest.com,Chief Executive Officer
+Marc Coucke,Alychlo,Family Office,info@alychlo.com,,,web-research,3,Neu,Merelbeke,https://alychlo.com,Founder & Chairman
+Cobepa,,Private Equity / Growth,,,,web-research,1,Neu,Brussels,https://www.cobepa.com,
+Ben Verwaayen,Keen Venture Partners,VC,info@keenventurepartners.com,,,web-research,3,Neu,Amsterdam,https://www.keenventurepartners.com,General Partner
+Stefan Bary,Peak Capital,Other,,https://www.linkedin.com/in/stefanbary/,,web-research,3,Neu,Amsterdam,https://peak.capital,General Partner
+Carolina Brochado,EQT Ventures,Other,,,,web-research,2,Neu,Stockholm,https://eqtventures.com,Partner & Head of EQT Ventures
+Pär-Jörgen Pärson,Northzone,Other,,,,web-research,2,Neu,Stockholm,https://northzone.com,Partner
+Johan Brenner,Creandum,Other,,https://www.linkedin.com/in/johanbrenner/,,web-research,3,Neu,Stockholm,https://creandum.com,Partner
+Helena Saxon,Kinnevik,Other,info@kinnevik.com,https://www.linkedin.com/in/helena-saxon-672b5a6/,,web-research,4,Neu,Stockholm,https://www.kinnevik.com,Chief Executive Officer
+Peter Wolpert,Industrifonden,Other,info@industrifonden.com,,,web-research,3,Neu,Stockholm,https://industrifonden.com,CEO
+Niklas Adalberth,Norrsken VC,Other,investments@norrsken.vc,https://www.linkedin.com/in/niklasadalberth/,,web-research,4,Neu,Stockholm,https://www.norrsken.vc,General Partner & Co-Founder
+Jacob Key,Luminar Ventures,Other,jkey@luminarventures.com,https://www.linkedin.com/in/jacobkey/,,web-research,5,Neu,Stockholm,https://www.luminarventures.com,Co-Founder & General Partner
+Juha Lindfors,Lifeline Ventures,Other,juha@lifelineventures.com,,,web-research,4,Neu,Helsinki,https://lifelineventures.com,Managing Partner
+Pauliina Martikainen,Maki.vc,Other,,,,web-research,2,Neu,Helsinki,https://maki.vc,Managing Partner
+Inka Mero,Voima Ventures Oy,Other,inka.mero@voimaventures.com,https://fi.linkedin.com/in/inkamero,,web-research,5,Neu,Helsinki,https://voimaventures.com,Founder & Managing Partner
+Linus Dahg,Inventure,Other,,,,web-research,2,Neu,Helsinki,https://inventure.vc,Managing Partner
+Sakari Pihlava,Vendep Capital,Other,sakari@vendep.com,,,web-research,4,Neu,Espoo,https://vendep.com,Partner
+Søren Lemonius,Sunstone Life Science Ventures,Other,lemonius@sunstone.eu,,,web-research,4,Neu,Copenhagen,https://sunstone.eu,Managing General Partner
+Christian Brøndum,SEED Capital,Other,cb@seedcapital.dk,,,web-research,4,Neu,Copenhagen,https://www.seedcapital.dk,Managing Partner
+Bjarne Kveim Lie,Verdane,Private Equity / Growth,ir@verdane.com,,,web-research,3,Neu,Oslo,https://verdane.com,Managing Partner
+Sten-Roger Karlsen,Investinor AS,Other,stenroger.karlsen@investinor.no,,,web-research,3,Neu,Trondheim,https://www.investinor.no,CEO (Administrerende direktør)
+Amy Nauiokas,Anthemis Group,Other,pitch@anthemis.com,,,web-research,3,Neu,London,https://www.anthemis.com,Founder
+Tim Levene,Augmentum Fintech plc,Other,info@augmentum.vc,,,web-research,3,Neu,London,https://www.augmentum.vc,Partner and CEO
+Mark Beeston,Illuminate Financial Management,Other,info@illuminatefinancial.com,,,web-research,3,Neu,London,https://www.illuminatefinancial.com,Founder & Managing Partner
+Josh Bell,Dawn Capital,Other,hello@dawncapital.com,,,web-research,3,Neu,London,https://dawncapital.com,General Partner
+Martijn de Wever,Force Over Mass Capital LLP,Other,,,,web-research,2,Neu,London,https://www.fomcap.com,Founder & CEO
+Erin Platts,Octopus Ventures,VC,,,,web-research,2,Neu,London,https://octopusventures.com,CEO
+Stephen Chandler,Notion Capital,VC,,,,web-research,2,Neu,London,https://notioncapital.com,Managing Partner
+Laurel Bowden,83North,VC,,,,web-research,2,Neu,London,https://www.83north.com,Partner
+Bernard Liautaud,Balderton Capital,VC,,,,web-research,2,Neu,London,https://www.balderton.com,Managing Partner
+Emmanuel Delaveau,Partech,VC,edelaveau@partechpartners.com,,,web-research,4,Neu,Paris,https://partechpartners.com,General Partner
+Bpifrance,,Institutional Investor,,,,web-research,1,Neu,Paris,https://www.bpifrance.fr,
+Julien-David Nitlech,iris capital,VC,contact@iris.vc,,,web-research,3,Neu,Paris,https://www.iris.vc,Managing Partner
+François Véron,Newfund Capital,Other,,https://www.linkedin.com/in/francoisveronatnewfund/,,web-research,3,Neu,Paris,https://www.newfundcap.com,General Partner
+Radboud Vlaar,Finch Capital,Other,radboud@finchcapital.com,,,web-research,4,Neu,Amsterdam,https://www.finchcapital.com,Managing Partner
+Jordi Viñas,Nauta Capital,Other,info@nautacapital.com,https://www.linkedin.com/in/jordi-vi%C3%B1as-1b1999/,,web-research,4,Neu,London,https://www.nautacapital.com,General Partner
+Yusuf Özdalga,QED Investors,Other,,,,web-research,2,Neu,London,https://qedinvestors.com,"Partner, Head of U.K. & Europe"
+Karsten Kühl,Peter Möhrle Holding GmbH & Co. KG,Family Office,mail@petermoehrle.de,,,web-research,3,Neu,Hamburg,https://www.petermoehrle.de,Managing Director
+Oetker Collection KG,,Family Office,contact@oetker-collection.com,,,web-research,2,Neu,Bielefeld,https://www.geschwister-oetker.com,
+Tengelmann Twenty-One KG,,Family Office,info@tengelmann21.com,,,web-research,2,Neu,Munich,https://www.tengelmann21.com,
+Marc Ernesti,TRESONO Family Office GmbH,Multi Family Office,me@tresono.de,,,web-research,4,Neu,Cologne,https://www.tresono.de,Vorstand & Partner (Board Member & Partner)
+Georg Denoke,ATON GmbH,Other,info@aton.de,,,web-research,3,Neu,Munich,https://www.aton.de,CEO
+Alexander Boldyreff,Wilh. Werhahn KG,Other,info@werhahn.de,,,web-research,3,Neu,Neuss,https://www.werhahn.de,Vorstand (Management Board Member)
+Veit M. Madaus,MADAUS Capital Partners GmbH,Multi Family Office,info@madaus.com,,,web-research,3,Neu,Munich,https://www.madaus.com,Managing Partner (Geschaftsfuhrender Gesellschafter)
+Klaus-Michael Kuhne,Kuhne Holding AG,Other,info@kuehne-holding.com,,,web-research,3,Neu,Schindellegi,https://www.kuehne-holding.com,Founder and Owner (Inhaber)
+Stefan Quandt,DELTON AG,Family Office,,,,web-research,2,Neu,Germany,https://www.delton.de,Owner / Founder
+Tom Alzin,Deutsche Beteiligungs AG,Private Equity / Growth,welcome@dbag.de,,,web-research,3,Neu,Frankfurt am Main,https://www.dbag.de,CEO (Sprecher des Vorstands)
+Equistone Partners Europe,,Private Equity / Growth,info@equistone.uk,,,web-research,2,Neu,London,https://www.equistonepe.com,
+Hg Capital,,Private Equity / Growth,,,,web-research,1,Neu,London,https://www.hgcapital.com,
+Andi Klein,Triton Partners,Private Equity / Growth,enquiries@triton-partners.com,,,web-research,3,Neu,London,https://www.triton-partners.com,"Managing Partner, Head of DACH region / Head of Triton Smaller Mid-Cap"
+Ingmar Bär,IK Partners,Private Equity / Growth,hamburg@ikpartners.com,,,web-research,3,Neu,Hamburg,https://www.ikpartners.com,"Partner, Hamburg Office"
+Waterland Private Equity Investments B.V.,,Private Equity / Growth,info@waterland.nu,,,web-research,2,Neu,Bussum,https://www.waterlandpe.com,
+Fritjof Franz,Capiton AG,Private Equity / Growth,info@capiton.com,,,web-research,3,Neu,Berlin,https://www.capiton.de,Managing Partner
+Dr. Sumeet Gulati,GENUI GmbH,Other,sg@genui.de,,,web-research,4,Neu,Hamburg,https://www.genui.de,Investor / Partner
+Per Franzén,EQT AB,Private Equity / Growth,,,,web-research,2,Neu,Stockholm,https://www.eqtgroup.com,CEO & Managing Partner
+Kristoffer Melinder,Nordic Capital,Private Equity / Growth,receptionus@nordiccapital.com,,,web-research,3,Neu,Stockholm,https://www.nordiccapital.com,Managing Partner
+Ardian,,Private Equity / Growth,clientsolutions@ardian.com,,,web-research,2,Neu,Paris,https://www.ardian.com,
+Thierry Timsit,Astorg Partners,Private Equity / Growth,ir@astorg.com,,,web-research,3,Neu,Paris,https://www.astorg.com,Executive Chairman
+Ed Shuckburgh,Montagu Private Equity,Private Equity / Growth,,,,web-research,2,Neu,London,https://www.montagu.com,Managing Partner & CEO
+Silverfleet Capital,,Private Equity / Growth,,,,web-research,1,Neu,London,https://www.silverfleetcapital.com,
+Dr. Ingo Krocke,AUCTUS Capital Partners AG,Private Equity / Growth,info@auctus.com,,,web-research,3,Neu,Munich,https://auctus.com/,Senior Partner / Team Member
+Dr. Claas Heise,NRW.BANK NRW.Venture,Institutional Investor,beteiligungen@nrwbank.de,,,web-research,3,Neu,,https://www.nrwbank.de/en/founder/nrwventure/,Venture Capital and Fund Investments
+Stefan Ruschhaupt,BW-Capital GmbH – Gesellschaft für Risikokapital des Landes Baden-Württemberg,Institutional Investor,bw-capital@l-bank.de,,,web-research,3,Neu,Karlsruhe,https://bw-capital.l-bank.de/,Managing Director
+Dr. Andrea Helzel,IBG Beteiligungsgesellschaft Sachsen-Anhalt mbH,Other,helzel@ibg-vc.de,,,web-research,4,Neu,Magdeburg,https://www.ibg-vc.de/en,Managing Director (Geschäftsführung)
+Mike Walber,Investitions- und Strukturbank Rheinland-Pfalz (ISB),Institutional Investor,mike.walber@isb.rlp.de,,,web-research,4,Neu,Mainz,https://isb.rlp.de,Venture Capital Contact
+Bernhard Kugel,S-UBG AG,Private Equity / Growth,info@s-ubg.de,,,web-research,3,Neu,Aachen,https://s-ubg.de/en/,Executive Board Member (Vorstand)
+Ärzteversorgung Westfalen-Lippe,,Institutional Investor,info@aevwl.de,,,web-research,2,Neu,Münster,https://aevwl.de/en/,
+BVV Versorgungskasse des Bank- und Versicherungsgewerbes,,Institutional Investor,,,,web-research,1,Neu,Berlin,https://www.bvv.de,
+BVK Personalvorsorge des Kantons Zürich,,Institutional Investor,,,,web-research,1,Neu,Zürich,https://bvk.ch/en/,
+Emmanuel Vauclair,PUBLICA,Institutional Investor,info@publica.ch,,,web-research,3,Neu,Bern,https://www.publica.ch/en,Director (CEO)
+Dr. Georg Stocker,DekaBank Deutsche Girozentrale,Asset Manager,,,,web-research,2,Neu,Frankfurt am Main,https://www.deka.de/deka-group,CEO / Chairman of the Board
+Union Investment Gruppe,,Asset Manager,,,,web-research,1,Neu,Frankfurt am Main,https://www.union-investment.de,
+Philips Ventures,,Corporate VC,,,,web-research,1,Neu,Amsterdam,https://www.philips.com/a-w/about/innovation/philips-ventures.html,
+Thomas d'Halluin,Airbus Ventures,Corporate VC,office@airbusventures.vc,,,web-research,3,Neu,Paris,https://airbusventures.vc,Managing Partner
+Wayra,,Other,,,,web-research,1,Neu,,https://www.wayra.com,
+Stefan Amenda,MEAG Munich ERGO AssetManagement GmbH,Asset Manager,info@meag.com,,,web-research,3,Neu,Munich,https://www.meag.com,Head of Equities and Multi Asset
+Dr. Stefan Hoops,DWS Group GmbH & Co. KGaA,Asset Manager,,,,web-research,2,Neu,Frankfurt,https://www.dws.com,Chief Executive Officer
+Dirk Raab,Allianz Capital Partners GmbH,Asset Manager,contact@allianzcapitalpartners.com,,,web-research,3,Neu,Munich,https://www.allianzcapitalpartners.com,Head of Portfolio Management Private Markets
+Versorgungswerk der Wirtschaftsprüfer und der vereidigten Buchprüfer im Lande NRW,,Institutional Investor,info@wpv.eu,,,web-research,2,Neu,Düsseldorf,https://www.wpv.eu,
+Jeremy Golding,Golding Capital Partners GmbH,Asset Manager,info@goldingcapital.com,,,web-research,3,Neu,Munich,https://www.goldingcapital.com,Founder and Managing Partner
+Union Investment Institutional GmbH,,Asset Manager,,,,web-research,1,Neu,Frankfurt,https://www.union-investment.com,
+Christian Loh,KZVK – Kirchliche Zusatzversorgungskasse des Verbandes der Diözesen Deutschlands,Other,info@kzvk.de,,,web-research,3,Neu,Köln,https://www.kzvk.de,Vorsitzender (Chairman)
+Unigestion Holding One SA,,Asset Manager,,,,web-research,1,Neu,Geneva,https://www.unigestion.com,
+LGT Capital Partners,,Other,,,,web-research,1,Neu,Pfaeffikon,https://www.lgtcp.com,
+Christophe Morize,Patrimonium Asset Management AG,Other,investor@patrimonium.ch,,,web-research,3,Neu,Zurich,https://www.patrimonium.ch,Managing Director Investor Relations
+Holger Krohn,Swisscanto,Asset Manager,holger.krohn@swisscanto.com,,,web-research,4,Neu,Zurich,https://www.swisscanto.com,Head of Institutional Sales Germany
+Pensionskasse Stadt Zürich (PKZH),,Other,,,,web-research,1,Neu,Zurich,https://www.pkzh.ch,
+Baloise Asset Management,,Asset Manager,,,,web-research,1,Neu,Basel,https://www.baloise-asset-management.com,
+Pictet Alternative Advisors SA,,Asset Manager,,,,web-research,1,Neu,Geneva,https://www.pictet.com,
+Reinhard Gröne,Angel Engine e.V.,Angel,rgr@angel-engine.de,,,web-research,4,Neu,Düsseldorf,https://www.angel-engine.de,Vorstand (Board Member)
+Isabel Antholz,BAM! Business Angels Mitteldeutschland e.V.,Angel,vorstand@bam-angels.de,,,web-research,3,Neu,Leipzig,https://www.bam-angels.de,Vorstandsvorsitzende (Chairwoman)
+Angels for Health e.V.,,Angel,,,,web-research,1,Neu,,https://angels4health.com,
+Björn Fröhlich,Swisspreneur Syndicate,Angel,info@swisspreneur.org,,,web-research,3,Neu,Zurich,https://www.swisspreneur.org/investing,Head of Investment
+BANSON e.V. – Business Angel Netzwerk Niedersachsen,,Other,a.trapp@banson.de,,,web-research,3,Neu,Braunschweig,https://banson.de,
+Companisto GmbH,,Other,,,,web-research,1,Neu,Berlin,https://www.companisto.com/en/angel-club,
+Business Angels Rheinland-Pfalz e.V.,,Other,info@business-angels-rlp.de,,,web-research,2,Neu,Mainz,https://business-angels-rlp.de,
+Business Angels Sachsen-Anhalt e.V.,,Other,info@bas-a.de,,,web-research,2,Neu,,https://bas-a.de,
+Business Angels Club Aargau,,Other,info@businessangels-ag.ch,,,web-research,2,Neu,Brugg,https://www.businessangels-ag.ch,
+Springboard Health Angels GmbH,,Other,hello@springboardangels.com,,,web-research,2,Neu,Berlin,https://www.springboardangels.com,
+Catharina Blome,Business Angel Network OWL,Angel,catharina.blome@upb.de,,,web-research,4,Neu,Paderborn,https://www.tecup.de/en/business-angels-owl/,Network Manager
+Angel Investment Network Switzerland,,Angel,,,,web-research,1,Neu,,https://www.angelinvestmentnetwork.ch,
+Alena Kuhlmeier,Teuto Seed Club,Angel,info@wege-bielefeld.de,,,web-research,3,Neu,Bielefeld,https://wege-bielefeld.de,Vorstandsvorsitzende (Chairwoman)
+Jan Lozek,Future Energy Ventures,Other,contact@fev.vc,,,web-research,3,Neu,,https://fev.vc,Managing Director
+Thomas Möller,BiomedVC AG (formerly BioMedPartners),Other,moeller@biomedvc.com,https://www.linkedin.com/in/thomas-m%C3%B6ller-262555a/,,web-research,5,Neu,Basel,https://biomedvc.com,Managing Partner
+Eric Archambeau,Astanor Ventures,Other,,https://www.linkedin.com/in/ericarchambeau/,,web-research,3,Neu,,https://astanor.com,Senior Managing Partner & Founder
+Heidi Lindvall,Pale Blue Dot,Other,heidi@paleblue.vc,https://www.linkedin.com/in/heidilindvall/,,web-research,5,Neu,,https://paleblue.vc,General Partner & Co-founder
+Louise Heiberg,Nordic Foodtech VC,Other,louise@nft.vc,,,web-research,4,Neu,Helsinki,https://nft.vc,Partner
+Dr Owen R. Lozman FRSC,55 North,Other,info@55n.vc,https://www.linkedin.com/in/owen-lozman/,,web-research,4,Neu,,https://www.55n.vc,Managing Partner
+Rokas Peciulaitis,Contrarian Ventures,Other,agne@cventures.vc,,,web-research,4,Neu,Vilnius,https://www.cventures.vc,Partner
+Christophe Bavière,Eurazeo,Other,,,,web-research,2,Neu,Paris,https://www.eurazeo.com,"Co-CEO, Eurazeo"
+Denis Barrier,Cathay Innovation,VC,contact@cathayinnovation.com,,,web-research,3,Neu,Paris,https://cathayinnovation.com,Co-Founder & CEO
+Xavier Lazarus,Elaia,VC,investor@elaia.com,https://www.linkedin.com/in/xavier-lazarus-63747,,web-research,4,Neu,Paris,https://www.elaia.com,Managing Partner
+Ben Marrel,Breega,VC,,,,web-research,2,Neu,Paris,https://www.breega.com,CEO & Co-founder
+Marc Fournier,Serena,VC,,,,web-research,2,Neu,Paris,https://www.serena.vc,CEO & Co-founder
+Pierre-Eric Leibovici,Daphni,VC,,,,web-research,2,Neu,Paris,https://www.daphni.com,Co-founder & Managing Partner
+Xavier Niel,Kima Ventures,VC,,,,web-research,2,Neu,Paris,https://www.kimaventures.com,Founder
+Francois Tison,360 Capital,VC,,https://www.linkedin.com/in/ftison,,web-research,3,Neu,Paris,https://www.360cap.vc,Partner
+Cyril Bertrand,XAnge,Other,,,,web-research,2,Neu,Paris,https://www.xange.vc,Managing Partner
+Josep Maria Echarri,Inveready,Other,info@inveready.com,,,web-research,3,Neu,Barcelona,https://www.inveready.com,Managing Partner & CEO
+Iñaki Arrola,K Fund,Other,info@kfund.vc,,,web-research,3,Neu,Madrid,https://kfund.vc,Founder / Partner
+Javier Santiso,Mundi Ventures,Other,contact@mundiventures.com,,,web-research,3,Neu,Madrid,https://www.mundiventures.com,CEO & General Partner
+Ander Michelena,Acurio Ventures,Other,investor@acurio.vc,https://www.linkedin.com/in/ander-michelena-778a2b7/,,web-research,4,Neu,Madrid,https://acurio.vc,General Partner
+Tomasz Swieboda,Inovo VC,Other,,,,web-research,2,Neu,Warsaw,https://inovo.vc,Partner
+Marcin Hejka,OTB Ventures,Other,contact@otb.vc,,,web-research,3,Neu,Warsaw,https://otb.vc,"Co-founder, Managing Partner"
+Ondrej Bartos,Credo Ventures,Other,info@credoventures.com,,,web-research,3,Neu,Prague,https://credoventures.com,Founding Partner
+Premysl Rubes,Presto Ventures,Other,hello@prestoventures.com,,,web-research,3,Neu,Prague,https://prestoventures.com,Founder & Managing Partner
+Dan Mihaescu,GapMinder,Other,contact@gapminder.vc,,,web-research,3,Neu,Bucharest,https://gapminder.vc,Founding Partner
+Cristian Munteanu,Early Game Ventures,Other,,,,web-research,2,Neu,Bucharest,https://earlygame.vc,Managing Partner
+Andrei Gemeneanu,Morphosis Capital,Other,contact@morphosiscapital.com,,,web-research,3,Neu,Bucharest,https://morphosiscapital.com,Managing Partner
+Veronika Pistyur,Oktogon Ventures,Other,vera@oktogon.vc,,,web-research,4,Neu,Budapest,https://oktogon.vc,General Partner
+Aaron Mankovski,Pitango Venture Capital,VC,pitango@pitango.com,,,web-research,3,Neu,Tel Aviv,https://pitango.com,Managing Partner
+Alon Huri,Team8,VC,info@team8.vc,,,web-research,3,Neu,Tel Aviv,https://team8.vc,Managing Partner
+Myrto Papathanou,Metavallon VC,VC,contact@metavallon.vc,https://www.linkedin.com/in/myrtopapathanou/,,web-research,4,Neu,Athens,https://metavallon.vc,Partner
+Stephan de Moraes,Indico Capital Partners,VC,investors@indicocapital.com,https://www.linkedin.com/in/stephanmorais/,,web-research,4,Neu,Lisbon,https://indicocapital.com,Managing General Partner
+Donatas Keras,Practica Capital,VC,info@practica.vc,,,web-research,3,Neu,Vilnius,https://practica.vc,Founding Partner
+Dr. Christof Nesemeier,MBB SE,Private Equity / Growth,,,,web-research,2,Neu,Berlin,https://www.mbb.com,Executive Chairman & Founder
+Robin Laik,Mutares SE & Co. KGaA,Private Equity / Growth,info@mutares.de,https://www.linkedin.com/in/robin-laik-34b7a1102,,web-research,4,Neu,Munich,https://www.mutares.com,CEO & Co-founder
+Johannes Pfeffer,GESCO SE,Private Equity / Growth,info@gesco.de,https://www.linkedin.com/in/johannes-pfeffer-65477b13/,,web-research,4,Neu,Wuppertal,https://www.gesco.de,CEO
+Dr.-Ing. Johannes Schmidt,INDUS Holding AG,Asset Manager,indus@indus.de,https://www.linkedin.com/in/johannes-schmidt-3b4a42228/,,web-research,4,Neu,Bergisch Gladbach,https://www.indus.de,CEO
+Uwe Fleischhauer,YIELCO Investments AG,Other,info@yielco.com,https://www.linkedin.com/in/uwe-fleischhauer-946229,,web-research,4,Neu,Munich,https://www.yielco.com,"Founding Partner & Managing Director, Head of Infrastructure"
+Thomas Bühler,AFINUM Management GmbH,Private Equity / Growth,info@afinum.de,,,web-research,3,Neu,Munich,https://www.afinum.de,Managing Partner (Co-Founder)
+Axel Eichmeyer,ECM Equity Capital Management GmbH,Private Equity / Growth,info@ecm-pe.de,,,web-research,3,Neu,Frankfurt,https://www.ecm-pe.de,Managing Partner
+Oliver Samwer,"Rocket Internet SE (Oliver Samwer, Founder & CEO)",Other,info@rocket-internet.com,,,web-research,3,Neu,Berlin,https://www.rocket-internet.com,Founder & CEO
+Philipp Westermeyer,Philipp Westermeyer,Other,,https://www.linkedin.com/in/philipp-westermeyer-omr,,web-research,3,Neu,Hamburg,https://omr.com,"Founder & CEO, OMR"
+Hansi Hansmann,Johann 'Hansi' Hansmann,Other,,https://www.linkedin.com/in/hansihansmann,,web-research,3,Neu,Vienna,https://hansmann.fo,Principal / Founder
+Florian Gschwandtner,Florian Gschwandtner,Other,info@florian.do,https://www.linkedin.com/in/floriangschwandtner,,web-research,4,Neu,Linz,https://en.florian.do,Angel Investor / Entrepreneur
+Stephan Uhrenbacher,Stephan Uhrenbacher,Other,,https://www.linkedin.com/in/uhrenbacher,,web-research,3,Neu,Hamburg,https://stephan-uhrenbacher.com,"Founder, Density Ventures GmbH"
+Jörgen Hausberger,INVEST EQUITY,Private Equity / Growth,office@investequity.at,,,web-research,3,Neu,Vienna,https://www.investequity.at,Managing Partner & Founder
+Edith Hlawati,Österreichische Beteiligungs AG (ÖBAG),Other,kontakt@oebag.gv.at,,,web-research,3,Neu,Vienna,https://www.oebag.gv.at,CEO
+Dr. Dominik Lamezan-Salins,Corecam Private Office GmbH,Multi Family Office,,https://www.linkedin.com/in/dominik-lamezan-salins-4623265a/,,web-research,3,Neu,Vienna,https://corecam.com,Partner & Co-CEO (Austria)
+Michaela Friepess,Pierer Industrie AG,Other,industrie@pierer.com,,,web-research,3,Neu,Wels,https://www.piererindustrie.at,Executive Board Member (Investor Relations & Sustainability)
+Christian Tury,FINAD GmbH,Multi Family Office,christian.tury@finad.com,https://www.linkedin.com/in/christian-tury-3a0711130/,,web-research,4,Neu,Vienna,https://www.finad.com,Managing Director Vienna / Chairman Investment Committee
+Bernhard Letzner,Segnalita Ventures GmbH,Other,office@segnalita.com,,,web-research,3,Neu,Wattens,https://www.segnalita.com,Managing Director
+Karl Lankmayr,AG Capital GmbH,Private Equity / Growth,k.lankmayr@agcapital.at,https://www.linkedin.com/in/karl-lankmayr-209b8971/,,web-research,4,Neu,Vienna,https://www.agcapital.at,Managing Director
+Daniel Gutenberg,Daniel Gutenberg,Other,info@hookipaag.ch,https://www.linkedin.com/in/danielgutenberg/,,web-research,4,Neu,Zurich,https://btov.vc,Private Investor (btov Partners); Venture Partner (VI Partners)

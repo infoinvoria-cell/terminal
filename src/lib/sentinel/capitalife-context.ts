@@ -176,3 +176,16 @@ export function getCapalifeContext(): string {
 export function getCapalifeContextConditional(_question?: string): string {
   return getCapalifeContext();
 }
+
+export function getBrainCacheStatus(): { cachedAt: number; ageMs: number; valid: boolean } {
+  const now = Date.now();
+  return { cachedAt, ageMs: now - cachedAt, valid: cached !== null && now - cachedAt < TTL };
+}
+
+export function getCapalifeContextBudgeted(maxContextTokens: number): string {
+  const full = getCapalifeContext();
+  const fullTokens = Math.ceil(full.length / 3.5);
+  if (fullTokens <= maxContextTokens) return full;
+  const charBudget = maxContextTokens * 3.5;
+  return full.slice(0, charBudget) + "\n...[context truncated to fit model budget]";
+}

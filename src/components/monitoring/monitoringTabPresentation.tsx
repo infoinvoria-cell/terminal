@@ -13,10 +13,9 @@ type TabIconProps = {
 const ICON_SIZE = 18;
 
 const STATUS_DOT: Record<string, { color: string; title: string }> = {
-  ok:      { color: "#22C55E", title: "Alle Daten geladen" },
+  // ok deliberately omitted — "data loaded" is not a backend signal, no decorative green dot
   partial: { color: "#C9A84C", title: "Teilweise geladen" },
   missing: { color: "#EF4444", title: "Daten fehlen" },
-  loading: { color: "#737373", title: "Lädt…" },
 };
 
 export function MonitoringTabIcon({ tabId, active, dataStatus }: TabIconProps) {
@@ -70,6 +69,23 @@ export function MonitoringTabIcon({ tabId, active, dataStatus }: TabIconProps) {
           size={ICON_SIZE}
           strokeWidth={active ? 2 : 1.6}
           className="monitoring-tab-icon-svg"
+        />
+        {dotEl}
+      </span>
+    );
+  }
+
+  if (tabId === "fx") {
+    return (
+      <span className={className} aria-hidden style={{ position: "relative" }}>
+        <img
+          src="/asset-icons/eurusd.png"
+          alt=""
+          className="monitoring-tab-icon-img"
+          width={ICON_SIZE}
+          height={ICON_SIZE}
+          decoding="async"
+          draggable={false}
         />
         {dotEl}
       </span>

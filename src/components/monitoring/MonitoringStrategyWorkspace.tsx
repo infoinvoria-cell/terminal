@@ -1778,6 +1778,9 @@ export default function MonitoringStrategyWorkspace({
       return <div className="msw-placeholder">Wähle ein oder mehrere Assets.</div>;
     }
     if (inputsState.phase !== "loaded" && !runningMode && !currentResult) {
+      if (currentBlocker) {
+        return <div className="msw-error">{currentBlocker}</div>;
+      }
       if (intradayEventsUrl) {
         return (
           <div className="msw-placeholder">

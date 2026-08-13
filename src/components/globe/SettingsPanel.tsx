@@ -1,14 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
-
-import { AssetIcon, shortName } from "@/lib/globe/icons";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Search } from "lucide-react";
+import { getMonitoringAssetIconUrl } from "@/lib/monitoring/monitoringAssetIcons";
+import type { MonitoringLiveFeedRow, MonitoringLiveFeedResponse, MonitoringLiveFeedStatus } from "@/lib/monitoring/live-feed-types";
 import type { AssetItem, OverlayToggleState } from "@/lib/globe/globe-types";
+
+type PriceDirection = "up" | "down" | "flat" | "unknown";
 
 type Props = {
   assets: AssetItem[];
-  enabledSet: Set<string>;
-  categoryEnabled: Record<string, boolean>;
+  enabledSet?: Set<string>;
+  categoryEnabled?: Record<string, boolean>;
   selectedAssetId: string;
   performanceMode?: boolean;
   goldThemeEnabled?: boolean;
@@ -16,602 +19,425 @@ type Props = {
   hideOverlayControls?: boolean;
   highlightedAssetIds?: string[];
   onSelectAsset: (assetId: string) => void;
-  onToggleAsset: (assetId: string) => void;
-  onToggleCategory: (category: string) => void;
-  onAllOn: () => void;
-  onAllOff: () => void;
+  onToggleAsset?: (assetId: string) => void;
+  onToggleCategory?: (category: string) => void;
+  onAllOn?: () => void;
+  onAllOff?: () => void;
   onRefreshData?: () => void;
   onAddSymbol?: (symbol: string) => void;
-  overlayState: OverlayToggleState;
+  overlayState?: OverlayToggleState;
   overlayLoadingState?: Partial<Record<keyof OverlayToggleState, boolean>>;
-  onToggleOverlay: (key: keyof OverlayToggleState) => void;
+  onToggleOverlay?: (key: keyof OverlayToggleState) => void;
+  prices?: Record<string, number>;
+  changes?: Record<string, number>;
 };
 
-type OverlayOption = {
-  key: keyof OverlayToggleState;
-  label: string;
-  description: string;
-};
+const FEED_TAB_ORDER = ["Agrar", "Metalle", "Energie", "Indizes", "FX", "Aktien", "Invest", "Anleihen"];
+const SKIP_TABS = new Set(["White Swan Portfolio", "Core Invest", "Intraday MT"]);
 
-// Priority: markets/indices first, then Forex, then commodities, then rest, crypto last.
-const CATEGORY_ORDER = ["Equities", "White Swan Portfolio", "Core Invest", "Intraday MT", "Stocks", "Cross Pairs", "FX", "Major FX", "Forex", "Commodities", "Metals", "Energy", "Agriculture", "Softs", "Livestock", "Macro", "Bonds", "Crypto"];
-
-function formatFxSymbol(symbol: string): string {
-  const raw = String(symbol || "").trim().toUpperCase();
-  if (!/^[A-Z]{6}$/.test(raw)) return raw;
-  return `${raw.slice(0, 3)}/${raw.slice(3, 6)}`;
-}
-
-function compactLabel(asset: AssetItem): string {
-  const isFxCategory = asset.category === "FX" || asset.category === "Cross Pairs" || asset.category === "Major FX";
-  if (isFxCategory) {
-    const fx = formatFxSymbol(asset.symbol);
-    if (fx) return fx;
+function formatPrice(value: number | null, precision: number | null): string {
+  if (value == null || !Number.isFinite(value)) return "-";
+  if (precision != null && Number.isFinite(precision)) {
+    return value.toLocaleString("en-US", { minimumFractionDigits: precision, maximumFractionDigits: precision });
   }
-  return shortName(asset.name, 11);
+  if (Math.abs(value) >= 1000) return value.toLocaleString("en-US", { maximumFractionDigits: 0 });
+  if (Math.abs(value) >= 100) return value.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  return value.toLocaleString("en-US", { maximumFractionDigits: 4 });
 }
 
-function TinyToggle({
-  checked,
-  goldThemeEnabled = false,
-  onClick,
-}: {
-  checked: boolean;
-  goldThemeEnabled?: boolean;
-  onClick: () => void;
-}) {
-  const accentBg = goldThemeEnabled ? "bg-[#c8c8c8]/28" : "bg-white/15";
-  const accentBorder = goldThemeEnabled ? "border-[#c8c8c8]/70" : "border-white/40";
-  const knobColor = goldThemeEnabled ? "bg-[#c8c8c8] shadow-[0_0_8px_rgba(200,200,200,.72)]" : "bg-white shadow-none";
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`relative h-[14px] w-[24px] rounded-full border transition ${
-        checked ? `${accentBorder} ${accentBg}` : "border-neutral-600/70 bg-neutral-800/70"
-      }`}
-      title={checked ? "On" : "Off"}
-      aria-label={checked ? "On" : "Off"}
-    >
+function formatChange(change: number | undefined): string {
+  if (change == null || !Number.isFinite(change)) return "";
+  const sign = change >= 0 ? "+" : "";
+  return `${sign}${change.toFixed(2)}%`;
+}
+
+function formatDelay(delaySeconds: number | null): string {
+  if (delaySeconds == null || delaySeconds <= 0) return "LIVE";
+  const minutes = Math.round(delaySeconds / 60);
+  return `${minutes}m`;
+}
+
+function getPriceColor(status: MonitoringLiveFeedStatus, direction: PriceDirection): string {
+  if (direction === "up") return "#f3f4f6";
+  if (direction === "down") return "#c9a84c";
+  if (status === "unavailable") return "rgba(255,255,255,0.3)";
+  return "rgba(241,245,249,0.76)";
+}
+
+function FeedStatusBadge({ status, delaySeconds }: { status: MonitoringLiveFeedStatus; delaySeconds: number | null }) {
+  if (status === "realtime") {
+    return (
+      <span style={{
+        width: 7, height: 7, borderRadius: "50%",
+        background: "rgba(255,255,255,0.28)",
+        boxShadow: "0 0 0 1px rgba(255,255,255,0.08)",
+        display: "inline-block",
+      }} />
+    );
+  }
+  if (status === "delayed") {
+    return (
       <span
-        className={`absolute top-[1px] h-[10px] w-[10px] rounded-full transition ${
-          checked ? `left-[11px] ${knobColor}` : "left-[1px] bg-neutral-400"
-        }`}
-      />
-    </button>
+        title={`Delayed | ${formatDelay(delaySeconds)}`}
+        style={{
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          minWidth: 26, height: 14, padding: "0 5px", borderRadius: 999,
+          background: "rgba(201,168,76,0.16)", color: "#c9a84c",
+          fontSize: 7, fontWeight: 700, letterSpacing: "0.03em", fontVariantNumeric: "tabular-nums",
+        }}
+      >
+        {formatDelay(delaySeconds)}
+      </span>
+    );
+  }
+  return (
+    <span style={{
+      width: 7, height: 7, borderRadius: "50%",
+      background: status === "stale" ? "rgba(255,255,255,0.28)" : "rgba(255,255,255,0.16)",
+      display: "inline-block",
+    }} />
   );
 }
 
-const OVERLAY_OPTIONS_CORE: OverlayOption[] = [
-  {
-    key: "earthquakes",
-    label: "Earthquakes",
-    description: "Shows global earthquake events with magnitude and severity levels.",
-  },
-  {
-    key: "conflicts",
-    label: "Conflicts",
-    description: "Displays active conflict zones and conflict-related geopolitical events.",
-  },
-  {
-    key: "wildfires",
-    label: "Wildfires",
-    description: "Highlights major wildfire events and affected regions.",
-  },
-  {
-    key: "shipTracking",
-    label: "Ship Tracking",
-    description: "Shows global tanker and container ship positions and routes.",
-  },
-  {
-    key: "oilRoutes",
-    label: "Oil Routes",
-    description: "Visualizes major oil tanker corridors and flow directions.",
-  },
-  {
-    key: "containerTraffic",
-    label: "Container Traffic",
-    description: "Maps container shipping traffic between major global ports.",
-  },
-  {
-    key: "commodityRegions",
-    label: "Commodity Regions",
-    description: "Highlights major production regions for key global commodities.",
-  },
-  {
-    key: "globalLiquidityMap",
-    label: "Global Liquidity",
-    description: "Displays regional liquidity conditions from central banks, USD funding stress and capital flows.",
-  },
-];
-
-const OVERLAY_OPTIONS_ADVANCED: OverlayOption[] = [
-  {
-    key: "globalRiskLayer",
-    label: "Global Risk Layer",
-    description: "Shows macro risk-on and risk-off conditions by region.",
-  },
-  {
-    key: "shippingDisruptions",
-    label: "Shipping Disruptions",
-    description: "Marks congestion and disruption hotspots across key maritime chokepoints.",
-  },
-  {
-    key: "commodityStressMap",
-    label: "Commodity Stress",
-    description: "Highlights commodity regions with elevated supply-side stress.",
-  },
-  {
-    key: "regionalAssetHighlight",
-    label: "Regional Highlight",
-    description: "Highlights mapped regions when an asset is selected.",
-  },
-];
+function AssetIcon({ row }: { row: MonitoringLiveFeedRow }) {
+  const url = getMonitoringAssetIconUrl({ code: row.ticker, name: row.name, source: row.source, displaySymbol: row.ticker });
+  if (!url) {
+    return (
+      <span style={{
+        width: 15, height: 15, borderRadius: 4, display: "inline-flex",
+        alignItems: "center", justifyContent: "center",
+        background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.58)",
+        fontSize: 8, fontWeight: 700, flexShrink: 0,
+      }}>
+        {row.ticker.slice(0, 1)}
+      </span>
+    );
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={url} alt="" width={15} height={15}
+      style={{ width: 15, height: 15, borderRadius: 4, objectFit: "contain", flexShrink: 0 }}
+    />
+  );
+}
 
 export function SettingsPanel({
   assets,
-  enabledSet,
-  categoryEnabled,
   selectedAssetId,
-  performanceMode = false,
-  goldThemeEnabled = false,
-  compactAssetLabels = false,
-  hideOverlayControls = false,
-  highlightedAssetIds,
   onSelectAsset,
-  onToggleAsset,
-  onToggleCategory,
-  onAllOn,
-  onAllOff,
-  onRefreshData,
-  onAddSymbol,
-  overlayState,
-  overlayLoadingState,
-  onToggleOverlay,
+  changes,
 }: Props) {
   const [search, setSearch] = useState("");
-  const [addOpen, setAddOpen] = useState(false);
-  const [addValue, setAddValue] = useState("");
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
-  const [openTooltipKey, setOpenTooltipKey] = useState<keyof OverlayToggleState | null>(null);
-  const [coreDropdownOpen, setCoreDropdownOpen] = useState(false);
-  const [advancedDropdownOpen, setAdvancedDropdownOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [rows, setRows] = useState<MonitoringLiveFeedRow[]>([]);
+  const [priceDirection, setPriceDirection] = useState<Record<string, PriceDirection>>({});
+  const [canScrollMore, setCanScrollMore] = useState(false);
+  const prevPricesRef = useRef<Record<string, number | null>>({});
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
 
-  const groupedFull = useMemo(() => {
-    const map = new Map<string, AssetItem[]>();
-    CATEGORY_ORDER.forEach((cat) => map.set(cat, []));
-    for (const asset of assets) {
-      const bucket = map.get(asset.category) ?? [];
-      bucket.push(asset);
-      map.set(asset.category, bucket);
-    }
+  // Polling live-feed every 30s
+  useEffect(() => {
+    let mounted = true;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const load = async () => {
+      try {
+        const res = await fetch("/api/monitoring/live-feed", { cache: "no-store" });
+        if (!res.ok || !mounted) return;
+        const payload = (await res.json()) as MonitoringLiveFeedResponse;
+        if (!mounted) return;
+
+        const nextDirections: Record<string, PriceDirection> = {};
+        for (const row of payload.items) {
+          const prev = prevPricesRef.current[row.ticker];
+          const next = row.price;
+          if (prev == null || next == null) nextDirections[row.ticker] = "unknown";
+          else if (next > prev) nextDirections[row.ticker] = "up";
+          else if (next < prev) nextDirections[row.ticker] = "down";
+          else nextDirections[row.ticker] = "flat";
+          prevPricesRef.current[row.ticker] = next;
+        }
+        setRows(payload.items);
+        setPriceDirection(nextDirections);
+      } catch {
+        // ignore
+      }
+      if (mounted) timer = setTimeout(load, 30_000);
+    };
+
+    load();
+    return () => {
+      mounted = false;
+      if (timer) clearTimeout(timer);
+    };
+  }, []);
+
+  // Scroll fade
+  useEffect(() => {
+    const node = scrollRef.current;
+    if (!node) return;
+    const syncFade = () => setCanScrollMore(node.scrollTop + node.clientHeight < node.scrollHeight - 2);
+    syncFade();
+    node.addEventListener("scroll", syncFade);
+    const ro = new ResizeObserver(syncFade);
+    ro.observe(node);
+    return () => { node.removeEventListener("scroll", syncFade); ro.disconnect(); };
+  }, [rows]);
+
+  // Focus search input when opened
+  useEffect(() => {
+    if (searchOpen) searchInputRef.current?.focus();
+  }, [searchOpen]);
+
+  // symbol → asset map (for selection + changes lookup)
+  const symbolToAsset = useMemo(() => {
+    const map = new Map<string, AssetItem>();
+    for (const a of assets) map.set(a.symbol.toUpperCase(), a);
     return map;
   }, [assets]);
 
-  const orderedCategories = useMemo(() => {
-    const known = CATEGORY_ORDER.filter((category) => (groupedFull.get(category) ?? []).length > 0);
-    const unknown = Array.from(groupedFull.keys())
-      .filter((category) => !CATEGORY_ORDER.includes(category) && (groupedFull.get(category) ?? []).length > 0)
-      .sort((left, right) => left.localeCompare(right));
-    return [...known, ...unknown];
-  }, [groupedFull]);
+  // id → change% map
+  const changeBySymbol = useMemo(() => {
+    if (!changes) return new Map<string, number>();
+    const map = new Map<string, number>();
+    for (const asset of assets) {
+      const pct = changes[asset.id];
+      if (pct != null) map.set(asset.symbol.toUpperCase(), pct);
+    }
+    return map;
+  }, [changes, assets]);
 
+  const selectedAsset = useMemo(() => assets.find((a) => a.id === selectedAssetId), [assets, selectedAssetId]);
+
+  // Grouped rows by tab, filtered by search
   const grouped = useMemo(() => {
     const term = search.trim().toLowerCase();
-    const map = new Map<string, AssetItem[]>();
-    orderedCategories.forEach((cat) => {
-      const base = groupedFull.get(cat) ?? [];
-      if (!term) {
-        map.set(cat, base);
-        return;
+    const map = new Map<string, MonitoringLiveFeedRow[]>();
+
+    for (const row of rows) {
+      if (SKIP_TABS.has(row.tab)) continue;
+      if (term) {
+        const haystack = `${row.ticker} ${row.name}`.toLowerCase();
+        if (!haystack.includes(term)) continue;
       }
-      map.set(cat, base.filter((asset) => {
-        const haystack = [
-          asset.name,
-          asset.symbol,
-          asset.tvSource,
-          asset.country,
-          asset.id,
-        ]
-          .join(" ")
-          .toLowerCase();
-        return haystack.includes(term);
-      }));
-    });
-    return map;
-  }, [groupedFull, orderedCategories, search]);
+      const bucket = map.get(row.tab) ?? [];
+      bucket.push(row);
+      map.set(row.tab, bucket);
+    }
 
-  const totalVisible = useMemo(
-    () => [...grouped.values()].reduce((sum, list) => sum + list.length, 0),
-    [grouped],
-  );
+    const ordered: [string, MonitoringLiveFeedRow[]][] = [];
+    for (const tab of FEED_TAB_ORDER) {
+      const list = map.get(tab);
+      if (list && list.length > 0) ordered.push([tab, list]);
+    }
+    for (const [tab, list] of map.entries()) {
+      if (!FEED_TAB_ORDER.includes(tab) && list.length > 0) ordered.push([tab, list]);
+    }
+    return ordered;
+  }, [rows, search]);
 
-  const accentBorder = goldThemeEnabled ? "border-[#c8c8c8]/72" : "border-white/25";
-  const accentHoverBorder = goldThemeEnabled ? "hover:border-[#c8c8c8]/50" : "hover:border-white/30";
-  const accentText = goldThemeEnabled ? "text-[#ffffff]" : "text-white";
-  const activeCoreCount = OVERLAY_OPTIONS_CORE.filter((opt) => Boolean(overlayState[opt.key])).length;
-  const activeAdvancedCount = OVERLAY_OPTIONS_ADVANCED.filter((opt) => Boolean(overlayState[opt.key])).length;
-  const anyOverlayLoading = useMemo(
-    () => Object.values(overlayLoadingState ?? {}).some((v) => Boolean(v)),
-    [overlayLoadingState],
-  );
+  const isEmpty = grouped.length === 0;
 
-  const overlayStateText = (key: keyof OverlayToggleState, active: boolean): string => {
-    const loading = Boolean(overlayLoadingState?.[key]);
-    if (loading) return "Loading";
-    return active ? "On" : "Off";
-  };
-
-  const renderOverlayChoiceRow = (opt: OverlayOption) => {
-    const active = Boolean(overlayState[opt.key]);
-    const loading = Boolean(overlayLoadingState?.[opt.key]);
-    const tooltipOpen = openTooltipKey === opt.key;
-    return (
-      <div
-        key={opt.key}
-        className="relative"
-        onMouseLeave={() => {
-          setOpenTooltipKey((prev) => (prev === opt.key ? null : prev));
-        }}
-      >
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => onToggleOverlay(opt.key)}
-            className={`flex h-7 min-w-0 flex-1 items-center justify-between rounded-md border px-2 text-left text-[10px] font-semibold transition ${
-              active
-                ? `${accentBorder} ${accentText} bg-transparent`
-                : "border-neutral-700/60 bg-transparent text-neutral-200 hover:border-neutral-500/70"
-            }`}
-            aria-pressed={active}
-            title={`${opt.label} ${active ? "deaktivieren" : "aktivieren"}`}
-          >
-            <span className="min-w-0 truncate leading-tight">{opt.label}</span>
-            <span className="ml-2 inline-flex items-center gap-1.5">
-              <span
-                className={`text-[8px] font-semibold uppercase tracking-[0.08em] ${
-                  loading ? (goldThemeEnabled ? "text-[#ffffff]" : "text-[rgba(255,255,255,0.6)]") : (active ? accentText : "text-neutral-400")
-                }`}
-              >
-                {overlayStateText(opt.key, active)}
-              </span>
-              <span
-                role="button"
-                tabIndex={0}
-                title="Info"
-                aria-label={`${opt.label} info`}
-                className={`inline-flex h-4 w-4 items-center justify-center rounded-full border text-[9px] leading-none transition ${
-                  goldThemeEnabled
-                    ? "border-[#c8c8c8]/50 text-[#ffffff] hover:border-[#c8c8c8]/75"
-                    : "border-neutral-500/70 text-neutral-300 hover:border-white/50 hover:text-white"
-                }`}
-                onMouseEnter={(event) => {
-                  event.stopPropagation();
-                  setOpenTooltipKey(opt.key);
-                }}
-                onClick={(event) => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  setOpenTooltipKey((prev) => (prev === opt.key ? null : opt.key));
-                }}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    setOpenTooltipKey((prev) => (prev === opt.key ? null : opt.key));
-                  }
-                }}
-              >
-                i
-              </span>
-            </span>
-          </button>
-        </div>
-        <div
-          className={`pointer-events-none absolute left-0 top-[calc(100%+5px)] z-30 max-w-[260px] rounded-md border border-neutral-600/70 bg-[rgba(6,12,22,0.96)] px-2 py-1.5 text-[10px] leading-snug text-neutral-200 shadow-[0_10px_28px_rgba(0,0,0,0.45)] transition ${
-            tooltipOpen ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
-          }`}
-        >
-          {opt.description}
-        </div>
-      </div>
-    );
-  };
-
-  const renderDropdownHeader = (title: string, open: boolean, onToggle: () => void, activeCount: number, totalCount: number) => {
-    return (
-      <button
-        type="button"
-        onClick={onToggle}
-        className={`flex h-7 w-full items-center justify-between rounded-md border px-2 text-[10px] font-semibold transition ${accentHoverBorder} border-neutral-700/60 bg-transparent text-neutral-200`}
-      >
-        <span className="text-left">{title}</span>
-        <span className="ml-2 inline-flex items-center gap-1">
-          <span className={`text-[9px] ${activeCount > 0 ? accentText : "text-neutral-400"}`}>{`${activeCount}/${totalCount}`}</span>
-          <span className="text-[10px] text-neutral-300">{open ? "v" : ">"}</span>
-        </span>
-      </button>
-    );
-  };
-
-  const renderAssetsRow = () => {
-    const active = Boolean(overlayState.assets);
-    const loading = Boolean(overlayLoadingState?.assets);
-    const tooltipOpen = openTooltipKey === "assets";
-    return (
-      <div
-        className="relative"
-        onMouseLeave={() => {
-          setOpenTooltipKey((prev) => (prev === "assets" ? null : prev));
-        }}
-      >
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => onToggleOverlay("assets")}
-            className={`flex h-8 min-w-0 flex-1 items-center justify-between rounded-md border px-2 text-left text-[11px] font-semibold transition ${
-              active
-                ? `${accentBorder} ${accentText} bg-transparent`
-                : "border-neutral-700/65 bg-transparent text-neutral-200 hover:border-neutral-500/70"
-            }`}
-            aria-pressed={active}
-            title={`Assets ${active ? "deaktivieren" : "aktivieren"}`}
-          >
-            <span className="min-w-0 truncate leading-tight">Assets</span>
-            <span className="ml-2 inline-flex items-center gap-1.5">
-              <span
-                className={`text-[8px] font-semibold uppercase tracking-[0.08em] ${
-                  loading ? (goldThemeEnabled ? "text-[#ffffff]" : "text-[rgba(255,255,255,0.6)]") : (active ? accentText : "text-neutral-400")
-                }`}
-              >
-                {overlayStateText("assets", active)}
-              </span>
-              <span
-                role="button"
-                tabIndex={0}
-                title="Info"
-                aria-label="Assets info"
-                className={`inline-flex h-4 w-4 items-center justify-center rounded-full border text-[9px] leading-none transition ${
-                  goldThemeEnabled
-                    ? "border-[#c8c8c8]/50 text-[#ffffff] hover:border-[#c8c8c8]/75"
-                    : "border-neutral-500/70 text-neutral-300 hover:border-white/50 hover:text-white"
-                }`}
-                onMouseEnter={(event) => {
-                  event.stopPropagation();
-                  setOpenTooltipKey("assets");
-                }}
-                onClick={(event) => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  setOpenTooltipKey((prev) => (prev === "assets" ? null : "assets"));
-                }}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    setOpenTooltipKey((prev) => (prev === "assets" ? null : "assets"));
-                  }
-                }}
-              >
-                i
-              </span>
-            </span>
-          </button>
-        </div>
-        <div
-          className={`pointer-events-none absolute left-0 top-[calc(100%+5px)] z-30 max-w-[260px] rounded-md border border-neutral-600/70 bg-[rgba(6,12,22,0.96)] px-2 py-1.5 text-[10px] leading-snug text-neutral-200 shadow-[0_10px_28px_rgba(0,0,0,0.45)] transition ${
-            tooltipOpen ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
-          }`}
-        >
-          Shows or hides the global asset marker universe on both maps.
-        </div>
-      </div>
-    );
-  };
+  // Grid: status | symbol+name | % | price
+  const COL = "28px minmax(0,1fr) 42px 58px";
 
   return (
-    <div className={`ivq-settings-panel glass-panel flex h-full flex-col overflow-hidden rounded-xl ${performanceMode ? "ivq-settings-panel--perf" : ""}`}>
-      <div className="mb-2 flex items-center gap-1.5">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search"
-          className={`ivq-settings-search h-7 min-w-0 flex-1 rounded-md border border-neutral-700/65 bg-transparent px-2 text-[11px] text-neutral-100 outline-none placeholder:text-neutral-500 ${goldThemeEnabled ? "focus:border-[#c8c8c8]/60" : "focus:border-white/40"}`}
-        />
+    <div style={{
+      display: "flex", flexDirection: "column", height: "100%", overflow: "hidden",
+      background: "linear-gradient(to bottom, #191a1f, #0d0e12)",
+    }}>
+      {/* ── Header row: Watchliste title + search toggle ── */}
+      <div style={{
+        display: "flex", alignItems: "center", gap: 6,
+        padding: "10px 12px 6px",
+        flexShrink: 0,
+        borderBottom: searchOpen ? "none" : "1px solid rgba(255,255,255,0.05)",
+      }}>
+        <span style={{ flex: 1, fontSize: 11, fontWeight: 700, color: "#f5f7fa", letterSpacing: "0.04em", textTransform: "uppercase" }}>
+          Watchliste
+        </span>
         <button
           type="button"
-          onClick={onAllOn}
-          className={`ivq-settings-action h-7 rounded-md border bg-transparent px-2 text-[10px] font-semibold ${performanceMode ? "" : "transition"} ${accentBorder} ${accentText} ${goldThemeEnabled ? "hover:border-[#c8c8c8]/85" : "hover:border-white/50"}`}
+          onClick={() => { setSearchOpen((v) => !v); if (searchOpen) setSearch(""); }}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            width: 26, height: 26, borderRadius: 8,
+            border: searchOpen ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(255,255,255,0.08)",
+            background: searchOpen ? "rgba(255,255,255,0.08)" : "transparent",
+            color: searchOpen ? "#f3f4f6" : "rgba(255,255,255,0.45)",
+            cursor: "pointer", transition: "all 140ms ease",
+          }}
         >
-          All On
+          <Search size={12} strokeWidth={2} />
         </button>
-        <button
-          type="button"
-          onClick={onAllOff}
-          className={`ivq-settings-action h-7 rounded-md border border-neutral-700/65 bg-transparent px-2 text-[10px] font-semibold text-neutral-200 ${performanceMode ? "" : "transition"} hover:border-neutral-500/70`}
-        >
-          All Off
-        </button>
-        {onRefreshData ? (
-          <button
-            type="button"
-            onClick={onRefreshData}
-            className={`ivq-settings-action h-7 rounded-md border bg-transparent px-2 text-[10px] font-semibold ${performanceMode ? "" : "transition"} ${
-              goldThemeEnabled
-                ? "border-[#c8c8c8]/58 text-[#ffffff] hover:border-[#c8c8c8]/85"
-                : "border-white/25 text-white hover:border-white/50"
-            }`}
-          >
-            Refresh
-          </button>
-        ) : null}
-        {onAddSymbol ? (
-          <button
-            type="button"
-            title="Add symbol (Yahoo)"
-            onClick={() => setAddOpen((v) => !v)}
-            className={`ivq-settings-action h-7 w-7 shrink-0 rounded-md border bg-transparent text-[13px] font-bold leading-none ${performanceMode ? "" : "transition"} border-[#c8c8c8]/60 text-[#c8c8c8] hover:border-[#c8c8c8]`}
-          >
-            +
-          </button>
-        ) : null}
       </div>
-      {onAddSymbol && addOpen ? (
-        <div className="mb-2 flex items-center gap-1.5">
+
+      {/* ── Search input (shown when searchOpen) ── */}
+      {searchOpen && (
+        <div style={{ padding: "0 8px 6px", flexShrink: 0 }}>
           <input
-            autoFocus
-            value={addValue}
-            onChange={(e) => setAddValue(e.target.value.toUpperCase())}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && addValue.trim()) {
-                onAddSymbol(addValue.trim());
-                setAddValue("");
-                setAddOpen(false);
-              } else if (e.key === "Escape") {
-                setAddValue("");
-                setAddOpen(false);
-              }
+            ref={searchInputRef}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search assets..."
+            style={{
+              width: "100%", height: 26,
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: 999,
+              padding: "0 12px",
+              fontSize: 11, color: "#f1f5f9",
+              outline: "none", boxSizing: "border-box",
             }}
-            placeholder="Yahoo ticker e.g. AAPL, TSLA, BTC-USD"
-            className="h-7 min-w-0 flex-1 rounded-md border border-[#c8c8c8]/40 bg-transparent px-2 text-[11px] text-neutral-100 outline-none placeholder:text-neutral-500 focus:border-[#c8c8c8]/80"
           />
-          <button
-            type="button"
-            onClick={() => {
-              if (addValue.trim()) {
-                onAddSymbol(addValue.trim());
-                setAddValue("");
-                setAddOpen(false);
-              }
-            }}
-            className="ivq-settings-action h-7 rounded-md border border-[#c8c8c8]/60 bg-transparent px-2 text-[10px] font-semibold text-[#c8c8c8] hover:border-[#c8c8c8]"
-          >
-            Add
-          </button>
         </div>
-      ) : null}
-
-      <div className="ivq-settings-scroll scroll-thin min-h-0 flex-1 overflow-y-auto pr-0.5">
-        {orderedCategories.map((category) => {
-          const list = grouped.get(category) ?? [];
-          if (!list.length) return null;
-          const totalCount = (groupedFull.get(category) ?? []).length;
-          const visibleCount = list.length;
-          const isOn = categoryEnabled[category] !== false;
-          const isCollapsed = Boolean(collapsed[category]);
-          return (
-            <section
-              key={category}
-              className="ivq-settings-category mb-1.5 rounded-lg border border-neutral-700/40 bg-transparent last:mb-0"
-              style={performanceMode ? { contentVisibility: "auto", containIntrinsicSize: "200px" } : undefined}
-            >
-              <div className="flex items-center justify-between gap-1 px-1.5 py-1">
-                <div className="flex items-center gap-1.5">
-                  <TinyToggle checked={isOn} goldThemeEnabled={goldThemeEnabled} onClick={() => onToggleCategory(category)} />
-                  <button
-                    type="button"
-                    onClick={() => setCollapsed((prev) => ({ ...prev, [category]: !prev[category] }))}
-                    className="text-[10px] font-semibold uppercase tracking-[0.1em] text-neutral-300"
-                  >
-                    {category} ({visibleCount === totalCount ? `${totalCount}` : `${visibleCount}/${totalCount}`})
-                  </button>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setCollapsed((prev) => ({ ...prev, [category]: !prev[category] }))}
-                  className="rounded border border-neutral-700/60 px-1 text-[10px] text-neutral-400"
-                >
-                  {isCollapsed ? "+" : "-"}
-                </button>
-              </div>
-
-              {!isCollapsed && (
-                <div className={`ivq-settings-category-grid grid grid-cols-3 gap-1 px-1.5 pb-1.5 ${isOn ? "" : "opacity-55"}`}>
-                  {list.map((asset) => {
-                    const markerSelectable = asset.category !== "Cross Pairs" && asset.showOnGlobe !== false;
-                    const checked = markerSelectable && enabledSet.has(asset.id);
-                    const selected = selectedAssetId === asset.id;
-                    const impactHi = !!highlightedAssetIds && highlightedAssetIds.includes(asset.id);
-                    return (
-                      <div
-                        key={asset.id}
-                        style={impactHi ? { boxShadow: "0 0 0 1px rgba(212,175,55,0.7), 0 0 10px rgba(212,175,55,0.35)", background: "rgba(212,175,55,0.10)" } : undefined}
-                        className={`ivq-settings-asset flex h-6 items-center gap-1 rounded-md px-1 text-[10px] ${performanceMode ? "" : "transition"} ${
-                          impactHi
-                            ? "text-[#f0d98c]"
-                            : selected
-                            ? `${goldThemeEnabled ? "bg-[#c8c8c8]/16 text-[#ffffff]" : "bg-white/10 text-white"}`
-                            : markerSelectable && checked
-                              ? `${goldThemeEnabled ? "bg-[#c8c8c8]/08 text-[#c8c8c8]" : "bg-white/[0.04] text-white/70"}`
-                              : "text-neutral-400"
-                        }`}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => onSelectAsset(asset.id)}
-                          className="flex min-w-0 flex-1 items-center gap-1 text-left"
-                          title={`${asset.name} auswaehlen`}
-                          aria-label={`${asset.name} auswaehlen`}
-                        >
-                          <AssetIcon assetId={asset.id} iconKey={asset.iconKey} category={asset.category} assetName={asset.name} assetSymbol={asset.symbol} />
-                          <span className="min-w-0 flex-1 truncate">{compactAssetLabels ? compactLabel(asset) : shortName(asset.name, 11)}</span>
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </section>
-          );
-        })}
-        {/* Yahoo Finance search hint when no match */}
-        {search.trim() && totalVisible === 0 && onAddSymbol ? (
-          <div className="flex flex-col items-center gap-1.5 py-3">
-            <span className="text-[10px] text-neutral-400">No asset found for &ldquo;{search}&rdquo;</span>
-            <button
-              type="button"
-              onClick={() => { onAddSymbol(search.trim().toUpperCase()); setSearch(""); }}
-              className="h-7 rounded-md border border-[#c8c8c8]/60 bg-transparent px-3 text-[10px] font-semibold text-[#c8c8c8] transition hover:border-[#c8c8c8]"
-            >
-              + Add &ldquo;{search.trim().toUpperCase()}&rdquo; via Yahoo Finance
-            </button>
-          </div>
-        ) : null}
-      </div>
-
-      {hideOverlayControls ? null : (
-      <div className="mt-2 rounded-lg border border-neutral-700/45 bg-transparent p-2">
-        <div className="mb-1 flex items-center justify-between gap-2">
-          <div className="ivq-section-label mb-0">Overlay Control</div>
-          <div className="inline-flex items-center gap-1 text-[9px] font-semibold tracking-[0.08em] uppercase">
-            <span className={anyOverlayLoading ? (goldThemeEnabled ? "text-[#ffffff]" : "text-[rgba(255,255,255,0.6)]") : "text-[#b2c5de]"}>
-              {anyOverlayLoading ? "Loading" : "Ready"}
-            </span>
-          </div>
-        </div>
-        <div className="space-y-2">
-          {renderAssetsRow()}
-
-          <div>
-            {renderDropdownHeader("Overlays", coreDropdownOpen, () => setCoreDropdownOpen((v) => !v), activeCoreCount, OVERLAY_OPTIONS_CORE.length)}
-            {coreDropdownOpen ? (
-              <div className="mt-1.5 grid grid-cols-1 gap-1.5 min-[480px]:grid-cols-2">
-                {OVERLAY_OPTIONS_CORE.map((opt) => renderOverlayChoiceRow(opt))}
-              </div>
-            ) : null}
-          </div>
-
-          <div>
-            {renderDropdownHeader("Advanced", advancedDropdownOpen, () => setAdvancedDropdownOpen((v) => !v), activeAdvancedCount, OVERLAY_OPTIONS_ADVANCED.length)}
-            {advancedDropdownOpen ? (
-              <div className="mt-1.5 grid grid-cols-1 gap-1.5 min-[480px]:grid-cols-2">
-                {OVERLAY_OPTIONS_ADVANCED.map((opt) => renderOverlayChoiceRow(opt))}
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </div>
       )}
+
+      {/* ── Column headers ── */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: COL,
+        alignItems: "center",
+        padding: "0 10px",
+        height: 22,
+        flexShrink: 0,
+        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        color: "rgba(255,255,255,0.3)",
+        fontSize: 9, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase",
+      }}>
+        <span />
+        <span>Symbol</span>
+        <span style={{ textAlign: "right" }}>%</span>
+        <span style={{ textAlign: "right" }}>Price</span>
+      </div>
+
+      {/* ── Scrollable list ── */}
+      <div style={{ position: "relative", flex: "1 1 0", minHeight: 0 }}>
+        <div
+          ref={scrollRef}
+          style={{
+            position: "absolute", inset: 0,
+            overflowY: "auto",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          } as React.CSSProperties}
+        >
+          {grouped.map(([tab, list]) => (
+            <div key={tab}>
+              {/* Section header */}
+              <div style={{
+                padding: "5px 10px 3px",
+                fontSize: 9, fontWeight: 700,
+                textTransform: "uppercase", letterSpacing: "0.08em",
+                color: "rgba(255,255,255,0.28)",
+                background: "rgba(255,255,255,0.02)",
+                borderBottom: "1px solid rgba(255,255,255,0.04)",
+                userSelect: "none",
+              }}>
+                {tab}
+              </div>
+
+              {list.map((row) => {
+                const direction = priceDirection[row.ticker] ?? "unknown";
+                const asset = symbolToAsset.get(row.ticker.toUpperCase());
+                const isSelected = selectedAsset?.symbol.toUpperCase() === row.ticker.toUpperCase();
+                const changePct = changeBySymbol.get(row.ticker.toUpperCase());
+                const changeStr = formatChange(changePct);
+                const changePositive = changePct != null && changePct >= 0;
+
+                return (
+                  <button
+                    key={row.instrumentId}
+                    type="button"
+                    onClick={() => { if (asset) onSelectAsset(asset.id); }}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: COL,
+                      gap: 6,
+                      alignItems: "center",
+                      width: "100%", height: 34,
+                      padding: "0 10px",
+                      background: isSelected ? "rgba(255,255,255,0.08)" : "transparent",
+                      border: "none",
+                      borderBottom: "1px solid rgba(255,255,255,0.035)",
+                      cursor: "pointer", textAlign: "left",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isSelected) (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.04)";
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isSelected) (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                    }}
+                    title={row.name}
+                  >
+                    {/* Status badge */}
+                    <span style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <FeedStatusBadge status={row.feedStatus} delaySeconds={row.delaySeconds} />
+                    </span>
+
+                    {/* Icon + ticker + name */}
+                    <span style={{ display: "flex", alignItems: "center", gap: 5, minWidth: 0 }}>
+                      <AssetIcon row={row} />
+                      <span style={{ display: "flex", alignItems: "baseline", gap: 4, minWidth: 0, overflow: "hidden" }}>
+                        <span style={{
+                          fontSize: 11, fontWeight: 700, color: "#f8fafc",
+                          whiteSpace: "nowrap", flexShrink: 0,
+                        }}>
+                          {row.ticker}
+                        </span>
+                        <span style={{
+                          fontSize: 9, color: "rgba(255,255,255,0.38)",
+                          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                        }}>
+                          {row.name}
+                        </span>
+                      </span>
+                    </span>
+
+                    {/* % change */}
+                    <span style={{
+                      fontSize: 9, fontWeight: 600,
+                      color: changeStr
+                        ? changePositive ? "#6ee7b7" : "#c9a84c"
+                        : "rgba(255,255,255,0.2)",
+                      textAlign: "right", whiteSpace: "nowrap",
+                      fontVariantNumeric: "tabular-nums",
+                    }}>
+                      {changeStr || "—"}
+                    </span>
+
+                    {/* Price */}
+                    <span style={{
+                      fontSize: 11, fontVariantNumeric: "tabular-nums",
+                      color: getPriceColor(row.feedStatus, direction),
+                      textAlign: "right", whiteSpace: "nowrap",
+                      transition: "color 180ms ease",
+                    }}>
+                      {formatPrice(row.price, row.pricePrecision)}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+
+          {isEmpty && (
+            <div style={{ padding: "16px 10px", fontSize: 11, color: "rgba(255,255,255,0.3)", textAlign: "center" }}>
+              {search.trim() ? `No results for "${search}"` : "Loading…"}
+            </div>
+          )}
+        </div>
+
+        {/* Bottom gradient fade */}
+        {canScrollMore && (
+          <div style={{
+            position: "absolute", bottom: 0, left: 0, right: 0, height: 34,
+            background: "linear-gradient(180deg, rgba(13,14,18,0) 0%, rgba(13,14,18,0.96) 100%)",
+            pointerEvents: "none",
+          }} />
+        )}
+      </div>
     </div>
   );
 }

@@ -104,6 +104,7 @@ export function SentinelSessionProvider({ children, userId }: { children: React.
   const inputRef = useRef(input);
   const queuedMsgRef = useRef<string | null>(initialSession.queuedPreview ?? null);
   const queueInFlightRef = useRef(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     entriesRef.current = entries;
@@ -174,6 +175,11 @@ export function SentinelSessionProvider({ children, userId }: { children: React.
       return;
     }
 
+    // Cancel any previous in-flight request
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     const baseEntries = entriesOverride ?? entriesRef.current;
     const nextEntries = [...baseEntries, { role: "user", content: text } satisfies ChatEntry];
     entriesRef.current = nextEntries;
@@ -200,6 +206,7 @@ export function SentinelSessionProvider({ children, userId }: { children: React.
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: historyMessages, stream: true }),
+        signal: controller.signal,
       });
 
       const contentType = res.headers.get("content-type") ?? "";
@@ -290,6 +297,11 @@ export function SentinelSessionProvider({ children, userId }: { children: React.
       setError(null);
       setRetryText(null);
     } catch (fetchError) {
+      // AbortError = user cancelled — not a real error
+      if (fetchError instanceof Error && fetchError.name === "AbortError") {
+        setCurrentRun((previous) => ({ ...previous, status: "cancelled", error: null, updatedAt: nowIso() }));
+        return;
+      }
       const message = fetchError instanceof Error && fetchError.message
         ? `Netzwerkfehler beim Erreichen von Sentinel.\n${fetchError.message}`
         : "Netzwerkfehler beim Erreichen von Sentinel.";
@@ -300,6 +312,7 @@ export function SentinelSessionProvider({ children, userId }: { children: React.
       setRetryText(text);
       setCurrentRun((previous) => ({ ...previous, status: "failed", error: message, updatedAt: nowIso() }));
     } finally {
+      abortControllerRef.current = null;
       setSending(false);
       setStreamStarted(false);
       setBusy(false);

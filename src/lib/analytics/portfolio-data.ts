@@ -1,5 +1,6 @@
 import type { CapalifeData } from "@/lib/capitalife-data";
 import type { FSPortfolioSnapshot } from "@/lib/fsportfolio/types";
+import { WHITE_SWAN_ANALYTICS_GROUPS } from "@/lib/white-swan/portfolio-truth";
 
 export type AnalyticsTab = "whiteSwan" | "invest" | "combined";
 export type AnalyticsMode = "live" | "backtest";
@@ -56,6 +57,7 @@ export type AnalyticsDataset = {
   benchmarkSeries: AnalyticsSeriesPoint[];
   groupSeries: Record<string, AnalyticsSeriesPoint[]>;
   fullGroupSeries?: Record<string, AnalyticsSeriesPoint[]>;
+  strategySeries?: Record<string, AnalyticsSeriesPoint[]>;
   assetMeta?: Record<string, AssetMeta>;
   annualReturns: AnalyticsBar[];
   monthlyReturns: AnalyticsBar[];
@@ -82,16 +84,13 @@ function formatAssetStatusSummary(statuses: Record<string, { status: string }>) 
   return symbols.map((symbol) => `${symbol}:${statuses[symbol]?.status ?? "missing"}`).join(" | ");
 }
 
-const WHITE_SWAN_GROUPS = [
-  // WS v2.0 — 40% Seasonal + 27% Anomaly + 33% Intraday
-  { id: "Seasonal Sleeve", label: "Seasonal (12)", assets: 12, strategies: 12, weight: 0.40 },
-  { id: "Intraday MT v3-F", label: "Intraday (3)", assets: 3, strategies: 3, weight: 0.33 },
-  { id: "GC1 Friday Long", label: "GC1 Friday Long", assets: 1, strategies: 1, weight: 0.09 },
-  { id: "GLD Thursday Long", label: "GLD Thursday Long", assets: 1, strategies: 1, weight: 0.09 },
-  { id: "YM1 TAT", label: "YM1 TAT", assets: 1, strategies: 1, weight: 0.09 },
+const WHITE_SWAN_GROUPS = WHITE_SWAN_ANALYTICS_GROUPS;
+
+const COMBINED_GROUPS = [
+  ...WHITE_SWAN_GROUPS,
+  { id: "Invest", label: "Invest", assets: 1, strategies: 1, weight: null },
 ] as const;
 
-const COMBINED_GROUPS = [...WHITE_SWAN_GROUPS, { id: "Invest", label: "Invest", assets: 1, strategies: 1, weight: null }] as const;
 const INVEST_GROUPS = [
   // CI v2.0: ETF-Core 80% (QQQ 45% · GLD 25% · SPMO 5% · SPY 5%) + Sleeves 20% (4×5%)
   { id: "QQQ_PASSIVE", label: "QQQ passive", assets: 1, strategies: 1, weight: 0.45 },
@@ -156,6 +155,7 @@ function createBacktestDataset(tab: AnalyticsTab, data: CapalifeData): Analytics
     drawdownSeries: Array<{ date: string; value: number | null }>;
     benchmarkSeries: Array<{ date: string; value: number | null }>;
     groupSeries?: Record<string, Array<{ date: string; value: number | null }>>;
+    strategySeries?: Record<string, Array<{ date: string; value: number | null }>>;
     annualReturns: Array<{ year: string; value: number | null }>;
     monthlyReturns: Array<{ month: string; value: number | null }>;
     groupBars: Array<{ group: string; value: number }>;
@@ -167,6 +167,13 @@ function createBacktestDataset(tab: AnalyticsTab, data: CapalifeData): Analytics
     Object.entries(raw.groupSeries ?? {}).map(([group, series]) => [
       group,
       cleanSeries(series as Array<{ date: string; value: number | null }>).map((point) => ({ ...point, group })),
+    ]),
+  );
+
+  const strategySeries = Object.fromEntries(
+    Object.entries(raw.strategySeries ?? {}).map(([key, series]) => [
+      key,
+      cleanSeries(series as Array<{ date: string; value: number | null }>),
     ]),
   );
 
@@ -194,6 +201,7 @@ function createBacktestDataset(tab: AnalyticsTab, data: CapalifeData): Analytics
     drawdownSeries,
     benchmarkSeries,
     groupSeries,
+    strategySeries,
     annualReturns: (raw.annualReturns as Array<{ year: string; value: number | null }>).filter((item) => Number.isFinite(item.value)).map((item) => ({ label: item.year, value: Number(item.value) })),
     monthlyReturns: (raw.monthlyReturns as Array<{ month: string; value: number | null }>).filter((item) => Number.isFinite(item.value)).map((item) => ({ label: item.month, value: Number(item.value) })),
     groupBars: (raw.groupBars as Array<{ group: string; value: number }>).map((item) => ({ label: item.group, value: item.value, group: item.group })),

@@ -93,7 +93,6 @@ export const INNO_PREP_ANSWER_PROMPTS: InnoPrepAnswerItem[] = [
       "systematische und regelbasierte Handelslogik",
       "Ground Truth und Strategielogik intern dokumentiert",
       "Tactical und Strategic fachlich getrennt",
-      "kein diskretionärer Bauchentscheid",
     ],
     keyInfo: "Signale und Regeln sind systematisch definiert, nicht diskretionär.",
   },
@@ -103,7 +102,6 @@ export const INNO_PREP_ANSWER_PROMPTS: InnoPrepAnswerItem[] = [
       "Performance Report: 11.04.2024–01.07.2026",
       "28 historische Monatswerte und Report-KPIs vorhanden",
       "Account 1: 444 geschlossene Primär-Trades",
-      "Account 1 und Report-Scope derzeit nicht automatisch identisch",
     ],
     keyInfo: "Account 1 ist primär belegt; der Gesamt-Scope des Reports wird getrennt dargestellt.",
   },
@@ -112,7 +110,6 @@ export const INNO_PREP_ANSWER_PROMPTS: InnoPrepAnswerItem[] = [
     bullets: [
       "Account 1: Commission und Swap primär vorhanden",
       "Account 1 Commission: -33,79 EUR",
-      "Account 1 Swap: -5,61 EUR",
       "Gesamtmethodik für Spread, Slippage und externe Fees offen",
     ],
     keyInfo: "Account-1-Kosten sind teilweise primär belegt; daraus folgt nicht automatisch die Report-Kostenmethodik.",
@@ -122,7 +119,6 @@ export const INNO_PREP_ANSWER_PROMPTS: InnoPrepAnswerItem[] = [
     bullets: [
       "interne Risk-Logik und Monitoring-Bausteine vorhanden",
       "Position-, Exposure- und Drawdown-Ansätze intern vorbereitet",
-      "Signal-, Gate- und Fail-Closed-Vorarbeiten vorhanden",
       "produktive Institutslimits werden mit INNO festgelegt",
     ],
     keyInfo: "Interne Risk-Logik existiert; finale Institutslimits werden mit INNO abgestimmt.",
@@ -133,7 +129,6 @@ export const INNO_PREP_ANSWER_PROMPTS: InnoPrepAnswerItem[] = [
       "Capitalife Terminal als Arbeits- und Monitoring-Oberfläche",
       "Market-Data Runtime, Instrument Registry und Mapping",
       "Track-Record-, Monitoring- und Reporting-Bausteine",
-      "Strategy-, Signal-, Risk- und Logging-Vorarbeiten",
     ],
     keyInfo: "Die technische Vorarbeit ist real vorhanden, aber noch kein final freigegebenes Produktions-Trading-System.",
   },
@@ -142,7 +137,6 @@ export const INNO_PREP_ANSWER_PROMPTS: InnoPrepAnswerItem[] = [
     bullets: [
       "Daten → Signal → Risiko → Broker/Execution",
       "danach Reconciliation, Logging und Monitoring",
-      "klare Trennung zwischen UI und produktiver Trading-Engine",
       "Broker/API, Hosting und Freigabemodell final mit INNO",
     ],
     keyInfo: "IBKR ist vorbereitetes Zielbild, aber nicht als bereits genehmigte INNO-Architektur dargestellt.",
@@ -152,8 +146,8 @@ export const INNO_PREP_ANSWER_PROMPTS: InnoPrepAnswerItem[] = [
 export const INNO_PREP_ANSWER_FACTS: InnoPrepFactItem[] = [
   { label: "Track-Record Report", value: "11.04.2024–01.07.2026" },
   { label: "Account 1", value: "444 geschlossene Trades" },
-  { label: "Account 1 Win Rate", value: "34,01 %" },
-  { label: "Account 1 Profit Factor", value: "1,1317" },
+  { label: "Account 1 Win Rate", value: "35,59 %" },
+  { label: "Account 1 Profit Factor", value: "1,1917" },
   { label: "Account 1 Ø Haltedauer", value: "4,16 h" },
   { label: "Account 1 Median", value: "1,30 h" },
   { label: "Report Annualisierung", value: "35,2 % p.a." },

@@ -8,7 +8,8 @@ import {
 import { createPortal } from "react-dom";
 import { SentinelProviderStatusBar } from "@/components/sentinel/sentinel-provider-status";
 import { useSentinelSession } from "@/components/sentinel/sentinel-session-provider";
-import { TokenRing } from "@/components/sentinel/TokenRing";
+import { SentinelCapacityPanel } from "@/components/sentinel/SentinelCapacityPanel";
+import { SentinelAurumLogo } from "@/components/sentinel/SentinelAurumLogo";
 import ReactMarkdown from "react-markdown";
 import { lsGet, lsSet } from "@/lib/sentinel/sentinel-session-store";
 import type { ChatEntry, SourceItem } from "@/lib/sentinel/sentinel-session-store";
@@ -83,6 +84,73 @@ function pickBestGermanVoice(voices: SpeechSynthesisVoice[], preferredUri?: stri
     if (hit) return hit;
   }
   return voices[0];
+}
+
+// ── Aurum Logo Animation (sequential reveal, left → right, 7.2s loop) ────────
+
+const LOGO_PIECES = [
+  { clip: "inset(0 76% 0 0)",   delay: "0s" },
+  { clip: "inset(0 57% 0 21%)", delay: ".45s" },
+  { clip: "inset(0 43% 0 36%)", delay: ".90s" },
+  { clip: "inset(0 25% 0 50%)", delay: "1.35s" },
+  { clip: "inset(0 0 0 67%)",   delay: "1.8s" },
+];
+
+function AurumLogoAnimation({ active = false, voiceLevel = 0 }: { active?: boolean; voiceLevel?: number }) {
+  if (active) {
+    return (
+      <div style={{ width: 80, height: 72, position: "relative" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/sentinel-logo.png"
+          alt=""
+          aria-hidden
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            filter: `drop-shadow(0 0 ${6 + voiceLevel * 14}px rgba(201,168,76,${0.55 + voiceLevel * 0.35}))`,
+            transition: "filter 0.1s ease-out",
+          }}
+        />
+      </div>
+    );
+  }
+  return (
+    <div className="aur-logo-wrap">
+      {LOGO_PIECES.map((p, i) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          key={i}
+          src="/sentinel-logo.png"
+          alt=""
+          aria-hidden
+          className="aur-logo-piece"
+          style={{ clipPath: p.clip, animationDelay: p.delay }}
+        />
+      ))}
+      <style jsx>{`
+        .aur-logo-wrap { position:relative; width:80px; height:72px; }
+        .aur-logo-piece {
+          position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
+          opacity:0; transform:translateY(6px) scale(.985);
+          animation:aur-logo-reveal 7.2s infinite cubic-bezier(.22,.61,.36,1);
+          will-change:opacity,transform;
+        }
+        @keyframes aur-logo-reveal {
+          0%  { opacity:0; transform:translateY(7px) scale(.982); }
+          8%  { opacity:0; transform:translateY(7px) scale(.982); }
+          20% { opacity:1; transform:translateY(0) scale(1); }
+          76% { opacity:1; transform:translateY(0) scale(1); }
+          92% { opacity:0; transform:translateY(-2px) scale(1); }
+          100%{ opacity:0; transform:translateY(-2px) scale(1); }
+        }
+        @media (prefers-reduced-motion:reduce) {
+          .aur-logo-piece { animation:none; opacity:1; transform:none; }
+        }
+      `}</style>
+    </div>
+  );
 }
 
 // ── Aurum Rings ──────────────────────────────────────────────────────────────
@@ -189,15 +257,15 @@ function AurumRings({ voiceLevel = 0, speaking = false }: { voiceLevel?: number;
         </defs>
       </svg>
       <div className="aur-center">
-        <AurumWaves voiceLevel={voiceLevel} speaking={speaking} />
+        <SentinelAurumLogo size={112} />
       </div>
       <style jsx>{`
         .aur-wrap { position:relative;width:320px;height:320px;flex:0 0 auto;transform-origin:center; }
         .aur-svg { width:320px;height:320px;overflow:visible; }
         .aur-arc1 { transform-box:view-box;transform-origin:50% 50%;animation:aur-cw 18s linear infinite; }
-        .aur-arc2 { transform-box:view-box;transform-origin:50% 50%;animation:aur-ccw 24s linear infinite; }
-        .aur-arc3 { transform-box:view-box;transform-origin:50% 50%;animation:aur-cw 14s linear infinite; }
-        .aur-arc4 { transform-box:view-box;transform-origin:50% 50%;animation:aur-ccw 30s linear infinite; }
+        .aur-arc2 { transform-box:view-box;transform-origin:50% 50%;animation:aur-ccw 48s linear infinite; }
+        .aur-arc3 { transform-box:view-box;transform-origin:50% 50%;animation:aur-cw 28s linear infinite; }
+        .aur-arc4 { transform-box:view-box;transform-origin:50% 50%;animation:aur-ccw 72s linear infinite; }
         @keyframes aur-cw  { to { transform:rotate(360deg); } }
         @keyframes aur-ccw { to { transform:rotate(-360deg); } }
         .aur-center { position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none; }
@@ -352,6 +420,7 @@ function SentinelMarkdown({ content }: { content: string }) {
           p: ({ children }) => <p className="sm-p">{children}</p>,
           strong: ({ children }) => <strong className="sm-bold">{children}</strong>,
           em: ({ children }) => <em className="sm-italic">{children}</em>,
+          h1: ({ children }) => <div className="sm-h1">{children}</div>,
           h2: ({ children }) => <div className="sm-h2">{children}</div>,
           h3: ({ children }) => <div className="sm-h3">{children}</div>,
           ul: ({ children }) => <ul className="sm-ul">{children}</ul>,
@@ -365,6 +434,8 @@ function SentinelMarkdown({ content }: { content: string }) {
       </ReactMarkdown>
       <style jsx>{`
         .sm-root { display:flex;flex-direction:column;gap:0; }
+        .sm-h1 { font-size:16px;font-weight:700;color:#C9A84C;margin:12px 0 6px;letter-spacing:-0.02em;line-height:1.3; }
+        .sm-h1:first-child { margin-top:0; }
         .sm-h2 { font-size:14px;font-weight:600;color:#C9A84C;margin:10px 0 4px;letter-spacing:-0.01em;line-height:1.35; }
         .sm-h2:first-child { margin-top:0; }
         .sm-h3 { font-size:12.5px;font-weight:600;color:rgba(214,184,108,0.80);margin:8px 0 3px;line-height:1.35; }
@@ -496,16 +567,16 @@ function FavoritesDropdown({
         .fav-wrap { position:relative;flex:0 0 auto;align-self:center; }
         .fav-toggle { display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:none;border:none;border-radius:50%;color:rgba(255,255,255,0.40);cursor:pointer;transition:color .15s,background .15s; }
         .fav-toggle:hover,.fav-toggle-active { color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.06); }
-        .fav-menu { position:absolute;bottom:calc(100% + 8px);left:0;width:210px;background:#0a0c11;border:1px solid rgba(214,184,108,0.12);border-radius:8px;z-index:200;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.7),0 0 20px rgba(214,184,108,0.04); }
-        .fav-menu-head { display:flex;align-items:center;justify-content:space-between;padding:7px 10px 5px;border-bottom:1px solid rgba(255,255,255,0.06); }
-        .fav-menu-head span { font-size:10px;color:#5a6270;letter-spacing:0.05em;text-transform:uppercase; }
+        .fav-menu { position:absolute;bottom:calc(100% + 8px);left:0;width:210px;background:linear-gradient(to bottom,#26262d,#111114);border:1px solid rgba(255,255,255,0.055);border-radius:10px;z-index:200;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.7); }
+        .fav-menu-head { display:flex;align-items:center;justify-content:space-between;padding:7px 10px 5px;border-bottom:1px solid rgba(255,255,255,0.055); }
+        .fav-menu-head span { font-size:10px;color:rgba(180,192,210,0.6);letter-spacing:0.05em;text-transform:uppercase;font-family:var(--font-montserrat,'Montserrat',sans-serif); }
         .fav-add-btn { display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:none;border:1px dashed rgba(255,255,255,0.15);border-radius:50%;color:#4a5260;cursor:pointer; }
-        .fav-add-btn:hover { color:#C9A84C;border-color:rgba(214,184,108,0.4); }
+        .fav-add-btn:hover { color:#D6B24A;border-color:rgba(214,178,74,0.4); }
         .fav-list { padding:4px 0; }
         .fav-item { display:flex;align-items:center;padding:0 6px 0 10px;height:30px; }
         .fav-item:hover { background:rgba(255,255,255,0.04); }
         .fav-item-btn { flex:1;text-align:left;background:none;border:none;color:#9aa3b0;font-size:11.5px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0; }
-        .fav-item:hover .fav-item-btn { color:#C9A84C; }
+        .fav-item:hover .fav-item-btn { color:#D6B24A; }
         .fav-item-acts { display:inline-flex;gap:1px;opacity:0;transition:opacity .15s; }
         .fav-item:hover .fav-item-acts { opacity:1; }
         .fav-ia { display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:none;border:none;color:#4a5260;cursor:pointer;border-radius:3px; }
@@ -563,7 +634,10 @@ export function SentinelDashboard() {
   const [renameValue, setRenameValue] = useState("");
 
   // Opening animation
-  const GREETING = "Yo was geht ab Bro, Sentinel hier...";
+  const GREETING_DE = "Yo was geht ab Bro, Sentinel hier...";
+  const GREETING_EN = "Hello Sir, how can I assist you today...";
+  const [greetingLang, setGreetingLang] = useState<"de" | "en">("de");
+  const GREETING = greetingLang === "de" ? GREETING_DE : GREETING_EN;
   const [animPhase, setAnimPhase] = useState<"avatar" | "typing" | "done">("avatar");
   const [typedText, setTypedText] = useState("");
 
@@ -834,7 +908,11 @@ export function SentinelDashboard() {
             <div className={`snt-empty-rings snt-anim-rings${fullscreen ? " snt-empty-rings-fs" : ""}`}>
               <AurumRings voiceLevel={listening ? effectiveVoiceLevel : 0} speaking={speaking} />
             </div>
-            <p className="snt-hero-text">
+            <p
+              className="snt-hero-text"
+              onClick={() => { if (animPhase === "done" && !listening) setGreetingLang("en"); }}
+              style={{ cursor: animPhase === "done" && !listening ? "pointer" : "default" }}
+            >
               {listening ? "Ich höre zu…" : (animPhase === "done" ? GREETING : typedText)}
               {!listening && animPhase === "typing" && <span className="snt-cursor">|</span>}
             </p>
@@ -843,6 +921,12 @@ export function SentinelDashboard() {
           <div className="snt-chat-feed">
             {visibleEntries.map((entry, i) => (
               <div key={i} className={`snt-bwrap ${entry.role === "user" ? "snt-bwrap-u" : "snt-bwrap-b"}`}>
+                {entry.role === "assistant" && (
+                  <div className="snt-bot-avatar" aria-hidden>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/sentinel-logo.png" alt="" style={{ width: 16, height: 18, objectFit: "contain", opacity: 0.55, filter: "brightness(0) invert(1)" }} />
+                  </div>
+                )}
                 <div className={`snt-msg ${entry.role === "user" ? "snt-msg-u" : "snt-msg-b"}`}>
                   {entry.role === "assistant"
                     ? <SentinelMarkdown content={entry.content} />
@@ -879,8 +963,8 @@ export function SentinelDashboard() {
         )}
       </div>
 
-      {/* ── Scroll fade above input ── */}
-      <div className="snt-fade" aria-hidden="true" />
+      {/* ── Scroll fade above input — only when there are messages ── */}
+      {visibleEntries.length > 0 && <div className="snt-fade" aria-hidden="true" />}
 
       {/* ── Queue indicator ── */}
       {visibleHasQueued && (
@@ -911,7 +995,7 @@ export function SentinelDashboard() {
             ref={textareaRef}
             className="snt-ta"
             rows={1}
-            placeholder={listening ? "Spricht…" : visibleBusy ? "Tippen erlaubt — wird nach Antwort gesendet…" : "Sentinel fragen…"}
+            placeholder={listening ? "Listening…" : visibleBusy ? "Tippen erlaubt — wird nach Antwort gesendet…" : "Ask Sentinel"}
             value={visibleInput}
             onChange={onTextareaChange}
             onKeyDown={onKeyDown}
@@ -964,7 +1048,7 @@ export function SentinelDashboard() {
                 {voiceDropOpen && (
                   <div style={{
                     position:"absolute", bottom:"calc(100% + 6px)", left:0,
-                    background:"#13131A", border:"1px solid rgba(255,255,255,0.10)",
+                    background:"linear-gradient(to bottom, #26262d, #111114)", border:"1px solid rgba(255,255,255,0.055)",
                     borderRadius:10, padding:"6px 0", zIndex:300,
                     boxShadow:"0 8px 32px rgba(0,0,0,0.6)",
                     minWidth:220, maxHeight:280, overflowY:"auto",
@@ -1003,23 +1087,7 @@ export function SentinelDashboard() {
                 <Trash2 size={15} />
               </button>
             )}
-            {(currentRun.provider ?? status?.activeProvider) && (
-              <span style={{
-                fontSize: 10, fontWeight: 700,
-                color: "rgba(214,184,108,0.65)",
-                letterSpacing: "0.05em",
-                textTransform: "uppercase",
-                background: "rgba(214,184,108,0.07)",
-                border: "1px solid rgba(214,184,108,0.15)",
-                borderRadius: 6,
-                padding: "2px 7px",
-                flexShrink: 0,
-                marginLeft: 4,
-              }}>
-                {currentRun.provider ?? status?.activeProvider}
-              </span>
-            )}
-            <TokenRing activeProvider={currentRun.provider ?? status?.activeProvider ?? null} />
+            <SentinelCapacityPanel activeProvider={currentRun.provider ?? status?.activeProvider ?? null} />
           </div>
         </div>
       </div>
@@ -1029,15 +1097,15 @@ export function SentinelDashboard() {
         <div
           style={{
             position:"absolute", top:0, right:0, bottom:0, width:270,
-            background:"#0f1013", borderLeft:"1px solid rgba(255,255,255,0.07)",
+            background:"linear-gradient(to bottom, #26262d, #111114)", borderLeft:"1px solid rgba(255,255,255,0.055)",
             display:"flex", flexDirection:"column", zIndex:200,
             boxShadow:"-8px 0 32px rgba(0,0,0,0.5)",
             animation:"snt-slide-in 180ms ease",
           }}
         >
           {/* Header */}
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"12px 14px 10px", borderBottom:"1px solid rgba(255,255,255,0.07)", flexShrink:0 }}>
-            <span style={{ fontSize:12, fontWeight:700, color:"rgba(255,255,255,0.55)", letterSpacing:"0.1em", textTransform:"uppercase" }}>Verlauf</span>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"12px 14px 10px", borderBottom:"1px solid rgba(255,255,255,0.055)", flexShrink:0 }}>
+            <span style={{ fontSize:12, fontWeight:700, color:"rgba(180,192,210,0.6)", letterSpacing:"0.1em", textTransform:"uppercase", fontFamily:"var(--font-montserrat,'Montserrat',sans-serif)" }}>Verlauf</span>
             <button type="button" onClick={() => setHistoryOpen(false)} style={{ background:"none", border:"none", color:"rgba(255,255,255,0.35)", cursor:"pointer", padding:4, display:"flex", alignItems:"center" }}>
               <X size={14} />
             </button>
@@ -1073,7 +1141,7 @@ export function SentinelDashboard() {
                     style={{ display:"flex", flexDirection:"column", gap:3 }}
                   >
                     <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:6 }}>
-                      <span style={{ fontSize:12, fontWeight:600, color:"rgba(255,255,255,0.82)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", flex:1 }}>
+                      <span style={{ fontSize:12, fontWeight:600, color:"#F0F2F6", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", flex:1 }}>
                         {session.title}
                       </span>
                       <div style={{ display:"flex", gap:2, flexShrink:0 }} onClick={e => e.stopPropagation()}>
@@ -1105,6 +1173,13 @@ export function SentinelDashboard() {
           background:transparent;color:#e2e6ed;font-size:13px;
           font-family:var(--font-text);
         }
+        .snt::after {
+          content:'';position:absolute;bottom:-280px;left:50%;transform:translateX(-50%);
+          width:2000px;height:560px;border-radius:50%;
+          background:radial-gradient(circle,rgba(201,168,76,0.13) 0%,rgba(201,168,76,0.05) 45%,transparent 72%);
+          filter:blur(38px);
+          pointer-events:none;z-index:0;
+        }
         .snt.snt-fullscreen {
           position:fixed;inset:0;z-index:2147483000;width:100vw;width:100dvw;
           height:100vh;height:100dvh;border-radius:0;isolation:isolate;
@@ -1116,7 +1191,7 @@ export function SentinelDashboard() {
           border-bottom:1px solid rgba(255,255,255,0.15);
         }
         .snt-head-l { display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0;flex:1 1 auto; }
-        .snt-title { display:inline-flex;align-items:center;gap:7px;font-size:19px;font-weight:700;color:#ffffff;letter-spacing:0; }
+        .snt-title { display:inline-flex;align-items:center;gap:7px;font-size:19px;font-weight:700;color:#F0F2F6;letter-spacing:0;font-family:var(--font-montserrat,'Montserrat',sans-serif); }
         .snt-head-r { display:inline-flex;align-items:center;gap:3px; }
         .snt-ico { display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:transparent;color:rgba(255,255,255,0.50);border:none;border-radius:6px;cursor:pointer;transition:color .15s,background .15s; }
         .snt-ico:hover { color:#ffffff;background:rgba(255,255,255,0.08); }
@@ -1134,8 +1209,8 @@ export function SentinelDashboard() {
           flex:1;align-self:stretch;display:flex;flex-direction:column;align-items:center;
           justify-content:center;padding:0 20px 90px;overflow:hidden;gap:0;
         }
-        .snt-empty-rings { flex:0 0 auto;display:flex;align-items:center;justify-content:center;margin-bottom:56px; }
-        .snt-empty-rings-fs { transform:scale(1.3);transform-origin:center;margin-bottom:90px; }
+        .snt-empty-rings { flex:0 0 auto;display:flex;align-items:center;justify-content:center;margin-bottom:56px;transform:scale(1.45);transform-origin:center; }
+        .snt-empty-rings-fs { transform:scale(1.85);transform-origin:center;margin-bottom:90px; }
         @keyframes snt-slide-in {
           from { transform:translateX(100%); opacity:0; }
           to   { transform:translateX(0);    opacity:1; }
@@ -1153,7 +1228,7 @@ export function SentinelDashboard() {
           color:rgba(226,202,122,0.85);font-weight:300;
         }
         @keyframes snt-blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
-        .snt-hero-text { font-size:22px;color:#ffffff;letter-spacing:-0.01em;font-weight:600;text-align:center;margin:0;min-height:1.4em; }
+        .snt-hero-text { font-size:22px;color:#F0F2F6;letter-spacing:-0.01em;font-weight:600;text-align:center;margin:0;min-height:1.4em;font-family:var(--font-montserrat,'Montserrat',sans-serif); }
         /* chat feed */
         .snt-chat-feed {
           display:flex;flex-direction:column;gap:16px;
@@ -1168,10 +1243,11 @@ export function SentinelDashboard() {
         .snt-bwrap { display:flex;flex-direction:column; }
         .snt-bwrap-u { align-items:flex-end; }
         .snt-bwrap-b { align-items:flex-start; }
+        .snt-bot-avatar { display:flex;align-items:center;margin-bottom:4px;padding-left:2px;opacity:0.6; }
         .snt-msg { font-size:13px;line-height:1.65;white-space:pre-wrap;word-break:break-word;font-weight:500; }
         .snt-msg-u {
-          max-width:68%;background:#1a1a1c;color:#ffffff;
-          border:none;border-radius:18px;border-bottom-right-radius:4px;
+          max-width:68%;background:linear-gradient(to bottom,#26262d,#111114);color:#F0F2F6;
+          border:1px solid rgba(255,255,255,0.055);border-radius:14px;border-bottom-right-radius:4px;
           padding:11px 14px;font-weight:500;
         }
         .snt-msg-b {
@@ -1191,17 +1267,18 @@ export function SentinelDashboard() {
         .snt-queue-hint span {
           font-size:10px;color:rgba(214,184,108,0.60);letter-spacing:0.02em;font-weight:600;
         }
-        /* scroll fade — gradient above input bar */
+        /* scroll fade — only fades chat text, never blocks the glow */
         .snt-fade {
-          flex:0 0 auto;height:0;position:relative;z-index:5;pointer-events:none;margin-top:-56px;
+          flex:0 0 auto;height:0;position:relative;z-index:5;pointer-events:none;
+          margin-top:-56px;
         }
         .snt-fade::after {
           content:'';display:block;height:56px;
-          background:linear-gradient(to bottom, transparent 0%, rgba(10,11,14,0.90) 80%, rgba(10,11,14,1) 100%);
+          background:linear-gradient(to bottom,transparent 0%,rgba(10,11,14,0.55) 100%);
         }
         /* input bar */
         .snt-hero-bar {
-          flex:0 0 auto;position:relative;padding:6px 12px 32px;background:transparent;isolation:isolate;
+          flex:0 0 auto;position:relative;padding:6px 12px 10px;background:transparent;isolation:isolate;
           display:flex;justify-content:center;z-index:10;
         }
         .snt-hero-bar::before {
@@ -1212,14 +1289,17 @@ export function SentinelDashboard() {
         .snt-hero-pill {
           position:relative;display:flex;align-items:center;gap:0;
           width:50%;min-height:56px;
-          background:#1a1a1c;border:none;border-radius:28px;
+          background:#0e0f11;
+          backdrop-filter:none;
+          -webkit-backdrop-filter:none;
+          border:1px solid rgba(200,210,230,0.22);border-radius:28px;
           padding:8px 10px 8px 10px;
-          box-shadow:0 4px 24px rgba(0,0,0,0.40);
+          box-shadow:0 2px 16px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.05);
           transition:border-color .2s,box-shadow .2s;
         }
         .snt-hero-pill:focus-within {
-          border-color:transparent;
-          box-shadow:0 0 0 1px rgba(255,255,255,0.10),0 4px 24px rgba(0,0,0,0.40);
+          border-color:rgba(255,255,255,0.40);
+          box-shadow:0 0 0 1px rgba(255,255,255,0.12),0 4px 24px rgba(0,0,0,0.40);
         }
         .snt-ta {
           flex:1;resize:none;

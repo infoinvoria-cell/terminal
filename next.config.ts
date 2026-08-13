@@ -7,6 +7,10 @@ const withBundleAnalyzer = bundleAnalyzer({
 });
 
 const nextConfig: NextConfig = {
+  // Separate distDir for production builds prevents Turbopack dev cache contamination.
+  // Set NEXT_BUILD_DIST=.next-build when running `npm run build` locally.
+  // Vercel bypasses this via vercel.json buildCommand: "next build" (no env override).
+  distDir: process.env.NEXT_BUILD_DIST || ".next",
   reactStrictMode: false,
   typedRoutes: false,
   transpilePackages: ["react-force-graph-2d", "force-graph", "d3-force-3d", "three-forcegraph"],
@@ -14,6 +18,9 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizeCss: true,
     optimizePackageImports: ["lucide-react", "recharts"],
+    // Disable Turbopack persistent filesystem cache to prevent LevelDB self-compaction outages.
+    // Self-compaction bursts block the HTTP handler for 2-3 min even with no build running.
+    turbopackFileSystemCacheForDev: false,
   },
   outputFileTracingIncludes: {
     "**": ["./src/data/capitalife/**/*.json"],
