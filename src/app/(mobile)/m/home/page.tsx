@@ -1,6 +1,7 @@
 ﻿import { getDashboardPageData } from "@/lib/dashboard/dashboard-page-data-cloud";
 import { MobileHomeView } from "@/components/mobile/home/MobileHomeView";
 
+export const dynamic = "force-dynamic";
 
 export default async function MobileHomePage() {
   const data = await getDashboardPageData();

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { MobileAboutView } from "@/components/mobile/about/MobileAboutView";
 
+export const dynamic = "force-dynamic";
 export const metadata = { title: "Bibel - Capitalife" };
 
 type MobileAboutPageProps = {

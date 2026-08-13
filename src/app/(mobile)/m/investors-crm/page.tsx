@@ -1,5 +1,6 @@
 import { MobileInvestorsCRMView } from "@/components/investors-crm/MobileInvestorsCRMView";
 
+export const dynamic = "force-dynamic";
 export const metadata = { title: "Investoren — Capitalife Mobile" };
 
 export default function MobileInvestorsCRMPage() {
