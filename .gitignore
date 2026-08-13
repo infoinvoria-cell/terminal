@@ -52,6 +52,7 @@ ChatGPT_Handoff_Bundle*.md
 # trading/raw data - keep local only
 *.csv
 !public/data/*.csv
+!public/data/white-swan/*.csv
 *.xlsx
 *.xls
 *.zip
@@ -144,6 +145,7 @@ src/data/local/
 src/data/raw/
 *.csv
 !public/data/*.csv
+!public/data/white-swan/*.csv
 *.xlsx
 *.xls
 *.zip
