@@ -479,7 +479,14 @@ export function PortfolioLab() {
                   {hero.family} · €{(cap/1000).toFixed(1)}k · 17/17 components · 5/5 rolling folds
                 </span>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded border border-[#e2ca7a]/20 text-[#e2ca7a]/60">RESEARCH_CANDIDATE</span>
+              <div className="flex items-center gap-2">
+                {hero.family === 'QA_ALL_HOLD1' && phase === 'v2' && (
+                  <span title="holdingDays >= 1 filter uses realized trade duration (post-exit). Convert to ex-ante entry rule before live use." className="text-[10px] px-2 py-0.5 rounded border border-orange-500/40 bg-orange-500/10 text-orange-400 cursor-help">
+                    ⚠ CONDITIONAL — lookahead
+                  </span>
+                )}
+                <span className="text-[10px] px-2 py-0.5 rounded border border-[#e2ca7a]/20 text-[#e2ca7a]/60">RESEARCH_CANDIDATE</span>
+              </div>
             </div>
             <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-2">
               {[
@@ -740,6 +747,17 @@ export function PortfolioLab() {
               </>
             )}
           </div>
+
+          {/* Lookahead warning for ALL_HOLD1 */}
+          {selected.family === 'QA_ALL_HOLD1' && phase === 'v2' && (
+            <div className="rounded border border-orange-500/30 bg-orange-500/5 px-3 py-2 text-xs text-orange-300">
+              <span className="font-semibold">⚠ CONDITIONAL — Potential Lookahead:</span>{' '}
+              The holdingDays ≥ 1 filter on EURUSD 30M, DAX 1H, DAX 2H selects trades by realized duration (known post-exit only).
+              Strategies use stop-based exits — hold time is not fixed at entry.
+              <br />
+              <span className="text-orange-400/70">To use live: convert filter to an ex-ante entry-time rule (e.g., entry only during specific session window). Re-run backtest after conversion.</span>
+            </div>
+          )}
 
           {/* Strategy Detail Toggle (v2 only) */}
           {selected.strategyDetail && (
