@@ -210,14 +210,204 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
+// ─── Strategy Quality Panel ───────────────────────────────────────────────────
+
+function StrategyQualityPanel({ data }: { data: Record<string, unknown> | null }) {
+  const strategies = [
+    { key: 'eurusd', label: 'EURUSD 30M', bestRule: 'E9 Mon+Q3', status: 'ROBUST' },
+    { key: 'dax2h', label: 'DAX 2H', bestRule: 'D2 High-Vol Years', status: 'ROBUST' },
+    { key: 'dax1h', label: 'DAX 1H', bestRule: 'D1 Baseline (all LONG)', status: 'BASELINE' },
+    { key: 'gld', label: 'GLD Thursday', bestRule: 'GLD BestMonths (top 4 months)', status: 'IMPROVED' },
+    { key: 'seasonals', label: 'Seasonals', bestRule: 'SB/SPY strongest OOS', status: 'MIXED' },
+  ];
+
+  const statusColor = (s: string) =>
+    s === 'ROBUST' ? 'text-emerald-400' : s === 'IMPROVED' ? 'text-blue-400' :
+    s === 'MIXED' ? 'text-yellow-400' : s === 'NEEDS_REDESIGN' ? 'text-red-400' : 'text-[#737373]';
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <h2 className="text-base font-bold font-montserrat text-[#e2ca7a]">Strategy Quality</h2>
+        <span className="text-xs text-[#737373]">Phase B robustness analysis — ex-ante filters only</span>
+      </div>
+
+      {/* Strategy overview table */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs border-collapse">
+          <thead>
+            <tr className="border-b border-[#2a2b30]">
+              {['Strategy', 'Best Ex-Ante Rule', 'Status', 'Note'].map(h => (
+                <th key={h} className="text-left px-3 py-2 text-[#737373] font-normal">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {strategies.map(s => (
+              <tr key={s.key} className="border-b border-[#1a1b1e] hover:bg-[#1a1b1e]/50">
+                <td className="px-3 py-2 font-semibold text-[#e2ca7a]">{s.label}</td>
+                <td className="px-3 py-2 font-mono text-xs">{s.bestRule}</td>
+                <td className={cn('px-3 py-2 font-semibold', statusColor(s.status))}>{s.status}</td>
+                <td className="px-3 py-2 text-[#737373]">
+                  {data?.[s.key] != null ? 'Data loaded' : 'Phase B data — run locally for full analysis'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* EURUSD detail if data available */}
+      {data?.eurusd != null && (() => {
+        const d = data!.eurusd as Record<string, unknown>;
+        const filters = (d.filters as Array<Record<string, unknown>>) ?? [];
+        return (
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-[#e2ca7a]">EURUSD — Filter Robustness</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-[#2a2b30]">
+                    {['Filter', 'Trades', 'OOS Net', 'IS Net', 'Expectancy', 'Verdict'].map(h => (
+                      <th key={h} className="text-right first:text-left px-2 py-1 text-[#737373] font-normal">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filters.map((f, i) => (
+                    <tr key={i} className="border-b border-[#1a1b1e]">
+                      <td className="px-2 py-1 font-mono text-[#e2ca7a]">{String(f.filterId ?? f.label ?? '')}</td>
+                      <td className="px-2 py-1 text-right">{String(f.trades ?? '—')}</td>
+                      <td className={cn('px-2 py-1 text-right font-mono', Number(f.oosNet) >= 0 ? 'text-emerald-400' : 'text-red-400')}>
+                        €{Number(f.oosNet ?? 0).toFixed(0)}
+                      </td>
+                      <td className={cn('px-2 py-1 text-right font-mono', Number(f.isNet) >= 0 ? 'text-emerald-400' : 'text-red-400')}>
+                        €{Number(f.isNet ?? 0).toFixed(0)}
+                      </td>
+                      <td className="px-2 py-1 text-right font-mono">€{Number(f.expectancy ?? 0).toFixed(2)}</td>
+                      <td className={cn('px-2 py-1 text-right font-semibold', statusColor(String(f.verdict ?? 'UNKNOWN')))}>
+                        {String(f.verdict ?? '—')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ZW note */}
+      <div className="rounded border border-yellow-700/30 bg-yellow-900/10 p-3 text-xs text-yellow-400 space-y-1">
+        <div className="font-semibold">ZW Seasonal — LOW_CONFIDENCE_SEASONAL</div>
+        <div className="text-[#737373]">Only 2 of 6 OOS years positive. 1 contract retained. True entry-window robustness requires OHLCV data for shifted entry backtest.</div>
+      </div>
+    </div>
+  );
+}
+
+// ─── IBKR Costs Panel ────────────────────────────────────────────────────────
+
+function IbkrCostsPanel({ data }: { data: Record<string, unknown> | null }) {
+  const serkanRef = { costPerSideEUR: 0.85, costRoundturnEUR: 1.70 };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <h2 className="text-base font-bold font-montserrat text-[#e2ca7a]">IBKR Cost Matrix</h2>
+        <span className="text-xs text-[#737373]">Real all-in execution costs vs Serkan reference</span>
+      </div>
+
+      {/* Serkan reference */}
+      <div className="rounded border border-[#2a2b30] bg-[#141517] p-4 space-y-2">
+        <div className="text-xs font-semibold text-[#737373] uppercase tracking-wide">Serkan Reference (all prior phases)</div>
+        <div className="flex gap-6 text-sm">
+          <div><span className="text-[#737373]">Per side: </span><span className="text-[#e2ca7a] font-mono">€0.85</span></div>
+          <div><span className="text-[#737373]">Roundturn: </span><span className="text-[#e2ca7a] font-mono">€{serkanRef.costRoundturnEUR.toFixed(2)}</span></div>
+          <div><span className="text-[#737373]">Status: </span><span className="text-blue-400">REFERENCE_ONLY</span></div>
+        </div>
+      </div>
+
+      {data ? (() => {
+        const instruments = (data as Record<string, unknown[]>).instruments ?? [];
+        return (
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs border-collapse">
+              <thead>
+                <tr className="border-b border-[#2a2b30]">
+                  {['Strategy', 'Ticker', 'Type', 'IBKR/Side', 'Exch/Side', 'All-in/Side', 'Roundturn', 'vs Serkan', 'Verified'].map(h => (
+                    <th key={h} className="text-right first:text-left px-2 py-1.5 text-[#737373] font-normal whitespace-nowrap">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {(instruments as unknown[]).flatMap((inst) => {
+                  const i = inst as Record<string, unknown>;
+                  const futures = (i.futures as Array<Record<string, unknown>>) ?? [];
+                  return futures.map((f, fi) => {
+                    const roundturn = Number(f.allInRoundturnEUR ?? f.allInRoundturn ?? 0);
+                    const diff = roundturn - serkanRef.costRoundturnEUR;
+                    return (
+                      <tr key={`${i.strategyContext}-${fi}`} className="border-b border-[#1a1b1e] hover:bg-[#1a1b1e]/40">
+                        <td className="px-2 py-1 text-[#e2ca7a]">{fi === 0 ? String(i.strategyContext ?? '') : ''}</td>
+                        <td className="px-2 py-1 font-mono">{String(f.ticker ?? '')}</td>
+                        <td className="px-2 py-1 text-[#737373]">{String(f.contractType ?? '')}</td>
+                        <td className="px-2 py-1 text-right font-mono">{f.ibkrCommissionPerSide != null ? `€${Number(f.ibkrCommissionPerSide).toFixed(2)}` : '—'}</td>
+                        <td className="px-2 py-1 text-right font-mono">{f.exchangeFeePerSide != null ? `€${Number(f.exchangeFeePerSide).toFixed(2)}` : '—'}</td>
+                        <td className="px-2 py-1 text-right font-mono text-[#e2ca7a]">{f.allInPerSide != null ? `€${Number(f.allInPerSide).toFixed(2)}` : '—'}</td>
+                        <td className="px-2 py-1 text-right font-mono font-semibold">{roundturn > 0 ? `€${roundturn.toFixed(2)}` : '—'}</td>
+                        <td className={cn('px-2 py-1 text-right font-mono', diff > 0 ? 'text-red-400' : 'text-emerald-400')}>
+                          {roundturn > 0 ? `${diff >= 0 ? '+' : ''}€${diff.toFixed(2)}` : '—'}
+                        </td>
+                        <td className="px-2 py-1 text-right">
+                          {f.verified ? <span className="text-emerald-400">✓</span> : <span className="text-yellow-400">⚠</span>}
+                        </td>
+                      </tr>
+                    );
+                  });
+                })}
+              </tbody>
+            </table>
+          </div>
+        );
+      })() : (
+        <div className="flex flex-col items-center justify-center py-12 text-[#737373] gap-2">
+          <div className="text-[#e2ca7a] text-sm font-semibold">IBKR Cost Research — Pending</div>
+          <div className="text-xs text-center max-w-xs">
+            Real IBKR cost data is being researched from official sources. This tab will populate automatically once Phase 1 completes.
+          </div>
+          <div className="mt-3 text-xs font-mono border border-[#2a2b30] rounded px-3 py-1">
+            Serkan reference active: €0.85/side · €1.70/roundturn
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function WhiteSwanAnalytics() {
-  const [activeTab, setActiveTab] = useState<'analytics' | 'lab'>('lab');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'lab' | 'quality' | 'costs'>('lab');
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedNAV, setSelectedNAV] = useState(25000);
+  const [qualityData, setQualityData] = useState<Record<string, unknown> | null>(null);
+  const [costsData, setCostsData] = useState<Record<string, unknown> | null>(null);
+
+  useEffect(() => {
+    fetch('/api/white-swan-robustness?type=eurusd')
+      .then(r => r.json()).then(d => { if (!d.unavailable) setQualityData(prev => ({ ...prev, eurusd: d.data })); }).catch(() => {});
+    fetch('/api/white-swan-robustness?type=dax2h')
+      .then(r => r.json()).then(d => { if (!d.unavailable) setQualityData(prev => ({ ...prev, dax2h: d.data })); }).catch(() => {});
+    fetch('/api/white-swan-robustness?type=gld')
+      .then(r => r.json()).then(d => { if (!d.unavailable) setQualityData(prev => ({ ...prev, gld: d.data })); }).catch(() => {});
+    fetch('/api/white-swan-robustness?type=seasonals')
+      .then(r => r.json()).then(d => { if (!d.unavailable) setQualityData(prev => ({ ...prev, seasonals: d.data })); }).catch(() => {});
+    fetch('/api/white-swan-costs')
+      .then(r => r.json()).then(d => { if (!d.unavailable) setCostsData(d.data); }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetch('/api/white-swan-analysis')
@@ -296,32 +486,33 @@ export function WhiteSwanAnalytics() {
       </div>
 
       {/* Tab switcher */}
-      <div className="flex gap-2 mb-6">
-        <button
-          onClick={() => setActiveTab('analytics')}
-          className={cn(
-            'px-4 py-2 rounded text-sm font-semibold transition-all',
-            activeTab === 'analytics'
-              ? 'bg-[#bf9d4a] border border-[#e2ca7a] text-black'
-              : 'border border-[#2a2b30] text-[#737373] hover:border-[#e2ca7a] hover:text-[#e2ca7a]'
-          )}
-        >
-          Capital Analytics
-        </button>
-        <button
-          onClick={() => setActiveTab('lab')}
-          className={cn(
-            'px-4 py-2 rounded text-sm font-semibold transition-all',
-            activeTab === 'lab'
-              ? 'bg-[#bf9d4a] border border-[#e2ca7a] text-black'
-              : 'border border-[#2a2b30] text-[#737373] hover:border-[#e2ca7a] hover:text-[#e2ca7a]'
-          )}
-        >
-          Portfolio Lab
-        </button>
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {([
+          { id: 'lab', label: 'Final Candidates' },
+          { id: 'quality', label: 'Strategy Quality' },
+          { id: 'costs', label: 'IBKR Costs' },
+          { id: 'analytics', label: 'Capital Analytics' },
+        ] as const).map(({ id, label }) => (
+          <button
+            key={id}
+            onClick={() => setActiveTab(id)}
+            className={cn(
+              'px-4 py-2 rounded text-sm font-semibold transition-all',
+              activeTab === id
+                ? 'bg-[#bf9d4a] border border-[#e2ca7a] text-black'
+                : 'border border-[#2a2b30] text-[#737373] hover:border-[#e2ca7a] hover:text-[#e2ca7a]'
+            )}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {activeTab === 'lab' && <PortfolioLab />}
+
+      {activeTab === 'quality' && <StrategyQualityPanel data={qualityData} />}
+      {activeTab === 'costs' && <IbkrCostsPanel data={costsData} />}
+
       {activeTab === 'analytics' && analyticsUnavailable && (
         <div className="flex flex-col items-center justify-center py-16 text-[#737373] gap-3">
           <div className="text-[#e2ca7a] text-sm font-semibold">Capital Analytics — not available in cloud preview</div>
