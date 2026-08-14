@@ -1,0 +1,34 @@
+{
+  "generatedDate": "2026-08-14",
+  "status": "RESEARCH_CANDIDATE",
+  "components": {
+    "EEM": {
+      "originalInstrument": "EEM (iShares MSCI EM ETF)",
+      "futuresEquivalent": "MME (ICEUS, delisted/illiquid) / SGX ES3 (Singapore)",
+      "resolution": "DATA_BLOCKED",
+      "reason": "No liquid, cost-efficient US-listed futures instrument for MSCI EM at retail. CME EMF delisted 2019. ICE MME illiquid. SGX accessible via IBKR but requires non-standard account setup and SGX data feed.",
+      "path_to_resolution": "1. Request SGX data access via IBKR international account. 2. Use ES3 (SGX MSCI EM) with 6-month live validation. 3. Backtest seasonal strategy on SGX ES3 historical data.",
+      "contracts_in_final_portfolio": 0,
+      "ibkr_cost_if_resolved": "€4.00/rt estimate (SGX ES3 exchange fee ~$2.50 + IBKR $0.85)",
+      "margin_if_resolved": "~$2,500 USD (~€2,040)"
+    },
+    "IWM": {
+      "originalInstrument": "IWM (iShares Russell 2000 ETF)",
+      "futuresEquivalent": "M2K (Micro E-mini Russell 2000, CME)",
+      "resolution": "SOLVABLE",
+      "reason": "M2K is the direct, liquid, cost-efficient futures equivalent of IWM. Accessible via standard IBKR retail account.",
+      "ibkrSymbol": "M2K",
+      "exchange": "CME",
+      "multiplier": 5,
+      "currency": "USD",
+      "margin_USD": 700,
+      "margin_EUR": 572,
+      "ibkrCost_EUR_per_rt": 1.90,
+      "liquidity": "GOOD",
+      "roll": "quarterly",
+      "contracts_in_final_portfolio": 1,
+      "annual_cost_1c": 3.80,
+      "backtest_data_status": "NEEDS_SEASONAL_BACKTEST — seasonal signal definition required from Brain"
+    }
+  }
+}

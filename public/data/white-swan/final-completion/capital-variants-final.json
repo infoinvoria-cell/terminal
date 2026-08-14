@@ -1,0 +1,112 @@
+{
+  "generatedDate": "2026-08-14",
+  "status": "RESEARCH_CANDIDATE",
+  "title": "Final Capital Variants — 4-Component Confirmed Portfolio",
+  "source": "final-normalized/summary.json + portfolio-risk-weights.json",
+  "finalRecommendedVariant": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths_CONSERVATIVE",
+  "components": {
+    "eurusd": "E6_MonLong (Monday + Long only, 415 trades)",
+    "dax1h": "D1_Baseline (1,307 trades)",
+    "dax2h": "D2_HighVolYears (1,629 trades)",
+    "gold": "GLD_BestMonths (318 trades)"
+  },
+  "note_sharedVsSeparateFDXS": "summary.json uses 1×FDXS shared (margin €3,902). Separate FDXS (2×) gives total €4,782. Capital pass thresholds differ accordingly. Both scenarios documented below.",
+  "capitalLevels": {
+    "10000": {
+      "scenario_sharedFDXS": {
+        "totalMargin_EUR": 3902,
+        "marginPct": 39.02,
+        "capitalAssessment": "MARGIN_FAIL",
+        "note": "39% margin — fails 30% rule"
+      },
+      "scenario_separateFDXS": {
+        "totalMargin_EUR": 4782,
+        "marginPct": 47.82,
+        "capitalAssessment": "MARGIN_FAIL"
+      },
+      "kpis_from_summary": {
+        "alpha_netCAGR_1c": 13.62,
+        "oosCAGR": 24.39,
+        "sharpe": 1.326,
+        "maxDD_pct": 11.01,
+        "costsAnnual_1c_EUR": 257.52,
+        "note": "KPIs are reference values from best variant at this capital — not live-tradeable at this level"
+      }
+    },
+    "12500": {
+      "scenario_sharedFDXS": {
+        "totalMargin_EUR": 3902,
+        "marginPct": 31.22,
+        "capitalAssessment": "MARGIN_FAIL",
+        "note": "31.2% — marginally above 30% rule threshold"
+      },
+      "scenario_separateFDXS": {
+        "totalMargin_EUR": 4782,
+        "marginPct": 38.26,
+        "capitalAssessment": "MARGIN_FAIL"
+      },
+      "kpis_from_summary": {
+        "alpha_netCAGR_1c": 12.29,
+        "oosCAGR": 21.51,
+        "sharpe": 1.389,
+        "maxDD_pct": 9.80,
+        "costsAnnual_1c_EUR": 257.52,
+        "note": "KPIs reference only"
+      }
+    },
+    "15000": {
+      "scenario_sharedFDXS": {
+        "totalMargin_EUR": 3902,
+        "marginPct": 26.01,
+        "capitalAssessment": "PASS_SHARED_FDXS",
+        "caveat": "Operational risk: if DAX1H and DAX2H trigger simultaneously, 2nd FDXS contract needed. Shared FDXS creates execution risk.",
+        "note": "PASS with shared FDXS — lowest compliant level for this scenario"
+      },
+      "scenario_separateFDXS": {
+        "totalMargin_EUR": 4782,
+        "marginPct": 31.88,
+        "capitalAssessment": "MARGIN_FAIL",
+        "note": "Fails 30% rule with separate FDXS"
+      },
+      "kpis_from_summary": {
+        "alpha_netCAGR_1c": 11.25,
+        "oosCAGR": 19.32,
+        "sharpe": 1.437,
+        "maxDD_pct": 8.82,
+        "costsAnnual_1c_EUR": 257.52,
+        "costDragAtCapital_pct": 1.72,
+        "tradesPerWeek_estimate": 3.80
+      }
+    },
+    "20000": {
+      "scenario_sharedFDXS": {
+        "totalMargin_EUR": 3902,
+        "marginPct": 19.51,
+        "capitalAssessment": "PASS"
+      },
+      "scenario_separateFDXS": {
+        "totalMargin_EUR": 4782,
+        "marginPct": 23.91,
+        "capitalAssessment": "PASS",
+        "note": "PASS — lowest compliant level for separate FDXS scenario"
+      },
+      "kpis_from_summary": {
+        "alpha_netCAGR_1c": 9.72,
+        "oosCAGR": 16.14,
+        "sharpe": 1.504,
+        "maxDD_pct": 7.36,
+        "costsAnnual_1c_EUR": 257.52,
+        "costDragAtCapital_pct": 1.29,
+        "tradesPerWeek_estimate": 3.80,
+        "note": "Best risk-adjusted profile in the table. Recommended minimum for operational deployment."
+      }
+    }
+  },
+  "recommendation": {
+    "minimumCapital": 20000,
+    "preferredCapital": 30000,
+    "rationale": "€20k passes 30% margin rule with separate FDXS. €30k provides meaningful drawdown buffer (at 7.4% MaxDD on €20k capital, worst drawdown = ~€1,480; at €30k that same DD is 4.9% of capital — more comfortable psychologically and operationally).",
+    "alphaNote": "Higher capital reduces cost drag proportionally but reduces return-on-capital. The €20k level offers the best balance of margin safety, cost efficiency, and return potential for a 4-component starter portfolio.",
+    "wfSummary": "9/9 folds positive for all confirmed variants. OOS/IS ratio 1.40-1.48 (not overfitted). Cost-stress ×1.5 remains positive. Highest quality WF gate in the system."
+  }
+}

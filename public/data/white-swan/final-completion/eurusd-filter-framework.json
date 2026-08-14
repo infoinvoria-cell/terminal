@@ -1,0 +1,186 @@
+{
+  "generatedDate": "2026-08-14",
+  "status": "RESEARCH_CANDIDATE",
+  "title": "6E / EURUSD 30M Ex-Ante Filter Framework",
+  "coreProblem": {
+    "E0_allTrades": {
+      "tradeCount": 4266,
+      "ibkrCost_per_rt": 4.10,
+      "totalCostEUR": 17490.60,
+      "annualCostEUR": 944.42,
+      "costDragAt15k_pct": 6.30,
+      "verdict": "ECONOMICALLY_CHALLENGED — cost drag too high for retail capital"
+    },
+    "E6_MonLong": {
+      "tradeCount": 415,
+      "ibkrCost_per_rt": 4.10,
+      "totalCostEUR": 1701.50,
+      "annualCostEUR": 91.89,
+      "costDragAt15k_pct": 0.61,
+      "verdict": "VIABLE — confirmed baseline filter, 10x cost reduction vs E0"
+    },
+    "E9_MonQ3": {
+      "tradeCount": 168,
+      "ibkrCost_per_rt": 4.10,
+      "totalCostEUR": 688.80,
+      "annualCostEUR": 37.19,
+      "costDragAt15k_pct": 0.25,
+      "verdict": "LOW_SAMPLE — only 9 trades/yr. Too few for robustness gate."
+    }
+  },
+  "currentRecommendedBaseline": {
+    "filter": "E6_MonLong",
+    "definition": "Monday entries + Long direction only",
+    "rationale": "DOW (Monday) + direction (Long) are both ex-ante at entry time. No lookahead. No parameter fitting on price levels. Reduces trade count 90% while preserving edge.",
+    "pbValidation": "9/9 WF folds positive, OOS CAGR 19.27%, Sharpe 1.33-1.44 across combinations"
+  },
+  "filterCandidates": [
+    {
+      "id": "F01",
+      "name": "Session Filter",
+      "definition": "Only trade during European session (06:00-18:00 CET) or NY overlap (13:00-17:00 CET)",
+      "parameterRange": ["EU_ONLY: 06:00-18:00 CET", "NY_OVERLAP: 13:00-17:00 CET", "FULL_EU_NY: 06:00-22:00 CET"],
+      "expectedTradeReduction_pct": "30-50",
+      "exAnteVerifiable": true,
+      "dataRequired": "30M OHLC with timestamps in CET"
+    },
+    {
+      "id": "F02",
+      "name": "Day-of-Week Filter",
+      "definition": "Trade only on specific days: Mon/Tue/Wed/Thu/Fri",
+      "parameterRange": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Mon+Tue", "Mon+Wed"],
+      "expectedTradeReduction_pct": "60-80 (single day)",
+      "exAnteVerifiable": true,
+      "dataRequired": "date field in OHLC",
+      "note": "E6_MonLong already uses Monday. This tests other days or combinations."
+    },
+    {
+      "id": "F03",
+      "name": "Month/Quarter Filter",
+      "definition": "Trade only in specific months or quarters",
+      "parameterRange": ["Q1", "Q2", "Q3", "Q4", "Jan-Mar", "Apr-Jun", "Jul-Sep", "Oct-Dec", "Jan+Sep+Dec"],
+      "expectedTradeReduction_pct": "25-75",
+      "exAnteVerifiable": true,
+      "dataRequired": "date field in OHLC"
+    },
+    {
+      "id": "F04",
+      "name": "Long/Short Asymmetry",
+      "definition": "Long-only vs short-only vs both directions",
+      "parameterRange": ["LONG_ONLY", "SHORT_ONLY", "BOTH"],
+      "expectedTradeReduction_pct": "~50 (for single direction)",
+      "exAnteVerifiable": true,
+      "dataRequired": "signal direction in strategy logic",
+      "note": "E6_MonLong already uses LONG_ONLY. Short-only should be tested separately."
+    },
+    {
+      "id": "F05",
+      "name": "ATR Threshold Filter",
+      "definition": "Only enter trade when 14-period ATR(30m) at entry bar close exceeds threshold X pips",
+      "parameterRange": ["ATR14 > 5 pips", "ATR14 > 8 pips", "ATR14 > 10 pips", "ATR14 > 12 pips", "ATR14 > 15 pips"],
+      "expectedTradeReduction_pct": "20-40",
+      "exAnteVerifiable": true,
+      "dataRequired": "30M OHLC to compute ATR14",
+      "recommendation": "BEST_CANDIDATE_FOR_NEXT_FILTER",
+      "rationale": "ATR directly proxies expected move per trade. If ATR < cost-equivalent threshold, the trade cannot cover costs in expectation. Completely ex-ante (ATR computed at bar close before entry). Expected to improve cost efficiency further by eliminating low-volatility churn."
+    },
+    {
+      "id": "F06",
+      "name": "Higher-Timeframe Trend Filter",
+      "definition": "Only trade in direction of 4H EMA slope at entry",
+      "parameterRange": ["4H_EMA20_slope > 0 for longs", "4H_EMA50_slope > 0 for longs", "4H_EMA100_slope > 0"],
+      "expectedTradeReduction_pct": "40-60",
+      "exAnteVerifiable": true,
+      "dataRequired": "4H OHLC for 6E"
+    },
+    {
+      "id": "F07",
+      "name": "ADX Trend Strength Filter",
+      "definition": "Only trade when ADX(14) on 2H chart > threshold at entry bar",
+      "parameterRange": ["ADX14_2H > 15", "ADX14_2H > 20", "ADX14_2H > 25"],
+      "expectedTradeReduction_pct": "30-50",
+      "exAnteVerifiable": true,
+      "dataRequired": "2H OHLC for 6E to compute ADX"
+    },
+    {
+      "id": "F08",
+      "name": "Volatility Regime Filter",
+      "definition": "Trade only when 20-period 30m volatility (std dev of returns) > median historical volatility",
+      "parameterRange": ["VOL20 > historical_median", "VOL20 > 25th_pct", "VOL20 > 75th_pct"],
+      "expectedTradeReduction_pct": "~50 (by design — median split)",
+      "exAnteVerifiable": true,
+      "dataRequired": "30M OHLC for rolling volatility computation"
+    },
+    {
+      "id": "F09",
+      "name": "Cooldown Filter",
+      "definition": "Minimum N bars between consecutive entries",
+      "parameterRange": ["4 bars (2H)", "8 bars (4H)", "12 bars (6H)", "24 bars (1 day)"],
+      "expectedTradeReduction_pct": "10-30",
+      "exAnteVerifiable": true,
+      "dataRequired": "timestamp of last trade entry"
+    },
+    {
+      "id": "F10",
+      "name": "Time Stop / Max Hold Filter",
+      "definition": "Exit position after N bars if not stopped out or at target",
+      "parameterRange": ["8 bars (4H)", "12 bars (6H)", "16 bars (8H)", "24 bars (1 day)"],
+      "expectedTradeReduction_pct": "0 (affects exits, not entries)",
+      "exAnteVerifiable": true,
+      "dataRequired": "bar counter in position tracking"
+    },
+    {
+      "id": "F11",
+      "name": "Cost Hurdle Filter",
+      "definition": "Only enter if expected gross edge (from signal score or historical avg) > N × roundturn cost",
+      "parameterRange": ["edge > 1.0× cost (€4.10)", "edge > 1.5× cost (€6.15)", "edge > 2.0× cost (€8.20)"],
+      "expectedTradeReduction_pct": "variable — depends on signal score availability",
+      "exAnteVerifiable": true,
+      "dataRequired": "signal scoring mechanism or calibrated edge estimate per filter bucket"
+    },
+    {
+      "id": "F12",
+      "name": "Signal Strength / Confidence Filter",
+      "definition": "Only trade when composite signal confidence exceeds threshold",
+      "parameterRange": ["score > 0.6", "score > 0.7", "score > 0.8"],
+      "expectedTradeReduction_pct": "variable",
+      "exAnteVerifiable": true,
+      "dataRequired": "signal scoring infrastructure in Brain"
+    },
+    {
+      "id": "F13",
+      "name": "Spread Proxy Filter",
+      "definition": "Skip entry if estimated spread (bar range proxy) > 0.5 pips at entry time",
+      "parameterRange": ["bar_range_proxy > 0.3 pips skip", "bar_range_proxy > 0.5 pips skip", "bar_range_proxy > 0.8 pips skip"],
+      "expectedTradeReduction_pct": "5-15",
+      "exAnteVerifiable": true,
+      "dataRequired": "30M OHLC (HL range as spread proxy)"
+    },
+    {
+      "id": "F14",
+      "name": "Minimum Prior Day Range Filter",
+      "definition": "Skip if prior trading day H-L range < threshold pips",
+      "parameterRange": ["priorDayRange < 40 pips skip", "priorDayRange < 50 pips skip", "priorDayRange < 60 pips skip"],
+      "expectedTradeReduction_pct": "10-25",
+      "exAnteVerifiable": true,
+      "dataRequired": "daily OHLC for 6E (prior day available at entry)"
+    },
+    {
+      "id": "F15",
+      "name": "Macro Regime Filter (VIX Proxy)",
+      "definition": "Skip entries when risk regime is adverse (VIX > threshold or risk-off proxy active)",
+      "parameterRange": ["VIX_proxy > 30 skip", "VIX_proxy > 25 skip", "risk_off_flag active skip"],
+      "expectedTradeReduction_pct": "5-20",
+      "exAnteVerifiable": true,
+      "dataRequired": "VIX daily close or risk-off index in Brain"
+    }
+  ],
+  "nextActionPlan": {
+    "step1": "E6_MonLong is the confirmed baseline — do not change it without new WF confirmation",
+    "step2": "Add ATR threshold (F05) as the next filter: test ATR14(30m) > 8, 10, 12 pips at entry",
+    "step3": "Run WF on E6_MonLong + ATR threshold combinations",
+    "step4": "Accept improvement only if: trade count >= 200, WF pass rate >= 5/6 folds, OOS ratio >= 0.70",
+    "step5": "If F05 degrades: test F06 (higher-TF trend) or F14 (prior day range)",
+    "blockingDependency": "NEEDS_BRAIN_DATA — 30M OHLC for 6E required to run ATR computation and WF"
+  }
+}

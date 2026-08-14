@@ -1,0 +1,66 @@
+{
+  "generatedDate": "2026-08-14",
+  "status": "RESEARCH_CANDIDATE",
+  "title": "Investor Capital Requirements — White Swan Portfolio",
+  "note": "All figures in EUR. Margin estimates for seasonal micro instruments are approximations; confirm with IBKR before live deployment.",
+  "fullPortfolio_16components_exEEM": {
+    "description": "All 17 mandatory components excluding EEM (DATA_BLOCKED)",
+    "marginStack": [
+      { "component": "6E (E6_MonLong)", "instrument": "6E", "margin_EUR": 2287, "status": "CONFIRMED" },
+      { "component": "DAX 1H (D1_Baseline)", "instrument": "FDXS", "margin_EUR": 880, "status": "CONFIRMED" },
+      { "component": "DAX 2H (D2_HighVolYears)", "instrument": "FDXS", "margin_EUR": 880, "status": "CONFIRMED", "note": "2nd FDXS contract" },
+      { "component": "GLD BestMonths", "instrument": "MGC", "margin_EUR": 735, "status": "CONFIRMED" },
+      { "component": "YM1_TAT", "instrument": "MYM", "margin_EUR": 490, "status": "ESTIMATE", "marginUSD": 600 },
+      { "component": "SPY_sea", "instrument": "MES", "margin_EUR": 490, "status": "ESTIMATE", "marginUSD": 600 },
+      { "component": "ZM1_sea", "instrument": "MZM", "margin_EUR": 572, "status": "ESTIMATE", "marginUSD": 700 },
+      { "component": "SB_sea", "instrument": "SB", "margin_EUR": 980, "status": "ESTIMATE", "marginUSD": 1200 },
+      { "component": "EEM_sea", "instrument": "MME/SGX", "margin_EUR": 0, "status": "DATA_BLOCKED", "note": "Excluded — no liquid US futures" },
+      { "component": "HG_sea", "instrument": "MHG", "margin_EUR": 1633, "status": "ESTIMATE", "marginUSD": 2000 },
+      { "component": "GC1_sea", "instrument": "MGC", "margin_EUR": 735, "status": "CONFIRMED", "note": "2nd MGC contract" },
+      { "component": "CL_sea", "instrument": "MCL", "margin_EUR": 653, "status": "ESTIMATE", "marginUSD": 800 },
+      { "component": "ZC_sea", "instrument": "MZC", "margin_EUR": 572, "status": "ESTIMATE", "marginUSD": 700 },
+      { "component": "ZW_sea", "instrument": "MZW", "margin_EUR": 572, "status": "ESTIMATE", "marginUSD": 700 },
+      { "component": "ZS_sea", "instrument": "MZS", "margin_EUR": 572, "status": "ESTIMATE", "marginUSD": 700 },
+      { "component": "CC_sea", "instrument": "CC", "margin_EUR": 1470, "status": "ESTIMATE", "marginUSD": 1800 },
+      { "component": "IWM_sea", "instrument": "M2K", "margin_EUR": 572, "status": "CONFIRMED" }
+    ],
+    "totalMargin_EUR": 14093,
+    "componentCount": 16,
+    "capitalRequirements": {
+      "absoluteTechnicalMinimum_EUR": 14093,
+      "marginRule30pct_EUR": 46977,
+      "roundedMinimum_EUR": 47000,
+      "withDrawdownReserve20pct_EUR": 56400,
+      "withCostBuffer2pct_EUR": 57528,
+      "MINIMUM_INVESTOR_CAPITAL_EUR": 60000,
+      "RECOMMENDED_CAPITAL_EUR": 100000,
+      "COMFORTABLE_CAPITAL_EUR": 150000
+    }
+  },
+  "fourComponentPortfolio": {
+    "description": "4-component confirmed-data portfolio: 6E + DAX1H + DAX2H + GLD",
+    "scenarios": {
+      "sharedFDXS": {
+        "totalMargin_EUR": 3902,
+        "capitalRequirements": {
+          "marginRule30pct_EUR": 13007,
+          "MINIMUM_EUR": 15000,
+          "RECOMMENDED_EUR": 20000,
+          "note": "PASS at €15k but operational caveat: DAX1H + DAX2H simultaneity may require 2nd FDXS"
+        }
+      },
+      "separateFDXS": {
+        "totalMargin_EUR": 4782,
+        "capitalRequirements": {
+          "marginRule30pct_EUR": 15940,
+          "MINIMUM_EUR": 20000,
+          "RECOMMENDED_EUR": 30000,
+          "note": "Correct allocation — 2×FDXS to handle simultaneous DAX1H + DAX2H signals"
+        }
+      }
+    }
+  },
+  "eurPerUsd": 0.81677,
+  "marginReferenceDate": "2026-08-14",
+  "marginReferenceSource": "IBKR current reference margin — not historical worst-case. Add 30% stress buffer for crisis scenarios."
+}

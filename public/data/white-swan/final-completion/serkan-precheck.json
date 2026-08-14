@@ -1,0 +1,60 @@
+{
+  "generatedDate": "2026-08-14",
+  "status": "RESEARCH_CANDIDATE",
+  "title": "Serkan Pre-Check — IBKR Real vs Serkan Reference Cost Comparison",
+  "assumption": "Serkan likely uses €0.85/side = €1.70/roundturn uniform for all instruments. We use IBKR all-in confirmed costs.",
+  "perInstrumentComparison": [
+    { "instrument": "6E", "ibkrReal_per_rt_EUR": 4.10, "serkan_per_rt_EUR": 1.70, "delta_EUR": 2.40, "multiplier": 2.41, "note": "IBKR more expensive — high exchange fee on CME FX" },
+    { "instrument": "FDXS", "ibkrReal_per_rt_EUR": 0.76, "serkan_per_rt_EUR": 1.70, "delta_EUR": -0.94, "multiplier": 0.45, "note": "IBKR CHEAPER than Serkan — very low EUREX fee for FDXS micro" },
+    { "instrument": "MGC", "ibkrReal_per_rt_EUR": 2.63, "serkan_per_rt_EUR": 1.70, "delta_EUR": 0.93, "multiplier": 1.55, "note": "IBKR more expensive — COMEX micro fee" },
+    { "instrument": "M2K", "ibkrReal_per_rt_EUR": 1.90, "serkan_per_rt_EUR": 1.70, "delta_EUR": 0.20, "multiplier": 1.12, "note": "Near parity" },
+    { "instrument": "MES", "ibkrReal_per_rt_EUR": 1.90, "serkan_per_rt_EUR": 1.70, "delta_EUR": 0.20, "multiplier": 1.12, "note": "Near parity" },
+    { "instrument": "MCL", "ibkrReal_per_rt_EUR": 2.23, "serkan_per_rt_EUR": 1.70, "delta_EUR": 0.53, "multiplier": 1.31, "note": "Moderate premium" },
+    { "instrument": "MHG", "ibkrReal_per_rt_EUR": 2.63, "serkan_per_rt_EUR": 1.70, "delta_EUR": 0.93, "multiplier": 1.55, "note": "Same as MGC" },
+    { "instrument": "SB", "ibkrReal_per_rt_EUR": 5.00, "serkan_per_rt_EUR": 1.70, "delta_EUR": 3.30, "multiplier": 2.94, "note": "ICEUS soft commodity — expensive" },
+    { "instrument": "CC", "ibkrReal_per_rt_EUR": 5.00, "serkan_per_rt_EUR": 1.70, "delta_EUR": 3.30, "multiplier": 2.94, "note": "ICEUS soft commodity — expensive" },
+    { "instrument": "MZW", "ibkrReal_per_rt_EUR": 2.00, "serkan_per_rt_EUR": 1.70, "delta_EUR": 0.30, "multiplier": 1.18, "note": "CBOT micro ag — estimate" },
+    { "instrument": "MZC", "ibkrReal_per_rt_EUR": 2.00, "serkan_per_rt_EUR": 1.70, "delta_EUR": 0.30, "multiplier": 1.18, "note": "CBOT micro ag — estimate" },
+    { "instrument": "MZS", "ibkrReal_per_rt_EUR": 2.00, "serkan_per_rt_EUR": 1.70, "delta_EUR": 0.30, "multiplier": 1.18, "note": "CBOT micro ag — estimate" },
+    { "instrument": "MYM", "ibkrReal_per_rt_EUR": 2.50, "serkan_per_rt_EUR": 1.70, "delta_EUR": 0.80, "multiplier": 1.47, "note": "CBOT micro equity — estimate" }
+  ],
+  "fourComponentPortfolio_E6MonLong": {
+    "components": [
+      { "component": "6E (E6_MonLong)", "tradeCount": 415, "ibkrAnnual_EUR": 91.89, "serkanAnnual_EUR": 38.09 },
+      { "component": "DAX 1H (D1_Baseline)", "tradeCount": 1307, "ibkrAnnual_EUR": 53.63, "serkanAnnual_EUR": 119.94 },
+      { "component": "DAX 2H (D2_HighVolYears)", "tradeCount": 1629, "ibkrAnnual_EUR": 66.85, "serkanAnnual_EUR": 149.50 },
+      { "component": "GLD (GLD_BestMonths)", "tradeCount": 318, "ibkrAnnual_EUR": 45.16, "serkanAnnual_EUR": 29.19 }
+    ],
+    "ibkrTotalAnnual_EUR": 257.53,
+    "serkanTotalAnnual_EUR": 336.72,
+    "ratio": 0.764,
+    "keyFinding": "IBKR real costs for this specific portfolio are CHEAPER than Serkan uniform estimate. FDXS advantage (€0.76/rt vs €1.70/rt) on 2,936 combined DAX trades outweighs 6E premium (€4.10 vs €1.70) on only 415 trades.",
+    "note": "This finding is specific to portfolios dominated by EUREX/FDXS trading. A portfolio dominated by 6E, SB, or CC would show IBKR being more expensive."
+  },
+  "slippageModel": {
+    "note": "Slippage not included in IBKR confirmed costs above. Estimates only.",
+    "sixE_slippage_per_rt_EUR": 2.50,
+    "fdxs_slippage_per_rt_EUR": 0.50,
+    "mgc_slippage_per_rt_EUR": 0.08,
+    "fourComponentSlippageAnnual_EUR": {
+      "sixE": 56.03,
+      "dax1h": 35.27,
+      "dax2h": 43.98,
+      "gld": 1.37,
+      "total": 136.65
+    },
+    "totalCostWithSlippage_4c_annual_EUR": 394.18,
+    "costDragAt15k_withSlippage_pct": 2.63,
+    "costDragAt20k_withSlippage_pct": 1.97
+  },
+  "whereSerkanMightDiffer": [
+    { "item": "Commission structure", "detail": "Serkan may use fixed per-contract vs IBKR tiered — at low volume, tiered is typically more expensive" },
+    { "item": "Exchange fees", "detail": "Serkan may use different exchange fee assumptions or outdated fee schedules" },
+    { "item": "Slippage", "detail": "We use explicit slippage estimate; Serkan may include or exclude differently" },
+    { "item": "Currency conversion", "detail": "Serkan may compute all in USD then convert; we use EUR for EUREX instruments directly" },
+    { "item": "Roll cost", "detail": "We do not model roll slippage explicitly; Serkan may add 0.05-0.1% per roll" },
+    { "item": "Margin interest", "detail": "We do not model margin financing cost; Serkan may add opportunity cost on margin posted" },
+    { "item": "Data subscription", "detail": "We exclude data feed cost; Serkan may include €20-50/mo for professional feeds" },
+    { "item": "MGC vs GC distinction", "detail": "Serkan may use GC (standard) costs; we use MGC (micro). GC at €4.10/rt vs MGC at €2.63/rt" }
+  ]
+}

@@ -306,6 +306,371 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
+// ─── Component Quality Data (static, 17 components) ─────────────────────────
+
+const COMPONENT_QUALITY_DATA = [
+  {
+    id: 'eurusd_30m',         label: 'EURUSD 30M',        instrument: '6E / M6E',    exchange: 'CME',
+    ibkrCost: 4.10,           margin: 2287,                tradesPerYr: 22.4,         status: 'NEEDS_COST_FILTER',
+    statusColor: 'text-yellow-400',
+    note: 'E6_MonLong filter: 22.4 trades/yr, €91.87/yr cost — viable. ATR filter pending Brain backtest.',
+    wfFolds: '9/9',           oosPositive: true,           dataQuality: 'MONITORING_ONLY (2026)',
+  },
+  {
+    id: 'dax_1h',             label: 'DAX 1H',             instrument: 'FDXS',        exchange: 'EUREX',
+    ibkrCost: 0.76,           margin: 880,                 tradesPerYr: 70.6,         status: 'ACCEPTABLE',
+    statusColor: 'text-blue-400',
+    note: 'D1_Baseline. €53.64/yr cost at FDXS €0.76/rt. Regime filter design pending Brain backtest.',
+    wfFolds: '9/9',           oosPositive: true,           dataQuality: 'MONITORING_ONLY (2025)',
+  },
+  {
+    id: 'gld_thursday',       label: 'GLD Thursday',       instrument: 'MGC / GC',    exchange: 'COMEX',
+    ibkrCost: 2.63,           margin: 735,                 tradesPerYr: 17.2,         status: 'ACCEPTABLE',
+    statusColor: 'text-blue-400',
+    note: 'GLD_BestMonths filter: 17.2 trades/yr, €45.16/yr. GC (€4.10/rt) only viable ≥€25k.',
+    wfFolds: '9/9',           oosPositive: true,           dataQuality: 'RESEARCH_ETF (1096 trades)',
+  },
+  {
+    id: 'ym1_tat',            label: 'YM1 TAT (Dow)',      instrument: 'MYM',         exchange: 'CBOT',
+    ibkrCost: 2.50,           margin: 490,                 tradesPerYr: 30.9,         status: 'LOW_SAMPLE',
+    statusColor: 'text-orange-400',
+    note: '573 total trades over 18.5yr. Futures replication possible. Parameter neighborhood pending.',
+    wfFolds: '—',             oosPositive: null,           dataQuality: 'PARTIAL (436 daily rows)',
+  },
+  {
+    id: 'dax_2h',             label: 'DAX 2H',             instrument: 'FDXS',        exchange: 'EUREX',
+    ibkrCost: 0.76,           margin: 880,                 tradesPerYr: 88.0,         status: 'ROBUST',
+    statusColor: 'text-emerald-400',
+    note: 'D2_HighVolYears: 88/yr, €66.87/yr. Dominant component. FDXS cheapest at €0.76/rt.',
+    wfFolds: '9/9',           oosPositive: true,           dataQuality: 'FULL 2008–2026',
+  },
+  {
+    id: 'spy_sea',            label: 'SPY Seasonal',       instrument: 'MES',         exchange: 'CME',
+    ibkrCost: 1.90,           margin: 490,                 tradesPerYr: 3.0,          status: 'NO_DATA',
+    statusColor: 'text-[#737373]',
+    note: '~3 trades/yr seasonal. €5.75/yr cost (minimal). Signal definition + Brain backtest required.',
+    wfFolds: '—',             oosPositive: null,           dataQuality: 'NO_TRADE_DATA',
+  },
+  {
+    id: 'zm1_sea',            label: 'Soybean Meal',       instrument: 'MZM',         exchange: 'CBOT',
+    ibkrCost: 2.00,           margin: 570,                 tradesPerYr: 2.0,          status: 'NO_DATA',
+    statusColor: 'text-[#737373]',
+    note: '~2 trades/yr. €4.00/yr cost. LOW_SAMPLE by definition. Brain data required.',
+    wfFolds: '—',             oosPositive: null,           dataQuality: 'NO_TRADE_DATA',
+  },
+  {
+    id: 'sb1_sea',            label: 'Sugar',              instrument: 'SB',          exchange: 'ICEUS',
+    ibkrCost: 5.00,           margin: 980,                 tradesPerYr: 2.0,          status: 'NO_DATA',
+    statusColor: 'text-[#737373]',
+    note: '~2 trades/yr. SB is full-size (non-micro). High cost €5.00/rt. Viability at small capital questionable.',
+    wfFolds: '—',             oosPositive: null,           dataQuality: 'NO_TRADE_DATA',
+  },
+  {
+    id: 'eem_sea',            label: 'EEM / MSCI EM',      instrument: 'MME (ICE) / SGX',exchange: 'ICEUS / SGX',
+    ibkrCost: 4.00,           margin: 0,                   tradesPerYr: 2.0,          status: 'DATA_BLOCKED',
+    statusColor: 'text-red-400',
+    note: 'CME EMF delisted 2019. ICE MME illiquid. SGX accessible but non-standard IBKR setup. 0 contracts until resolved.',
+    wfFolds: '—',             oosPositive: null,           dataQuality: 'DATA_BLOCKED',
+  },
+  {
+    id: 'hg1_sea',            label: 'Copper',             instrument: 'MHG',         exchange: 'COMEX',
+    ibkrCost: 2.63,           margin: 1633,                tradesPerYr: 2.0,          status: 'NO_DATA',
+    statusColor: 'text-[#737373]',
+    note: '~2 trades/yr. €5.26/yr cost. MHG margin ~€1,633 (higher than MGC). Brain backtest required.',
+    wfFolds: '—',             oosPositive: null,           dataQuality: 'NO_TRADE_DATA',
+  },
+  {
+    id: 'gc1_sea',            label: 'Gold Seasonal',      instrument: 'MGC',         exchange: 'COMEX',
+    ibkrCost: 2.63,           margin: 735,                 tradesPerYr: 2.0,          status: 'NO_DATA',
+    statusColor: 'text-[#737373]',
+    note: '~2 trades/yr. Separate from GLD Thursday. €5.26/yr cost. Brain backtest required.',
+    wfFolds: '—',             oosPositive: null,           dataQuality: 'NO_TRADE_DATA',
+  },
+  {
+    id: 'cl1_sea',            label: 'Crude Oil',          instrument: 'MCL',         exchange: 'NYMEX',
+    ibkrCost: 2.23,           margin: 653,                 tradesPerYr: 2.0,          status: 'NO_DATA',
+    statusColor: 'text-[#737373]',
+    note: '~2 trades/yr. €4.45/yr cost. MCL micro crude. Brain backtest required.',
+    wfFolds: '—',             oosPositive: null,           dataQuality: 'NO_TRADE_DATA',
+  },
+  {
+    id: 'zc1_sea',            label: 'Corn',               instrument: 'MZC',         exchange: 'CBOT',
+    ibkrCost: 2.00,           margin: 572,                 tradesPerYr: 3.0,          status: 'NO_DATA',
+    statusColor: 'text-[#737373]',
+    note: '~3 trades/yr. €5.94/yr cost. Brain backtest required.',
+    wfFolds: '—',             oosPositive: null,           dataQuality: 'NO_TRADE_DATA',
+  },
+  {
+    id: 'zw1_sea',            label: 'Wheat',              instrument: 'MZW',         exchange: 'CBOT',
+    ibkrCost: 2.00,           margin: 572,                 tradesPerYr: 2.0,          status: 'LOW_SAMPLE',
+    statusColor: 'text-orange-400',
+    note: '~37 total trades over 18.5yr. Date-based entry (ex-ante). Leave-one-year-out testing pending Brain.',
+    wfFolds: '—',             oosPositive: null,           dataQuality: 'NO_TRADE_DATA',
+  },
+  {
+    id: 'zs1_sea',            label: 'Soybeans',           instrument: 'MZS',         exchange: 'CBOT',
+    ibkrCost: 2.00,           margin: 572,                 tradesPerYr: 3.0,          status: 'NO_DATA',
+    statusColor: 'text-[#737373]',
+    note: '~3 trades/yr. €5.94/yr cost. Brain backtest required.',
+    wfFolds: '—',             oosPositive: null,           dataQuality: 'NO_TRADE_DATA',
+  },
+  {
+    id: 'cc1_sea',            label: 'Cocoa',              instrument: 'CC',          exchange: 'ICEUS',
+    ibkrCost: 5.00,           margin: 1470,                tradesPerYr: 2.0,          status: 'NO_DATA',
+    statusColor: 'text-[#737373]',
+    note: 'CC is full-size only. €5.00/rt estimated. High margin €1,470. Small-cap accessibility limited.',
+    wfFolds: '—',             oosPositive: null,           dataQuality: 'NO_TRADE_DATA',
+  },
+  {
+    id: 'iwm_sea',            label: 'IWM / Russell 2000', instrument: 'M2K',         exchange: 'CME',
+    ibkrCost: 1.90,           margin: 572,                 tradesPerYr: 2.0,          status: 'SOLVABLE',
+    statusColor: 'text-purple-400',
+    note: 'M2K = Micro E-mini Russell 2000. Direct liquid equivalent. €1.90/rt. Seasonal signal + backtest pending.',
+    wfFolds: '—',             oosPositive: null,           dataQuality: 'SOLVABLE — needs seasonal signal',
+  },
+] as const;
+
+const COMPONENT_STATUS_ORDER = ['ROBUST', 'ACCEPTABLE', 'NEEDS_COST_FILTER', 'LOW_SAMPLE', 'SOLVABLE', 'NO_DATA', 'DATA_BLOCKED'];
+
+function ComponentQualitySection() {
+  const [expanded, setExpanded] = useState(false);
+  const sorted = [...COMPONENT_QUALITY_DATA].sort(
+    (a, b) => COMPONENT_STATUS_ORDER.indexOf(a.status) - COMPONENT_STATUS_ORDER.indexOf(b.status)
+  );
+  const statusCounts = Object.fromEntries(
+    COMPONENT_STATUS_ORDER.map(s => [s, COMPONENT_QUALITY_DATA.filter(c => c.status === s).length])
+  );
+  return (
+    <div className="space-y-3">
+      <SectionTitle>Component Quality — All 17 Components</SectionTitle>
+      {/* Status summary pills */}
+      <div className="flex flex-wrap gap-2 text-xs">
+        {COMPONENT_STATUS_ORDER.filter(s => statusCounts[s] > 0).map(s => {
+          const colorMap: Record<string, string> = {
+            ROBUST: 'bg-emerald-900/30 text-emerald-400 border-emerald-700/30',
+            ACCEPTABLE: 'bg-blue-900/20 text-blue-400 border-blue-700/30',
+            NEEDS_COST_FILTER: 'bg-yellow-900/20 text-yellow-400 border-yellow-700/30',
+            LOW_SAMPLE: 'bg-orange-900/20 text-orange-400 border-orange-700/30',
+            SOLVABLE: 'bg-purple-900/20 text-purple-400 border-purple-700/30',
+            NO_DATA: 'bg-[#1c1d20] text-[#737373] border-[#2a2b30]',
+            DATA_BLOCKED: 'bg-red-900/20 text-red-400 border-red-700/30',
+          };
+          return (
+            <span key={s} className={cn('px-2 py-0.5 rounded border font-semibold', colorMap[s] ?? '')}>
+              {s.replace(/_/g, ' ')} ×{statusCounts[s]}
+            </span>
+          );
+        })}
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs border-collapse">
+          <thead>
+            <tr className="border-b border-[#2a2b30]">
+              {['Component', 'Instrument', 'Exch', 'Cost/rt', 'Margin', 'Trades/yr', 'Cost/yr', 'WF', 'Status', 'Note'].map(h => (
+                <th key={h} className="text-right first:text-left px-2 py-1.5 text-[#737373] font-normal whitespace-nowrap">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {(expanded ? sorted : sorted.slice(0, 8)).map(c => (
+              <tr key={c.id} className="border-b border-[#1a1b1e] hover:bg-[#1a1b1e]/50">
+                <td className="px-2 py-1.5 font-semibold text-[#e2ca7a] whitespace-nowrap">{c.label}</td>
+                <td className="px-2 py-1.5 font-mono">{c.instrument}</td>
+                <td className="px-2 py-1.5 text-[#737373]">{c.exchange}</td>
+                <td className="px-2 py-1.5 text-right font-mono">€{c.ibkrCost.toFixed(2)}</td>
+                <td className="px-2 py-1.5 text-right font-mono text-[#737373]">
+                  {c.margin > 0 ? `€${c.margin.toLocaleString('de-DE')}` : '—'}
+                </td>
+                <td className="px-2 py-1.5 text-right font-mono">{c.tradesPerYr.toFixed(1)}</td>
+                <td className="px-2 py-1.5 text-right font-mono text-orange-400">
+                  €{(c.tradesPerYr * c.ibkrCost).toFixed(0)}
+                </td>
+                <td className="px-2 py-1.5 text-right font-mono text-[#737373]">{c.wfFolds}</td>
+                <td className={cn('px-2 py-1.5 text-right font-semibold whitespace-nowrap', c.statusColor)}>
+                  {c.status.replace(/_/g, ' ')}
+                </td>
+                <td className="px-2 py-1.5 text-[#737373] max-w-[280px] truncate" title={c.note}>{c.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {sorted.length > 8 && (
+        <button onClick={() => setExpanded(!expanded)}
+          className="text-xs text-[#737373] hover:text-[#e2ca7a] transition-colors">
+          {expanded ? '▲ Show less' : `▼ Show all ${sorted.length} components`}
+        </button>
+      )}
+
+      {/* Capital requirement for full portfolio */}
+      <div className="rounded border border-[#2a2b30] bg-[#0c0d10] p-3 text-xs space-y-1.5">
+        <div className="text-[#e2ca7a] font-semibold text-xs uppercase tracking-wide">Full 17-Component Portfolio — Capital Requirements</div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
+          <div className="text-center">
+            <div className="text-[#737373] mb-0.5">Absolute Min</div>
+            <div className="font-mono font-bold text-red-400">€14,091</div>
+            <div className="text-[#737373]">exchange margin</div>
+          </div>
+          <div className="text-center border-l border-[#2a2b30]">
+            <div className="text-[#737373] mb-0.5">Min (30% rule)</div>
+            <div className="font-mono font-bold text-orange-400">€47,000</div>
+            <div className="text-[#737373]">16 components ex-EEM</div>
+          </div>
+          <div className="text-center border-l border-[#2a2b30]">
+            <div className="text-[#737373] mb-0.5">Recommended</div>
+            <div className="font-mono font-bold text-[#e2ca7a]">€100,000</div>
+            <div className="text-[#737373]">with DD reserve</div>
+          </div>
+          <div className="text-center border-l border-[#2a2b30]">
+            <div className="text-[#737373] mb-0.5">Comfortable</div>
+            <div className="font-mono font-bold text-emerald-400">€150,000+</div>
+            <div className="text-[#737373]">room to scale</div>
+          </div>
+        </div>
+        <div className="text-[#737373] border-t border-[#2a2b30] pt-1.5 mt-1">
+          4-component portfolio (6E + DAX1H + DAX2H + GLD): min €20k (separate FDXS) / €15k (shared FDXS). EEM excluded until SGX access confirmed.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Serkan Pre-Check Section ──────────────────────────────────────────────────
+
+const SERKAN_INSTRUMENT_DATA = [
+  { instrument: '6E',   label: 'EURUSD 6E',    tradesPerYr: 22.4,  ibkrCost: 4.10, serkanCost: 1.70, slippage: 2.50 },
+  { instrument: 'FDXS', label: 'DAX 1H FDXS',  tradesPerYr: 70.6,  ibkrCost: 0.76, serkanCost: 1.70, slippage: 0.50 },
+  { instrument: 'FDXS', label: 'DAX 2H FDXS',  tradesPerYr: 88.0,  ibkrCost: 0.76, serkanCost: 1.70, slippage: 0.50 },
+  { instrument: 'MGC',  label: 'GLD MGC',       tradesPerYr: 17.2,  ibkrCost: 2.63, serkanCost: 1.70, slippage: 0.08 },
+] as const;
+
+function SerkanPreCheckSection() {
+  const totalIbkr = SERKAN_INSTRUMENT_DATA.reduce((s, r) => s + r.tradesPerYr * r.ibkrCost, 0);
+  const totalSerkan = SERKAN_INSTRUMENT_DATA.reduce((s, r) => s + r.tradesPerYr * r.serkanCost, 0);
+  const totalSlippage = SERKAN_INSTRUMENT_DATA.reduce((s, r) => s + r.tradesPerYr * r.slippage, 0);
+  return (
+    <div className="space-y-3">
+      <SectionTitle>Serkan Pre-Check — Cost Comparison</SectionTitle>
+      <div className="rounded border border-[#2a2b30] bg-[#0c0d10] p-3 text-xs text-[#737373] space-y-1">
+        <div className="text-[#e2ca7a] font-semibold">Serkan reference: €0.85/side = €1.70/roundturn (uniform, all instruments)</div>
+        <div>We use instrument-specific IBKR all-in costs. The delta matters per instrument but surprisingly, for THIS portfolio, IBKR is cheaper overall due to FDXS dominance at €0.76/rt.</div>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs border-collapse">
+          <thead>
+            <tr className="border-b border-[#2a2b30]">
+              {['Component', 'Trades/yr', 'IBKR Real/rt', 'IBKR Real/yr', 'Serkan Ref/yr', 'Delta/yr', 'Ratio', 'Slippage/yr', 'All-in/yr'].map(h => (
+                <th key={h} className="text-right first:text-left px-2 py-1.5 text-[#737373] font-normal whitespace-nowrap">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {SERKAN_INSTRUMENT_DATA.map(r => {
+              const ibkrYr = r.tradesPerYr * r.ibkrCost;
+              const serkanYr = r.tradesPerYr * r.serkanCost;
+              const delta = ibkrYr - serkanYr;
+              const ratio = ibkrYr / serkanYr;
+              const slipYr = r.tradesPerYr * r.slippage;
+              return (
+                <tr key={r.label} className="border-b border-[#1a1b1e] hover:bg-[#1a1b1e]/50">
+                  <td className="px-2 py-1.5 font-semibold text-[#e2ca7a]">{r.label}</td>
+                  <td className="px-2 py-1.5 text-right font-mono">{r.tradesPerYr.toFixed(1)}</td>
+                  <td className="px-2 py-1.5 text-right font-mono">€{r.ibkrCost.toFixed(2)}</td>
+                  <td className="px-2 py-1.5 text-right font-mono text-orange-400">€{ibkrYr.toFixed(2)}</td>
+                  <td className="px-2 py-1.5 text-right font-mono text-[#737373]">€{serkanYr.toFixed(2)}</td>
+                  <td className={cn('px-2 py-1.5 text-right font-mono', delta > 0 ? 'text-red-400' : 'text-emerald-400')}>
+                    {delta >= 0 ? '+' : ''}€{delta.toFixed(2)}
+                  </td>
+                  <td className={cn('px-2 py-1.5 text-right font-mono', ratio > 1 ? 'text-red-400/70' : 'text-emerald-400')}>
+                    {ratio.toFixed(2)}×
+                  </td>
+                  <td className="px-2 py-1.5 text-right font-mono text-[#737373]">€{slipYr.toFixed(2)}</td>
+                  <td className="px-2 py-1.5 text-right font-mono font-semibold">€{(ibkrYr + slipYr).toFixed(2)}</td>
+                </tr>
+              );
+            })}
+            {/* Totals */}
+            <tr className="border-t border-[#2a2b30] bg-[#141517]">
+              <td className="px-2 py-2 font-bold text-[#e2ca7a]">TOTAL (4-component)</td>
+              <td className="px-2 py-2 text-right font-mono">{SERKAN_INSTRUMENT_DATA.reduce((s,r)=>s+r.tradesPerYr,0).toFixed(1)}</td>
+              <td className="px-2 py-2 text-right text-[#737373]">—</td>
+              <td className="px-2 py-2 text-right font-mono font-bold text-orange-400">€{totalIbkr.toFixed(2)}</td>
+              <td className="px-2 py-2 text-right font-mono text-[#737373]">€{totalSerkan.toFixed(2)}</td>
+              <td className={cn('px-2 py-2 text-right font-mono font-bold', (totalIbkr-totalSerkan)>0?'text-red-400':'text-emerald-400')}>
+                {(totalIbkr-totalSerkan)>=0?'+':''}€{(totalIbkr-totalSerkan).toFixed(2)}
+              </td>
+              <td className={cn('px-2 py-2 text-right font-mono font-bold', (totalIbkr/totalSerkan)>1?'text-red-400':'text-emerald-400')}>
+                {(totalIbkr/totalSerkan).toFixed(2)}×
+              </td>
+              <td className="px-2 py-2 text-right font-mono text-[#737373]">€{totalSlippage.toFixed(2)}</td>
+              <td className="px-2 py-2 text-right font-mono font-bold">€{(totalIbkr+totalSlippage).toFixed(2)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Key finding callout */}
+      <div className="rounded border border-emerald-700/30 bg-emerald-900/10 p-3 text-xs space-y-1.5">
+        <div className="font-bold text-emerald-400">KEY FINDING: IBKR real costs CHEAPER than Serkan reference for this portfolio</div>
+        <div className="text-[#737373]">
+          IBKR total: <span className="font-mono text-orange-400">€{totalIbkr.toFixed(0)}/yr</span> vs
+          Serkan reference: <span className="font-mono text-[#737373]">€{totalSerkan.toFixed(0)}/yr</span> —
+          ratio: <span className="font-mono text-emerald-400">{(totalIbkr/totalSerkan).toFixed(2)}×</span>.
+          FDXS at €0.76/rt dominates the portfolio (DAX strategies = ~{Math.round((70.6+88.0)/(22.4+70.6+88.0+17.2)*100)}% of trades)
+          and is far cheaper than Serkan&apos;s uniform €1.70/rt. If Serkan models at €1.70 uniform, his cost estimate will be
+          <span className="text-red-400 font-mono"> HIGHER than reality</span> — our backtest is conservative.
+        </div>
+      </div>
+
+      {/* What Serkan might compute differently */}
+      <div className="rounded border border-[#2a2b30] bg-[#0c0d10] p-3 text-xs space-y-1.5">
+        <div className="text-[#e2ca7a] font-semibold mb-1">What Serkan might compute differently</div>
+        {[
+          ['Commission structure', 'Fixed per-contract vs IBKR tiered (IBKR: lower above 10k/mo volume)'],
+          ['Exchange fees', 'May use different EUREX/CME fee assumptions than our verified 2026-08-14 rates'],
+          ['Slippage', 'We model €0 slippage in backtest. Add €136.65/yr for realistic slippage estimate.'],
+          ['Roll cost', 'We do not model quarterly roll slippage (1-3 ticks per roll = ~€0.50-3.00/roll)'],
+          ['Currency', 'May compute in USD throughout; EUREX instruments are EUR — FX conversion at rate date differs'],
+          ['Margin interest', 'We model no cost-of-carry on margin. At 5% rate: €3,902 × 5% = €195/yr opportunity cost'],
+          ['Data cost', 'CME/EUREX real-time data: ~€50-100/mo. Not modeled.'],
+          ['6E cost', 'IBKR real: €4.10/rt. Serkan ref: €1.70/rt. 6E is the ONE component where we are more expensive.'],
+        ].map(([k, v]) => (
+          <div key={k} className="flex gap-2">
+            <span className="text-[#737373]/60 whitespace-nowrap">{k}:</span>
+            <span className="text-[#737373]">{v}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Annual cost at each capital level */}
+      <div className="rounded border border-[#2a2b30] bg-[#0c0d10] p-3 text-xs space-y-1">
+        <div className="text-[#e2ca7a] font-semibold mb-1">Cost Drag at Each Capital Level (4-component, 1c each)</div>
+        {[
+          { cap: 10000, note: 'MARGIN_FAIL' },
+          { cap: 12500, note: 'MARGIN_FAIL' },
+          { cap: 15000, note: 'PASS (shared FDXS)' },
+          { cap: 20000, note: 'PASS' },
+          { cap: 30000, note: '' },
+          { cap: 50000, note: '' },
+        ].map(({ cap, note }) => {
+          const ibkrDrag = (totalIbkr / cap * 100).toFixed(2);
+          const allInDrag = ((totalIbkr + totalSlippage) / cap * 100).toFixed(2);
+          return (
+            <div key={cap} className="flex items-center gap-3">
+              <span className="font-mono w-16">€{cap >= 1000 ? `${cap/1000}k` : cap}</span>
+              <span className="text-[#737373]">IBKR: <span className="font-mono text-orange-400">{ibkrDrag}%</span></span>
+              <span className="text-[#737373]">+ slippage: <span className="font-mono">{allInDrag}%</span></span>
+              {note && <span className="text-[#737373] ml-1">({note})</span>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── Final White Swan Panel ───────────────────────────────────────────────────
 
 const FINAL_CAPS = [10000, 12500, 15000, 20000];
@@ -739,6 +1104,43 @@ function FinalWhiteSwanPanel() {
           <div className="rounded border border-yellow-700/30 bg-yellow-900/10 p-3 text-xs text-yellow-400/80 space-y-1">
             <div className="font-semibold text-yellow-400">RESEARCH_CANDIDATE — not production truth</div>
             <div>All results require explicit Jeroen approval before live use. IBKR costs confirmed 2026-08-14. No navSeries available in normalized data — equity curves require separate computation. Margin reference is current IBKR initial margin, not historical backtest margin.</div>
+          </div>
+
+          {/* Component Quality — all 17 */}
+          <ComponentQualitySection />
+
+          {/* Serkan Pre-Check */}
+          <SerkanPreCheckSection />
+
+          {/* Definition of Done gate */}
+          <div className="rounded border border-[#2a2b30] bg-[#0c0d10] p-3 text-xs space-y-1">
+            <div className="text-[#e2ca7a] font-semibold mb-2">Definition of Done — Gate Status (as of 2026-08-14)</div>
+            {[
+              { done: true,  text: 'EEM/IWM clarified: EEM = DATA_BLOCKED, IWM = SOLVABLE (M2K)' },
+              { done: true,  text: '6E ex-ante filter framework designed — E6_MonLong baseline confirmed' },
+              { done: true,  text: 'All 17 components audited with instrument, cost, and status' },
+              { done: true,  text: 'Contract sizing and ATR risk weights computed (4-component)' },
+              { done: true,  text: 'Investor capital tiers determined (4-component + full 17-component)' },
+              { done: true,  text: 'Serkan pre-check complete — IBKR cheaper than Serkan for this portfolio' },
+              { done: true,  text: 'All capital levels (10k/12.5k/15k/20k) with strict 30% gate' },
+              { done: false, text: '6E ATR filter backtest — NEEDS_BRAIN_DATA' },
+              { done: false, text: 'GLD monthly regime filter backtest — NEEDS_BRAIN_DATA' },
+              { done: false, text: 'IWM seasonal signal defined + M2K backtest — NEEDS_BRAIN_DATA' },
+              { done: false, text: 'EEM resolution — DATA_BLOCKED (SGX account + data required)' },
+              { done: false, text: '13 seasonal component backtests — NEEDS_BRAIN_DATA (all NO_TRADE_DATA)' },
+              { done: false, text: 'DAX1H/2H simultaneity analysis — 2×FDXS or confirmed non-overlap' },
+            ].map(({ done, text }) => (
+              <div key={text} className="flex items-start gap-2">
+                <span className={done ? 'text-emerald-400 mt-0.5' : 'text-red-400 mt-0.5'}>
+                  {done ? '✓' : '○'}
+                </span>
+                <span className={done ? 'text-[#737373]' : 'text-red-400/70'}>{text}</span>
+              </div>
+            ))}
+            <div className="mt-2 pt-2 border-t border-[#2a2b30] font-semibold text-red-400">
+              VERDICT: NOT_FINAL — Brain data access required to complete remaining backtests.
+              Current status: 4-component portfolio confirmed ROBUST. 13 seasonals + IWM: NO_DATA.
+            </div>
           </div>
         </>
       )}

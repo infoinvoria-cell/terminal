@@ -1,0 +1,91 @@
+{
+  "generatedDate": "2026-08-14",
+  "status": "RESEARCH_CANDIDATE",
+  "title": "Portfolio Risk Weights and Margin Contributions — 4-Component Confirmed Portfolio",
+  "components_confirmed": ["6E (E6_MonLong)", "FDXS DAX1H (D1_Baseline)", "FDXS DAX2H (D2_HighVolYears)", "MGC (GLD_BestMonths)"],
+  "atrBasedRiskWeights": {
+    "note": "ATR estimated from 18.52yr historical averages. EUR-denominated risk per contract per ATR move.",
+    "sixE": {
+      "instrument": "6E",
+      "atrEstimate_30m_pips": 35,
+      "pipValue_EUR": 12.50,
+      "riskPerContractPerATR_EUR": 437.50,
+      "weight_pct": 57.45
+    },
+    "fdxs_dax1h": {
+      "instrument": "FDXS",
+      "atrEstimate_daily_points": 150,
+      "pointValue_EUR": 1.00,
+      "riskPerContractPerATR_EUR": 150.00,
+      "weight_pct": 19.70
+    },
+    "fdxs_dax2h": {
+      "instrument": "FDXS",
+      "atrEstimate_daily_points": 150,
+      "pointValue_EUR": 1.00,
+      "riskPerContractPerATR_EUR": 150.00,
+      "weight_pct": 19.70
+    },
+    "mgc": {
+      "instrument": "MGC",
+      "atrEstimate_daily_usd": 30,
+      "eurPerUsd": 0.81677,
+      "riskPerContractPerATR_EUR": 24.50,
+      "weight_pct": 3.22
+    },
+    "totalATRRisk_EUR": 762.00,
+    "equalRiskWeighting_basis": "1 contract each at equal ATR risk weighting"
+  },
+  "marginContributions": {
+    "scenario_sharedFDXS": {
+      "description": "1×6E + 1×FDXS shared for both DAX strategies + 1×MGC",
+      "note": "Assumes DAX1H and DAX2H signals do not overlap significantly — operationally risky",
+      "sixE_margin_EUR": 2287,
+      "fdxs_margin_EUR": 880,
+      "mgc_margin_EUR": 735,
+      "total_EUR": 3902,
+      "capitalLevels": {
+        "10000": { "marginPct": 39.02, "pass30pctRule": false },
+        "12500": { "marginPct": 31.22, "pass30pctRule": false },
+        "15000": { "marginPct": 26.01, "pass30pctRule": true, "note": "PASS — but shared FDXS caveat applies" },
+        "20000": { "marginPct": 19.51, "pass30pctRule": true }
+      }
+    },
+    "scenario_separateFDXS": {
+      "description": "1×6E + 2×FDXS (1 per DAX strategy) + 1×MGC",
+      "note": "Correct allocation when DAX1H and DAX2H can have simultaneous open positions",
+      "sixE_margin_EUR": 2287,
+      "fdxs_dax1h_margin_EUR": 880,
+      "fdxs_dax2h_margin_EUR": 880,
+      "mgc_margin_EUR": 735,
+      "total_EUR": 4782,
+      "capitalLevels": {
+        "10000": { "marginPct": 47.82, "pass30pctRule": false },
+        "12500": { "marginPct": 38.26, "pass30pctRule": false },
+        "15000": { "marginPct": 31.88, "pass30pctRule": false, "note": "MARGIN_FAIL with separate FDXS" },
+        "20000": { "marginPct": 23.91, "pass30pctRule": true, "note": "PASS — first compliant level for separate FDXS" }
+      },
+      "minimumCapital_separateFDXS": 20000
+    }
+  },
+  "simultaneityAnalysis": {
+    "dax1h_timeframe": "1H bars — entries triggered on 1H bar close",
+    "dax2h_timeframe": "2H bars — entries triggered on 2H bar close",
+    "overlapRisk": "HIGH — at any 2H boundary, both strategies can simultaneously have open positions",
+    "recommendation": "Use 2×FDXS (separate per strategy) for correct risk accounting. Minimum capital: €20,000.",
+    "sharedFDXS_risk": "If only 1×FDXS allocated and both strategies trigger simultaneously, second strategy cannot enter — creates execution risk and tracking error vs backtest"
+  },
+  "allocationSummaryAt20k": {
+    "capital": 20000,
+    "scenario": "separate_FDXS",
+    "contracts": {
+      "sixE_E6MonLong": { "n": 1, "marginEUR": 2287, "marginPct": 11.44, "atrWeightPct": 57.45 },
+      "fdxs_DAX1H": { "n": 1, "marginEUR": 880, "marginPct": 4.40, "atrWeightPct": 19.70 },
+      "fdxs_DAX2H": { "n": 1, "marginEUR": 880, "marginPct": 4.40, "atrWeightPct": 19.70 },
+      "mgc_GLD": { "n": 1, "marginEUR": 735, "marginPct": 3.68, "atrWeightPct": 3.22 }
+    },
+    "totalMargin_EUR": 4782,
+    "totalMarginPct": 23.91,
+    "pass30pctRule": true
+  }
+}
