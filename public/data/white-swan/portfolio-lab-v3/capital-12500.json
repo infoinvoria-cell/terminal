@@ -1,0 +1,4087 @@
+[
+  {
+    "variantId": "LV_A1B0C0D0_12500",
+    "family": "LV_A1B0C0D0",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A1",
+    "dimB": "B0",
+    "dimC": "C0",
+    "dimD": "D0",
+    "dimALabel": "EUR_INACTIVE",
+    "dimBLabel": "DAX1H_ACTIVE",
+    "dimCLabel": "DAX2H_ACTIVE",
+    "dimDLabel": "YM1_ACTIVE",
+    "filterDescription": "EURUSD=0 contracts, DAX 1H active, DAX 2H active, YM1 TAT active",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 97965.51920585838,
+      "totalReturn": 683.724153646867,
+      "cagr": 11.7539,
+      "sharpe": 1.1674,
+      "sortino": 4.5058,
+      "calmar": 1.152,
+      "maxDDFromPeak": 10.2032,
+      "maxDDFromStart": 1.9102,
+      "totalTrades": 5462,
+      "totalGross": 94520.27,
+      "totalCosts": 9054.75,
+      "totalNet": 85465.52,
+      "tradesPerWeek": 5.65,
+      "annualCosts": 488.73,
+      "annualCostPct": 0.8849,
+      "costRatio": 10.5946,
+      "profitFactor": 1.6616,
+      "expectancy": 15.6473,
+      "isCAGR": 14.7489,
+      "oosCAGR": 21.3681,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 31.44,
+        "top3Pct": 66.38,
+        "hhi": 0.1845,
+        "netByStrategy": {
+          "dax_2h": 10993.5,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 18438.21,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 10979.92,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 6891.33,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 3757.9,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 8265.05,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 10909.15,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 12595.95,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 10842.91,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 16142.28,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 60,
+    "suitabilityScore": 80,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "LV_A1B0C0D1_12500",
+    "family": "LV_A1B0C0D1",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A1",
+    "dimB": "B0",
+    "dimC": "C0",
+    "dimD": "D1",
+    "dimALabel": "EUR_INACTIVE",
+    "dimBLabel": "DAX1H_ACTIVE",
+    "dimCLabel": "DAX2H_ACTIVE",
+    "dimDLabel": "YM1_INACTIVE",
+    "filterDescription": "EURUSD=0 contracts, DAX 1H active, DAX 2H active, YM1 TAT=0 contracts",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 96803.37801135871,
+      "totalReturn": 674.4270240908696,
+      "cagr": 11.6819,
+      "sharpe": 1.1963,
+      "sortino": 4.8642,
+      "calmar": 1.2284,
+      "maxDDFromPeak": 9.5096,
+      "maxDDFromStart": 2.2048,
+      "totalTrades": 5026,
+      "totalGross": 92681.52,
+      "totalCosts": 8378.14,
+      "totalNet": 84303.38,
+      "tradesPerWeek": 5.199,
+      "annualCosts": 452.21,
+      "annualCostPct": 0.8274,
+      "costRatio": 9.9381,
+      "profitFactor": 1.7338,
+      "expectancy": 16.7735,
+      "isCAGR": 14.8602,
+      "oosCAGR": 20.8285,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 31.87,
+        "top3Pct": 67.29,
+        "hhi": 0.1894,
+        "netByStrategy": {
+          "dax_2h": 10993.5,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 17701.63,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 10145.86,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7237.43,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 4549.52,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 10553.03,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 12113.56,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 12780.11,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 10510.97,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 15488.82,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 60,
+    "suitabilityScore": 80,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "LV_A1B1C0D1_12500",
+    "family": "LV_A1B1C0D1",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A1",
+    "dimB": "B1",
+    "dimC": "C0",
+    "dimD": "D1",
+    "dimALabel": "EUR_INACTIVE",
+    "dimBLabel": "DAX1H_INACTIVE",
+    "dimCLabel": "DAX2H_ACTIVE",
+    "dimDLabel": "YM1_INACTIVE",
+    "filterDescription": "EURUSD=0 contracts, DAX 1H=0 contracts, DAX 2H active, YM1 TAT=0 contracts",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 95424.97801135851,
+      "totalReturn": 663.3998240908682,
+      "cagr": 11.5955,
+      "sharpe": 1.2298,
+      "sortino": 5.0978,
+      "calmar": 1.2552,
+      "maxDDFromPeak": 9.2378,
+      "maxDDFromStart": 1.6176,
+      "totalTrades": 4338,
+      "totalGross": 90133.52,
+      "totalCosts": 7208.54,
+      "totalNet": 82924.98,
+      "tradesPerWeek": 4.487,
+      "annualCosts": 389.08,
+      "annualCostPct": 0.721,
+      "costRatio": 8.6928,
+      "profitFactor": 1.8649,
+      "expectancy": 19.1159,
+      "isCAGR": 14.7165,
+      "oosCAGR": 20.644,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 32.4,
+        "top3Pct": 68.41,
+        "hhi": 0.1955,
+        "netByStrategy": {
+          "dax_2h": 10993.5,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 17199.83,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 9974.36,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7277.83,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 4730.82,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 10986.43,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 12253.36,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 12510.31,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 9925.27,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 14504.22,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 60,
+    "suitabilityScore": 80,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "dax_1h": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "LV_A2B0C0D0_12500",
+    "family": "LV_A2B0C0D0",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A2",
+    "dimB": "B0",
+    "dimC": "C0",
+    "dimD": "D0",
+    "dimALabel": "EUR_MON_ONLY",
+    "dimBLabel": "DAX1H_ACTIVE",
+    "dimCLabel": "DAX2H_ACTIVE",
+    "dimDLabel": "YM1_ACTIVE",
+    "filterDescription": "EURUSD Mon-only (DOW filter), DAX 1H active, DAX 2H active, YM1 TAT active",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 97878.74760298278,
+      "totalReturn": 683.0299808238623,
+      "cagr": 11.7485,
+      "sharpe": 1.1184,
+      "sortino": 4.3411,
+      "calmar": 1.1261,
+      "maxDDFromPeak": 10.433,
+      "maxDDFromStart": 1.7226,
+      "totalTrades": 6279,
+      "totalGross": 95701.37,
+      "totalCosts": 10322.62,
+      "totalNet": 85378.75,
+      "tradesPerWeek": 6.495,
+      "annualCosts": 557.17,
+      "annualCostPct": 1.0096,
+      "costRatio": 12.0904,
+      "profitFactor": 1.6205,
+      "expectancy": 13.5975,
+      "isCAGR": 14.7652,
+      "oosCAGR": 21.3154,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 31.47,
+        "top3Pct": 66.45,
+        "hhi": 0.1849,
+        "netByStrategy": {
+          "dax_2h": 10993.5,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -86.77,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 18373.06,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 11330.03,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7426.09,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 4204.23,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 8354.83,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 10780.81,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 12057.62,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 10653.19,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 15855.31,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 60,
+    "suitabilityScore": 80,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "DOW_MON",
+        "status": "READY",
+        "dowFilter": [
+          1
+        ]
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "LV_A2B0C0D1_12500",
+    "family": "LV_A2B0C0D1",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A2",
+    "dimB": "B0",
+    "dimC": "C0",
+    "dimD": "D1",
+    "dimALabel": "EUR_MON_ONLY",
+    "dimBLabel": "DAX1H_ACTIVE",
+    "dimCLabel": "DAX2H_ACTIVE",
+    "dimDLabel": "YM1_INACTIVE",
+    "filterDescription": "EURUSD Mon-only (DOW filter), DAX 1H active, DAX 2H active, YM1 TAT=0 contracts",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 96716.60640848313,
+      "totalReturn": 673.732851267865,
+      "cagr": 11.6765,
+      "sharpe": 1.144,
+      "sortino": 4.6786,
+      "calmar": 1.1841,
+      "maxDDFromPeak": 9.8608,
+      "maxDDFromStart": 2.0173,
+      "totalTrades": 5843,
+      "totalGross": 93862.62,
+      "totalCosts": 9646.01,
+      "totalNet": 84216.61,
+      "tradesPerWeek": 6.044,
+      "annualCosts": 520.65,
+      "annualCostPct": 0.9534,
+      "costRatio": 11.4538,
+      "profitFactor": 1.683,
+      "expectancy": 14.4132,
+      "isCAGR": 14.8764,
+      "oosCAGR": 20.7742,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 31.9,
+        "top3Pct": 67.36,
+        "hhi": 0.1898,
+        "netByStrategy": {
+          "dax_2h": 10993.5,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -86.77,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 17636.48,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 10495.97,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7772.19,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 4995.86,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 10642.81,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 11985.23,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 12241.78,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 10321.25,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 15201.85,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 60,
+    "suitabilityScore": 80,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "DOW_MON",
+        "status": "READY",
+        "dowFilter": [
+          1
+        ]
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "LV_A2B1C0D1_12500",
+    "family": "LV_A2B1C0D1",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A2",
+    "dimB": "B1",
+    "dimC": "C0",
+    "dimD": "D1",
+    "dimALabel": "EUR_MON_ONLY",
+    "dimBLabel": "DAX1H_INACTIVE",
+    "dimCLabel": "DAX2H_ACTIVE",
+    "dimDLabel": "YM1_INACTIVE",
+    "filterDescription": "EURUSD Mon-only (DOW filter), DAX 1H=0 contracts, DAX 2H active, YM1 TAT=0 contracts",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 95338.20640848299,
+      "totalReturn": 662.7056512678639,
+      "cagr": 11.59,
+      "sharpe": 1.1692,
+      "sortino": 4.876,
+      "calmar": 1.2194,
+      "maxDDFromPeak": 9.505,
+      "maxDDFromStart": 1.931,
+      "totalTrades": 5155,
+      "totalGross": 91314.62,
+      "totalCosts": 8476.41,
+      "totalNet": 82838.21,
+      "tradesPerWeek": 5.332,
+      "annualCosts": 457.52,
+      "annualCostPct": 0.8485,
+      "costRatio": 10.2325,
+      "profitFactor": 1.7943,
+      "expectancy": 16.0695,
+      "isCAGR": 14.7329,
+      "oosCAGR": 20.5891,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 32.43,
+        "top3Pct": 68.48,
+        "hhi": 0.1959,
+        "netByStrategy": {
+          "dax_2h": 10993.5,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -86.77,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 17134.68,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 10324.47,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7812.59,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 5177.16,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 11076.21,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 12125.03,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 11971.98,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 9735.55,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 14217.25,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 60,
+    "suitabilityScore": 80,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "DOW_MON",
+        "status": "READY",
+        "dowFilter": [
+          1
+        ]
+      },
+      "dax_1h": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "LV_A3B0C0D0_12500",
+    "family": "LV_A3B0C0D0",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A3",
+    "dimB": "B0",
+    "dimC": "C0",
+    "dimD": "D0",
+    "dimALabel": "EUR_MON_TUE_ONLY",
+    "dimBLabel": "DAX1H_ACTIVE",
+    "dimCLabel": "DAX2H_ACTIVE",
+    "dimDLabel": "YM1_ACTIVE",
+    "filterDescription": "EURUSD Mon+Tue-only (DOW filter), DAX 1H active, DAX 2H active, YM1 TAT active",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 97625.50806448216,
+      "totalReturn": 681.0040645158573,
+      "cagr": 11.7329,
+      "sharpe": 1.0936,
+      "sortino": 4.2245,
+      "calmar": 1.1133,
+      "maxDDFromPeak": 10.5387,
+      "maxDDFromStart": 1.6537,
+      "totalTrades": 7191,
+      "totalGross": 96863.43,
+      "totalCosts": 11737.92,
+      "totalNet": 85125.51,
+      "tradesPerWeek": 7.439,
+      "annualCosts": 633.56,
+      "annualCostPct": 1.1506,
+      "costRatio": 13.789,
+      "profitFactor": 1.5789,
+      "expectancy": 11.8378,
+      "isCAGR": 14.7322,
+      "oosCAGR": 21.2932,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 31.56,
+        "top3Pct": 66.64,
+        "hhi": 0.186,
+        "netByStrategy": {
+          "dax_2h": 10993.5,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -340.01,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 18424.54,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 11293.37,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7196.71,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 3869.02,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 8220.43,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 10342.39,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 11839.09,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 10522.69,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 15996.63,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 60,
+    "suitabilityScore": 80,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "DOW_MON_TUE",
+        "status": "READY",
+        "dowFilter": [
+          1,
+          2
+        ]
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "LV_A3B0C0D1_12500",
+    "family": "LV_A3B0C0D1",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A3",
+    "dimB": "B0",
+    "dimC": "C0",
+    "dimD": "D1",
+    "dimALabel": "EUR_MON_TUE_ONLY",
+    "dimBLabel": "DAX1H_ACTIVE",
+    "dimCLabel": "DAX2H_ACTIVE",
+    "dimDLabel": "YM1_INACTIVE",
+    "filterDescription": "EURUSD Mon+Tue-only (DOW filter), DAX 1H active, DAX 2H active, YM1 TAT=0 contracts",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 96463.36686998243,
+      "totalReturn": 671.7069349598595,
+      "cagr": 11.6607,
+      "sharpe": 1.1133,
+      "sortino": 4.5283,
+      "calmar": 1.1693,
+      "maxDDFromPeak": 9.9722,
+      "maxDDFromStart": 1.9484,
+      "totalTrades": 6755,
+      "totalGross": 95024.68,
+      "totalCosts": 11061.31,
+      "totalNet": 83963.37,
+      "tradesPerWeek": 6.988,
+      "annualCosts": 597.04,
+      "annualCostPct": 1.0958,
+      "costRatio": 13.174,
+      "profitFactor": 1.6325,
+      "expectancy": 12.4298,
+      "isCAGR": 14.8437,
+      "oosCAGR": 20.7513,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 32,
+        "top3Pct": 67.57,
+        "hhi": 0.191,
+        "netByStrategy": {
+          "dax_2h": 10993.5,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -340.01,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 17687.96,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 10459.31,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7542.81,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 4660.65,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 10508.42,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 11546.81,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 12023.25,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 10190.76,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 15343.17,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 60,
+    "suitabilityScore": 80,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "DOW_MON_TUE",
+        "status": "READY",
+        "dowFilter": [
+          1,
+          2
+        ]
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "LV_A3B1C0D1_12500",
+    "family": "LV_A3B1C0D1",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A3",
+    "dimB": "B1",
+    "dimC": "C0",
+    "dimD": "D1",
+    "dimALabel": "EUR_MON_TUE_ONLY",
+    "dimBLabel": "DAX1H_INACTIVE",
+    "dimCLabel": "DAX2H_ACTIVE",
+    "dimDLabel": "YM1_INACTIVE",
+    "filterDescription": "EURUSD Mon+Tue-only (DOW filter), DAX 1H=0 contracts, DAX 2H active, YM1 TAT=0 contracts",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 95084.96686998227,
+      "totalReturn": 660.6797349598581,
+      "cagr": 11.574,
+      "sharpe": 1.13,
+      "sortino": 4.691,
+      "calmar": 1.1855,
+      "maxDDFromPeak": 9.7626,
+      "maxDDFromStart": 1.418,
+      "totalTrades": 6067,
+      "totalGross": 92476.68,
+      "totalCosts": 9891.71,
+      "totalNet": 82584.97,
+      "tradesPerWeek": 6.276,
+      "annualCosts": 533.91,
+      "annualCostPct": 0.9925,
+      "costRatio": 11.9776,
+      "profitFactor": 1.7261,
+      "expectancy": 13.6122,
+      "isCAGR": 14.6998,
+      "oosCAGR": 20.5661,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 32.53,
+        "top3Pct": 68.69,
+        "hhi": 0.1971,
+        "netByStrategy": {
+          "dax_2h": 10993.5,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -340.01,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 17186.16,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 10287.81,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7583.21,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 4841.95,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 10941.82,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 11686.61,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 11753.45,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 9605.06,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 14358.57,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 60,
+    "suitabilityScore": 80,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "DOW_MON_TUE",
+        "status": "READY",
+        "dowFilter": [
+          1,
+          2
+        ]
+      },
+      "dax_1h": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "LV_A0B0C0D0_12500",
+    "family": "LV_A0B0C0D0",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A0",
+    "dimB": "B0",
+    "dimC": "C0",
+    "dimD": "D0",
+    "dimALabel": "EUR_ACTIVE",
+    "dimBLabel": "DAX1H_ACTIVE",
+    "dimCLabel": "DAX2H_ACTIVE",
+    "dimDLabel": "YM1_ACTIVE",
+    "filterDescription": "EURUSD active (no filter), DAX 1H active, DAX 2H active, YM1 TAT active",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 93657.5985659803,
+      "totalReturn": 649.2607885278424,
+      "cagr": 11.483,
+      "sharpe": 1.021,
+      "sortino": 3.8941,
+      "calmar": 1.1809,
+      "maxDDFromPeak": 9.7243,
+      "maxDDFromStart": 1.753,
+      "totalTrades": 9728,
+      "totalGross": 96832.6,
+      "totalCosts": 15675,
+      "totalNet": 81157.6,
+      "tradesPerWeek": 10.063,
+      "annualCosts": 846.06,
+      "annualCostPct": 1.594,
+      "costRatio": 19.3143,
+      "profitFactor": 1.465,
+      "expectancy": 8.3427,
+      "isCAGR": 14.5988,
+      "oosCAGR": 20.2872,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 33.1,
+        "top3Pct": 69.9,
+        "hhi": 0.2074,
+        "netByStrategy": {
+          "dax_2h": 10993.5,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 18314.8,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 11225.82,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7040.38,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 2494.36,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 6896.15,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 9261.78,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 10912.61,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 9270.73,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 14606.98,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 50,
+    "suitabilityScore": 75,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "LV_A0B1C0D0_12500",
+    "family": "LV_A0B1C0D0",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A0",
+    "dimB": "B1",
+    "dimC": "C0",
+    "dimD": "D0",
+    "dimALabel": "EUR_ACTIVE",
+    "dimBLabel": "DAX1H_INACTIVE",
+    "dimCLabel": "DAX2H_ACTIVE",
+    "dimDLabel": "YM1_ACTIVE",
+    "filterDescription": "EURUSD active (no filter), DAX 1H=0 contracts, DAX 2H active, YM1 TAT active",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 92279.1985659802,
+      "totalReturn": 638.2335885278417,
+      "cagr": 11.3938,
+      "sharpe": 1.0249,
+      "sortino": 3.9871,
+      "calmar": 1.0627,
+      "maxDDFromPeak": 10.7215,
+      "maxDDFromStart": 1.6471,
+      "totalTrades": 9040,
+      "totalGross": 94284.6,
+      "totalCosts": 14505.4,
+      "totalNet": 79779.2,
+      "tradesPerWeek": 9.351,
+      "annualCosts": 782.93,
+      "annualCostPct": 1.4944,
+      "costRatio": 18.1819,
+      "profitFactor": 1.513,
+      "expectancy": 8.8251,
+      "isCAGR": 14.4518,
+      "oosCAGR": 20.0972,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 33.68,
+        "top3Pct": 71.11,
+        "hhi": 0.2144,
+        "netByStrategy": {
+          "dax_2h": 10993.5,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 17813,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 11054.32,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7080.78,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 2675.66,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 7329.55,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 9401.58,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 10642.81,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 8685.03,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 13622.38,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 50,
+    "suitabilityScore": 75,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "LV_A1B1C0D0_12500",
+    "family": "LV_A1B1C0D0",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A1",
+    "dimB": "B1",
+    "dimC": "C0",
+    "dimD": "D0",
+    "dimALabel": "EUR_INACTIVE",
+    "dimBLabel": "DAX1H_INACTIVE",
+    "dimCLabel": "DAX2H_ACTIVE",
+    "dimDLabel": "YM1_ACTIVE",
+    "filterDescription": "EURUSD=0 contracts, DAX 1H=0 contracts, DAX 2H active, YM1 TAT active",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 96587.11920585814,
+      "totalReturn": 672.6969536468652,
+      "cagr": 11.6684,
+      "sharpe": 1.1935,
+      "sortino": 4.6959,
+      "calmar": 0.9691,
+      "maxDDFromPeak": 12.0407,
+      "maxDDFromStart": 1.5209,
+      "totalTrades": 4774,
+      "totalGross": 91972.27,
+      "totalCosts": 7885.15,
+      "totalNet": 84087.12,
+      "tradesPerWeek": 4.938,
+      "annualCosts": 425.6,
+      "annualCostPct": 0.7803,
+      "costRatio": 9.3774,
+      "profitFactor": 1.7633,
+      "expectancy": 17.6136,
+      "isCAGR": 14.6038,
+      "oosCAGR": 21.189,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 31.95,
+        "top3Pct": 67.47,
+        "hhi": 0.1903,
+        "netByStrategy": {
+          "dax_2h": 10993.5,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 17936.41,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 10808.42,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 6931.73,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 3939.2,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 8698.45,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 11048.95,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 12326.15,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 10257.21,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 15157.68,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 60,
+    "suitabilityScore": 65,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "dax_1h": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "LV_A2B1C0D0_12500",
+    "family": "LV_A2B1C0D0",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A2",
+    "dimB": "B1",
+    "dimC": "C0",
+    "dimD": "D0",
+    "dimALabel": "EUR_MON_ONLY",
+    "dimBLabel": "DAX1H_INACTIVE",
+    "dimCLabel": "DAX2H_ACTIVE",
+    "dimDLabel": "YM1_ACTIVE",
+    "filterDescription": "EURUSD Mon-only (DOW filter), DAX 1H=0 contracts, DAX 2H active, YM1 TAT active",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 96500.34760298261,
+      "totalReturn": 672.0027808238609,
+      "cagr": 11.663,
+      "sharpe": 1.1375,
+      "sortino": 4.5022,
+      "calmar": 0.9534,
+      "maxDDFromPeak": 12.2336,
+      "maxDDFromStart": 1.9264,
+      "totalTrades": 5591,
+      "totalGross": 93153.37,
+      "totalCosts": 9153.02,
+      "totalNet": 84000.35,
+      "tradesPerWeek": 5.784,
+      "annualCosts": 494.04,
+      "annualCostPct": 0.9065,
+      "costRatio": 10.8964,
+      "profitFactor": 1.7084,
+      "expectancy": 15.0242,
+      "isCAGR": 14.6203,
+      "oosCAGR": 21.1357,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 31.98,
+        "top3Pct": 67.54,
+        "hhi": 0.1907,
+        "netByStrategy": {
+          "dax_2h": 10993.5,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -86.77,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 17871.26,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 11158.53,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7466.49,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 4385.53,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 8788.23,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 10920.61,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 11787.82,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 10067.49,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 14870.71,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 60,
+    "suitabilityScore": 65,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "DOW_MON",
+        "status": "READY",
+        "dowFilter": [
+          1
+        ]
+      },
+      "dax_1h": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "LV_A3B1C0D0_12500",
+    "family": "LV_A3B1C0D0",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A3",
+    "dimB": "B1",
+    "dimC": "C0",
+    "dimD": "D0",
+    "dimALabel": "EUR_MON_TUE_ONLY",
+    "dimBLabel": "DAX1H_INACTIVE",
+    "dimCLabel": "DAX2H_ACTIVE",
+    "dimDLabel": "YM1_ACTIVE",
+    "filterDescription": "EURUSD Mon+Tue-only (DOW filter), DAX 1H=0 contracts, DAX 2H active, YM1 TAT active",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 96247.10806448194,
+      "totalReturn": 669.9768645158556,
+      "cagr": 11.6472,
+      "sharpe": 1.1062,
+      "sortino": 4.3601,
+      "calmar": 0.9482,
+      "maxDDFromPeak": 12.2838,
+      "maxDDFromStart": 1.4135,
+      "totalTrades": 6503,
+      "totalGross": 94315.43,
+      "totalCosts": 10568.32,
+      "totalNet": 83747.11,
+      "tradesPerWeek": 6.727,
+      "annualCosts": 570.43,
+      "annualCostPct": 1.0491,
+      "costRatio": 12.6193,
+      "profitFactor": 1.6542,
+      "expectancy": 12.8782,
+      "isCAGR": 14.5869,
+      "oosCAGR": 21.1133,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 32.08,
+        "top3Pct": 67.74,
+        "hhi": 0.1919,
+        "netByStrategy": {
+          "dax_2h": 10993.5,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -340.01,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 17922.74,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 11121.87,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7237.11,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 4050.32,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 8653.83,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 10482.19,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 11569.29,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 9936.99,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 15012.03,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 60,
+    "suitabilityScore": 65,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "DOW_MON_TUE",
+        "status": "READY",
+        "dowFilter": [
+          1,
+          2
+        ]
+      },
+      "dax_1h": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "LV_A0B0C1D0_12500",
+    "family": "LV_A0B0C1D0",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A0",
+    "dimB": "B0",
+    "dimC": "C1",
+    "dimD": "D0",
+    "dimALabel": "EUR_ACTIVE",
+    "dimBLabel": "DAX1H_ACTIVE",
+    "dimCLabel": "DAX2H_INACTIVE",
+    "dimDLabel": "YM1_ACTIVE",
+    "filterDescription": "EURUSD active (no filter), DAX 1H active, DAX 2H=0 contracts, YM1 TAT active",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 82664.09856597918,
+      "totalReturn": 561.3127885278334,
+      "cagr": 10.7458,
+      "sharpe": 1.0795,
+      "sortino": 4.4636,
+      "calmar": 1.1328,
+      "maxDDFromPeak": 9.486,
+      "maxDDFromStart": 0.6276,
+      "totalTrades": 6511,
+      "totalGross": 80370.2,
+      "totalCosts": 10206.1,
+      "totalNet": 70164.1,
+      "tradesPerWeek": 6.742,
+      "annualCosts": 551.45,
+      "annualCostPct": 1.1589,
+      "costRatio": 14.546,
+      "profitFactor": 1.7196,
+      "expectancy": 10.7762,
+      "isCAGR": 13.9296,
+      "oosCAGR": 17.7766,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 38.29,
+        "top3Pct": 76.83,
+        "hhi": 0.253,
+        "netByStrategy": {
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 16291.44,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 10295.04,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7053.61,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 1561.36,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 4321.95,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 7230.14,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 7805.2,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 8015.24,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 11367.52,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 60,
+    "suitabilityScore": 60,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "LV_A0B0C1D1_12500",
+    "family": "LV_A0B0C1D1",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A0",
+    "dimB": "B0",
+    "dimC": "C1",
+    "dimD": "D1",
+    "dimALabel": "EUR_ACTIVE",
+    "dimBLabel": "DAX1H_ACTIVE",
+    "dimCLabel": "DAX2H_INACTIVE",
+    "dimDLabel": "YM1_INACTIVE",
+    "filterDescription": "EURUSD active (no filter), DAX 1H active, DAX 2H=0 contracts, YM1 TAT=0 contracts",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 81501.95737147915,
+      "totalReturn": 552.0156589718332,
+      "cagr": 10.6612,
+      "sharpe": 1.1007,
+      "sortino": 4.828,
+      "calmar": 1.178,
+      "maxDDFromPeak": 9.0506,
+      "maxDDFromStart": 0.6276,
+      "totalTrades": 6075,
+      "totalGross": 78531.44,
+      "totalCosts": 9529.49,
+      "totalNet": 69001.96,
+      "tradesPerWeek": 6.291,
+      "annualCosts": 514.89,
+      "annualCostPct": 1.0955,
+      "costRatio": 13.8105,
+      "profitFactor": 1.8291,
+      "expectancy": 11.3583,
+      "isCAGR": 14.0492,
+      "oosCAGR": 17.1138,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 38.94,
+        "top3Pct": 78.13,
+        "hhi": 0.2613,
+        "netByStrategy": {
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 15554.86,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 9460.98,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7399.71,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 2352.99,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 6609.93,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 8434.56,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 7989.36,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 7683.3,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 10714.06,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 60,
+    "suitabilityScore": 60,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "ym1_tat": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "LV_A0B1C1D0_12500",
+    "family": "LV_A0B1C1D0",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A0",
+    "dimB": "B1",
+    "dimC": "C1",
+    "dimD": "D0",
+    "dimALabel": "EUR_ACTIVE",
+    "dimBLabel": "DAX1H_INACTIVE",
+    "dimCLabel": "DAX2H_INACTIVE",
+    "dimDLabel": "YM1_ACTIVE",
+    "filterDescription": "EURUSD active (no filter), DAX 1H=0 contracts, DAX 2H=0 contracts, YM1 TAT active",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 81285.69856597853,
+      "totalReturn": 550.2855885278282,
+      "cagr": 10.6453,
+      "sharpe": 1.1008,
+      "sortino": 4.6402,
+      "calmar": 1.1326,
+      "maxDDFromPeak": 9.399,
+      "maxDDFromStart": 0.6276,
+      "totalTrades": 5823,
+      "totalGross": 77822.2,
+      "totalCosts": 9036.5,
+      "totalNet": 68785.7,
+      "tradesPerWeek": 6.03,
+      "annualCosts": 488.25,
+      "annualCostPct": 1.0412,
+      "costRatio": 13.1372,
+      "profitFactor": 1.8763,
+      "expectancy": 11.8128,
+      "isCAGR": 13.7737,
+      "oosCAGR": 17.5571,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 39.06,
+        "top3Pct": 78.37,
+        "hhi": 0.2628,
+        "netByStrategy": {
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 15789.64,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 10123.54,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7094.01,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 1742.66,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 4755.35,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 7369.94,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 7535.4,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 7429.54,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 10382.92,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 60,
+    "suitabilityScore": 60,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "LV_A0B1C1D1_12500",
+    "family": "LV_A0B1C1D1",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A0",
+    "dimB": "B1",
+    "dimC": "C1",
+    "dimD": "D1",
+    "dimALabel": "EUR_ACTIVE",
+    "dimBLabel": "DAX1H_INACTIVE",
+    "dimCLabel": "DAX2H_INACTIVE",
+    "dimDLabel": "YM1_INACTIVE",
+    "filterDescription": "EURUSD active (no filter), DAX 1H=0 contracts, DAX 2H=0 contracts, YM1 TAT=0 contracts",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 80123.55737147846,
+      "totalReturn": 540.9884589718276,
+      "cagr": 10.5592,
+      "sharpe": 1.1266,
+      "sortino": 5.0363,
+      "calmar": 1.1778,
+      "maxDDFromPeak": 8.9655,
+      "maxDDFromStart": 0.6276,
+      "totalTrades": 5387,
+      "totalGross": 75983.44,
+      "totalCosts": 8359.89,
+      "totalNet": 67623.56,
+      "tradesPerWeek": 5.578,
+      "annualCosts": 451.69,
+      "annualCostPct": 0.9753,
+      "costRatio": 12.3624,
+      "profitFactor": 2.0531,
+      "expectancy": 12.5531,
+      "isCAGR": 13.8949,
+      "oosCAGR": 16.8861,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 39.73,
+        "top3Pct": 79.72,
+        "hhi": 0.2716,
+        "netByStrategy": {
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 15053.06,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 9289.48,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7440.11,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 2534.29,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 7043.33,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 8574.36,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 7719.56,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 7097.6,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 9729.46,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 60,
+    "suitabilityScore": 60,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "ym1_tat": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "LV_A3B0C1D0_12500",
+    "family": "LV_A3B0C1D0",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A3",
+    "dimB": "B0",
+    "dimC": "C1",
+    "dimD": "D0",
+    "dimALabel": "EUR_MON_TUE_ONLY",
+    "dimBLabel": "DAX1H_ACTIVE",
+    "dimCLabel": "DAX2H_INACTIVE",
+    "dimDLabel": "YM1_ACTIVE",
+    "filterDescription": "EURUSD Mon+Tue-only (DOW filter), DAX 1H active, DAX 2H=0 contracts, YM1 TAT active",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 86632.00806448073,
+      "totalReturn": 593.056064515846,
+      "cagr": 11.0302,
+      "sharpe": 1.2495,
+      "sortino": 5.2227,
+      "calmar": 1.0787,
+      "maxDDFromPeak": 10.2252,
+      "maxDDFromStart": 0.2718,
+      "totalTrades": 3974,
+      "totalGross": 80401.03,
+      "totalCosts": 6269.02,
+      "totalNet": 74132.01,
+      "tradesPerWeek": 4.116,
+      "annualCosts": 338.82,
+      "annualCostPct": 0.6836,
+      "costRatio": 8.4566,
+      "profitFactor": 2.0589,
+      "expectancy": 18.6543,
+      "isCAGR": 14.071,
+      "oosCAGR": 18.9323,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 36.24,
+        "top3Pct": 72.72,
+        "hhi": 0.2233,
+        "netByStrategy": {
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -340.01,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 16401.18,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 10362.58,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7209.94,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 2936.02,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 5646.23,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 8310.75,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 8731.68,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 9267.21,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 12757.17,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 60,
+    "suitabilityScore": 60,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "DOW_MON_TUE",
+        "status": "READY",
+        "dowFilter": [
+          1,
+          2
+        ]
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "LV_A0B0C0D1_12500",
+    "family": "LV_A0B0C0D1",
+    "phase": "v3",
+    "constraint": "17_17_LIVE_VALID",
+    "liveValidStatus": "LIVE_VALID",
+    "capital": 12500,
+    "dimA": "A0",
+    "dimB": "B0",
+    "dimC": "C0",
+    "dimD": "D1",
+    "dimALabel": "EUR_ACTIVE",
+    "dimBLabel": "DAX1H_ACTIVE",
+    "dimCLabel": "DAX2H_ACTIVE",
+    "dimDLabel": "YM1_INACTIVE",
+    "filterDescription": "EURUSD active (no filter), DAX 1H active, DAX 2H active, YM1 TAT=0 contracts",
+    "kpis": {
+      "startNAV": 12500,
+      "endNAV": 92495.45737148065,
+      "totalReturn": 639.9636589718452,
+      "cagr": 11.4078,
+      "sharpe": 1.0304,
+      "sortino": 4.1323,
+      "calmar": 1.2303,
+      "maxDDFromPeak": 9.2722,
+      "maxDDFromStart": 2.0477,
+      "totalTrades": 9292,
+      "totalGross": 94993.84,
+      "totalCosts": 14998.39,
+      "totalNet": 79995.46,
+      "tradesPerWeek": 9.612,
+      "annualCosts": 809.54,
+      "annualCostPct": 1.542,
+      "costRatio": 18.749,
+      "profitFactor": 1.4992,
+      "expectancy": 8.6091,
+      "isCAGR": 14.7116,
+      "oosCAGR": 19.7145,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 33.59,
+        "top3Pct": 70.92,
+        "hhi": 0.2133,
+        "netByStrategy": {
+          "dax_2h": 10993.5,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 17578.21,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 10391.76,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7386.48,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 3285.99,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 9184.13,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 10466.2,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 11096.77,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 8938.79,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 13953.52,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 50,
+    "suitabilityScore": 55,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 0,
+        "filter": "INACTIVE",
+        "status": "READY_DEACTIVATED"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "NONE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  }
+]

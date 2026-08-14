@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   const type = searchParams.get('type') || 'variants';
 
   const phase = searchParams.get('phase') || 'v1';
-  const subDir = phase === 'v2' ? 'portfolio-lab-v2' : 'portfolio-lab';
+  const subDir = phase === 'v3' ? 'portfolio-lab-v3' : phase === 'v2' ? 'portfolio-lab-v2' : 'portfolio-lab';
   // Primary: local workspace (development). Fallback: public/data (Vercel production).
   // turbopackIgnore comments prevent NFT from tracing entire project
   const workspacePath = path.join(/* turbopackIgnore: true */ process.cwd(), 'workspace', 'output', 'white-swan', subDir);
@@ -18,6 +18,12 @@ export async function GET(request: Request) {
   const base = fs.existsSync(workspacePath) ? workspacePath : publicPath;
 
   try {
+    if (type === 'lookahead-reference') {
+      const raw = JSON.parse(fs.readFileSync(path.join(base, 'lookahead-reference.json'), 'utf8'));
+      const variants = Array.isArray(raw) ? raw : (raw.variants ?? []);
+      return NextResponse.json({ variants });
+    }
+
     if (type === 'finalists') {
       const raw = JSON.parse(fs.readFileSync(path.join(base, 'finalists.json'), 'utf8'));
       const finalists = Array.isArray(raw) ? raw : Object.values(raw).flat();

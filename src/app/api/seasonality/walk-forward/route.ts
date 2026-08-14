@@ -75,7 +75,7 @@ function workspaceRoot(): string {
 }
 
 function csvDir(): string {
-  return path.join(workspaceRoot(), "workspace", "output", "tradingview_data_test");
+  return path.join(/* turbopackIgnore: true */ workspaceRoot(), "workspace", "output", "tradingview_data_test");
 }
 
 function csvPathForAsset(def: { csvFile: string; csvDir?: string }): string {

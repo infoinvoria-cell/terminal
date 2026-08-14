@@ -33,6 +33,8 @@ interface StrategySlot {
   status: string;
 }
 
+type LiveValidStatus = 'LIVE_VALID' | 'INVALID_RESEARCH_REFERENCE' | 'EX_ANTE_APPROX';
+
 interface PortfolioVariant {
   variantId: string;
   family: string;
@@ -43,10 +45,17 @@ interface PortfolioVariant {
   capital?: number;
   phase?: string;
   constraint?: string;
+  liveValidStatus?: LiveValidStatus;
+  lookaheadNote?: string;
   dimA?: string;
   dimB?: string;
   dimC?: string;
   dimD?: string;
+  dimALabel?: string;
+  dimBLabel?: string;
+  dimCLabel?: string;
+  dimDLabel?: string;
+  filterDescription?: string;
   kpis: {
     cagr: number;
     oosCAGR: number;
@@ -54,6 +63,7 @@ interface PortfolioVariant {
     calmar?: number;
     sortino?: number;
     maxDDFromStart: number;
+    maxDDFromPeak?: number;
     tradesPerWeek: number;
     totalTrades: number;
     annualCostPct: number;
@@ -66,6 +76,8 @@ interface PortfolioVariant {
     oosISDegradation?: number;
     oosNetPositive?: boolean;
     oosMaxDDPct?: number;
+    expectancy?: number;
+    profitFactor?: number;
     concentration?: { top1Pct: number; top3Pct: number; hhi: number };
   };
   // v1 shape
@@ -78,9 +90,15 @@ interface PortfolioVariant {
   };
   // v2 shape
   walkForward?: {
-    rolling3yr_positive: number;
-    rolling3yr_folds: number;
-    foldResults3yr: Array<{ fold: string; oosNet: number; isPositive: boolean }>;
+    // v2
+    rolling3yr_positive?: number;
+    rolling3yr_folds?: number;
+    foldResults3yr?: Array<{ fold: string; oosNet: number; isPositive: boolean }>;
+    // v3
+    totalFolds?: number;
+    positiveFolds?: number;
+    passRate?: number;
+    foldResults?: Array<{ label: string; oosNet: number; isPositive: boolean }>;
   };
   monteCarlo?: {
     medianCAGR: number;
@@ -146,11 +164,13 @@ function oosHeatColor(cagr: number): string {
 
 const YEARS = 16.97;
 
-// Normalise v1/v2 shape differences so the rest of the component is uniform
+// Normalise v1/v2/v3 shape differences so the rest of the component is uniform
 function normaliseVariant(v: PortfolioVariant): PortfolioVariant {
   const capital = v.capital ?? v.capitalLevel ?? 0;
-  const wfPositive = v.walkForward?.rolling3yr_positive ?? v.wf?.rolling3yr_positive_folds ?? 0;
-  const wfFolds = v.walkForward?.rolling3yr_folds ?? 5;
+  // v3 uses walkForward.positiveFolds / totalFolds
+  const wfPositive =
+    v.walkForward?.positiveFolds ?? v.walkForward?.rolling3yr_positive ?? v.wf?.rolling3yr_positive_folds ?? 0;
+  const wfFolds = v.walkForward?.totalFolds ?? v.walkForward?.rolling3yr_folds ?? 5;
   const oosNet = v.kpis.oosCAGR !== undefined ? v.kpis.oosCAGR : (v.wf?.oosCAGR ?? 0);
   const isNet = v.kpis.isCAGR ?? v.wf?.isCAGR ?? 0;
   const degradation = v.kpis.oosISDegradation ?? v.wf?.oosISDegradation ?? (isNet !== 0 ? oosNet / isNet : 0);
@@ -166,6 +186,8 @@ function normaliseVariant(v: PortfolioVariant): PortfolioVariant {
       rolling3yr_positive_folds: wfPositive,
       oosNetPositive: oosPositive,
     },
+    // expose total folds count for display
+    walkForward: v.walkForward ? { ...v.walkForward, totalFolds: wfFolds, positiveFolds: wfPositive } : v.walkForward,
   };
 }
 
@@ -214,7 +236,7 @@ function ScatterDot(props: ScatterShapeProps & { payload?: ScatterPayload }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function PortfolioLab() {
-  const [phase, setPhase] = useState<'v1' | 'v2'>('v2');
+  const [phase, setPhase] = useState<'v1' | 'v2' | 'v3'>('v3');
   const [capitalLevel, setCapitalLevel] = useState<number>(12500);
   const [variants, setVariants] = useState<PortfolioVariant[]>([]);
   const [finalists, setFinalists] = useState<PortfolioVariant[]>([]);
@@ -228,6 +250,8 @@ export function PortfolioLab() {
   const [showStrategyDetail, setShowStrategyDetail] = useState(false);
   const [comparison, setComparison] = useState<Record<string, PortfolioVariant[]>>({});
   const [showComparison, setShowComparison] = useState(false);
+  const [lookaheadRef, setLookaheadRef] = useState<PortfolioVariant[]>([]);
+  const [showLookaheadRef, setShowLookaheadRef] = useState(false);
 
   // Load finalists on phase change
   useEffect(() => {
@@ -242,6 +266,15 @@ export function PortfolioLab() {
     fetch(`/api/white-swan-lab?phase=${phase}`)
       .then((r) => r.json())
       .then((d) => setAllVariants((d.variants ?? []).map(normaliseVariant)))
+      .catch(() => {});
+  }, [phase]);
+
+  // Load lookahead reference (v3 only)
+  useEffect(() => {
+    if (phase !== 'v3') { setLookaheadRef([]); return; }
+    fetch('/api/white-swan-lab?type=lookahead-reference&phase=v3')
+      .then((r) => r.json())
+      .then((d) => setLookaheadRef((d.variants ?? []).map(normaliseVariant)))
       .catch(() => {});
   }, [phase]);
 
@@ -326,8 +359,7 @@ export function PortfolioLab() {
 
   const selectedFinalist = useMemo(() => {
     if (!selected) return null;
-    // For v2 finalists always have navSeries directly (they're the top-5 per capital)
-    if (phase === 'v2' && selected.navSeries) return selected;
+    if ((phase === 'v2' || phase === 'v3') && selected.navSeries) return selected;
     return finalists.find((f) => f.variantId === selected.variantId) ?? null;
   }, [selected, finalists, phase]);
 
@@ -425,26 +457,32 @@ export function PortfolioLab() {
         <div>
           <h2 className="text-lg font-bold font-montserrat text-[#e2ca7a]">Portfolio Lab</h2>
           <p className="text-[#737373] text-xs mt-0.5">
-            {phase === 'v2'
-              ? '17/17 Quality Variants — EURUSD Overnight · DAX Hold ≥1d · All 17 Components — RESEARCH_CANDIDATE'
+            {phase === 'v3'
+              ? '128 Live-Valid Variants — No Lookahead · Ex-Ante Rules Only · 17 Components'
+              : phase === 'v2'
+              ? '17/17 Quality Variants — EURUSD Overnight · DAX Hold ≥1d — RESEARCH_CANDIDATE'
               : '80 variants × 4 capital levels — RESEARCH_CANDIDATE'}
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           {/* Phase toggle */}
           <div className="flex rounded overflow-hidden border border-[#2a2b30] text-xs">
-            {(['v2', 'v1'] as const).map((p) => (
+            {([
+              { id: 'v3', label: 'Live Valid' },
+              { id: 'v2', label: '17/17 Research' },
+              { id: 'v1', label: 'Phase 1' },
+            ] as const).map(({ id, label }) => (
               <button
-                key={p}
-                onClick={() => setPhase(p)}
+                key={id}
+                onClick={() => setPhase(id)}
                 className={cn(
                   'px-3 py-1 transition-colors',
-                  phase === p
+                  phase === id
                     ? 'bg-[#bf9d4a] text-black font-semibold'
                     : 'bg-[#141517] text-[#737373] hover:text-[#e2ca7a]'
                 )}
               >
-                {p === 'v2' ? '17/17 Quality' : 'Phase 1'}
+                {label}
               </button>
             ))}
           </div>
@@ -463,42 +501,58 @@ export function PortfolioLab() {
       </div>
 
       {/* HERO KPI — top variant at selected capital */}
-      {phase === 'v2' && tableVariants[0] && !loading && (() => {
+      {(phase === 'v2' || phase === 'v3') && tableVariants[0] && !loading && (() => {
         const hero = tableVariants[0];
         const cap = hero.capital ?? hero.capitalLevel ?? capitalLevel;
-        const expectancy = hero.kpis.totalTrades > 0 ? hero.kpis.totalNet / hero.kpis.totalTrades : 0;
+        const expectancy = hero.kpis.expectancy ?? (hero.kpis.totalTrades > 0 ? hero.kpis.totalNet / hero.kpis.totalTrades : 0);
         const annCostEur = hero.kpis.annualCosts ?? (hero.kpis.totalCosts / 16.97);
+        const wfTotal = hero.walkForward?.totalFolds ?? 5;
+        const wfPositive = hero.walkForward?.positiveFolds ?? hero.wf?.rolling3yr_positive_folds ?? 0;
+        const isLiveValid = hero.liveValidStatus === 'LIVE_VALID';
+        const isLookahead = hero.liveValidStatus === 'INVALID_RESEARCH_REFERENCE';
         return (
-          <div className="rounded-lg border border-[#e2ca7a]/30 bg-gradient-to-b from-[#1a1810] to-[#0e0d0a] p-4">
+          <div className={cn(
+            'rounded-lg border p-4 bg-gradient-to-b',
+            isLiveValid ? 'border-emerald-500/30 from-[#0c1810] to-[#080e0a]' :
+            isLookahead ? 'border-orange-500/30 from-[#1a1008] to-[#0e0905]' :
+            'border-[#e2ca7a]/30 from-[#1a1810] to-[#0e0d0a]'
+          )}>
             <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
               <div>
-                <span className="text-xs font-semibold uppercase tracking-widest text-[#e2ca7a]">
-                  Best Candidate — {hero.variantId}
+                <span className={cn('text-xs font-semibold uppercase tracking-widest', isLiveValid ? 'text-emerald-400' : 'text-[#e2ca7a]')}>
+                  {isLiveValid ? 'Best Live-Valid Candidate' : 'Best Candidate'} — {hero.variantId}
                 </span>
                 <span className="ml-2 text-[10px] text-[#737373]">
-                  {hero.family} · €{(cap/1000).toFixed(1)}k · 17/17 components · 5/5 rolling folds
+                  {hero.filterDescription ?? `${hero.family} · €${(cap/1000).toFixed(1)}k`} · {wfPositive}/{wfTotal} WF folds
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                {hero.family === 'QA_ALL_HOLD1' && phase === 'v2' && (
-                  <span title="holdingDays >= 1 filter uses realized trade duration (post-exit). Convert to ex-ante entry rule before live use." className="text-[10px] px-2 py-0.5 rounded border border-orange-500/40 bg-orange-500/10 text-orange-400 cursor-help">
-                    ⚠ CONDITIONAL — lookahead
+                {isLiveValid && (
+                  <span className="text-[10px] px-2 py-0.5 rounded border border-emerald-500/40 bg-emerald-500/10 text-emerald-400">
+                    ✓ LIVE VALID
                   </span>
                 )}
-                <span className="text-[10px] px-2 py-0.5 rounded border border-[#e2ca7a]/20 text-[#e2ca7a]/60">RESEARCH_CANDIDATE</span>
+                {isLookahead && (
+                  <span className="text-[10px] px-2 py-0.5 rounded border border-orange-500/40 bg-orange-500/10 text-orange-400">
+                    ⚠ INVALID — LOOKAHEAD
+                  </span>
+                )}
+                {!isLiveValid && !isLookahead && (
+                  <span className="text-[10px] px-2 py-0.5 rounded border border-[#e2ca7a]/20 text-[#e2ca7a]/60">RESEARCH_CANDIDATE</span>
+                )}
               </div>
             </div>
             <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-2">
               {[
-                { l: 'CAGR', v: `${fmt(hero.kpis.cagr)}%`, s: `IS ${fmt(hero.kpis.isCAGR ?? hero.wf?.isCAGR)}%`, c: 'text-[#e2ca7a]' },
+                { l: 'CAGR', v: `${fmt(hero.kpis.cagr)}%`, s: `IS ${fmt(hero.kpis.isCAGR ?? hero.wf?.isCAGR)}%`, c: isLiveValid ? 'text-emerald-300' : 'text-[#e2ca7a]' },
                 { l: 'OOS CAGR', v: `${fmt(hero.kpis.oosCAGR)}%`, s: '2019–2026', c: 'text-emerald-400' },
-                { l: 'Sharpe', v: fmt(hero.kpis.sharpe), s: `Sort: ${fmt(hero.kpis.sortino)}`, c: hero.kpis.sharpe >= 1.2 ? 'text-emerald-400' : 'text-yellow-400' },
-                { l: 'Calmar', v: fmt(hero.kpis.calmar ?? 0), s: undefined, c: (hero.kpis.calmar ?? 0) >= 0.8 ? 'text-emerald-400' : 'text-yellow-400' },
-                { l: 'MaxDD', v: `${fmt(hero.kpis.maxDDFromStart)}%`, s: `OOS ${fmt(hero.kpis.oosMaxDDPct ?? 0)}%`, c: maxDDColor(hero.kpis.maxDDFromStart) },
+                { l: 'Sharpe', v: fmt(hero.kpis.sharpe), s: `Sort: ${fmt(hero.kpis.sortino)}`, c: hero.kpis.sharpe >= 1.0 ? 'text-emerald-400' : 'text-yellow-400' },
+                { l: 'Calmar', v: fmt(hero.kpis.calmar ?? 0), s: undefined, c: (hero.kpis.calmar ?? 0) >= 1.0 ? 'text-emerald-400' : 'text-yellow-400' },
+                { l: 'MaxDD', v: `${fmt(hero.kpis.maxDDFromPeak ?? hero.kpis.maxDDFromStart)}%`, s: `From start: ${fmt(hero.kpis.maxDDFromStart)}%`, c: maxDDColor(hero.kpis.maxDDFromStart) },
                 { l: 'Expectancy', v: `€${fmt(expectancy, 0)}`, s: 'net/trade', c: expectancy > 0 ? 'text-emerald-400' : 'text-red-400' },
                 { l: 'Cost/yr', v: `€${fmt(annCostEur, 0)}`, s: `${fmt(hero.kpis.annualCostPct)}% NAV`, c: 'text-[#737373]' },
                 { l: 'Trades/wk', v: fmt(hero.kpis.tradesPerWeek, 1), s: `${hero.kpis.totalTrades} total`, c: 'text-[#737373]' },
-                { l: 'Robust', v: `${hero.robustnessScore}`, s: `Suit: ${hero.suitabilityScore.toFixed(0)}`, c: suitabilityColor(hero.robustnessScore) },
+                { l: 'WF', v: `${wfPositive}/${wfTotal}`, s: `Suit: ${hero.suitabilityScore.toFixed(0)}`, c: wfPositive === wfTotal ? 'text-emerald-400' : 'text-yellow-400' },
               ].map(({ l, v, s, c }) => (
                 <div key={l} className="rounded border border-[#2a2b30]/60 bg-[#0c0d10] p-2 text-center min-w-0">
                   <div className="text-[9px] text-[#737373] uppercase tracking-wide mb-1 truncate">{l}</div>
@@ -511,8 +565,101 @@ export function PortfolioLab() {
         );
       })()}
 
+      {/* LOOKAHEAD REFERENCE PANEL (v3 only) */}
+      {phase === 'v3' && lookaheadRef.length > 0 && (() => {
+        const liveRef = tableVariants[0];
+        const laRef = lookaheadRef.find((r) => r.capital === capitalLevel);
+        if (!liveRef || !laRef) return null;
+        const gap = (laRef.kpis.oosCAGR - liveRef.kpis.oosCAGR);
+        const retained = laRef.kpis.oosCAGR > 0 ? ((liveRef.kpis.oosCAGR / laRef.kpis.oosCAGR) * 100) : 0;
+        return (
+          <div className="rounded-lg border border-orange-500/20 bg-[#120e08] p-4">
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <span className="text-xs font-semibold uppercase tracking-widest text-orange-400">
+                Lookahead Reference vs Best Live-Valid — €{(capitalLevel/1000).toFixed(1)}k
+              </span>
+              <button
+                onClick={() => setShowLookaheadRef((p) => !p)}
+                className="text-[10px] text-[#737373] hover:text-orange-400"
+              >
+                {showLookaheadRef ? '▲ Collapse' : '▼ Expand'}
+              </button>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+              {[
+                { l: 'OOS CAGR (Lookahead)', v: `${fmt(laRef.kpis.oosCAGR)}%`, note: 'QA_ALL_HOLD1 — INVALID', c: 'text-orange-400' },
+                { l: 'OOS CAGR (Live-Valid)', v: `${fmt(liveRef.kpis.oosCAGR)}%`, note: liveRef.variantId, c: 'text-emerald-400' },
+                { l: 'Gap', v: `-${fmt(gap)}pp`, note: 'OOS CAGR cost of removing lookahead', c: 'text-red-400' },
+                { l: 'Edge Retained', v: `${retained.toFixed(1)}%`, note: 'of lookahead OOS captured live', c: retained >= 70 ? 'text-emerald-400' : 'text-yellow-400' },
+              ].map(({ l, v, note, c }) => (
+                <div key={l} className="rounded border border-orange-500/20 bg-[#0c0905] p-2">
+                  <div className="text-[9px] text-[#737373] uppercase tracking-wide mb-1">{l}</div>
+                  <div className={cn('text-sm font-bold font-mono', c)}>{v}</div>
+                  <div className="text-[9px] text-[#737373] mt-0.5 truncate">{note}</div>
+                </div>
+              ))}
+            </div>
+            {showLookaheadRef && (
+              <div className="overflow-x-auto mt-2">
+                <table className="text-[10px] w-full min-w-[700px]">
+                  <thead>
+                    <tr className="text-[#737373] border-b border-[#2a2b30]/30">
+                      <th className="px-2 py-1 text-left">Variant</th>
+                      <th className="px-2 py-1 text-left">Status</th>
+                      <th className="px-2 py-1 text-right">CAGR</th>
+                      <th className="px-2 py-1 text-right">OOS CAGR</th>
+                      <th className="px-2 py-1 text-right">Sharpe</th>
+                      <th className="px-2 py-1 text-right">Calmar</th>
+                      <th className="px-2 py-1 text-right">MaxDD</th>
+                      <th className="px-2 py-1 text-right">Exp/trade</th>
+                      <th className="px-2 py-1 text-right">Trades/wk</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[laRef, liveRef].map((v, i) => {
+                      const exp = v.kpis.expectancy ?? (v.kpis.totalTrades > 0 ? v.kpis.totalNet / v.kpis.totalTrades : 0);
+                      const isLookahead = v.liveValidStatus === 'INVALID_RESEARCH_REFERENCE';
+                      return (
+                        <tr key={v.variantId} className="border-b border-[#2a2b30]/20">
+                          <td className="px-2 py-1 font-mono text-[#e2ca7a]">{i === 0 ? '⚠ ' : '✓ '}{v.variantId}</td>
+                          <td className="px-2 py-1">
+                            <span className={cn(
+                              'text-[9px] px-1.5 py-0.5 rounded',
+                              isLookahead ? 'bg-orange-900/40 text-orange-400' : 'bg-emerald-900/40 text-emerald-400'
+                            )}>
+                              {isLookahead ? 'INVALID' : 'LIVE VALID'}
+                            </span>
+                          </td>
+                          <td className="px-2 py-1 text-right font-mono">{fmt(v.kpis.cagr)}%</td>
+                          <td className={cn('px-2 py-1 text-right font-mono', isLookahead ? 'text-orange-400' : 'text-emerald-400')}>
+                            {fmt(v.kpis.oosCAGR)}%
+                          </td>
+                          <td className="px-2 py-1 text-right font-mono">{fmt(v.kpis.sharpe)}</td>
+                          <td className="px-2 py-1 text-right font-mono">{fmt(v.kpis.calmar ?? 0)}</td>
+                          <td className={cn('px-2 py-1 text-right font-mono', maxDDColor(v.kpis.maxDDFromStart))}>
+                            {fmt(v.kpis.maxDDFromPeak ?? v.kpis.maxDDFromStart)}%
+                          </td>
+                          <td className={cn('px-2 py-1 text-right font-mono', exp > 0 ? 'text-emerald-400' : 'text-red-400')}>
+                            €{fmt(exp, 0)}
+                          </td>
+                          <td className="px-2 py-1 text-right font-mono text-[#737373]">{fmt(v.kpis.tradesPerWeek, 1)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                <p className="text-[9px] text-orange-400/60 mt-2 px-1">
+                  ⚠ QA_ALL_HOLD1 uses holdingDays≥1 post-exit filter — stop-based exits only — INVALID FOR LIVE TRADING.
+                  Shown as upper-bound reference only.
+                </p>
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
       {/* CAPITAL COMPARISON TABLE */}
-      {phase === 'v2' && Object.keys(comparison).length > 0 && (
+      {(phase === 'v2' || phase === 'v3') && Object.keys(comparison).length > 0 && (
         <div className="rounded-lg border border-[#2a2b30] bg-[#141517] overflow-hidden">
           <div className="flex items-center justify-between px-3 py-2 border-b border-[#2a2b30]">
             <span className="text-xs font-semibold uppercase tracking-widest text-[#e2ca7a]">Capital Comparison — Top-5 per Level</span>
@@ -675,6 +822,12 @@ export function PortfolioLab() {
                     </td>
                     <td className="px-2 py-1.5">
                       <div className="flex flex-wrap gap-1">
+                        {v.liveValidStatus === 'LIVE_VALID' && (
+                          <span className="text-[9px] bg-emerald-900/30 text-emerald-400 border border-emerald-500/30 rounded px-1 py-0.5">✓ LIVE</span>
+                        )}
+                        {v.liveValidStatus === 'INVALID_RESEARCH_REFERENCE' && (
+                          <span className="text-[9px] bg-orange-900/30 text-orange-400 border border-orange-500/30 rounded px-1 py-0.5">⚠ INVALID</span>
+                        )}
                         {isFinalist && (
                           <span className="text-[9px] bg-[#e2ca7a]/10 text-[#e2ca7a] border border-[#e2ca7a]/30 rounded px-1 py-0.5">
                             FINALIST
@@ -712,7 +865,7 @@ export function PortfolioLab() {
                 Hard Filter Failed
               </span>
             )}
-            <span className="text-[#737373] text-xs">{selected.description}</span>
+            <span className="text-[#737373] text-xs">{selected.filterDescription ?? selected.description}</span>
           </div>
 
           {/* KPI cards row 1 */}
@@ -737,7 +890,7 @@ export function PortfolioLab() {
           {/* WF Stats */}
           <div className="flex gap-3 flex-wrap text-xs text-[#737373]">
             <span>OOS/IS ratio: <span className="text-[#e2ca7a]">{fmt(selected.wf!.oosISDegradation, 3)}</span></span>
-            <span>Rolling 3yr: <span className="text-[#e2ca7a]">{selected.wf!.rolling3yr_positive_folds}/5</span> positive folds</span>
+            <span>Rolling folds: <span className="text-[#e2ca7a]">{selected.wf!.rolling3yr_positive_folds}/{selected.walkForward?.totalFolds ?? 5}</span> positive</span>
             <span>OOS net: <span className={selected.wf!.oosNetPositive ? 'text-emerald-400' : 'text-red-400'}>{selected.wf!.oosNetPositive ? 'YES' : 'NO'}</span></span>
             {selected.kpis.concentration && (
               <>
@@ -748,8 +901,8 @@ export function PortfolioLab() {
             )}
           </div>
 
-          {/* Lookahead warning for ALL_HOLD1 */}
-          {selected.family === 'QA_ALL_HOLD1' && phase === 'v2' && (
+          {/* Lookahead warning */}
+          {(selected.family === 'QA_ALL_HOLD1' || selected.liveValidStatus === 'INVALID_RESEARCH_REFERENCE') && (
             <div className="rounded border border-orange-500/30 bg-orange-500/5 px-3 py-2 text-xs text-orange-300">
               <span className="font-semibold">⚠ CONDITIONAL — Potential Lookahead:</span>{' '}
               The holdingDays ≥ 1 filter on EURUSD 30M, DAX 1H, DAX 2H selects trades by realized duration (known post-exit only).
@@ -864,19 +1017,33 @@ export function PortfolioLab() {
                   </AreaChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="space-y-1.5 mt-2">
-                  {/* Rolling folds from wf */}
-                  {[1, 2, 3, 4, 5].map((fold) => {
-                    const pass = fold <= (selected.wf?.rolling3yr_positive_folds ?? 0);
-                    return (
-                      <div key={fold} className="flex items-center gap-2 text-xs">
-                        <span className={cn('w-2 h-2 rounded-full', pass ? 'bg-emerald-400' : 'bg-red-400')} />
-                        <span className="text-[#737373]">Fold {fold}:</span>
-                        <span className={pass ? 'text-emerald-400' : 'text-red-400'}>{pass ? 'OOS Positive' : 'OOS Negative'}</span>
-                      </div>
-                    );
-                  })}
-                  <div className="text-[10px] text-[#737373] mt-2">
+                <div className="space-y-1 mt-2">
+                  {/* v3: use foldResults array; v2: use rolling3yr_folds count; v1: count */}
+                  {(selected.walkForward?.foldResults ?? selected.walkForward?.foldResults3yr ?? []).length > 0
+                    ? (selected.walkForward?.foldResults ?? selected.walkForward?.foldResults3yr ?? []).map((f, i) => {
+                        const label = 'label' in f ? f.label : `Fold ${i + 1}`;
+                        return (
+                          <div key={i} className="flex items-center gap-2 text-[10px]">
+                            <span className={cn('w-2 h-2 rounded-full flex-shrink-0', f.isPositive ? 'bg-emerald-400' : 'bg-red-400')} />
+                            <span className="text-[#737373] truncate">{label}:</span>
+                            <span className={cn('font-mono', f.isPositive ? 'text-emerald-400' : 'text-red-400')}>
+                              €{f.oosNet.toFixed(0)}
+                            </span>
+                          </div>
+                        );
+                      })
+                    : Array.from({ length: selected.wf?.rolling3yr_positive_folds !== undefined ? 5 : 0 }, (_, i) => {
+                        const pass = i < (selected.wf?.rolling3yr_positive_folds ?? 0);
+                        return (
+                          <div key={i} className="flex items-center gap-2 text-xs">
+                            <span className={cn('w-2 h-2 rounded-full', pass ? 'bg-emerald-400' : 'bg-red-400')} />
+                            <span className="text-[#737373]">Fold {i + 1}:</span>
+                            <span className={pass ? 'text-emerald-400' : 'text-red-400'}>{pass ? 'OOS Positive' : 'OOS Negative'}</span>
+                          </div>
+                        );
+                      })
+                  }
+                  <div className="text-[10px] text-[#737373] mt-1">
                     Rolling 3-year IS→OOS walk-forward folds
                   </div>
                 </div>
