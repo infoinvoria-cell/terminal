@@ -212,7 +212,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function WhiteSwanAnalytics() {
-  const [activeTab, setActiveTab] = useState<'analytics' | 'lab'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'lab'>('lab');
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -234,31 +234,20 @@ export function WhiteSwanAnalytics() {
       });
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full bg-[#0c0d10]">
-        <div className="text-[#e2ca7a] text-lg animate-pulse">Loading White Swan Analytics…</div>
-      </div>
-    );
-  }
-
-  if (error || !data) {
-    return (
-      <div className="flex items-center justify-center h-full bg-[#0c0d10]">
-        <div className="text-red-400 text-lg">Failed to load analytics data: {error}</div>
-      </div>
-    );
-  }
+  // Analytics data unavailable (e.g. Vercel preview) — still render tabs so Portfolio Lab is accessible
+  const analyticsUnavailable = !loading && (error !== null || !data);
 
   // Use capitalScenarios from riskMetrics (canonical, with navSeries from top-level)
-  const scenarios: CapitalScenario[] = data.capitalScenarios.length
-    ? data.capitalScenarios
-    : data.riskMetrics.capitalScenarios;
+  const scenarios: CapitalScenario[] = data
+    ? (data.capitalScenarios.length ? data.capitalScenarios : data.riskMetrics.capitalScenarios)
+    : [];
 
-  const rm = data.riskMetrics;
+  // rm is only accessed inside !analyticsUnavailable guard (data != null there)
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const rm = data?.riskMetrics!;
   const selectedScenario = scenarios.find((s) => s.startNAV === selectedNAV || s.capitalLevel === selectedNAV) ?? scenarios[4];
 
-  const navSampled = downsample(selectedScenario.navSeries ?? [], 300);
+  const navSampled = downsample(selectedScenario?.navSeries ?? [], 300);
   const drawdownData = navSampled.map((p) => ({ date: p.date.slice(0, 10), value: -(p.drawdownPct ?? 0) }));
 
   const cagrChartData = scenarios.map((s) => ({
@@ -278,20 +267,20 @@ export function WhiteSwanAnalytics() {
     return cap <= 25000;
   });
 
-  const yearlyData = (data.yearlyAnalysis as unknown as YearlyRow[]).map((r) => ({
+  const yearlyData = data ? (data.yearlyAnalysis as unknown as YearlyRow[]).map((r) => ({
     ...r,
     year: Number(r.year),
     netPnlEUR: Number(r.netPnlEUR),
     costsEUR: Number(r.costsEUR),
     grossPnlEUR: Number(r.grossPnlEUR),
     costRatioGross: Number(r.costRatioGross),
-  }));
+  })) : [];
 
-  const strategyData = (data.strategyBreakdown as unknown as StrategyRow[]).sort(
+  const strategyData = data ? (data.strategyBreakdown as unknown as StrategyRow[]).sort(
     (a, b) => Number(a.costBurdenRank) - Number(b.costBurdenRank)
-  );
+  ) : [];
 
-  const costSensData = data.costSensitivity as unknown as CostSensitivityRow[];
+  const costSensData = (data?.costSensitivity ?? []) as unknown as CostSensitivityRow[];
 
   return (
     <div className="h-full w-full overflow-y-auto bg-[#0c0d10]">
@@ -331,7 +320,15 @@ export function WhiteSwanAnalytics() {
       </div>
 
       {activeTab === 'lab' && <PortfolioLab />}
-      {activeTab === 'analytics' && <>
+      {activeTab === 'analytics' && analyticsUnavailable && (
+        <div className="flex flex-col items-center justify-center py-16 text-[#737373] gap-3">
+          <div className="text-[#e2ca7a] text-sm font-semibold">Capital Analytics — not available in cloud preview</div>
+          <div className="text-xs max-w-sm text-center">
+            Analytics data requires local Brain path. Run locally or switch to Portfolio Lab above.
+          </div>
+        </div>
+      )}
+      {activeTab === 'analytics' && !analyticsUnavailable && <>
 
       {/* KEY SNAPSHOT */}
       <SectionTitle>Key Snapshot</SectionTitle>
