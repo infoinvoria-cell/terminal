@@ -183,10 +183,11 @@ const RATING_STYLE: Record<string, string> = {
   COMFORTABLE: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
 };
 
-function RatingBadge({ rating }: { rating: string }) {
+function RatingBadge({ rating }: { rating?: string }) {
+  const r = rating ?? '—';
   return (
-    <span className={cn('inline-block rounded px-2 py-0.5 text-xs font-semibold', RATING_STYLE[rating] ?? '')}>
-      {rating.replace('_', ' ')}
+    <span className={cn('inline-block rounded px-2 py-0.5 text-xs font-semibold', RATING_STYLE[r] ?? '')}>
+      {r.replace('_', ' ')}
     </span>
   );
 }
