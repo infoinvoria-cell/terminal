@@ -254,6 +254,7 @@ export function PortfolioLab() {
   const [showComparison, setShowComparison] = useState(false);
   const [lookaheadRef, setLookaheadRef] = useState<PortfolioVariant[]>([]);
   const [showLookaheadRef, setShowLookaheadRef] = useState(false);
+  const [phaseFallback, setPhaseFallback] = useState<string | null>(null);
 
   // Load finalists on phase change
   useEffect(() => {
@@ -294,24 +295,30 @@ export function PortfolioLab() {
       .catch(() => {});
   }, [phase]);
 
-  // Load per-capital variants
+  // Load per-capital variants; fallback v4→v3 if data unavailable
   useEffect(() => {
     setLoading(true);
     setError(null);
     setSelectedId(null);
-    fetch(`/api/white-swan-lab?capital=${capitalLevel}&phase=${phase}`)
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
+    setPhaseFallback(null);
+
+    const loadPhase = (p: string): Promise<PortfolioVariant[]> =>
+      fetch(`/api/white-swan-lab?capital=${capitalLevel}&phase=${p}`)
+        .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+        .then((d) => (d.variants ?? []).map(normaliseVariant));
+
+    loadPhase(phase)
+      .then((vs) => {
+        if (vs.length === 0 && phase === 'v4') {
+          return loadPhase('v3').then((fallback) => {
+            if (fallback.length > 0) setPhaseFallback('v3');
+            return fallback;
+          });
+        }
+        return vs;
       })
-      .then((d) => {
-        setVariants((d.variants ?? []).map(normaliseVariant));
-        setLoading(false);
-      })
-      .catch((e) => {
-        setError(String(e));
-        setLoading(false);
-      });
+      .then((vs) => { setVariants(vs); setLoading(false); })
+      .catch((e) => { setError(String(e)); setLoading(false); });
   }, [capitalLevel, phase]);
 
   // All families in current capital
@@ -457,6 +464,11 @@ export function PortfolioLab() {
 
   return (
     <div className="text-white space-y-6">
+      {phaseFallback && (
+        <div className="text-xs px-3 py-2 rounded bg-yellow-900/30 border border-yellow-700/50 text-yellow-400">
+          ⚠ v4 data unavailable — showing {phaseFallback.toUpperCase()}
+        </div>
+      )}
       {/* Header row */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
