@@ -164,9 +164,16 @@ function oosHeatColor(cagr: number): string {
 
 const YEARS = 16.97;
 
-// Normalise v1/v2/v3 shape differences so the rest of the component is uniform
+// Normalise v1/v2/v3/v4 shape differences so the rest of the component is uniform
 function normaliseVariant(v: PortfolioVariant): PortfolioVariant {
   const capital = v.capital ?? v.capitalLevel ?? 0;
+  // v4 variants have no family field — derive one from filter labels
+  const vAny = v as unknown as Record<string,unknown>;
+  const derivedFamily = v.family ?? v.familyName ?? (
+    vAny.eurusdFilter
+      ? `EUR_${vAny.eurusdFilter}`
+      : (v.variantId ?? 'UNKNOWN').split('_').slice(0, 2).join('_')
+  );
   // v3 uses walkForward.positiveFolds / totalFolds
   const wfPositive =
     v.walkForward?.positiveFolds ?? v.walkForward?.rolling3yr_positive ?? v.wf?.rolling3yr_positive_folds ?? 0;
@@ -179,6 +186,8 @@ function normaliseVariant(v: PortfolioVariant): PortfolioVariant {
     ...v,
     capitalLevel: capital,
     capital,
+    family: derivedFamily,
+    familyName: v.familyName ?? derivedFamily,
     wf: {
       isCAGR: isNet,
       oosCAGR: oosNet,
@@ -732,7 +741,7 @@ export function PortfolioLab() {
                               )}
                             >
                               <td className="px-2 py-1 font-mono text-[#e2ca7a]">
-                                {i === 0 ? '★ ' : ''}{v.variantId.replace(`_${cap}`, '')}
+                                {i === 0 ? '★ ' : ''}{(v.variantId ?? '').replace(`_${cap}`, '')}
                               </td>
                               <td className="px-2 py-1 text-right font-mono">{fmt(v.kpis.cagr)}%</td>
                               <td className="px-2 py-1 text-right font-mono text-emerald-400">{fmt(v.kpis.oosCAGR)}%</td>
@@ -855,7 +864,7 @@ export function PortfolioLab() {
                         )}
                         {(v.finalist?.categories ?? []).map((c) => (
                           <span key={c} className="text-[9px] bg-[#1c1d20] text-[#737373] border border-[#2a2b30] rounded px-1 py-0.5 whitespace-nowrap">
-                            {c.replace('BEST_', '')}
+                            {(c ?? '').replace('BEST_', '')}
                           </span>
                         ))}
                       </div>
@@ -1140,7 +1149,7 @@ export function PortfolioLab() {
                   <th className="text-[#737373] px-1 py-0.5 text-right pr-2">Capital ↓ / Family →</th>
                   {heatFamilies.map((f) => (
                     <th key={f} className="text-[#737373] px-1 py-0.5 text-center whitespace-nowrap font-normal">
-                      {f.replace('_', ' ').slice(0, 10)}
+                      {(f ?? '').replace('_', ' ').slice(0, 10)}
                     </th>
                   ))}
                 </tr>
