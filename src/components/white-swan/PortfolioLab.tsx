@@ -198,15 +198,17 @@ function LabStatCard({
   value,
   sub,
   valueClass,
+  tooltip,
 }: {
   label: string;
   value: string;
   sub?: string;
   valueClass?: string;
+  tooltip?: string;
 }) {
   return (
-    <div className="flex-1 min-w-0 rounded-lg border border-[#2a2b30] bg-gradient-to-b from-[#1c1d20] to-[#141517] p-3 text-center">
-      <div className="text-[10px] text-[#737373] mb-1 uppercase tracking-wide truncate">{label}</div>
+    <div className="flex-1 min-w-0 rounded-lg border border-[#2a2b30] bg-gradient-to-b from-[#1c1d20] to-[#141517] p-3 text-center" title={tooltip}>
+      <div className="text-[10px] text-[#737373] mb-1 uppercase tracking-wide truncate">{label}{tooltip ? ' ⓘ' : ''}</div>
       <div className={cn('text-base font-bold font-mono text-[#e2ca7a] leading-tight', valueClass)}>{value}</div>
       {sub && <div className="text-[10px] text-[#737373] mt-0.5 truncate">{sub}</div>}
     </div>
@@ -328,7 +330,7 @@ export function PortfolioLab() {
       else if (sortKey === 'cagr') { av = a.kpis.cagr; bv = b.kpis.cagr; }
       else if (sortKey === 'oosCAGR') { av = a.kpis.oosCAGR; bv = b.kpis.oosCAGR; }
       else if (sortKey === 'sharpe') { av = a.kpis.sharpe; bv = b.kpis.sharpe; }
-      else if (sortKey === 'maxDD') { av = a.kpis.maxDDFromStart; bv = b.kpis.maxDDFromStart; }
+      else if (sortKey === 'maxDD') { av = a.kpis.maxDDFromPeak ?? a.kpis.maxDDFromStart; bv = b.kpis.maxDDFromPeak ?? b.kpis.maxDDFromStart; }
       else if (sortKey === 'costPct') { av = a.kpis.annualCostPct; bv = b.kpis.annualCostPct; }
       else if (sortKey === 'tradesPerWeek') { av = a.kpis.tradesPerWeek; bv = b.kpis.tradesPerWeek; }
       else { av = a.suitabilityScore; bv = b.suitabilityScore; }
@@ -398,7 +400,7 @@ export function PortfolioLab() {
     () =>
       variants.slice(0, 20).map((v) => ({
         variantId: v.variantId,
-        x: v.kpis.maxDDFromStart,
+        x: v.kpis.maxDDFromPeak ?? v.kpis.maxDDFromStart,
         y: v.kpis.oosCAGR,
         z: v.kpis.sharpe,
         suit: v.suitabilityScore,
@@ -418,18 +420,21 @@ export function PortfolioLab() {
     return allVariants.find((v) => v.capitalLevel === cap && (v.familyName === fam || v.family === fam));
   }
 
-  // Serkan cost panel
+  // Serkan cost panel — always use precomputed kpis to avoid YEARS mismatch
   const costPanel = useMemo(() => {
     if (!selected) return null;
     const cap = selected.capital ?? selected.capitalLevel ?? capitalLevel;
-    const annualTrades = selected.kpis.totalTrades / YEARS;
+    // Use stored annualCosts from variant data (computed with actual elapsed years)
+    const annualCosts = selected.kpis.annualCosts ?? (selected.kpis.totalCosts / YEARS);
+    // Derive actual elapsed years from data
+    const elapsedYears = selected.kpis.totalCosts > 0 && annualCosts > 0 ? selected.kpis.totalCosts / annualCosts : YEARS;
+    const annualTrades = selected.kpis.totalTrades / elapsedYears;
     const annualExec = annualTrades * 2;
     const costPerExec = 0.85;
-    const annualCosts = annualExec * costPerExec;
     const costNavPct = cap > 0 ? (annualCosts / cap) * 100 : 0;
-    const grossAnnual = selected.kpis.totalGross / YEARS;
-    const netAnnual = selected.kpis.totalNet / YEARS;
-    return { annualTrades, annualExec, costPerExec, annualCosts, costNavPct, grossAnnual, netAnnual };
+    const grossAnnual = selected.kpis.totalGross / elapsedYears;
+    const netAnnual = selected.kpis.totalNet / elapsedYears;
+    return { annualTrades, annualExec, costPerExec, annualCosts, costNavPct, grossAnnual, netAnnual, elapsedYears };
   }, [selected, capitalLevel]);
 
   // ─── Render ─────────────────────────────────────────────────────────────────
@@ -548,7 +553,7 @@ export function PortfolioLab() {
                 { l: 'OOS CAGR', v: `${fmt(hero.kpis.oosCAGR)}%`, s: '2019–2026', c: 'text-emerald-400' },
                 { l: 'Sharpe', v: fmt(hero.kpis.sharpe), s: `Sort: ${fmt(hero.kpis.sortino)}`, c: hero.kpis.sharpe >= 1.0 ? 'text-emerald-400' : 'text-yellow-400' },
                 { l: 'Calmar', v: fmt(hero.kpis.calmar ?? 0), s: undefined, c: (hero.kpis.calmar ?? 0) >= 1.0 ? 'text-emerald-400' : 'text-yellow-400' },
-                { l: 'MaxDD', v: `${fmt(hero.kpis.maxDDFromPeak ?? hero.kpis.maxDDFromStart)}%`, s: `From start: ${fmt(hero.kpis.maxDDFromStart)}%`, c: maxDDColor(hero.kpis.maxDDFromStart) },
+                { l: 'MaxDD', v: `${fmt(hero.kpis.maxDDFromPeak ?? hero.kpis.maxDDFromStart)}%`, s: `Peak-to-trough`, c: maxDDColor(hero.kpis.maxDDFromPeak ?? hero.kpis.maxDDFromStart) },
                 { l: 'Expectancy', v: `€${fmt(expectancy, 0)}`, s: 'net/trade', c: expectancy > 0 ? 'text-emerald-400' : 'text-red-400' },
                 { l: 'Cost/yr', v: `€${fmt(annCostEur, 0)}`, s: `${fmt(hero.kpis.annualCostPct)}% NAV`, c: 'text-[#737373]' },
                 { l: 'Trades/wk', v: fmt(hero.kpis.tradesPerWeek, 1), s: `${hero.kpis.totalTrades} total`, c: 'text-[#737373]' },
@@ -636,7 +641,7 @@ export function PortfolioLab() {
                           </td>
                           <td className="px-2 py-1 text-right font-mono">{fmt(v.kpis.sharpe)}</td>
                           <td className="px-2 py-1 text-right font-mono">{fmt(v.kpis.calmar ?? 0)}</td>
-                          <td className={cn('px-2 py-1 text-right font-mono', maxDDColor(v.kpis.maxDDFromStart))}>
+                          <td className={cn('px-2 py-1 text-right font-mono', maxDDColor(v.kpis.maxDDFromPeak ?? v.kpis.maxDDFromStart))}>
                             {fmt(v.kpis.maxDDFromPeak ?? v.kpis.maxDDFromStart)}%
                           </td>
                           <td className={cn('px-2 py-1 text-right font-mono', exp > 0 ? 'text-emerald-400' : 'text-red-400')}>
@@ -718,8 +723,8 @@ export function PortfolioLab() {
                               <td className="px-2 py-1 text-right font-mono text-emerald-400">{fmt(v.kpis.oosCAGR)}%</td>
                               <td className="px-2 py-1 text-right font-mono">{fmt(v.kpis.sharpe)}</td>
                               <td className="px-2 py-1 text-right font-mono">{fmt(v.kpis.calmar ?? 0)}</td>
-                              <td className={cn('px-2 py-1 text-right font-mono', maxDDColor(v.kpis.maxDDFromStart))}>
-                                {fmt(v.kpis.maxDDFromStart)}%
+                              <td className={cn('px-2 py-1 text-right font-mono', maxDDColor(v.kpis.maxDDFromPeak ?? v.kpis.maxDDFromStart))}>
+                                {fmt(v.kpis.maxDDFromPeak ?? v.kpis.maxDDFromStart)}%
                               </td>
                               <td className={cn('px-2 py-1 text-right font-mono', exp > 0 ? 'text-emerald-400' : 'text-red-400')}>
                                 €{fmt(exp, 0)}
@@ -805,8 +810,8 @@ export function PortfolioLab() {
                     <td className="px-2 py-1.5 font-mono text-[#e2ca7a]">{fmt(v.kpis.cagr)}%</td>
                     <td className="px-2 py-1.5 font-mono text-emerald-400">{fmt(v.kpis.oosCAGR)}%</td>
                     <td className="px-2 py-1.5 font-mono">{fmt(v.kpis.sharpe)}</td>
-                    <td className={cn('px-2 py-1.5 font-mono', maxDDColor(v.kpis.maxDDFromStart))}>
-                      {fmt(v.kpis.maxDDFromStart)}%
+                    <td className={cn('px-2 py-1.5 font-mono', maxDDColor(v.kpis.maxDDFromPeak ?? v.kpis.maxDDFromStart))}>
+                      {fmt(v.kpis.maxDDFromPeak ?? v.kpis.maxDDFromStart)}%
                     </td>
                     <td className="px-2 py-1.5 font-mono text-[#737373]">{fmt(v.kpis.annualCostPct)}%</td>
                     <td className="px-2 py-1.5 font-mono text-[#737373]">{fmt(v.kpis.tradesPerWeek, 1)}</td>
@@ -875,15 +880,21 @@ export function PortfolioLab() {
             <LabStatCard label="Sharpe" value={fmt(selected.kpis.sharpe)} />
             <LabStatCard
               label="Max DD%"
-              value={fmtPct(selected.kpis.maxDDFromStart)}
-              valueClass={maxDDColor(selected.kpis.maxDDFromStart)}
+              value={fmtPct(selected.kpis.maxDDFromPeak ?? selected.kpis.maxDDFromStart)}
+              valueClass={maxDDColor(selected.kpis.maxDDFromPeak ?? selected.kpis.maxDDFromStart)}
+              sub={`From start: ${fmt(selected.kpis.maxDDFromStart)}%`}
+              tooltip="Peak-to-Trough MaxDD: max((runningPeak − NAV) / runningPeak) over full history. Used for Calmar = CAGR / MaxDD."
             />
           </div>
           {/* KPI cards row 2 */}
           <div className="flex gap-3 flex-wrap">
-            <LabStatCard label="Trades/wk" value={fmt(selected.kpis.tradesPerWeek, 1)} />
-            <LabStatCard label="Cost%/yr" value={fmtPct(selected.kpis.annualCostPct)} />
-            <LabStatCard label="Robust" value={`${selected.robustnessScore}/100`} valueClass={suitabilityColor(selected.robustnessScore)} />
+            <LabStatCard label="Trades/wk" value={fmt(selected.kpis.tradesPerWeek, 1)} tooltip="Total trades / elapsed weeks. Does not equal executions/wk (entry + exit = 2 executions per trade)." />
+            <LabStatCard label="Cost%/yr"
+              value={fmtPct(selected.kpis.annualCostPct)}
+              sub={costPanel ? `€${costPanel.annualCosts.toFixed(0)}/yr` : undefined}
+              tooltip="annualCosts / avgNAV × 100. AnnualCosts = totalCosts / elapsedYears. CostRt = €0.85/exec × 2 per roundtrip (FX-adjusted for USD strategies)."
+            />
+            <LabStatCard label="Calmar" value={fmt(selected.kpis.calmar ?? 0)} valueClass={(selected.kpis.calmar ?? 0) >= 1 ? 'text-emerald-400' : 'text-yellow-400'} tooltip="Calmar = CAGR% / abs(MaxDD%). Uses peak-to-trough MaxDD. Higher is better." />
             <LabStatCard label="Suitability" value={`${selected.suitabilityScore}/100`} valueClass={suitabilityColor(selected.suitabilityScore)} />
           </div>
 
@@ -1170,7 +1181,7 @@ export function PortfolioLab() {
           </div>
           <div className="mt-3 text-[10px] text-[#737373]">
             Cost model: €0.85/exec × 2 executions/trade × {fmt(costPanel.annualTrades, 0)} trades/yr
-            · {selected.kpis.totalTrades} total trades over {YEARS.toFixed(1)} years
+            · {selected.kpis.totalTrades} total trades over {costPanel?.elapsedYears.toFixed(1) ?? YEARS.toFixed(1)} years
           </div>
         </div>
       )}
