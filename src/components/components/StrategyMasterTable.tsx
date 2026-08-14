@@ -899,7 +899,7 @@ function ExpandedRow({ row, accountSize }: { row: DisplayRow; accountSize: numbe
         },
         {
           k: "Resolved Expiry",
-          v: scenarioRow?.resolvedContractExpiry ?? getWhiteSwanResolvedContractStatus(scenarioRow),
+          v: scenarioRow?.resolvedContractExpiry ?? getWhiteSwanResolvedContractStatus(),
         },
         {
           k: "Resolved Contract",
@@ -907,7 +907,7 @@ function ExpandedRow({ row, accountSize }: { row: DisplayRow; accountSize: numbe
         },
         {
           k: "Qualification",
-          v: getWhiteSwanBrokerQualificationStatus(scenarioRow),
+          v: getWhiteSwanBrokerQualificationStatus(),
         },
         {
           k: "Model Qty",

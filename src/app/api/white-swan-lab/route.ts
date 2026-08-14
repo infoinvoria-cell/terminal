@@ -10,12 +10,9 @@ export async function GET(request: Request) {
   const type = searchParams.get('type') || 'variants';
 
   const phase = searchParams.get('phase') || 'v1';
-  const base = path.join(
-    process.cwd(),
-    phase === 'v2'
-      ? 'workspace/output/white-swan/portfolio-lab-v2'
-      : 'workspace/output/white-swan/portfolio-lab'
-  );
+  const subDir = phase === 'v2' ? 'portfolio-lab-v2' : 'portfolio-lab';
+  // turbopackIgnore: data files live outside src/ and are not bundled
+  const base = path.join(/* turbopackIgnore: true */ process.cwd(), 'workspace', 'output', 'white-swan', subDir);
 
   try {
     if (type === 'finalists') {

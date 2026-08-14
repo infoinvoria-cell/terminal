@@ -766,7 +766,7 @@ export function resolveWhiteSwanExecutionTranslation(
     priceInstrument: entry.signalInstrument,
     priceTimestamp: markSnapshot.asOfUtc || null,
     priceSource: markSnapshot.source || null,
-    priceStatus: markSnapshot.status,
+    priceStatus: "SNAPSHOT" as const,
     executionReferencePrice: referenceQuotePrice,
     executionReferencePriceInstrument: referenceQuote.instrument,
     executionReferencePriceTimestamp: referenceQuote.asOfUtc,

@@ -51,7 +51,7 @@ function buildWhiteSwanTradeRows(capitalRows: CapitalRequirementRecord[]): Portf
   const rows: PortfolioTradeRow[] = [];
 
   for (const trade of eurusdEvents.trades) {
-    if (trade.isOpen || trade.exitTime == null) continue;
+    if (trade.exitTime == null) continue;
     const row: PortfolioTradeRow = {
       id: `eurusd-${trade.entryTime}`,
       portfolio: "White Swan",

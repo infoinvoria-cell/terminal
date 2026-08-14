@@ -23,7 +23,8 @@ function parseCsv(text: string): Record<string, string | number>[] {
 
 export async function GET() {
   try {
-    const base = path.join(process.cwd(), 'workspace/output/white-swan/analysis');
+    // turbopackIgnore: data files live outside src/ and are not bundled
+    const base = path.join(/* turbopackIgnore: true */ process.cwd(), 'workspace', 'output', 'white-swan', 'analysis');
 
     const capitalScenarios = JSON.parse(
       fs.readFileSync(path.join(base, 'capital-scenarios.json'), 'utf8')
