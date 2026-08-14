@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "1.0",
+  "generatedDate": "2026-08-14",
+  "status": "RESEARCH_CANDIDATE",
+  "ibkrCostsVerifiedDate": "2026-08-14",
+  "ibkrCosts": {
+    "6E": 4.1,
+    "FDXS": 0.76,
+    "MGC": 2.63
+  },
+  "elapsedYears": 18.52,
+  "conservativeMarginTotal_EUR": 3902,
+  "minimumCapitalFor30pctRule_EUR": 13007,
+  "capitalLevels": {
+    "10000": {
+      "capitalAssessment": "MARGIN_FAIL",
+      "capitalAssessmentNote": "MARGIN_FAIL — minimum 3-instrument portfolio (1×6E + 1×FDXS + 1×MGC) requires €3,902 margin (39% of €10000). Strict 30% rule requires ≥€13,007 starting capital.",
+      "finalCandidates": 0,
+      "aggressiveVariants": 36,
+      "finalRecommendation": {
+        "variantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths_CONSERVATIVE",
+        "eurFilter": "E6_MonLong",
+        "d2hFilter": "D2_HighVolYears",
+        "gldFilter": "GLD_BestMonths",
+        "sizingTier": "CONSERVATIVE",
+        "alpha_netCAGR_1c": 13.6199,
+        "scaledNetCAGR": 13.6199,
+        "leverageReturn": 0,
+        "oosCAGR": 24.3852,
+        "sharpe": 1.3259,
+        "maxDD": 11.0068,
+        "marginPct": 39.02,
+        "totalMargin_EUR": 3902,
+        "costsAnnual_1c": 257.52,
+        "scaledCostsAnnual": 257.52
+      }
+    },
+    "12500": {
+      "capitalAssessment": "MARGIN_FAIL",
+      "capitalAssessmentNote": "MARGIN_FAIL — minimum 3-instrument portfolio (1×6E + 1×FDXS + 1×MGC) requires €3,902 margin (31.2% of €12500). Strict 30% rule requires ≥€13,007 starting capital.",
+      "finalCandidates": 0,
+      "aggressiveVariants": 36,
+      "finalRecommendation": {
+        "variantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths_CONSERVATIVE",
+        "eurFilter": "E6_MonLong",
+        "d2hFilter": "D2_HighVolYears",
+        "gldFilter": "GLD_BestMonths",
+        "sizingTier": "CONSERVATIVE",
+        "alpha_netCAGR_1c": 12.2861,
+        "scaledNetCAGR": 12.2861,
+        "leverageReturn": 0,
+        "oosCAGR": 21.5119,
+        "sharpe": 1.389,
+        "maxDD": 9.7956,
+        "marginPct": 31.22,
+        "totalMargin_EUR": 3902,
+        "costsAnnual_1c": 257.52,
+        "scaledCostsAnnual": 257.52
+      }
+    },
+    "15000": {
+      "capitalAssessment": "PASS",
+      "capitalAssessmentNote": "Min portfolio margin €3,902 (26% of €15000) — within 30% cap",
+      "finalCandidates": 24,
+      "aggressiveVariants": 12,
+      "finalRecommendation": {
+        "variantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths_CONSERVATIVE",
+        "eurFilter": "E6_MonLong",
+        "d2hFilter": "D2_HighVolYears",
+        "gldFilter": "GLD_BestMonths",
+        "sizingTier": "CONSERVATIVE",
+        "alpha_netCAGR_1c": 11.2509,
+        "scaledNetCAGR": 11.2509,
+        "leverageReturn": 0,
+        "oosCAGR": 19.3168,
+        "sharpe": 1.437,
+        "maxDD": 8.8246,
+        "marginPct": 26.01,
+        "totalMargin_EUR": 3902,
+        "costsAnnual_1c": 257.52,
+        "scaledCostsAnnual": 257.52
+      }
+    },
+    "20000": {
+      "capitalAssessment": "PASS",
+      "capitalAssessmentNote": "Min portfolio margin €3,902 (19.5% of €20000) — within 30% cap",
+      "finalCandidates": 24,
+      "aggressiveVariants": 12,
+      "finalRecommendation": {
+        "variantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths_CONSERVATIVE",
+        "eurFilter": "E6_MonLong",
+        "d2hFilter": "D2_HighVolYears",
+        "gldFilter": "GLD_BestMonths",
+        "sizingTier": "CONSERVATIVE",
+        "alpha_netCAGR_1c": 9.7157,
+        "scaledNetCAGR": 9.7157,
+        "leverageReturn": 0,
+        "oosCAGR": 16.1396,
+        "sharpe": 1.504,
+        "maxDD": 7.3646,
+        "marginPct": 19.51,
+        "totalMargin_EUR": 3902,
+        "costsAnnual_1c": 257.52,
+        "scaledCostsAnnual": 257.52
+      }
+    }
+  }
+}

@@ -1,0 +1,2894 @@
+{
+  "schemaVersion": "1.0",
+  "generatedDate": "2026-08-14",
+  "status": "RESEARCH_CANDIDATE",
+  "capital": 20000,
+  "capitalAssessment": "PASS",
+  "capitalAssessmentNote": "Min portfolio margin €3,902 (19.5% of €20000) — within 30% cap",
+  "marginReference": "CURRENT_MARGIN_REFERENCE",
+  "ibkrCostsVerifiedDate": "2026-08-14",
+  "ibkrCosts": {
+    "6E_roundturn_EUR": 4.1,
+    "FDXS_roundturn_EUR": 0.76,
+    "MGC_roundturn_EUR": 2.63,
+    "status": "ALL_CONFIRMED"
+  },
+  "margins_EUR": {
+    "6E": 2287,
+    "FDXS": 880,
+    "MGC": 735,
+    "conservative_total": 3902,
+    "conservative_marginPct": 19.5
+  },
+  "sizingTiersUsed": {
+    "CONSERVATIVE": {
+      "n_6E": 1,
+      "n_FDXS": 1,
+      "n_MGC": 1,
+      "totalMargin": 3902,
+      "marginPct": 19.5
+    },
+    "MODERATE": {
+      "n_6E": 1,
+      "n_FDXS": 2,
+      "n_MGC": 1,
+      "totalMargin": 4782,
+      "marginPct": 23.91
+    },
+    "AGGRESSIVE": {
+      "n_6E": 1,
+      "n_FDXS": 7,
+      "n_MGC": 2,
+      "totalMargin": 9917,
+      "marginPct": 49.59
+    }
+  },
+  "variants": [
+    {
+      "variantId": "PB_E0_D1_Baseline_D2_Baseline_GLD_BestMonths_CONSERVATIVE",
+      "sourceVariantId": "PB_E0_D1_Baseline_D2_Baseline_GLD_BestMonths_20000",
+      "comboKey": "E0__D1_Baseline__D2_Baseline__GLD_BestMonths",
+      "eurFilter": "E0",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_BestMonths",
+      "sizingTier": "CONSERVATIVE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 1,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 3902,
+      "marginPct": 19.51,
+      "alpha": {
+        "grossCAGR_1c": 13.1486,
+        "netCAGR_1c": 7.2725,
+        "costDrag_pct": 5.8761,
+        "ibkrCostsAnnual_1c": 1175.23,
+        "ibkrCostsTotal_1c": 21765.18,
+        "serkanCostsAnnual_1c": 794.13,
+        "isCAGR": 11.1537,
+        "oosCAGR": 15.1393,
+        "sharpe": 1.1344,
+        "calmar_1c": 1.0036,
+        "maxDDFromPeak": 7.2462
+      },
+      "portfolio": {
+        "scaledNetCAGR": 7.2725,
+        "leverageReturn": 0,
+        "scaledCostsAnnual": 1175.23,
+        "costPerNAV_pct": 5.8762,
+        "calmar_scaled": 1.0036,
+        "tradesPerWeek": 9.46,
+        "executionsPerYear": 983.6,
+        "avgContracts": 1
+      },
+      "tradeCounts": {
+        "eurusd": 4266,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gold": 318,
+        "total": 9108
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 15.1393,
+        "oosIsRatio": 1.3573
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 794.13,
+        "ibkrRealAnnual_1c": 1175.23,
+        "multiplier": 1.48
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.36 (oosCAGR 15.1393% / isCAGR 11.1537%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 4.3344% — PASS (positive)",
+        "parameterRobustness": "E0 (no EURUSD filter) — most robust, broadest sample, no date/session selection",
+        "concentrationNotes": "EURUSD: 46.8%, DAX: 49.7%, GLD: 3.5% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E0_D1_Baseline_D2_Baseline_GLD_BestMonths_MODERATE",
+      "sourceVariantId": "PB_E0_D1_Baseline_D2_Baseline_GLD_BestMonths_20000",
+      "comboKey": "E0__D1_Baseline__D2_Baseline__GLD_BestMonths",
+      "eurFilter": "E0",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_BestMonths",
+      "sizingTier": "MODERATE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 2,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 4782,
+      "marginPct": 23.91,
+      "alpha": {
+        "grossCAGR_1c": 13.1486,
+        "netCAGR_1c": 7.2725,
+        "costDrag_pct": 5.8761,
+        "ibkrCostsAnnual_1c": 1175.23,
+        "ibkrCostsTotal_1c": 21765.18,
+        "serkanCostsAnnual_1c": 794.13,
+        "isCAGR": 11.1537,
+        "oosCAGR": 15.1393,
+        "sharpe": 1.1344,
+        "calmar_1c": 1.0036,
+        "maxDDFromPeak": 7.2462
+      },
+      "portfolio": {
+        "scaledNetCAGR": 10.727,
+        "leverageReturn": 3.4545,
+        "scaledCostsAnnual": 1360.88,
+        "costPerNAV_pct": 6.8044,
+        "calmar_scaled": 1.4804,
+        "tradesPerWeek": 9.46,
+        "executionsPerYear": 983.6,
+        "avgContracts": 1.33
+      },
+      "tradeCounts": {
+        "eurusd": 4266,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gold": 318,
+        "total": 9108
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 15.1393,
+        "oosIsRatio": 1.3573
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 794.13,
+        "ibkrRealAnnual_1c": 1175.23,
+        "multiplier": 1.48
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.36 (oosCAGR 15.1393% / isCAGR 11.1537%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 4.3344% — PASS (positive)",
+        "parameterRobustness": "E0 (no EURUSD filter) — most robust, broadest sample, no date/session selection",
+        "concentrationNotes": "EURUSD: 46.8%, DAX: 49.7%, GLD: 3.5% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E0_D1_Baseline_D2_Baseline_GLD_BestMonths_AGGRESSIVE",
+      "sourceVariantId": "PB_E0_D1_Baseline_D2_Baseline_GLD_BestMonths_20000",
+      "comboKey": "E0__D1_Baseline__D2_Baseline__GLD_BestMonths",
+      "eurFilter": "E0",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_BestMonths",
+      "sizingTier": "AGGRESSIVE",
+      "marginStatus": "MARGIN_FAIL",
+      "finalStatus": "AGGRESSIVE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 7,
+        "n_MGC": 2,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 9917,
+      "marginPct": 49.59,
+      "alpha": {
+        "grossCAGR_1c": 13.1486,
+        "netCAGR_1c": 7.2725,
+        "costDrag_pct": 5.8761,
+        "ibkrCostsAnnual_1c": 1175.23,
+        "ibkrCostsTotal_1c": 21765.18,
+        "serkanCostsAnnual_1c": 794.13,
+        "isCAGR": 11.1537,
+        "oosCAGR": 15.1393,
+        "sharpe": 1.1344,
+        "calmar_1c": 1.0036,
+        "maxDDFromPeak": 7.2462
+      },
+      "portfolio": {
+        "scaledNetCAGR": 32.1572,
+        "leverageReturn": 24.8847,
+        "scaledCostsAnnual": 2334.29,
+        "costPerNAV_pct": 11.6715,
+        "calmar_scaled": 4.4378,
+        "tradesPerWeek": 9.46,
+        "executionsPerYear": 983.6,
+        "avgContracts": 3.33
+      },
+      "tradeCounts": {
+        "eurusd": 4266,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gold": 318,
+        "total": 9108
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 15.1393,
+        "oosIsRatio": 1.3573
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": false,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 794.13,
+        "ibkrRealAnnual_1c": 1175.23,
+        "multiplier": 1.48
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.36 (oosCAGR 15.1393% / isCAGR 11.1537%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 4.3344% — PASS (positive)",
+        "parameterRobustness": "E0 (no EURUSD filter) — most robust, broadest sample, no date/session selection",
+        "concentrationNotes": "EURUSD: 46.8%, DAX: 49.7%, GLD: 3.5% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E0_D1_Baseline_D2_HighVolYears_GLD_Baseline_CONSERVATIVE",
+      "sourceVariantId": "PB_E0_D1_Baseline_D2_HighVolYears_GLD_Baseline_20000",
+      "comboKey": "E0__D1_Baseline__D2_HighVolYears__GLD_Baseline",
+      "eurFilter": "E0",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_Baseline",
+      "sizingTier": "CONSERVATIVE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 1,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 3902,
+      "marginPct": 19.51,
+      "alpha": {
+        "grossCAGR_1c": 12.5704,
+        "netCAGR_1c": 6.5799,
+        "costDrag_pct": 5.9905,
+        "ibkrCostsAnnual_1c": 1198.1,
+        "ibkrCostsTotal_1c": 22188.9,
+        "serkanCostsAnnual_1c": 700.35,
+        "isCAGR": 10.8553,
+        "oosCAGR": 15.1377,
+        "sharpe": 1.1677,
+        "calmar_1c": 0.921,
+        "maxDDFromPeak": 7.1446
+      },
+      "portfolio": {
+        "scaledNetCAGR": 6.5799,
+        "leverageReturn": 0,
+        "scaledCostsAnnual": 1198.1,
+        "costPerNAV_pct": 5.9905,
+        "calmar_scaled": 0.921,
+        "tradesPerWeek": 8.45,
+        "executionsPerYear": 879,
+        "avgContracts": 1
+      },
+      "tradeCounts": {
+        "eurusd": 4266,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gold": 938,
+        "total": 8140
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 15.1377,
+        "oosIsRatio": 1.3945
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 700.35,
+        "ibkrRealAnnual_1c": 1198.1,
+        "multiplier": 1.71
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.39 (oosCAGR 15.1377% / isCAGR 10.8553%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 3.5846% — PASS (positive)",
+        "parameterRobustness": "E0 (no EURUSD filter) — most robust, broadest sample, no date/session selection",
+        "concentrationNotes": "EURUSD: 52.4%, DAX: 36.1%, GLD: 11.5% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E0_D1_Baseline_D2_HighVolYears_GLD_Baseline_MODERATE",
+      "sourceVariantId": "PB_E0_D1_Baseline_D2_HighVolYears_GLD_Baseline_20000",
+      "comboKey": "E0__D1_Baseline__D2_HighVolYears__GLD_Baseline",
+      "eurFilter": "E0",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_Baseline",
+      "sizingTier": "MODERATE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 2,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 4782,
+      "marginPct": 23.91,
+      "alpha": {
+        "grossCAGR_1c": 12.5704,
+        "netCAGR_1c": 6.5799,
+        "costDrag_pct": 5.9905,
+        "ibkrCostsAnnual_1c": 1198.1,
+        "ibkrCostsTotal_1c": 22188.9,
+        "serkanCostsAnnual_1c": 700.35,
+        "isCAGR": 10.8553,
+        "oosCAGR": 15.1377,
+        "sharpe": 1.1677,
+        "calmar_1c": 0.921,
+        "maxDDFromPeak": 7.1446
+      },
+      "portfolio": {
+        "scaledNetCAGR": 10.1676,
+        "leverageReturn": 3.5877,
+        "scaledCostsAnnual": 1318.59,
+        "costPerNAV_pct": 6.593,
+        "calmar_scaled": 1.4231,
+        "tradesPerWeek": 8.45,
+        "executionsPerYear": 879,
+        "avgContracts": 1.33
+      },
+      "tradeCounts": {
+        "eurusd": 4266,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gold": 938,
+        "total": 8140
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 15.1377,
+        "oosIsRatio": 1.3945
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 700.35,
+        "ibkrRealAnnual_1c": 1198.1,
+        "multiplier": 1.71
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.39 (oosCAGR 15.1377% / isCAGR 10.8553%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 3.5846% — PASS (positive)",
+        "parameterRobustness": "E0 (no EURUSD filter) — most robust, broadest sample, no date/session selection",
+        "concentrationNotes": "EURUSD: 52.4%, DAX: 36.1%, GLD: 11.5% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E0_D1_Baseline_D2_HighVolYears_GLD_Baseline_AGGRESSIVE",
+      "sourceVariantId": "PB_E0_D1_Baseline_D2_HighVolYears_GLD_Baseline_20000",
+      "comboKey": "E0__D1_Baseline__D2_HighVolYears__GLD_Baseline",
+      "eurFilter": "E0",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_Baseline",
+      "sizingTier": "AGGRESSIVE",
+      "marginStatus": "MARGIN_FAIL",
+      "finalStatus": "AGGRESSIVE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 7,
+        "n_MGC": 2,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 9917,
+      "marginPct": 49.59,
+      "alpha": {
+        "grossCAGR_1c": 12.5704,
+        "netCAGR_1c": 6.5799,
+        "costDrag_pct": 5.9905,
+        "ibkrCostsAnnual_1c": 1198.1,
+        "ibkrCostsTotal_1c": 22188.9,
+        "serkanCostsAnnual_1c": 700.35,
+        "isCAGR": 10.8553,
+        "oosCAGR": 15.1377,
+        "sharpe": 1.1677,
+        "calmar_1c": 0.921,
+        "maxDDFromPeak": 7.1446
+      },
+      "portfolio": {
+        "scaledNetCAGR": 31.6303,
+        "leverageReturn": 25.0504,
+        "scaledCostsAnnual": 2054.21,
+        "costPerNAV_pct": 10.271,
+        "calmar_scaled": 4.4272,
+        "tradesPerWeek": 8.45,
+        "executionsPerYear": 879,
+        "avgContracts": 3.33
+      },
+      "tradeCounts": {
+        "eurusd": 4266,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gold": 938,
+        "total": 8140
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 15.1377,
+        "oosIsRatio": 1.3945
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": false,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 700.35,
+        "ibkrRealAnnual_1c": 1198.1,
+        "multiplier": 1.71
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.39 (oosCAGR 15.1377% / isCAGR 10.8553%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 3.5846% — PASS (positive)",
+        "parameterRobustness": "E0 (no EURUSD filter) — most robust, broadest sample, no date/session selection",
+        "concentrationNotes": "EURUSD: 52.4%, DAX: 36.1%, GLD: 11.5% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E0_D1_Baseline_D2_HighVolYears_GLD_BestMonths_CONSERVATIVE",
+      "sourceVariantId": "PB_E0_D1_Baseline_D2_HighVolYears_GLD_BestMonths_20000",
+      "comboKey": "E0__D1_Baseline__D2_HighVolYears__GLD_BestMonths",
+      "eurFilter": "E0",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_BestMonths",
+      "sizingTier": "CONSERVATIVE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 1,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 3902,
+      "marginPct": 19.51,
+      "alpha": {
+        "grossCAGR_1c": 12.3459,
+        "netCAGR_1c": 6.7956,
+        "costDrag_pct": 5.5503,
+        "ibkrCostsAnnual_1c": 1110.06,
+        "ibkrCostsTotal_1c": 20558.3,
+        "serkanCostsAnnual_1c": 648.42,
+        "isCAGR": 10.9374,
+        "oosCAGR": 15.1614,
+        "sharpe": 1.2059,
+        "calmar_1c": 0.9555,
+        "maxDDFromPeak": 7.1123
+      },
+      "portfolio": {
+        "scaledNetCAGR": 6.7956,
+        "leverageReturn": 0,
+        "scaledCostsAnnual": 1110.06,
+        "costPerNAV_pct": 5.5503,
+        "calmar_scaled": 0.9555,
+        "tradesPerWeek": 7.81,
+        "executionsPerYear": 812.1,
+        "avgContracts": 1
+      },
+      "tradeCounts": {
+        "eurusd": 4266,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gold": 318,
+        "total": 7520
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 15.1614,
+        "oosIsRatio": 1.3862
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 648.42,
+        "ibkrRealAnnual_1c": 1110.06,
+        "multiplier": 1.71
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.39 (oosCAGR 15.1614% / isCAGR 10.9374%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 4.0205% — PASS (positive)",
+        "parameterRobustness": "E0 (no EURUSD filter) — most robust, broadest sample, no date/session selection",
+        "concentrationNotes": "EURUSD: 56.7%, DAX: 39%, GLD: 4.2% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E0_D1_Baseline_D2_HighVolYears_GLD_BestMonths_MODERATE",
+      "sourceVariantId": "PB_E0_D1_Baseline_D2_HighVolYears_GLD_BestMonths_20000",
+      "comboKey": "E0__D1_Baseline__D2_HighVolYears__GLD_BestMonths",
+      "eurFilter": "E0",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_BestMonths",
+      "sizingTier": "MODERATE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 2,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 4782,
+      "marginPct": 23.91,
+      "alpha": {
+        "grossCAGR_1c": 12.3459,
+        "netCAGR_1c": 6.7956,
+        "costDrag_pct": 5.5503,
+        "ibkrCostsAnnual_1c": 1110.06,
+        "ibkrCostsTotal_1c": 20558.3,
+        "serkanCostsAnnual_1c": 648.42,
+        "isCAGR": 10.9374,
+        "oosCAGR": 15.1614,
+        "sharpe": 1.2059,
+        "calmar_1c": 0.9555,
+        "maxDDFromPeak": 7.1123
+      },
+      "portfolio": {
+        "scaledNetCAGR": 10.3085,
+        "leverageReturn": 3.5129,
+        "scaledCostsAnnual": 1230.54,
+        "costPerNAV_pct": 6.1527,
+        "calmar_scaled": 1.4494,
+        "tradesPerWeek": 7.81,
+        "executionsPerYear": 812.1,
+        "avgContracts": 1.33
+      },
+      "tradeCounts": {
+        "eurusd": 4266,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gold": 318,
+        "total": 7520
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 15.1614,
+        "oosIsRatio": 1.3862
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 648.42,
+        "ibkrRealAnnual_1c": 1110.06,
+        "multiplier": 1.71
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.39 (oosCAGR 15.1614% / isCAGR 10.9374%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 4.0205% — PASS (positive)",
+        "parameterRobustness": "E0 (no EURUSD filter) — most robust, broadest sample, no date/session selection",
+        "concentrationNotes": "EURUSD: 56.7%, DAX: 39%, GLD: 4.2% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E0_D1_Baseline_D2_HighVolYears_GLD_BestMonths_AGGRESSIVE",
+      "sourceVariantId": "PB_E0_D1_Baseline_D2_HighVolYears_GLD_BestMonths_20000",
+      "comboKey": "E0__D1_Baseline__D2_HighVolYears__GLD_BestMonths",
+      "eurFilter": "E0",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_BestMonths",
+      "sizingTier": "AGGRESSIVE",
+      "marginStatus": "MARGIN_FAIL",
+      "finalStatus": "AGGRESSIVE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 7,
+        "n_MGC": 2,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 9917,
+      "marginPct": 49.59,
+      "alpha": {
+        "grossCAGR_1c": 12.3459,
+        "netCAGR_1c": 6.7956,
+        "costDrag_pct": 5.5503,
+        "ibkrCostsAnnual_1c": 1110.06,
+        "ibkrCostsTotal_1c": 20558.3,
+        "serkanCostsAnnual_1c": 648.42,
+        "isCAGR": 10.9374,
+        "oosCAGR": 15.1614,
+        "sharpe": 1.2059,
+        "calmar_1c": 0.9555,
+        "maxDDFromPeak": 7.1123
+      },
+      "portfolio": {
+        "scaledNetCAGR": 31.7624,
+        "leverageReturn": 24.9668,
+        "scaledCostsAnnual": 1878.12,
+        "costPerNAV_pct": 9.3906,
+        "calmar_scaled": 4.4658,
+        "tradesPerWeek": 7.81,
+        "executionsPerYear": 812.1,
+        "avgContracts": 3.33
+      },
+      "tradeCounts": {
+        "eurusd": 4266,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gold": 318,
+        "total": 7520
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 15.1614,
+        "oosIsRatio": 1.3862
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": false,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 648.42,
+        "ibkrRealAnnual_1c": 1110.06,
+        "multiplier": 1.71
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.39 (oosCAGR 15.1614% / isCAGR 10.9374%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 4.0205% — PASS (positive)",
+        "parameterRobustness": "E0 (no EURUSD filter) — most robust, broadest sample, no date/session selection",
+        "concentrationNotes": "EURUSD: 56.7%, DAX: 39%, GLD: 4.2% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E6_MonLong_D1_Baseline_D2_Baseline_GLD_Baseline_CONSERVATIVE",
+      "sourceVariantId": "PB_E6_MonLong_D1_Baseline_D2_Baseline_GLD_Baseline_20000",
+      "comboKey": "E6_MonLong__D1_Baseline__D2_Baseline__GLD_Baseline",
+      "eurFilter": "E6_MonLong",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_Baseline",
+      "sizingTier": "CONSERVATIVE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 1,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 3902,
+      "marginPct": 19.51,
+      "alpha": {
+        "grossCAGR_1c": 12.0192,
+        "netCAGR_1c": 9.9656,
+        "costDrag_pct": 2.0536,
+        "ibkrCostsAnnual_1c": 410.73,
+        "ibkrCostsTotal_1c": 7606.68,
+        "serkanCostsAnnual_1c": 523.49,
+        "isCAGR": 11.1885,
+        "oosCAGR": 16.0961,
+        "sharpe": 1.2462,
+        "calmar_1c": 1.2824,
+        "maxDDFromPeak": 7.771
+      },
+      "portfolio": {
+        "scaledNetCAGR": 9.9655,
+        "leverageReturn": -0.0001,
+        "scaledCostsAnnual": 410.73,
+        "costPerNAV_pct": 2.0536,
+        "calmar_scaled": 1.2824,
+        "tradesPerWeek": 6.1,
+        "executionsPerYear": 634.7,
+        "avgContracts": 1
+      },
+      "tradeCounts": {
+        "eurusd": 415,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gold": 938,
+        "total": 5877
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.0961,
+        "oosIsRatio": 1.4386
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 523.49,
+        "ibkrRealAnnual_1c": 410.73,
+        "multiplier": 0.78
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.44 (oosCAGR 16.0961% / isCAGR 11.1885%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 8.9387% — PASS (positive)",
+        "parameterRobustness": "E6_MonLong — filtered variant, fewer trades (415 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 7.1%, DAX: 77%, GLD: 16% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E6_MonLong_D1_Baseline_D2_Baseline_GLD_Baseline_MODERATE",
+      "sourceVariantId": "PB_E6_MonLong_D1_Baseline_D2_Baseline_GLD_Baseline_20000",
+      "comboKey": "E6_MonLong__D1_Baseline__D2_Baseline__GLD_Baseline",
+      "eurFilter": "E6_MonLong",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_Baseline",
+      "sizingTier": "MODERATE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 2,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 4782,
+      "marginPct": 23.91,
+      "alpha": {
+        "grossCAGR_1c": 12.0192,
+        "netCAGR_1c": 9.9656,
+        "costDrag_pct": 2.0536,
+        "ibkrCostsAnnual_1c": 410.73,
+        "ibkrCostsTotal_1c": 7606.68,
+        "serkanCostsAnnual_1c": 523.49,
+        "isCAGR": 11.1885,
+        "oosCAGR": 16.0961,
+        "sharpe": 1.2462,
+        "calmar_1c": 1.2824,
+        "maxDDFromPeak": 7.771
+      },
+      "portfolio": {
+        "scaledNetCAGR": 13.0437,
+        "leverageReturn": 3.0781,
+        "scaledCostsAnnual": 596.38,
+        "costPerNAV_pct": 2.9819,
+        "calmar_scaled": 1.6785,
+        "tradesPerWeek": 6.1,
+        "executionsPerYear": 634.7,
+        "avgContracts": 1.33
+      },
+      "tradeCounts": {
+        "eurusd": 415,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gold": 938,
+        "total": 5877
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.0961,
+        "oosIsRatio": 1.4386
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 523.49,
+        "ibkrRealAnnual_1c": 410.73,
+        "multiplier": 0.78
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.44 (oosCAGR 16.0961% / isCAGR 11.1885%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 8.9387% — PASS (positive)",
+        "parameterRobustness": "E6_MonLong — filtered variant, fewer trades (415 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 7.1%, DAX: 77%, GLD: 16% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E6_MonLong_D1_Baseline_D2_Baseline_GLD_Baseline_AGGRESSIVE",
+      "sourceVariantId": "PB_E6_MonLong_D1_Baseline_D2_Baseline_GLD_Baseline_20000",
+      "comboKey": "E6_MonLong__D1_Baseline__D2_Baseline__GLD_Baseline",
+      "eurFilter": "E6_MonLong",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_Baseline",
+      "sizingTier": "AGGRESSIVE",
+      "marginStatus": "MARGIN_FAIL",
+      "finalStatus": "AGGRESSIVE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 7,
+        "n_MGC": 2,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 9917,
+      "marginPct": 49.59,
+      "alpha": {
+        "grossCAGR_1c": 12.0192,
+        "netCAGR_1c": 9.9656,
+        "costDrag_pct": 2.0536,
+        "ibkrCostsAnnual_1c": 410.73,
+        "ibkrCostsTotal_1c": 7606.68,
+        "serkanCostsAnnual_1c": 523.49,
+        "isCAGR": 11.1885,
+        "oosCAGR": 16.0961,
+        "sharpe": 1.2462,
+        "calmar_1c": 1.2824,
+        "maxDDFromPeak": 7.771
+      },
+      "portfolio": {
+        "scaledNetCAGR": 31.7749,
+        "leverageReturn": 21.8093,
+        "scaledCostsAnnual": 1657.83,
+        "costPerNAV_pct": 8.2892,
+        "calmar_scaled": 4.0889,
+        "tradesPerWeek": 6.1,
+        "executionsPerYear": 634.7,
+        "avgContracts": 3.33
+      },
+      "tradeCounts": {
+        "eurusd": 415,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gold": 938,
+        "total": 5877
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.0961,
+        "oosIsRatio": 1.4386
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": false,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 523.49,
+        "ibkrRealAnnual_1c": 410.73,
+        "multiplier": 0.78
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.44 (oosCAGR 16.0961% / isCAGR 11.1885%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 8.9387% — PASS (positive)",
+        "parameterRobustness": "E6_MonLong — filtered variant, fewer trades (415 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 7.1%, DAX: 77%, GLD: 16% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E6_MonLong_D1_Baseline_D2_Baseline_GLD_BestMonths_CONSERVATIVE",
+      "sourceVariantId": "PB_E6_MonLong_D1_Baseline_D2_Baseline_GLD_BestMonths_20000",
+      "comboKey": "E6_MonLong__D1_Baseline__D2_Baseline__GLD_BestMonths",
+      "eurFilter": "E6_MonLong",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_BestMonths",
+      "sizingTier": "CONSERVATIVE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 1,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 3902,
+      "marginPct": 19.51,
+      "alpha": {
+        "grossCAGR_1c": 11.7928,
+        "netCAGR_1c": 10.1794,
+        "costDrag_pct": 1.6134,
+        "ibkrCostsAnnual_1c": 322.68,
+        "ibkrCostsTotal_1c": 5976.08,
+        "serkanCostsAnnual_1c": 471.56,
+        "isCAGR": 11.2682,
+        "oosCAGR": 16.1186,
+        "sharpe": 1.3015,
+        "calmar_1c": 1.31,
+        "maxDDFromPeak": 7.7703
+      },
+      "portfolio": {
+        "scaledNetCAGR": 10.1794,
+        "leverageReturn": 0,
+        "scaledCostsAnnual": 322.68,
+        "costPerNAV_pct": 1.6134,
+        "calmar_scaled": 1.31,
+        "tradesPerWeek": 5.46,
+        "executionsPerYear": 567.7,
+        "avgContracts": 1
+      },
+      "tradeCounts": {
+        "eurusd": 415,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gold": 318,
+        "total": 5257
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.1186,
+        "oosIsRatio": 1.4305
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 471.56,
+        "ibkrRealAnnual_1c": 322.68,
+        "multiplier": 0.68
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.43 (oosCAGR 16.1186% / isCAGR 11.2682%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 9.3727% — PASS (positive)",
+        "parameterRobustness": "E6_MonLong — filtered variant, fewer trades (415 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 7.9%, DAX: 86.1%, GLD: 6% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E6_MonLong_D1_Baseline_D2_Baseline_GLD_BestMonths_MODERATE",
+      "sourceVariantId": "PB_E6_MonLong_D1_Baseline_D2_Baseline_GLD_BestMonths_20000",
+      "comboKey": "E6_MonLong__D1_Baseline__D2_Baseline__GLD_BestMonths",
+      "eurFilter": "E6_MonLong",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_BestMonths",
+      "sizingTier": "MODERATE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 2,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 4782,
+      "marginPct": 23.91,
+      "alpha": {
+        "grossCAGR_1c": 11.7928,
+        "netCAGR_1c": 10.1794,
+        "costDrag_pct": 1.6134,
+        "ibkrCostsAnnual_1c": 322.68,
+        "ibkrCostsTotal_1c": 5976.08,
+        "serkanCostsAnnual_1c": 471.56,
+        "isCAGR": 11.2682,
+        "oosCAGR": 16.1186,
+        "sharpe": 1.3015,
+        "calmar_1c": 1.31,
+        "maxDDFromPeak": 7.7703
+      },
+      "portfolio": {
+        "scaledNetCAGR": 13.1821,
+        "leverageReturn": 3.0027,
+        "scaledCostsAnnual": 508.33,
+        "costPerNAV_pct": 2.5416,
+        "calmar_scaled": 1.6965,
+        "tradesPerWeek": 5.46,
+        "executionsPerYear": 567.7,
+        "avgContracts": 1.33
+      },
+      "tradeCounts": {
+        "eurusd": 415,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gold": 318,
+        "total": 5257
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.1186,
+        "oosIsRatio": 1.4305
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 471.56,
+        "ibkrRealAnnual_1c": 322.68,
+        "multiplier": 0.68
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.43 (oosCAGR 16.1186% / isCAGR 11.2682%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 9.3727% — PASS (positive)",
+        "parameterRobustness": "E6_MonLong — filtered variant, fewer trades (415 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 7.9%, DAX: 86.1%, GLD: 6% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E6_MonLong_D1_Baseline_D2_Baseline_GLD_BestMonths_AGGRESSIVE",
+      "sourceVariantId": "PB_E6_MonLong_D1_Baseline_D2_Baseline_GLD_BestMonths_20000",
+      "comboKey": "E6_MonLong__D1_Baseline__D2_Baseline__GLD_BestMonths",
+      "eurFilter": "E6_MonLong",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_BestMonths",
+      "sizingTier": "AGGRESSIVE",
+      "marginStatus": "MARGIN_FAIL",
+      "finalStatus": "AGGRESSIVE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 7,
+        "n_MGC": 2,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 9917,
+      "marginPct": 49.59,
+      "alpha": {
+        "grossCAGR_1c": 11.7928,
+        "netCAGR_1c": 10.1794,
+        "costDrag_pct": 1.6134,
+        "ibkrCostsAnnual_1c": 322.68,
+        "ibkrCostsTotal_1c": 5976.08,
+        "serkanCostsAnnual_1c": 471.56,
+        "isCAGR": 11.2682,
+        "oosCAGR": 16.1186,
+        "sharpe": 1.3015,
+        "calmar_1c": 1.31,
+        "maxDDFromPeak": 7.7703
+      },
+      "portfolio": {
+        "scaledNetCAGR": 31.9007,
+        "leverageReturn": 21.7213,
+        "scaledCostsAnnual": 1481.74,
+        "costPerNAV_pct": 7.4087,
+        "calmar_scaled": 4.1055,
+        "tradesPerWeek": 5.46,
+        "executionsPerYear": 567.7,
+        "avgContracts": 3.33
+      },
+      "tradeCounts": {
+        "eurusd": 415,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gold": 318,
+        "total": 5257
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.1186,
+        "oosIsRatio": 1.4305
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": false,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 471.56,
+        "ibkrRealAnnual_1c": 322.68,
+        "multiplier": 0.68
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.43 (oosCAGR 16.1186% / isCAGR 11.2682%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 9.3727% — PASS (positive)",
+        "parameterRobustness": "E6_MonLong — filtered variant, fewer trades (415 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 7.9%, DAX: 86.1%, GLD: 6% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_Baseline_CONSERVATIVE",
+      "sourceVariantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_Baseline_20000",
+      "comboKey": "E6_MonLong__D1_Baseline__D2_HighVolYears__GLD_Baseline",
+      "eurFilter": "E6_MonLong",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_Baseline",
+      "sizingTier": "CONSERVATIVE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 1,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 3902,
+      "marginPct": 19.51,
+      "alpha": {
+        "grossCAGR_1c": 11.2209,
+        "netCAGR_1c": 9.4931,
+        "costDrag_pct": 1.7278,
+        "ibkrCostsAnnual_1c": 345.56,
+        "ibkrCostsTotal_1c": 6399.8,
+        "serkanCostsAnnual_1c": 377.84,
+        "isCAGR": 10.9758,
+        "oosCAGR": 16.1171,
+        "sharpe": 1.3947,
+        "calmar_1c": 1.2593,
+        "maxDDFromPeak": 7.5385
+      },
+      "portfolio": {
+        "scaledNetCAGR": 9.4931,
+        "leverageReturn": 0,
+        "scaledCostsAnnual": 345.56,
+        "costPerNAV_pct": 1.7278,
+        "calmar_scaled": 1.2593,
+        "tradesPerWeek": 4.45,
+        "executionsPerYear": 463.2,
+        "avgContracts": 1
+      },
+      "tradeCounts": {
+        "eurusd": 415,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gold": 938,
+        "total": 4289
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.1171,
+        "oosIsRatio": 1.4684
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 377.84,
+        "ibkrRealAnnual_1c": 345.56,
+        "multiplier": 0.91
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.47 (oosCAGR 16.1171% / isCAGR 10.9758%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 8.6292% — PASS (positive)",
+        "parameterRobustness": "E6_MonLong — filtered variant, fewer trades (415 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 9.7%, DAX: 68.5%, GLD: 21.9% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_Baseline_MODERATE",
+      "sourceVariantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_Baseline_20000",
+      "comboKey": "E6_MonLong__D1_Baseline__D2_HighVolYears__GLD_Baseline",
+      "eurFilter": "E6_MonLong",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_Baseline",
+      "sizingTier": "MODERATE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 2,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 4782,
+      "marginPct": 23.91,
+      "alpha": {
+        "grossCAGR_1c": 11.2209,
+        "netCAGR_1c": 9.4931,
+        "costDrag_pct": 1.7278,
+        "ibkrCostsAnnual_1c": 345.56,
+        "ibkrCostsTotal_1c": 6399.8,
+        "serkanCostsAnnual_1c": 377.84,
+        "isCAGR": 10.9758,
+        "oosCAGR": 16.1171,
+        "sharpe": 1.3947,
+        "calmar_1c": 1.2593,
+        "maxDDFromPeak": 7.5385
+      },
+      "portfolio": {
+        "scaledNetCAGR": 12.6309,
+        "leverageReturn": 3.1378,
+        "scaledCostsAnnual": 466.05,
+        "costPerNAV_pct": 2.3303,
+        "calmar_scaled": 1.6755,
+        "tradesPerWeek": 4.45,
+        "executionsPerYear": 463.2,
+        "avgContracts": 1.33
+      },
+      "tradeCounts": {
+        "eurusd": 415,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gold": 938,
+        "total": 4289
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.1171,
+        "oosIsRatio": 1.4684
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 377.84,
+        "ibkrRealAnnual_1c": 345.56,
+        "multiplier": 0.91
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.47 (oosCAGR 16.1171% / isCAGR 10.9758%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 8.6292% — PASS (positive)",
+        "parameterRobustness": "E6_MonLong — filtered variant, fewer trades (415 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 9.7%, DAX: 68.5%, GLD: 21.9% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_Baseline_AGGRESSIVE",
+      "sourceVariantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_Baseline_20000",
+      "comboKey": "E6_MonLong__D1_Baseline__D2_HighVolYears__GLD_Baseline",
+      "eurFilter": "E6_MonLong",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_Baseline",
+      "sizingTier": "AGGRESSIVE",
+      "marginStatus": "MARGIN_FAIL",
+      "finalStatus": "AGGRESSIVE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 7,
+        "n_MGC": 2,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 9917,
+      "marginPct": 49.59,
+      "alpha": {
+        "grossCAGR_1c": 11.2209,
+        "netCAGR_1c": 9.4931,
+        "costDrag_pct": 1.7278,
+        "ibkrCostsAnnual_1c": 345.56,
+        "ibkrCostsTotal_1c": 6399.8,
+        "serkanCostsAnnual_1c": 377.84,
+        "isCAGR": 10.9758,
+        "oosCAGR": 16.1171,
+        "sharpe": 1.3947,
+        "calmar_1c": 1.2593,
+        "maxDDFromPeak": 7.5385
+      },
+      "portfolio": {
+        "scaledNetCAGR": 31.3947,
+        "leverageReturn": 21.9016,
+        "scaledCostsAnnual": 1201.67,
+        "costPerNAV_pct": 6.0084,
+        "calmar_scaled": 4.1646,
+        "tradesPerWeek": 4.45,
+        "executionsPerYear": 463.2,
+        "avgContracts": 3.33
+      },
+      "tradeCounts": {
+        "eurusd": 415,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gold": 938,
+        "total": 4289
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.1171,
+        "oosIsRatio": 1.4684
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": false,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 377.84,
+        "ibkrRealAnnual_1c": 345.56,
+        "multiplier": 0.91
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.47 (oosCAGR 16.1171% / isCAGR 10.9758%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 8.6292% — PASS (positive)",
+        "parameterRobustness": "E6_MonLong — filtered variant, fewer trades (415 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 9.7%, DAX: 68.5%, GLD: 21.9% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E9_MonQ3_D1_Baseline_D2_Baseline_GLD_Baseline_CONSERVATIVE",
+      "sourceVariantId": "PB_E9_MonQ3_D1_Baseline_D2_Baseline_GLD_Baseline_20000",
+      "comboKey": "E9_MonQ3__D1_Baseline__D2_Baseline__GLD_Baseline",
+      "eurFilter": "E9_MonQ3",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_Baseline",
+      "sizingTier": "CONSERVATIVE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 1,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 3902,
+      "marginPct": 19.51,
+      "alpha": {
+        "grossCAGR_1c": 11.9155,
+        "netCAGR_1c": 10.1353,
+        "costDrag_pct": 1.7802,
+        "ibkrCostsAnnual_1c": 356.05,
+        "ibkrCostsTotal_1c": 6593.98,
+        "serkanCostsAnnual_1c": 502.8,
+        "isCAGR": 11.2042,
+        "oosCAGR": 16.084,
+        "sharpe": 1.2646,
+        "calmar_1c": 1.2817,
+        "maxDDFromPeak": 7.9079
+      },
+      "portfolio": {
+        "scaledNetCAGR": 10.1352,
+        "leverageReturn": -0.0001,
+        "scaledCostsAnnual": 356.05,
+        "costPerNAV_pct": 1.7803,
+        "calmar_scaled": 1.2817,
+        "tradesPerWeek": 5.85,
+        "executionsPerYear": 608,
+        "avgContracts": 1
+      },
+      "tradeCounts": {
+        "eurusd": 168,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gold": 938,
+        "total": 5630
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.084,
+        "oosIsRatio": 1.4355
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 502.8,
+        "ibkrRealAnnual_1c": 356.05,
+        "multiplier": 0.71
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.44 (oosCAGR 16.084% / isCAGR 11.2042%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 9.2452% — PASS (positive)",
+        "parameterRobustness": "E9_MonQ3 — filtered variant, fewer trades (168 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 3%, DAX: 80.4%, GLD: 16.7% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E9_MonQ3_D1_Baseline_D2_Baseline_GLD_Baseline_MODERATE",
+      "sourceVariantId": "PB_E9_MonQ3_D1_Baseline_D2_Baseline_GLD_Baseline_20000",
+      "comboKey": "E9_MonQ3__D1_Baseline__D2_Baseline__GLD_Baseline",
+      "eurFilter": "E9_MonQ3",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_Baseline",
+      "sizingTier": "MODERATE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 2,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 4782,
+      "marginPct": 23.91,
+      "alpha": {
+        "grossCAGR_1c": 11.9155,
+        "netCAGR_1c": 10.1353,
+        "costDrag_pct": 1.7802,
+        "ibkrCostsAnnual_1c": 356.05,
+        "ibkrCostsTotal_1c": 6593.98,
+        "serkanCostsAnnual_1c": 502.8,
+        "isCAGR": 11.2042,
+        "oosCAGR": 16.084,
+        "sharpe": 1.2646,
+        "calmar_1c": 1.2817,
+        "maxDDFromPeak": 7.9079
+      },
+      "portfolio": {
+        "scaledNetCAGR": 13.1789,
+        "leverageReturn": 3.0436,
+        "scaledCostsAnnual": 541.7,
+        "costPerNAV_pct": 2.7085,
+        "calmar_scaled": 1.6665,
+        "tradesPerWeek": 5.85,
+        "executionsPerYear": 608,
+        "avgContracts": 1.33
+      },
+      "tradeCounts": {
+        "eurusd": 168,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gold": 938,
+        "total": 5630
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.084,
+        "oosIsRatio": 1.4355
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 502.8,
+        "ibkrRealAnnual_1c": 356.05,
+        "multiplier": 0.71
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.44 (oosCAGR 16.084% / isCAGR 11.2042%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 9.2452% — PASS (positive)",
+        "parameterRobustness": "E9_MonQ3 — filtered variant, fewer trades (168 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 3%, DAX: 80.4%, GLD: 16.7% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E9_MonQ3_D1_Baseline_D2_Baseline_GLD_Baseline_AGGRESSIVE",
+      "sourceVariantId": "PB_E9_MonQ3_D1_Baseline_D2_Baseline_GLD_Baseline_20000",
+      "comboKey": "E9_MonQ3__D1_Baseline__D2_Baseline__GLD_Baseline",
+      "eurFilter": "E9_MonQ3",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_Baseline",
+      "sizingTier": "AGGRESSIVE",
+      "marginStatus": "MARGIN_FAIL",
+      "finalStatus": "AGGRESSIVE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 7,
+        "n_MGC": 2,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 9917,
+      "marginPct": 49.59,
+      "alpha": {
+        "grossCAGR_1c": 11.9155,
+        "netCAGR_1c": 10.1353,
+        "costDrag_pct": 1.7802,
+        "ibkrCostsAnnual_1c": 356.05,
+        "ibkrCostsTotal_1c": 6593.98,
+        "serkanCostsAnnual_1c": 502.8,
+        "isCAGR": 11.2042,
+        "oosCAGR": 16.084,
+        "sharpe": 1.2646,
+        "calmar_1c": 1.2817,
+        "maxDDFromPeak": 7.9079
+      },
+      "portfolio": {
+        "scaledNetCAGR": 31.7026,
+        "leverageReturn": 21.5673,
+        "scaledCostsAnnual": 1603.15,
+        "costPerNAV_pct": 8.0158,
+        "calmar_scaled": 4.009,
+        "tradesPerWeek": 5.85,
+        "executionsPerYear": 608,
+        "avgContracts": 3.33
+      },
+      "tradeCounts": {
+        "eurusd": 168,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gold": 938,
+        "total": 5630
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.084,
+        "oosIsRatio": 1.4355
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": false,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 502.8,
+        "ibkrRealAnnual_1c": 356.05,
+        "multiplier": 0.71
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.44 (oosCAGR 16.084% / isCAGR 11.2042%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 9.2452% — PASS (positive)",
+        "parameterRobustness": "E9_MonQ3 — filtered variant, fewer trades (168 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 3%, DAX: 80.4%, GLD: 16.7% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E9_MonQ3_D1_Baseline_D2_Baseline_GLD_BestMonths_CONSERVATIVE",
+      "sourceVariantId": "PB_E9_MonQ3_D1_Baseline_D2_Baseline_GLD_BestMonths_20000",
+      "comboKey": "E9_MonQ3__D1_Baseline__D2_Baseline__GLD_BestMonths",
+      "eurFilter": "E9_MonQ3",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_BestMonths",
+      "sizingTier": "CONSERVATIVE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 1,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 3902,
+      "marginPct": 19.51,
+      "alpha": {
+        "grossCAGR_1c": 11.6891,
+        "netCAGR_1c": 10.3491,
+        "costDrag_pct": 1.34,
+        "ibkrCostsAnnual_1c": 268,
+        "ibkrCostsTotal_1c": 4963.38,
+        "serkanCostsAnnual_1c": 450.87,
+        "isCAGR": 11.2839,
+        "oosCAGR": 16.1065,
+        "sharpe": 1.324,
+        "calmar_1c": 1.3098,
+        "maxDDFromPeak": 7.9012
+      },
+      "portfolio": {
+        "scaledNetCAGR": 10.3491,
+        "leverageReturn": 0,
+        "scaledCostsAnnual": 268,
+        "costPerNAV_pct": 1.34,
+        "calmar_scaled": 1.3098,
+        "tradesPerWeek": 5.2,
+        "executionsPerYear": 541,
+        "avgContracts": 1
+      },
+      "tradeCounts": {
+        "eurusd": 168,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gold": 318,
+        "total": 5010
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.1065,
+        "oosIsRatio": 1.4274
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 450.87,
+        "ibkrRealAnnual_1c": 268,
+        "multiplier": 0.59
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.43 (oosCAGR 16.1065% / isCAGR 11.2839%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 9.6791% — PASS (positive)",
+        "parameterRobustness": "E9_MonQ3 — filtered variant, fewer trades (168 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 3.4%, DAX: 90.3%, GLD: 6.3% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E9_MonQ3_D1_Baseline_D2_Baseline_GLD_BestMonths_MODERATE",
+      "sourceVariantId": "PB_E9_MonQ3_D1_Baseline_D2_Baseline_GLD_BestMonths_20000",
+      "comboKey": "E9_MonQ3__D1_Baseline__D2_Baseline__GLD_BestMonths",
+      "eurFilter": "E9_MonQ3",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_BestMonths",
+      "sizingTier": "MODERATE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 2,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 4782,
+      "marginPct": 23.91,
+      "alpha": {
+        "grossCAGR_1c": 11.6891,
+        "netCAGR_1c": 10.3491,
+        "costDrag_pct": 1.34,
+        "ibkrCostsAnnual_1c": 268,
+        "ibkrCostsTotal_1c": 4963.38,
+        "serkanCostsAnnual_1c": 450.87,
+        "isCAGR": 11.2839,
+        "oosCAGR": 16.1065,
+        "sharpe": 1.324,
+        "calmar_1c": 1.3098,
+        "maxDDFromPeak": 7.9012
+      },
+      "portfolio": {
+        "scaledNetCAGR": 13.3172,
+        "leverageReturn": 2.9681,
+        "scaledCostsAnnual": 453.65,
+        "costPerNAV_pct": 2.2682,
+        "calmar_scaled": 1.6855,
+        "tradesPerWeek": 5.2,
+        "executionsPerYear": 541,
+        "avgContracts": 1.33
+      },
+      "tradeCounts": {
+        "eurusd": 168,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gold": 318,
+        "total": 5010
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.1065,
+        "oosIsRatio": 1.4274
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 450.87,
+        "ibkrRealAnnual_1c": 268,
+        "multiplier": 0.59
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.43 (oosCAGR 16.1065% / isCAGR 11.2839%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 9.6791% — PASS (positive)",
+        "parameterRobustness": "E9_MonQ3 — filtered variant, fewer trades (168 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 3.4%, DAX: 90.3%, GLD: 6.3% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E9_MonQ3_D1_Baseline_D2_Baseline_GLD_BestMonths_AGGRESSIVE",
+      "sourceVariantId": "PB_E9_MonQ3_D1_Baseline_D2_Baseline_GLD_BestMonths_20000",
+      "comboKey": "E9_MonQ3__D1_Baseline__D2_Baseline__GLD_BestMonths",
+      "eurFilter": "E9_MonQ3",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_BestMonths",
+      "sizingTier": "AGGRESSIVE",
+      "marginStatus": "MARGIN_FAIL",
+      "finalStatus": "AGGRESSIVE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 7,
+        "n_MGC": 2,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 9917,
+      "marginPct": 49.59,
+      "alpha": {
+        "grossCAGR_1c": 11.6891,
+        "netCAGR_1c": 10.3491,
+        "costDrag_pct": 1.34,
+        "ibkrCostsAnnual_1c": 268,
+        "ibkrCostsTotal_1c": 4963.38,
+        "serkanCostsAnnual_1c": 450.87,
+        "isCAGR": 11.2839,
+        "oosCAGR": 16.1065,
+        "sharpe": 1.324,
+        "calmar_1c": 1.3098,
+        "maxDDFromPeak": 7.9012
+      },
+      "portfolio": {
+        "scaledNetCAGR": 31.8284,
+        "leverageReturn": 21.4793,
+        "scaledCostsAnnual": 1427.06,
+        "costPerNAV_pct": 7.1353,
+        "calmar_scaled": 4.0283,
+        "tradesPerWeek": 5.2,
+        "executionsPerYear": 541,
+        "avgContracts": 3.33
+      },
+      "tradeCounts": {
+        "eurusd": 168,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gold": 318,
+        "total": 5010
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.1065,
+        "oosIsRatio": 1.4274
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": false,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 450.87,
+        "ibkrRealAnnual_1c": 268,
+        "multiplier": 0.59
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.43 (oosCAGR 16.1065% / isCAGR 11.2839%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 9.6791% — PASS (positive)",
+        "parameterRobustness": "E9_MonQ3 — filtered variant, fewer trades (168 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 3.4%, DAX: 90.3%, GLD: 6.3% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_Baseline_CONSERVATIVE",
+      "sourceVariantId": "PB_E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_Baseline_20000",
+      "comboKey": "E9_MonQ3__D1_Baseline__D2_HighVolYears__GLD_Baseline",
+      "eurFilter": "E9_MonQ3",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_Baseline",
+      "sizingTier": "CONSERVATIVE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 1,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 3902,
+      "marginPct": 19.51,
+      "alpha": {
+        "grossCAGR_1c": 11.1172,
+        "netCAGR_1c": 9.6628,
+        "costDrag_pct": 1.4544,
+        "ibkrCostsAnnual_1c": 290.88,
+        "ibkrCostsTotal_1c": 5387.1,
+        "serkanCostsAnnual_1c": 357.15,
+        "isCAGR": 10.9914,
+        "oosCAGR": 16.105,
+        "sharpe": 1.4321,
+        "calmar_1c": 1.27,
+        "maxDDFromPeak": 7.6088
+      },
+      "portfolio": {
+        "scaledNetCAGR": 9.6628,
+        "leverageReturn": 0,
+        "scaledCostsAnnual": 290.88,
+        "costPerNAV_pct": 1.4544,
+        "calmar_scaled": 1.27,
+        "tradesPerWeek": 4.2,
+        "executionsPerYear": 436.5,
+        "avgContracts": 1
+      },
+      "tradeCounts": {
+        "eurusd": 168,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gold": 938,
+        "total": 4042
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.105,
+        "oosIsRatio": 1.4652
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 357.15,
+        "ibkrRealAnnual_1c": 290.88,
+        "multiplier": 0.81
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.47 (oosCAGR 16.105% / isCAGR 10.9914%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 8.9356% — PASS (positive)",
+        "parameterRobustness": "E9_MonQ3 — filtered variant, fewer trades (168 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 4.2%, DAX: 72.6%, GLD: 23.2% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_Baseline_MODERATE",
+      "sourceVariantId": "PB_E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_Baseline_20000",
+      "comboKey": "E9_MonQ3__D1_Baseline__D2_HighVolYears__GLD_Baseline",
+      "eurFilter": "E9_MonQ3",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_Baseline",
+      "sizingTier": "MODERATE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 2,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 4782,
+      "marginPct": 23.91,
+      "alpha": {
+        "grossCAGR_1c": 11.1172,
+        "netCAGR_1c": 9.6628,
+        "costDrag_pct": 1.4544,
+        "ibkrCostsAnnual_1c": 290.88,
+        "ibkrCostsTotal_1c": 5387.1,
+        "serkanCostsAnnual_1c": 357.15,
+        "isCAGR": 10.9914,
+        "oosCAGR": 16.105,
+        "sharpe": 1.4321,
+        "calmar_1c": 1.27,
+        "maxDDFromPeak": 7.6088
+      },
+      "portfolio": {
+        "scaledNetCAGR": 12.7662,
+        "leverageReturn": 3.1034,
+        "scaledCostsAnnual": 411.36,
+        "costPerNAV_pct": 2.0568,
+        "calmar_scaled": 1.6778,
+        "tradesPerWeek": 4.2,
+        "executionsPerYear": 436.5,
+        "avgContracts": 1.33
+      },
+      "tradeCounts": {
+        "eurusd": 168,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gold": 938,
+        "total": 4042
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.105,
+        "oosIsRatio": 1.4652
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 357.15,
+        "ibkrRealAnnual_1c": 290.88,
+        "multiplier": 0.81
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.47 (oosCAGR 16.105% / isCAGR 10.9914%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 8.9356% — PASS (positive)",
+        "parameterRobustness": "E9_MonQ3 — filtered variant, fewer trades (168 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 4.2%, DAX: 72.6%, GLD: 23.2% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_Baseline_AGGRESSIVE",
+      "sourceVariantId": "PB_E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_Baseline_20000",
+      "comboKey": "E9_MonQ3__D1_Baseline__D2_HighVolYears__GLD_Baseline",
+      "eurFilter": "E9_MonQ3",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_Baseline",
+      "sizingTier": "AGGRESSIVE",
+      "marginStatus": "MARGIN_FAIL",
+      "finalStatus": "AGGRESSIVE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 7,
+        "n_MGC": 2,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 9917,
+      "marginPct": 49.59,
+      "alpha": {
+        "grossCAGR_1c": 11.1172,
+        "netCAGR_1c": 9.6628,
+        "costDrag_pct": 1.4544,
+        "ibkrCostsAnnual_1c": 290.88,
+        "ibkrCostsTotal_1c": 5387.1,
+        "serkanCostsAnnual_1c": 357.15,
+        "isCAGR": 10.9914,
+        "oosCAGR": 16.105,
+        "sharpe": 1.4321,
+        "calmar_1c": 1.27,
+        "maxDDFromPeak": 7.6088
+      },
+      "portfolio": {
+        "scaledNetCAGR": 31.3224,
+        "leverageReturn": 21.6596,
+        "scaledCostsAnnual": 1146.99,
+        "costPerNAV_pct": 5.7349,
+        "calmar_scaled": 4.1166,
+        "tradesPerWeek": 4.2,
+        "executionsPerYear": 436.5,
+        "avgContracts": 3.33
+      },
+      "tradeCounts": {
+        "eurusd": 168,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gold": 938,
+        "total": 4042
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.105,
+        "oosIsRatio": 1.4652
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": false,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 357.15,
+        "ibkrRealAnnual_1c": 290.88,
+        "multiplier": 0.81
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.47 (oosCAGR 16.105% / isCAGR 10.9914%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 8.9356% — PASS (positive)",
+        "parameterRobustness": "E9_MonQ3 — filtered variant, fewer trades (168 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 4.2%, DAX: 72.6%, GLD: 23.2% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E0_D1_Baseline_D2_Baseline_GLD_Baseline_CONSERVATIVE",
+      "sourceVariantId": "PB_E0_D1_Baseline_D2_Baseline_GLD_Baseline_20000",
+      "comboKey": "E0__D1_Baseline__D2_Baseline__GLD_Baseline",
+      "eurFilter": "E0",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_Baseline",
+      "sizingTier": "CONSERVATIVE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 1,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 3902,
+      "marginPct": 19.51,
+      "alpha": {
+        "grossCAGR_1c": 13.3735,
+        "netCAGR_1c": 7.0571,
+        "costDrag_pct": 6.3164,
+        "ibkrCostsAnnual_1c": 1263.27,
+        "ibkrCostsTotal_1c": 23395.78,
+        "serkanCostsAnnual_1c": 846.06,
+        "isCAGR": 11.0732,
+        "oosCAGR": 15.1155,
+        "sharpe": 1.11,
+        "calmar_1c": 0.9695,
+        "maxDDFromPeak": 7.2789
+      },
+      "portfolio": {
+        "scaledNetCAGR": 7.0572,
+        "leverageReturn": 0.0001,
+        "scaledCostsAnnual": 1263.27,
+        "costPerNAV_pct": 6.3164,
+        "calmar_scaled": 0.9695,
+        "tradesPerWeek": 10.1,
+        "executionsPerYear": 1050.5,
+        "avgContracts": 1
+      },
+      "tradeCounts": {
+        "eurusd": 4266,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gold": 938,
+        "total": 9728
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 15.1155,
+        "oosIsRatio": 1.3651
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 846.06,
+        "ibkrRealAnnual_1c": 1263.27,
+        "multiplier": 1.49
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.37 (oosCAGR 15.1155% / isCAGR 11.0732%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 3.899% — PASS (positive)",
+        "parameterRobustness": "E0 (no EURUSD filter) — most robust, broadest sample, no date/session selection",
+        "concentrationNotes": "EURUSD: 43.9%, DAX: 46.5%, GLD: 9.6% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E0_D1_Baseline_D2_Baseline_GLD_Baseline_MODERATE",
+      "sourceVariantId": "PB_E0_D1_Baseline_D2_Baseline_GLD_Baseline_20000",
+      "comboKey": "E0__D1_Baseline__D2_Baseline__GLD_Baseline",
+      "eurFilter": "E0",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_Baseline",
+      "sizingTier": "MODERATE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 2,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 4782,
+      "marginPct": 23.91,
+      "alpha": {
+        "grossCAGR_1c": 13.3735,
+        "netCAGR_1c": 7.0571,
+        "costDrag_pct": 6.3164,
+        "ibkrCostsAnnual_1c": 1263.27,
+        "ibkrCostsTotal_1c": 23395.78,
+        "serkanCostsAnnual_1c": 846.06,
+        "isCAGR": 11.0732,
+        "oosCAGR": 15.1155,
+        "sharpe": 1.11,
+        "calmar_1c": 0.9695,
+        "maxDDFromPeak": 7.2789
+      },
+      "portfolio": {
+        "scaledNetCAGR": 10.5867,
+        "leverageReturn": 3.5296,
+        "scaledCostsAnnual": 1448.92,
+        "costPerNAV_pct": 7.2446,
+        "calmar_scaled": 1.4544,
+        "tradesPerWeek": 10.1,
+        "executionsPerYear": 1050.5,
+        "avgContracts": 1.33
+      },
+      "tradeCounts": {
+        "eurusd": 4266,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gold": 938,
+        "total": 9728
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 15.1155,
+        "oosIsRatio": 1.3651
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 846.06,
+        "ibkrRealAnnual_1c": 1263.27,
+        "multiplier": 1.49
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.37 (oosCAGR 15.1155% / isCAGR 11.0732%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 3.899% — PASS (positive)",
+        "parameterRobustness": "E0 (no EURUSD filter) — most robust, broadest sample, no date/session selection",
+        "concentrationNotes": "EURUSD: 43.9%, DAX: 46.5%, GLD: 9.6% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E0_D1_Baseline_D2_Baseline_GLD_Baseline_AGGRESSIVE",
+      "sourceVariantId": "PB_E0_D1_Baseline_D2_Baseline_GLD_Baseline_20000",
+      "comboKey": "E0__D1_Baseline__D2_Baseline__GLD_Baseline",
+      "eurFilter": "E0",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_Baseline",
+      "sizingTier": "AGGRESSIVE",
+      "marginStatus": "MARGIN_FAIL",
+      "finalStatus": "AGGRESSIVE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 7,
+        "n_MGC": 2,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 9917,
+      "marginPct": 49.59,
+      "alpha": {
+        "grossCAGR_1c": 13.3735,
+        "netCAGR_1c": 7.0571,
+        "costDrag_pct": 6.3164,
+        "ibkrCostsAnnual_1c": 1263.27,
+        "ibkrCostsTotal_1c": 23395.78,
+        "serkanCostsAnnual_1c": 846.06,
+        "isCAGR": 11.0732,
+        "oosCAGR": 15.1155,
+        "sharpe": 1.11,
+        "calmar_1c": 0.9695,
+        "maxDDFromPeak": 7.2789
+      },
+      "portfolio": {
+        "scaledNetCAGR": 32.0265,
+        "leverageReturn": 24.9694,
+        "scaledCostsAnnual": 2510.38,
+        "costPerNAV_pct": 12.5519,
+        "calmar_scaled": 4.3999,
+        "tradesPerWeek": 10.1,
+        "executionsPerYear": 1050.5,
+        "avgContracts": 3.33
+      },
+      "tradeCounts": {
+        "eurusd": 4266,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gold": 938,
+        "total": 9728
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 15.1155,
+        "oosIsRatio": 1.3651
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": false,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 846.06,
+        "ibkrRealAnnual_1c": 1263.27,
+        "multiplier": 1.49
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.37 (oosCAGR 15.1155% / isCAGR 11.0732%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 3.899% — PASS (positive)",
+        "parameterRobustness": "E0 (no EURUSD filter) — most robust, broadest sample, no date/session selection",
+        "concentrationNotes": "EURUSD: 43.9%, DAX: 46.5%, GLD: 9.6% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths_CONSERVATIVE",
+      "sourceVariantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths_20000",
+      "comboKey": "E6_MonLong__D1_Baseline__D2_HighVolYears__GLD_BestMonths",
+      "eurFilter": "E6_MonLong",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_BestMonths",
+      "sizingTier": "CONSERVATIVE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 1,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 3902,
+      "marginPct": 19.51,
+      "alpha": {
+        "grossCAGR_1c": 11.0033,
+        "netCAGR_1c": 9.7157,
+        "costDrag_pct": 1.2876,
+        "ibkrCostsAnnual_1c": 257.52,
+        "ibkrCostsTotal_1c": 4769.2,
+        "serkanCostsAnnual_1c": 326.14,
+        "isCAGR": 11.0716,
+        "oosCAGR": 16.1396,
+        "sharpe": 1.504,
+        "calmar_1c": 1.3192,
+        "maxDDFromPeak": 7.3646
+      },
+      "portfolio": {
+        "scaledNetCAGR": 9.7157,
+        "leverageReturn": 0,
+        "scaledCostsAnnual": 257.52,
+        "costPerNAV_pct": 1.2876,
+        "calmar_scaled": 1.3192,
+        "tradesPerWeek": 3.81,
+        "executionsPerYear": 396.2,
+        "avgContracts": 1
+      },
+      "tradeCounts": {
+        "eurusd": 415,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gold": 318,
+        "total": 3669
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.1396,
+        "oosIsRatio": 1.4577
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 326.14,
+        "ibkrRealAnnual_1c": 257.52,
+        "multiplier": 0.79
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.46 (oosCAGR 16.1396% / isCAGR 11.0716%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 9.0719% — PASS (positive)",
+        "parameterRobustness": "E6_MonLong — filtered variant, fewer trades (415 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 11.3%, DAX: 80%, GLD: 8.7% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths_MODERATE",
+      "sourceVariantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths_20000",
+      "comboKey": "E6_MonLong__D1_Baseline__D2_HighVolYears__GLD_BestMonths",
+      "eurFilter": "E6_MonLong",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_BestMonths",
+      "sizingTier": "MODERATE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 2,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 4782,
+      "marginPct": 23.91,
+      "alpha": {
+        "grossCAGR_1c": 11.0033,
+        "netCAGR_1c": 9.7157,
+        "costDrag_pct": 1.2876,
+        "ibkrCostsAnnual_1c": 257.52,
+        "ibkrCostsTotal_1c": 4769.2,
+        "serkanCostsAnnual_1c": 326.14,
+        "isCAGR": 11.0716,
+        "oosCAGR": 16.1396,
+        "sharpe": 1.504,
+        "calmar_1c": 1.3192,
+        "maxDDFromPeak": 7.3646
+      },
+      "portfolio": {
+        "scaledNetCAGR": 12.781,
+        "leverageReturn": 3.0653,
+        "scaledCostsAnnual": 378,
+        "costPerNAV_pct": 1.89,
+        "calmar_scaled": 1.7355,
+        "tradesPerWeek": 3.81,
+        "executionsPerYear": 396.2,
+        "avgContracts": 1.33
+      },
+      "tradeCounts": {
+        "eurusd": 415,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gold": 318,
+        "total": 3669
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.1396,
+        "oosIsRatio": 1.4577
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 326.14,
+        "ibkrRealAnnual_1c": 257.52,
+        "multiplier": 0.79
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.46 (oosCAGR 16.1396% / isCAGR 11.0716%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 9.0719% — PASS (positive)",
+        "parameterRobustness": "E6_MonLong — filtered variant, fewer trades (415 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 11.3%, DAX: 80%, GLD: 8.7% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths_AGGRESSIVE",
+      "sourceVariantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths_20000",
+      "comboKey": "E6_MonLong__D1_Baseline__D2_HighVolYears__GLD_BestMonths",
+      "eurFilter": "E6_MonLong",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_BestMonths",
+      "sizingTier": "AGGRESSIVE",
+      "marginStatus": "MARGIN_FAIL",
+      "finalStatus": "AGGRESSIVE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 7,
+        "n_MGC": 2,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 9917,
+      "marginPct": 49.59,
+      "alpha": {
+        "grossCAGR_1c": 11.0033,
+        "netCAGR_1c": 9.7157,
+        "costDrag_pct": 1.2876,
+        "ibkrCostsAnnual_1c": 257.52,
+        "ibkrCostsTotal_1c": 4769.2,
+        "serkanCostsAnnual_1c": 326.14,
+        "isCAGR": 11.0716,
+        "oosCAGR": 16.1396,
+        "sharpe": 1.504,
+        "calmar_1c": 1.3192,
+        "maxDDFromPeak": 7.3646
+      },
+      "portfolio": {
+        "scaledNetCAGR": 31.5498,
+        "leverageReturn": 21.8341,
+        "scaledCostsAnnual": 1025.58,
+        "costPerNAV_pct": 5.1279,
+        "calmar_scaled": 4.284,
+        "tradesPerWeek": 3.81,
+        "executionsPerYear": 396.2,
+        "avgContracts": 3.33
+      },
+      "tradeCounts": {
+        "eurusd": 415,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gold": 318,
+        "total": 3669
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.1396,
+        "oosIsRatio": 1.4577
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": false,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 326.14,
+        "ibkrRealAnnual_1c": 257.52,
+        "multiplier": 0.79
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.46 (oosCAGR 16.1396% / isCAGR 11.0716%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 9.0719% — PASS (positive)",
+        "parameterRobustness": "E6_MonLong — filtered variant, fewer trades (415 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 11.3%, DAX: 80%, GLD: 8.7% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_BestMonths_CONSERVATIVE",
+      "sourceVariantId": "PB_E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_BestMonths_20000",
+      "comboKey": "E9_MonQ3__D1_Baseline__D2_HighVolYears__GLD_BestMonths",
+      "eurFilter": "E9_MonQ3",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_BestMonths",
+      "sizingTier": "CONSERVATIVE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 1,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 3902,
+      "marginPct": 19.51,
+      "alpha": {
+        "grossCAGR_1c": 10.8996,
+        "netCAGR_1c": 9.8854,
+        "costDrag_pct": 1.0142,
+        "ibkrCostsAnnual_1c": 202.83,
+        "ibkrCostsTotal_1c": 3756.5,
+        "serkanCostsAnnual_1c": 305.43,
+        "isCAGR": 11.0873,
+        "oosCAGR": 16.1275,
+        "sharpe": 1.5532,
+        "calmar_1c": 1.3296,
+        "maxDDFromPeak": 7.4351
+      },
+      "portfolio": {
+        "scaledNetCAGR": 9.8855,
+        "leverageReturn": 0.0001,
+        "scaledCostsAnnual": 202.83,
+        "costPerNAV_pct": 1.0142,
+        "calmar_scaled": 1.3296,
+        "tradesPerWeek": 3.55,
+        "executionsPerYear": 369.5,
+        "avgContracts": 1
+      },
+      "tradeCounts": {
+        "eurusd": 168,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gold": 318,
+        "total": 3422
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.1275,
+        "oosIsRatio": 1.4546
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 305.43,
+        "ibkrRealAnnual_1c": 202.83,
+        "multiplier": 0.66
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.45 (oosCAGR 16.1275% / isCAGR 11.0873%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 9.3783% — PASS (positive)",
+        "parameterRobustness": "E9_MonQ3 — filtered variant, fewer trades (168 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 4.9%, DAX: 85.8%, GLD: 9.3% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_BestMonths_MODERATE",
+      "sourceVariantId": "PB_E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_BestMonths_20000",
+      "comboKey": "E9_MonQ3__D1_Baseline__D2_HighVolYears__GLD_BestMonths",
+      "eurFilter": "E9_MonQ3",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_BestMonths",
+      "sizingTier": "MODERATE",
+      "marginStatus": "PASS",
+      "finalStatus": "FINAL_CANDIDATE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 2,
+        "n_MGC": 1,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 4782,
+      "marginPct": 23.91,
+      "alpha": {
+        "grossCAGR_1c": 10.8996,
+        "netCAGR_1c": 9.8854,
+        "costDrag_pct": 1.0142,
+        "ibkrCostsAnnual_1c": 202.83,
+        "ibkrCostsTotal_1c": 3756.5,
+        "serkanCostsAnnual_1c": 305.43,
+        "isCAGR": 11.0873,
+        "oosCAGR": 16.1275,
+        "sharpe": 1.5532,
+        "calmar_1c": 1.3296,
+        "maxDDFromPeak": 7.4351
+      },
+      "portfolio": {
+        "scaledNetCAGR": 12.9162,
+        "leverageReturn": 3.0308,
+        "scaledCostsAnnual": 323.32,
+        "costPerNAV_pct": 1.6166,
+        "calmar_scaled": 1.7372,
+        "tradesPerWeek": 3.55,
+        "executionsPerYear": 369.5,
+        "avgContracts": 1.33
+      },
+      "tradeCounts": {
+        "eurusd": 168,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gold": 318,
+        "total": 3422
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.1275,
+        "oosIsRatio": 1.4546
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": true,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 305.43,
+        "ibkrRealAnnual_1c": 202.83,
+        "multiplier": 0.66
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.45 (oosCAGR 16.1275% / isCAGR 11.0873%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 9.3783% — PASS (positive)",
+        "parameterRobustness": "E9_MonQ3 — filtered variant, fewer trades (168 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 4.9%, DAX: 85.8%, GLD: 9.3% of total trades"
+      }
+    },
+    {
+      "variantId": "PB_E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_BestMonths_AGGRESSIVE",
+      "sourceVariantId": "PB_E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_BestMonths_20000",
+      "comboKey": "E9_MonQ3__D1_Baseline__D2_HighVolYears__GLD_BestMonths",
+      "eurFilter": "E9_MonQ3",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_BestMonths",
+      "sizingTier": "AGGRESSIVE",
+      "marginStatus": "MARGIN_FAIL",
+      "finalStatus": "AGGRESSIVE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 7,
+        "n_MGC": 2,
+        "dax_instrument": "FDXS",
+        "gold_instrument": "MGC"
+      },
+      "totalMargin_EUR": 9917,
+      "marginPct": 49.59,
+      "alpha": {
+        "grossCAGR_1c": 10.8996,
+        "netCAGR_1c": 9.8854,
+        "costDrag_pct": 1.0142,
+        "ibkrCostsAnnual_1c": 202.83,
+        "ibkrCostsTotal_1c": 3756.5,
+        "serkanCostsAnnual_1c": 305.43,
+        "isCAGR": 11.0873,
+        "oosCAGR": 16.1275,
+        "sharpe": 1.5532,
+        "calmar_1c": 1.3296,
+        "maxDDFromPeak": 7.4351
+      },
+      "portfolio": {
+        "scaledNetCAGR": 31.4775,
+        "leverageReturn": 21.5921,
+        "scaledCostsAnnual": 970.9,
+        "costPerNAV_pct": 4.8545,
+        "calmar_scaled": 4.2336,
+        "tradesPerWeek": 3.55,
+        "executionsPerYear": 369.5,
+        "avgContracts": 3.33
+      },
+      "tradeCounts": {
+        "eurusd": 168,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gold": 318,
+        "total": 3422
+      },
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1,
+        "oosCAGR": 16.1275,
+        "oosIsRatio": 1.4546
+      },
+      "gates": {
+        "noLookahead": true,
+        "wfPass": true,
+        "oosPass": true,
+        "marginPass": false,
+        "costsVerified": true,
+        "contractsExecutable": true,
+        "alpha_positive": true
+      },
+      "serkanComparison": {
+        "serkanAnnual_1c": 305.43,
+        "ibkrRealAnnual_1c": 202.83,
+        "multiplier": 0.66
+      },
+      "robustificationNotes": {
+        "wfStability": "9/9 folds positive — fully stable across all windows",
+        "oosIsRatio": "1.45 (oosCAGR 16.1275% / isCAGR 11.0873%) — PASS (>0.70, not overfitted)",
+        "costStressPass": "costs×1.5: netCAGR_1c = 9.3783% — PASS (positive)",
+        "parameterRobustness": "E9_MonQ3 — filtered variant, fewer trades (168 EURUSD), more concentrated signal",
+        "concentrationNotes": "EURUSD: 4.9%, DAX: 85.8%, GLD: 9.3% of total trades"
+      }
+    }
+  ],
+  "finalists": {
+    "BEST_ROBUST": {
+      "variantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths_CONSERVATIVE",
+      "sourceVariantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths_20000",
+      "summary": "E6_MonLong | D2_HighVolYears | GLD_BestMonths | CONSERVATIVE | alpha_net 9.7157% | scaled 9.7157% | OOS 16.1396% | WF 9/9 | MaxDD 7.3646% | Sharpe 1.504",
+      "rationale": "Highest WF pass rate (9/9 all), highest OOS CAGR as tiebreak"
+    },
+    "BEST_RETURN": {
+      "variantId": "PB_E9_MonQ3_D1_Baseline_D2_Baseline_GLD_BestMonths_CONSERVATIVE",
+      "sourceVariantId": "PB_E9_MonQ3_D1_Baseline_D2_Baseline_GLD_BestMonths_20000",
+      "summary": "E9_MonQ3 | D2_Baseline | GLD_BestMonths | CONSERVATIVE | alpha_net 10.3491% | scaled 10.3491% | OOS 16.1065% | WF 9/9 | MaxDD 7.9012% | Sharpe 1.324",
+      "rationale": "Highest scaled portfolio CAGR"
+    },
+    "BEST_SHARPE": {
+      "variantId": "PB_E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_BestMonths_CONSERVATIVE",
+      "sourceVariantId": "PB_E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_BestMonths_20000",
+      "summary": "E9_MonQ3 | D2_HighVolYears | GLD_BestMonths | CONSERVATIVE | alpha_net 9.8854% | scaled 9.8855% | OOS 16.1275% | WF 9/9 | MaxDD 7.4351% | Sharpe 1.5532",
+      "rationale": "Best return/DD ratio (calmar-based selection)"
+    },
+    "LOWEST_DD": {
+      "variantId": "PB_E0_D1_Baseline_D2_HighVolYears_GLD_BestMonths_CONSERVATIVE",
+      "sourceVariantId": "PB_E0_D1_Baseline_D2_HighVolYears_GLD_BestMonths_20000",
+      "summary": "E0 | D2_HighVolYears | GLD_BestMonths | CONSERVATIVE | alpha_net 6.7956% | scaled 6.7956% | OOS 15.1614% | WF 9/9 | MaxDD 7.1123% | Sharpe 1.2059",
+      "rationale": "Lowest MaxDD with positive alpha_netCAGR_1c"
+    },
+    "FINAL_RECOMMENDATION": {
+      "variantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths_CONSERVATIVE",
+      "sourceVariantId": "PB_E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths_20000",
+      "summary": "E6_MonLong | D2_HighVolYears | GLD_BestMonths | CONSERVATIVE | alpha_net 9.7157% | scaled 9.7157% | OOS 16.1396% | WF 9/9 | MaxDD 7.3646% | Sharpe 1.504",
+      "rationale": "BEST_ROBUST selected: highest WF stability (9/9), strong OOS. All combos have identical WF pass rate; OOS CAGR tiebreak determines winner."
+    }
+  },
+  "capitalSummary": {
+    "totalVariants": 36,
+    "finalCandidates": 24,
+    "aggressiveVariants": 12,
+    "marginFailNote": null
+  }
+}

@@ -148,6 +148,99 @@ interface AnalyticsData {
   costSensitivity: CostSensitivityRow[];
 }
 
+// ─── Normalized variant schema ────────────────────────────────────────────────
+
+interface NormAlpha {
+  grossCAGR_1c: number;
+  netCAGR_1c: number;
+  costDrag_pct: number;
+  ibkrCostsAnnual_1c: number;
+  ibkrCostsTotal_1c: number;
+  serkanCostsAnnual_1c: number;
+  isCAGR: number | null;
+  oosCAGR: number;
+  sharpe: number;
+  calmar_1c: number;
+  maxDDFromPeak: number;
+}
+
+interface NormPortfolio {
+  scaledNetCAGR: number;
+  leverageReturn: number;
+  scaledCostsAnnual: number;
+  costPerNAV_pct: number;
+  calmar_scaled: number;
+  tradesPerWeek: number;
+  executionsPerYear: number;
+  avgContracts: number;
+}
+
+interface NormWF {
+  positiveFolds: number;
+  totalFolds: number;
+  passRate: number;
+  oosCAGR: number;
+  oosIsRatio: number;
+}
+
+interface NormContracts {
+  n_6E: number;
+  n_FDXS: number;
+  n_MGC: number;
+  dax_instrument: string;
+  gold_instrument: string;
+}
+
+interface NormTradeCounts {
+  eurusd: number;
+  dax1h: number;
+  dax2h: number;
+  gold: number;
+  total: number;
+}
+
+interface NormVariant {
+  variantId: string;
+  sourceVariantId: string;
+  comboKey: string;
+  eurFilter: string;
+  d2hFilter: string;
+  gldFilter: string;
+  sizingTier: 'CONSERVATIVE' | 'MODERATE' | 'AGGRESSIVE';
+  marginStatus: 'PASS' | 'MARGIN_FAIL';
+  finalStatus: 'FINAL_CANDIDATE' | 'AGGRESSIVE' | 'WF_FAIL' | 'COST_KILL';
+  contracts: NormContracts;
+  totalMargin_EUR: number;
+  marginPct: number;
+  alpha: NormAlpha;
+  portfolio: NormPortfolio;
+  tradeCounts: NormTradeCounts;
+  wf: NormWF;
+  gates: Record<string, boolean>;
+  serkanComparison: { serkanAnnual_1c: number; ibkrRealAnnual_1c: number; multiplier: number };
+  robustificationNotes: Record<string, string>;
+}
+
+interface NormFinalist {
+  variantId: string;
+  summary: string;
+  rationale: string;
+}
+
+interface NormCapitalData {
+  capital: number;
+  capitalAssessment: 'PASS' | 'MARGIN_FAIL';
+  capitalAssessmentNote: string;
+  marginReference: string;
+  ibkrCostsVerifiedDate: string;
+  ibkrCosts: { '6E_roundturn_EUR': number; FDXS_roundturn_EUR: number; MGC_roundturn_EUR: number };
+  margins_EUR: { '6E': number; FDXS: number; MGC: number; conservative_total: number; conservative_marginPct: number };
+  sizingTiersUsed: Record<string, { n_6E: number; n_FDXS: number; n_MGC: number; totalMargin: number; marginPct: number }>;
+  variants: NormVariant[];
+  finalists: Record<string, NormFinalist>;
+  capitalSummary: { totalVariants: number; finalCandidates: number; aggressiveVariants: number };
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const fmt = (n: number | undefined | null, dec = 1) =>
@@ -192,11 +285,14 @@ function RatingBadge({ rating }: { rating?: string }) {
   );
 }
 
-function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function StatCard({ label, value, sub, highlight }: { label: string; value: string; sub?: string; highlight?: boolean }) {
   return (
-    <div className="flex-1 min-w-0 rounded-lg border border-[#2a2b30] bg-gradient-to-b from-[#1c1d20] to-[#141517] p-4 text-center">
+    <div className={cn(
+      'flex-1 min-w-0 rounded-lg border bg-gradient-to-b from-[#1c1d20] to-[#141517] p-4 text-center',
+      highlight ? 'border-[#e2ca7a]/40' : 'border-[#2a2b30]'
+    )}>
       <div className="text-xs text-[#737373] mb-1 uppercase tracking-wide truncate">{label}</div>
-      <div className="text-lg font-bold font-mono text-[#e2ca7a] leading-tight">{value}</div>
+      <div className={cn('text-lg font-bold font-mono leading-tight', highlight ? 'text-[#e2ca7a]' : 'text-[#e2ca7a]')}>{value}</div>
       {sub && <div className="text-xs text-[#737373] mt-0.5 truncate">{sub}</div>}
     </div>
   );
@@ -210,11 +306,465 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─── Final Candidates Panel ───────────────────────────────────────────────────
+// ─── Final White Swan Panel ───────────────────────────────────────────────────
 
-type Archetype = 'BALANCED' | 'RETURN' | 'RISK' | 'COST' | 'ROBUST';
+const FINAL_CAPS = [10000, 12500, 15000, 20000];
 
-interface FinalVariant {
+const ARCHETYPE_LABELS: Record<string, { label: string; color: string }> = {
+  BEST_ROBUST:         { label: 'BEST ROBUST',     color: 'text-emerald-400' },
+  BEST_RETURN:         { label: 'BEST RETURN',      color: 'text-blue-400' },
+  BEST_SHARPE:         { label: 'BEST SHARPE',      color: 'text-purple-400' },
+  LOWEST_DD:           { label: 'LOWEST DD',         color: 'text-yellow-400' },
+  FINAL_RECOMMENDATION:{ label: 'FINAL REC ★',      color: 'text-[#e2ca7a]' },
+};
+
+function FinalWhiteSwanPanel() {
+  const [selectedCap, setSelectedCap] = useState<number>(15000);
+  const [capData, setCapData] = useState<NormCapitalData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [showArchive, setShowArchive] = useState(false);
+  const [showAllVariants, setShowAllVariants] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    setCapData(null);
+    fetch(`/api/white-swan-final?capital=${selectedCap}`)
+      .then(r => r.json())
+      .then(d => { setCapData(d as NormCapitalData); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [selectedCap]);
+
+  const isFail = capData?.capitalAssessment === 'MARGIN_FAIL';
+  const finRec = capData?.finalists?.['FINAL_RECOMMENDATION'];
+  const finRecVariant = finRec
+    ? capData?.variants?.find(v => v.variantId === finRec.variantId)
+    : null;
+
+  // Primary display: FINAL_CANDIDATE variants only (CONSERVATIVE tier), sorted by OOS CAGR desc
+  const fcVariants = (capData?.variants ?? [])
+    .filter(v => v.finalStatus === 'FINAL_CANDIDATE' && v.sizingTier === 'CONSERVATIVE')
+    .sort((a, b) => b.alpha.oosCAGR - a.alpha.oosCAGR);
+
+  // AGGRESSIVE variants (MARGIN_FAIL)
+  const aggVariants = (capData?.variants ?? [])
+    .filter(v => v.finalStatus === 'AGGRESSIVE' && v.sizingTier === 'CONSERVATIVE')
+    .sort((a, b) => b.alpha.netCAGR_1c - a.alpha.netCAGR_1c);
+
+  // For charts — use finRecVariant or best FC variant
+  const heroVariant = finRecVariant ?? fcVariants[0] ?? aggVariants[0] ?? null;
+
+  // IS vs OOS chart data (top 5 FINAL_CANDIDATE or AGGRESSIVE)
+  const isOosData = (fcVariants.length > 0 ? fcVariants : aggVariants)
+    .slice(0, 5)
+    .map(v => ({
+      label: v.eurFilter.replace('_', '') + '+' + v.d2hFilter.replace('D2_', '') + '+' + v.gldFilter.replace('GLD_', ''),
+      IS: Number((v.alpha.isCAGR ?? 0).toFixed(2)),
+      OOS: Number(v.alpha.oosCAGR.toFixed(2)),
+    }));
+
+  // Cost breakdown chart (for hero variant)
+  const costData = heroVariant ? [
+    { name: 'EURUSD 6E', value: Number(((heroVariant.tradeCounts.eurusd * 4.10) / 18.52 * heroVariant.contracts.n_6E).toFixed(2)) },
+    { name: 'DAX FDXS', value: Number((((heroVariant.tradeCounts.dax1h + heroVariant.tradeCounts.dax2h) * 0.76) / 18.52 * heroVariant.contracts.n_FDXS).toFixed(2)) },
+    { name: 'Gold MGC', value: Number(((heroVariant.tradeCounts.gold * 2.63) / 18.52 * heroVariant.contracts.n_MGC).toFixed(2)) },
+  ] : [];
+
+  // Margin breakdown chart
+  const marginData = heroVariant ? [
+    { name: '6E', value: heroVariant.contracts.n_6E * 2287, pct: Number(((heroVariant.contracts.n_6E * 2287) / heroVariant.totalMargin_EUR * 100).toFixed(1)) },
+    { name: 'FDXS', value: heroVariant.contracts.n_FDXS * 880, pct: Number(((heroVariant.contracts.n_FDXS * 880) / heroVariant.totalMargin_EUR * 100).toFixed(1)) },
+    { name: 'MGC', value: heroVariant.contracts.n_MGC * 735, pct: Number(((heroVariant.contracts.n_MGC * 735) / heroVariant.totalMargin_EUR * 100).toFixed(1)) },
+  ] : [];
+
+  // Capital comparison data (from each level's best)
+  const capCompareData = FINAL_CAPS.map(c => ({
+    capital: `€${c / 1000}k`,
+    label: c === selectedCap ? `€${c / 1000}k ●` : `€${c / 1000}k`,
+  }));
+
+  const wfColor = (pass: boolean) => pass ? 'text-emerald-400' : 'text-red-400';
+
+  return (
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h2 className="text-base font-bold font-montserrat text-[#e2ca7a]">Final White Swan</h2>
+          <p className="text-xs text-[#737373] mt-0.5">
+            IBKR real costs confirmed · 30% margin gate · RESEARCH_CANDIDATE · 2026-08-14
+          </p>
+        </div>
+        <div className="text-xs border border-[#2a2b30] rounded px-3 py-1.5 font-mono text-[#737373] space-x-3">
+          <span>6E: <span className="text-[#e2ca7a]">€4.10/rt</span></span>
+          <span>FDXS: <span className="text-[#e2ca7a]">€0.76/rt</span></span>
+          <span>MGC: <span className="text-[#e2ca7a]">€2.63/rt</span></span>
+        </div>
+      </div>
+
+      {/* Capital tabs */}
+      <div className="flex gap-2 flex-wrap">
+        {FINAL_CAPS.map(cap => (
+          <button key={cap} onClick={() => setSelectedCap(cap)}
+            className={cn('px-4 py-2 rounded text-sm font-mono font-semibold border transition-all',
+              selectedCap === cap
+                ? 'bg-[#bf9d4a] border-[#e2ca7a] text-black'
+                : 'border-[#2a2b30] text-[#737373] hover:border-[#e2ca7a] hover:text-[#e2ca7a]'
+            )}>
+            €{cap / 1000}k
+          </button>
+        ))}
+        <span className="text-xs text-[#737373] self-center ml-2">
+          Min capital for 30% rule: <span className="font-mono text-[#e2ca7a]">€13,007</span>
+        </span>
+      </div>
+
+      {loading && <div className="text-xs text-[#737373] py-4 animate-pulse">Loading…</div>}
+
+      {!loading && capData && (
+        <>
+          {/* Margin gate assessment banner */}
+          {isFail ? (
+            <div className="rounded border border-red-600/40 bg-red-900/10 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-red-400 font-bold text-sm">⚠ MARGIN_FAIL</span>
+                <span className="text-xs text-red-400/70 font-mono">{capData.capitalAssessmentNote}</span>
+              </div>
+              <div className="text-xs text-red-300/60 mt-1">
+                Minimum 1×6E + 1×FDXS + 1×MGC = €3,902 total margin. At €{(selectedCap / 1000).toFixed(1)}k this is{' '}
+                <span className="font-mono text-red-400">{((3902 / selectedCap) * 100).toFixed(1)}%</span> of capital — exceeds 30% strict cap.
+                All variants shown below are <strong>AGGRESSIVE</strong> (not FINAL_CANDIDATE).
+                Minimum compliant starting capital: <span className="font-mono text-[#e2ca7a]">€13,007</span>.
+              </div>
+            </div>
+          ) : (
+            <div className="rounded border border-emerald-600/30 bg-emerald-900/10 p-3 flex items-center gap-3">
+              <span className="text-emerald-400 font-bold">✓ MARGIN COMPLIANT</span>
+              <span className="text-xs text-emerald-400/70">{capData.capitalAssessmentNote}</span>
+              <span className="text-xs text-[#737373] ml-auto">
+                {capData.capitalSummary?.finalCandidates ?? 0} FINAL_CANDIDATE variants
+              </span>
+            </div>
+          )}
+
+          {/* Hero KPI row */}
+          {heroVariant && (
+            <>
+              <div className="text-xs text-[#737373] uppercase tracking-wide">
+                {isFail ? 'Best Aggressive Variant (MARGIN_FAIL)' : 'Final Recommendation'} —{' '}
+                <span className="font-mono text-[#e2ca7a]">{heroVariant.eurFilter} · {heroVariant.d2hFilter.replace('D2_','')} · {heroVariant.gldFilter.replace('GLD_','')}</span>
+                <span className="ml-2 text-[#737373]">({heroVariant.sizingTier} sizing: {heroVariant.contracts.n_6E}×6E / {heroVariant.contracts.n_FDXS}×FDXS / {heroVariant.contracts.n_MGC}×MGC)</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <StatCard label="Net CAGR (1c)" value={fmtPct(heroVariant.alpha.netCAGR_1c)} sub="pure alpha" />
+                <StatCard label="OOS CAGR" value={fmtPct(heroVariant.alpha.oosCAGR)} sub="2019–2026" highlight />
+                <StatCard label="Sharpe" value={fmt(heroVariant.alpha.sharpe, 3)} />
+                <StatCard label="Calmar" value={fmt(heroVariant.alpha.calmar_1c, 3)} />
+                <StatCard label="MaxDD" value={fmtPct(heroVariant.alpha.maxDDFromPeak)} sub="peak-to-trough" />
+                <StatCard label="WF Folds" value={`${heroVariant.wf.positiveFolds}/${heroVariant.wf.totalFolds}`} sub={`${(heroVariant.wf.passRate * 100).toFixed(0)}% pass`} highlight />
+                <StatCard label="Trades/wk" value={fmt(heroVariant.portfolio.tradesPerWeek, 2)} />
+                <StatCard label="IBKR Costs/yr" value={fmtEUR(heroVariant.portfolio.scaledCostsAnnual)} />
+                <StatCard label="Cost/NAV" value={fmtPct(heroVariant.portfolio.costPerNAV_pct)} />
+                <StatCard label="Margin" value={fmtPct(heroVariant.marginPct)} sub={isFail ? '> 30% — FAIL' : '≤ 30% — PASS'} highlight={!isFail} />
+              </div>
+
+              {/* Alpha vs leverage attribution */}
+              <div className="rounded border border-[#2a2b30] bg-[#0c0d10] p-4">
+                <div className="text-xs font-semibold text-[#737373] uppercase tracking-wide mb-3">Alpha vs Leverage Attribution</div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="text-center">
+                    <div className="text-xs text-[#737373] mb-1">Gross CAGR (1c)</div>
+                    <div className="text-base font-mono font-bold text-[#737373]">{fmtPct(heroVariant.alpha.grossCAGR_1c)}</div>
+                    <div className="text-xs text-[#737373]">before costs</div>
+                  </div>
+                  <div className="text-center border-l border-[#2a2b30]">
+                    <div className="text-xs text-[#737373] mb-1">Cost Drag</div>
+                    <div className="text-base font-mono font-bold text-red-400">−{fmtPct(heroVariant.alpha.costDrag_pct)}</div>
+                    <div className="text-xs text-[#737373]">IBKR real costs</div>
+                  </div>
+                  <div className="text-center border-l border-[#2a2b30]">
+                    <div className="text-xs text-[#737373] mb-1">Net CAGR (1c) = Alpha</div>
+                    <div className="text-base font-mono font-bold text-[#e2ca7a]">{fmtPct(heroVariant.alpha.netCAGR_1c)}</div>
+                    <div className="text-xs text-[#737373]">pure strategy alpha</div>
+                  </div>
+                  <div className="text-center border-l border-[#2a2b30]">
+                    <div className="text-xs text-[#737373] mb-1">Leverage Return</div>
+                    <div className="text-base font-mono font-bold text-blue-400">
+                      {Math.abs(heroVariant.portfolio.leverageReturn) < 0.01
+                        ? '0.00%'
+                        : fmtPct(heroVariant.portfolio.leverageReturn)}
+                    </div>
+                    <div className="text-xs text-[#737373]">from contract scaling</div>
+                  </div>
+                </div>
+                <div className="mt-3 text-xs text-[#737373] border-t border-[#2a2b30] pt-2">
+                  Conservative sizing (1×6E / 1×FDXS / 1×MGC) → zero leverage premium. Portfolio CAGR = pure 1c alpha.
+                  {heroVariant.serkanComparison && (
+                    <span className="ml-2">
+                      Serkan reference: {fmtEUR(heroVariant.serkanComparison.serkanAnnual_1c)}/yr vs IBKR real: {fmtEUR(heroVariant.serkanComparison.ibkrRealAnnual_1c)}/yr
+                      ({heroVariant.serkanComparison.multiplier.toFixed(2)}× multiplier for this variant)
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* IS vs OOS + Cost breakdown charts */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* IS vs OOS */}
+                <div className="rounded-lg border border-[#2a2b30] bg-[#0a0a0a] p-4">
+                  <div className="text-xs text-[#737373] mb-3 uppercase tracking-wide">IS vs OOS CAGR — Top Variants</div>
+                  {isOosData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={200}>
+                      <BarChart data={isOosData} layout="vertical" margin={{ top: 4, right: 16, bottom: 4, left: 8 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#2a2b30" horizontal={false} />
+                        <XAxis type="number" tick={{ fontSize: 9, fill: '#737373' }} tickFormatter={(v: number) => `${v}%`} />
+                        <YAxis type="category" dataKey="label" tick={{ fontSize: 8, fill: '#737373' }} width={90} />
+                        <Tooltip contentStyle={{ background: '#1c1d20', border: '1px solid #2a2b30', fontSize: 11 }}
+                          formatter={(v: unknown) => [`${(v as number).toFixed(2)}%`]} />
+                        <Legend iconSize={8} wrapperStyle={{ fontSize: 10 }} />
+                        <Bar dataKey="IS" fill="#4b5563" name="IS" radius={[0, 2, 2, 0]} />
+                        <Bar dataKey="OOS" fill="#e2ca7a" name="OOS" radius={[0, 2, 2, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : <div className="text-xs text-[#737373] py-8 text-center">No data</div>}
+                </div>
+
+                {/* Cost breakdown + margin breakdown */}
+                <div className="space-y-3">
+                  <div className="rounded-lg border border-[#2a2b30] bg-[#0a0a0a] p-3">
+                    <div className="text-xs text-[#737373] mb-2 uppercase tracking-wide">Annual Cost Breakdown</div>
+                    <div className="space-y-1.5">
+                      {costData.map(d => (
+                        <div key={d.name} className="flex items-center gap-2">
+                          <div className="w-20 text-xs text-[#737373] truncate">{d.name}</div>
+                          <div className="flex-1 bg-[#1c1d20] rounded h-3 overflow-hidden">
+                            <div className="h-full bg-orange-500/60 rounded" style={{ width: `${Math.min(100, (d.value / Math.max(...costData.map(x => x.value)) * 100))}%` }} />
+                          </div>
+                          <div className="w-16 text-right font-mono text-xs text-orange-400">{fmtEUR(d.value)}</div>
+                        </div>
+                      ))}
+                      <div className="flex justify-between text-xs font-mono border-t border-[#2a2b30] pt-1 mt-1">
+                        <span className="text-[#737373]">Total/yr</span>
+                        <span className="text-[#e2ca7a]">{fmtEUR(costData.reduce((s, d) => s + d.value, 0))}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="rounded-lg border border-[#2a2b30] bg-[#0a0a0a] p-3">
+                    <div className="text-xs text-[#737373] mb-2 uppercase tracking-wide">Margin Breakdown</div>
+                    <div className="space-y-1.5">
+                      {marginData.map(d => (
+                        <div key={d.name} className="flex items-center gap-2">
+                          <div className="w-12 text-xs text-[#737373]">{d.name}</div>
+                          <div className="flex-1 bg-[#1c1d20] rounded h-3 overflow-hidden">
+                            <div className="h-full bg-blue-500/50 rounded" style={{ width: `${d.pct}%` }} />
+                          </div>
+                          <div className="w-20 text-right font-mono text-xs text-blue-400">{fmtEUR(d.value)} ({d.pct}%)</div>
+                        </div>
+                      ))}
+                      <div className="flex justify-between text-xs font-mono border-t border-[#2a2b30] pt-1 mt-1">
+                        <span className="text-[#737373]">Total / Capital</span>
+                        <span className={isFail ? 'text-red-400' : 'text-emerald-400'}>
+                          {fmtEUR(heroVariant.totalMargin_EUR)} ({fmtPct(heroVariant.marginPct)} {isFail ? '⚠' : '✓'})
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Robustification notes */}
+              {heroVariant.robustificationNotes && (
+                <div className="rounded border border-[#2a2b30] bg-[#0c0d10] p-3 text-xs text-[#737373] space-y-1">
+                  <div className="text-[#e2ca7a] font-semibold mb-1">Robustification Check</div>
+                  {Object.entries(heroVariant.robustificationNotes).map(([k, v]) => (
+                    <div key={k}><span className="text-[#737373]/60 mr-1">{k}:</span>{v}</div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Archetype finalists */}
+          {capData.finalists && (
+            <>
+              <SectionTitle>Archetype Finalists</SectionTitle>
+              <div className="space-y-2">
+                {Object.entries(capData.finalists).map(([key, fin]) => {
+                  const v = capData.variants.find(x => x.variantId === fin.variantId);
+                  const archetypeInfo = ARCHETYPE_LABELS[key] ?? { label: key, color: 'text-[#737373]' };
+                  const isFinalRec = key === 'FINAL_RECOMMENDATION';
+                  return (
+                    <div key={key} className={cn(
+                      'rounded border p-3',
+                      isFinalRec ? 'border-[#e2ca7a]/30 bg-[#e2ca7a]/5' : 'border-[#2a2b30] bg-[#0c0d10]'
+                    )}>
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <span className={cn('font-semibold text-xs', archetypeInfo.color)}>{archetypeInfo.label}</span>
+                        <span className="font-mono text-xs text-[#737373]">{fin.variantId.replace('PB_','').replace('_CONSERVATIVE','')}</span>
+                        {v && (
+                          <span className="ml-auto text-xs font-mono space-x-3">
+                            <span className="text-[#e2ca7a]">α{fmtPct(v.alpha.netCAGR_1c)}</span>
+                            <span className="text-blue-400">OOS {fmtPct(v.alpha.oosCAGR)}</span>
+                            <span>Sh {fmt(v.alpha.sharpe, 3)}</span>
+                            <span className="text-red-400">DD {fmtPct(v.alpha.maxDDFromPeak)}</span>
+                            <span className={wfColor(v.wf.positiveFolds === v.wf.totalFolds)}>{v.wf.positiveFolds}/{v.wf.totalFolds}</span>
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-[#737373] mt-1">{fin.rationale}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+
+          {/* Variants table */}
+          {(fcVariants.length > 0 || aggVariants.length > 0) && (
+            <>
+              <SectionTitle>
+                {isFail ? 'All Variants (AGGRESSIVE)' : 'FINAL_CANDIDATE Variants'}
+                {' '}
+                <span className="text-[#737373] normal-case font-normal text-xs">Conservative 1×6E / 1×FDXS / 1×MGC</span>
+              </SectionTitle>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-[#2a2b30]">
+                      {['EUR Filter', 'DAX 2H', 'GLD', 'Status', 'Alpha 1c', 'OOS CAGR', 'IS CAGR', 'Sharpe', 'MaxDD', 'WF', 'Cost/yr', 'OOS/IS'].map(h => (
+                        <th key={h} className="text-right first:text-left px-2 py-1.5 text-[#737373] font-normal whitespace-nowrap">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(showAllVariants ? [...fcVariants, ...aggVariants] : fcVariants.slice(0, 12)).map((v) => {
+                      const isRec = v.variantId === finRec?.variantId;
+                      return (
+                        <tr key={v.variantId} className={cn(
+                          'border-b border-[#1a1b1e] hover:bg-[#1a1b1e]/50',
+                          isRec && 'bg-[#e2ca7a]/5',
+                          v.finalStatus === 'AGGRESSIVE' && 'opacity-60'
+                        )}>
+                          <td className="px-2 py-1.5 font-mono text-[#e2ca7a]">
+                            {isRec && <span className="mr-1 text-[#e2ca7a]">★</span>}
+                            {v.eurFilter}
+                          </td>
+                          <td className="px-2 py-1.5 font-mono">{v.d2hFilter.replace('D2_','')}</td>
+                          <td className="px-2 py-1.5 text-[#737373]">{v.gldFilter.replace('GLD_','')}</td>
+                          <td className="px-2 py-1.5">
+                            <span className={cn('text-xs font-semibold', v.finalStatus === 'FINAL_CANDIDATE' ? 'text-emerald-400' : 'text-orange-400')}>
+                              {v.finalStatus === 'FINAL_CANDIDATE' ? 'FC' : 'AGG'}
+                            </span>
+                          </td>
+                          <td className="px-2 py-1.5 text-right font-mono font-semibold text-[#e2ca7a]">{fmtPct(v.alpha.netCAGR_1c)}</td>
+                          <td className="px-2 py-1.5 text-right font-mono text-blue-400">{fmtPct(v.alpha.oosCAGR)}</td>
+                          <td className="px-2 py-1.5 text-right font-mono text-[#737373]">{fmtPct(v.alpha.isCAGR)}</td>
+                          <td className="px-2 py-1.5 text-right font-mono">{fmt(v.alpha.sharpe, 3)}</td>
+                          <td className="px-2 py-1.5 text-right font-mono text-red-400">{fmtPct(v.alpha.maxDDFromPeak)}</td>
+                          <td className={cn('px-2 py-1.5 text-right font-mono font-semibold',
+                            v.wf.passRate >= 0.7 ? 'text-emerald-400' : v.wf.passRate >= 0.5 ? 'text-yellow-400' : 'text-red-400')}>
+                            {v.wf.positiveFolds}/{v.wf.totalFolds}
+                          </td>
+                          <td className="px-2 py-1.5 text-right font-mono text-orange-400">{fmtEUR(v.portfolio.scaledCostsAnnual)}</td>
+                          <td className="px-2 py-1.5 text-right font-mono text-[#737373]">{fmt(v.wf.oosIsRatio, 2)}×</td>
+                        </tr>
+                      );
+                    })}
+                    {aggVariants.length > 0 && fcVariants.length > 0 && !showAllVariants && (
+                      <tr>
+                        <td colSpan={12} className="px-2 py-2 text-xs text-[#737373] text-center">
+                          +{aggVariants.length} AGGRESSIVE variants (MARGIN_FAIL) hidden —{' '}
+                          <button onClick={() => setShowAllVariants(true)} className="text-[#e2ca7a] hover:underline">show all</button>
+                        </td>
+                      </tr>
+                    )}
+                    {showAllVariants && aggVariants.length > 0 && (
+                      <tr>
+                        <td colSpan={12} className="px-2 py-1 text-xs text-red-400/60 italic">
+                          ↓ AGGRESSIVE variants below (MARGIN_FAIL — margin &gt; 30%, not FINAL_CANDIDATE)
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+
+          {/* Capital comparison bar across all 4 levels */}
+          <SectionTitle>Capital Comparison — All Levels</SectionTitle>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs border-collapse">
+              <thead>
+                <tr className="border-b border-[#2a2b30]">
+                  {['Capital', 'Gate', 'FINAL_CANDIDATEs', 'Best Alpha 1c', 'Best OOS CAGR', 'Best Sharpe', 'MaxDD', 'Margin%', 'Note'].map(h => (
+                    <th key={h} className="text-right first:text-left px-2 py-1.5 text-[#737373] font-normal whitespace-nowrap">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {([
+                  { cap: 10000, assess: 'MARGIN_FAIL', fc: 0, alpha: 13.62, oos: 24.39, sh: 1.326, dd: 11.01, mg: 39.0, note: 'Min capital €13,007' },
+                  { cap: 12500, assess: 'MARGIN_FAIL', fc: 0, alpha: 12.29, oos: 21.51, sh: 1.389, dd: 9.80,  mg: 31.2, note: 'Only 1.2% over limit' },
+                  { cap: 15000, assess: 'PASS',        fc: 24, alpha: 11.25, oos: 19.32, sh: 1.437, dd: 8.82,  mg: 26.0, note: '← FIRST SWEET SPOT' },
+                  { cap: 20000, assess: 'PASS',        fc: 24, alpha: 9.72,  oos: 16.14, sh: 1.504, dd: 7.36,  mg: 19.5, note: 'More room to scale' },
+                ] as const).map(row => (
+                  <tr key={row.cap} className={cn(
+                    'border-b border-[#1a1b1e] hover:bg-[#1a1b1e]/50',
+                    row.cap === selectedCap && 'bg-[#1c1d20]'
+                  )}>
+                    <td className="px-2 py-2 font-mono font-bold text-[#e2ca7a]">
+                      <button onClick={() => setSelectedCap(row.cap)} className="hover:underline">€{row.cap / 1000}k</button>
+                    </td>
+                    <td className="px-2 py-2">
+                      <span className={row.assess === 'PASS' ? 'text-emerald-400 font-semibold' : 'text-red-400 font-semibold'}>
+                        {row.assess}
+                      </span>
+                    </td>
+                    <td className="px-2 py-2 text-right font-mono">{row.fc}</td>
+                    <td className="px-2 py-2 text-right font-mono text-[#e2ca7a]">{row.alpha.toFixed(2)}%</td>
+                    <td className="px-2 py-2 text-right font-mono text-blue-400">{row.oos.toFixed(2)}%</td>
+                    <td className="px-2 py-2 text-right font-mono">{row.sh.toFixed(3)}</td>
+                    <td className="px-2 py-2 text-right font-mono text-red-400">{row.dd.toFixed(2)}%</td>
+                    <td className={cn('px-2 py-2 text-right font-mono', row.assess === 'PASS' ? 'text-emerald-400' : 'text-red-400')}>
+                      {row.mg.toFixed(1)}%
+                    </td>
+                    <td className="px-2 py-2 text-[#737373]">{row.note}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Disclaimer */}
+          <div className="rounded border border-yellow-700/30 bg-yellow-900/10 p-3 text-xs text-yellow-400/80 space-y-1">
+            <div className="font-semibold text-yellow-400">RESEARCH_CANDIDATE — not production truth</div>
+            <div>All results require explicit Jeroen approval before live use. IBKR costs confirmed 2026-08-14. No navSeries available in normalized data — equity curves require separate computation. Margin reference is current IBKR initial margin, not historical backtest margin.</div>
+          </div>
+        </>
+      )}
+
+      {/* Research Archive (old phase=final data) */}
+      <div className="border-t border-[#2a2b30] pt-4 mt-6">
+        <button onClick={() => setShowArchive(!showArchive)}
+          className="text-xs text-[#737373] hover:text-[#e2ca7a] transition-colors flex items-center gap-2">
+          <span>{showArchive ? '▼' : '▶'}</span>
+          <span>Research Archive — Prior Phase B / Phase Final variants (old cost model)</span>
+        </button>
+        {showArchive && (
+          <div className="mt-3">
+            <ResearchArchivePbPanel />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Research Archive Panel (old FinalCandidatesPanel, preserved) ─────────────
+
+type OldArchetype = 'BALANCED' | 'RETURN' | 'RISK' | 'COST' | 'ROBUST';
+
+interface OldFinalVariant {
   comboKey: string;
   eurFilter: string;
   d1hFilter: string;
@@ -236,17 +786,17 @@ interface FinalVariant {
   scaledNetCAGR_1c: number;
 }
 
-interface FinalCapitalData {
+interface OldFinalCapitalData {
   capital: number;
   contractInstruments: { eurusd: string; dax: string; gold: string };
-  portfolios: Record<Archetype, FinalVariant[]>;
+  portfolios: Record<OldArchetype, OldFinalVariant[]>;
   eligibleCount: number;
 }
 
-function FinalCandidatesPanel() {
+function ResearchArchivePbPanel() {
   const CAPS = [10000, 12500, 15000, 20000, 25000, 50000];
-  const ARCHETYPES: Archetype[] = ['BALANCED', 'RETURN', 'RISK', 'COST', 'ROBUST'];
-  const ARCHETYPE_DESC: Record<Archetype, string> = {
+  const ARCHETYPES: OldArchetype[] = ['BALANCED', 'RETURN', 'RISK', 'COST', 'ROBUST'];
+  const ARCHETYPE_DESC: Record<OldArchetype, string> = {
     BALANCED: 'Best CAGR/MaxDD ratio — diversified risk',
     RETURN: 'Highest scaled net CAGR',
     RISK: 'Lowest MaxDD with CAGR > 8%',
@@ -255,8 +805,8 @@ function FinalCandidatesPanel() {
   };
 
   const [selectedCap, setSelectedCap] = useState<number>(12500);
-  const [selectedArchetype, setSelectedArchetype] = useState<Archetype>('BALANCED');
-  const [capData, setCapData] = useState<FinalCapitalData | null>(null);
+  const [selectedArchetype, setSelectedArchetype] = useState<OldArchetype>('BALANCED');
+  const [capData, setCapData] = useState<OldFinalCapitalData | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -265,29 +815,25 @@ function FinalCandidatesPanel() {
       .then(r => r.json())
       .then(d => {
         const raw = Array.isArray(d.variants) ? null : d;
-        setCapData(raw as FinalCapitalData | null);
+        setCapData(raw as OldFinalCapitalData | null);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, [selectedCap]);
 
-  const variants: FinalVariant[] = capData?.portfolios?.[selectedArchetype] ?? [];
+  const variants: OldFinalVariant[] = capData?.portfolios?.[selectedArchetype] ?? [];
   const instr = capData?.contractInstruments;
 
   const wfColor = (rate: number) =>
     rate >= 0.7 ? 'text-emerald-400' : rate >= 0.5 ? 'text-yellow-400' : 'text-red-400';
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h2 className="text-base font-bold font-montserrat text-[#e2ca7a]">Final Portfolio Candidates</h2>
-          <p className="text-xs text-[#737373] mt-0.5">
-            IBKR real costs · FDXS + MGC contract sizing · RESEARCH_CANDIDATE only
-          </p>
-        </div>
+    <div className="space-y-4 bg-[#0a0a0a] rounded border border-[#2a2b30] p-4">
+      <div className="flex items-center gap-3">
+        <span className="text-xs font-semibold text-[#737373] uppercase tracking-wide">Research Archive</span>
+        <span className="text-xs text-[#737373]">Phase B/Final variants — Serkan-priced, relaxed margin threshold (85%)</span>
         {instr && (
-          <div className="text-xs text-[#737373] border border-[#2a2b30] rounded px-3 py-1.5 font-mono space-x-3">
+          <div className="ml-auto text-xs text-[#737373] font-mono space-x-2">
             <span>EURUSD: <span className="text-[#e2ca7a]">{instr.eurusd}</span></span>
             <span>DAX: <span className="text-[#e2ca7a]">{instr.dax}</span></span>
             <span>Gold: <span className="text-[#e2ca7a]">{instr.gold}</span></span>
@@ -295,28 +841,22 @@ function FinalCandidatesPanel() {
         )}
       </div>
 
-      {/* Capital selector */}
       <div className="flex gap-2 flex-wrap">
         {CAPS.map(cap => (
           <button key={cap} onClick={() => setSelectedCap(cap)}
-            className={cn('px-3 py-1.5 rounded text-sm font-mono font-semibold border transition-all',
-              selectedCap === cap
-                ? 'bg-[#bf9d4a] border-[#e2ca7a] text-black'
-                : 'border-[#2a2b30] text-[#737373] hover:border-[#e2ca7a] hover:text-[#e2ca7a]'
+            className={cn('px-3 py-1 rounded text-xs font-mono font-semibold border transition-all',
+              selectedCap === cap ? 'bg-[#bf9d4a]/30 border-[#e2ca7a]/50 text-[#e2ca7a]' : 'border-[#2a2b30] text-[#737373] hover:border-[#737373]'
             )}>
             €{cap >= 1000 ? `${cap / 1000}k` : cap}
           </button>
         ))}
       </div>
 
-      {/* Archetype selector */}
       <div className="flex gap-2 flex-wrap">
         {ARCHETYPES.map(a => (
           <button key={a} onClick={() => setSelectedArchetype(a)}
-            className={cn('px-3 py-1.5 rounded text-xs font-semibold border transition-all',
-              selectedArchetype === a
-                ? 'bg-[#1c1d20] border-[#e2ca7a] text-[#e2ca7a]'
-                : 'border-[#2a2b30] text-[#737373] hover:border-[#e2ca7a]/50 hover:text-[#e2ca7a]/70'
+            className={cn('px-2 py-1 rounded text-xs font-semibold border transition-all',
+              selectedArchetype === a ? 'bg-[#1c1d20] border-[#e2ca7a]/30 text-[#e2ca7a]/70' : 'border-[#2a2b30] text-[#737373]'
             )}>
             {a}
           </button>
@@ -324,72 +864,47 @@ function FinalCandidatesPanel() {
         <span className="text-xs text-[#737373] self-center ml-1">{ARCHETYPE_DESC[selectedArchetype]}</span>
       </div>
 
-      {loading && <div className="text-xs text-[#737373] py-4">Loading…</div>}
-
+      {loading && <div className="text-xs text-[#737373]">Loading…</div>}
       {!loading && variants.length === 0 && (
-        <div className="rounded border border-yellow-700/30 bg-yellow-900/10 p-4 text-xs text-yellow-400">
-          No final data available for €{selectedCap >= 1000 ? `${selectedCap / 1000}k` : selectedCap}. Run Phase 2–5 computation locally.
-        </div>
+        <div className="text-xs text-yellow-400/60 py-3">No archive data for this capital/archetype.</div>
       )}
-
       {!loading && variants.length > 0 && (
         <div className="overflow-x-auto">
           <table className="w-full text-xs border-collapse">
             <thead>
               <tr className="border-b border-[#2a2b30]">
-                {['Rank', 'Combo', 'EUR Filter', 'DAX 2H', 'GLD', 'Contracts', 'Net CAGR', 'MaxDD', 'Sharpe', 'Calmar', 'WF', 'Margin', 'Ann.Costs', 'Cost%'].map(h => (
+                {['#', 'Combo', 'EUR Filter', 'DAX 2H', 'GLD', 'Contracts', 'Net CAGR', 'MaxDD', 'Sharpe', 'WF', 'Margin', 'Costs/yr'].map(h => (
                   <th key={h} className="text-right first:text-left px-2 py-1.5 text-[#737373] font-normal whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {variants.map((v, i) => (
-                <tr key={v.comboKey} className={cn('border-b border-[#1a1b1e] hover:bg-[#1a1b1e]/50', i === 0 && 'bg-[#e2ca7a]/5')}>
+                <tr key={v.comboKey} className={cn('border-b border-[#1a1b1e] hover:bg-[#1a1b1e]/30', i === 0 && 'bg-[#e2ca7a]/3')}>
                   <td className="px-2 py-1.5 text-[#737373] font-mono">{i + 1}</td>
-                  <td className="px-2 py-1.5 font-mono text-[10px] max-w-[120px] truncate" title={v.comboKey}>{v.comboKey}</td>
-                  <td className="px-2 py-1.5 font-mono text-[#e2ca7a]">{v.eurFilter}</td>
+                  <td className="px-2 py-1.5 font-mono text-[10px] max-w-[100px] truncate" title={v.comboKey}>{v.comboKey}</td>
+                  <td className="px-2 py-1.5 font-mono text-[#e2ca7a]/80">{v.eurFilter}</td>
                   <td className="px-2 py-1.5 font-mono text-xs">{(v.d2hFilter ?? '').replace('D2_', '')}</td>
                   <td className="px-2 py-1.5 text-[#737373]">{(v.gldFilter ?? '').replace('GLD_', '')}</td>
-                  <td className="px-2 py-1.5 text-right font-mono text-xs">
-                    {v.contracts ? `${v.contracts.n_6E}×6E / ${v.contracts.n_DAX}×${v.contracts.dax_instrument} / ${v.contracts.n_GC}×${v.contracts.gc_instrument}` : '—'}
+                  <td className="px-2 py-1.5 text-right font-mono text-[10px]">
+                    {v.contracts ? `${v.contracts.n_6E}×6E/${v.contracts.n_DAX}×${v.contracts.dax_instrument}/${v.contracts.n_GC}×${v.contracts.gc_instrument}` : '—'}
                   </td>
-                  <td className="px-2 py-1.5 text-right font-mono font-semibold text-[#e2ca7a]">{v.scaledNetCAGR?.toFixed(1)}%</td>
-                  <td className="px-2 py-1.5 text-right font-mono text-red-400">{v.maxDDFromPeak?.toFixed(1)}%</td>
+                  <td className="px-2 py-1.5 text-right font-mono text-[#e2ca7a]/80">{v.scaledNetCAGR?.toFixed(1)}%</td>
+                  <td className="px-2 py-1.5 text-right font-mono text-red-400/70">{v.maxDDFromPeak?.toFixed(1)}%</td>
                   <td className="px-2 py-1.5 text-right font-mono">{v.sharpe?.toFixed(2)}</td>
-                  <td className="px-2 py-1.5 text-right font-mono">{v.calmar?.toFixed(2)}</td>
-                  <td className={cn('px-2 py-1.5 text-right font-mono font-semibold', wfColor(v.wfPassRate))}>
+                  <td className={cn('px-2 py-1.5 text-right font-mono', wfColor(v.wfPassRate))}>
                     {v.wfPositiveFolds}/{v.wfTotalFolds}
                   </td>
                   <td className="px-2 py-1.5 text-right font-mono text-[#737373]">{v.marginPct?.toFixed(0)}%</td>
-                  <td className="px-2 py-1.5 text-right font-mono text-orange-400">€{v.annualCosts?.toFixed(0)}</td>
-                  <td className="px-2 py-1.5 text-right font-mono text-[#737373]">{v.costImpactPct?.toFixed(1)}%</td>
+                  <td className="px-2 py-1.5 text-right font-mono text-orange-400/70">€{v.annualCosts?.toFixed(0)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
-
-      {/* Notes */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-        <div className="rounded border border-[#2a2b30] bg-[#0c0d10] p-3 text-[#737373] space-y-1">
-          <div className="text-[#e2ca7a] font-semibold mb-1">Contract instrument rules</div>
-          <div>• FDAX (€22k margin) inaccessible at all listed capital levels → FDXS used</div>
-          <div>• GC ($9k margin) inaccessible at €10k–€20k → MGC used</div>
-          <div>• 6E always 1 contract minimum (EURUSD requirement)</div>
-        </div>
-        <div className="rounded border border-yellow-700/30 bg-yellow-900/10 p-3 text-yellow-400/80 space-y-1">
-          <div className="font-semibold text-yellow-400">RESEARCH_CANDIDATE</div>
-          <div>All results require Jeroen&apos;s approval before production use.</div>
-          <div className="mt-1">6E cost status: NEEDS_VERIFICATION (single source)</div>
-          <div>MGC cost status: NEEDS_VERIFICATION (clearing fee discrepancy)</div>
-        </div>
-      </div>
-
-      {/* Link to detailed PB analysis */}
-      <div className="text-xs text-[#737373] border-t border-[#2a2b30] pt-3">
-        For detailed Phase B variant analysis (48 variants, parameter robustness), switch to
-        <span className="text-[#e2ca7a] ml-1">Strategy Quality</span> tab.
+      <div className="text-xs text-[#737373] italic">
+        ⚠ Archive data uses Serkan €1.70/rt cost model and 85% margin threshold. These are NOT FINAL_CANDIDATE by strict rules. Use Final White Swan tab for compliant results.
       </div>
     </div>
   );
@@ -417,7 +932,6 @@ function StrategyQualityPanel({ data }: { data: Record<string, unknown> | null }
         <span className="text-xs text-[#737373]">Phase B robustness analysis — ex-ante filters only</span>
       </div>
 
-      {/* Strategy overview table */}
       <div className="overflow-x-auto">
         <table className="w-full text-xs border-collapse">
           <thead>
@@ -442,7 +956,6 @@ function StrategyQualityPanel({ data }: { data: Record<string, unknown> | null }
         </table>
       </div>
 
-      {/* EURUSD detail if data available */}
       {data?.eurusd != null && (() => {
         const d = data!.eurusd as Record<string, unknown>;
         const filters = (d.filters as Array<Record<string, unknown>>) ?? [];
@@ -482,7 +995,6 @@ function StrategyQualityPanel({ data }: { data: Record<string, unknown> | null }
         );
       })()}
 
-      {/* ZW note */}
       <div className="rounded border border-yellow-700/30 bg-yellow-900/10 p-3 text-xs text-yellow-400 space-y-1">
         <div className="font-semibold">ZW Seasonal — LOW_CONFIDENCE_SEASONAL</div>
         <div className="text-[#737373]">Only 2 of 6 OOS years positive. 1 contract retained. True entry-window robustness requires OHLCV data for shifted entry backtest.</div>
@@ -503,7 +1015,6 @@ function IbkrCostsPanel({ data }: { data: Record<string, unknown> | null }) {
         <span className="text-xs text-[#737373]">Real all-in execution costs vs Serkan reference</span>
       </div>
 
-      {/* Serkan reference */}
       <div className="rounded border border-[#2a2b30] bg-[#141517] p-4 space-y-2">
         <div className="text-xs font-semibold text-[#737373] uppercase tracking-wide">Serkan Reference (all prior phases)</div>
         <div className="flex gap-6 text-sm">
@@ -518,7 +1029,6 @@ function IbkrCostsPanel({ data }: { data: Record<string, unknown> | null }) {
         const instruments = (d.instruments as Array<Record<string, unknown>>) ?? [];
         return (
           <div className="space-y-4">
-            {/* Research notes */}
             {d.researchNotes != null && (
               <div className="rounded border border-[#2a2b30] bg-[#0c0d10] p-3 text-xs text-[#737373] leading-relaxed">
                 <span className="text-[#e2ca7a] font-semibold mr-1">Research notes:</span>
@@ -568,7 +1078,6 @@ function IbkrCostsPanel({ data }: { data: Record<string, unknown> | null }) {
                 </tbody>
               </table>
             </div>
-            {/* Verification priorities */}
             {Array.isArray(d.verificationPriority) && (d.verificationPriority as string[]).length > 0 && (
               <div className="rounded border border-yellow-700/30 bg-yellow-900/10 p-3 space-y-1">
                 <div className="text-xs font-semibold text-yellow-400 mb-1">Verification required before production use:</div>
@@ -583,7 +1092,7 @@ function IbkrCostsPanel({ data }: { data: Record<string, unknown> | null }) {
         <div className="flex flex-col items-center justify-center py-12 text-[#737373] gap-2">
           <div className="text-[#e2ca7a] text-sm font-semibold">IBKR Cost Research — Pending</div>
           <div className="text-xs text-center max-w-xs">
-            Real IBKR cost data is being researched from official sources. This tab will populate automatically once Phase 1 completes.
+            Real IBKR cost data is being researched from official sources.
           </div>
           <div className="mt-3 text-xs font-mono border border-[#2a2b30] rounded px-3 py-1">
             Serkan reference active: €0.85/side · €1.70/roundturn
@@ -597,7 +1106,7 @@ function IbkrCostsPanel({ data }: { data: Record<string, unknown> | null }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function WhiteSwanAnalytics() {
-  const [activeTab, setActiveTab] = useState<'analytics' | 'lab' | 'quality' | 'costs'>('lab');
+  const [activeTab, setActiveTab] = useState<'final' | 'quality' | 'costs' | 'analytics'>('final');
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -634,16 +1143,13 @@ export function WhiteSwanAnalytics() {
       });
   }, []);
 
-  // Analytics data unavailable (e.g. Vercel preview) — still render tabs so Portfolio Lab is accessible
   const analyticsUnavailable = !loading && (error !== null || !data ||
     (!data.capitalScenarios?.length && !data.riskMetrics?.capitalScenarios?.length));
 
-  // Use capitalScenarios from riskMetrics (canonical, with navSeries from top-level)
   const scenarios: CapitalScenario[] = data
     ? (data.capitalScenarios?.length ? data.capitalScenarios : (data.riskMetrics?.capitalScenarios ?? []))
     : [];
 
-  // rm is only accessed inside !analyticsUnavailable guard (data != null there)
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const rm = (data?.riskMetrics ?? {}) as RiskMetrics;
   const selectedScenario = scenarios.find((s) => s.startNAV === selectedNAV || s.capitalLevel === selectedNAV) ?? scenarios[4];
@@ -690,14 +1196,14 @@ export function WhiteSwanAnalytics() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold font-montserrat text-[#e2ca7a]">White Swan Capital Analytics</h1>
         <p className="text-[#737373] text-sm mt-1">
-          18.5-year simulation — 15 active strategies / 17 components — 1-contract model
+          18.5-year simulation — 15 active strategies / 17 components — RESEARCH_CANDIDATE
         </p>
       </div>
 
       {/* Tab switcher */}
       <div className="flex gap-2 mb-6 flex-wrap">
         {([
-          { id: 'lab', label: 'Final Candidates' },
+          { id: 'final', label: 'Final White Swan' },
           { id: 'quality', label: 'Strategy Quality' },
           { id: 'costs', label: 'IBKR Costs' },
           { id: 'analytics', label: 'Capital Analytics' },
@@ -717,7 +1223,7 @@ export function WhiteSwanAnalytics() {
         ))}
       </div>
 
-      {activeTab === 'lab' && <FinalCandidatesPanel />}
+      {activeTab === 'final' && <FinalWhiteSwanPanel />}
 
       {activeTab === 'quality' && (
         <div className="space-y-6">
@@ -734,7 +1240,7 @@ export function WhiteSwanAnalytics() {
         <div className="flex flex-col items-center justify-center py-16 text-[#737373] gap-3">
           <div className="text-[#e2ca7a] text-sm font-semibold">Capital Analytics — not available in cloud preview</div>
           <div className="text-xs max-w-sm text-center">
-            Analytics data requires local Brain path. Run locally or switch to Portfolio Lab above.
+            Analytics data requires local Brain path. Run locally or use Final White Swan tab above.
           </div>
         </div>
       )}
@@ -756,7 +1262,6 @@ export function WhiteSwanAnalytics() {
       {/* CAPITAL SELECTOR + EFFICIENCY TABLE */}
       <SectionTitle>Capital Scenario Selector</SectionTitle>
       <div className="flex flex-col lg:flex-row gap-6 mb-4">
-        {/* Left: selector */}
         <div className="lg:w-64 shrink-0">
           <div className="flex flex-wrap gap-2 mb-4">
             {CAPITAL_LEVELS.map((cap) => {
@@ -819,7 +1324,6 @@ export function WhiteSwanAnalytics() {
           )}
         </div>
 
-        {/* Right: Capital Efficiency Matrix */}
         <div className="flex-1 overflow-x-auto">
           <table className="w-full text-xs border-collapse">
             <thead>
@@ -860,7 +1364,7 @@ export function WhiteSwanAnalytics() {
         </div>
       </div>
 
-      {/* EQUITY CURVE + DRAWDOWN side by side */}
+      {/* EQUITY CURVE + DRAWDOWN */}
       <SectionTitle>Equity Curve — €{selectedNAV >= 1000 ? `${selectedNAV / 1000}k` : selectedNAV} Starting Capital</SectionTitle>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         <div className="rounded-lg border border-[#2a2b30] bg-[#0A0A0A] p-4">
@@ -1021,7 +1525,7 @@ export function WhiteSwanAnalytics() {
         </div>
       </div>
 
-      {/* COST SENSITIVITY + STRATEGY COST DRIVERS side by side */}
+      {/* COST SENSITIVITY + STRATEGY COST DRIVERS */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-4">
         <div>
           <SectionTitle>Cost Sensitivity — 5 Scenarios (€50k)</SectionTitle>
