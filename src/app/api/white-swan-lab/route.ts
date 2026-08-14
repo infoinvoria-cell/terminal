@@ -20,9 +20,23 @@ export async function GET(request: Request) {
   try {
     if (type === 'finalists') {
       const raw = JSON.parse(fs.readFileSync(path.join(base, 'finalists.json'), 'utf8'));
-      // v2 finalists are grouped by capital key; flatten them
       const finalists = Array.isArray(raw) ? raw : Object.values(raw).flat();
       return NextResponse.json({ finalists });
+    }
+
+    // Cross-capital top-5 comparison (used by comparison table)
+    if (type === 'comparison') {
+      const CAPS = [10000, 12500, 15000, 20000];
+      const comparison: Record<string, unknown[]> = {};
+      for (const cap of CAPS) {
+        const raw = JSON.parse(fs.readFileSync(path.join(base, `capital-${cap}.json`), 'utf8'));
+        const variants = (Array.isArray(raw) ? raw : (raw.variants ?? [])) as Record<string, unknown>[];
+        comparison[String(cap)] = variants.slice(0, 5).map((v) => {
+          const { navSeries: _, ...rest } = v;
+          return rest;
+        });
+      }
+      return NextResponse.json({ comparison });
     }
 
     if (capital) {

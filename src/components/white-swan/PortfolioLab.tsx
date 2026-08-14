@@ -65,6 +65,7 @@ interface PortfolioVariant {
     isCAGR?: number;
     oosISDegradation?: number;
     oosNetPositive?: boolean;
+    oosMaxDDPct?: number;
     concentration?: { top1Pct: number; top3Pct: number; hhi: number };
   };
   // v1 shape
@@ -225,6 +226,8 @@ export function PortfolioLab() {
   const [familyFilter, setFamilyFilter] = useState<string>('ALL');
   const [allVariants, setAllVariants] = useState<PortfolioVariant[]>([]);
   const [showStrategyDetail, setShowStrategyDetail] = useState(false);
+  const [comparison, setComparison] = useState<Record<string, PortfolioVariant[]>>({});
+  const [showComparison, setShowComparison] = useState(false);
 
   // Load finalists on phase change
   useEffect(() => {
@@ -239,6 +242,20 @@ export function PortfolioLab() {
     fetch(`/api/white-swan-lab?phase=${phase}`)
       .then((r) => r.json())
       .then((d) => setAllVariants((d.variants ?? []).map(normaliseVariant)))
+      .catch(() => {});
+  }, [phase]);
+
+  // Load cross-capital comparison (top-5 per capital)
+  useEffect(() => {
+    fetch(`/api/white-swan-lab?type=comparison&phase=${phase}`)
+      .then((r) => r.json())
+      .then((d) => {
+        const normalised: Record<string, PortfolioVariant[]> = {};
+        for (const [cap, vs] of Object.entries(d.comparison ?? {})) {
+          normalised[cap] = (vs as PortfolioVariant[]).map(normaliseVariant);
+        }
+        setComparison(normalised);
+      })
       .catch(() => {});
   }, [phase]);
 
@@ -444,6 +461,138 @@ export function PortfolioLab() {
           </select>
         </div>
       </div>
+
+      {/* HERO KPI — top variant at selected capital */}
+      {phase === 'v2' && tableVariants[0] && !loading && (() => {
+        const hero = tableVariants[0];
+        const cap = hero.capital ?? hero.capitalLevel ?? capitalLevel;
+        const expectancy = hero.kpis.totalTrades > 0 ? hero.kpis.totalNet / hero.kpis.totalTrades : 0;
+        const annCostEur = hero.kpis.annualCosts ?? (hero.kpis.totalCosts / 16.97);
+        return (
+          <div className="rounded-lg border border-[#e2ca7a]/30 bg-gradient-to-b from-[#1a1810] to-[#0e0d0a] p-4">
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-widest text-[#e2ca7a]">
+                  Best Candidate — {hero.variantId}
+                </span>
+                <span className="ml-2 text-[10px] text-[#737373]">
+                  {hero.family} · €{(cap/1000).toFixed(1)}k · 17/17 components · 5/5 rolling folds
+                </span>
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded border border-[#e2ca7a]/20 text-[#e2ca7a]/60">RESEARCH_CANDIDATE</span>
+            </div>
+            <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-2">
+              {[
+                { l: 'CAGR', v: `${fmt(hero.kpis.cagr)}%`, s: `IS ${fmt(hero.kpis.isCAGR ?? hero.wf?.isCAGR)}%`, c: 'text-[#e2ca7a]' },
+                { l: 'OOS CAGR', v: `${fmt(hero.kpis.oosCAGR)}%`, s: '2019–2026', c: 'text-emerald-400' },
+                { l: 'Sharpe', v: fmt(hero.kpis.sharpe), s: `Sort: ${fmt(hero.kpis.sortino)}`, c: hero.kpis.sharpe >= 1.2 ? 'text-emerald-400' : 'text-yellow-400' },
+                { l: 'Calmar', v: fmt(hero.kpis.calmar ?? 0), s: undefined, c: (hero.kpis.calmar ?? 0) >= 0.8 ? 'text-emerald-400' : 'text-yellow-400' },
+                { l: 'MaxDD', v: `${fmt(hero.kpis.maxDDFromStart)}%`, s: `OOS ${fmt(hero.kpis.oosMaxDDPct ?? 0)}%`, c: maxDDColor(hero.kpis.maxDDFromStart) },
+                { l: 'Expectancy', v: `€${fmt(expectancy, 0)}`, s: 'net/trade', c: expectancy > 0 ? 'text-emerald-400' : 'text-red-400' },
+                { l: 'Cost/yr', v: `€${fmt(annCostEur, 0)}`, s: `${fmt(hero.kpis.annualCostPct)}% NAV`, c: 'text-[#737373]' },
+                { l: 'Trades/wk', v: fmt(hero.kpis.tradesPerWeek, 1), s: `${hero.kpis.totalTrades} total`, c: 'text-[#737373]' },
+                { l: 'Robust', v: `${hero.robustnessScore}`, s: `Suit: ${hero.suitabilityScore.toFixed(0)}`, c: suitabilityColor(hero.robustnessScore) },
+              ].map(({ l, v, s, c }) => (
+                <div key={l} className="rounded border border-[#2a2b30]/60 bg-[#0c0d10] p-2 text-center min-w-0">
+                  <div className="text-[9px] text-[#737373] uppercase tracking-wide mb-1 truncate">{l}</div>
+                  <div className={cn('text-sm font-bold font-mono leading-tight truncate', c)}>{v}</div>
+                  {s && <div className="text-[9px] text-[#737373] mt-0.5 truncate">{s}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* CAPITAL COMPARISON TABLE */}
+      {phase === 'v2' && Object.keys(comparison).length > 0 && (
+        <div className="rounded-lg border border-[#2a2b30] bg-[#141517] overflow-hidden">
+          <div className="flex items-center justify-between px-3 py-2 border-b border-[#2a2b30]">
+            <span className="text-xs font-semibold uppercase tracking-widest text-[#e2ca7a]">Capital Comparison — Top-5 per Level</span>
+            <button
+              onClick={() => setShowComparison((p) => !p)}
+              className="text-[10px] text-[#737373] hover:text-[#e2ca7a]"
+            >
+              {showComparison ? '▲ Collapse' : '▼ Expand'}
+            </button>
+          </div>
+          {showComparison && (
+            <div className="overflow-x-auto">
+              {[10000, 12500, 15000, 20000].map((cap) => {
+                const top5 = comparison[String(cap)] ?? [];
+                return (
+                  <div key={cap} className="border-b border-[#2a2b30]/40 last:border-0">
+                    <div className="px-3 py-1.5 text-[10px] font-semibold text-[#e2ca7a] bg-[#1c1d20]">
+                      €{cap >= 1000 ? `${cap / 1000}k` : cap}
+                    </div>
+                    <table className="w-full text-[10px] min-w-[900px]">
+                      <thead>
+                        <tr className="text-[#737373] border-b border-[#2a2b30]/30">
+                          <th className="px-2 py-1 text-left">Variant</th>
+                          <th className="px-2 py-1 text-right">CAGR</th>
+                          <th className="px-2 py-1 text-right">OOS CAGR</th>
+                          <th className="px-2 py-1 text-right">Sharpe</th>
+                          <th className="px-2 py-1 text-right">Calmar</th>
+                          <th className="px-2 py-1 text-right">MaxDD</th>
+                          <th className="px-2 py-1 text-right">Exp/trade</th>
+                          <th className="px-2 py-1 text-right">Tr/wk</th>
+                          <th className="px-2 py-1 text-right">Cost%</th>
+                          <th className="px-2 py-1 text-right">Top-1%</th>
+                          <th className="px-2 py-1 text-right">Robust</th>
+                          <th className="px-2 py-1 text-right">Suit.</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {top5.map((v, i) => {
+                          const exp = v.kpis.totalTrades > 0 ? v.kpis.totalNet / v.kpis.totalTrades : 0;
+                          const isSelected = v.variantId === (selected?.variantId ?? '');
+                          const isTopPick = i === 0;
+                          return (
+                            <tr
+                              key={v.variantId}
+                              onClick={() => { setCapitalLevel(cap); setSelectedId(v.variantId); }}
+                              className={cn(
+                                'border-b border-[#2a2b30]/20 cursor-pointer transition-colors hover:bg-[#1c1d20]',
+                                isSelected && 'bg-[#e2ca7a]/10',
+                                isTopPick && !isSelected && 'border-l-2 border-l-[#e2ca7a]/40'
+                              )}
+                            >
+                              <td className="px-2 py-1 font-mono text-[#e2ca7a]">
+                                {i === 0 ? '★ ' : ''}{v.variantId.replace(`_${cap}`, '')}
+                              </td>
+                              <td className="px-2 py-1 text-right font-mono">{fmt(v.kpis.cagr)}%</td>
+                              <td className="px-2 py-1 text-right font-mono text-emerald-400">{fmt(v.kpis.oosCAGR)}%</td>
+                              <td className="px-2 py-1 text-right font-mono">{fmt(v.kpis.sharpe)}</td>
+                              <td className="px-2 py-1 text-right font-mono">{fmt(v.kpis.calmar ?? 0)}</td>
+                              <td className={cn('px-2 py-1 text-right font-mono', maxDDColor(v.kpis.maxDDFromStart))}>
+                                {fmt(v.kpis.maxDDFromStart)}%
+                              </td>
+                              <td className={cn('px-2 py-1 text-right font-mono', exp > 0 ? 'text-emerald-400' : 'text-red-400')}>
+                                €{fmt(exp, 0)}
+                              </td>
+                              <td className="px-2 py-1 text-right font-mono text-[#737373]">{fmt(v.kpis.tradesPerWeek, 1)}</td>
+                              <td className="px-2 py-1 text-right font-mono text-[#737373]">{fmt(v.kpis.annualCostPct)}%</td>
+                              <td className="px-2 py-1 text-right font-mono text-[#737373]">
+                                {fmt(v.kpis.concentration?.top1Pct ?? 0)}%
+                              </td>
+                              <td className={cn('px-2 py-1 text-right font-mono', suitabilityColor(v.robustnessScore))}>
+                                {v.robustnessScore}
+                              </td>
+                              <td className={cn('px-2 py-1 text-right font-mono font-semibold', suitabilityColor(v.suitabilityScore))}>
+                                {v.suitabilityScore.toFixed(0)}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* VARIANT SELECTOR TABLE */}
       <div className="rounded-lg border border-[#2a2b30] bg-[#141517] overflow-hidden">
