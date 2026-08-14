@@ -1,0 +1,115 @@
+{
+  "generated": "2026-08-14T14:33:55.397Z",
+  "best2Months": [
+    9,
+    7
+  ],
+  "best2Quarters": [
+    3,
+    2
+  ],
+  "bestQuarter": 3,
+  "filters": {
+    "E0": {
+      "filter": "E0",
+      "label": "BASELINE",
+      "trades": 4266,
+      "netEUR": -4307.92,
+      "expEURPerTrade": -1.0098,
+      "isNet": -811.63,
+      "oosNet": -3496.29,
+      "verdict": "NEEDS_REDESIGN"
+    },
+    "E1": {
+      "filter": "E1",
+      "label": "MON_ONLY",
+      "trades": 817,
+      "netEUR": -86.77,
+      "expEURPerTrade": -0.1062,
+      "isNet": 88.63,
+      "oosNet": -175.4,
+      "verdict": "MARGINAL"
+    },
+    "E2": {
+      "filter": "E2",
+      "label": "MON_TUE",
+      "trades": 1729,
+      "netEUR": -340.01,
+      "expEURPerTrade": -0.1967,
+      "isNet": -91.06,
+      "oosNet": -248.95,
+      "verdict": "MARGINAL"
+    },
+    "E3": {
+      "filter": "E3",
+      "label": "MON_TUE_WED",
+      "trades": 2602,
+      "netEUR": -1350.11,
+      "expEURPerTrade": -0.5189,
+      "isNet": -261.4,
+      "oosNet": -1088.71,
+      "verdict": "MARGINAL"
+    },
+    "E4": {
+      "filter": "E4",
+      "label": "LONG_ONLY",
+      "trades": 2133,
+      "netEUR": -2084.97,
+      "expEURPerTrade": -0.9775,
+      "isNet": -232.9,
+      "oosNet": -1852.07,
+      "verdict": "MARGINAL"
+    },
+    "E5": {
+      "filter": "E5",
+      "label": "SHORT_ONLY",
+      "trades": 2133,
+      "netEUR": -2222.95,
+      "expEURPerTrade": -1.0422,
+      "isNet": -578.73,
+      "oosNet": -1644.22,
+      "verdict": "MARGINAL"
+    },
+    "E6": {
+      "filter": "E6",
+      "label": "MON_LONG",
+      "trades": 415,
+      "netEUR": 224.2,
+      "expEURPerTrade": 0.5402,
+      "isNet": -82.98,
+      "oosNet": 307.19,
+      "verdict": "VALID_IMPROVEMENT"
+    },
+    "E7": {
+      "filter": "E7",
+      "label": "BEST2MONTHS",
+      "trades": 712,
+      "netEUR": 33.19,
+      "expEURPerTrade": 0.0466,
+      "isNet": -189.77,
+      "oosNet": 222.96,
+      "verdict": "VALID_IMPROVEMENT"
+    },
+    "E8": {
+      "filter": "E8",
+      "label": "BEST2QUARTERS",
+      "trades": 2140,
+      "netEUR": -1458.5,
+      "expEURPerTrade": -0.6815,
+      "isNet": -766.79,
+      "oosNet": -691.7,
+      "verdict": "MARGINAL"
+    },
+    "E9": {
+      "filter": "E9",
+      "label": "MON_BESTQ",
+      "trades": 168,
+      "netEUR": 219.19,
+      "expEURPerTrade": 1.3047,
+      "isNet": -39.71,
+      "oosNet": 258.9,
+      "verdict": "VALID_IMPROVEMENT"
+    }
+  },
+  "overallVerdict": "VALID_IMPROVEMENT"
+}

@@ -238,7 +238,7 @@ function ScatterDot(props: ScatterShapeProps & { payload?: ScatterPayload }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function PortfolioLab() {
-  const [phase, setPhase] = useState<'v1' | 'v2' | 'v3'>('v3');
+  const [phase, setPhase] = useState<'v1' | 'v2' | 'v3' | 'v4'>('v4');
   const [capitalLevel, setCapitalLevel] = useState<number>(12500);
   const [variants, setVariants] = useState<PortfolioVariant[]>([]);
   const [finalists, setFinalists] = useState<PortfolioVariant[]>([]);
@@ -271,10 +271,10 @@ export function PortfolioLab() {
       .catch(() => {});
   }, [phase]);
 
-  // Load lookahead reference (v3 only)
+  // Load lookahead reference (v3/v4 only)
   useEffect(() => {
-    if (phase !== 'v3') { setLookaheadRef([]); return; }
-    fetch('/api/white-swan-lab?type=lookahead-reference&phase=v3')
+    if (phase !== 'v3' && phase !== 'v4') { setLookaheadRef([]); return; }
+    fetch(`/api/white-swan-lab?type=lookahead-reference&phase=${phase}`)
       .then((r) => r.json())
       .then((d) => setLookaheadRef((d.variants ?? []).map(normaliseVariant)))
       .catch(() => {});
@@ -361,7 +361,7 @@ export function PortfolioLab() {
 
   const selectedFinalist = useMemo(() => {
     if (!selected) return null;
-    if ((phase === 'v2' || phase === 'v3') && selected.navSeries) return selected;
+    if ((phase === 'v2' || phase === 'v3' || phase === 'v4') && selected.navSeries) return selected;
     return finalists.find((f) => f.variantId === selected.variantId) ?? null;
   }, [selected, finalists, phase]);
 
@@ -462,7 +462,9 @@ export function PortfolioLab() {
         <div>
           <h2 className="text-lg font-bold font-montserrat text-[#e2ca7a]">Portfolio Lab</h2>
           <p className="text-[#737373] text-xs mt-0.5">
-            {phase === 'v3'
+            {phase === 'v4'
+              ? '640 Live-Valid Variants — EURUSD Always Active · Ex-Ante Filters · 17 Components'
+              : phase === 'v3'
               ? '128 Live-Valid Variants — No Lookahead · Ex-Ante Rules Only · 17 Components'
               : phase === 'v2'
               ? '17/17 Quality Variants — EURUSD Overnight · DAX Hold ≥1d — RESEARCH_CANDIDATE'
@@ -473,7 +475,8 @@ export function PortfolioLab() {
           {/* Phase toggle */}
           <div className="flex rounded overflow-hidden border border-[#2a2b30] text-xs">
             {([
-              { id: 'v3', label: 'Live Valid' },
+              { id: 'v4', label: 'Live Valid v4' },
+              { id: 'v3', label: 'Live Valid v3' },
               { id: 'v2', label: '17/17 Research' },
               { id: 'v1', label: 'Phase 1' },
             ] as const).map(({ id, label }) => (
@@ -506,7 +509,7 @@ export function PortfolioLab() {
       </div>
 
       {/* HERO KPI — top variant at selected capital */}
-      {(phase === 'v2' || phase === 'v3') && tableVariants[0] && !loading && (() => {
+      {(phase === 'v2' || phase === 'v3' || phase === 'v4') && tableVariants[0] && !loading && (() => {
         const hero = tableVariants[0];
         const cap = hero.capital ?? hero.capitalLevel ?? capitalLevel;
         const expectancy = hero.kpis.expectancy ?? (hero.kpis.totalTrades > 0 ? hero.kpis.totalNet / hero.kpis.totalTrades : 0);
@@ -571,7 +574,7 @@ export function PortfolioLab() {
       })()}
 
       {/* LOOKAHEAD REFERENCE PANEL (v3 only) */}
-      {phase === 'v3' && lookaheadRef.length > 0 && (() => {
+      {(phase === 'v3' || phase === 'v4') && lookaheadRef.length > 0 && (() => {
         const liveRef = tableVariants[0];
         const laRef = lookaheadRef.find((r) => r.capital === capitalLevel);
         if (!liveRef || !laRef) return null;
@@ -664,7 +667,7 @@ export function PortfolioLab() {
       })()}
 
       {/* CAPITAL COMPARISON TABLE */}
-      {(phase === 'v2' || phase === 'v3') && Object.keys(comparison).length > 0 && (
+      {(phase === 'v2' || phase === 'v3' || phase === 'v4') && Object.keys(comparison).length > 0 && (
         <div className="rounded-lg border border-[#2a2b30] bg-[#141517] overflow-hidden">
           <div className="flex items-center justify-between px-3 py-2 border-b border-[#2a2b30]">
             <span className="text-xs font-semibold uppercase tracking-widest text-[#e2ca7a]">Capital Comparison — Top-5 per Level</span>

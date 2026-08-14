@@ -1,0 +1,2238 @@
+[
+  {
+    "variantId": "P4_E0D1_0D2_1_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E0",
+    "eurusdFilterLabel": "BASELINE",
+    "eurusdFilterVerdict": "NEEDS_REDESIGN",
+    "dax1hFilter": "D1_0",
+    "dax1hFilterLabel": "BASELINE",
+    "dax2hFilter": "D2_1",
+    "dax2hFilterLabel": "LONG_ONLY",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 91081.81,
+      "totalReturn": 5.0721,
+      "elapsedYears": 18.527,
+      "cagr": 10.2252,
+      "sharpe": 1.0658,
+      "sortino": 4.0454,
+      "calmar": 1.153,
+      "maxDDFromPeak": 8.8686,
+      "maxDDFromStart": 1.5506,
+      "totalTrades": 8245,
+      "totalGross": 89235.71,
+      "totalCosts": 13153.9,
+      "totalNet": 76081.81,
+      "tradesPerWeek": 8.529,
+      "annualCosts": 709.98,
+      "annualCostPct": 1.3386,
+      "costRatio": 17.2891,
+      "profitFactor": 1.5477,
+      "expectancy": 9.2276,
+      "isCAGR": 12.8032,
+      "oosCAGR": 17.2438,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 35.31,
+        "top3Pct": 70.86,
+        "netByStrategy": {
+          "dax_2h": 5917.71,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 18015.35,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 11547.62,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 6110.88,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 1021.39,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 5073.43,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 9373.3,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 10097.51,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 8484.39,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 12943.2,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  },
+  {
+    "variantId": "P4_E0D1_0D2_2_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E0",
+    "eurusdFilterLabel": "BASELINE",
+    "eurusdFilterVerdict": "NEEDS_REDESIGN",
+    "dax1hFilter": "D1_0",
+    "dax1hFilterLabel": "BASELINE",
+    "dax2hFilter": "D2_2",
+    "dax2hFilterLabel": "SHORT_ONLY",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 90239.88,
+      "totalReturn": 5.016,
+      "elapsedYears": 18.5161,
+      "cagr": 10.1763,
+      "sharpe": 1.0924,
+      "sortino": 4.2256,
+      "calmar": 1.2062,
+      "maxDDFromPeak": 8.4368,
+      "maxDDFromStart": 0.6103,
+      "totalTrades": 7994,
+      "totalGross": 87967.08,
+      "totalCosts": 12727.2,
+      "totalNet": 75239.88,
+      "tradesPerWeek": 8.274,
+      "annualCosts": 687.36,
+      "annualCostPct": 1.3063,
+      "costRatio": 16.9155,
+      "profitFactor": 1.5651,
+      "expectancy": 9.412,
+      "isCAGR": 12.913,
+      "oosCAGR": 16.8101,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 35.71,
+        "top3Pct": 71.65,
+        "netByStrategy": {
+          "dax_2h": 5075.79,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 16590.88,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 9973.24,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7983.11,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 3034.33,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 6144.68,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 7118.62,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 8620.3,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 8801.59,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 13031.29,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  },
+  {
+    "variantId": "P4_E0D1_0D2_3_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E0",
+    "eurusdFilterLabel": "BASELINE",
+    "eurusdFilterVerdict": "NEEDS_REDESIGN",
+    "dax1hFilter": "D1_0",
+    "dax1hFilterLabel": "BASELINE",
+    "dax2hFilter": "D2_3",
+    "dax2hFilterLabel": "MON_THU",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 96997.08,
+      "totalReturn": 5.4665,
+      "elapsedYears": 18.5161,
+      "cagr": 10.6068,
+      "sharpe": 1.0842,
+      "sortino": 4.0674,
+      "calmar": 1.2184,
+      "maxDDFromPeak": 8.7058,
+      "maxDDFromStart": 1.4382,
+      "totalTrades": 9088,
+      "totalGross": 96584.08,
+      "totalCosts": 14587,
+      "totalNet": 81997.08,
+      "tradesPerWeek": 9.406,
+      "annualCosts": 787.8,
+      "annualCostPct": 1.4068,
+      "costRatio": 17.7897,
+      "profitFactor": 1.52,
+      "expectancy": 9.0226,
+      "isCAGR": 13.2895,
+      "oosCAGR": 18.2443,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 32.77,
+        "top3Pct": 70.21,
+        "netByStrategy": {
+          "dax_2h": 11832.99,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 19803.64,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 11983.21,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7378.21,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 2482.89,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 8209.24,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 10122.97,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 11898.55,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 9850.14,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 14972.6,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  },
+  {
+    "variantId": "P4_E0D1_1D2_1_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E0",
+    "eurusdFilterLabel": "BASELINE",
+    "eurusdFilterVerdict": "NEEDS_REDESIGN",
+    "dax1hFilter": "D1_1",
+    "dax1hFilterLabel": "LONG_ONLY",
+    "dax2hFilter": "D2_1",
+    "dax2hFilterLabel": "LONG_ONLY",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 91081.81,
+      "totalReturn": 5.0721,
+      "elapsedYears": 18.527,
+      "cagr": 10.2252,
+      "sharpe": 1.0658,
+      "sortino": 4.0454,
+      "calmar": 1.153,
+      "maxDDFromPeak": 8.8686,
+      "maxDDFromStart": 1.5506,
+      "totalTrades": 8245,
+      "totalGross": 89235.71,
+      "totalCosts": 13153.9,
+      "totalNet": 76081.81,
+      "tradesPerWeek": 8.529,
+      "annualCosts": 709.98,
+      "annualCostPct": 1.3386,
+      "costRatio": 17.2891,
+      "profitFactor": 1.5477,
+      "expectancy": 9.2276,
+      "isCAGR": 12.8032,
+      "oosCAGR": 17.2438,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 35.31,
+        "top3Pct": 70.86,
+        "netByStrategy": {
+          "dax_2h": 5917.71,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 18015.35,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 11547.62,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 6110.88,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 1021.39,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 5073.43,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 9373.3,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 10097.51,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 8484.39,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 12943.2,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  },
+  {
+    "variantId": "P4_E0D1_1D2_2_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E0",
+    "eurusdFilterLabel": "BASELINE",
+    "eurusdFilterVerdict": "NEEDS_REDESIGN",
+    "dax1hFilter": "D1_1",
+    "dax1hFilterLabel": "LONG_ONLY",
+    "dax2hFilter": "D2_2",
+    "dax2hFilterLabel": "SHORT_ONLY",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 90239.88,
+      "totalReturn": 5.016,
+      "elapsedYears": 18.5161,
+      "cagr": 10.1763,
+      "sharpe": 1.0924,
+      "sortino": 4.2256,
+      "calmar": 1.2062,
+      "maxDDFromPeak": 8.4368,
+      "maxDDFromStart": 0.6103,
+      "totalTrades": 7994,
+      "totalGross": 87967.08,
+      "totalCosts": 12727.2,
+      "totalNet": 75239.88,
+      "tradesPerWeek": 8.274,
+      "annualCosts": 687.36,
+      "annualCostPct": 1.3063,
+      "costRatio": 16.9155,
+      "profitFactor": 1.5651,
+      "expectancy": 9.412,
+      "isCAGR": 12.913,
+      "oosCAGR": 16.8101,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 35.71,
+        "top3Pct": 71.65,
+        "netByStrategy": {
+          "dax_2h": 5075.79,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 16590.88,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 9973.24,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7983.11,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 3034.33,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 6144.68,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 7118.62,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 8620.3,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 8801.59,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 13031.29,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  },
+  {
+    "variantId": "P4_E0D1_1D2_3_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E0",
+    "eurusdFilterLabel": "BASELINE",
+    "eurusdFilterVerdict": "NEEDS_REDESIGN",
+    "dax1hFilter": "D1_1",
+    "dax1hFilterLabel": "LONG_ONLY",
+    "dax2hFilter": "D2_3",
+    "dax2hFilterLabel": "MON_THU",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 96997.08,
+      "totalReturn": 5.4665,
+      "elapsedYears": 18.5161,
+      "cagr": 10.6068,
+      "sharpe": 1.0842,
+      "sortino": 4.0674,
+      "calmar": 1.2184,
+      "maxDDFromPeak": 8.7058,
+      "maxDDFromStart": 1.4382,
+      "totalTrades": 9088,
+      "totalGross": 96584.08,
+      "totalCosts": 14587,
+      "totalNet": 81997.08,
+      "tradesPerWeek": 9.406,
+      "annualCosts": 787.8,
+      "annualCostPct": 1.4068,
+      "costRatio": 17.7897,
+      "profitFactor": 1.52,
+      "expectancy": 9.0226,
+      "isCAGR": 13.2895,
+      "oosCAGR": 18.2443,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 32.77,
+        "top3Pct": 70.21,
+        "netByStrategy": {
+          "dax_2h": 11832.99,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 19803.64,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 11983.21,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7378.21,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 2482.89,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 8209.24,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 10122.97,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 11898.55,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 9850.14,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 14972.6,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  },
+  {
+    "variantId": "P4_E0D1_2D2_0_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E0",
+    "eurusdFilterLabel": "BASELINE",
+    "eurusdFilterVerdict": "NEEDS_REDESIGN",
+    "dax1hFilter": "D1_2",
+    "dax1hFilterLabel": "SHORT_ONLY",
+    "dax2hFilter": "D2_0",
+    "dax2hFilterLabel": "BASELINE",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 94779.2,
+      "totalReturn": 5.3186,
+      "elapsedYears": 18.527,
+      "cagr": 10.4622,
+      "sharpe": 1.0622,
+      "sortino": 3.9863,
+      "calmar": 1.0845,
+      "maxDDFromPeak": 9.6467,
+      "maxDDFromStart": 1.3726,
+      "totalTrades": 9040,
+      "totalGross": 94284.6,
+      "totalCosts": 14505.4,
+      "totalNet": 79779.2,
+      "tradesPerWeek": 9.351,
+      "annualCosts": 782.93,
+      "annualCostPct": 1.4264,
+      "costRatio": 18.1819,
+      "profitFactor": 1.513,
+      "expectancy": 8.8251,
+      "isCAGR": 13.0308,
+      "oosCAGR": 17.9912,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 33.68,
+        "top3Pct": 71.11,
+        "netByStrategy": {
+          "dax_2h": 10993.5,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 17813,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 11054.32,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7080.78,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 2675.66,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 7329.55,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 9401.58,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 10642.81,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 8685.03,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 13622.38,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  },
+  {
+    "variantId": "P4_E0D1_2D2_1_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E0",
+    "eurusdFilterLabel": "BASELINE",
+    "eurusdFilterVerdict": "NEEDS_REDESIGN",
+    "dax1hFilter": "D1_2",
+    "dax1hFilterLabel": "SHORT_ONLY",
+    "dax2hFilter": "D2_1",
+    "dax2hFilterLabel": "LONG_ONLY",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 89703.41,
+      "totalReturn": 4.9802,
+      "elapsedYears": 18.527,
+      "cagr": 10.1345,
+      "sharpe": 1.0739,
+      "sortino": 4.1584,
+      "calmar": 1.0314,
+      "maxDDFromPeak": 9.8264,
+      "maxDDFromStart": 1.2853,
+      "totalTrades": 7557,
+      "totalGross": 86687.71,
+      "totalCosts": 11984.3,
+      "totalNet": 74703.41,
+      "tradesPerWeek": 7.817,
+      "annualCosts": 646.85,
+      "annualCostPct": 1.2356,
+      "costRatio": 16.0425,
+      "profitFactor": 1.6231,
+      "expectancy": 9.8853,
+      "isCAGR": 12.6596,
+      "oosCAGR": 17.0566,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 35.96,
+        "top3Pct": 72.16,
+        "netByStrategy": {
+          "dax_2h": 5917.71,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 17513.55,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 11376.12,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 6151.28,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 1202.69,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 5506.83,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 9513.1,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 9827.71,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 7898.69,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 11958.6,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  },
+  {
+    "variantId": "P4_E0D1_2D2_2_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E0",
+    "eurusdFilterLabel": "BASELINE",
+    "eurusdFilterVerdict": "NEEDS_REDESIGN",
+    "dax1hFilter": "D1_2",
+    "dax1hFilterLabel": "SHORT_ONLY",
+    "dax2hFilter": "D2_2",
+    "dax2hFilterLabel": "SHORT_ONLY",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 88861.48,
+      "totalReturn": 4.9241,
+      "elapsedYears": 18.5161,
+      "cagr": 10.0847,
+      "sharpe": 1.1037,
+      "sortino": 4.3573,
+      "calmar": 1.2073,
+      "maxDDFromPeak": 8.3531,
+      "maxDDFromStart": 0.6103,
+      "totalTrades": 7306,
+      "totalGross": 85419.08,
+      "totalCosts": 11557.6,
+      "totalNet": 73861.48,
+      "tradesPerWeek": 7.562,
+      "annualCosts": 624.19,
+      "annualCostPct": 1.202,
+      "costRatio": 15.6477,
+      "profitFactor": 1.6472,
+      "expectancy": 10.1097,
+      "isCAGR": 12.7708,
+      "oosCAGR": 16.6177,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 36.37,
+        "top3Pct": 72.99,
+        "netByStrategy": {
+          "dax_2h": 5075.79,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 16089.08,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 9801.74,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 8023.51,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 3215.63,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 6578.08,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 7258.42,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 8350.5,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 8215.89,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 12046.69,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  },
+  {
+    "variantId": "P4_E0D1_2D2_3_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E0",
+    "eurusdFilterLabel": "BASELINE",
+    "eurusdFilterVerdict": "NEEDS_REDESIGN",
+    "dax1hFilter": "D1_2",
+    "dax1hFilterLabel": "SHORT_ONLY",
+    "dax2hFilter": "D2_3",
+    "dax2hFilterLabel": "MON_THU",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 95618.68,
+      "totalReturn": 5.3746,
+      "elapsedYears": 18.5161,
+      "cagr": 10.5213,
+      "sharpe": 1.0902,
+      "sortino": 4.1738,
+      "calmar": 1.1242,
+      "maxDDFromPeak": 9.3587,
+      "maxDDFromStart": 1.3613,
+      "totalTrades": 8400,
+      "totalGross": 94036.08,
+      "totalCosts": 13417.4,
+      "totalNet": 80618.68,
+      "tradesPerWeek": 8.694,
+      "annualCosts": 724.63,
+      "annualCostPct": 1.3101,
+      "costRatio": 16.643,
+      "profitFactor": 1.5814,
+      "expectancy": 9.5975,
+      "isCAGR": 13.1519,
+      "oosCAGR": 18.0667,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 33.33,
+        "top3Pct": 71.41,
+        "netByStrategy": {
+          "dax_2h": 11832.99,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 19301.84,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 11811.71,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7418.61,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 2664.19,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 8642.64,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 10262.77,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 11628.75,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 9264.44,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 13988,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  },
+  {
+    "variantId": "P4_E0D1_3D2_0_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E0",
+    "eurusdFilterLabel": "BASELINE",
+    "eurusdFilterVerdict": "NEEDS_REDESIGN",
+    "dax1hFilter": "D1_3",
+    "dax1hFilterLabel": "MON_THU",
+    "dax2hFilter": "D2_0",
+    "dax2hFilterLabel": "BASELINE",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 96408.9,
+      "totalReturn": 5.4273,
+      "elapsedYears": 18.527,
+      "cagr": 10.5639,
+      "sharpe": 1.0627,
+      "sortino": 3.9177,
+      "calmar": 1.2055,
+      "maxDDFromPeak": 8.763,
+      "maxDDFromStart": 1.3726,
+      "totalTrades": 9611,
+      "totalGross": 96885,
+      "totalCosts": 15476.1,
+      "totalNet": 81408.9,
+      "tradesPerWeek": 9.942,
+      "annualCosts": 835.33,
+      "annualCostPct": 1.4996,
+      "costRatio": 19.0103,
+      "profitFactor": 1.4756,
+      "expectancy": 8.4704,
+      "isCAGR": 13.2156,
+      "oosCAGR": 18.1661,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 33,
+        "top3Pct": 69.69,
+        "netByStrategy": {
+          "dax_2h": 10993.5,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "dax_1h": 1629.7,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 18786,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 11485.12,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7189.58,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 2745.36,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 7138.85,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 9504.48,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 10906.71,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 9061.23,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 14383.28,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  },
+  {
+    "variantId": "P4_E0D1_3D2_1_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E0",
+    "eurusdFilterLabel": "BASELINE",
+    "eurusdFilterVerdict": "NEEDS_REDESIGN",
+    "dax1hFilter": "D1_3",
+    "dax1hFilterLabel": "MON_THU",
+    "dax2hFilter": "D2_1",
+    "dax2hFilterLabel": "LONG_ONLY",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 91333.11,
+      "totalReturn": 5.0889,
+      "elapsedYears": 18.527,
+      "cagr": 10.2416,
+      "sharpe": 1.0705,
+      "sortino": 4.0689,
+      "calmar": 1.1524,
+      "maxDDFromPeak": 8.8871,
+      "maxDDFromStart": 1.306,
+      "totalTrades": 8128,
+      "totalGross": 89288.11,
+      "totalCosts": 12955,
+      "totalNet": 76333.11,
+      "tradesPerWeek": 8.408,
+      "annualCosts": 699.25,
+      "annualCostPct": 1.3152,
+      "costRatio": 16.9717,
+      "profitFactor": 1.5631,
+      "expectancy": 9.3914,
+      "isCAGR": 12.8505,
+      "oosCAGR": 17.2408,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 35.2,
+        "top3Pct": 70.62,
+        "netByStrategy": {
+          "dax_2h": 5917.71,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "dax_1h": 1629.7,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 18486.55,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 11806.92,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 6260.08,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 1272.39,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 5316.13,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 9616,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 10091.61,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 8274.89,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 12719.5,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  },
+  {
+    "variantId": "P4_E0D1_3D2_2_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E0",
+    "eurusdFilterLabel": "BASELINE",
+    "eurusdFilterVerdict": "NEEDS_REDESIGN",
+    "dax1hFilter": "D1_3",
+    "dax1hFilterLabel": "MON_THU",
+    "dax2hFilter": "D2_2",
+    "dax2hFilterLabel": "SHORT_ONLY",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 90491.18,
+      "totalReturn": 5.0327,
+      "elapsedYears": 18.5161,
+      "cagr": 10.1928,
+      "sharpe": 1.0983,
+      "sortino": 4.2557,
+      "calmar": 1.2057,
+      "maxDDFromPeak": 8.4536,
+      "maxDDFromStart": 0.6103,
+      "totalTrades": 7877,
+      "totalGross": 88019.48,
+      "totalCosts": 12528.3,
+      "totalNet": 75491.18,
+      "tradesPerWeek": 8.153,
+      "annualCosts": 676.62,
+      "annualCostPct": 1.2828,
+      "costRatio": 16.5957,
+      "profitFactor": 1.5817,
+      "expectancy": 9.5837,
+      "isCAGR": 12.9598,
+      "oosCAGR": 16.8071,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 35.59,
+        "top3Pct": 71.41,
+        "netByStrategy": {
+          "dax_2h": 5075.79,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "dax_1h": 1629.7,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 17062.08,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 10232.54,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 8132.31,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 3285.33,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 6387.38,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 7361.32,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 8614.4,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 8592.09,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 12807.59,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  },
+  {
+    "variantId": "P4_E0D1_3D2_3_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E0",
+    "eurusdFilterLabel": "BASELINE",
+    "eurusdFilterVerdict": "NEEDS_REDESIGN",
+    "dax1hFilter": "D1_3",
+    "dax1hFilterLabel": "MON_THU",
+    "dax2hFilter": "D2_3",
+    "dax2hFilterLabel": "MON_THU",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 97248.38,
+      "totalReturn": 5.4832,
+      "elapsedYears": 18.5161,
+      "cagr": 10.6222,
+      "sharpe": 1.089,
+      "sortino": 4.091,
+      "calmar": 1.2176,
+      "maxDDFromPeak": 8.7236,
+      "maxDDFromStart": 1.3613,
+      "totalTrades": 8971,
+      "totalGross": 96636.48,
+      "totalCosts": 14388.1,
+      "totalNet": 82248.38,
+      "tradesPerWeek": 9.285,
+      "annualCosts": 777.06,
+      "annualCostPct": 1.3845,
+      "costRatio": 17.4935,
+      "profitFactor": 1.533,
+      "expectancy": 9.1683,
+      "isCAGR": 13.3348,
+      "oosCAGR": 18.2415,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 32.67,
+        "top3Pct": 70,
+        "netByStrategy": {
+          "dax_2h": 11832.99,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -4307.92,
+          "dax_1h": 1629.7,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 20274.84,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 12242.51,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7527.41,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 2733.89,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 8451.94,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 10365.67,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 11892.65,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 9640.64,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 14748.9,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  },
+  {
+    "variantId": "P4_E1D1_0D2_0_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E1",
+    "eurusdFilterLabel": "MON_ONLY",
+    "eurusdFilterVerdict": "MARGINAL",
+    "dax1hFilter": "D1_0",
+    "dax1hFilterLabel": "BASELINE",
+    "dax2hFilter": "D2_0",
+    "dax2hFilterLabel": "BASELINE",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 100378.75,
+      "totalReturn": 5.6919,
+      "elapsedYears": 18.527,
+      "cagr": 10.805,
+      "sharpe": 1.1626,
+      "sortino": 4.3537,
+      "calmar": 1.1531,
+      "maxDDFromPeak": 9.3707,
+      "maxDDFromStart": 1.4355,
+      "totalTrades": 6279,
+      "totalGross": 95701.37,
+      "totalCosts": 10322.62,
+      "totalNet": 85378.75,
+      "tradesPerWeek": 6.495,
+      "annualCosts": 557.17,
+      "annualCostPct": 0.9658,
+      "costRatio": 12.0904,
+      "profitFactor": 1.6205,
+      "expectancy": 13.5975,
+      "isCAGR": 13.3272,
+      "oosCAGR": 19.1324,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 31.47,
+        "top3Pct": 66.45,
+        "netByStrategy": {
+          "dax_2h": 10993.5,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -86.77,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 18373.06,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 11330.03,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7426.09,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 4204.23,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 8354.83,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 10780.81,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 12057.62,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 10653.19,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 15855.31,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  },
+  {
+    "variantId": "P4_E1D1_0D2_1_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E1",
+    "eurusdFilterLabel": "MON_ONLY",
+    "eurusdFilterVerdict": "MARGINAL",
+    "dax1hFilter": "D1_0",
+    "dax1hFilterLabel": "BASELINE",
+    "dax2hFilter": "D2_1",
+    "dax2hFilterLabel": "LONG_ONLY",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 95302.96,
+      "totalReturn": 5.3535,
+      "elapsedYears": 18.527,
+      "cagr": 10.4951,
+      "sharpe": 1.2225,
+      "sortino": 4.7195,
+      "calmar": 1.064,
+      "maxDDFromPeak": 9.8638,
+      "maxDDFromStart": 1.7669,
+      "totalTrades": 4796,
+      "totalGross": 88104.48,
+      "totalCosts": 7801.52,
+      "totalNet": 80302.96,
+      "tradesPerWeek": 4.961,
+      "annualCosts": 421.09,
+      "annualCostPct": 0.7635,
+      "costRatio": 9.7151,
+      "profitFactor": 1.7876,
+      "expectancy": 16.7437,
+      "isCAGR": 12.9658,
+      "oosCAGR": 18.2563,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 33.46,
+        "top3Pct": 67.13,
+        "netByStrategy": {
+          "dax_2h": 5917.71,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -86.77,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 18073.62,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 11651.83,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 6496.59,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 2731.26,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 6532.11,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 10892.32,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 11242.52,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 9866.85,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 14191.53,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  },
+  {
+    "variantId": "P4_E1D1_0D2_2_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E1",
+    "eurusdFilterLabel": "MON_ONLY",
+    "eurusdFilterVerdict": "MARGINAL",
+    "dax1hFilter": "D1_0",
+    "dax1hFilterLabel": "BASELINE",
+    "dax2hFilter": "D2_2",
+    "dax2hFilterLabel": "SHORT_ONLY",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 94461.03,
+      "totalReturn": 5.2974,
+      "elapsedYears": 18.5133,
+      "cagr": 10.4503,
+      "sharpe": 1.2632,
+      "sortino": 4.9747,
+      "calmar": 1.1564,
+      "maxDDFromPeak": 9.037,
+      "maxDDFromStart": 0.215,
+      "totalTrades": 4545,
+      "totalGross": 86835.86,
+      "totalCosts": 7374.82,
+      "totalNet": 79461.03,
+      "tradesPerWeek": 4.705,
+      "annualCosts": 398.35,
+      "annualCostPct": 0.7278,
+      "costRatio": 9.2811,
+      "profitFactor": 1.8261,
+      "expectancy": 17.4832,
+      "isCAGR": 13.0774,
+      "oosCAGR": 17.8498,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 33.81,
+        "top3Pct": 67.84,
+        "netByStrategy": {
+          "dax_2h": 5075.79,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -86.77,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 16649.15,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 10077.45,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 8368.82,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 4744.2,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 7603.36,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 8637.65,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 9765.31,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 10184.05,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 14279.62,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  },
+  {
+    "variantId": "P4_E1D1_0D2_3_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E1",
+    "eurusdFilterLabel": "MON_ONLY",
+    "eurusdFilterVerdict": "MARGINAL",
+    "dax1hFilter": "D1_0",
+    "dax1hFilterLabel": "BASELINE",
+    "dax2hFilter": "D2_3",
+    "dax2hFilterLabel": "MON_THU",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 101218.23,
+      "totalReturn": 5.7479,
+      "elapsedYears": 18.5161,
+      "cagr": 10.8615,
+      "sharpe": 1.1967,
+      "sortino": 4.5689,
+      "calmar": 1.1644,
+      "maxDDFromPeak": 9.3282,
+      "maxDDFromStart": 1.4129,
+      "totalTrades": 5639,
+      "totalGross": 95452.86,
+      "totalCosts": 9234.62,
+      "totalNet": 86218.23,
+      "tradesPerWeek": 5.837,
+      "annualCosts": 498.74,
+      "annualCostPct": 0.8583,
+      "costRatio": 10.7108,
+      "profitFactor": 1.7142,
+      "expectancy": 15.2896,
+      "isCAGR": 13.4452,
+      "oosCAGR": 19.207,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 31.16,
+        "top3Pct": 66.77,
+        "netByStrategy": {
+          "dax_2h": 11832.99,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -86.77,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 19861.91,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 12087.42,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7763.92,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 4192.76,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 9667.92,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 11642,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 13043.56,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 11232.61,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 16220.93,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  },
+  {
+    "variantId": "P4_E1D1_1D2_0_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E1",
+    "eurusdFilterLabel": "MON_ONLY",
+    "eurusdFilterVerdict": "MARGINAL",
+    "dax1hFilter": "D1_1",
+    "dax1hFilterLabel": "LONG_ONLY",
+    "dax2hFilter": "D2_0",
+    "dax2hFilterLabel": "BASELINE",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 100378.75,
+      "totalReturn": 5.6919,
+      "elapsedYears": 18.527,
+      "cagr": 10.805,
+      "sharpe": 1.1626,
+      "sortino": 4.3537,
+      "calmar": 1.1531,
+      "maxDDFromPeak": 9.3707,
+      "maxDDFromStart": 1.4355,
+      "totalTrades": 6279,
+      "totalGross": 95701.37,
+      "totalCosts": 10322.62,
+      "totalNet": 85378.75,
+      "tradesPerWeek": 6.495,
+      "annualCosts": 557.17,
+      "annualCostPct": 0.9658,
+      "costRatio": 12.0904,
+      "profitFactor": 1.6205,
+      "expectancy": 13.5975,
+      "isCAGR": 13.3272,
+      "oosCAGR": 19.1324,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 31.47,
+        "top3Pct": 66.45,
+        "netByStrategy": {
+          "dax_2h": 10993.5,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -86.77,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 18373.06,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 11330.03,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 7426.09,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 4204.23,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 8354.83,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 10780.81,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 12057.62,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 10653.19,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 15855.31,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  },
+  {
+    "variantId": "P4_E1D1_1D2_1_15000",
+    "phase": "v4",
+    "liveValidStatus": "LIVE_VALID",
+    "eurusdFilter": "E1",
+    "eurusdFilterLabel": "MON_ONLY",
+    "eurusdFilterVerdict": "MARGINAL",
+    "dax1hFilter": "D1_1",
+    "dax1hFilterLabel": "LONG_ONLY",
+    "dax2hFilter": "D2_1",
+    "dax2hFilterLabel": "LONG_ONLY",
+    "capital": 15000,
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 95302.96,
+      "totalReturn": 5.3535,
+      "elapsedYears": 18.527,
+      "cagr": 10.4951,
+      "sharpe": 1.2225,
+      "sortino": 4.7195,
+      "calmar": 1.064,
+      "maxDDFromPeak": 9.8638,
+      "maxDDFromStart": 1.7669,
+      "totalTrades": 4796,
+      "totalGross": 88104.48,
+      "totalCosts": 7801.52,
+      "totalNet": 80302.96,
+      "tradesPerWeek": 4.961,
+      "annualCosts": 421.09,
+      "annualCostPct": 0.7635,
+      "costRatio": 9.7151,
+      "profitFactor": 1.7876,
+      "expectancy": 16.7437,
+      "isCAGR": 12.9658,
+      "oosCAGR": 18.2563,
+      "oosNetPositive": true,
+      "concentration": {
+        "top1Pct": 33.46,
+        "top3Pct": 67.13,
+        "netByStrategy": {
+          "dax_2h": 5917.71,
+          "ym1_tat": 1162.14,
+          "gld_thursday_long": -294.06,
+          "gc1_seasonal": 1001.28,
+          "hg1_seasonal": 4981.4,
+          "cl1_seasonal": 8169.99,
+          "eurusd_30m": -86.77,
+          "dax_1h": 1378.4,
+          "spy_seasonal": 6361.25,
+          "zm1_seasonal": 2098.94,
+          "sb_seasonal": 18871.47,
+          "zc_seasonal": 1371.81,
+          "zw_seasonal": -2.41,
+          "zs_seasonal": 2505.07,
+          "cc_seasonal": 26866.75
+        }
+      }
+    },
+    "walkForward": {
+      "totalFolds": 9,
+      "positiveFolds": 9,
+      "passRate": 1,
+      "foldResults": [
+        {
+          "label": "IS 2008-2013 / OOS 2014-2016",
+          "oosNet": 18073.62,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2009-2014 / OOS 2015-2017",
+          "oosNet": 11651.83,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2010-2015 / OOS 2016-2018",
+          "oosNet": 6496.59,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2011-2016 / OOS 2017-2019",
+          "oosNet": 2731.26,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2012-2017 / OOS 2018-2020",
+          "oosNet": 6532.11,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2013-2018 / OOS 2019-2021",
+          "oosNet": 10892.32,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2014-2019 / OOS 2020-2022",
+          "oosNet": 11242.52,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2015-2020 / OOS 2021-2023",
+          "oosNet": 9866.85,
+          "isPositive": true
+        },
+        {
+          "label": "IS 2016-2021 / OOS 2022-2024",
+          "oosNet": 14191.53,
+          "isPositive": true
+        }
+      ]
+    },
+    "suitabilityScore": 60
+  }
+]
