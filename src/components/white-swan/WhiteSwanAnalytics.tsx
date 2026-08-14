@@ -235,16 +235,17 @@ export function WhiteSwanAnalytics() {
   }, []);
 
   // Analytics data unavailable (e.g. Vercel preview) — still render tabs so Portfolio Lab is accessible
-  const analyticsUnavailable = !loading && (error !== null || !data);
+  const analyticsUnavailable = !loading && (error !== null || !data ||
+    (!data.capitalScenarios?.length && !data.riskMetrics?.capitalScenarios?.length));
 
   // Use capitalScenarios from riskMetrics (canonical, with navSeries from top-level)
   const scenarios: CapitalScenario[] = data
-    ? (data.capitalScenarios.length ? data.capitalScenarios : data.riskMetrics.capitalScenarios)
+    ? (data.capitalScenarios?.length ? data.capitalScenarios : (data.riskMetrics?.capitalScenarios ?? []))
     : [];
 
   // rm is only accessed inside !analyticsUnavailable guard (data != null there)
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const rm = data?.riskMetrics!;
+  const rm = (data?.riskMetrics ?? {}) as RiskMetrics;
   const selectedScenario = scenarios.find((s) => s.startNAV === selectedNAV || s.capitalLevel === selectedNAV) ?? scenarios[4];
 
   const navSampled = downsample(selectedScenario?.navSeries ?? [], 300);

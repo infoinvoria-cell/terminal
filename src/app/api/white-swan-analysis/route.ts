@@ -21,36 +21,30 @@ function parseCsv(text: string): Record<string, string | number>[] {
   });
 }
 
+function tryReadJson(filePath: string) {
+  try { return JSON.parse(fs.readFileSync(filePath, 'utf8')); } catch { return null; }
+}
+function tryReadCsv(filePath: string) {
+  try { return parseCsv(fs.readFileSync(filePath, 'utf8')); } catch { return []; }
+}
+
 export async function GET() {
-  try {
-    // turbopackIgnore: data files live outside src/ and are not bundled
-    const base = path.join(/* turbopackIgnore: true */ process.cwd(), 'workspace', 'output', 'white-swan', 'analysis');
+  // Primary: local workspace (dev). Fallback: public/data (Vercel).
+  const workspaceBase = path.join(/* turbopackIgnore: true */ process.cwd(), 'workspace', 'output', 'white-swan', 'analysis');
+  const publicBase = path.join(/* turbopackIgnore: true */ process.cwd(), 'public', 'data', 'white-swan', 'analysis');
+  const base = fs.existsSync(workspaceBase) ? workspaceBase : publicBase;
 
-    const capitalScenarios = JSON.parse(
-      fs.readFileSync(path.join(base, 'capital-scenarios.json'), 'utf8')
-    );
-    const riskMetrics = JSON.parse(
-      fs.readFileSync(path.join(base, 'risk-metrics.json'), 'utf8')
-    );
-    const yearlyAnalysis = parseCsv(
-      fs.readFileSync(path.join(base, 'yearly-cost-analysis.csv'), 'utf8')
-    );
-    const strategyBreakdown = parseCsv(
-      fs.readFileSync(path.join(base, 'strategy-cost-breakdown.csv'), 'utf8')
-    );
-    const costSensitivity = parseCsv(
-      fs.readFileSync(path.join(base, 'cost-sensitivity.csv'), 'utf8')
-    );
+  const capitalScenarios = tryReadJson(path.join(base, 'capital-scenarios.json')) ?? [];
+  const riskMetrics = tryReadJson(path.join(base, 'risk-metrics.json')) ?? {};
+  const yearlyAnalysis = tryReadCsv(path.join(base, 'yearly-cost-analysis.csv'));
+  const strategyBreakdown = tryReadCsv(path.join(base, 'strategy-cost-breakdown.csv'));
+  const costSensitivity = tryReadCsv(path.join(base, 'cost-sensitivity.csv'));
 
-    return NextResponse.json({
-      capitalScenarios,
-      riskMetrics,
-      yearlyAnalysis,
-      strategyBreakdown,
-      costSensitivity,
-    });
-  } catch (err) {
-    console.error('white-swan-analysis route error:', err);
-    return NextResponse.json({ error: 'Failed to load analysis data' }, { status: 500 });
-  }
+  return NextResponse.json({
+    capitalScenarios,
+    riskMetrics,
+    yearlyAnalysis,
+    strategyBreakdown,
+    costSensitivity,
+  });
 }
