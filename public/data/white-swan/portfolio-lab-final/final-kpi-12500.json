@@ -1,0 +1,48 @@
+{
+  "generated": "2026-08-14T16:52:07.049Z",
+  "status": "RESEARCH_CANDIDATE",
+  "variantId": "PB_E0_D1_Baseline_D2_Baseline_GLD_BestMonths_12500",
+  "comboKey": "E0_D1_Baseline_D2_Baseline_GLD_BestMonths",
+  "capital": 12500,
+  "marginReference": "CURRENT_MARGIN_REFERENCE",
+  "contracts": {
+    "n_6E": 1,
+    "n_FDXS": 4,
+    "gold_instrument": "MGC",
+    "n_gold": 4
+  },
+  "currentMarginRef_EUR": 8747,
+  "marginPct_currentRef": 70,
+  "cagr_2008plus": 38.6815,
+  "cagr_2019plus": null,
+  "oosCAGR": 20.3157,
+  "sharpe": 1.0433,
+  "sortino": null,
+  "calmar": 1.1899,
+  "maxDDFromPeak": 9.6828,
+  "profitFactor": 1.4796,
+  "expectancy": 8.9762,
+  "tradesPerWeek": 9.46,
+  "executionsPerYear": 983.6,
+  "ibkrCostsPerYear_1c": 1175.23,
+  "ibkrCostsPerYear_scaled": 1867.65,
+  "costPerNAV": 14.94,
+  "grossCAGR": 17.8742,
+  "netCAGR": 38.6815,
+  "costDrag": -20.8073,
+  "rollingWF": {
+    "positiveFolds": 9,
+    "totalFolds": 9,
+    "passRate": 1
+  },
+  "noLookahead": true,
+  "finalStatus": "FINAL_RESEARCH_CANDIDATE",
+  "finalStatusReasons": {
+    "noLookahead": true,
+    "rollingWfPass": true,
+    "oosPass": true,
+    "contractSpecsVerified": true,
+    "ibkrCostsVerified": true,
+    "marginLabelCorrect": true
+  }
+}

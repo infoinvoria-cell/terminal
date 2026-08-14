@@ -1,0 +1,186 @@
+{
+  "generated": "2026-08-14T16:52:07.050Z",
+  "status": "RESEARCH_CANDIDATE",
+  "marginReference": "CURRENT_MARGIN_REFERENCE",
+  "ibkrCostsVerifiedDate": "2026-08-14",
+  "elapsedYears": 18.52,
+  "fxRate": {
+    "EUR_PER_USD": 0.81677
+  },
+  "bestByCapital": {
+    "10000": {
+      "capital": 10000,
+      "archetype": "BALANCED",
+      "comboKey": "E0_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "marginReference": "CURRENT_MARGIN_REFERENCE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 3,
+        "gold_instrument": "MGC",
+        "n_gold": 4
+      },
+      "currentMarginRef_EUR": 7867,
+      "marginPct_currentRef": 78.7,
+      "scaledNetCAGR": 38.2472,
+      "grossCAGR": 20.6502,
+      "maxDDFromPeak": 10.9052,
+      "sharpe": 0.9917,
+      "calmar": 1.1654,
+      "oosCAGR": 23.0993,
+      "ibkrCostsPerYear_1c": 1175.23,
+      "ibkrCostsPerYear_scaled": 1682,
+      "costImpactPct": 16.82,
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1
+      },
+      "finalStatus": "FINAL_RESEARCH_CANDIDATE"
+    },
+    "12500": {
+      "capital": 12500,
+      "archetype": "BALANCED",
+      "comboKey": "E0_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "marginReference": "CURRENT_MARGIN_REFERENCE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 4,
+        "gold_instrument": "MGC",
+        "n_gold": 4
+      },
+      "currentMarginRef_EUR": 8747,
+      "marginPct_currentRef": 70,
+      "scaledNetCAGR": 38.6815,
+      "grossCAGR": 17.8742,
+      "maxDDFromPeak": 9.6828,
+      "sharpe": 1.0433,
+      "calmar": 1.1899,
+      "oosCAGR": 20.3157,
+      "ibkrCostsPerYear_1c": 1175.23,
+      "ibkrCostsPerYear_scaled": 1867.65,
+      "costImpactPct": 14.94,
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1
+      },
+      "finalStatus": "FINAL_RESEARCH_CANDIDATE"
+    },
+    "15000": {
+      "capital": 15000,
+      "archetype": "BALANCED",
+      "comboKey": "E0_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "marginReference": "CURRENT_MARGIN_REFERENCE",
+      "contracts": {
+        "n_6E": 1,
+        "n_FDXS": 5,
+        "gold_instrument": "MGC",
+        "n_gold": 5
+      },
+      "currentMarginRef_EUR": 10362,
+      "marginPct_currentRef": 69.1,
+      "scaledNetCAGR": 44.2351,
+      "grossCAGR": 15.8795,
+      "maxDDFromPeak": 8.7069,
+      "sharpe": 1.0819,
+      "calmar": 1.2157,
+      "oosCAGR": 18.1956,
+      "ibkrCostsPerYear_1c": 1175.23,
+      "ibkrCostsPerYear_scaled": 2098.46,
+      "costImpactPct": 13.99,
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1
+      },
+      "finalStatus": "FINAL_RESEARCH_CANDIDATE"
+    },
+    "20000": {
+      "capital": 20000,
+      "archetype": "BALANCED",
+      "comboKey": "E0_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "marginReference": "CURRENT_MARGIN_REFERENCE",
+      "contracts": {
+        "n_6E": 2,
+        "n_FDXS": 6,
+        "gold_instrument": "MGC",
+        "n_gold": 6
+      },
+      "currentMarginRef_EUR": 14264,
+      "marginPct_currentRef": 71.3,
+      "scaledNetCAGR": 44.9915,
+      "grossCAGR": 13.1486,
+      "maxDDFromPeak": 7.2462,
+      "sharpe": 1.1344,
+      "calmar": 1.2666,
+      "oosCAGR": 15.1393,
+      "ibkrCostsPerYear_1c": 1175.23,
+      "ibkrCostsPerYear_scaled": 3273.69,
+      "costImpactPct": 16.37,
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1
+      },
+      "finalStatus": "FINAL_RESEARCH_CANDIDATE"
+    },
+    "25000": {
+      "capital": 25000,
+      "archetype": "BALANCED",
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "marginReference": "CURRENT_MARGIN_REFERENCE",
+      "contracts": {
+        "n_6E": 2,
+        "n_FDXS": 8,
+        "gold_instrument": "GC",
+        "n_gold": 1
+      },
+      "currentMarginRef_EUR": 18964,
+      "marginPct_currentRef": 75.9,
+      "scaledNetCAGR": 27.1823,
+      "grossCAGR": 8.6228,
+      "maxDDFromPeak": 7.4351,
+      "sharpe": 1.5532,
+      "calmar": 1.2606,
+      "oosCAGR": 16.1275,
+      "ibkrCostsPerYear_1c": 228.08,
+      "ibkrCostsPerYear_scaled": 1108.65,
+      "costImpactPct": 4.43,
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1
+      },
+      "finalStatus": "FINAL_RESEARCH_CANDIDATE"
+    },
+    "50000": {
+      "capital": 50000,
+      "archetype": "BALANCED",
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "marginReference": "CURRENT_MARGIN_REFERENCE",
+      "contracts": {
+        "n_6E": 4,
+        "n_FDXS": 8,
+        "gold_instrument": "GC",
+        "n_gold": 2
+      },
+      "currentMarginRef_EUR": 30888,
+      "marginPct_currentRef": 61.8,
+      "scaledNetCAGR": 24.2985,
+      "grossCAGR": 5.744,
+      "maxDDFromPeak": 7.4351,
+      "sharpe": 1.5532,
+      "calmar": 1.2606,
+      "oosCAGR": 16.1275,
+      "ibkrCostsPerYear_1c": 228.08,
+      "ibkrCostsPerYear_scaled": 1253.44,
+      "costImpactPct": 2.51,
+      "wf": {
+        "positiveFolds": 9,
+        "totalFolds": 9,
+        "passRate": 1
+      },
+      "finalStatus": "FINAL_RESEARCH_CANDIDATE"
+    }
+  }
+}
