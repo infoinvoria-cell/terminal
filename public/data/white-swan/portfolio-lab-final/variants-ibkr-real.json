@@ -1,0 +1,2979 @@
+{
+  "generated": "2026-08-14T16:25:15.269Z",
+  "status": "RESEARCH_CANDIDATE",
+  "elapsedYears": 18.52,
+  "ibkrCosts": {
+    "6E": {
+      "cost": 4.05,
+      "status": "NEEDS_VERIFICATION",
+      "margin_usd": 2800
+    },
+    "FDAX": {
+      "cost": 4.32,
+      "status": "CONFIRMED",
+      "margin_eur": 22000
+    },
+    "FDXS": {
+      "cost": 0.76,
+      "status": "CONFIRMED",
+      "margin_eur": 880
+    },
+    "GC": {
+      "cost": 4.1,
+      "status": "CONFIRMED",
+      "margin_usd": 9000
+    },
+    "MGC": {
+      "cost": 3.2,
+      "status": "NEEDS_VERIFICATION",
+      "margin_usd": 900
+    }
+  },
+  "serkanRates": {
+    "EUR": 1.5518,
+    "FDAX": 1.7,
+    "GC": 1.5518
+  },
+  "variants": [
+    {
+      "comboKey": "E0_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "eurFilter": "E0",
+      "d1hFilter": "D1_Baseline",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_Baseline",
+      "trades": {
+        "eurusd": 4266,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gld": 938,
+        "total": 8140
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 9,
+        "passRate": 1,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": 17976.14,
+            "isPositive": true
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": 11979.74,
+            "isPositive": true
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": 7792.6,
+            "isPositive": true
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": 2012.55,
+            "isPositive": true
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": 6979.97,
+            "isPositive": true
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": 9345.6,
+            "isPositive": true
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": 10912.61,
+            "isPositive": true
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": 9270.73,
+            "isPositive": true
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": 14606.98,
+            "isPositive": true
+          }
+        ]
+      },
+      "suitabilityScore": 80,
+      "kpis": {
+        "totalGross": 92861.4,
+        "totalTrades": 8140,
+        "maxDDFromPeak": 10.6493,
+        "sharpe": 1.0373,
+        "calmar": 1.1816
+      },
+      "serkan": {
+        "totalCosts": 13066.77,
+        "annualCosts": 705.55
+      },
+      "ibkrReal_1contract": {
+        "totalCostsEUR": 33806.62,
+        "annualCostsEUR": 1825.41,
+        "costMultiplierVsSerkan": 2.587,
+        "eurusdStatus": "NEEDS_VERIFICATION",
+        "mgcStatus": "NEEDS_VERIFICATION"
+      },
+      "byCapital_1contract": {
+        "10000": {
+          "ibkrNetPnL": 59054.77999999999,
+          "ibkrNetCAGR": 10.9974,
+          "grossCAGR": 13.4115
+        },
+        "12500": {
+          "ibkrNetPnL": 59054.77999999999,
+          "ibkrNetCAGR": 9.8788,
+          "grossCAGR": 12.1987
+        },
+        "15000": {
+          "ibkrNetPnL": 59054.77999999999,
+          "ibkrNetCAGR": 9.0044,
+          "grossCAGR": 11.2403
+        },
+        "20000": {
+          "ibkrNetPnL": 59054.77999999999,
+          "ibkrNetCAGR": 7.7035,
+          "grossCAGR": 9.794
+        },
+        "25000": {
+          "ibkrNetPnL": 59054.77999999999,
+          "ibkrNetCAGR": 6.7666,
+          "grossCAGR": 8.7333
+        },
+        "50000": {
+          "ibkrNetPnL": 59054.77999999999,
+          "ibkrNetCAGR": 4.3006,
+          "grossCAGR": 5.8325
+        }
+      },
+      "scaledByCapital": {
+        "10000": {
+          "capital": 10000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 3,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 7867,
+          "marginPct": 78.7,
+          "avgContracts": 2.67,
+          "scaledGrossPnL": 247630.4,
+          "scaledIBKRCosts": 35977.78,
+          "annualCosts": 1942.64,
+          "scaledNetPnL": 211652.62,
+          "scaledNetCAGR": 18.2117,
+          "costImpactPct": 14.5,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "12500": {
+          "capital": 12500,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 4,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 8747,
+          "marginPct": 70,
+          "avgContracts": 3,
+          "scaledGrossPnL": 278584.2,
+          "scaledIBKRCosts": 38209.14,
+          "annualCosts": 2063.13,
+          "scaledNetPnL": 240375.06,
+          "scaledNetCAGR": 17.63,
+          "costImpactPct": 13.7,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "15000": {
+          "capital": 15000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 5,
+            "dax_instrument": "FDXS",
+            "n_GC": 5,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 10362,
+          "marginPct": 69.1,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 340491.8,
+          "scaledIBKRCosts": 43442.1,
+          "annualCosts": 2345.69,
+          "scaledNetPnL": 297049.7,
+          "scaledNetCAGR": 17.8076,
+          "costImpactPct": 12.8,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "20000": {
+          "capital": 20000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 6,
+            "dax_instrument": "FDXS",
+            "n_GC": 6,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 14264,
+          "marginPct": 71.3,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 433353.2,
+          "scaledIBKRCosts": 65952.36,
+          "annualCosts": 3561.14,
+          "scaledNetPnL": 367400.84,
+          "scaledNetCAGR": 17.3544,
+          "costImpactPct": 15.2,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "25000": {
+          "capital": 25000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 1,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 18965,
+          "marginPct": 75.9,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 340491.8,
+          "scaledIBKRCosts": 56251.28,
+          "annualCosts": 3037.33,
+          "scaledNetPnL": 284240.52,
+          "scaledNetCAGR": 14.5467,
+          "costImpactPct": 16.5,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "50000": {
+          "capital": 50000,
+          "contracts": {
+            "n_6E": 4,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 2,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 30890,
+          "marginPct": 61.8,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 433353.2,
+          "scaledIBKRCosts": 94651.68,
+          "annualCosts": 5110.78,
+          "scaledNetPnL": 338701.52,
+          "scaledNetCAGR": 11.7097,
+          "costImpactPct": 21.8,
+          "marginOK": true,
+          "viableNetCAGR": true
+        }
+      }
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "eurFilter": "E0",
+      "d1hFilter": "D1_Baseline",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_BestMonths",
+      "trades": {
+        "eurusd": 4266,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gld": 318,
+        "total": 7520
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 9,
+        "passRate": 1,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": 18042.25,
+            "isPositive": true
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": 12094.23,
+            "isPositive": true
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": 7895.75,
+            "isPositive": true
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": 2137.96,
+            "isPositive": true
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": 7131.61,
+            "isPositive": true
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": 9585,
+            "isPositive": true
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": 11197.88,
+            "isPositive": true
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": 9490.72,
+            "isPositive": true
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": 14603.43,
+            "isPositive": true
+          }
+        ]
+      },
+      "suitabilityScore": 80,
+      "kpis": {
+        "totalGross": 92496.56,
+        "totalTrades": 7520,
+        "maxDDFromPeak": 10.6049,
+        "sharpe": 1.0712,
+        "calmar": 1.1904
+      },
+      "serkan": {
+        "totalCosts": 12104.65,
+        "annualCosts": 653.6
+      },
+      "ibkrReal_1contract": {
+        "totalCostsEUR": 31264.62,
+        "annualCostsEUR": 1688.15,
+        "costMultiplierVsSerkan": 2.583,
+        "eurusdStatus": "NEEDS_VERIFICATION",
+        "mgcStatus": "NEEDS_VERIFICATION"
+      },
+      "byCapital_1contract": {
+        "10000": {
+          "ibkrNetPnL": 61231.94,
+          "ibkrNetCAGR": 11.1836,
+          "grossCAGR": 13.3898
+        },
+        "12500": {
+          "ibkrNetPnL": 61231.94,
+          "ibkrNetCAGR": 10.0568,
+          "grossCAGR": 12.1776
+        },
+        "15000": {
+          "ibkrNetPnL": 61231.94,
+          "ibkrNetCAGR": 9.1751,
+          "grossCAGR": 11.2199
+        },
+        "20000": {
+          "ibkrNetPnL": 61231.94,
+          "ibkrNetCAGR": 7.8616,
+          "grossCAGR": 9.7748
+        },
+        "25000": {
+          "ibkrNetPnL": 61231.94,
+          "ibkrNetCAGR": 6.9141,
+          "grossCAGR": 8.7151
+        },
+        "50000": {
+          "ibkrNetPnL": 61231.94,
+          "ibkrNetCAGR": 4.412,
+          "grossCAGR": 5.8179
+        }
+      },
+      "scaledByCapital": {
+        "10000": {
+          "capital": 10000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 3,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 7867,
+          "marginPct": 78.7,
+          "avgContracts": 2.67,
+          "scaledGrossPnL": 246657.49,
+          "scaledIBKRCosts": 28041.78,
+          "annualCosts": 1514.13,
+          "scaledNetPnL": 218615.71,
+          "scaledNetCAGR": 18.4093,
+          "costImpactPct": 11.4,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "12500": {
+          "capital": 12500,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 4,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 8747,
+          "marginPct": 70,
+          "avgContracts": 3,
+          "scaledGrossPnL": 277489.68,
+          "scaledIBKRCosts": 30273.14,
+          "annualCosts": 1634.62,
+          "scaledNetPnL": 247216.54,
+          "scaledNetCAGR": 17.7997,
+          "costImpactPct": 10.9,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "15000": {
+          "capital": 15000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 5,
+            "dax_instrument": "FDXS",
+            "n_GC": 5,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 10362,
+          "marginPct": 69.1,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 339154.05,
+          "scaledIBKRCosts": 33522.1,
+          "annualCosts": 1810.05,
+          "scaledNetPnL": 305631.95,
+          "scaledNetCAGR": 17.9804,
+          "costImpactPct": 9.9,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "20000": {
+          "capital": 20000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 6,
+            "dax_instrument": "FDXS",
+            "n_GC": 6,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 14264,
+          "marginPct": 71.3,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 431650.61,
+          "scaledIBKRCosts": 54048.36,
+          "annualCosts": 2918.38,
+          "scaledNetPnL": 377602.25,
+          "scaledNetCAGR": 17.5192,
+          "costImpactPct": 12.5,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "25000": {
+          "capital": 25000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 1,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 18965,
+          "marginPct": 75.9,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 339154.05,
+          "scaledIBKRCosts": 53709.28,
+          "annualCosts": 2900.07,
+          "scaledNetPnL": 285444.77,
+          "scaledNetCAGR": 14.5707,
+          "costImpactPct": 15.8,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "50000": {
+          "capital": 50000,
+          "contracts": {
+            "n_6E": 4,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 2,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 30890,
+          "marginPct": 61.8,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 431650.61,
+          "scaledIBKRCosts": 89567.68,
+          "annualCosts": 4836.27,
+          "scaledNetPnL": 342082.93,
+          "scaledNetCAGR": 11.762,
+          "costImpactPct": 20.8,
+          "marginOK": true,
+          "viableNetCAGR": true
+        }
+      }
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "eurFilter": "E6_MonLong",
+      "d1hFilter": "D1_Baseline",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_Baseline",
+      "trades": {
+        "eurusd": 415,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gld": 938,
+        "total": 5877
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 9,
+        "passRate": 1,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": 18451.15,
+            "isPositive": true
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": 11309.5,
+            "isPositive": true
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": 7084.73,
+            "isPositive": true
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": 3728.21,
+            "isPositive": true
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": 8229.15,
+            "isPositive": true
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": 10927.69,
+            "isPositive": true
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": 12536.98,
+            "isPositive": true
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": 11002.34,
+            "isPositive": true
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": 16221.48,
+            "isPositive": true
+          }
+        ]
+      },
+      "suitabilityScore": 80,
+      "kpis": {
+        "totalGross": 95388.5,
+        "totalTrades": 5877,
+        "maxDDFromPeak": 11.7138,
+        "sharpe": 1.0817,
+        "calmar": 1.1068
+      },
+      "serkan": {
+        "totalCosts": 9790.39,
+        "annualCosts": 528.64
+      },
+      "ibkrReal_1contract": {
+        "totalCostsEUR": 25070.23,
+        "annualCostsEUR": 1353.68,
+        "costMultiplierVsSerkan": 2.561,
+        "eurusdStatus": "NEEDS_VERIFICATION",
+        "mgcStatus": "NEEDS_VERIFICATION"
+      },
+      "byCapital_1contract": {
+        "10000": {
+          "ibkrNetPnL": 70318.27,
+          "ibkrNetCAGR": 11.9067,
+          "grossCAGR": 13.5603
+        },
+        "12500": {
+          "ibkrNetPnL": 70318.27,
+          "ibkrNetCAGR": 10.7496,
+          "grossCAGR": 12.3423
+        },
+        "15000": {
+          "ibkrNetPnL": 70318.27,
+          "ibkrNetCAGR": 9.8409,
+          "grossCAGR": 11.3795
+        },
+        "20000": {
+          "ibkrNetPnL": 70318.27,
+          "ibkrNetCAGR": 8.4809,
+          "grossCAGR": 9.9254
+        },
+        "25000": {
+          "ibkrNetPnL": 70318.27,
+          "ibkrNetCAGR": 7.494,
+          "grossCAGR": 8.8579
+        },
+        "50000": {
+          "ibkrNetPnL": 70318.27,
+          "ibkrNetCAGR": 4.8557,
+          "grossCAGR": 5.9327
+        }
+      },
+      "scaledByCapital": {
+        "10000": {
+          "capital": 10000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 3,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 7867,
+          "marginPct": 78.7,
+          "avgContracts": 2.67,
+          "scaledGrossPnL": 254369.33,
+          "scaledIBKRCosts": 24001.87,
+          "annualCosts": 1296,
+          "scaledNetPnL": 230367.46,
+          "scaledNetCAGR": 18.7302,
+          "costImpactPct": 9.4,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "12500": {
+          "capital": 12500,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 4,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 8747,
+          "marginPct": 70,
+          "avgContracts": 3,
+          "scaledGrossPnL": 286165.5,
+          "scaledIBKRCosts": 27440.11,
+          "annualCosts": 1481.65,
+          "scaledNetPnL": 258725.39,
+          "scaledNetCAGR": 18.0758,
+          "costImpactPct": 9.6,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "15000": {
+          "capital": 15000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 5,
+            "dax_instrument": "FDXS",
+            "n_GC": 5,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 10362,
+          "marginPct": 69.1,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 349757.83,
+          "scaledIBKRCosts": 33879.95,
+          "annualCosts": 1829.37,
+          "scaledNetPnL": 315877.88,
+          "scaledNetCAGR": 18.1809,
+          "costImpactPct": 9.7,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "20000": {
+          "capital": 20000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 6,
+            "dax_instrument": "FDXS",
+            "n_GC": 6,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 14264,
+          "marginPct": 71.3,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 445146.33,
+          "scaledIBKRCosts": 42000.54,
+          "annualCosts": 2267.85,
+          "scaledNetPnL": 403145.79,
+          "scaledNetCAGR": 17.915,
+          "costImpactPct": 9.4,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "25000": {
+          "capital": 25000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 1,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 18965,
+          "marginPct": 75.9,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 349757.83,
+          "scaledIBKRCosts": 34713.22,
+          "annualCosts": 1874.36,
+          "scaledNetPnL": 315044.61,
+          "scaledNetCAGR": 15.1355,
+          "costImpactPct": 9.9,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "50000": {
+          "capital": 50000,
+          "contracts": {
+            "n_6E": 4,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 2,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 30890,
+          "marginPct": 61.8,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 445146.33,
+          "scaledIBKRCosts": 41920.52,
+          "annualCosts": 2263.53,
+          "scaledNetPnL": 403225.81,
+          "scaledNetCAGR": 12.64,
+          "costImpactPct": 9.4,
+          "marginOK": true,
+          "viableNetCAGR": true
+        }
+      }
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "eurFilter": "E6_MonLong",
+      "d1hFilter": "D1_Baseline",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_BestMonths",
+      "trades": {
+        "eurusd": 415,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gld": 318,
+        "total": 5257
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 9,
+        "passRate": 1,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": 18517.26,
+            "isPositive": true
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": 11424,
+            "isPositive": true
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": 7187.89,
+            "isPositive": true
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": 3853.61,
+            "isPositive": true
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": 8380.8,
+            "isPositive": true
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": 11167.09,
+            "isPositive": true
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": 12822.25,
+            "isPositive": true
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": 11222.33,
+            "isPositive": true
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": 16217.93,
+            "isPositive": true
+          }
+        ]
+      },
+      "suitabilityScore": 80,
+      "kpis": {
+        "totalGross": 95023.66,
+        "totalTrades": 5257,
+        "maxDDFromPeak": 11.7057,
+        "sharpe": 1.1297,
+        "calmar": 1.1108
+      },
+      "serkan": {
+        "totalCosts": 8828.27,
+        "annualCosts": 476.69
+      },
+      "ibkrReal_1contract": {
+        "totalCostsEUR": 22528.23,
+        "annualCostsEUR": 1216.43,
+        "costMultiplierVsSerkan": 2.552,
+        "eurusdStatus": "NEEDS_VERIFICATION",
+        "mgcStatus": "NEEDS_VERIFICATION"
+      },
+      "byCapital_1contract": {
+        "10000": {
+          "ibkrNetPnL": 72495.43000000001,
+          "ibkrNetCAGR": 12.0684,
+          "grossCAGR": 13.539
+        },
+        "12500": {
+          "ibkrNetPnL": 72495.43000000001,
+          "ibkrNetCAGR": 10.9049,
+          "grossCAGR": 12.3218
+        },
+        "15000": {
+          "ibkrNetPnL": 72495.43000000001,
+          "ibkrNetCAGR": 9.9904,
+          "grossCAGR": 11.3596
+        },
+        "20000": {
+          "ibkrNetPnL": 72495.43000000001,
+          "ibkrNetCAGR": 8.6206,
+          "grossCAGR": 9.9066
+        },
+        "25000": {
+          "ibkrNetPnL": 72495.43000000001,
+          "ibkrNetCAGR": 7.6252,
+          "grossCAGR": 8.84
+        },
+        "50000": {
+          "ibkrNetPnL": 72495.43000000001,
+          "ibkrNetCAGR": 4.9572,
+          "grossCAGR": 5.9184
+        }
+      },
+      "scaledByCapital": {
+        "10000": {
+          "capital": 10000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 3,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 7867,
+          "marginPct": 78.7,
+          "avgContracts": 2.67,
+          "scaledGrossPnL": 253396.43,
+          "scaledIBKRCosts": 16065.87,
+          "annualCosts": 867.49,
+          "scaledNetPnL": 237330.56,
+          "scaledNetCAGR": 18.9135,
+          "costImpactPct": 6.3,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "12500": {
+          "capital": 12500,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 4,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 8747,
+          "marginPct": 70,
+          "avgContracts": 3,
+          "scaledGrossPnL": 285070.98,
+          "scaledIBKRCosts": 19504.11,
+          "annualCosts": 1053.14,
+          "scaledNetPnL": 265566.87,
+          "scaledNetCAGR": 18.2347,
+          "costImpactPct": 6.8,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "15000": {
+          "capital": 15000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 5,
+            "dax_instrument": "FDXS",
+            "n_GC": 5,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 10362,
+          "marginPct": 69.1,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 348420.09,
+          "scaledIBKRCosts": 23959.95,
+          "annualCosts": 1293.73,
+          "scaledNetPnL": 324460.14,
+          "scaledNetCAGR": 18.3444,
+          "costImpactPct": 6.9,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "20000": {
+          "capital": 20000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 6,
+            "dax_instrument": "FDXS",
+            "n_GC": 6,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 14264,
+          "marginPct": 71.3,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 443443.75,
+          "scaledIBKRCosts": 30096.54,
+          "annualCosts": 1625.08,
+          "scaledNetPnL": 413347.21,
+          "scaledNetCAGR": 18.0668,
+          "costImpactPct": 6.8,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "25000": {
+          "capital": 25000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 1,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 18965,
+          "marginPct": 75.9,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 348420.09,
+          "scaledIBKRCosts": 32171.22,
+          "annualCosts": 1737.11,
+          "scaledNetPnL": 316248.87,
+          "scaledNetCAGR": 15.1575,
+          "costImpactPct": 9.2,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "50000": {
+          "capital": 50000,
+          "contracts": {
+            "n_6E": 4,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 2,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 30890,
+          "marginPct": 61.8,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 443443.75,
+          "scaledIBKRCosts": 36836.52,
+          "annualCosts": 1989.01,
+          "scaledNetPnL": 406607.23,
+          "scaledNetCAGR": 12.6852,
+          "costImpactPct": 8.3,
+          "marginOK": true,
+          "viableNetCAGR": true
+        }
+      }
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "eurFilter": "E6_MonLong",
+      "d1hFilter": "D1_Baseline",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_Baseline",
+      "trades": {
+        "eurusd": 415,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gld": 938,
+        "total": 4289
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 9,
+        "passRate": 1,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": 18112.49,
+            "isPositive": true
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": 12063.42,
+            "isPositive": true
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": 7836.95,
+            "isPositive": true
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": 3246.39,
+            "isPositive": true
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": 8312.97,
+            "isPositive": true
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": 11011.5,
+            "isPositive": true
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": 12536.98,
+            "isPositive": true
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": 11002.34,
+            "isPositive": true
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": 16221.48,
+            "isPositive": true
+          }
+        ]
+      },
+      "suitabilityScore": 80,
+      "kpis": {
+        "totalGross": 91417.3,
+        "totalTrades": 4289,
+        "maxDDFromPeak": 11.2627,
+        "sharpe": 1.2296,
+        "calmar": 1.144
+      },
+      "serkan": {
+        "totalCosts": 7090.79,
+        "annualCosts": 382.87
+      },
+      "ibkrReal_1contract": {
+        "totalCostsEUR": 18210.07,
+        "annualCostsEUR": 983.27,
+        "costMultiplierVsSerkan": 2.568,
+        "eurusdStatus": "NEEDS_VERIFICATION",
+        "mgcStatus": "NEEDS_VERIFICATION"
+      },
+      "byCapital_1contract": {
+        "10000": {
+          "ibkrNetPnL": 73207.23000000001,
+          "ibkrNetCAGR": 12.1204,
+          "grossCAGR": 13.325
+        },
+        "12500": {
+          "ibkrNetPnL": 73207.23000000001,
+          "ibkrNetCAGR": 10.9548,
+          "grossCAGR": 12.1151
+        },
+        "15000": {
+          "ibkrNetPnL": 73207.23000000001,
+          "ibkrNetCAGR": 10.0386,
+          "grossCAGR": 11.1594
+        },
+        "20000": {
+          "ibkrNetPnL": 73207.23000000001,
+          "ibkrNetCAGR": 8.6655,
+          "grossCAGR": 9.7177
+        },
+        "25000": {
+          "ibkrNetPnL": 73207.23000000001,
+          "ibkrNetCAGR": 7.6674,
+          "grossCAGR": 8.6609
+        },
+        "50000": {
+          "ibkrNetPnL": 73207.23000000001,
+          "ibkrNetCAGR": 4.9901,
+          "grossCAGR": 5.7745
+        }
+      },
+      "scaledByCapital": {
+        "10000": {
+          "capital": 10000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 3,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 7867,
+          "marginPct": 78.7,
+          "avgContracts": 2.67,
+          "scaledGrossPnL": 243779.47,
+          "scaledIBKRCosts": 20381.23,
+          "annualCosts": 1100.5,
+          "scaledNetPnL": 223398.24,
+          "scaledNetCAGR": 18.5418,
+          "costImpactPct": 8.4,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "12500": {
+          "capital": 12500,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 4,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 8747,
+          "marginPct": 70,
+          "avgContracts": 3,
+          "scaledGrossPnL": 274251.9,
+          "scaledIBKRCosts": 22612.59,
+          "annualCosts": 1220.98,
+          "scaledNetPnL": 251639.31,
+          "scaledNetCAGR": 17.9071,
+          "costImpactPct": 8.2,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "15000": {
+          "capital": 15000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 5,
+            "dax_instrument": "FDXS",
+            "n_GC": 5,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 10362,
+          "marginPct": 69.1,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 335196.77,
+          "scaledIBKRCosts": 27845.55,
+          "annualCosts": 1503.54,
+          "scaledNetPnL": 307351.22,
+          "scaledNetCAGR": 18.0144,
+          "costImpactPct": 8.3,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "20000": {
+          "capital": 20000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 6,
+            "dax_instrument": "FDXS",
+            "n_GC": 6,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 14264,
+          "marginPct": 71.3,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 426614.07,
+          "scaledIBKRCosts": 34759.26,
+          "annualCosts": 1876.85,
+          "scaledNetPnL": 391854.81,
+          "scaledNetCAGR": 17.7429,
+          "costImpactPct": 8.1,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "25000": {
+          "capital": 25000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 1,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 18965,
+          "marginPct": 75.9,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 335196.77,
+          "scaledIBKRCosts": 25058.18,
+          "annualCosts": 1353.03,
+          "scaledNetPnL": 310138.59,
+          "scaledNetCAGR": 15.0452,
+          "costImpactPct": 7.5,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "50000": {
+          "capital": 50000,
+          "contracts": {
+            "n_6E": 4,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 2,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 30890,
+          "marginPct": 61.8,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 426614.07,
+          "scaledIBKRCosts": 32265.48,
+          "annualCosts": 1742.2,
+          "scaledNetPnL": 394348.59,
+          "scaledNetCAGR": 12.5197,
+          "costImpactPct": 7.6,
+          "marginOK": true,
+          "viableNetCAGR": true
+        }
+      }
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "eurFilter": "E9_MonQ3",
+      "d1hFilter": "D1_Baseline",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_Baseline",
+      "trades": {
+        "eurusd": 168,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gld": 938,
+        "total": 5630
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 9,
+        "passRate": 1,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": 18525.98,
+            "isPositive": true
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": 11041.85,
+            "isPositive": true
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": 7130.8,
+            "isPositive": true
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": 3988.66,
+            "isPositive": true
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": 8473.53,
+            "isPositive": true
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": 10964.97,
+            "isPositive": true
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": 12480.18,
+            "isPositive": true
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": 10741.16,
+            "isPositive": true
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": 16118.8,
+            "isPositive": true
+          }
+        ]
+      },
+      "suitabilityScore": 80,
+      "kpis": {
+        "totalGross": 95000.17,
+        "totalTrades": 5630,
+        "maxDDFromPeak": 11.9099,
+        "sharpe": 1.0986,
+        "calmar": 1.0885
+      },
+      "serkan": {
+        "totalCosts": 9407.09,
+        "annualCosts": 507.94
+      },
+      "ibkrReal_1contract": {
+        "totalCostsEUR": 24069.88,
+        "annualCostsEUR": 1299.67,
+        "costMultiplierVsSerkan": 2.559,
+        "eurusdStatus": "NEEDS_VERIFICATION",
+        "mgcStatus": "NEEDS_VERIFICATION"
+      },
+      "byCapital_1contract": {
+        "10000": {
+          "ibkrNetPnL": 70930.29,
+          "ibkrNetCAGR": 11.9526,
+          "grossCAGR": 13.5376
+        },
+        "12500": {
+          "ibkrNetPnL": 70930.29,
+          "ibkrNetCAGR": 10.7936,
+          "grossCAGR": 12.3205
+        },
+        "15000": {
+          "ibkrNetPnL": 70930.29,
+          "ibkrNetCAGR": 9.8833,
+          "grossCAGR": 11.3583
+        },
+        "20000": {
+          "ibkrNetPnL": 70930.29,
+          "ibkrNetCAGR": 8.5205,
+          "grossCAGR": 9.9053
+        },
+        "25000": {
+          "ibkrNetPnL": 70930.29,
+          "ibkrNetCAGR": 7.5312,
+          "grossCAGR": 8.8389
+        },
+        "50000": {
+          "ibkrNetPnL": 70930.29,
+          "ibkrNetCAGR": 4.8844,
+          "grossCAGR": 5.9175
+        }
+      },
+      "scaledByCapital": {
+        "10000": {
+          "capital": 10000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 3,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 7867,
+          "marginPct": 78.7,
+          "avgContracts": 2.67,
+          "scaledGrossPnL": 253333.79,
+          "scaledIBKRCosts": 23001.52,
+          "annualCosts": 1241.98,
+          "scaledNetPnL": 230332.27,
+          "scaledNetCAGR": 18.7293,
+          "costImpactPct": 9.1,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "12500": {
+          "capital": 12500,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 4,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 8747,
+          "marginPct": 70,
+          "avgContracts": 3,
+          "scaledGrossPnL": 285000.51,
+          "scaledIBKRCosts": 26439.76,
+          "annualCosts": 1427.63,
+          "scaledNetPnL": 258560.75,
+          "scaledNetCAGR": 18.0719,
+          "costImpactPct": 9.3,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "15000": {
+          "capital": 15000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 5,
+            "dax_instrument": "FDXS",
+            "n_GC": 5,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 10362,
+          "marginPct": 69.1,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 348333.96,
+          "scaledIBKRCosts": 32879.6,
+          "annualCosts": 1775.36,
+          "scaledNetPnL": 315454.36,
+          "scaledNetCAGR": 18.1727,
+          "costImpactPct": 9.4,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "20000": {
+          "capital": 20000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 6,
+            "dax_instrument": "FDXS",
+            "n_GC": 6,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 14264,
+          "marginPct": 71.3,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 443334.13,
+          "scaledIBKRCosts": 39999.84,
+          "annualCosts": 2159.82,
+          "scaledNetPnL": 403334.29,
+          "scaledNetCAGR": 17.9179,
+          "costImpactPct": 9,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "25000": {
+          "capital": 25000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 1,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 18965,
+          "marginPct": 75.9,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 348333.96,
+          "scaledIBKRCosts": 32712.52,
+          "annualCosts": 1766.33,
+          "scaledNetPnL": 315621.44,
+          "scaledNetCAGR": 15.146,
+          "costImpactPct": 9.4,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "50000": {
+          "capital": 50000,
+          "contracts": {
+            "n_6E": 4,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 2,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 30890,
+          "marginPct": 61.8,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 443334.13,
+          "scaledIBKRCosts": 37919.12,
+          "annualCosts": 2047.47,
+          "scaledNetPnL": 405415.01,
+          "scaledNetCAGR": 12.6693,
+          "costImpactPct": 8.6,
+          "marginOK": true,
+          "viableNetCAGR": true
+        }
+      }
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "eurFilter": "E9_MonQ3",
+      "d1hFilter": "D1_Baseline",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_BestMonths",
+      "trades": {
+        "eurusd": 168,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gld": 318,
+        "total": 5010
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 9,
+        "passRate": 1,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": 18592.1,
+            "isPositive": true
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": 11156.34,
+            "isPositive": true
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": 7233.95,
+            "isPositive": true
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": 4114.07,
+            "isPositive": true
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": 8625.17,
+            "isPositive": true
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": 11204.37,
+            "isPositive": true
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": 12765.45,
+            "isPositive": true
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": 10961.15,
+            "isPositive": true
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": 16115.25,
+            "isPositive": true
+          }
+        ]
+      },
+      "suitabilityScore": 80,
+      "kpis": {
+        "totalGross": 94635.33,
+        "totalTrades": 5010,
+        "maxDDFromPeak": 11.8931,
+        "sharpe": 1.1502,
+        "calmar": 1.0933
+      },
+      "serkan": {
+        "totalCosts": 8444.97,
+        "annualCosts": 455.99
+      },
+      "ibkrReal_1contract": {
+        "totalCostsEUR": 21527.88,
+        "annualCostsEUR": 1162.41,
+        "costMultiplierVsSerkan": 2.549,
+        "eurusdStatus": "NEEDS_VERIFICATION",
+        "mgcStatus": "NEEDS_VERIFICATION"
+      },
+      "byCapital_1contract": {
+        "10000": {
+          "ibkrNetPnL": 73107.45,
+          "ibkrNetCAGR": 12.1132,
+          "grossCAGR": 13.5163
+        },
+        "12500": {
+          "ibkrNetPnL": 73107.45,
+          "ibkrNetCAGR": 10.9478,
+          "grossCAGR": 12.2999
+        },
+        "15000": {
+          "ibkrNetPnL": 73107.45,
+          "ibkrNetCAGR": 10.0319,
+          "grossCAGR": 11.3383
+        },
+        "20000": {
+          "ibkrNetPnL": 73107.45,
+          "ibkrNetCAGR": 8.6592,
+          "grossCAGR": 9.8865
+        },
+        "25000": {
+          "ibkrNetPnL": 73107.45,
+          "ibkrNetCAGR": 7.6615,
+          "grossCAGR": 8.821
+        },
+        "50000": {
+          "ibkrNetPnL": 73107.45,
+          "ibkrNetCAGR": 4.9855,
+          "grossCAGR": 5.903
+        }
+      },
+      "scaledByCapital": {
+        "10000": {
+          "capital": 10000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 3,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 7867,
+          "marginPct": 78.7,
+          "avgContracts": 2.67,
+          "scaledGrossPnL": 252360.88,
+          "scaledIBKRCosts": 15065.52,
+          "annualCosts": 813.47,
+          "scaledNetPnL": 237295.36,
+          "scaledNetCAGR": 18.9125,
+          "costImpactPct": 6,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "12500": {
+          "capital": 12500,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 4,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 8747,
+          "marginPct": 70,
+          "avgContracts": 3,
+          "scaledGrossPnL": 283905.99,
+          "scaledIBKRCosts": 18503.76,
+          "annualCosts": 999.12,
+          "scaledNetPnL": 265402.23,
+          "scaledNetCAGR": 18.231,
+          "costImpactPct": 6.5,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "15000": {
+          "capital": 15000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 5,
+            "dax_instrument": "FDXS",
+            "n_GC": 5,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 10362,
+          "marginPct": 69.1,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 346996.21,
+          "scaledIBKRCosts": 22959.6,
+          "annualCosts": 1239.72,
+          "scaledNetPnL": 324036.61,
+          "scaledNetCAGR": 18.3365,
+          "costImpactPct": 6.6,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "20000": {
+          "capital": 20000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 6,
+            "dax_instrument": "FDXS",
+            "n_GC": 6,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 14264,
+          "marginPct": 71.3,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 441631.54,
+          "scaledIBKRCosts": 28095.84,
+          "annualCosts": 1517.05,
+          "scaledNetPnL": 413535.7,
+          "scaledNetCAGR": 18.0696,
+          "costImpactPct": 6.4,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "25000": {
+          "capital": 25000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 1,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 18965,
+          "marginPct": 75.9,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 346996.21,
+          "scaledIBKRCosts": 30170.52,
+          "annualCosts": 1629.08,
+          "scaledNetPnL": 316825.69,
+          "scaledNetCAGR": 15.168,
+          "costImpactPct": 8.7,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "50000": {
+          "capital": 50000,
+          "contracts": {
+            "n_6E": 4,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 2,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 30890,
+          "marginPct": 61.8,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 441631.54,
+          "scaledIBKRCosts": 32835.12,
+          "annualCosts": 1772.95,
+          "scaledNetPnL": 408796.42,
+          "scaledNetCAGR": 12.7143,
+          "costImpactPct": 7.4,
+          "marginOK": true,
+          "viableNetCAGR": true
+        }
+      }
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "eurFilter": "E9_MonQ3",
+      "d1hFilter": "D1_Baseline",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_Baseline",
+      "trades": {
+        "eurusd": 168,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gld": 938,
+        "total": 4042
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 9,
+        "passRate": 1,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": 18187.33,
+            "isPositive": true
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": 11795.76,
+            "isPositive": true
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": 7883.01,
+            "isPositive": true
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": 3506.85,
+            "isPositive": true
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": 8557.35,
+            "isPositive": true
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": 11048.79,
+            "isPositive": true
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": 12480.18,
+            "isPositive": true
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": 10741.16,
+            "isPositive": true
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": 16118.8,
+            "isPositive": true
+          }
+        ]
+      },
+      "suitabilityScore": 80,
+      "kpis": {
+        "totalGross": 91028.97,
+        "totalTrades": 4042,
+        "maxDDFromPeak": 11.3625,
+        "sharpe": 1.2636,
+        "calmar": 1.134
+      },
+      "serkan": {
+        "totalCosts": 6707.49,
+        "annualCosts": 362.18
+      },
+      "ibkrReal_1contract": {
+        "totalCostsEUR": 17209.72,
+        "annualCostsEUR": 929.25,
+        "costMultiplierVsSerkan": 2.566,
+        "eurusdStatus": "NEEDS_VERIFICATION",
+        "mgcStatus": "NEEDS_VERIFICATION"
+      },
+      "byCapital_1contract": {
+        "10000": {
+          "ibkrNetPnL": 73819.25,
+          "ibkrNetCAGR": 12.1648,
+          "grossCAGR": 13.3015
+        },
+        "12500": {
+          "ibkrNetPnL": 73819.25,
+          "ibkrNetCAGR": 10.9975,
+          "grossCAGR": 12.0924
+        },
+        "15000": {
+          "ibkrNetPnL": 73819.25,
+          "ibkrNetCAGR": 10.0797,
+          "grossCAGR": 11.1374
+        },
+        "20000": {
+          "ibkrNetPnL": 73819.25,
+          "ibkrNetCAGR": 8.7039,
+          "grossCAGR": 9.697
+        },
+        "25000": {
+          "ibkrNetPnL": 73819.25,
+          "ibkrNetCAGR": 7.7036,
+          "grossCAGR": 8.6413
+        },
+        "50000": {
+          "ibkrNetPnL": 73819.25,
+          "ibkrNetCAGR": 5.0182,
+          "grossCAGR": 5.7588
+        }
+      },
+      "scaledByCapital": {
+        "10000": {
+          "capital": 10000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 3,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 7867,
+          "marginPct": 78.7,
+          "avgContracts": 2.67,
+          "scaledGrossPnL": 242743.92,
+          "scaledIBKRCosts": 19380.88,
+          "annualCosts": 1046.48,
+          "scaledNetPnL": 223363.04,
+          "scaledNetCAGR": 18.5408,
+          "costImpactPct": 8,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "12500": {
+          "capital": 12500,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 4,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 8747,
+          "marginPct": 70,
+          "avgContracts": 3,
+          "scaledGrossPnL": 273086.91,
+          "scaledIBKRCosts": 21612.24,
+          "annualCosts": 1166.97,
+          "scaledNetPnL": 251474.67,
+          "scaledNetCAGR": 17.9032,
+          "costImpactPct": 7.9,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "15000": {
+          "capital": 15000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 5,
+            "dax_instrument": "FDXS",
+            "n_GC": 5,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 10362,
+          "marginPct": 69.1,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 333772.89,
+          "scaledIBKRCosts": 26845.2,
+          "annualCosts": 1449.52,
+          "scaledNetPnL": 306927.69,
+          "scaledNetCAGR": 18.006,
+          "costImpactPct": 8,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "20000": {
+          "capital": 20000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 6,
+            "dax_instrument": "FDXS",
+            "n_GC": 6,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 14264,
+          "marginPct": 71.3,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 424801.86,
+          "scaledIBKRCosts": 32758.56,
+          "annualCosts": 1768.82,
+          "scaledNetPnL": 392043.3,
+          "scaledNetCAGR": 17.7459,
+          "costImpactPct": 7.7,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "25000": {
+          "capital": 25000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 1,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 18965,
+          "marginPct": 75.9,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 333772.89,
+          "scaledIBKRCosts": 23057.48,
+          "annualCosts": 1245,
+          "scaledNetPnL": 310715.41,
+          "scaledNetCAGR": 15.0559,
+          "costImpactPct": 6.9,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "50000": {
+          "capital": 50000,
+          "contracts": {
+            "n_6E": 4,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 2,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 30890,
+          "marginPct": 61.8,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 424801.86,
+          "scaledIBKRCosts": 28264.08,
+          "annualCosts": 1526.14,
+          "scaledNetPnL": 396537.78,
+          "scaledNetCAGR": 12.5496,
+          "costImpactPct": 6.7,
+          "marginOK": true,
+          "viableNetCAGR": true
+        }
+      }
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "eurFilter": "E6_MonLong",
+      "d1hFilter": "D1_Baseline",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_BestMonths",
+      "trades": {
+        "eurusd": 415,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gld": 318,
+        "total": 3669
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 9,
+        "passRate": 1,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": 18178.6,
+            "isPositive": true
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": 12177.91,
+            "isPositive": true
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": 7940.1,
+            "isPositive": true
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": 3371.8,
+            "isPositive": true
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": 8464.61,
+            "isPositive": true
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": 11250.9,
+            "isPositive": true
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": 12822.25,
+            "isPositive": true
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": 11222.33,
+            "isPositive": true
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": 16217.93,
+            "isPositive": true
+          }
+        ]
+      },
+      "suitabilityScore": 75,
+      "kpis": {
+        "totalGross": 91052.46,
+        "totalTrades": 3669,
+        "maxDDFromPeak": 11.0068,
+        "sharpe": 1.3259,
+        "calmar": 1.1751
+      },
+      "serkan": {
+        "totalCosts": 6128.67,
+        "annualCosts": 330.92
+      },
+      "ibkrReal_1contract": {
+        "totalCostsEUR": 15668.07,
+        "annualCostsEUR": 846.01,
+        "costMultiplierVsSerkan": 2.557,
+        "eurusdStatus": "NEEDS_VERIFICATION",
+        "mgcStatus": "NEEDS_VERIFICATION"
+      },
+      "byCapital_1contract": {
+        "10000": {
+          "ibkrNetPnL": 75384.39000000001,
+          "ibkrNetCAGR": 12.2769,
+          "grossCAGR": 13.3029
+        },
+        "12500": {
+          "ibkrNetPnL": 75384.39000000001,
+          "ibkrNetCAGR": 11.1052,
+          "grossCAGR": 12.0938
+        },
+        "15000": {
+          "ibkrNetPnL": 75384.39000000001,
+          "ibkrNetCAGR": 10.1835,
+          "grossCAGR": 11.1388
+        },
+        "20000": {
+          "ibkrNetPnL": 75384.39000000001,
+          "ibkrNetCAGR": 8.8011,
+          "grossCAGR": 9.6982
+        },
+        "25000": {
+          "ibkrNetPnL": 75384.39000000001,
+          "ibkrNetCAGR": 7.795,
+          "grossCAGR": 8.6425
+        },
+        "50000": {
+          "ibkrNetPnL": 75384.39000000001,
+          "ibkrNetCAGR": 5.0894,
+          "grossCAGR": 5.7597
+        }
+      },
+      "scaledByCapital": {
+        "10000": {
+          "capital": 10000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 3,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 7867,
+          "marginPct": 78.7,
+          "avgContracts": 2.67,
+          "scaledGrossPnL": 242806.56,
+          "scaledIBKRCosts": 12445.23,
+          "annualCosts": 671.99,
+          "scaledNetPnL": 230361.33,
+          "scaledNetCAGR": 18.7301,
+          "costImpactPct": 5.1,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "12500": {
+          "capital": 12500,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 4,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 8747,
+          "marginPct": 70,
+          "avgContracts": 3,
+          "scaledGrossPnL": 273157.38,
+          "scaledIBKRCosts": 14676.59,
+          "annualCosts": 792.47,
+          "scaledNetPnL": 258480.79,
+          "scaledNetCAGR": 18.0701,
+          "costImpactPct": 5.4,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "15000": {
+          "capital": 15000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 5,
+            "dax_instrument": "FDXS",
+            "n_GC": 5,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 10362,
+          "marginPct": 69.1,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 333859.02,
+          "scaledIBKRCosts": 17925.55,
+          "annualCosts": 967.9,
+          "scaledNetPnL": 315933.47,
+          "scaledNetCAGR": 18.182,
+          "costImpactPct": 5.4,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "20000": {
+          "capital": 20000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 6,
+            "dax_instrument": "FDXS",
+            "n_GC": 6,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 14264,
+          "marginPct": 71.3,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 424911.48,
+          "scaledIBKRCosts": 22855.26,
+          "annualCosts": 1234.09,
+          "scaledNetPnL": 402056.22,
+          "scaledNetCAGR": 17.8986,
+          "costImpactPct": 5.4,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "25000": {
+          "capital": 25000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 1,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 18965,
+          "marginPct": 75.9,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 333859.02,
+          "scaledIBKRCosts": 22516.18,
+          "annualCosts": 1215.78,
+          "scaledNetPnL": 311342.84,
+          "scaledNetCAGR": 15.0675,
+          "costImpactPct": 6.7,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "50000": {
+          "capital": 50000,
+          "contracts": {
+            "n_6E": 4,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 2,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 30890,
+          "marginPct": 61.8,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 424911.48,
+          "scaledIBKRCosts": 27181.48,
+          "annualCosts": 1467.68,
+          "scaledNetPnL": 397730,
+          "scaledNetCAGR": 12.5658,
+          "costImpactPct": 6.4,
+          "marginOK": true,
+          "viableNetCAGR": true
+        }
+      }
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "eurFilter": "E9_MonQ3",
+      "d1hFilter": "D1_Baseline",
+      "d2hFilter": "D2_HighVolYears",
+      "gldFilter": "GLD_BestMonths",
+      "trades": {
+        "eurusd": 168,
+        "dax1h": 1307,
+        "dax2h": 1629,
+        "gld": 318,
+        "total": 3422
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 9,
+        "passRate": 1,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": 18253.44,
+            "isPositive": true
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": 11910.26,
+            "isPositive": true
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": 7986.17,
+            "isPositive": true
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": 3632.26,
+            "isPositive": true
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": 8708.99,
+            "isPositive": true
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": 11288.19,
+            "isPositive": true
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": 12765.45,
+            "isPositive": true
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": 10961.15,
+            "isPositive": true
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": 16115.25,
+            "isPositive": true
+          }
+        ]
+      },
+      "suitabilityScore": 75,
+      "kpis": {
+        "totalGross": 90664.13,
+        "totalTrades": 3422,
+        "maxDDFromPeak": 11.107,
+        "sharpe": 1.3704,
+        "calmar": 1.1644
+      },
+      "serkan": {
+        "totalCosts": 5745.37,
+        "annualCosts": 310.23
+      },
+      "ibkrReal_1contract": {
+        "totalCostsEUR": 14667.72,
+        "annualCostsEUR": 791.99,
+        "costMultiplierVsSerkan": 2.553,
+        "eurusdStatus": "NEEDS_VERIFICATION",
+        "mgcStatus": "NEEDS_VERIFICATION"
+      },
+      "byCapital_1contract": {
+        "10000": {
+          "ibkrNetPnL": 75996.41,
+          "ibkrNetCAGR": 12.3202,
+          "grossCAGR": 13.2794
+        },
+        "12500": {
+          "ibkrNetPnL": 75996.41,
+          "ibkrNetCAGR": 11.1469,
+          "grossCAGR": 12.0711
+        },
+        "15000": {
+          "ibkrNetPnL": 75996.41,
+          "ibkrNetCAGR": 10.2237,
+          "grossCAGR": 11.1167
+        },
+        "20000": {
+          "ibkrNetPnL": 75996.41,
+          "ibkrNetCAGR": 8.8387,
+          "grossCAGR": 9.6775
+        },
+        "25000": {
+          "ibkrNetPnL": 75996.41,
+          "ibkrNetCAGR": 7.8304,
+          "grossCAGR": 8.6228
+        },
+        "50000": {
+          "ibkrNetPnL": 75996.41,
+          "ibkrNetCAGR": 5.1171,
+          "grossCAGR": 5.744
+        }
+      },
+      "scaledByCapital": {
+        "10000": {
+          "capital": 10000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 3,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 7867,
+          "marginPct": 78.7,
+          "avgContracts": 2.67,
+          "scaledGrossPnL": 241771.01,
+          "scaledIBKRCosts": 11444.88,
+          "annualCosts": 617.97,
+          "scaledNetPnL": 230326.13,
+          "scaledNetCAGR": 18.7291,
+          "costImpactPct": 4.7,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "12500": {
+          "capital": 12500,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 4,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 8747,
+          "marginPct": 70,
+          "avgContracts": 3,
+          "scaledGrossPnL": 271992.39,
+          "scaledIBKRCosts": 13676.24,
+          "annualCosts": 738.46,
+          "scaledNetPnL": 258316.15,
+          "scaledNetCAGR": 18.0662,
+          "costImpactPct": 5,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "15000": {
+          "capital": 15000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 5,
+            "dax_instrument": "FDXS",
+            "n_GC": 5,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 10362,
+          "marginPct": 69.1,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 332435.14,
+          "scaledIBKRCosts": 16925.2,
+          "annualCosts": 913.89,
+          "scaledNetPnL": 315509.94,
+          "scaledNetCAGR": 18.1738,
+          "costImpactPct": 5.1,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "20000": {
+          "capital": 20000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 6,
+            "dax_instrument": "FDXS",
+            "n_GC": 6,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 14264,
+          "marginPct": 71.3,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 423099.27,
+          "scaledIBKRCosts": 20854.56,
+          "annualCosts": 1126.06,
+          "scaledNetPnL": 402244.71,
+          "scaledNetCAGR": 17.9014,
+          "costImpactPct": 4.9,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "25000": {
+          "capital": 25000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 1,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 18965,
+          "marginPct": 75.9,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 332435.14,
+          "scaledIBKRCosts": 20515.48,
+          "annualCosts": 1107.75,
+          "scaledNetPnL": 311919.66,
+          "scaledNetCAGR": 15.0781,
+          "costImpactPct": 6.2,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "50000": {
+          "capital": 50000,
+          "contracts": {
+            "n_6E": 4,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 2,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 30890,
+          "marginPct": 61.8,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 423099.27,
+          "scaledIBKRCosts": 23180.08,
+          "annualCosts": 1251.62,
+          "scaledNetPnL": 399919.19,
+          "scaledNetCAGR": 12.5954,
+          "costImpactPct": 5.5,
+          "marginOK": true,
+          "viableNetCAGR": true
+        }
+      }
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "eurFilter": "E0",
+      "d1hFilter": "D1_Baseline",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_BestMonths",
+      "trades": {
+        "eurusd": 4266,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gld": 318,
+        "total": 9108
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 9,
+        "passRate": 1,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": 18380.91,
+            "isPositive": true
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": 11340.32,
+            "isPositive": true
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": 7143.54,
+            "isPositive": true
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": 2619.77,
+            "isPositive": true
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": 7047.8,
+            "isPositive": true
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": 9501.18,
+            "isPositive": true
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": 11197.88,
+            "isPositive": true
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": 9490.72,
+            "isPositive": true
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": 14603.43,
+            "isPositive": true
+          }
+        ]
+      },
+      "suitabilityScore": 65,
+      "kpis": {
+        "totalGross": 96467.76,
+        "totalTrades": 9108,
+        "maxDDFromPeak": 10.9052,
+        "sharpe": 0.9917,
+        "calmar": 1.1654
+      },
+      "serkan": {
+        "totalCosts": 14804.25,
+        "annualCosts": 799.37
+      },
+      "ibkrReal_1contract": {
+        "totalCostsEUR": 38124.78,
+        "annualCostsEUR": 2058.57,
+        "costMultiplierVsSerkan": 2.575,
+        "eurusdStatus": "NEEDS_VERIFICATION",
+        "mgcStatus": "NEEDS_VERIFICATION"
+      },
+      "byCapital_1contract": {
+        "10000": {
+          "ibkrNetPnL": 58342.979999999996,
+          "ibkrNetCAGR": 10.9353,
+          "grossCAGR": 13.6228
+        },
+        "12500": {
+          "ibkrNetPnL": 58342.979999999996,
+          "ibkrNetCAGR": 9.8195,
+          "grossCAGR": 12.4027
+        },
+        "15000": {
+          "ibkrNetPnL": 58342.979999999996,
+          "ibkrNetCAGR": 8.9475,
+          "grossCAGR": 11.438
+        },
+        "20000": {
+          "ibkrNetPnL": 58342.979999999996,
+          "ibkrNetCAGR": 7.6509,
+          "grossCAGR": 9.9806
+        },
+        "25000": {
+          "ibkrNetPnL": 58342.979999999996,
+          "ibkrNetCAGR": 6.7176,
+          "grossCAGR": 8.9104
+        },
+        "50000": {
+          "ibkrNetPnL": 58342.979999999996,
+          "ibkrNetCAGR": 4.2638,
+          "grossCAGR": 5.9751
+        }
+      },
+      "scaledByCapital": {
+        "10000": {
+          "capital": 10000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 3,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 7867,
+          "marginPct": 78.7,
+          "avgContracts": 2.67,
+          "scaledGrossPnL": 257247.36,
+          "scaledIBKRCosts": 31662.42,
+          "annualCosts": 1709.63,
+          "scaledNetPnL": 225584.94,
+          "scaledNetCAGR": 18.6015,
+          "costImpactPct": 12.3,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "12500": {
+          "capital": 12500,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 4,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 8747,
+          "marginPct": 70,
+          "avgContracts": 3,
+          "scaledGrossPnL": 289403.28,
+          "scaledIBKRCosts": 35100.66,
+          "annualCosts": 1895.28,
+          "scaledNetPnL": 254302.62,
+          "scaledNetCAGR": 17.971,
+          "costImpactPct": 12.1,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "15000": {
+          "capital": 15000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 5,
+            "dax_instrument": "FDXS",
+            "n_GC": 5,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 10362,
+          "marginPct": 69.1,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 353715.12,
+          "scaledIBKRCosts": 39556.5,
+          "annualCosts": 2135.88,
+          "scaledNetPnL": 314158.62,
+          "scaledNetCAGR": 18.1477,
+          "costImpactPct": 11.2,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "20000": {
+          "capital": 20000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 6,
+            "dax_instrument": "FDXS",
+            "n_GC": 6,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 14264,
+          "marginPct": 71.3,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 450182.88,
+          "scaledIBKRCosts": 61289.64,
+          "annualCosts": 3309.38,
+          "scaledNetPnL": 388893.24,
+          "scaledNetCAGR": 17.6971,
+          "costImpactPct": 13.6,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "25000": {
+          "capital": 25000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 1,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 18965,
+          "marginPct": 75.9,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 353715.12,
+          "scaledIBKRCosts": 63364.32,
+          "annualCosts": 3421.4,
+          "scaledNetPnL": 290350.8,
+          "scaledNetCAGR": 14.6678,
+          "costImpactPct": 17.9,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "50000": {
+          "capital": 50000,
+          "contracts": {
+            "n_6E": 4,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 2,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 30890,
+          "marginPct": 61.8,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 450182.88,
+          "scaledIBKRCosts": 99222.72,
+          "annualCosts": 5357.6,
+          "scaledNetPnL": 350960.16,
+          "scaledNetCAGR": 11.8972,
+          "costImpactPct": 22,
+          "marginOK": true,
+          "viableNetCAGR": true
+        }
+      }
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "eurFilter": "E0",
+      "d1hFilter": "D1_Baseline",
+      "d2hFilter": "D2_Baseline",
+      "gldFilter": "GLD_Baseline",
+      "trades": {
+        "eurusd": 4266,
+        "dax1h": 1307,
+        "dax2h": 3217,
+        "gld": 938,
+        "total": 9728
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 9,
+        "passRate": 1,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": 18314.8,
+            "isPositive": true
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": 11225.82,
+            "isPositive": true
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": 7040.38,
+            "isPositive": true
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": 2494.36,
+            "isPositive": true
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": 6896.15,
+            "isPositive": true
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": 9261.78,
+            "isPositive": true
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": 10912.61,
+            "isPositive": true
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": 9270.73,
+            "isPositive": true
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": 14606.98,
+            "isPositive": true
+          }
+        ]
+      },
+      "suitabilityScore": 60,
+      "kpis": {
+        "totalGross": 96832.6,
+        "totalTrades": 9728,
+        "maxDDFromPeak": 10.9505,
+        "sharpe": 0.9703,
+        "calmar": 1.1569
+      },
+      "serkan": {
+        "totalCosts": 15766.37,
+        "annualCosts": 851.32
+      },
+      "ibkrReal_1contract": {
+        "totalCostsEUR": 40666.78,
+        "annualCostsEUR": 2195.83,
+        "costMultiplierVsSerkan": 2.579,
+        "eurusdStatus": "NEEDS_VERIFICATION",
+        "mgcStatus": "NEEDS_VERIFICATION"
+      },
+      "byCapital_1contract": {
+        "10000": {
+          "ibkrNetPnL": 56165.82000000001,
+          "ibkrNetCAGR": 10.7416,
+          "grossCAGR": 13.6438
+        },
+        "12500": {
+          "ibkrNetPnL": 56165.82000000001,
+          "ibkrNetCAGR": 9.6346,
+          "grossCAGR": 12.423
+        },
+        "15000": {
+          "ibkrNetPnL": 56165.82000000001,
+          "ibkrNetCAGR": 8.7704,
+          "grossCAGR": 11.4577
+        },
+        "20000": {
+          "ibkrNetPnL": 56165.82000000001,
+          "ibkrNetCAGR": 7.4872,
+          "grossCAGR": 9.9992
+        },
+        "25000": {
+          "ibkrNetPnL": 56165.82000000001,
+          "ibkrNetCAGR": 6.5651,
+          "grossCAGR": 8.928
+        },
+        "50000": {
+          "ibkrNetPnL": 56165.82000000001,
+          "ibkrNetCAGR": 4.1495,
+          "grossCAGR": 5.9893
+        }
+      },
+      "scaledByCapital": {
+        "10000": {
+          "capital": 10000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 3,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 7867,
+          "marginPct": 78.7,
+          "avgContracts": 2.67,
+          "scaledGrossPnL": 258220.27,
+          "scaledIBKRCosts": 39598.42,
+          "annualCosts": 2138.14,
+          "scaledNetPnL": 218621.85,
+          "scaledNetCAGR": 18.4095,
+          "costImpactPct": 15.3,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "12500": {
+          "capital": 12500,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 4,
+            "dax_instrument": "FDXS",
+            "n_GC": 4,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 8747,
+          "marginPct": 70,
+          "avgContracts": 3,
+          "scaledGrossPnL": 290497.8,
+          "scaledIBKRCosts": 43036.66,
+          "annualCosts": 2323.79,
+          "scaledNetPnL": 247461.14,
+          "scaledNetCAGR": 17.8057,
+          "costImpactPct": 14.8,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "15000": {
+          "capital": 15000,
+          "contracts": {
+            "n_6E": 1,
+            "n_DAX": 5,
+            "dax_instrument": "FDXS",
+            "n_GC": 5,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 10362,
+          "marginPct": 69.1,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 355052.87,
+          "scaledIBKRCosts": 49476.5,
+          "annualCosts": 2671.52,
+          "scaledNetPnL": 305576.37,
+          "scaledNetCAGR": 17.9792,
+          "costImpactPct": 13.9,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "20000": {
+          "capital": 20000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 6,
+            "dax_instrument": "FDXS",
+            "n_GC": 6,
+            "gc_instrument": "MGC"
+          },
+          "totalMargin": 14264,
+          "marginPct": 71.3,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 451885.47,
+          "scaledIBKRCosts": 73193.64,
+          "annualCosts": 3952.14,
+          "scaledNetPnL": 378691.83,
+          "scaledNetCAGR": 17.5366,
+          "costImpactPct": 16.2,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "25000": {
+          "capital": 25000,
+          "contracts": {
+            "n_6E": 2,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 1,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 18965,
+          "marginPct": 75.9,
+          "avgContracts": 3.67,
+          "scaledGrossPnL": 355052.87,
+          "scaledIBKRCosts": 65906.32,
+          "annualCosts": 3558.66,
+          "scaledNetPnL": 289146.55,
+          "scaledNetCAGR": 14.6441,
+          "costImpactPct": 18.6,
+          "marginOK": true,
+          "viableNetCAGR": true
+        },
+        "50000": {
+          "capital": 50000,
+          "contracts": {
+            "n_6E": 4,
+            "n_DAX": 8,
+            "dax_instrument": "FDXS",
+            "n_GC": 2,
+            "gc_instrument": "GC"
+          },
+          "totalMargin": 30890,
+          "marginPct": 61.8,
+          "avgContracts": 4.67,
+          "scaledGrossPnL": 451885.47,
+          "scaledIBKRCosts": 104306.72,
+          "annualCosts": 5632.11,
+          "scaledNetPnL": 347578.75,
+          "scaledNetCAGR": 11.846,
+          "costImpactPct": 23.1,
+          "marginOK": true,
+          "viableNetCAGR": true
+        }
+      }
+    }
+  ]
+}

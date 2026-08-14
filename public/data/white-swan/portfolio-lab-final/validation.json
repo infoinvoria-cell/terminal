@@ -1,0 +1,2349 @@
+{
+  "generated": "2026-08-14T16:25:15.277Z",
+  "status": "RESEARCH_CANDIDATE",
+  "validations": [
+    {
+      "comboKey": "E0_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "capital": 10000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.4093,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 18.2104,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 18.0053,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.5756,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 11.4,
+      "annualCosts": 1514.13,
+      "scaledNetCAGR": 18.4093,
+      "maxDDFromPeak": 10.6049
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "capital": 10000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.2117,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.9476,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.6727,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.0866,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 14.5,
+      "annualCosts": 1942.64,
+      "scaledNetCAGR": 18.2117,
+      "maxDDFromPeak": 10.6493
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "capital": 10000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.6015,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 18.3828,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 18.1568,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.6808,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 12.3,
+      "annualCosts": 1709.63,
+      "scaledNetCAGR": 18.6015,
+      "maxDDFromPeak": 10.9052
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "capital": 10000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.7301,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 18.6466,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 18.562,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 18.3897,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 5.1,
+      "annualCosts": 671.99,
+      "scaledNetCAGR": 18.7301,
+      "maxDDFromPeak": 11.0068
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "capital": 10000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.7291,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 18.6524,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 18.5747,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 18.4167,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 4.7,
+      "annualCosts": 617.97,
+      "scaledNetCAGR": 18.7291,
+      "maxDDFromPeak": 11.107
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "capital": 10000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.9135,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 18.8084,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 18.7016,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 18.483,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 6.3,
+      "annualCosts": 867.49,
+      "scaledNetCAGR": 18.9135,
+      "maxDDFromPeak": 11.7057
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "capital": 10000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.9125,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 18.814,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 18.7141,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 18.5096,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 6,
+      "annualCosts": 813.47,
+      "scaledNetCAGR": 18.9125,
+      "maxDDFromPeak": 11.8931
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "capital": 10000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.7302,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 18.5683,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 18.4023,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 18.0577,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 9.4,
+      "annualCosts": 1296,
+      "scaledNetCAGR": 18.7302,
+      "maxDDFromPeak": 11.7138
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "capital": 10000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.7293,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 18.5741,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 18.4153,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 18.0861,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 9.1,
+      "annualCosts": 1241.98,
+      "scaledNetCAGR": 18.7293,
+      "maxDDFromPeak": 11.9099
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "capital": 10000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.4095,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 18.1268,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.8317,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.1997,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 15.3,
+      "annualCosts": 2138.14,
+      "scaledNetCAGR": 18.4095,
+      "maxDDFromPeak": 10.9505
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "capital": 10000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.5408,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 18.4066,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 18.2696,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.9871,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 8,
+      "annualCosts": 1046.48,
+      "scaledNetCAGR": 18.5408,
+      "maxDDFromPeak": 11.3625
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "capital": 10000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.5418,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 18.4006,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 18.2563,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.9583,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 8.4,
+      "annualCosts": 1100.5,
+      "scaledNetCAGR": 18.5418,
+      "maxDDFromPeak": 11.2627
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "capital": 12500,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 17.7997,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.6117,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.4184,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.014,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 10.9,
+      "annualCosts": 1634.62,
+      "scaledNetCAGR": 17.7997,
+      "maxDDFromPeak": 10.6049
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "capital": 12500,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 17.63,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.3857,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.1321,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 16.5941,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 13.7,
+      "annualCosts": 2063.13,
+      "scaledNetCAGR": 17.63,
+      "maxDDFromPeak": 10.6493
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "capital": 12500,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 17.971,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.7582,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.5384,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.0759,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 12.1,
+      "annualCosts": 1895.28,
+      "scaledNetCAGR": 17.971,
+      "maxDDFromPeak": 10.9052
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "capital": 12500,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.0701,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.9832,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.8952,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.7156,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 5.4,
+      "annualCosts": 792.47,
+      "scaledNetCAGR": 18.0701,
+      "maxDDFromPeak": 11.0068
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "capital": 12500,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.0662,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.9852,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.9033,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.7363,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 5,
+      "annualCosts": 738.46,
+      "scaledNetCAGR": 18.0662,
+      "maxDDFromPeak": 11.107
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "capital": 12500,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.2347,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 18.1219,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 18.007,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.7714,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 6.8,
+      "annualCosts": 1053.14,
+      "scaledNetCAGR": 18.2347,
+      "maxDDFromPeak": 11.7057
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "capital": 12500,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.231,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 18.1238,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 18.015,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.7919,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 6.5,
+      "annualCosts": 999.12,
+      "scaledNetCAGR": 18.231,
+      "maxDDFromPeak": 11.8931
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "capital": 12500,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.0758,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.9126,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.7453,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.3977,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 9.6,
+      "annualCosts": 1481.65,
+      "scaledNetCAGR": 18.0758,
+      "maxDDFromPeak": 11.7138
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "capital": 12500,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.0719,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.9146,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.7536,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.4194,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 9.3,
+      "annualCosts": 1427.63,
+      "scaledNetCAGR": 18.0719,
+      "maxDDFromPeak": 11.9099
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "capital": 12500,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 17.8057,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.5371,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.2574,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 16.6601,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 14.8,
+      "annualCosts": 2323.79,
+      "scaledNetCAGR": 17.8057,
+      "maxDDFromPeak": 10.9505
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "capital": 12500,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 17.9032,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.7716,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.6374,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.3606,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 7.9,
+      "annualCosts": 1166.97,
+      "scaledNetCAGR": 17.9032,
+      "maxDDFromPeak": 11.3625
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "capital": 12500,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 17.9071,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.7695,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.629,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.3387,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 8.2,
+      "annualCosts": 1220.98,
+      "scaledNetCAGR": 17.9071,
+      "maxDDFromPeak": 11.2627
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "capital": 15000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 17.9804,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.8118,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.6388,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.279,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 9.9,
+      "annualCosts": 1810.05,
+      "scaledNetCAGR": 17.9804,
+      "maxDDFromPeak": 10.6049
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "capital": 15000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 17.8076,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.5825,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.3496,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 16.8579,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 12.8,
+      "annualCosts": 2345.69,
+      "scaledNetCAGR": 17.8076,
+      "maxDDFromPeak": 10.6493
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "capital": 15000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.1477,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.9532,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.753,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.3337,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 11.2,
+      "annualCosts": 2135.88,
+      "scaledNetCAGR": 18.1477,
+      "maxDDFromPeak": 10.9052
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "capital": 15000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.182,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 18.095,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 18.0069,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.8271,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 5.4,
+      "annualCosts": 967.9,
+      "scaledNetCAGR": 18.182,
+      "maxDDFromPeak": 11.0068
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "capital": 15000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 17.9792,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.7289,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.4688,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 16.9162,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 13.9,
+      "annualCosts": 2671.52,
+      "scaledNetCAGR": 17.9792,
+      "maxDDFromPeak": 10.9505
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "capital": 15000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.3444,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 18.2307,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 18.1151,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.8776,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 6.9,
+      "annualCosts": 1293.73,
+      "scaledNetCAGR": 18.3444,
+      "maxDDFromPeak": 11.7057
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "capital": 15000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.3365,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 18.2274,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 18.1166,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.8892,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 6.6,
+      "annualCosts": 1239.72,
+      "scaledNetCAGR": 18.3365,
+      "maxDDFromPeak": 11.8931
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "capital": 15000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.1809,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 18.0155,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.846,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.4936,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 9.7,
+      "annualCosts": 1829.37,
+      "scaledNetCAGR": 18.1809,
+      "maxDDFromPeak": 11.7138
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "capital": 15000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.1738,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 18.0916,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 18.0084,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.8389,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 5.1,
+      "annualCosts": 913.89,
+      "scaledNetCAGR": 18.1738,
+      "maxDDFromPeak": 11.107
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "capital": 15000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.006,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.8719,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.735,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.4525,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 8,
+      "annualCosts": 1449.52,
+      "scaledNetCAGR": 18.006,
+      "maxDDFromPeak": 11.3625
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "capital": 15000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.0144,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.8754,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.7334,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.4401,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 8.3,
+      "annualCosts": 1503.54,
+      "scaledNetCAGR": 18.0144,
+      "maxDDFromPeak": 11.2627
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "capital": 20000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 17.5192,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.3001,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.0734,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 16.5958,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 12.5,
+      "annualCosts": 2918.38,
+      "scaledNetCAGR": 17.5192,
+      "maxDDFromPeak": 10.6049
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "capital": 20000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 17.3544,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.0792,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 16.792,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 16.1778,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 15.2,
+      "annualCosts": 3561.14,
+      "scaledNetCAGR": 17.3544,
+      "maxDDFromPeak": 10.6493
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "capital": 20000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 17.8986,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.8119,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.724,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.5447,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 5.4,
+      "annualCosts": 1234.09,
+      "scaledNetCAGR": 17.8986,
+      "maxDDFromPeak": 11.0068
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "capital": 20000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 17.6971,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.4546,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.203,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 16.6696,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 13.6,
+      "annualCosts": 3309.38,
+      "scaledNetCAGR": 17.6971,
+      "maxDDFromPeak": 10.9052
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "capital": 20000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 17.9014,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.8224,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.7424,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.5794,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 4.9,
+      "annualCosts": 1126.06,
+      "scaledNetCAGR": 17.9014,
+      "maxDDFromPeak": 11.107
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "capital": 20000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.0696,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.9655,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.8597,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.6432,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 6.4,
+      "annualCosts": 1517.05,
+      "scaledNetCAGR": 18.0696,
+      "maxDDFromPeak": 11.8931
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "capital": 20000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 18.0668,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.9552,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.8417,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.6088,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 6.8,
+      "annualCosts": 1625.08,
+      "scaledNetCAGR": 18.0668,
+      "maxDDFromPeak": 11.7057
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "capital": 20000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 17.9179,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.7657,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.6101,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.2876,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 9,
+      "annualCosts": 2159.82,
+      "scaledNetCAGR": 17.9179,
+      "maxDDFromPeak": 11.9099
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "capital": 20000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 17.915,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.7551,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.5914,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.2513,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 9.4,
+      "annualCosts": 2267.85,
+      "scaledNetCAGR": 17.915,
+      "maxDDFromPeak": 11.7138
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "capital": 20000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 17.5366,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.2388,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 16.9271,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 16.2564,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 16.2,
+      "annualCosts": 3952.14,
+      "scaledNetCAGR": 17.5366,
+      "maxDDFromPeak": 10.9505
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "capital": 20000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 17.7459,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.6183,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.4882,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.2203,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 7.7,
+      "annualCosts": 1768.82,
+      "scaledNetCAGR": 17.7459,
+      "maxDDFromPeak": 11.3625
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "capital": 20000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 17.7429,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 17.6074,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 17.4692,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 17.1837,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 8.1,
+      "annualCosts": 1876.85,
+      "scaledNetCAGR": 17.7429,
+      "maxDDFromPeak": 11.2627
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "capital": 25000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 14.5707,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 14.2975,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 14.0124,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 13.4016,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 15.8,
+      "annualCosts": 2900.07,
+      "scaledNetCAGR": 14.5707,
+      "maxDDFromPeak": 10.6049
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "capital": 25000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 15.0675,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 14.9627,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 14.8561,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 14.6378,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 6.7,
+      "annualCosts": 1215.78,
+      "scaledNetCAGR": 15.0675,
+      "maxDDFromPeak": 11.0068
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "capital": 25000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 14.5467,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 14.2592,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 13.9584,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 13.3116,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 16.5,
+      "annualCosts": 3037.33,
+      "scaledNetCAGR": 14.5467,
+      "maxDDFromPeak": 10.6493
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "capital": 25000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 15.0781,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 14.9828,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 14.8862,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 14.6884,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 6.2,
+      "annualCosts": 1107.75,
+      "scaledNetCAGR": 15.0781,
+      "maxDDFromPeak": 11.107
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "capital": 25000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 14.6678,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 14.3491,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 14.0141,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 13.2873,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 17.9,
+      "annualCosts": 3421.4,
+      "scaledNetCAGR": 14.6678,
+      "maxDDFromPeak": 10.9052
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "capital": 25000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 15.168,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 15.0293,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 14.8877,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 14.5948,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 8.7,
+      "annualCosts": 1629.08,
+      "scaledNetCAGR": 15.168,
+      "maxDDFromPeak": 11.8931
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "capital": 25000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 15.1575,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 15.0093,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 14.8576,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 14.5434,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 9.2,
+      "annualCosts": 1737.11,
+      "scaledNetCAGR": 15.1575,
+      "maxDDFromPeak": 11.7057
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "capital": 25000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 15.146,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 14.995,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 14.8405,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 14.52,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 9.4,
+      "annualCosts": 1766.33,
+      "scaledNetCAGR": 15.146,
+      "maxDDFromPeak": 11.9099
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "capital": 25000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 15.1355,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 14.9749,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 14.8103,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 14.468,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 9.9,
+      "annualCosts": 1874.36,
+      "scaledNetCAGR": 15.1355,
+      "maxDDFromPeak": 11.7138
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "capital": 25000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 14.6441,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 14.3111,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 13.9601,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 13.1957,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 18.6,
+      "annualCosts": 3558.66,
+      "scaledNetCAGR": 14.6441,
+      "maxDDFromPeak": 10.9505
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "capital": 25000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 15.0559,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 14.9483,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 14.839,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 14.6147,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 6.9,
+      "annualCosts": 1245,
+      "scaledNetCAGR": 15.0559,
+      "maxDDFromPeak": 11.3625
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "capital": 25000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 15.0452,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 14.928,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 14.8088,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 14.5635,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 7.5,
+      "annualCosts": 1353.03,
+      "scaledNetCAGR": 15.0452,
+      "maxDDFromPeak": 11.2627
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "capital": 50000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 12.5658,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 12.4729,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 12.3786,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 12.1857,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 6.4,
+      "annualCosts": 1467.68,
+      "scaledNetCAGR": 12.5658,
+      "maxDDFromPeak": 11.0068
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "capital": 50000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 12.5954,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 12.5166,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 12.4369,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 12.2743,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 5.5,
+      "annualCosts": 1251.62,
+      "scaledNetCAGR": 12.5954,
+      "maxDDFromPeak": 11.107
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "capital": 50000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 12.5197,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 12.4085,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 12.2952,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 12.0626,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 7.6,
+      "annualCosts": 1742.2,
+      "scaledNetCAGR": 12.5197,
+      "maxDDFromPeak": 11.2627
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_HighVolYears_GLD_BestMonths",
+      "capital": 50000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 11.762,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 11.4077,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 11.0325,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 10.2079,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 20.8,
+      "annualCosts": 4836.27,
+      "scaledNetCAGR": 11.762,
+      "maxDDFromPeak": 10.6049
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "capital": 50000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 12.5496,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 12.4527,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 12.3543,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 12.1529,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 6.7,
+      "annualCosts": 1526.14,
+      "scaledNetCAGR": 12.5496,
+      "maxDDFromPeak": 11.3625
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "capital": 50000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 12.7143,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 12.6045,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 12.4927,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 12.2632,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 7.4,
+      "annualCosts": 1772.95,
+      "scaledNetCAGR": 12.7143,
+      "maxDDFromPeak": 11.8931
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "capital": 50000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 12.6852,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 12.5613,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 12.4349,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 12.1745,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 8.3,
+      "annualCosts": 1989.01,
+      "scaledNetCAGR": 12.6852,
+      "maxDDFromPeak": 11.7057
+    },
+    {
+      "comboKey": "E9_MonQ3_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "capital": 50000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 12.6693,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 12.5414,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 12.4109,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 12.1416,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 8.6,
+      "annualCosts": 2047.47,
+      "scaledNetCAGR": 12.6693,
+      "maxDDFromPeak": 11.9099
+    },
+    {
+      "comboKey": "E6_MonLong_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "capital": 50000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 12.64,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 12.4978,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 12.3523,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 12.0512,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 9.4,
+      "annualCosts": 2263.53,
+      "scaledNetCAGR": 12.64,
+      "maxDDFromPeak": 11.7138
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_HighVolYears_GLD_Baseline",
+      "capital": 50000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 11.7097,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 11.3315,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 10.9294,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 10.0391,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 21.8,
+      "annualCosts": 5110.78,
+      "scaledNetCAGR": 11.7097,
+      "maxDDFromPeak": 10.6493
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_Baseline_GLD_BestMonths",
+      "capital": 50000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 11.8972,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 11.512,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 11.102,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 10.1925,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 22,
+      "annualCosts": 5357.6,
+      "scaledNetCAGR": 11.8972,
+      "maxDDFromPeak": 10.9052
+    },
+    {
+      "comboKey": "E0_D1_Baseline_D2_Baseline_GLD_Baseline",
+      "capital": 50000,
+      "stressTests": [
+        {
+          "costMultiplier": 1,
+          "netCAGR": 11.846,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.25,
+          "netCAGR": 11.4371,
+          "viable": true
+        },
+        {
+          "costMultiplier": 1.5,
+          "netCAGR": 11,
+          "viable": true
+        },
+        {
+          "costMultiplier": 2,
+          "netCAGR": 10.0234,
+          "viable": true
+        }
+      ],
+      "costSensitive": false,
+      "wfStatus": "ROBUST",
+      "wfPassRate": 1,
+      "costImpactPct": 23.1,
+      "annualCosts": 5632.11,
+      "scaledNetCAGR": 11.846,
+      "maxDDFromPeak": 10.9505
+    }
+  ]
+}

@@ -1,0 +1,1144 @@
+{
+  "schemaVersion": "2.0",
+  "researchDate": "2026-08-14",
+  "status": "PHASE1_COMPLETE",
+  "researchNotes": "Exchange fees sourced as follows: IBKR $0.85/side US fixed-rate confirmed (interactivebrokers.com/en/pricing/commissions-futures.php). NFA $0.01/side regulatory fee confirmed effective 2026-07-01 (nfa.futures.org). EUREX FDAX/FDXS IBKR breakdown confirmed via IBKR fee search snippets. US exchange fees (ES, MES, GC, CL, MCL, HG, RTY, M2K, YM, MYM) confirmed by TradeStation official fee schedule (priority-6 corroborating source). CBOT agricultural fees (ZC, ZW, ZS, ZM) confirmed by TradeStation + AMP Feb-2025 announcement. ICE US fees (SB, CC) confirmed by TradeStation. 6E/M6E exchange fees from NinjaTrader fee PDF — single source, marked NEEDS_VERIFICATION. FDXM: no confirmed fee data, marked NEEDS_VERIFICATION. MGC clearing fee discrepancy, marked NEEDS_VERIFICATION. MHG: no data found on any source, NEEDS_VERIFICATION.",
+  "fxRate": {
+    "EUR_PER_USD": 0.81677,
+    "note": "Used throughout for USD-to-EUR conversions. Set in prior phases."
+  },
+  "serkanReference": {
+    "allInPerSideEUR": 0.85,
+    "allInRoundturnEUR": 1.70,
+    "note": "IBKR execution fee only — does NOT include exchange, regulatory, or clearing fees. The true all-in roundturn is 2-4x this figure. Used as comparison baseline only, NOT as a cost input."
+  },
+  "ibkrCommissionStructure": {
+    "usFixedTier1": {
+      "maxContracts": 1000,
+      "perSideUSD": 0.85,
+      "source": "https://www.interactivebrokers.com/en/pricing/commissions-futures.php"
+    },
+    "usFixedTier2": {
+      "maxContracts": 10000,
+      "perSideUSD": 0.65
+    },
+    "usFixedTier3": {
+      "maxContracts": 20000,
+      "perSideUSD": 0.45
+    },
+    "usFixedTier4": {
+      "maxContracts": null,
+      "perSideUSD": 0.25
+    },
+    "eurexStandard": {
+      "perSideEUR": 0.90,
+      "appliesTo": ["FDAX", "FDXM"],
+      "source": "IBKR fee schedule snippets — EUREX standard products"
+    },
+    "eurexMicro": {
+      "perSideEUR": 0.25,
+      "appliesTo": ["FDXS"],
+      "source": "IBKR fee schedule snippets — EUREX micro products"
+    }
+  },
+  "instruments": [
+    {
+      "strategyId": "EURUSD_30M",
+      "name": "EUR/USD Futures",
+      "variants": [
+        {
+          "ticker": "6E",
+          "exchange": "CME",
+          "size": "Standard",
+          "multiplier": 125000,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": 1.62,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 2.48,
+          "allInRoundturn": 4.96,
+          "allInRoundturnEUR": 4.05,
+          "status": "NEEDS_VERIFICATION",
+          "sources": [
+            "NinjaTrader fee PDF Nov-2025 (exchange fee $1.62) — single source",
+            "IBKR commissions-futures.php ($0.85 confirmed)",
+            "NFA Bylaw 1301 ($0.01 confirmed)"
+          ],
+          "notes": "Exchange fee $1.62 is from a single NinjaTrader PDF. Must be verified against CME Group official FX fee schedule or IBKR CME fees page before use in production.",
+          "liquidity": "HIGH",
+          "liquidityNotes": "6E is the primary EUR/USD futures contract. Among the most liquid FX futures globally. Tight spreads, deep book.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 1,
+              "rationale": "Margin ~$2,800 = 28% of $10,000 capital. Within 30% cap. 1 contract max at this level."
+            },
+            "12500": {
+              "contracts": 1,
+              "rationale": "Margin ~$2,800 = 22.4% of $12,500. Within 30% cap. ATR risk per contract manageable. 1 contract."
+            },
+            "15000": {
+              "contracts": 1,
+              "rationale": "Margin ~$2,800 = 18.7% of $15,000. Could add second at $18,700+ total but ATR risk of 2 contracts may breach 2% risk rule at standard moves."
+            },
+            "20000": {
+              "contracts": 1,
+              "rationale": "Margin ~$2,800 = 14% of $20,000. Two contracts would use 28% margin. Risk-based limit governs: 2x 6E daily ATR typically $200-400 so 2 contracts is borderline. 1 is conservative."
+            }
+          }
+        },
+        {
+          "ticker": "M6E",
+          "exchange": "CME",
+          "size": "Micro",
+          "multiplier": 12500,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": 0.26,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 1.12,
+          "allInRoundturn": 2.24,
+          "allInRoundturnEUR": 1.83,
+          "status": "NEEDS_VERIFICATION",
+          "sources": [
+            "NinjaTrader fee PDF (exchange fee $0.26) — single source",
+            "IBKR commissions-futures.php ($0.85 confirmed)",
+            "NFA Bylaw 1301 ($0.01 confirmed)"
+          ],
+          "notes": "Exchange fee $0.26 from NinjaTrader only. Must be verified at CME Group official FX/Micro fee schedule.",
+          "liquidity": "MEDIUM",
+          "liquidityNotes": "Liquid for a micro product but significantly thinner than 6E. Adequate for small-account execution.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 3,
+              "rationale": "Margin ~$280 × 3 = $840 = 8.4% of $10,000. Well within 30% cap. ATR risk per micro is ~$20-40 per day, 3 contracts = $60-120, well under 2% ($200) risk."
+            },
+            "12500": {
+              "contracts": 3,
+              "rationale": "Margin $840 = 6.7% of $12,500. 3 contracts appropriate. Could scale to 5 on margin alone but ATR risk governs at this account size."
+            },
+            "15000": {
+              "contracts": 4,
+              "rationale": "Margin $280 × 4 = $1,120 = 7.5% of $15,000. ATR risk $80-160 for 4 contracts, within 2% ($300) limit."
+            },
+            "20000": {
+              "contracts": 5,
+              "rationale": "Margin $280 × 5 = $1,400 = 7% of $20,000. ATR risk $100-200 for 5 contracts, within 2% ($400) limit."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "strategyId": "DAX_1H_2H",
+      "name": "DAX Futures",
+      "variants": [
+        {
+          "ticker": "FDAX",
+          "exchange": "EUREX",
+          "size": "Standard",
+          "multiplier": 25,
+          "currency": "EUR",
+          "ibkrCommissionPerSide": 0.90,
+          "exchangeFeePerSide": 1.25,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 2.16,
+          "allInRoundturn": 4.32,
+          "allInRoundturnEUR": 4.32,
+          "status": "CONFIRMED",
+          "sources": [
+            "IBKR EUREX fee breakdown confirmed via IBKR search snippets: EUR 0.90 + EUR 1.25 + EUR 0.01 = EUR 2.16/side"
+          ],
+          "notes": "All components confirmed. EUR instrument — allInRoundturnEUR equals allInRoundturn.",
+          "liquidity": "HIGH",
+          "liquidityNotes": "FDAX is the benchmark European equity index future. Very high liquidity, tight spreads.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~€22,000 exceeds 30% of €10,000 (= €3,000). Not tradeable at this capital level."
+            },
+            "12500": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~€22,000 exceeds 30% of €12,500 (= €3,750). Not tradeable at this capital level."
+            },
+            "15000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~€22,000 exceeds 30% of €15,000 (= €4,500). Not tradeable at this capital level. Requires ~€73,000+ minimum capital."
+            },
+            "20000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~€22,000 exceeds 30% of €20,000 (= €6,000). Not tradeable at this capital level."
+            }
+          }
+        },
+        {
+          "ticker": "FDXM",
+          "exchange": "EUREX",
+          "size": "Mini",
+          "multiplier": 5,
+          "currency": "EUR",
+          "ibkrCommissionPerSide": null,
+          "exchangeFeePerSide": null,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": null,
+          "allInPerSide": null,
+          "allInRoundturn": null,
+          "allInRoundturnEUR": null,
+          "status": "NEEDS_VERIFICATION",
+          "sources": [
+            "No confirmed source found for FDXM IBKR commission or EUREX exchange fee.",
+            "NFA $0.01 regulatory fee confirmed for US-listed products — EUREX products may not carry NFA fee; verify."
+          ],
+          "notes": "FDXM (Mini DAX, €5/pt) is not present in existing research. IBKR commission tier (€0.90 standard vs €0.25 micro) and EUREX exchange fee are both unconfirmed. IBKR initial margin reference ~€4,400. Must be verified at IBKR EUREX fee page and EUREX official fee schedule before use.",
+          "liquidity": "MEDIUM",
+          "liquidityNotes": "FDXM is an intermediate product between FDAX and FDXS. Lower liquidity than FDAX. Adequate for small positions.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~€4,400 exceeds 30% of €10,000 (= €3,000). Not recommended at this level."
+            },
+            "12500": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~€4,400 exceeds 30% of €12,500 (= €3,750). Not recommended."
+            },
+            "15000": {
+              "contracts": 1,
+              "rationale": "IBKR initial margin ~€4,400 = 29.3% of €15,000. Borderline. 1 contract feasible but leaves very little buffer."
+            },
+            "20000": {
+              "contracts": 1,
+              "rationale": "IBKR initial margin ~€4,400 = 22% of €20,000. Within 30% cap. 1 contract appropriate."
+            }
+          }
+        },
+        {
+          "ticker": "FDXS",
+          "exchange": "EUREX",
+          "size": "Micro",
+          "multiplier": 1,
+          "currency": "EUR",
+          "ibkrCommissionPerSide": 0.25,
+          "exchangeFeePerSide": 0.12,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 0.38,
+          "allInRoundturn": 0.76,
+          "allInRoundturnEUR": 0.76,
+          "status": "CONFIRMED",
+          "sources": [
+            "IBKR EUREX micro fee breakdown confirmed via IBKR search snippets: EUR 0.25 + EUR 0.12 + EUR 0.01 = EUR 0.38/side"
+          ],
+          "notes": "Micro DAX (€1/pt). All components confirmed. Lowest cost per roundturn across the entire matrix.",
+          "liquidity": "MEDIUM",
+          "liquidityNotes": "Growing liquidity for micro product. Sufficient for strategy testing and small-account deployment.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 3,
+              "rationale": "Margin ~€880 × 3 = €2,640 = 26.4% of €10,000. Within 30% cap. ATR risk for 3 × FDXS at ~100pt daily move = €300 = 3% — reduce to 2 if strict 2% rule applied."
+            },
+            "12500": {
+              "contracts": 4,
+              "rationale": "Margin €880 × 4 = €3,520 = 28.2% of €12,500. Within cap. ATR risk 4 × €100 = €400 = 3.2% — conservative traders use 3 contracts."
+            },
+            "15000": {
+              "contracts": 5,
+              "rationale": "Margin €880 × 5 = €4,400 = 29.3% of €15,000. Margin governs. ATR risk €500 = 3.3% — adjust down to 3 contracts if strict 2% risk rule."
+            },
+            "20000": {
+              "contracts": 6,
+              "rationale": "Margin €880 × 6 = €5,280 = 26.4% of €20,000. ATR risk €600 = 3% — 4 contracts for strict 2% risk control."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "strategyId": "SP500",
+      "name": "E-mini S&P 500 Futures",
+      "variants": [
+        {
+          "ticker": "ES",
+          "exchange": "CME",
+          "size": "Standard",
+          "multiplier": 50,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": 1.38,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 2.24,
+          "allInRoundturn": 4.48,
+          "allInRoundturnEUR": 3.66,
+          "status": "CONFIRMED",
+          "sources": [
+            "TradeStation official fee schedule — exchange fee $1.38",
+            "IBKR commissions-futures.php — $0.85/side confirmed",
+            "NFA Bylaw 1301 — $0.01/side confirmed"
+          ],
+          "notes": "Consistent across multiple sources. TradeStation is priority-6 corroborating source; recommend verifying against CME official fee PDF for highest rigor.",
+          "liquidity": "HIGH",
+          "liquidityNotes": "ES is the most liquid equity index future in the world. Ultra-tight spreads, continuous deep book.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$12,000 exceeds 30% of $10,000 (= $3,000). Not tradeable at this capital level."
+            },
+            "12500": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$12,000 exceeds 30% of $12,500 (= $3,750). Not tradeable."
+            },
+            "15000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$12,000 exceeds 30% of $15,000 (= $4,500). Not tradeable."
+            },
+            "20000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$12,000 = 60% of $20,000. Exceeds 30% cap. Requires ~$40,000 minimum capital."
+            }
+          }
+        },
+        {
+          "ticker": "MES",
+          "exchange": "CME",
+          "size": "Micro",
+          "multiplier": 5,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": 0.35,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 1.21,
+          "allInRoundturn": 2.42,
+          "allInRoundturnEUR": 1.98,
+          "status": "CONFIRMED",
+          "sources": [
+            "TradeStation official fee schedule — exchange fee $0.35",
+            "IBKR commissions-futures.php — $0.85/side confirmed",
+            "NFA Bylaw 1301 — $0.01/side confirmed"
+          ],
+          "notes": "Confirmed. MES is 1/10th of ES.",
+          "liquidity": "HIGH",
+          "liquidityNotes": "MES has very high liquidity relative to micro products. Preferred micro for S&P 500 exposure.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 2,
+              "rationale": "Margin ~$1,200 × 2 = $2,400 = 24% of $10,000. ATR risk: 2 × MES at ~25pt daily ATR = 2 × $125 = $250 = 2.5% — use 1 contract for strict 2% rule."
+            },
+            "12500": {
+              "contracts": 3,
+              "rationale": "Margin $1,200 × 3 = $3,600 = 28.8% of $12,500. ATR risk 3 × $125 = $375 = 3% — use 2 for strict risk control."
+            },
+            "15000": {
+              "contracts": 3,
+              "rationale": "Margin $3,600 = 24% of $15,000. ATR risk $375 = 2.5%. 3 contracts is practical. Use 2 for strict 2% rule."
+            },
+            "20000": {
+              "contracts": 4,
+              "rationale": "Margin $1,200 × 4 = $4,800 = 24% of $20,000. ATR risk 4 × $125 = $500 = 2.5%. 4 contracts appropriate; strict risk traders use 3."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "strategyId": "GOLD",
+      "name": "Gold Futures",
+      "variants": [
+        {
+          "ticker": "GC",
+          "exchange": "COMEX",
+          "size": "Standard",
+          "multiplier": 100,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": 1.65,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 2.51,
+          "allInRoundturn": 5.02,
+          "allInRoundturnEUR": 4.10,
+          "status": "CONFIRMED",
+          "sources": [
+            "TradeStation official fee schedule — exchange fee $1.65",
+            "AMP Futures CME fee-change announcement Feb 2025 — corroborating",
+            "IBKR commissions-futures.php — $0.85/side confirmed",
+            "NFA Bylaw 1301 — $0.01/side confirmed"
+          ],
+          "notes": "Consistent across TradeStation and AMP. Two-source corroboration gives higher confidence.",
+          "liquidity": "HIGH",
+          "liquidityNotes": "GC is the benchmark gold futures contract. Deep book, tight spreads.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$9,000 = 90% of $10,000. Far exceeds 30% cap."
+            },
+            "12500": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$9,000 = 72% of $12,500. Far exceeds 30% cap."
+            },
+            "15000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$9,000 = 60% of $15,000. Exceeds 30% cap."
+            },
+            "20000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$9,000 = 45% of $20,000. Exceeds 30% cap. Requires ~$30,000 minimum capital."
+            }
+          }
+        },
+        {
+          "ticker": "MGC",
+          "exchange": "COMEX",
+          "size": "Micro",
+          "multiplier": 10,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": 0.60,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.50,
+          "allInPerSide": 1.96,
+          "allInRoundturn": 3.92,
+          "allInRoundturnEUR": 3.20,
+          "status": "NEEDS_VERIFICATION",
+          "sources": [
+            "AMP Futures Feb 2025 — exchange fee $0.60",
+            "TradeStation — shows $1.10 combined exchange+clearing (implies $0.50 clearing fee, unusual for CME group)",
+            "IBKR commissions-futures.php — $0.85/side confirmed",
+            "NFA Bylaw 1301 — $0.01/side confirmed"
+          ],
+          "notes": "Discrepancy: AMP shows $0.60 exchange fee with implied $0.00 clearing; TradeStation shows $1.10 combined. A $0.50 clearing fee for a COMEX micro product is unusual. The $0.50 clearing entry here reflects the TradeStation implied breakdown but must be verified at the IBKR COMEX fees page or CME official micro fee schedule.",
+          "liquidity": "MEDIUM",
+          "liquidityNotes": "MGC is well-established for a micro product. Adequate liquidity for single-contract trading.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 3,
+              "rationale": "Margin ~$900 × 3 = $2,700 = 27% of $10,000. Within cap. ATR risk: 3 × MGC at ~$15/day = $45 — well under 2%."
+            },
+            "12500": {
+              "contracts": 4,
+              "rationale": "Margin $900 × 4 = $3,600 = 28.8% of $12,500. Within cap. ATR risk $60 for 4 contracts, minimal."
+            },
+            "15000": {
+              "contracts": 4,
+              "rationale": "Margin $900 × 4 = $3,600 = 24% of $15,000. 4 contracts appropriate."
+            },
+            "20000": {
+              "contracts": 6,
+              "rationale": "Margin $900 × 6 = $5,400 = 27% of $20,000. Within cap."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "strategyId": "CRUDE_OIL",
+      "name": "Crude Oil Futures (WTI)",
+      "variants": [
+        {
+          "ticker": "CL",
+          "exchange": "NYMEX",
+          "size": "Standard",
+          "multiplier": 1000,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": 1.50,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 2.36,
+          "allInRoundturn": 4.72,
+          "allInRoundturnEUR": 3.86,
+          "status": "CONFIRMED",
+          "sources": [
+            "TradeStation official fee schedule — exchange fee $1.50",
+            "IBKR commissions-futures.php — $0.85/side confirmed",
+            "NFA Bylaw 1301 — $0.01/side confirmed"
+          ],
+          "notes": "Confirmed by TradeStation.",
+          "liquidity": "HIGH",
+          "liquidityNotes": "CL is the benchmark WTI crude contract. Extreme liquidity, one of the most active futures globally.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$5,500 = 55% of $10,000. Exceeds 30% cap."
+            },
+            "12500": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$5,500 = 44% of $12,500. Exceeds 30% cap."
+            },
+            "15000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$5,500 = 36.7% of $15,000. Exceeds 30% cap."
+            },
+            "20000": {
+              "contracts": 1,
+              "rationale": "IBKR initial margin ~$5,500 = 27.5% of $20,000. Just within 30% cap. 1 contract only."
+            }
+          }
+        },
+        {
+          "ticker": "MCL",
+          "exchange": "NYMEX",
+          "size": "Micro",
+          "multiplier": 100,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": 0.50,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 1.36,
+          "allInRoundturn": 2.72,
+          "allInRoundturnEUR": 2.22,
+          "status": "CONFIRMED",
+          "sources": [
+            "TradeStation official fee schedule — exchange fee $0.50",
+            "IBKR commissions-futures.php — $0.85/side confirmed",
+            "NFA Bylaw 1301 — $0.01/side confirmed"
+          ],
+          "notes": "Confirmed by TradeStation.",
+          "liquidity": "MEDIUM",
+          "liquidityNotes": "MCL is 1/10th of CL. Adequate liquidity for small-account strategies.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 5,
+              "rationale": "Margin ~$550 × 5 = $2,750 = 27.5% of $10,000. Within cap. ATR risk per MCL ~$50/day; 5 contracts = $250 = 2.5% — use 4 for strict 2% rule."
+            },
+            "12500": {
+              "contracts": 6,
+              "rationale": "Margin $550 × 6 = $3,300 = 26.4% of $12,500. Within cap. ATR risk $300 = 2.4% — 5 contracts for strict 2% rule."
+            },
+            "15000": {
+              "contracts": 8,
+              "rationale": "Margin $550 × 8 = $4,400 = 29.3% of $15,000. ATR risk $400 = 2.7% — 6 contracts for strict 2%."
+            },
+            "20000": {
+              "contracts": 10,
+              "rationale": "Margin $550 × 10 = $5,500 = 27.5% of $20,000. ATR risk $500 = 2.5% — 8 contracts for strict 2%."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "strategyId": "COPPER",
+      "name": "Copper Futures",
+      "variants": [
+        {
+          "ticker": "HG",
+          "exchange": "COMEX",
+          "size": "Standard",
+          "multiplier": 25000,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": 1.60,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 2.46,
+          "allInRoundturn": 4.92,
+          "allInRoundturnEUR": 4.02,
+          "status": "CONFIRMED",
+          "sources": [
+            "TradeStation official fee schedule — exchange fee $1.60",
+            "IBKR commissions-futures.php — $0.85/side confirmed",
+            "NFA Bylaw 1301 — $0.01/side confirmed"
+          ],
+          "notes": "Confirmed by TradeStation.",
+          "liquidity": "HIGH",
+          "liquidityNotes": "HG is the primary copper futures contract. Actively traded, reasonable depth.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$8,000 = 80% of $10,000. Far exceeds 30% cap."
+            },
+            "12500": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$8,000 = 64% of $12,500. Far exceeds 30% cap."
+            },
+            "15000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$8,000 = 53.3% of $15,000. Exceeds 30% cap."
+            },
+            "20000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$8,000 = 40% of $20,000. Exceeds 30% cap. Requires ~$27,000 minimum capital."
+            }
+          }
+        },
+        {
+          "ticker": "MHG",
+          "exchange": "COMEX",
+          "size": "Micro",
+          "multiplier": 2500,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": null,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": null,
+          "allInPerSide": null,
+          "allInRoundturn": null,
+          "allInRoundturnEUR": null,
+          "status": "NEEDS_VERIFICATION",
+          "sources": [
+            "IBKR commissions-futures.php — $0.85/side confirmed",
+            "NFA Bylaw 1301 — $0.01/side confirmed",
+            "No exchange fee data found on TradeStation, AMP, or NinjaTrader for MHG"
+          ],
+          "notes": "MHG (Micro Copper) was not found in any of the researched broker fee schedules. Exchange and clearing fees are completely unconfirmed. Must verify at IBKR COMEX fees page or CME Group official micro metals fee schedule before any use.",
+          "liquidity": "UNKNOWN",
+          "liquidityNotes": "Micro Copper existence and liquidity profile unconfirmed. Verify product availability at IBKR.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": null,
+              "rationale": "Cannot calculate — margin and fee data unconfirmed."
+            },
+            "12500": {
+              "contracts": null,
+              "rationale": "Cannot calculate — margin and fee data unconfirmed."
+            },
+            "15000": {
+              "contracts": null,
+              "rationale": "Cannot calculate — margin and fee data unconfirmed."
+            },
+            "20000": {
+              "contracts": null,
+              "rationale": "Cannot calculate — margin and fee data unconfirmed."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "strategyId": "CORN",
+      "name": "Corn Futures",
+      "variants": [
+        {
+          "ticker": "ZC",
+          "exchange": "CBOT",
+          "size": "Standard",
+          "multiplier": 50,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": 2.15,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 3.01,
+          "allInRoundturn": 6.02,
+          "allInRoundturnEUR": 4.92,
+          "status": "CONFIRMED",
+          "sources": [
+            "TradeStation official fee schedule — exchange fee $2.15",
+            "AMP Futures CBOT fee-change announcement Feb 2025 — $2.13 (within rounding, consistent)",
+            "IBKR commissions-futures.php — $0.85/side confirmed",
+            "NFA Bylaw 1301 — $0.01/side confirmed"
+          ],
+          "notes": "Two-source corroboration. $2.15 (TradeStation) vs $2.13 (AMP) — $0.02 variance, likely a 2025 fee update rounding. Using $2.15 as current. Highest-cost group in the matrix.",
+          "liquidity": "HIGH",
+          "liquidityNotes": "ZC is the primary corn futures contract. Highly liquid especially around USDA reports.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 2,
+              "rationale": "Margin ~$1,300 × 2 = $2,600 = 26% of $10,000. Within cap. ATR risk: 2 × ZC at ~$400/day (8¢/bu × 5000bu) = $800 = 8% — margin governs at small accounts but ATR risk is high. 1 contract is risk-conservative."
+            },
+            "12500": {
+              "contracts": 2,
+              "rationale": "Margin $2,600 = 20.8% of $12,500. 2 contracts on margin. ATR risk still high — 1 contract for strict 2% rule."
+            },
+            "15000": {
+              "contracts": 3,
+              "rationale": "Margin $1,300 × 3 = $3,900 = 26% of $15,000. ATR risk dominates: use 1 contract for strict 2% rule ($300 limit = 1 contract day-range)."
+            },
+            "20000": {
+              "contracts": 4,
+              "rationale": "Margin $1,300 × 4 = $5,200 = 26% of $20,000. Margin fits; ATR risk remains dominant factor — use 1 contract for tight risk control."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "strategyId": "WHEAT",
+      "name": "Wheat Futures",
+      "variants": [
+        {
+          "ticker": "ZW",
+          "exchange": "CBOT",
+          "size": "Standard",
+          "multiplier": 50,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": 2.15,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 3.01,
+          "allInRoundturn": 6.02,
+          "allInRoundturnEUR": 4.92,
+          "status": "CONFIRMED",
+          "sources": [
+            "TradeStation official fee schedule — exchange fee $2.15 (same CBOT agricultural tier as ZC)",
+            "IBKR commissions-futures.php — $0.85/side confirmed",
+            "NFA Bylaw 1301 — $0.01/side confirmed"
+          ],
+          "notes": "Same CBOT agricultural fee tier as ZC. Confirmed by TradeStation.",
+          "liquidity": "HIGH",
+          "liquidityNotes": "ZW is actively traded, especially around crop reports. Deep book.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 2,
+              "rationale": "Margin ~$1,500 × 2 = $3,000 = 30% of $10,000. At cap limit. ATR risk dominates; 1 contract recommended."
+            },
+            "12500": {
+              "contracts": 2,
+              "rationale": "Margin $3,000 = 24% of $12,500. 2 contracts within margin cap. ATR risk high — 1 contract for strict risk rule."
+            },
+            "15000": {
+              "contracts": 3,
+              "rationale": "Margin $1,500 × 3 = $4,500 = 30% of $15,000. At cap. ATR risk — 1 contract strict."
+            },
+            "20000": {
+              "contracts": 4,
+              "rationale": "Margin $1,500 × 4 = $6,000 = 30% of $20,000. At cap. ATR risk — 1-2 contracts strict."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "strategyId": "SOYBEANS",
+      "name": "Soybean Futures",
+      "variants": [
+        {
+          "ticker": "ZS",
+          "exchange": "CBOT",
+          "size": "Standard",
+          "multiplier": 50,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": 2.15,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 3.01,
+          "allInRoundturn": 6.02,
+          "allInRoundturnEUR": 4.92,
+          "status": "CONFIRMED",
+          "sources": [
+            "TradeStation official fee schedule — exchange fee $2.15 (same CBOT agricultural tier as ZC)",
+            "IBKR commissions-futures.php — $0.85/side confirmed",
+            "NFA Bylaw 1301 — $0.01/side confirmed"
+          ],
+          "notes": "Same CBOT agricultural fee tier as ZC/ZW. Confirmed by TradeStation.",
+          "liquidity": "HIGH",
+          "liquidityNotes": "ZS is highly liquid, among the most active CBOT grains.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 2,
+              "rationale": "Margin ~$1,500 × 2 = $3,000 = 30% of $10,000. At cap. ATR risk high — 1 contract strict."
+            },
+            "12500": {
+              "contracts": 2,
+              "rationale": "Margin $3,000 = 24% of $12,500. 2 contracts on margin; 1 contract for strict risk."
+            },
+            "15000": {
+              "contracts": 3,
+              "rationale": "Margin $4,500 = 30% of $15,000. At cap. 1-2 contracts strict risk."
+            },
+            "20000": {
+              "contracts": 4,
+              "rationale": "Margin $6,000 = 30% of $20,000. At cap. 1-2 contracts strict risk."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "strategyId": "SOYBEAN_MEAL",
+      "name": "Soybean Meal Futures",
+      "variants": [
+        {
+          "ticker": "ZM",
+          "exchange": "CBOT",
+          "size": "Standard",
+          "multiplier": 100,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": 2.15,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 3.01,
+          "allInRoundturn": 6.02,
+          "allInRoundturnEUR": 4.92,
+          "status": "CONFIRMED",
+          "sources": [
+            "TradeStation official fee schedule — exchange fee $2.15 (same CBOT agricultural tier as ZC)",
+            "IBKR commissions-futures.php — $0.85/side confirmed",
+            "NFA Bylaw 1301 — $0.01/side confirmed"
+          ],
+          "notes": "Same CBOT agricultural fee tier. Confirmed by TradeStation.",
+          "liquidity": "HIGH",
+          "liquidityNotes": "ZM is liquid within the soy complex. Actively traded.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 2,
+              "rationale": "Margin ~$1,500 × 2 = $3,000 = 30% of $10,000. At cap. 1 contract strict risk."
+            },
+            "12500": {
+              "contracts": 2,
+              "rationale": "Margin $3,000 = 24% of $12,500. 2 on margin; 1 strict risk."
+            },
+            "15000": {
+              "contracts": 3,
+              "rationale": "Margin $4,500 = 30% of $15,000. At cap. 1-2 strict."
+            },
+            "20000": {
+              "contracts": 4,
+              "rationale": "Margin $6,000 = 30% of $20,000. At cap. 1-2 strict."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "strategyId": "SUGAR",
+      "name": "Sugar No. 11 Futures",
+      "variants": [
+        {
+          "ticker": "SB",
+          "exchange": "ICE_US",
+          "size": "Standard",
+          "multiplier": 1120,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": 2.10,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 2.96,
+          "allInRoundturn": 5.92,
+          "allInRoundturnEUR": 4.83,
+          "status": "CONFIRMED",
+          "sources": [
+            "TradeStation official fee schedule — exchange fee $2.10",
+            "IBKR commissions-futures.php — $0.85/side confirmed",
+            "NFA Bylaw 1301 — $0.01/side confirmed"
+          ],
+          "notes": "ICE US softs. Confirmed by TradeStation. Multiplier is 112,000 lbs = 1,120 units at $0.01/lb tick basis.",
+          "liquidity": "HIGH",
+          "liquidityNotes": "SB is the global benchmark soft commodity. High liquidity, active trader base.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 2,
+              "rationale": "Margin ~$1,200 × 2 = $2,400 = 24% of $10,000. Within cap. ATR risk high for softs — 1 contract strict."
+            },
+            "12500": {
+              "contracts": 3,
+              "rationale": "Margin $1,200 × 3 = $3,600 = 28.8% of $12,500. Within cap. 1-2 contracts strict risk."
+            },
+            "15000": {
+              "contracts": 3,
+              "rationale": "Margin $3,600 = 24% of $15,000. 3 on margin. 2 strict risk."
+            },
+            "20000": {
+              "contracts": 5,
+              "rationale": "Margin $1,200 × 5 = $6,000 = 30% of $20,000. At cap. 2-3 strict risk."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "strategyId": "COCOA",
+      "name": "Cocoa Futures",
+      "variants": [
+        {
+          "ticker": "CC",
+          "exchange": "ICE_US",
+          "size": "Standard",
+          "multiplier": 10,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": 2.10,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 2.96,
+          "allInRoundturn": 5.92,
+          "allInRoundturnEUR": 4.83,
+          "status": "CONFIRMED",
+          "sources": [
+            "TradeStation official fee schedule — exchange fee $2.10",
+            "IBKR commissions-futures.php — $0.85/side confirmed",
+            "NFA Bylaw 1301 — $0.01/side confirmed"
+          ],
+          "notes": "ICE US softs. Confirmed by TradeStation. Same exchange fee as SB.",
+          "liquidity": "HIGH",
+          "liquidityNotes": "CC is the global benchmark cocoa contract. Moderate-to-high liquidity. Higher volatility than most softs in recent years.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$3,500 = 35% of $10,000. Slightly exceeds 30% cap."
+            },
+            "12500": {
+              "contracts": 1,
+              "rationale": "IBKR initial margin ~$3,500 = 28% of $12,500. Within 30% cap. 1 contract. ATR risk for CC is very high (extreme volatility) — verify ATR-based risk before sizing up."
+            },
+            "15000": {
+              "contracts": 1,
+              "rationale": "IBKR initial margin ~$3,500 = 23.3% of $15,000. 1 contract appropriate given high ATR volatility."
+            },
+            "20000": {
+              "contracts": 1,
+              "rationale": "IBKR initial margin ~$3,500 = 17.5% of $20,000. Could theoretically fit 2 on margin ($7,000 = 35% — at cap). 1 contract recommended given extreme CC volatility."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "strategyId": "RUSSELL2000",
+      "name": "E-mini Russell 2000 Futures",
+      "variants": [
+        {
+          "ticker": "RTY",
+          "exchange": "CME",
+          "size": "Standard",
+          "multiplier": 50,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": 1.38,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 2.24,
+          "allInRoundturn": 4.48,
+          "allInRoundturnEUR": 3.66,
+          "status": "CONFIRMED",
+          "sources": [
+            "TradeStation official fee schedule — exchange fee $1.38",
+            "IBKR commissions-futures.php — $0.85/side confirmed",
+            "NFA Bylaw 1301 — $0.01/side confirmed"
+          ],
+          "notes": "Confirmed by TradeStation. Same CME equity index fee tier as ES.",
+          "liquidity": "HIGH",
+          "liquidityNotes": "RTY is the primary Russell 2000 futures contract. High liquidity, active institutional market.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$6,000 = 60% of $10,000. Far exceeds 30% cap."
+            },
+            "12500": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$6,000 = 48% of $12,500. Exceeds 30% cap."
+            },
+            "15000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$6,000 = 40% of $15,000. Exceeds 30% cap."
+            },
+            "20000": {
+              "contracts": 1,
+              "rationale": "IBKR initial margin ~$6,000 = 30% of $20,000. At cap. 1 contract only. Borderline."
+            }
+          }
+        },
+        {
+          "ticker": "M2K",
+          "exchange": "CME",
+          "size": "Micro",
+          "multiplier": 5,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": 0.35,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 1.21,
+          "allInRoundturn": 2.42,
+          "allInRoundturnEUR": 1.98,
+          "status": "CONFIRMED",
+          "sources": [
+            "TradeStation official fee schedule — exchange fee $0.35",
+            "IBKR commissions-futures.php — $0.85/side confirmed",
+            "NFA Bylaw 1301 — $0.01/side confirmed"
+          ],
+          "notes": "Confirmed by TradeStation. Micro version of RTY.",
+          "liquidity": "HIGH",
+          "liquidityNotes": "M2K is among the more liquid micro equity index contracts.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 5,
+              "rationale": "Margin ~$600 × 5 = $3,000 = 30% of $10,000. At cap. ATR risk per M2K ~$25/day; 5 × $25 = $125 = 1.25% — within 2% rule."
+            },
+            "12500": {
+              "contracts": 6,
+              "rationale": "Margin $600 × 6 = $3,600 = 28.8% of $12,500. ATR risk $150 = 1.2%. 6 contracts appropriate."
+            },
+            "15000": {
+              "contracts": 7,
+              "rationale": "Margin $600 × 7 = $4,200 = 28% of $15,000. ATR risk $175 = 1.2%. 7 contracts appropriate."
+            },
+            "20000": {
+              "contracts": 10,
+              "rationale": "Margin $600 × 10 = $6,000 = 30% of $20,000. At cap. ATR risk $250 = 1.25%. 10 contracts appropriate."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "strategyId": "DOWJONES",
+      "name": "E-mini Dow Jones Futures",
+      "variants": [
+        {
+          "ticker": "YM",
+          "exchange": "CBOT",
+          "size": "Standard",
+          "multiplier": 5,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": 1.38,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 2.24,
+          "allInRoundturn": 4.48,
+          "allInRoundturnEUR": 3.66,
+          "status": "CONFIRMED",
+          "sources": [
+            "TradeStation official fee schedule — exchange fee $1.38",
+            "IBKR commissions-futures.php — $0.85/side confirmed",
+            "NFA Bylaw 1301 — $0.01/side confirmed"
+          ],
+          "notes": "Confirmed by TradeStation. Same CME Group equity index fee as ES/RTY.",
+          "liquidity": "HIGH",
+          "liquidityNotes": "YM is actively traded. Slightly less liquid than ES but still high-volume.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$6,500 = 65% of $10,000. Far exceeds 30% cap."
+            },
+            "12500": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$6,500 = 52% of $12,500. Exceeds 30% cap."
+            },
+            "15000": {
+              "contracts": 0,
+              "rationale": "IBKR initial margin ~$6,500 = 43.3% of $15,000. Exceeds 30% cap."
+            },
+            "20000": {
+              "contracts": 1,
+              "rationale": "IBKR initial margin ~$6,500 = 32.5% of $20,000. Slightly over 30% cap — not recommended. Requires ~$22,000 capital."
+            }
+          }
+        },
+        {
+          "ticker": "MYM",
+          "exchange": "CBOT",
+          "size": "Micro",
+          "multiplier": 0.50,
+          "currency": "USD",
+          "ibkrCommissionPerSide": 0.85,
+          "exchangeFeePerSide": 0.35,
+          "regulatoryFeePerSide": 0.01,
+          "clearingFeePerSide": 0.00,
+          "allInPerSide": 1.21,
+          "allInRoundturn": 2.42,
+          "allInRoundturnEUR": 1.98,
+          "status": "CONFIRMED",
+          "sources": [
+            "TradeStation official fee schedule — exchange fee $0.35",
+            "IBKR commissions-futures.php — $0.85/side confirmed",
+            "NFA Bylaw 1301 — $0.01/side confirmed"
+          ],
+          "notes": "Confirmed by TradeStation. Micro Dow Jones, 1/10th of YM.",
+          "liquidity": "HIGH",
+          "liquidityNotes": "MYM is liquid for a micro product. Active trading community.",
+          "recommendedForCapital": {
+            "10000": {
+              "contracts": 4,
+              "rationale": "Margin ~$650 × 4 = $2,600 = 26% of $10,000. Within cap. ATR risk per MYM ~$25/day; 4 × $25 = $100 = 1%. Conservative."
+            },
+            "12500": {
+              "contracts": 5,
+              "rationale": "Margin $650 × 5 = $3,250 = 26% of $12,500. ATR risk $125 = 1%. 5 contracts appropriate."
+            },
+            "15000": {
+              "contracts": 6,
+              "rationale": "Margin $650 × 6 = $3,900 = 26% of $15,000. ATR risk $150 = 1%. 6 contracts appropriate."
+            },
+            "20000": {
+              "contracts": 9,
+              "rationale": "Margin $650 × 9 = $5,850 = 29.3% of $20,000. Within cap. ATR risk $225 = 1.1%. 9 contracts appropriate."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "strategyId": "EEM_IWM",
+      "name": "EEM / IWM — Data Blocked",
+      "variants": [
+        {
+          "ticker": "EEM_IWM",
+          "exchange": null,
+          "size": null,
+          "multiplier": null,
+          "currency": null,
+          "ibkrCommissionPerSide": null,
+          "exchangeFeePerSide": null,
+          "regulatoryFeePerSide": null,
+          "clearingFeePerSide": null,
+          "allInPerSide": null,
+          "allInRoundturn": null,
+          "allInRoundturnEUR": null,
+          "status": "DATA_BLOCKED",
+          "sources": [],
+          "notes": "EEM and IWM are ETFs, not futures contracts. No confirmed futures equivalent found after exhaustive repository search. Excluded from all sizing, margin, and cost calculations. Do not substitute or interpolate.",
+          "liquidity": "UNKNOWN",
+          "liquidityNotes": "Not applicable — no futures instrument confirmed.",
+          "recommendedForCapital": {
+            "10000": { "contracts": 0, "rationale": "DATA_BLOCKED — no instrument." },
+            "12500": { "contracts": 0, "rationale": "DATA_BLOCKED — no instrument." },
+            "15000": { "contracts": 0, "rationale": "DATA_BLOCKED — no instrument." },
+            "20000": { "contracts": 0, "rationale": "DATA_BLOCKED — no instrument." }
+          }
+        }
+      ]
+    }
+  ],
+  "verificationPriority": [
+    "CRITICAL: 6E exchange fee ($1.62) — single source NinjaTrader PDF only. Verify at IBKR CME FX fees page or CME Group official FX fee schedule PDF.",
+    "CRITICAL: M6E exchange fee ($0.26) — single source NinjaTrader PDF only. Same verification path as 6E.",
+    "HIGH: MGC clearing fee ($0.50) — discrepancy between AMP ($0.00 implied) and TradeStation ($1.10 combined). Verify at IBKR COMEX micro fees page or CME COMEX micro fee schedule.",
+    "HIGH: MHG (Micro Copper) — no exchange fee data found on any source. Verify product exists and obtain fees from IBKR COMEX page.",
+    "MEDIUM: FDXM (Mini DAX) — no IBKR commission or EUREX exchange fee data found. Verify at IBKR EUREX fee schedule.",
+    "LOW: ZC/ZW/ZS/ZM exchange fee ($2.15 TradeStation vs $2.13 AMP) — minor variance, likely a 2025/2026 update. Verify against current CBOT agricultural fee schedule.",
+    "LOW: All TradeStation-sourced fees (ES, GC, CL, HG, RTY, M2K, YM, MYM) — upgrade to official CME/COMEX/NYMEX fee PDFs for highest assurance."
+  ],
+  "costComparisonVsSerkan": {
+    "note": "Serkan reference is IBKR execution fee only (€1.70 roundturn). True all-in roundturn includes exchange + regulatory + clearing fees. Multiplier shows how many times larger the real cost is vs the Serkan reference.",
+    "byTicker": {
+      "6E":   { "ibkrRealRoundturnEUR": 4.05, "serkanRoundturnEUR": 1.70, "multiplier": 2.38, "status": "NEEDS_VERIFICATION" },
+      "M6E":  { "ibkrRealRoundturnEUR": 1.83, "serkanRoundturnEUR": 1.70, "multiplier": 1.08, "status": "NEEDS_VERIFICATION" },
+      "FDAX": { "ibkrRealRoundturnEUR": 4.32, "serkanRoundturnEUR": 1.70, "multiplier": 2.54, "status": "CONFIRMED" },
+      "FDXM": { "ibkrRealRoundturnEUR": null,  "serkanRoundturnEUR": 1.70, "multiplier": null,  "status": "NEEDS_VERIFICATION" },
+      "FDXS": { "ibkrRealRoundturnEUR": 0.76, "serkanRoundturnEUR": 1.70, "multiplier": 0.45, "status": "CONFIRMED" },
+      "ES":   { "ibkrRealRoundturnEUR": 3.66, "serkanRoundturnEUR": 1.70, "multiplier": 2.15, "status": "CONFIRMED" },
+      "MES":  { "ibkrRealRoundturnEUR": 1.98, "serkanRoundturnEUR": 1.70, "multiplier": 1.16, "status": "CONFIRMED" },
+      "GC":   { "ibkrRealRoundturnEUR": 4.10, "serkanRoundturnEUR": 1.70, "multiplier": 2.41, "status": "CONFIRMED" },
+      "MGC":  { "ibkrRealRoundturnEUR": 3.20, "serkanRoundturnEUR": 1.70, "multiplier": 1.88, "status": "NEEDS_VERIFICATION" },
+      "CL":   { "ibkrRealRoundturnEUR": 3.86, "serkanRoundturnEUR": 1.70, "multiplier": 2.27, "status": "CONFIRMED" },
+      "MCL":  { "ibkrRealRoundturnEUR": 2.22, "serkanRoundturnEUR": 1.70, "multiplier": 1.31, "status": "CONFIRMED" },
+      "HG":   { "ibkrRealRoundturnEUR": 4.02, "serkanRoundturnEUR": 1.70, "multiplier": 2.36, "status": "CONFIRMED" },
+      "MHG":  { "ibkrRealRoundturnEUR": null,  "serkanRoundturnEUR": 1.70, "multiplier": null,  "status": "NEEDS_VERIFICATION" },
+      "ZC":   { "ibkrRealRoundturnEUR": 4.92, "serkanRoundturnEUR": 1.70, "multiplier": 2.89, "status": "CONFIRMED" },
+      "ZW":   { "ibkrRealRoundturnEUR": 4.92, "serkanRoundturnEUR": 1.70, "multiplier": 2.89, "status": "CONFIRMED" },
+      "ZS":   { "ibkrRealRoundturnEUR": 4.92, "serkanRoundturnEUR": 1.70, "multiplier": 2.89, "status": "CONFIRMED" },
+      "ZM":   { "ibkrRealRoundturnEUR": 4.92, "serkanRoundturnEUR": 1.70, "multiplier": 2.89, "status": "CONFIRMED" },
+      "SB":   { "ibkrRealRoundturnEUR": 4.83, "serkanRoundturnEUR": 1.70, "multiplier": 2.84, "status": "CONFIRMED" },
+      "CC":   { "ibkrRealRoundturnEUR": 4.83, "serkanRoundturnEUR": 1.70, "multiplier": 2.84, "status": "CONFIRMED" },
+      "RTY":  { "ibkrRealRoundturnEUR": 3.66, "serkanRoundturnEUR": 1.70, "multiplier": 2.15, "status": "CONFIRMED" },
+      "M2K":  { "ibkrRealRoundturnEUR": 1.98, "serkanRoundturnEUR": 1.70, "multiplier": 1.16, "status": "CONFIRMED" },
+      "YM":   { "ibkrRealRoundturnEUR": 3.66, "serkanRoundturnEUR": 1.70, "multiplier": 2.15, "status": "CONFIRMED" },
+      "MYM":  { "ibkrRealRoundturnEUR": 1.98, "serkanRoundturnEUR": 1.70, "multiplier": 1.16, "status": "CONFIRMED" }
+    },
+    "confirmedRange": {
+      "lowestRoundturnEUR":  { "ticker": "FDXS", "value": 0.76 },
+      "highestRoundturnEUR": { "ticker": "ZC/ZW/ZS/ZM", "value": 4.92 },
+      "multiplierRange": { "min": 0.45, "max": 2.89, "note": "FDXS is the only instrument BELOW Serkan reference due to EUREX micro pricing" }
+    }
+  }
+}
