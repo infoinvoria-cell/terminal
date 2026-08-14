@@ -1,0 +1,46 @@
+import { NextResponse } from 'next/server';
+import fs from 'fs';
+import path from 'path';
+
+export const dynamic = 'force-dynamic';
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const capital = searchParams.get('capital');
+  const type = searchParams.get('type') || 'variants';
+
+  const phase = searchParams.get('phase') || 'v1';
+  const base = path.join(
+    process.cwd(),
+    phase === 'v2'
+      ? 'workspace/output/white-swan/portfolio-lab-v2'
+      : 'workspace/output/white-swan/portfolio-lab'
+  );
+
+  try {
+    if (type === 'finalists') {
+      const raw = JSON.parse(fs.readFileSync(path.join(base, 'finalists.json'), 'utf8'));
+      // v2 finalists are grouped by capital key; flatten them
+      const finalists = Array.isArray(raw) ? raw : Object.values(raw).flat();
+      return NextResponse.json({ finalists });
+    }
+
+    if (capital) {
+      const filename = `capital-${capital}.json`;
+      const raw = JSON.parse(fs.readFileSync(path.join(base, filename), 'utf8'));
+      const variants = Array.isArray(raw) ? raw : (raw.variants ?? []);
+      return NextResponse.json({ variants, capital: Number(capital) });
+    }
+
+    const raw = JSON.parse(fs.readFileSync(path.join(base, 'variants.json'), 'utf8'));
+    const all = Array.isArray(raw) ? raw : (raw.variants ?? []);
+    const stripped = all.map((v: Record<string, unknown>) => {
+      const { navSeries: _, ...rest } = v;
+      return rest;
+    });
+    return NextResponse.json({ variants: stripped });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
+}
