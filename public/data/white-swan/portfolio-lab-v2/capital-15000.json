@@ -1,0 +1,3866 @@
+[
+  {
+    "variantId": "QA_ALL_HOLD1_15000",
+    "family": "QA_ALL_HOLD1",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A5",
+    "dimB": "B0",
+    "dimC": "C0",
+    "dimD": "D1",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 148484.72628380315,
+      "totalReturn": 889.8981752253542,
+      "cagr": 13.175665832797545,
+      "sharpe": 1.7350928589810728,
+      "sortino": 7.084280438574415,
+      "calmar": 0.9403466430510976,
+      "maxDD": 2101.724815550002,
+      "maxDDFromStart": 14.011498770333347,
+      "maxDDFromPeak": 1.4128822032765584,
+      "totalTrades": 4387,
+      "totalGross": 140556.4331248023,
+      "totalCosts": 7071.706840999594,
+      "totalNet": 133484.72628380315,
+      "tradesPerWeek": 4.539269660963797,
+      "annualCosts": 381.8094491759204,
+      "annualCostPct": 2.545396327839469,
+      "costRatio": 5.03122246615387,
+      "isCAGR": 16.612946487914428,
+      "oosCAGR": 25.348795934877533,
+      "oosMaxDDPct": 8.526983081061966,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.5258458788944065,
+      "concentration": {
+        "top1Pct": 36.49531507072725,
+        "top3Pct": 70.7600754117385,
+        "hhi": 0.20595467783357632
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 13912.94367898542,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 25153.922360802822,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 10200.13196534452,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 23140.978994760477,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 37447.97780743999,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 80,
+    "suitabilityScore": 92,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "ALL_HOLD1",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "ALL_HOLD1",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "ALL_HOLD1",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "ALL_HOLD1",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_OVERNIGHT_DAX_15000",
+    "family": "QA_OVERNIGHT_DAX",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A1",
+    "dimB": "B1",
+    "dimC": "C0",
+    "dimD": "D1",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 142726.22628380344,
+      "totalReturn": 851.5081752253562,
+      "cagr": 12.934230897235754,
+      "sharpe": 1.6392662192839926,
+      "sortino": 6.608660940646596,
+      "calmar": 0.8640028438583464,
+      "maxDD": 2245.518806305514,
+      "maxDDFromStart": 14.970125375370092,
+      "maxDDFromPeak": 1.5703376065754777,
+      "totalTrades": 4737,
+      "totalGross": 135392.9331248023,
+      "totalCosts": 7666.70684099953,
+      "totalNet": 127726.22628380344,
+      "tradesPerWeek": 4.901417912921246,
+      "annualCosts": 413.9341720140544,
+      "annualCostPct": 2.7595611467603627,
+      "costRatio": 5.662560566534535,
+      "isCAGR": 16.149145951781165,
+      "oosCAGR": 24.882987531025357,
+      "oosMaxDDPct": 8.526983081061966,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.5408237441981194,
+      "concentration": {
+        "top1Pct": 38.140695803794614,
+        "top3Pct": 73.95027296249903,
+        "hhi": 0.22193839755452155
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 12756.543678985427,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 24468.422360802793,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 9096.73196534453,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 22271.978994760437,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 36448.57780743991,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 80,
+    "suitabilityScore": 92,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_FULL_QUALITY_15000",
+    "family": "QA_FULL_QUALITY",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A1",
+    "dimB": "B1",
+    "dimC": "C1",
+    "dimD": "D1",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 143252.17087597138,
+      "totalReturn": 855.0144725064758,
+      "cagr": 12.956660852017299,
+      "sharpe": 1.6678301017627555,
+      "sortino": 6.73558871202403,
+      "calmar": 0.865501158282516,
+      "maxDD": 2245.518806305514,
+      "maxDDFromStart": 14.970125375370092,
+      "maxDDFromPeak": 1.5645830092655664,
+      "totalTrades": 4586,
+      "totalGross": 135684.5464039702,
+      "totalCosts": 7432.375527999578,
+      "totalNet": 128252.17087597138,
+      "tradesPerWeek": 4.745176809933889,
+      "annualCosts": 401.2823594385581,
+      "annualCostPct": 2.6752157295903873,
+      "costRatio": 5.477687566475958,
+      "isCAGR": 16.20581729342112,
+      "oosCAGR": 24.90522013584753,
+      "oosMaxDDPct": 8.526983081061966,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.536807412111082,
+      "concentration": {
+        "top1Pct": 37.98428603261868,
+        "top3Pct": 73.64701301852831,
+        "hhi": 0.22011986362323005
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 13065.186601633553,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 24468.422360802793,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 9096.73196534453,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 22379.065016164128,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 36448.57780743991,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 80,
+    "suitabilityScore": 92,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "UPTREND_YEAR",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_ALL_HOLD2_15000",
+    "family": "QA_ALL_HOLD2",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A2",
+    "dimB": "B1",
+    "dimC": "C0",
+    "dimD": "D1",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 138941.18137867886,
+      "totalReturn": 826.2745425245257,
+      "cagr": 12.770464978696406,
+      "sharpe": 1.6993286961183138,
+      "sortino": 6.833108240093595,
+      "calmar": 0.8536843552426301,
+      "maxDD": 2243.885266305515,
+      "maxDDFromStart": 14.959235108703433,
+      "maxDDFromPeak": 1.6118605414197038,
+      "totalTrades": 3911,
+      "totalGross": 130326.0493816774,
+      "totalCosts": 6384.86800299979,
+      "totalNet": 123941.18137867886,
+      "tradesPerWeek": 4.046748038301666,
+      "annualCosts": 344.7262436209421,
+      "annualCostPct": 2.2981749574729475,
+      "costRatio": 4.899149504870545,
+      "isCAGR": 15.870281455575942,
+      "oosCAGR": 24.515212465180557,
+      "oosMaxDDPct": 8.526983081061966,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.5447244923666594,
+      "concentration": {
+        "top1Pct": 39.30547610299946,
+        "top3Pct": 76.20864343142398,
+        "hhi": 0.23439700408282116
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 12213.503934860482,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 23800.5086933028,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 8762.080877094628,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 21698.97400126044,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 35191.28290793999,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 80,
+    "suitabilityScore": 92,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "OVERNIGHT_2D",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_OVERNIGHT_15000",
+    "family": "QA_OVERNIGHT",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A1",
+    "dimB": "B0",
+    "dimC": "C0",
+    "dimD": "D1",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 105004.05485523281,
+      "totalReturn": 600.0270323682187,
+      "cagr": 11.07471783632079,
+      "sharpe": 1.2005521328082183,
+      "sortino": 4.480042371323992,
+      "calmar": 0.5490429181646049,
+      "maxDD": 3025.6426601427956,
+      "maxDDFromStart": 20.17095106761864,
+      "maxDDFromPeak": 2.838348147372173,
+      "totalTrades": 6512,
+      "totalGross": 100688.26169623082,
+      "totalCosts": 10684.206841000127,
+      "totalNet": 90004.05485523281,
+      "tradesPerWeek": 6.736035468045698,
+      "annualCosts": 576.6819194141121,
+      "annualCostPct": 3.844546129427414,
+      "costRatio": 10.611174193505896,
+      "isCAGR": 13.702622144689979,
+      "oosCAGR": 19.79534801124563,
+      "oosMaxDDPct": 15.77223738380955,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.4446394129693414,
+      "concentration": {
+        "top1Pct": 29.850600338189064,
+        "top3Pct": 63.03240631130489,
+        "hhi": 0.16891576042337988
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 8520.70082184253,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 19081.622360802787,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 4179.103393915923,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 13523.293280474802,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 28561.149236011443,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 75,
+    "suitabilityScore": 76.25,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_OVERNIGHT_2D_15000",
+    "family": "QA_OVERNIGHT_2D",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A2",
+    "dimB": "B0",
+    "dimC": "C0",
+    "dimD": "D1",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 101219.00995010833,
+      "totalReturn": 574.7933996673889,
+      "cagr": 10.854834854462547,
+      "sharpe": 1.2023316025979889,
+      "sortino": 4.4755151309507015,
+      "calmar": 0.562357205270847,
+      "maxDD": 2895.357635517772,
+      "maxDDFromStart": 19.302384236785148,
+      "maxDDFromPeak": 2.8175101185588147,
+      "totalTrades": 5686,
+      "totalGross": 95621.37795310588,
+      "totalCosts": 9402.368002999645,
+      "totalNet": 86219.00995010833,
+      "tradesPerWeek": 5.8816181927684035,
+      "annualCosts": 507.4944455586849,
+      "annualCostPct": 3.383296303724566,
+      "costRatio": 9.832914149815645,
+      "isCAGR": 13.356490228486638,
+      "oosCAGR": 19.31115098865872,
+      "oosMaxDDPct": 15.475749873809546,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.4458252623486385,
+      "concentration": {
+        "top1Pct": 31.16105220710232,
+        "top3Pct": 65.79955114983179,
+        "hhi": 0.1813776700306708
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 7977.661077717571,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 18413.70869330288,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 3844.452305665992,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 12950.288286974872,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 27303.854336511533,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 75,
+    "suitabilityScore": 76.25,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "OVERNIGHT_2D",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_OVERNIGHT_BESTDAY_15000",
+    "family": "QA_OVERNIGHT_BESTDAY",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A4",
+    "dimB": "B0",
+    "dimC": "C0",
+    "dimD": "D1",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 103174.4594263582,
+      "totalReturn": 587.8297295090547,
+      "cagr": 10.969385042667978,
+      "sharpe": 1.21323687549174,
+      "sortino": 4.533406745371922,
+      "calmar": 0.5579198984835901,
+      "maxDD": 2949.1827785177884,
+      "maxDDFromStart": 19.66121852345192,
+      "maxDDFromPeak": 2.816529254355141,
+      "totalTrades": 5916,
+      "totalGross": 97933.75591935586,
+      "totalCosts": 9759.296492999772,
+      "totalNet": 88174.4594263582,
+      "tradesPerWeek": 6.11953099339041,
+      "annualCosts": 526.7597227823507,
+      "annualCostPct": 3.511731485215671,
+      "costRatio": 9.965201887116557,
+      "isCAGR": 13.55703876171981,
+      "oosCAGR": 19.52975375878163,
+      "oosMaxDDPct": 15.574579043809548,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.4405619178375897,
+      "concentration": {
+        "top1Pct": 30.46999196568781,
+        "top3Pct": 64.34031115368668,
+        "hhi": 0.1742928793402001
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 8103.9439293425585,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 19174.938333302856,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 4193.713367290965,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 12716.549132224858,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 28198.605452261458,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 75,
+    "suitabilityScore": 76.25,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "OVERNIGHT_BESTDAY",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_OVERNIGHT_GLD_15000",
+    "family": "QA_OVERNIGHT_GLD",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A1",
+    "dimB": "B0",
+    "dimC": "C1",
+    "dimD": "D1",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 105529.99944740081,
+      "totalReturn": 603.5333296493387,
+      "cagr": 11.104676081228693,
+      "sharpe": 1.2171467161937806,
+      "sortino": 4.550653395661351,
+      "calmar": 0.5505281354360897,
+      "maxDD": 3025.6426601427956,
+      "maxDDFromStart": 20.17095106761864,
+      "maxDDFromPeak": 2.8244128512354525,
+      "totalTrades": 6361,
+      "totalGross": 100979.87497539874,
+      "totalCosts": 10449.875528000037,
+      "totalNet": 90529.99944740081,
+      "tradesPerWeek": 6.579840542419946,
+      "annualCosts": 564.0338461064007,
+      "annualCostPct": 3.760225640709338,
+      "costRatio": 10.348473426557412,
+      "isCAGR": 13.772693422766281,
+      "oosCAGR": 19.824507862040996,
+      "oosMaxDDPct": 15.77223738380955,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.4394067488114604,
+      "concentration": {
+        "top1Pct": 29.677179793434057,
+        "top3Pct": 62.66621219407165,
+        "hhi": 0.16695479943542885
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 8829.343744490663,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 19081.622360802787,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 4179.103393915923,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 13630.379301878489,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 28561.149236011443,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 75,
+    "suitabilityScore": 76.25,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "UPTREND_YEAR",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_OVERNIGHT_BESTDAY_GLD_15000",
+    "family": "QA_OVERNIGHT_BESTDAY_GLD",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A4",
+    "dimB": "B0",
+    "dimC": "C1",
+    "dimD": "D1",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 103700.40401852618,
+      "totalReturn": 591.3360267901745,
+      "cagr": 10.999844350141297,
+      "sharpe": 1.2314026925783546,
+      "sortino": 4.609894301476681,
+      "calmar": 0.5594691059977117,
+      "maxDD": 2949.1827785177884,
+      "maxDDFromStart": 19.66121852345192,
+      "maxDDFromPeak": 2.8024528773482467,
+      "totalTrades": 5765,
+      "totalGross": 98225.36919852378,
+      "totalCosts": 9524.965179999685,
+      "totalNet": 88700.40401852618,
+      "tradesPerWeek": 5.963336067764658,
+      "annualCosts": 514.1116494746394,
+      "annualCostPct": 3.4274109964975965,
+      "costRatio": 9.69705205255959,
+      "isCAGR": 13.628010477892794,
+      "oosCAGR": 19.559338680762895,
+      "oosMaxDDPct": 15.574579043809548,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.4352306752692798,
+      "concentration": {
+        "top1Pct": 30.289321678161173,
+        "top3Pct": 63.958808509091966,
+        "hhi": 0.17222792857478436
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 8412.586851990687,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 19174.938333302856,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 4193.713367290965,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 12823.635153628546,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 28198.605452261458,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 75,
+    "suitabilityScore": 76.25,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "UPTREND_YEAR",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "OVERNIGHT_BESTDAY",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_FULL_QUALITY_ATIER2X_15000",
+    "family": "QA_FULL_QUALITY_ATIER2X",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A1",
+    "dimB": "B1",
+    "dimC": "C1",
+    "dimD": "D3",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 213107.03815213335,
+      "totalReturn": 1320.7135876808888,
+      "cagr": 15.405134385347363,
+      "sharpe": 1.232753940587709,
+      "sortino": 6.1974948972598405,
+      "calmar": 0.540827028631907,
+      "maxDD": 4272.660269305514,
+      "maxDDFromStart": 28.48440179537009,
+      "maxDDFromPeak": 2.002402092330792,
+      "totalTrades": 4586,
+      "totalGross": 205738.0521441353,
+      "totalCosts": 7631.013991999654,
+      "totalNet": 198107.03815213335,
+      "tradesPerWeek": 4.745176809933889,
+      "annualCosts": 412.0070747343494,
+      "annualCostPct": 2.746713831562329,
+      "costRatio": 3.709092174477059,
+      "isCAGR": 20.63505441765292,
+      "oosCAGR": 30.306508926357335,
+      "oosMaxDDPct": 11.582661522380949,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.4686905259833314,
+      "concentration": {
+        "top1Pct": 27.123469164551416,
+        "top3Pct": 70.76584246689579,
+        "hhi": 0.18556251196427515
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 21242.56532613356,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 39022.20215920953,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 12883.44103934453,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 31839.01787107073,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 55579.9040827916,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 70,
+    "suitabilityScore": 75.5,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "UPTREND_YEAR",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_BESTDAY_15000",
+    "family": "QA_BESTDAY",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A3",
+    "dimB": "B0",
+    "dimC": "C0",
+    "dimD": "D1",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 100125.50806448219,
+      "totalReturn": 567.503387096548,
+      "cagr": 10.789861487014907,
+      "sharpe": 1.136043817844986,
+      "sortino": 4.2337331115154955,
+      "calmar": 0.5421729073241142,
+      "maxDD": 2985.171706642839,
+      "maxDDFromStart": 19.901144710952263,
+      "maxDDFromPeak": 2.9409621526762244,
+      "totalTrades": 7191,
+      "totalGross": 96863.4298824808,
+      "totalCosts": 11737.92181800053,
+      "totalNet": 85125.50806448219,
+      "tradesPerWeek": 7.438395431621102,
+      "annualCosts": 633.5563682613705,
+      "annualCostPct": 4.22370912174247,
+      "costRatio": 12.11801175349822,
+      "isCAGR": 13.289830862829731,
+      "oosCAGR": 19.111582925041827,
+      "oosMaxDDPct": 14.424839140476301,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.438060658732304,
+      "concentration": {
+        "top1Pct": 31.561339619434115,
+        "top3Pct": 66.6447964222734,
+        "hhi": 0.1860050723773326
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 7419.93989284242,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 18424.5411054277,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 3869.0166634158822,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 11839.093121224716,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 27687.593301761313,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 75,
+    "suitabilityScore": 71.25,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "BESTDAY",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_DAX_CRISIS_15000",
+    "family": "QA_DAX_CRISIS",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A0",
+    "dimB": "B2",
+    "dimC": "C0",
+    "dimD": "D1",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 87782.51285169371,
+      "totalReturn": 485.21675234462475,
+      "cagr": 10.016782911064048,
+      "sharpe": 1.0849035733809897,
+      "sortino": 4.178927622179805,
+      "calmar": 0.5057238128435598,
+      "maxDD": 2971.02370602508,
+      "maxDDFromStart": 19.80682470683387,
+      "maxDDFromPeak": 3.361450752475248,
+      "totalTrades": 7046,
+      "totalGross": 83898.11110069505,
+      "totalCosts": 11115.598249000477,
+      "totalNet": 72782.51285169371,
+      "tradesPerWeek": 7.295954093817259,
+      "annualCosts": 600.5876124922224,
+      "annualCostPct": 4.003917416614816,
+      "costRatio": 13.248925515926652,
+      "isCAGR": 12.423493154170728,
+      "oosCAGR": 16.885324497379052,
+      "oosMaxDDPct": 14.55931881285748,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.35914466952561,
+      "concentration": {
+        "top1Pct": 36.91374431897591,
+        "top3Pct": 74.06752858182679,
+        "hhi": 0.2364036870700294
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 6235.6461230029145,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 16291.440703445338,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 1561.3621245406875,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 11003.981919545824,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 20784.70042861838,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 75,
+    "suitabilityScore": 71.25,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "CRISIS_YEAR",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_DAX_HOLD1_15000",
+    "family": "QA_DAX_HOLD1",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A0",
+    "dimB": "B1",
+    "dimC": "C0",
+    "dimD": "D1",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 133879.7699945518,
+      "totalReturn": 792.5317999636787,
+      "cagr": 12.540821032626969,
+      "sharpe": 1.425000318378815,
+      "sortino": 5.691235059563774,
+      "calmar": 0.792251183016923,
+      "maxDD": 2374.402456214273,
+      "maxDDFromStart": 15.829349708095153,
+      "maxDDFromPeak": 1.7699678249274515,
+      "totalTrades": 7953,
+      "totalGross": 131537.2682435524,
+      "totalCosts": 12657.498249001073,
+      "totalNet": 118879.76999455181,
+      "tradesPerWeek": 8.226610884116623,
+      "annualCosts": 683.190665796903,
+      "annualCostPct": 4.554604438646019,
+      "costRatio": 9.622746783493058,
+      "isCAGR": 15.71577229386618,
+      "oosCAGR": 23.658299865090846,
+      "oosMaxDDPct": 9.043998491061988,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.5053857629589487,
+      "concentration": {
+        "top1Pct": 40.97894152285493,
+        "top3Pct": 79.45329384966054,
+        "hhi": 0.25605420859488515
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 11062.103265860049,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 23701.597846302717,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 7411.990695969161,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 19661.296205260358,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 34283.871857189886,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 62,
+    "suitabilityScore": 69.3,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_ALL_FILTERS_D4_15000",
+    "family": "QA_ALL_FILTERS_D4",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A1",
+    "dimB": "B1",
+    "dimC": "C1",
+    "dimD": "D4",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 324696.53469702386,
+      "totalReturn": 2064.643564646826,
+      "cagr": 18.058978592282628,
+      "sharpe": 1.454383320347065,
+      "sortino": 6.606767171383641,
+      "calmar": 0.5797539921211682,
+      "maxDD": 4672.407306642999,
+      "maxDDFromStart": 31.14938204428666,
+      "maxDDFromPeak": 1.4354305451553893,
+      "totalTrades": 4586,
+      "totalGross": 329181.68552502774,
+      "totalCosts": 19485.150827999976,
+      "totalNet": 309696.53469702386,
+      "tradesPerWeek": 4.745176809933889,
+      "annualCosts": 1052.0253274097547,
+      "annualCostPct": 7.013502182731698,
+      "costRatio": 5.919269414069063,
+      "isCAGR": 24.192299612748492,
+      "oosCAGR": 38.818451874978436,
+      "oosMaxDDPct": 25.116228815999982,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.6045788327837374,
+      "concentration": {
+        "top1Pct": 47.19039379264884,
+        "top3Pct": 76.72783863215645,
+        "hhi": 0.2758695462487801
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 31621.55471869776,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 57606.104790423946,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 23481.255121401722,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 57577.17591707139,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 89248.91902503514,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 62,
+    "suitabilityScore": 64.3,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 3,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 3,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "UPTREND_YEAR",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 3,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 3,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_OVERNIGHT_ATIER2X_15000",
+    "family": "QA_OVERNIGHT_ATIER2X",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A1",
+    "dimB": "B0",
+    "dimC": "C0",
+    "dimD": "D3",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 174858.92213139753,
+      "totalReturn": 1065.72614754265,
+      "cagr": 14.174661665814469,
+      "sharpe": 0.9939220056843308,
+      "sortino": 4.8465827194747115,
+      "calmar": 0.4052692878033785,
+      "maxDD": 5246.386325982152,
+      "maxDDFromStart": 34.975908839881015,
+      "maxDDFromPeak": 2.964978101857823,
+      "totalTrades": 6512,
+      "totalGross": 170741.76743639592,
+      "totalCosts": 10882.845305000072,
+      "totalNet": 159858.92213139753,
+      "tradesPerWeek": 6.736035468045698,
+      "annualCosts": 587.4034649994497,
+      "annualCostPct": 3.9160230999963317,
+      "costRatio": 6.37386239371928,
+      "isCAGR": 18.977743553129645,
+      "oosCAGR": 26.58048398084496,
+      "oosMaxDDPct": 19.049663137142588,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.4006135084727465,
+      "concentration": {
+        "top1Pct": 33.61307626097544,
+        "top3Pct": 67.4447291277113,
+        "hhi": 0.19684437552675088
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 16698.07954634254,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 33635.40215920953,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 7965.812467915925,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 22983.24613538155,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 47692.475511363096,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 70,
+    "suitabilityScore": 60.5,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_OVERNIGHT_SCALED_15000",
+    "family": "QA_OVERNIGHT_SCALED",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A1",
+    "dimB": "B0",
+    "dimC": "C0",
+    "dimD": "D2",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 141149.2085429781,
+      "totalReturn": 840.9947236198541,
+      "cagr": 12.862466607195234,
+      "sharpe": 1.1361053357556996,
+      "sortino": 2.987278914764381,
+      "calmar": 0.3055883419035047,
+      "maxDD": 6313.624332202176,
+      "maxDDFromStart": 42.09082888134784,
+      "maxDDFromPeak": 4.3546364770567525,
+      "totalTrades": 6512,
+      "totalGross": 154722.5522199806,
+      "totalCosts": 28573.343677003133,
+      "totalNet": 126149.2085429781,
+      "tradesPerWeek": 6.736035468045698,
+      "annualCosts": 1542.251186349253,
+      "annualCostPct": 10.281674575661686,
+      "costRatio": 18.467471785482363,
+      "isCAGR": 15.555054830260563,
+      "oosCAGR": 25.434386733184013,
+      "oosMaxDDPct": 42.09082888134765,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.635120352241019,
+      "concentration": {
+        "top1Pct": 26.144040363728966,
+        "top3Pct": 62.401280564659224,
+        "hhi": 0.15873118478895776
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 10428.004500121082,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 26891.92499201678,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 4941.660333115805,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 21764.079897902993,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 46455.30703539726,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 65,
+    "suitabilityScore": 59.75,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 3,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 3,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 3,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 3,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_FULL_QUALITY_SCALED_15000",
+    "family": "QA_FULL_QUALITY_SCALED",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A1",
+    "dimB": "B1",
+    "dimC": "C1",
+    "dimD": "D2",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 254841.6674208589,
+      "totalReturn": 1598.9444494723925,
+      "cagr": 16.52490699832274,
+      "sharpe": 2.009849632222312,
+      "sortino": 6.580610276045237,
+      "calmar": 0.657937428400705,
+      "maxDD": 3767.434322400004,
+      "maxDDFromStart": 25.116228816000024,
+      "maxDDFromPeak": 1.4736643900614452,
+      "totalTrades": 4586,
+      "totalGross": 259128.1797848624,
+      "totalCosts": 19286.512363999987,
+      "totalNet": 239841.6674208589,
+      "tradesPerWeek": 4.745176809933889,
+      "annualCosts": 1041.3006121139683,
+      "annualCostPct": 6.942004080759789,
+      "costRatio": 7.442846385913082,
+      "isCAGR": 21.059061964207125,
+      "oosCAGR": 35.43542057721736,
+      "oosMaxDDPct": 25.116228815999982,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.6826685175932765,
+      "concentration": {
+        "top1Pct": 60.934789128722755,
+        "top3Pct": 80.0049623996338,
+        "hhi": 0.3963073121557158
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 23444.175994197718,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 43052.324992017195,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 19694.54604740172,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 48117.22306216465,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 70117.59274968348,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 50,
+    "suitabilityScore": 57.5,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 3,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 3,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "UPTREND_YEAR",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 3,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 3,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_FULL_QUALITY_D2_15000",
+    "family": "QA_FULL_QUALITY_D2",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A1",
+    "dimB": "B1",
+    "dimC": "C1",
+    "dimD": "D2",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 254841.6674208589,
+      "totalReturn": 1598.9444494723925,
+      "cagr": 16.52490699832274,
+      "sharpe": 2.009849632222312,
+      "sortino": 6.580610276045237,
+      "calmar": 0.657937428400705,
+      "maxDD": 3767.434322400004,
+      "maxDDFromStart": 25.116228816000024,
+      "maxDDFromPeak": 1.4736643900614452,
+      "totalTrades": 4586,
+      "totalGross": 259128.1797848624,
+      "totalCosts": 19286.512363999987,
+      "totalNet": 239841.6674208589,
+      "tradesPerWeek": 4.745176809933889,
+      "annualCosts": 1041.3006121139683,
+      "annualCostPct": 6.942004080759789,
+      "costRatio": 7.442846385913082,
+      "isCAGR": 21.059061964207125,
+      "oosCAGR": 35.43542057721736,
+      "oosMaxDDPct": 25.116228815999982,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.6826685175932765,
+      "concentration": {
+        "top1Pct": 60.934789128722755,
+        "top3Pct": 80.0049623996338,
+        "hhi": 0.3963073121557158
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 23444.175994197718,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 43052.324992017195,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 19694.54604740172,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 48117.22306216465,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 70117.59274968348,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 50,
+    "suitabilityScore": 57.5,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 3,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 3,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "UPTREND_YEAR",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 3,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 3,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_OVERNIGHT_GLD_DAX_15000",
+    "family": "QA_OVERNIGHT_GLD_DAX",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A1",
+    "dimB": "B1",
+    "dimC": "C1",
+    "dimD": "D2",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 254841.6674208589,
+      "totalReturn": 1598.9444494723925,
+      "cagr": 16.52490699832274,
+      "sharpe": 2.009849632222312,
+      "sortino": 6.580610276045237,
+      "calmar": 0.657937428400705,
+      "maxDD": 3767.434322400004,
+      "maxDDFromStart": 25.116228816000024,
+      "maxDDFromPeak": 1.4736643900614452,
+      "totalTrades": 4586,
+      "totalGross": 259128.1797848624,
+      "totalCosts": 19286.512363999987,
+      "totalNet": 239841.6674208589,
+      "tradesPerWeek": 4.745176809933889,
+      "annualCosts": 1041.3006121139683,
+      "annualCostPct": 6.942004080759789,
+      "costRatio": 7.442846385913082,
+      "isCAGR": 21.059061964207125,
+      "oosCAGR": 35.43542057721736,
+      "oosMaxDDPct": 25.116228815999982,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.6826685175932765,
+      "concentration": {
+        "top1Pct": 60.934789128722755,
+        "top3Pct": 80.0049623996338,
+        "hhi": 0.3963073121557158
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 23444.175994197718,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 43052.324992017195,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 19694.54604740172,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 48117.22306216465,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 70117.59274968348,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 50,
+    "suitabilityScore": 57.5,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 3,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 3,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "UPTREND_YEAR",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 3,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 3,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_OVERNIGHT_D4_15000",
+    "family": "QA_OVERNIGHT_D4",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A1",
+    "dimB": "B0",
+    "dimC": "C0",
+    "dimD": "D4",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 211004.07581914167,
+      "totalReturn": 1306.6938387942778,
+      "cagr": 15.33849281869566,
+      "sharpe": 0.9928013021889611,
+      "sortino": 3.9104145797904746,
+      "calmar": 0.32848219862754313,
+      "maxDD": 7004.257559214442,
+      "maxDDFromStart": 46.69505039476295,
+      "maxDDFromPeak": 3.252760214639536,
+      "totalTrades": 6512,
+      "totalGross": 224776.0579601457,
+      "totalCosts": 28771.98214100321,
+      "totalNet": 196004.07581914167,
+      "tradesPerWeek": 6.736035468045698,
+      "annualCosts": 1552.9727319345977,
+      "annualCostPct": 10.353151546230652,
+      "costRatio": 12.800287718412019,
+      "isCAGR": 20.191643246265922,
+      "oosCAGR": 30.709435899065628,
+      "oosMaxDDPct": 44.949712691428815,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.520898300575154,
+      "concentration": {
+        "top1Pct": 27.414481653729165,
+        "top3Pct": 63.49711993787346,
+        "hhi": 0.16107151479871962
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 18605.38322462108,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 41445.70479042353,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 8728.369407115804,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 31224.032752809922,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 65586.63331074892,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 70,
+    "suitabilityScore": 55.5,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 3,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 3,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 3,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 3,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 2,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_BASELINE_15000",
+    "family": "QA_BASELINE",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A0",
+    "dimB": "B0",
+    "dimC": "C0",
+    "dimD": "D1",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 96157.59856598053,
+      "totalReturn": 541.0506571065368,
+      "cagr": 10.548321954467333,
+      "sharpe": 1.058698031183596,
+      "sortino": 3.894553861119432,
+      "calmar": 0.498131614169572,
+      "maxDD": 3176.365940571435,
+      "maxDDFromStart": 21.175772937142902,
+      "maxDDFromPeak": 3.254908004821344,
+      "totalTrades": 9728,
+      "totalGross": 96832.59681498079,
+      "totalCosts": 15674.998249002037,
+      "totalNet": 81157.59856598053,
+      "tradesPerWeek": 10.062677062829938,
+      "annualCosts": 846.0607522458985,
+      "annualCostPct": 5.640405014972656,
+      "costRatio": 16.187728889428058,
+      "isCAGR": 13.163734808512473,
+      "oosCAGR": 18.168944271556732,
+      "oosMaxDDPct": 14.826553852143068,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.3802271570988793,
+      "concentration": {
+        "top1Pct": 33.104418043071504,
+        "top3Pct": 69.90315454797201,
+        "hhi": 0.20743782703258612
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 6826.260408717191,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 18314.79784630243,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 2494.3621245406557,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 10912.610490974414,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 26396.44328576111,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 65,
+    "suitabilityScore": 54.75,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_GLD_UPTREND_15000",
+    "family": "QA_GLD_UPTREND",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A0",
+    "dimB": "B0",
+    "dimC": "C1",
+    "dimD": "D1",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 96683.54315814856,
+      "totalReturn": 544.556954387657,
+      "cagr": 10.580874241702375,
+      "sharpe": 1.0696262697192533,
+      "sortino": 3.942548689104875,
+      "calmar": 0.49966885615510276,
+      "maxDD": 3176.365940571435,
+      "maxDDFromStart": 21.175772937142902,
+      "maxDDFromPeak": 3.237459727448781,
+      "totalTrades": 9577,
+      "totalGross": 97124.2100941487,
+      "totalCosts": 15440.666936001948,
+      "totalNet": 81683.54315814856,
+      "tradesPerWeek": 9.906482137204184,
+      "annualCosts": 833.412678938187,
+      "annualCostPct": 5.556084526254581,
+      "costRatio": 15.8978558703688,
+      "isCAGR": 13.237203197100179,
+      "oosCAGR": 18.200822360148017,
+      "oosMaxDDPct": 14.826553852143068,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.3749749164638643,
+      "concentration": {
+        "top1Pct": 32.89126507524647,
+        "top3Pct": 69.45306160772319,
+        "hhi": 0.20477022094414166
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 7134.903331365322,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 18314.79784630243,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 2494.3621245406557,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 11019.696512378101,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 26396.44328576111,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 65,
+    "suitabilityScore": 54.75,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "UPTREND_YEAR",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_GLD_RECENT_15000",
+    "family": "QA_GLD_RECENT",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A0",
+    "dimB": "B0",
+    "dimC": "C2",
+    "dimD": "D1",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 96647.15343375149,
+      "totalReturn": 544.3143562250099,
+      "cagr": 10.578627373457028,
+      "sharpe": 1.0791138175908428,
+      "sortino": 3.974692998171701,
+      "calmar": 0.4986267681173519,
+      "maxDD": 3182.328361571439,
+      "maxDDFromStart": 21.215522410476257,
+      "maxDDFromPeak": 3.2447402913089727,
+      "totalTrades": 9170,
+      "totalGross": 96456.21212875153,
+      "totalCosts": 14809.058695001706,
+      "totalNet": 81647.15343375149,
+      "tradesPerWeek": 9.48547992045133,
+      "annualCosts": 799.3215144597863,
+      "annualCostPct": 5.328810096398575,
+      "costRatio": 15.353141459913749,
+      "isCAGR": 13.249556539366104,
+      "oosCAGR": 18.168944271556732,
+      "oosMaxDDPct": 14.826553852143068,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.3712869723280554,
+      "concentration": {
+        "top1Pct": 32.90592454616276,
+        "top3Pct": 69.48401648690938,
+        "hhi": 0.20495045879894164
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 6974.870069513908,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 18440.47211201347,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 2569.1710116240974,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 10912.610490974414,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 26396.44328576111,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 65,
+    "suitabilityScore": 54.75,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "RECENT",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  },
+  {
+    "variantId": "QA_OVERNIGHT_2D_DAX_15000",
+    "family": "QA_OVERNIGHT_2D_DAX",
+    "phase": "v2",
+    "constraint": "17_17_QUALITY",
+    "capital": 15000,
+    "dimA": "A2",
+    "dimB": "B1",
+    "dimC": "C0",
+    "dimD": "D2",
+    "kpis": {
+      "startNAV": 15000,
+      "endNAV": 242960.58811331663,
+      "totalReturn": 1519.7372540887775,
+      "cagr": 16.224926459660495,
+      "sharpe": 2.0438841518500457,
+      "sortino": 6.643590297031593,
+      "calmar": 0.6459937349083466,
+      "maxDD": 3767.434322400004,
+      "maxDDFromStart": 25.116228816000024,
+      "maxDDFromPeak": 1.5454892491180887,
+      "totalTrades": 3911,
+      "totalGross": 243635.9152763198,
+      "totalCosts": 15675.327163001073,
+      "totalNet": 227960.58811331663,
+      "tradesPerWeek": 4.046748038301666,
+      "annualCosts": 846.3286395101467,
+      "annualCostPct": 5.6421909300676445,
+      "costRatio": 6.43391478026665,
+      "isCAGR": 20.460554825164976,
+      "oosCAGR": 34.768086117776484,
+      "oosMaxDDPct": 25.116228815999982,
+      "oosNetPositive": true,
+      "oosISDegradation": 1.6992738669537102,
+      "concentration": {
+        "top1Pct": 64.11064978173546,
+        "top3Pct": 84.17474153178132,
+        "hhi": 0.4352256600440254
+      }
+    },
+    "walkForward": {
+      "rolling3yr_positive": 5,
+      "rolling3yr_folds": 5,
+      "foldResults3yr": [
+        {
+          "fold": "2008-2010/2011-2013",
+          "oosNet": 21506.4138391746,
+          "isPositive": true
+        },
+        {
+          "fold": "2011-2013/2014-2016",
+          "oosNet": 41048.58398951732,
+          "isPositive": true
+        },
+        {
+          "fold": "2014-2016/2017-2019",
+          "oosNet": 18690.59278265169,
+          "isPositive": true
+        },
+        {
+          "fold": "2017-2019/2020-2022",
+          "oosNet": 46291.122060260874,
+          "isPositive": true
+        },
+        {
+          "fold": "2020-2022/2023-2025",
+          "oosNet": 66345.70805118335,
+          "isPositive": true
+        }
+      ]
+    },
+    "robustnessScore": 50,
+    "suitabilityScore": 52.5,
+    "strategyDetail": {
+      "dax_2h": {
+        "contracts": 3,
+        "filter": "OVERNIGHT",
+        "status": "READY"
+      },
+      "ym1_tat": {
+        "contracts": 3,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gld_thursday_long": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "gc1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "hg1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cl1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "eurusd_30m": {
+        "contracts": 3,
+        "filter": "OVERNIGHT_2D",
+        "status": "READY"
+      },
+      "dax_1h": {
+        "contracts": 3,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "spy_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zm1_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "sb_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zw_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "zs_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "cc_seasonal": {
+        "contracts": 1,
+        "filter": "BASELINE",
+        "status": "READY"
+      },
+      "EEM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      },
+      "IWM": {
+        "contracts": 0,
+        "filter": "BLOCKED",
+        "status": "DATA_BLOCKED"
+      }
+    }
+  }
+]

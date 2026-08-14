@@ -11,8 +11,11 @@ export async function GET(request: Request) {
 
   const phase = searchParams.get('phase') || 'v1';
   const subDir = phase === 'v2' ? 'portfolio-lab-v2' : 'portfolio-lab';
-  // turbopackIgnore: data files live outside src/ and are not bundled
-  const base = path.join(/* turbopackIgnore: true */ process.cwd(), 'workspace', 'output', 'white-swan', subDir);
+  // Primary: local workspace (development). Fallback: public/data (Vercel production).
+  // turbopackIgnore comments prevent NFT from tracing entire project
+  const workspacePath = path.join(/* turbopackIgnore: true */ process.cwd(), 'workspace', 'output', 'white-swan', subDir);
+  const publicPath = path.join(/* turbopackIgnore: true */ process.cwd(), 'public', 'data', 'white-swan', subDir);
+  const base = fs.existsSync(workspacePath) ? workspacePath : publicPath;
 
   try {
     if (type === 'finalists') {
