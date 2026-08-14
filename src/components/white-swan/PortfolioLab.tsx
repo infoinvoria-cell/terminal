@@ -543,8 +543,8 @@ export function PortfolioLab() {
         const cap = hero.capital ?? hero.capitalLevel ?? capitalLevel;
         const expectancy = hero.kpis.expectancy ?? (hero.kpis.totalTrades > 0 ? hero.kpis.totalNet / hero.kpis.totalTrades : 0);
         const annCostEur = hero.kpis.annualCosts ?? (hero.kpis.totalCosts / 16.97);
-        const wfTotal = hero.walkForward?.totalFolds ?? 5;
-        const wfPositive = hero.walkForward?.positiveFolds ?? hero.wf?.rolling3yr_positive_folds ?? 0;
+        const wfTotal = hero.walkForward?.totalFolds ?? hero.wf?.totalFolds ?? 5;
+        const wfPositive = hero.walkForward?.positiveFolds ?? hero.wf?.positiveFolds ?? hero.wf?.rolling3yr_positive_folds ?? 0;
         const isLiveValid = hero.liveValidStatus === 'LIVE_VALID';
         const isLookahead = hero.liveValidStatus === 'INVALID_RESEARCH_REFERENCE';
         return (
