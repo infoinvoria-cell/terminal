@@ -1,0 +1,470 @@
+[
+  {
+    "strategyId": "sb_seasonal",
+    "totalTrades": 18,
+    "isNet": 14765.81,
+    "oosNet": 4105.66,
+    "isYearsPositive": 10,
+    "oosYearsPositive": 6,
+    "oosYearsTotal": 7,
+    "oosYearRate": 0.857,
+    "expectancy": 1048.415,
+    "profitFactor": 168.1852,
+    "costRatio": 0.0015,
+    "oosCAGR": 5.8993,
+    "score": 1022.14,
+    "flag": "STRONG",
+    "oosPerYear": [
+      {
+        "year": "2019",
+        "net": 1160.22
+      },
+      {
+        "year": "2020",
+        "net": 1233.4
+      },
+      {
+        "year": "2021",
+        "net": 675.39
+      },
+      {
+        "year": "2022",
+        "net": 318.62
+      },
+      {
+        "year": "2023",
+        "net": 163.11
+      },
+      {
+        "year": "2024",
+        "net": -10.7
+      },
+      {
+        "year": "2025",
+        "net": 565.61
+      }
+    ]
+  },
+  {
+    "strategyId": "spy_seasonal",
+    "totalTrades": 18,
+    "isNet": 1567.46,
+    "oosNet": 4793.79,
+    "isYearsPositive": 9,
+    "oosYearsPositive": 6,
+    "oosYearsTotal": 7,
+    "oosYearRate": 0.857,
+    "expectancy": 353.4028,
+    "profitFactor": 20.7447,
+    "costRatio": 0.0044,
+    "oosCAGR": 6.7432,
+    "score": 136.44,
+    "flag": "STRONG",
+    "oosPerYear": [
+      {
+        "year": "2019",
+        "net": 532.41
+      },
+      {
+        "year": "2020",
+        "net": 1044.93
+      },
+      {
+        "year": "2021",
+        "net": 636.55
+      },
+      {
+        "year": "2022",
+        "net": 543.64
+      },
+      {
+        "year": "2023",
+        "net": 1305.28
+      },
+      {
+        "year": "2024",
+        "net": 866.27
+      },
+      {
+        "year": "2025",
+        "net": -135.3
+      }
+    ]
+  },
+  {
+    "strategyId": "cc_seasonal",
+    "totalTrades": 19,
+    "isNet": 11295.19,
+    "oosNet": 15571.56,
+    "isYearsPositive": 9,
+    "oosYearsPositive": 5,
+    "oosYearsTotal": 8,
+    "oosYearRate": 0.625,
+    "expectancy": 1414.0395,
+    "profitFactor": 6.1969,
+    "costRatio": 0.0011,
+    "oosCAGR": 14.3404,
+    "score": 52,
+    "flag": "CONCENTRATED",
+    "oosPerYear": [
+      {
+        "year": "2019",
+        "net": -369.1
+      },
+      {
+        "year": "2020",
+        "net": 627.36
+      },
+      {
+        "year": "2021",
+        "net": 758.04
+      },
+      {
+        "year": "2022",
+        "net": -507.95
+      },
+      {
+        "year": "2023",
+        "net": 186.31
+      },
+      {
+        "year": "2024",
+        "net": 6785.81
+      },
+      {
+        "year": "2025",
+        "net": 8582.7
+      },
+      {
+        "year": "2026",
+        "net": -491.61
+      }
+    ]
+  },
+  {
+    "strategyId": "gc1_seasonal",
+    "totalTrades": 19,
+    "isNet": 378.49,
+    "oosNet": 622.79,
+    "isYearsPositive": 9,
+    "oosYearsPositive": 4,
+    "oosYearsTotal": 8,
+    "oosYearRate": 0.5,
+    "expectancy": 52.6989,
+    "profitFactor": 7.2996,
+    "costRatio": 0.0286,
+    "oosCAGR": 0.8667,
+    "score": 49.25,
+    "flag": "STRONG",
+    "oosPerYear": [
+      {
+        "year": "2019",
+        "net": 19.03
+      },
+      {
+        "year": "2020",
+        "net": -1.55
+      },
+      {
+        "year": "2021",
+        "net": -96.46
+      },
+      {
+        "year": "2022",
+        "net": 47.29
+      },
+      {
+        "year": "2023",
+        "net": -7.6
+      },
+      {
+        "year": "2024",
+        "net": -38.63
+      },
+      {
+        "year": "2025",
+        "net": 229.19
+      },
+      {
+        "year": "2026",
+        "net": 471.52
+      }
+    ]
+  },
+  {
+    "strategyId": "hg1_seasonal",
+    "totalTrades": 19,
+    "isNet": 2445.49,
+    "oosNet": 2535.91,
+    "isYearsPositive": 8,
+    "oosYearsPositive": 5,
+    "oosYearsTotal": 8,
+    "oosYearRate": 0.625,
+    "expectancy": 262.1789,
+    "profitFactor": 4.9728,
+    "costRatio": 0.0059,
+    "oosCAGR": 3.2824,
+    "score": 37.92,
+    "flag": "STRONG",
+    "oosPerYear": [
+      {
+        "year": "2019",
+        "net": 256.75
+      },
+      {
+        "year": "2020",
+        "net": 167.93
+      },
+      {
+        "year": "2021",
+        "net": 1359.39
+      },
+      {
+        "year": "2022",
+        "net": 683.51
+      },
+      {
+        "year": "2023",
+        "net": -302.74
+      },
+      {
+        "year": "2024",
+        "net": -73.02
+      },
+      {
+        "year": "2025",
+        "net": 606.94
+      },
+      {
+        "year": "2026",
+        "net": -162.86
+      }
+    ]
+  },
+  {
+    "strategyId": "zm1_seasonal",
+    "totalTrades": 18,
+    "isNet": 983.47,
+    "oosNet": 1115.46,
+    "isYearsPositive": 7,
+    "oosYearsPositive": 6,
+    "oosYearsTotal": 7,
+    "oosYearRate": 0.857,
+    "expectancy": 116.6076,
+    "profitFactor": 4.3223,
+    "costRatio": 0.0131,
+    "oosCAGR": 1.7778,
+    "score": 35.45,
+    "flag": "STRONG",
+    "oosPerYear": [
+      {
+        "year": "2019",
+        "net": 54.81
+      },
+      {
+        "year": "2020",
+        "net": 286.77
+      },
+      {
+        "year": "2021",
+        "net": 82.58
+      },
+      {
+        "year": "2022",
+        "net": 172.42
+      },
+      {
+        "year": "2023",
+        "net": 432.15
+      },
+      {
+        "year": "2024",
+        "net": -365.83
+      },
+      {
+        "year": "2025",
+        "net": 452.57
+      }
+    ]
+  },
+  {
+    "strategyId": "cl1_seasonal",
+    "totalTrades": 18,
+    "isNet": 7052.89,
+    "oosNet": 1117.1,
+    "isYearsPositive": 9,
+    "oosYearsPositive": 4,
+    "oosYearsTotal": 7,
+    "oosYearRate": 0.571,
+    "expectancy": 453.8882,
+    "profitFactor": 4.0992,
+    "costRatio": 0.0034,
+    "oosCAGR": 1.7778,
+    "score": 31.93,
+    "flag": "STRONG",
+    "oosPerYear": [
+      {
+        "year": "2019",
+        "net": 162.62
+      },
+      {
+        "year": "2020",
+        "net": -795.45
+      },
+      {
+        "year": "2021",
+        "net": 1638.52
+      },
+      {
+        "year": "2022",
+        "net": 556.3
+      },
+      {
+        "year": "2023",
+        "net": -24.42
+      },
+      {
+        "year": "2024",
+        "net": 187.94
+      },
+      {
+        "year": "2025",
+        "net": -608.41
+      }
+    ]
+  },
+  {
+    "strategyId": "zc_seasonal",
+    "totalTrades": 18,
+    "isNet": 961.01,
+    "oosNet": 410.79,
+    "isYearsPositive": 7,
+    "oosYearsPositive": 6,
+    "oosYearsTotal": 7,
+    "oosYearRate": 0.857,
+    "expectancy": 76.2114,
+    "profitFactor": 3.3384,
+    "costRatio": 0.02,
+    "oosCAGR": 0.6734,
+    "score": 29.02,
+    "flag": "STRONG",
+    "oosPerYear": [
+      {
+        "year": "2019",
+        "net": 195.49
+      },
+      {
+        "year": "2020",
+        "net": 86.25
+      },
+      {
+        "year": "2021",
+        "net": 1.51
+      },
+      {
+        "year": "2022",
+        "net": -55.66
+      },
+      {
+        "year": "2023",
+        "net": 48.48
+      },
+      {
+        "year": "2024",
+        "net": 95.44
+      },
+      {
+        "year": "2025",
+        "net": 39.29
+      }
+    ]
+  },
+  {
+    "strategyId": "zs_seasonal",
+    "totalTrades": 18,
+    "isNet": 1732.86,
+    "oosNet": 772.22,
+    "isYearsPositive": 8,
+    "oosYearsPositive": 6,
+    "oosYearsTotal": 7,
+    "oosYearRate": 0.857,
+    "expectancy": 139.1708,
+    "profitFactor": 2.9882,
+    "costRatio": 0.011,
+    "oosCAGR": 1.2472,
+    "score": 27.28,
+    "flag": "STRONG",
+    "oosPerYear": [
+      {
+        "year": "2019",
+        "net": 277.17
+      },
+      {
+        "year": "2020",
+        "net": 1.51
+      },
+      {
+        "year": "2021",
+        "net": 187.33
+      },
+      {
+        "year": "2022",
+        "net": -210.85
+      },
+      {
+        "year": "2023",
+        "net": 321.07
+      },
+      {
+        "year": "2024",
+        "net": 121.98
+      },
+      {
+        "year": "2025",
+        "net": 74
+      }
+    ]
+  },
+  {
+    "strategyId": "zw_seasonal",
+    "totalTrades": 18,
+    "isNet": -86.99,
+    "oosNet": 84.58,
+    "isYearsPositive": 6,
+    "oosYearsPositive": 2,
+    "oosYearsTotal": 6,
+    "oosYearRate": 0.333,
+    "expectancy": -0.1339,
+    "profitFactor": 0.9979,
+    "costRatio": 1.0944,
+    "oosCAGR": 0.1205,
+    "score": 9.37,
+    "flag": "WEAK",
+    "oosPerYear": [
+      {
+        "year": "2019",
+        "net": -16.38
+      },
+      {
+        "year": "2020",
+        "net": 226.12
+      },
+      {
+        "year": "2021",
+        "net": -50.56
+      },
+      {
+        "year": "2022",
+        "net": -14.82
+      },
+      {
+        "year": "2024",
+        "net": 57.13
+      },
+      {
+        "year": "2025",
+        "net": -116.92
+      }
+    ]
+  }
+]

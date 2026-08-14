@@ -1,0 +1,116 @@
+{
+  "note": "QA_ALL_HOLD1: baseline reference, no filters, all strategies active, 1 contract each",
+  "generated": "2026-08-14T15:27:12.949Z",
+  "capitalLevels": [
+    10000,
+    12500,
+    15000,
+    20000
+  ],
+  "results": [
+    {
+      "capital": 10000,
+      "kpis": {
+        "startNAV": 10000,
+        "endNAV": 91157.6,
+        "elapsedYears": 18.527,
+        "cagr": 12.6691,
+        "isCAGR": 16.4701,
+        "oosCAGR": 23.0686,
+        "sharpe": 0.9703,
+        "calmar": 1.1569,
+        "maxDDFromPeak": 10.9505,
+        "totalTrades": 9728,
+        "totalGross": 96832.6,
+        "totalCosts": 15675,
+        "totalNet": 81157.6,
+        "isNet": 43461.68,
+        "oosNet": 37695.92,
+        "oosNetPositive": true,
+        "tradesPerWeek": 10.063,
+        "annualCosts": 846.06,
+        "annualCostPct": 1.6728,
+        "profitFactor": 1.465,
+        "expectancy": 8.3427
+      }
+    },
+    {
+      "capital": 12500,
+      "kpis": {
+        "startNAV": 12500,
+        "endNAV": 93657.6,
+        "elapsedYears": 18.527,
+        "cagr": 11.483,
+        "isCAGR": 14.6056,
+        "oosCAGR": 20.2872,
+        "sharpe": 1.021,
+        "calmar": 1.1809,
+        "maxDDFromPeak": 9.7243,
+        "totalTrades": 9728,
+        "totalGross": 96832.6,
+        "totalCosts": 15675,
+        "totalNet": 81157.6,
+        "isNet": 43461.68,
+        "oosNet": 37695.92,
+        "oosNetPositive": true,
+        "tradesPerWeek": 10.063,
+        "annualCosts": 846.06,
+        "annualCostPct": 1.594,
+        "profitFactor": 1.465,
+        "expectancy": 8.3427
+      }
+    },
+    {
+      "capital": 15000,
+      "kpis": {
+        "startNAV": 15000,
+        "endNAV": 96157.6,
+        "elapsedYears": 18.527,
+        "cagr": 10.5483,
+        "isCAGR": 13.1698,
+        "oosCAGR": 18.1689,
+        "sharpe": 1.0587,
+        "calmar": 1.2062,
+        "maxDDFromPeak": 8.745,
+        "totalTrades": 9728,
+        "totalGross": 96832.6,
+        "totalCosts": 15675,
+        "totalNet": 81157.6,
+        "isNet": 43461.68,
+        "oosNet": 37695.92,
+        "oosNetPositive": true,
+        "tradesPerWeek": 10.063,
+        "annualCosts": 846.06,
+        "annualCostPct": 1.5223,
+        "profitFactor": 1.465,
+        "expectancy": 8.3427
+      }
+    },
+    {
+      "capital": 20000,
+      "kpis": {
+        "startNAV": 20000,
+        "endNAV": 101157.6,
+        "elapsedYears": 18.527,
+        "cagr": 9.1432,
+        "isCAGR": 11.0732,
+        "oosCAGR": 15.1155,
+        "sharpe": 1.11,
+        "calmar": 1.2561,
+        "maxDDFromPeak": 7.2789,
+        "totalTrades": 9728,
+        "totalGross": 96832.6,
+        "totalCosts": 15675,
+        "totalNet": 81157.6,
+        "isNet": 43461.68,
+        "oosNet": 37695.92,
+        "oosNetPositive": true,
+        "tradesPerWeek": 10.063,
+        "annualCosts": 846.06,
+        "annualCostPct": 1.3966,
+        "profitFactor": 1.465,
+        "expectancy": 8.3427
+      }
+    }
+  ]
+}

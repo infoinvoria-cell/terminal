@@ -1,0 +1,1126 @@
+{
+  "verdict": "IMPROVED",
+  "bestFilter": "GLD_BestMonths",
+  "results": [
+    {
+      "id": "GLD_Baseline",
+      "label": "All Thursdays",
+      "trades": 938,
+      "kpis": {
+        "startNAV": 10000,
+        "endNAV": 9705.94,
+        "elapsedYears": 18.5051,
+        "cagr": -0.1612,
+        "isCAGR": -0.4559,
+        "oosCAGR": 0.2584,
+        "sharpe": -0.2447,
+        "calmar": -0.0176,
+        "maxDDFromPeak": 9.1501,
+        "totalTrades": 938,
+        "totalGross": 1161.58,
+        "totalCosts": 1455.65,
+        "totalNet": -294.06,
+        "isNet": -489.55,
+        "oosNet": 195.49,
+        "oosNetPositive": true,
+        "tradesPerWeek": 0.971,
+        "annualCosts": 78.66,
+        "annualCostPct": 0.7984,
+        "profitFactor": 0.947,
+        "expectancy": -0.3135
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 0,
+        "passRate": 0,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": -125.67,
+            "isPositive": false
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": -105.76,
+            "isPositive": false
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": -132.31,
+            "isPositive": false
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": -103.6,
+            "isPositive": false
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": -129.02,
+            "isPositive": false
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": -120.88,
+            "isPositive": false
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": -199.17,
+            "isPositive": false
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": -176.65,
+            "isPositive": false
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": -15.77,
+            "isPositive": false
+          }
+        ]
+      },
+      "stress": [
+        {
+          "mult": 0.5,
+          "totalNet": 433.76,
+          "oosNet": 490.34,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.65,
+          "totalNet": 215.41,
+          "oosNet": 401.89,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.85,
+          "totalNet": -75.72,
+          "oosNet": 283.95,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.95,
+          "totalNet": -221.28,
+          "oosNet": 224.98,
+          "oosPositive": true
+        },
+        {
+          "mult": 1.25,
+          "totalNet": -657.98,
+          "oosNet": 48.06,
+          "oosPositive": true
+        }
+      ]
+    },
+    {
+      "id": "GLD_Q1Q2",
+      "label": "Q1+Q2 (Jan-Jun)",
+      "trades": 488,
+      "kpis": {
+        "startNAV": 10000,
+        "endNAV": 9819.63,
+        "elapsedYears": 18.4778,
+        "cagr": -0.0985,
+        "isCAGR": -0.1245,
+        "oosCAGR": -0.0678,
+        "sharpe": -0.2588,
+        "calmar": -0.0174,
+        "maxDDFromPeak": 5.6722,
+        "totalTrades": 488,
+        "totalGross": 576.94,
+        "totalCosts": 757.31,
+        "totalNet": -180.37,
+        "isNet": -129.78,
+        "oosNet": -50.59,
+        "oosNetPositive": false,
+        "tradesPerWeek": 0.506,
+        "annualCosts": 40.98,
+        "annualCostPct": 0.4136,
+        "profitFactor": 0.9424,
+        "expectancy": -0.3696
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 2,
+        "passRate": 0.222,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": 40.39,
+            "isPositive": true
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": -9.35,
+            "isPositive": false
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": 20.61,
+            "isPositive": true
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": -5.59,
+            "isPositive": false
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": -45.54,
+            "isPositive": false
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": -123.26,
+            "isPositive": false
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": -233.41,
+            "isPositive": false
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": -267.54,
+            "isPositive": false
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": -117.43,
+            "isPositive": false
+          }
+        ]
+      },
+      "stress": [
+        {
+          "mult": 0.5,
+          "totalNet": 198.28,
+          "oosNet": 108.47,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.65,
+          "totalNet": 84.69,
+          "oosNet": 60.75,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.85,
+          "totalNet": -66.77,
+          "oosNet": -2.87,
+          "oosPositive": false
+        },
+        {
+          "mult": 0.95,
+          "totalNet": -142.51,
+          "oosNet": -34.69,
+          "oosPositive": false
+        },
+        {
+          "mult": 1.25,
+          "totalNet": -369.7,
+          "oosNet": -130.13,
+          "oosPositive": false
+        }
+      ]
+    },
+    {
+      "id": "GLD_Q3Q4",
+      "label": "Q3+Q4 (Jul-Dec)",
+      "trades": 450,
+      "kpis": {
+        "startNAV": 10000,
+        "endNAV": 9886.31,
+        "elapsedYears": 18.0068,
+        "cagr": -0.0635,
+        "isCAGR": -0.3488,
+        "oosCAGR": 0.3487,
+        "sharpe": -0.2416,
+        "calmar": -0.0134,
+        "maxDDFromPeak": 4.7463,
+        "totalTrades": 450,
+        "totalGross": 584.65,
+        "totalCosts": 698.34,
+        "totalNet": -113.69,
+        "isNet": -359.78,
+        "oosNet": 246.08,
+        "oosNetPositive": true,
+        "tradesPerWeek": 0.479,
+        "annualCosts": 38.78,
+        "annualCostPct": 0.39,
+        "profitFactor": 0.9529,
+        "expectancy": -0.2527
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 4,
+        "passRate": 0.444,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": -166.06,
+            "isPositive": false
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": -96.4,
+            "isPositive": false
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": -152.92,
+            "isPositive": false
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": -98.01,
+            "isPositive": false
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": -83.47,
+            "isPositive": false
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": 2.38,
+            "isPositive": true
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": 34.24,
+            "isPositive": true
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": 90.89,
+            "isPositive": true
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": 101.66,
+            "isPositive": true
+          }
+        ]
+      },
+      "stress": [
+        {
+          "mult": 0.5,
+          "totalNet": 235.48,
+          "oosNet": 381.87,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.65,
+          "totalNet": 130.73,
+          "oosNet": 341.14,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.85,
+          "totalNet": -8.94,
+          "oosNet": 286.82,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.95,
+          "totalNet": -78.78,
+          "oosNet": 259.66,
+          "oosPositive": true
+        },
+        {
+          "mult": 1.25,
+          "totalNet": -288.28,
+          "oosNet": 178.19,
+          "oosPositive": true
+        }
+      ]
+    },
+    {
+      "id": "GLD_BestMonths",
+      "label": "Top 4 months",
+      "trades": 318,
+      "kpis": {
+        "startNAV": 10000,
+        "endNAV": 10303.25,
+        "elapsedYears": 18.1793,
+        "cagr": 0.1645,
+        "isCAGR": 0.017,
+        "oosCAGR": 0.3925,
+        "sharpe": 1.0076,
+        "calmar": 0.1101,
+        "maxDDFromPeak": 1.4944,
+        "totalTrades": 318,
+        "totalGross": 796.74,
+        "totalCosts": 493.49,
+        "totalNet": 303.25,
+        "isNet": 18.15,
+        "oosNet": 285.1,
+        "oosNetPositive": true,
+        "tradesPerWeek": 0.335,
+        "annualCosts": 27.15,
+        "annualCostPct": 0.2674,
+        "profitFactor": 1.2055,
+        "expectancy": 0.9536
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 6,
+        "passRate": 0.667,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": -59.56,
+            "isPositive": false
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": 8.74,
+            "isPositive": true
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": -29.16,
+            "isPositive": false
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": 21.81,
+            "isPositive": true
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": 22.62,
+            "isPositive": true
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": 118.53,
+            "isPositive": true
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": 86.1,
+            "isPositive": true
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": 43.34,
+            "isPositive": true
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": -19.32,
+            "isPositive": false
+          }
+        ]
+      },
+      "stress": [
+        {
+          "mult": 0.5,
+          "totalNet": 550,
+          "oosNet": 382.87,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.65,
+          "totalNet": 475.97,
+          "oosNet": 353.54,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.85,
+          "totalNet": 377.28,
+          "oosNet": 314.44,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.95,
+          "totalNet": 327.93,
+          "oosNet": 294.88,
+          "oosPositive": true
+        },
+        {
+          "mult": 1.25,
+          "totalNet": 179.88,
+          "oosNet": 236.22,
+          "oosPositive": true
+        }
+      ]
+    },
+    {
+      "id": "GLD_WorstExcluded",
+      "label": "Excl worst 2 months",
+      "trades": 777,
+      "kpis": {
+        "startNAV": 10000,
+        "endNAV": 10083.71,
+        "elapsedYears": 18.5051,
+        "cagr": 0.0451,
+        "isCAGR": -0.3163,
+        "oosCAGR": 0.5573,
+        "sharpe": 0.1077,
+        "calmar": 0.0068,
+        "maxDDFromPeak": 6.6301,
+        "totalTrades": 777,
+        "totalGross": 1289.51,
+        "totalCosts": 1205.8,
+        "totalNet": 83.71,
+        "isNet": -341.99,
+        "oosNet": 425.7,
+        "oosNetPositive": true,
+        "tradesPerWeek": 0.805,
+        "annualCosts": 65.16,
+        "annualCostPct": 0.6489,
+        "profitFactor": 1.0193,
+        "expectancy": 0.1077
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 1,
+        "passRate": 0.111,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": -150.15,
+            "isPositive": false
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": -173.49,
+            "isPositive": false
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": -179.88,
+            "isPositive": false
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": -51.99,
+            "isPositive": false
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": -78.64,
+            "isPositive": false
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": -49.41,
+            "isPositive": false
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": -92.59,
+            "isPositive": false
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": -125.08,
+            "isPositive": false
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": 11.66,
+            "isPositive": true
+          }
+        ]
+      },
+      "stress": [
+        {
+          "mult": 0.5,
+          "totalNet": 686.61,
+          "oosNet": 670.12,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.65,
+          "totalNet": 505.74,
+          "oosNet": 596.79,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.85,
+          "totalNet": 264.58,
+          "oosNet": 499.02,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.95,
+          "totalNet": 144,
+          "oosNet": 450.14,
+          "oosPositive": true
+        },
+        {
+          "mult": 1.25,
+          "totalNet": -217.74,
+          "oosNet": 303.49,
+          "oosPositive": true
+        }
+      ]
+    },
+    {
+      "id": "GLD_RecentBias",
+      "label": "2015+",
+      "trades": 584,
+      "kpis": {
+        "startNAV": 10000,
+        "endNAV": 10031.91,
+        "elapsedYears": 11.4908,
+        "cagr": 0.0277,
+        "isCAGR": -0.4146,
+        "oosCAGR": 0.2584,
+        "sharpe": 0.0571,
+        "calmar": 0.0054,
+        "maxDDFromPeak": 5.1243,
+        "totalTrades": 584,
+        "totalGross": 938.2,
+        "totalCosts": 906.29,
+        "totalNet": 31.91,
+        "isNet": -163.58,
+        "oosNet": 195.49,
+        "oosNetPositive": true,
+        "tradesPerWeek": 0.974,
+        "annualCosts": 78.87,
+        "annualCostPct": 0.7875,
+        "profitFactor": 1.0085,
+        "expectancy": 0.0546
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 0,
+        "passRate": 0,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": -88.77,
+            "isPositive": false
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": -105.76,
+            "isPositive": false
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": -132.31,
+            "isPositive": false
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": -103.6,
+            "isPositive": false
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": -129.02,
+            "isPositive": false
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": -120.88,
+            "isPositive": false
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": -199.17,
+            "isPositive": false
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": -176.65,
+            "isPositive": false
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": -15.77,
+            "isPositive": false
+          }
+        ]
+      },
+      "stress": [
+        {
+          "mult": 0.5,
+          "totalNet": 485.06,
+          "oosNet": 490.34,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.65,
+          "totalNet": 349.11,
+          "oosNet": 401.89,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.85,
+          "totalNet": 167.86,
+          "oosNet": 283.95,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.95,
+          "totalNet": 77.23,
+          "oosNet": 224.98,
+          "oosPositive": true
+        },
+        {
+          "mult": 1.25,
+          "totalNet": -194.66,
+          "oosNet": 48.06,
+          "oosPositive": true
+        }
+      ]
+    },
+    {
+      "id": "GLD_PreCovid",
+      "label": "Pre-2020",
+      "trades": 608,
+      "kpis": {
+        "startNAV": 10000,
+        "endNAV": 9481.65,
+        "elapsedYears": 11.9808,
+        "cagr": -0.4433,
+        "isCAGR": -0.4559,
+        "oosCAGR": -0.2945,
+        "sharpe": -1.2146,
+        "calmar": -0.0713,
+        "maxDDFromPeak": 6.2203,
+        "totalTrades": 608,
+        "totalGross": 425.19,
+        "totalCosts": 943.53,
+        "totalNet": -518.35,
+        "isNet": -489.55,
+        "oosNet": -28.79,
+        "oosNetPositive": false,
+        "tradesPerWeek": 0.973,
+        "annualCosts": 78.75,
+        "annualCostPct": 0.8085,
+        "profitFactor": 0.8073,
+        "expectancy": -0.8525
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 0,
+        "passRate": 0,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": -125.67,
+            "isPositive": false
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": -105.76,
+            "isPositive": false
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": -132.31,
+            "isPositive": false
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": -103.6,
+            "isPositive": false
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": -86.61,
+            "isPositive": false
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": -28.79,
+            "isPositive": false
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": 0,
+            "isPositive": false
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": 0,
+            "isPositive": false
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": 0,
+            "isPositive": false
+          }
+        ]
+      },
+      "stress": [
+        {
+          "mult": 0.5,
+          "totalNet": -46.58,
+          "oosNet": 10.01,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.65,
+          "totalNet": -188.11,
+          "oosNet": -1.63,
+          "oosPositive": false
+        },
+        {
+          "mult": 0.85,
+          "totalNet": -376.82,
+          "oosNet": -17.15,
+          "oosPositive": false
+        },
+        {
+          "mult": 0.95,
+          "totalNet": -471.17,
+          "oosNet": -24.91,
+          "oosPositive": false
+        },
+        {
+          "mult": 1.25,
+          "totalNet": -754.23,
+          "oosNet": -48.19,
+          "oosPositive": false
+        }
+      ]
+    },
+    {
+      "id": "GLD_PostCovid",
+      "label": "2020+",
+      "trades": 330,
+      "kpis": {
+        "startNAV": 10000,
+        "endNAV": 10224.28,
+        "elapsedYears": 6.5079,
+        "cagr": 0.3414,
+        "isCAGR": 0,
+        "oosCAGR": 0.3415,
+        "sharpe": 0.4118,
+        "calmar": 0.0966,
+        "maxDDFromPeak": 3.5343,
+        "totalTrades": 330,
+        "totalGross": 736.4,
+        "totalCosts": 512.11,
+        "totalNet": 224.28,
+        "isNet": 0,
+        "oosNet": 224.28,
+        "oosNetPositive": true,
+        "tradesPerWeek": 0.972,
+        "annualCosts": 78.69,
+        "annualCostPct": 0.7782,
+        "profitFactor": 1.0786,
+        "expectancy": 0.6796
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 0,
+        "passRate": 0,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": 0,
+            "isPositive": false
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": 0,
+            "isPositive": false
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": 0,
+            "isPositive": false
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": 0,
+            "isPositive": false
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": -42.41,
+            "isPositive": false
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": -92.08,
+            "isPositive": false
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": -199.17,
+            "isPositive": false
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": -176.65,
+            "isPositive": false
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": -15.77,
+            "isPositive": false
+          }
+        ]
+      },
+      "stress": [
+        {
+          "mult": 0.5,
+          "totalNet": 480.34,
+          "oosNet": 480.34,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.65,
+          "totalNet": 403.52,
+          "oosNet": 403.52,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.85,
+          "totalNet": 301.1,
+          "oosNet": 301.1,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.95,
+          "totalNet": 249.89,
+          "oosNet": 249.89,
+          "oosPositive": true
+        },
+        {
+          "mult": 1.25,
+          "totalNet": 96.25,
+          "oosNet": 96.25,
+          "oosPositive": true
+        }
+      ]
+    },
+    {
+      "id": "GLD_WinterOnly",
+      "label": "Nov-Feb",
+      "trades": 294,
+      "kpis": {
+        "startNAV": 10000,
+        "endNAV": 9848.05,
+        "elapsedYears": 18.152,
+        "cagr": -0.0843,
+        "isCAGR": -0.1662,
+        "oosCAGR": 0.0407,
+        "sharpe": -0.407,
+        "calmar": -0.0165,
+        "maxDDFromPeak": 5.1127,
+        "totalTrades": 294,
+        "totalGross": 304.29,
+        "totalCosts": 456.25,
+        "totalNet": -151.95,
+        "isNet": -181.08,
+        "oosNet": 29.13,
+        "oosNetPositive": true,
+        "tradesPerWeek": 0.31,
+        "annualCosts": 25.13,
+        "annualCostPct": 0.2533,
+        "profitFactor": 0.9134,
+        "expectancy": -0.5168
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 3,
+        "passRate": 0.333,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": 4.71,
+            "isPositive": true
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": -69.04,
+            "isPositive": false
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": -119.6,
+            "isPositive": false
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": -104.26,
+            "isPositive": false
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": -49.49,
+            "isPositive": false
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": -4.84,
+            "isPositive": false
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": 38.73,
+            "isPositive": true
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": -52.22,
+            "isPositive": false
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": 7.76,
+            "isPositive": true
+          }
+        ]
+      },
+      "stress": [
+        {
+          "mult": 0.5,
+          "totalNet": 76.17,
+          "oosNet": 122.24,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.65,
+          "totalNet": 7.73,
+          "oosNet": 94.31,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.85,
+          "totalNet": -83.52,
+          "oosNet": 57.06,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.95,
+          "totalNet": -129.14,
+          "oosNet": 38.44,
+          "oosPositive": true
+        },
+        {
+          "mult": 1.25,
+          "totalNet": -266.02,
+          "oosNet": -17.43,
+          "oosPositive": false
+        }
+      ]
+    },
+    {
+      "id": "GLD_SummerOnly",
+      "label": "May-Aug",
+      "trades": 321,
+      "kpis": {
+        "startNAV": 10000,
+        "endNAV": 10105.02,
+        "elapsedYears": 18.1793,
+        "cagr": 0.0575,
+        "isCAGR": 0.0527,
+        "oosCAGR": 0.0701,
+        "sharpe": 0.2895,
+        "calmar": 0.0282,
+        "maxDDFromPeak": 2.035,
+        "totalTrades": 321,
+        "totalGross": 603.17,
+        "totalCosts": 498.15,
+        "totalNet": 105.02,
+        "isNet": 54.6,
+        "oosNet": 50.43,
+        "oosNetPositive": true,
+        "tradesPerWeek": 0.338,
+        "annualCosts": 27.4,
+        "annualCostPct": 0.2726,
+        "profitFactor": 1.0583,
+        "expectancy": 0.3272
+      },
+      "wf": {
+        "totalFolds": 9,
+        "positiveFolds": 5,
+        "passRate": 0.556,
+        "foldResults": [
+          {
+            "label": "F1 IS08-13/OOS14-16",
+            "oosNet": -0.98,
+            "isPositive": false
+          },
+          {
+            "label": "F2 IS09-14/OOS15-17",
+            "oosNet": 40.69,
+            "isPositive": true
+          },
+          {
+            "label": "F3 IS10-15/OOS16-18",
+            "oosNet": 29.92,
+            "isPositive": true
+          },
+          {
+            "label": "F4 IS11-16/OOS17-19",
+            "oosNet": 21.24,
+            "isPositive": true
+          },
+          {
+            "label": "F5 IS12-17/OOS18-20",
+            "oosNet": 12.84,
+            "isPositive": true
+          },
+          {
+            "label": "F6 IS13-18/OOS19-21",
+            "oosNet": 35.3,
+            "isPositive": true
+          },
+          {
+            "label": "F7 IS14-19/OOS20-22",
+            "oosNet": -43.03,
+            "isPositive": false
+          },
+          {
+            "label": "F8 IS15-20/OOS21-23",
+            "oosNet": -48.63,
+            "isPositive": false
+          },
+          {
+            "label": "F9 IS16-21/OOS22-24",
+            "oosNet": -74.73,
+            "isPositive": false
+          }
+        ]
+      },
+      "stress": [
+        {
+          "mult": 0.5,
+          "totalNet": 354.1,
+          "oosNet": 150.52,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.65,
+          "totalNet": 279.38,
+          "oosNet": 120.49,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.85,
+          "totalNet": 179.75,
+          "oosNet": 80.46,
+          "oosPositive": true
+        },
+        {
+          "mult": 0.95,
+          "totalNet": 129.93,
+          "oosNet": 60.44,
+          "oosPositive": true
+        },
+        {
+          "mult": 1.25,
+          "totalNet": -19.51,
+          "oosNet": 0.38,
+          "oosPositive": true
+        }
+      ]
+    }
+  ]
+}

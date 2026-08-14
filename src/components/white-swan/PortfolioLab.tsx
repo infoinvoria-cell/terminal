@@ -87,6 +87,11 @@ interface PortfolioVariant {
     oosISDegradation: number;
     rolling3yr_positive_folds: number;
     oosNetPositive: boolean;
+    // pb shape
+    positiveFolds?: number;
+    totalFolds?: number;
+    passRate?: number;
+    foldResults?: Array<{ label: string; oosNet: number; isPositive: boolean }>;
   };
   // v2 shape
   walkForward?: {
@@ -167,17 +172,17 @@ const YEARS = 16.97;
 // Normalise v1/v2/v3/v4 shape differences so the rest of the component is uniform
 function normaliseVariant(v: PortfolioVariant): PortfolioVariant {
   const capital = v.capital ?? v.capitalLevel ?? 0;
-  // v4 variants have no family field — derive one from filter labels
+  // v4/pb variants have no family field — derive one from filter labels
   const vAny = v as unknown as Record<string,unknown>;
+  const eurKey = (vAny.eurusdFilter ?? vAny.eurFilter) as string | undefined;
   const derivedFamily = v.family ?? v.familyName ?? (
-    vAny.eurusdFilter
-      ? `EUR_${vAny.eurusdFilter}`
-      : (v.variantId ?? 'UNKNOWN').split('_').slice(0, 2).join('_')
+    eurKey ? `EUR_${eurKey}` : (v.variantId ?? 'UNKNOWN').split('_').slice(0, 2).join('_')
   );
-  // v3 uses walkForward.positiveFolds / totalFolds
+  // v3/v4 use walkForward.positiveFolds / totalFolds; pb uses wf.positiveFolds / wf.totalFolds
   const wfPositive =
-    v.walkForward?.positiveFolds ?? v.walkForward?.rolling3yr_positive ?? v.wf?.rolling3yr_positive_folds ?? 0;
-  const wfFolds = v.walkForward?.totalFolds ?? v.walkForward?.rolling3yr_folds ?? 5;
+    v.walkForward?.positiveFolds ?? v.walkForward?.rolling3yr_positive ??
+    v.wf?.positiveFolds ?? v.wf?.rolling3yr_positive_folds ?? 0;
+  const wfFolds = v.walkForward?.totalFolds ?? v.walkForward?.rolling3yr_folds ?? v.wf?.totalFolds ?? 5;
   const oosNet = v.kpis.oosCAGR !== undefined ? v.kpis.oosCAGR : (v.wf?.oosCAGR ?? 0);
   const isNet = v.kpis.isCAGR ?? v.wf?.isCAGR ?? 0;
   const degradation = v.kpis.oosISDegradation ?? v.wf?.oosISDegradation ?? (isNet !== 0 ? oosNet / isNet : 0);
@@ -247,7 +252,7 @@ function ScatterDot(props: ScatterShapeProps & { payload?: ScatterPayload }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function PortfolioLab() {
-  const [phase, setPhase] = useState<'v1' | 'v2' | 'v3' | 'v4'>('v4');
+  const [phase, setPhase] = useState<'v1' | 'v2' | 'v3' | 'v4' | 'pb'>('pb');
   const [capitalLevel, setCapitalLevel] = useState<number>(12500);
   const [variants, setVariants] = useState<PortfolioVariant[]>([]);
   const [finalists, setFinalists] = useState<PortfolioVariant[]>([]);
@@ -281,9 +286,9 @@ export function PortfolioLab() {
       .catch(() => {});
   }, [phase]);
 
-  // Load lookahead reference (v3/v4 only)
+  // Load lookahead reference (v3/v4/pb only)
   useEffect(() => {
-    if (phase !== 'v3' && phase !== 'v4') { setLookaheadRef([]); return; }
+    if (phase !== 'v3' && phase !== 'v4' && phase !== 'pb') { setLookaheadRef([]); return; }
     fetch(`/api/white-swan-lab?type=lookahead-reference&phase=${phase}`)
       .then((r) => r.json())
       .then((d) => setLookaheadRef((d.variants ?? []).map(normaliseVariant)))
@@ -318,7 +323,7 @@ export function PortfolioLab() {
 
     loadPhase(phase)
       .then((vs) => {
-        if (vs.length === 0 && phase === 'v4') {
+        if (vs.length === 0 && (phase === 'v4' || phase === 'pb')) {
           return loadPhase('v3').then((fallback) => {
             if (fallback.length > 0) setPhaseFallback('v3');
             return fallback;
@@ -377,7 +382,7 @@ export function PortfolioLab() {
 
   const selectedFinalist = useMemo(() => {
     if (!selected) return null;
-    if ((phase === 'v2' || phase === 'v3' || phase === 'v4') && selected.navSeries) return selected;
+    if ((phase === 'v2' || phase === 'v3' || phase === 'v4' || phase === 'pb') && selected.navSeries) return selected;
     return finalists.find((f) => f.variantId === selected.variantId) ?? null;
   }, [selected, finalists, phase]);
 
@@ -483,7 +488,9 @@ export function PortfolioLab() {
         <div>
           <h2 className="text-lg font-bold font-montserrat text-[#e2ca7a]">Portfolio Lab</h2>
           <p className="text-[#737373] text-xs mt-0.5">
-            {phase === 'v4'
+            {phase === 'pb'
+              ? '48 Deep Robustness Variants — EURUSD E9/E6/E0 · DAX High-Vol · GLD Best Months · 17 Components'
+              : phase === 'v4'
               ? '640 Live-Valid Variants — EURUSD Always Active · Ex-Ante Filters · 17 Components'
               : phase === 'v3'
               ? '128 Live-Valid Variants — No Lookahead · Ex-Ante Rules Only · 17 Components'
@@ -496,6 +503,7 @@ export function PortfolioLab() {
           {/* Phase toggle */}
           <div className="flex rounded overflow-hidden border border-[#2a2b30] text-xs">
             {([
+              { id: 'pb', label: 'Robust PB' },
               { id: 'v4', label: 'Live Valid v4' },
               { id: 'v3', label: 'Live Valid v3' },
               { id: 'v2', label: '17/17 Research' },
@@ -530,7 +538,7 @@ export function PortfolioLab() {
       </div>
 
       {/* HERO KPI — top variant at selected capital */}
-      {(phase === 'v2' || phase === 'v3' || phase === 'v4') && tableVariants[0] && !loading && (() => {
+      {(phase === 'v2' || phase === 'v3' || phase === 'v4' || phase === 'pb') && tableVariants[0] && !loading && (() => {
         const hero = tableVariants[0];
         const cap = hero.capital ?? hero.capitalLevel ?? capitalLevel;
         const expectancy = hero.kpis.expectancy ?? (hero.kpis.totalTrades > 0 ? hero.kpis.totalNet / hero.kpis.totalTrades : 0);
@@ -595,7 +603,7 @@ export function PortfolioLab() {
       })()}
 
       {/* LOOKAHEAD REFERENCE PANEL (v3 only) */}
-      {(phase === 'v3' || phase === 'v4') && lookaheadRef.length > 0 && (() => {
+      {(phase === 'v3' || phase === 'v4' || phase === 'pb') && lookaheadRef.length > 0 && (() => {
         const liveRef = tableVariants[0];
         const laRef = lookaheadRef.find((r) => r.capital === capitalLevel);
         if (!liveRef || !laRef) return null;
@@ -688,7 +696,7 @@ export function PortfolioLab() {
       })()}
 
       {/* CAPITAL COMPARISON TABLE */}
-      {(phase === 'v2' || phase === 'v3' || phase === 'v4') && Object.keys(comparison).length > 0 && (
+      {(phase === 'v2' || phase === 'v3' || phase === 'v4' || phase === 'pb') && Object.keys(comparison).length > 0 && (
         <div className="rounded-lg border border-[#2a2b30] bg-[#141517] overflow-hidden">
           <div className="flex items-center justify-between px-3 py-2 border-b border-[#2a2b30]">
             <span className="text-xs font-semibold uppercase tracking-widest text-[#e2ca7a]">Capital Comparison — Top-5 per Level</span>

@@ -1,0 +1,131 @@
+{
+  "strategyId": "zw_seasonal",
+  "totalTrades": 18,
+  "totalNet": -2.41,
+  "isNet": -86.99,
+  "oosNet": 84.58,
+  "oosYearsPositive": 2,
+  "oosYearsTotal": 6,
+  "verdict": "LOW_CONFIDENCE_SEASONAL",
+  "recommendation": "Keep 1 contract. True entry-window backtest requires OHLCV data.",
+  "perYear": [
+    {
+      "year": "2008",
+      "net": 176.1
+    },
+    {
+      "year": "2009",
+      "net": -162.86
+    },
+    {
+      "year": "2010",
+      "net": 373.14
+    },
+    {
+      "year": "2011",
+      "net": 155.68
+    },
+    {
+      "year": "2013",
+      "net": -726.97
+    },
+    {
+      "year": "2014",
+      "net": 96.46
+    },
+    {
+      "year": "2015",
+      "net": -18.91
+    },
+    {
+      "year": "2016",
+      "net": 19.89
+    },
+    {
+      "year": "2018",
+      "net": 0.49
+    },
+    {
+      "year": "2019",
+      "net": -16.38
+    },
+    {
+      "year": "2020",
+      "net": 226.12
+    },
+    {
+      "year": "2021",
+      "net": -50.56
+    },
+    {
+      "year": "2022",
+      "net": -14.82
+    },
+    {
+      "year": "2024",
+      "net": 57.13
+    },
+    {
+      "year": "2025",
+      "net": -116.92
+    }
+  ],
+  "oosPerYear": [
+    {
+      "year": "2019",
+      "net": -16.38
+    },
+    {
+      "year": "2020",
+      "net": 226.12
+    },
+    {
+      "year": "2021",
+      "net": -50.56
+    },
+    {
+      "year": "2022",
+      "net": -14.82
+    },
+    {
+      "year": "2024",
+      "net": 57.13
+    },
+    {
+      "year": "2025",
+      "net": -116.92
+    }
+  ],
+  "costStress": [
+    {
+      "mult": 0.5,
+      "totalNet": 11.56,
+      "oosNet": 90.78,
+      "oosPositive": true
+    },
+    {
+      "mult": 0.65,
+      "totalNet": 7.37,
+      "oosNet": 88.92,
+      "oosPositive": true
+    },
+    {
+      "mult": 0.85,
+      "totalNet": 1.78,
+      "oosNet": 86.44,
+      "oosPositive": true
+    },
+    {
+      "mult": 0.95,
+      "totalNet": -1.01,
+      "oosNet": 85.2,
+      "oosPositive": true
+    },
+    {
+      "mult": 1.25,
+      "totalNet": -9.39,
+      "oosNet": 81.47,
+      "oosPositive": true
+    }
+  ]
+}
