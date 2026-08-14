@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   const type = searchParams.get('type') || 'variants';
 
   const phase = searchParams.get('phase') || 'v1';
-  const subDir = phase === 'v4' ? 'portfolio-lab-v4' : phase === 'v3' ? 'portfolio-lab-v3' : phase === 'v2' ? 'portfolio-lab-v2' : 'portfolio-lab';
+  const subDir = phase === 'pb' ? 'portfolio-lab-pb' : phase === 'v4' ? 'portfolio-lab-v4' : phase === 'v3' ? 'portfolio-lab-v3' : phase === 'v2' ? 'portfolio-lab-v2' : 'portfolio-lab';
   // Primary: local workspace (development). Fallback: public/data (Vercel production).
   // turbopackIgnore comments prevent NFT from tracing entire project
   const workspacePath = path.join(/* turbopackIgnore: true */ process.cwd(), 'workspace', 'output', 'white-swan', subDir);
