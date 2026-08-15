@@ -48,6 +48,8 @@ interface Component17 {
   exchange: string; ibkrCost: number; margin: number; tradesYr: number;
   status: string; statusColor: string; wf: string; dataQuality: string; targetWeight: number;
 }
+interface RepairBaselineRow { label: string; n: number; netEUR: number; costRatioPct?: number; status: string; reason?: string; }
+interface RepairCandidateRow extends RepairBaselineRow { isNet?: number; oosNet?: number; profitFactor?: number; tradesPerYear?: number; }
 interface SummaryData {
   capitalComparison: CapitalRow[];
   serkanPrecheck: Record<string, unknown>;
@@ -56,6 +58,17 @@ interface SummaryData {
   recommendations: {
     core: Record<string, { capital: number; note: string; rating: string }>;
     full?: Record<string, { capital: number; note: string; rating: string }>;
+  };
+  repairGateStatus?: {
+    assessed: string; mandate: string;
+    eurusdGate: string; eurusdCandidate: string;
+    gldGate: string; gldVerdict: string; zwVerdict: string;
+    overallStatus: string; blockingReason: string;
+  };
+  repairGateComparison?: {
+    eurusd_30m: { baseline: RepairBaselineRow; candidate: RepairCandidateRow };
+    gld_thursday_long: { baseline: RepairBaselineRow; bestAttempt: RepairBaselineRow & { isNet?: number; oosNet?: number } };
+    zw_seasonal: { baseline: RepairBaselineRow; verdict: string };
   };
 }
 
@@ -75,6 +88,7 @@ const STATUS_COLOR: Record<string, string> = {
   ROBUST: '#22c55e', ACCEPTABLE: '#3b82f6', NEEDS_COST_FILTER: '#d4a843',
   LOW_SAMPLE: '#f97316', SOLVABLE: '#8b5cf6', NO_DATA: '#6b7280', DATA_BLOCKED: '#ef4444',
   FILTERED: '#22c55e', BASELINE: '#3b82f6', PASS_THROUGH: '#64748b', BLOCKED: '#ef4444',
+  REJECTED: '#dc2626', RESEARCH_CANDIDATE: '#f59e0b',
 };
 
 // ─── Formatting helpers ────────────────────────────────────────────────────────
@@ -561,6 +575,109 @@ function ComponentQualityGrid({ components }: { components: Component17[] }) {
   );
 }
 
+// ─── Section: Repair Gate Status ──────────────────────────────────────────────
+function RepairGatePanel({ gate, comparison }: { gate: SummaryData['repairGateStatus']; comparison: SummaryData['repairGateComparison'] }) {
+  if (!gate) return null;
+  const isBlocked = gate.overallStatus === 'PARTIAL_BLOCKED';
+  const eurusdPassed = gate.eurusdGate === 'PASSED';
+  const gldPassed = gate.gldGate === 'PASSED';
+
+  return (
+    <div className={`border rounded-lg p-4 ${isBlocked ? 'border-orange-900/60 bg-orange-950/20' : 'border-green-900/60 bg-green-950/20'}`}>
+      <div className="flex items-center gap-3 mb-4">
+        <span className={`text-sm font-bold font-mono ${isBlocked ? 'text-orange-400' : 'text-green-400'}`}>
+          CRITICAL REPAIR GATE — {gate.overallStatus}
+        </span>
+        <span className="text-[10px] text-[#555]">{gate.assessed}</span>
+      </div>
+      <p className="text-[10px] text-[#666] mb-4 font-mono">{gate.mandate}</p>
+
+      <div className="grid grid-cols-3 gap-3 mb-4">
+        {[
+          { label: 'EURUSD 30M', passed: eurusdPassed, detail: gate.eurusdGate },
+          { label: 'GLD Thursday Long', passed: gldPassed, detail: gate.gldGate },
+          { label: 'ZW Seasonal', passed: false, detail: gate.zwVerdict },
+        ].map(g => (
+          <div key={g.label} className={`border rounded p-2.5 ${g.passed ? 'border-green-900/50 bg-green-950/20' : 'border-red-900/50 bg-red-950/20'}`}>
+            <div className="text-[10px] font-semibold text-[#888] mb-1">{g.label}</div>
+            <div className={`text-[10px] font-mono ${g.passed ? 'text-green-400' : 'text-red-400'}`}>{g.passed ? '✓ PASSED' : '✗ FAILED'}</div>
+            <div className="text-[9px] text-[#555] mt-1 leading-relaxed">{g.detail}</div>
+          </div>
+        ))}
+      </div>
+
+      {isBlocked && (
+        <div className="bg-red-950/30 border border-red-900/50 rounded p-2 mb-4">
+          <span className="text-[10px] text-red-400 font-mono">BLOCKING: {gate.blockingReason}</span>
+        </div>
+      )}
+
+      {comparison && (
+        <div className="space-y-3">
+          <div className="text-[10px] text-[#555] uppercase tracking-widest font-semibold">Baseline vs Candidate Comparison</div>
+
+          {/* EURUSD */}
+          <div className="bg-[#0d0d0d] border border-[#2a2a2a] rounded p-3">
+            <div className="text-[10px] text-[#d4a843] font-semibold mb-2">EURUSD 30M</div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <div className="text-[9px] text-[#555] mb-1">BASELINE</div>
+                <div className="text-[9px] text-[#666] space-y-0.5">
+                  <div>n={comparison.eurusd_30m.baseline.n} trades · Net <span className="text-red-400 font-mono">€{comparison.eurusd_30m.baseline.netEUR}</span></div>
+                  <div>CostRatio <span className="text-red-400">{comparison.eurusd_30m.baseline.costRatioPct?.toFixed(1)}%</span></div>
+                  <div className="text-red-500 text-[9px]">{comparison.eurusd_30m.baseline.status}</div>
+                </div>
+              </div>
+              <div>
+                <div className="text-[9px] text-[#555] mb-1">CANDIDATE — {comparison.eurusd_30m.candidate.label}</div>
+                <div className="text-[9px] text-[#666] space-y-0.5">
+                  <div>n={comparison.eurusd_30m.candidate.n} · {comparison.eurusd_30m.candidate.tradesPerYear}/yr</div>
+                  <div>Net <span className="text-green-400 font-mono">€{comparison.eurusd_30m.candidate.netEUR}</span> · PF={comparison.eurusd_30m.candidate.profitFactor}</div>
+                  <div>IS <span className="text-green-400">€{comparison.eurusd_30m.candidate.isNet}</span> · OOS <span className="text-green-400">€{comparison.eurusd_30m.candidate.oosNet}</span></div>
+                  <div>CostRatio <span className="text-yellow-400">{comparison.eurusd_30m.candidate.costRatioPct?.toFixed(1)}%</span></div>
+                  <div className="text-yellow-400 text-[9px]">{comparison.eurusd_30m.candidate.status}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* GLD */}
+          <div className="bg-[#0d0d0d] border border-[#2a2a2a] rounded p-3">
+            <div className="text-[10px] text-[#d4a843] font-semibold mb-2">GLD Thursday Long</div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <div className="text-[9px] text-[#555] mb-1">BASELINE</div>
+                <div className="text-[9px] text-[#666] space-y-0.5">
+                  <div>n={comparison.gld_thursday_long.baseline.n} · Net <span className="text-red-400 font-mono">€{comparison.gld_thursday_long.baseline.netEUR}</span></div>
+                  <div className="text-red-500">{comparison.gld_thursday_long.baseline.status}</div>
+                </div>
+              </div>
+              <div>
+                <div className="text-[9px] text-[#555] mb-1">BEST ATTEMPT (IS Mon filter)</div>
+                <div className="text-[9px] text-[#666] space-y-0.5">
+                  <div>{comparison.gld_thursday_long.bestAttempt.label}</div>
+                  <div>IS <span className="text-green-400">€{comparison.gld_thursday_long.bestAttempt.isNet}</span> → OOS <span className="text-red-400">€{comparison.gld_thursday_long.bestAttempt.oosNet}</span></div>
+                  <div className="text-red-400">{comparison.gld_thursday_long.bestAttempt.status}</div>
+                  <div className="text-[9px] text-[#444]">{comparison.gld_thursday_long.bestAttempt.reason}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ZW */}
+          <div className="bg-[#0d0d0d] border border-[#2a2a2a] rounded p-3">
+            <div className="text-[10px] text-[#d4a843] font-semibold mb-2">ZW Seasonal</div>
+            <div className="text-[9px] text-[#666] space-y-0.5">
+              <div>n={comparison.zw_seasonal.baseline.n} · Net <span className="text-red-400 font-mono">€{comparison.zw_seasonal.baseline.netEUR}</span> · 1 trade/year</div>
+              <div className="text-red-400">{comparison.zw_seasonal.verdict}</div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Section: Capital Recommendations ─────────────────────────────────────────
 function CapitalRecommendations({ recs }: { recs: SummaryData['recommendations'] }) {
   const ratingColor = (r: string) => r === 'COMFORTABLE' ? 'text-green-400' : r === 'WORKABLE' ? 'text-yellow-400' : 'text-orange-400';
@@ -930,6 +1047,10 @@ export default function WhiteSwanDashboard() {
 
       {/* ── 17 COMPONENTS ── */}
       {activeTab === 'components' && (
+        <div className="space-y-4">
+        {summary.repairGateStatus && (
+          <RepairGatePanel gate={summary.repairGateStatus} comparison={summary.repairGateComparison} />
+        )}
         <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg p-4">
           <SectionTitle>All 17 White Swan Components</SectionTitle>
           <ComponentQualityGrid components={summary.components17} />
@@ -942,6 +1063,7 @@ export default function WhiteSwanDashboard() {
             <p><span style={{ color: STATUS_COLOR.ACCEPTABLE }}>ACCEPTABLE</span> — Historical results but no active signal</p>
             <p><span style={{ color: STATUS_COLOR.NO_DATA }}>NO_DATA</span> — Thesis exists, no backtest data in repo yet</p>
           </div>
+        </div>
         </div>
       )}
 
