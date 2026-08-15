@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { PortfolioLab } from './PortfolioLab';
+import WhiteSwanDashboard from './WhiteSwanDashboard';
 import {
   LineChart,
   Line,
@@ -1508,7 +1509,7 @@ function IbkrCostsPanel({ data }: { data: Record<string, unknown> | null }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function WhiteSwanAnalytics() {
-  const [activeTab, setActiveTab] = useState<'final' | 'quality' | 'costs' | 'analytics'>('final');
+  const [activeTab, setActiveTab] = useState<'portfolio' | 'final' | 'quality' | 'costs' | 'analytics'>('portfolio');
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -1605,6 +1606,7 @@ export function WhiteSwanAnalytics() {
       {/* Tab switcher */}
       <div className="flex gap-2 mb-6 flex-wrap">
         {([
+          { id: 'portfolio', label: 'Portfolio Dashboard' },
           { id: 'final', label: 'Final White Swan' },
           { id: 'quality', label: 'Strategy Quality' },
           { id: 'costs', label: 'IBKR Costs' },
@@ -1624,6 +1626,8 @@ export function WhiteSwanAnalytics() {
           </button>
         ))}
       </div>
+
+      {activeTab === 'portfolio' && <WhiteSwanDashboard />}
 
       {activeTab === 'final' && <FinalWhiteSwanPanel />}
 
