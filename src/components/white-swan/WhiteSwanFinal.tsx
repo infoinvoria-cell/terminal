@@ -66,6 +66,7 @@ const STATUS_COLOR: Record<string, string> = {
   ACTIVE: '#22c55e', ROBUST: '#22c55e', ACCEPTABLE: '#3b82f6',
   LOW_WEIGHT: '#6b7280', PASS_THROUGH: '#4b5563', PROXY_REQUIRED: '#8b5cf6',
   DATA_BLOCKED: '#ef4444', REJECTED: '#dc2626', RESEARCH_CANDIDATE: '#d4a843',
+  EXCLUDED: '#374151',
 };
 const ASSESS_COLOR: Record<string, string> = {
   COMFORTABLE: '#22c55e', FEASIBLE: '#84cc16', TIGHT: '#f59e0b',
@@ -302,13 +303,13 @@ export function WhiteSwanFinal() {
   const kpis = summary.portfolioKPIs;
   const capRow = summary.capitalComparison.find(r => r.capital === selectedCap);
   const components = summary.components ?? [];
-  const activeComps = components.filter(c => c.status !== 'DATA_BLOCKED' && c.status !== 'REJECTED');
+  const activeComps = components.filter(c => !['DATA_BLOCKED', 'REJECTED', 'EXCLUDED'].includes(c.status));
   const availableCaps = summary.capitalComparison.map(r => r.capital);
 
-  const filteredComps = compFilter === 'ALL' ? components
-    : compFilter === 'ACTIVE' ? components.filter(c => ['ACTIVE', 'ROBUST', 'ACCEPTABLE'].includes(c.status))
+  const filteredComps = compFilter === 'ALL' ? components.filter(c => c.status !== 'EXCLUDED')
+    : compFilter === 'ACTIVE' ? components.filter(c => ['ACTIVE', 'ROBUST', 'ACCEPTABLE', 'LOW_WEIGHT'].includes(c.status))
     : compFilter === 'LOW' ? components.filter(c => c.status === 'LOW_WEIGHT')
-    : components.filter(c => ['DATA_BLOCKED', 'PROXY_REQUIRED'].includes(c.status));
+    : components.filter(c => ['DATA_BLOCKED', 'PROXY_REQUIRED', 'EXCLUDED'].includes(c.status));
 
   const tabs = [
     { id: 'overview', label: 'Overview' },
@@ -472,7 +473,10 @@ export function WhiteSwanFinal() {
               <div className="text-[#222] uppercase tracking-widest mb-1">Data Provenance</div>
               <div>Real historical backtest · IBKR execution data 2008–2026 · No GBM · No synthetic returns</div>
               <div>GC/MGC: Yahoo Finance continuous futures · ZW: TradingView CBOT ZW1 · Others: all-trades.json</div>
-              <div>IBKR real costs · Integer contracts · No lookahead · IS/OOS split 2017-01-01</div>
+              <div>IBKR real costs · Integer contracts · IS/OOS split 2017-01-01 · M6E/MZW micro substitution</div>
+              {summary.version === 'v4' && (
+                <div className="text-[#1a1a1a] mt-0.5">GLD: ATR 20-80% (was 33-67%) +€5,159 OOS · EURUSD: M6E ×0.1 · ZW: MZW ×0.2</div>
+              )}
             </div>
           </div>
         )}
