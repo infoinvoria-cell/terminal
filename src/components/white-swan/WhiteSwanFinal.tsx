@@ -14,12 +14,16 @@ interface ComponentData {
   realizedWeight?: number; contracts: number; tradesPerYear: number;
   marginPerContract?: number; costPerRT?: number; annualCostEUR?: number;
 }
+interface LadderEntry { capital: number; added: string[]; removed: string[]; changed: Array<{id:string;from:number;to:number}> }
 interface CapLevel {
   capital: number; assessment: string; marginPct: number; marginTotal?: number;
   CAGR: number | null; isCAGR?: number | null; oosCAGR?: number | null; oos2019CAGR?: number | null;
   Sharpe: number | null; Sortino?: number | null; Calmar?: number | null; MaxDDPct: number | null;
-  totalNetEUR?: number; annualCostEUR?: number; feasibility?: boolean;
-  contracts?: Record<string, number>;
+  MaxDDEUR?: number | null; totalNetEUR?: number; annualCostEUR?: number; costPerNAV?: number | null;
+  tradesPerWeek?: number | null; top1Conc?: number | null; top3Conc?: number | null;
+  effectiveSleeves?: number | null; activeSleeves?: number; score?: number; variant?: string;
+  feasibility?: boolean; contracts?: Record<string, number>;
+  components?: ComponentData[]; ladder?: LadderEntry | null;
 }
 interface PortfolioKPIs {
   CAGR: number; oosCAGR: number; oos2019CAGR?: number; isCAGR: number;
@@ -46,7 +50,10 @@ interface Summary {
   portfolioKPIs: PortfolioKPIs;
   variants?: Variants;
   performanceAttribution?: PerfAttribution;
-  serkan?: { rows?: number; dateRange?: string[]; path?: string };
+  serkan?: { rows?: number; dateRange?: string[]; path?: string; finalRows?: number };
+  capitalLadder?: LadderEntry[];
+  bestSmallAccount?: { capital: number; oos2019CAGR?: number } | null;
+  fullTradableAt?: number | null;
   generatedAt?: string; status?: string;
 }
 interface EquityPoint { date: string; nav: number; dd?: number }
@@ -56,7 +63,7 @@ interface EquityData {
 }
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
-const ALL_CAPS = [10000, 12500, 15000, 20000, 25000, 30000, 40000, 50000, 75000, 100000];
+const ALL_CAPS = [10000, 15000, 20000, 25000, 30000, 40000, 50000, 75000, 100000];
 const CAP_COLORS: Record<number, string> = {
   10000: '#374151', 12500: '#4b5563', 15000: '#6b7280', 20000: '#9ca3af',
   25000: '#d1d5db', 30000: '#e5e7eb', 40000: '#d4a843', 50000: '#f5d78e',
@@ -270,15 +277,15 @@ function VariantChip({ label, data, gold }: { label: string; data?: { capital: n
 export function WhiteSwanFinal() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [equityData, setEquityData] = useState<EquityData | null>(null);
-  const [selectedCap, setSelectedCap] = useState<number>(50000);
-  const [multiCap, setMultiCap] = useState<number[]>([50000]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'equity' | 'weights' | 'costs' | 'components' | 'capital' | 'attribution'>('overview');
+  const [selectedCap, setSelectedCap] = useState<number>(25000);
+  const [multiCap, setMultiCap] = useState<number[]>([25000]);
+  const [activeTab, setActiveTab] = useState<'overview' | 'equity' | 'weights' | 'costs' | 'components' | 'capital' | 'ladder' | 'attribution'>('overview');
   const [compFilter, setCompFilter] = useState<string>('ALL');
 
   useEffect(() => {
     fetch('/data/white-swan/final/portfolio-summary.json').then(r => r.json()).then(d => {
       setSummary(d);
-      const rec = d.recommendedCapital ?? 50000;
+      const rec = d.recommendedCapital ?? 25000;
       setSelectedCap(rec);
       setMultiCap([rec]);
     }).catch(() => null);
@@ -297,28 +304,39 @@ export function WhiteSwanFinal() {
     );
   }
 
-  const minCap = summary.minimumCapital ?? 50000;
+  const minCap = summary.minimumCapital ?? 25000;
   const techMin = summary.technicalMinimum ?? minCap;
-  const recCap = summary.recommendedCapital ?? 50000;
-  const kpis = summary.portfolioKPIs;
+  const recCap = summary.recommendedCapital ?? 25000;
   const capRow = summary.capitalComparison.find(r => r.capital === selectedCap);
-  const components = summary.components ?? [];
-  const activeComps = components.filter(c => !['DATA_BLOCKED', 'REJECTED', 'EXCLUDED'].includes(c.status));
+  // v5: use per-capital components when available; fallback to top-level components
+  const capComponents = capRow?.components ?? summary.components ?? [];
+  const activeComps = capComponents.filter(c => !['DATA_BLOCKED', 'REJECTED', 'EXCLUDED'].includes(c.status));
+  // Dynamic KPIs: use selected-capital KPIs for non-recommended selections
+  const baseKpis = summary.portfolioKPIs;
+  const kpis = capRow ? {
+    CAGR: capRow.CAGR ?? baseKpis?.CAGR, isCAGR: capRow.isCAGR ?? baseKpis?.isCAGR,
+    oosCAGR: capRow.oosCAGR ?? baseKpis?.oosCAGR, oos2019CAGR: capRow.oos2019CAGR ?? baseKpis?.oos2019CAGR,
+    Sharpe: capRow.Sharpe ?? baseKpis?.Sharpe, Sortino: capRow.Sortino ?? baseKpis?.Sortino,
+    Calmar: capRow.Calmar ?? baseKpis?.Calmar, MaxDDPct: capRow.MaxDDPct ?? baseKpis?.MaxDDPct,
+    MaxDDEUR: capRow.MaxDDEUR ?? baseKpis?.MaxDDEUR, totalNetEUR: capRow.totalNetEUR ?? baseKpis?.totalNetEUR,
+    annualCostEUR: capRow.annualCostEUR ?? baseKpis?.annualCostEUR, costPerNAV: capRow.costPerNAV ?? baseKpis?.costPerNAV,
+  } : baseKpis;
   const availableCaps = summary.capitalComparison.map(r => r.capital);
 
-  const filteredComps = compFilter === 'ALL' ? components.filter(c => c.status !== 'EXCLUDED')
-    : compFilter === 'ACTIVE' ? components.filter(c => ['ACTIVE', 'ROBUST', 'ACCEPTABLE', 'LOW_WEIGHT'].includes(c.status))
-    : compFilter === 'LOW' ? components.filter(c => c.status === 'LOW_WEIGHT')
-    : components.filter(c => ['DATA_BLOCKED', 'PROXY_REQUIRED', 'EXCLUDED'].includes(c.status));
+  const filteredComps = compFilter === 'ALL' ? capComponents.filter(c => c.status !== 'EXCLUDED')
+    : compFilter === 'ACTIVE' ? capComponents.filter(c => ['ACTIVE', 'ROBUST', 'ACCEPTABLE', 'LOW_WEIGHT'].includes(c.status))
+    : compFilter === 'LOW' ? capComponents.filter(c => c.status === 'LOW_WEIGHT')
+    : capComponents.filter(c => ['DATA_BLOCKED', 'PROXY_REQUIRED', 'EXCLUDED'].includes(c.status));
 
   const tabs = [
     { id: 'overview', label: 'Overview' },
     { id: 'equity', label: 'Equity / DD' },
     { id: 'weights', label: 'Weights' },
     { id: 'costs', label: 'Costs' },
-    { id: 'attribution', label: 'Attribution' },
     { id: 'components', label: `${summary.canonicalTotal ?? 17} Components` },
     { id: 'capital', label: 'Capital Table' },
+    { id: 'ladder', label: 'Capital Evolution' },
+    { id: 'attribution', label: 'Attribution' },
   ] as const;
 
   return (
@@ -353,19 +371,23 @@ export function WhiteSwanFinal() {
             </div>
           </div>
 
-          {/* Hero KPIs */}
+          {/* Hero KPIs — dynamic by selected capital */}
           <div className="mt-4 border border-[#0d0d0d] rounded bg-[#030303] overflow-x-auto">
+            <div className="px-3 py-1 border-b border-[#080808] flex items-center justify-between">
+              <span className="text-[8px] text-[#222] uppercase tracking-widest">{fmtCap(selectedCap)} · {capRow?.variant ?? 'RECOMMENDED'}</span>
+              {capRow?.assessment && <AssessBadge assessment={capRow.assessment} />}
+            </div>
             <div className="flex min-w-max">
               <KpiCell label="Rec. Capital" value={fmtCap(recCap)} sub={`tech min ${fmtCap(techMin)}`} gold />
               <KpiCell label="Net CAGR" value={fmtPct(kpis?.CAGR)} sub="full period" />
               <KpiCell label="OOS CAGR" value={fmtPct(kpis?.oosCAGR)} sub="2017–2026" />
-              {kpis?.oos2019CAGR != null && <KpiCell label="OOS 2019+" value={fmtPct(kpis.oos2019CAGR)} sub="2019–2026" />}
+              <KpiCell label="OOS 2019+" value={kpis?.oos2019CAGR != null ? fmtPct(kpis.oos2019CAGR) : '—'} sub="2019–2026" gold={!!kpis?.oos2019CAGR && kpis.oos2019CAGR > 10} />
               <KpiCell label="Sharpe" value={fmtNum(kpis?.Sharpe)} />
               <KpiCell label="Calmar" value={fmtNum(kpis?.Calmar)} />
               <KpiCell label="MaxDD" value={fmtPct(kpis?.MaxDDPct)} sub={fmtEUR(kpis?.MaxDDEUR)} />
               <KpiCell label="Cost/NAV" value={fmtPct(kpis?.costPerNAV, 2)} sub={`${fmtEUR(kpis?.annualCostEUR)}/yr`} />
               <KpiCell label="Margin" value={fmtPct(capRow?.marginPct)} sub={capRow?.assessment ?? ''} />
-              <KpiCell label="Net Total" value={fmtEUR(kpis?.totalNetEUR)} sub="2008–2026" dim />
+              <KpiCell label="Sleeves" value={capRow?.activeSleeves != null ? String(capRow.activeSleeves) : '—'} />
             </div>
           </div>
         </div>
@@ -474,8 +496,8 @@ export function WhiteSwanFinal() {
               <div>Real historical backtest · IBKR execution data 2008–2026 · No GBM · No synthetic returns</div>
               <div>GC/MGC: Yahoo Finance continuous futures · ZW: TradingView CBOT ZW1 · Others: all-trades.json</div>
               <div>IBKR real costs · Integer contracts · IS/OOS split 2017-01-01 · M6E/MZW micro substitution</div>
-              {summary.version === 'v4' && (
-                <div className="text-[#1a1a1a] mt-0.5">GLD: ATR 20-80% (was 33-67%) +€5,159 OOS · EURUSD: M6E ×0.1 · ZW: MZW ×0.2</div>
+              {(summary.version === 'v4' || summary.version === 'v5') && (
+                <div className="text-[#1a1a1a] mt-0.5">GLD: ATR 20-80% +€5,159 OOS · EURUSD: M6E ×0.1 · ZW: MZW ×0.2 · v5: independent optimizer per capital tier</div>
               )}
             </div>
           </div>
@@ -703,10 +725,10 @@ export function WhiteSwanFinal() {
         {activeTab === 'capital' && (
           <div className="space-y-3">
             <div className="overflow-x-auto border border-[#0d0d0d] rounded bg-[#030303]">
-              <table className="w-full text-[10px] min-w-[800px]">
+              <table className="w-full text-[10px] min-w-[1000px]">
                 <thead>
                   <tr className="border-b border-[#0d0d0d] text-[#222]">
-                    {['Capital', 'Assessment', 'Margin%', 'CAGR', 'IS', 'OOS', 'OOS19', 'Sharpe', 'Calmar', 'MaxDD', 'Feasible'].map(h => (
+                    {['Capital', 'Variant', 'Sleeves', 'Margin%', 'CAGR', 'IS', 'OOS', 'OOS19', 'Sharpe', 'Calmar', 'MaxDD%', 'Cost/yr', 'Diversif.', 'Score'].map(h => (
                       <th key={h} className="px-2 py-2 text-left font-normal text-[8px]">{h}</th>
                     ))}
                   </tr>
@@ -714,41 +736,131 @@ export function WhiteSwanFinal() {
                 <tbody>
                   {summary.capitalComparison.map(r => {
                     const isRec = r.capital === recCap;
-                    const isFail = !r.feasibility && r.assessment === 'MARGIN_RISK';
+                    const isSel = r.capital === selectedCap;
                     return (
-                      <tr key={r.capital}
-                        className={`border-b border-[#080808] ${isRec ? 'bg-[#090700]' : isFail ? 'opacity-30' : 'hover:bg-[#040404]'}`}>
-                        <td className={`px-2 py-1.5 font-mono font-semibold ${isRec ? 'text-[#d4a843]' : 'text-[#555]'}`}>
+                      <tr key={r.capital} onClick={() => { setSelectedCap(r.capital); setMultiCap(m => m.includes(r.capital) ? m : [...m, r.capital]); }}
+                        className={`border-b border-[#080808] cursor-pointer ${isRec ? 'bg-[#090700]' : isSel ? 'bg-[#050505]' : 'hover:bg-[#040404]'}`}>
+                        <td className={`px-2 py-1.5 font-mono font-semibold ${isRec ? 'text-[#d4a843]' : isSel ? 'text-[#888]' : 'text-[#444]'}`}>
                           {fmtCap(r.capital)}{isRec ? ' ★' : ''}
                         </td>
-                        <td className="px-2 py-1.5"><AssessBadge assessment={r.assessment} /></td>
-                        <td className="px-2 py-1.5 text-right text-[#444]">{fmtPct(r.marginPct)}</td>
+                        <td className="px-2 py-1.5 text-[#333] text-[8px]">{r.variant ?? '—'}</td>
+                        <td className="px-2 py-1.5 text-right text-[#555]">{r.activeSleeves ?? '—'}</td>
+                        <td className="px-2 py-1.5 text-right">
+                          <span className={`text-[8px] px-1.5 py-0.5 rounded`}
+                            style={{ color: ASSESS_COLOR[r.assessment] ?? '#555', background: (ASSESS_COLOR[r.assessment] ?? '#555') + '12' }}>
+                            {r.marginPct?.toFixed(1)}%
+                          </span>
+                        </td>
                         <td className="px-2 py-1.5 text-right text-[#c0c0c0]">{r.CAGR != null ? fmtPct(r.CAGR) : '—'}</td>
                         <td className="px-2 py-1.5 text-right text-[#555]">{r.isCAGR != null ? fmtPct(r.isCAGR) : '—'}</td>
                         <td className="px-2 py-1.5 text-right text-[#777]">{r.oosCAGR != null ? fmtPct(r.oosCAGR) : '—'}</td>
-                        <td className={`px-2 py-1.5 text-right ${(r.oos2019CAGR ?? 0) >= 15 ? 'text-[#d4a843]' : 'text-[#555]'}`}>
+                        <td className={`px-2 py-1.5 text-right font-mono ${(r.oos2019CAGR ?? 0) >= 13 ? 'text-[#d4a843]' : 'text-[#555]'}`}>
                           {r.oos2019CAGR != null ? fmtPct(r.oos2019CAGR) : '—'}
                         </td>
                         <td className="px-2 py-1.5 text-right text-[#555]">{r.Sharpe != null ? fmtNum(r.Sharpe) : '—'}</td>
                         <td className="px-2 py-1.5 text-right text-[#444]">{r.Calmar != null ? fmtNum(r.Calmar) : '—'}</td>
                         <td className="px-2 py-1.5 text-right text-[#444]">{r.MaxDDPct != null ? fmtPct(r.MaxDDPct) : '—'}</td>
-                        <td className={`px-2 py-1.5 text-[9px] ${r.feasibility ? 'text-[#1a3a1a]' : 'text-[#3a1a1a]'}`}>
-                          {r.feasibility ? 'YES' : 'NO'}
-                        </td>
+                        <td className="px-2 py-1.5 text-right text-[#333]">{r.annualCostEUR != null ? fmtEUR(r.annualCostEUR) : '—'}</td>
+                        <td className="px-2 py-1.5 text-right text-[#333]">{r.effectiveSleeves != null ? fmtNum(r.effectiveSleeves, 1) : '—'}</td>
+                        <td className="px-2 py-1.5 text-right text-[#2a4a2a] text-[9px]">{r.score != null ? r.score.toFixed(2) : '—'}</td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
             </div>
-            <div className="text-[8px] text-[#111]">★ Recommended · OOS19 highlighted if ≥15% · strikethrough = infeasible</div>
+            <div className="text-[8px] text-[#111]">★ Recommended · OOS19 gold if ≥13% · Click row to select capital · Diversif = effective sleeves (1/HHI)</div>
+          </div>
+        )}
+
+        {/* ── Capital Evolution (Ladder) ───────────────────────────────────── */}
+        {activeTab === 'ladder' && (
+          <div className="space-y-4">
+            <div className="text-[8px] text-[#222] mb-2">Each capital tier independently optimized — showing which sleeves were added, removed, or scaled vs previous tier.</div>
+            {/* Ladder list */}
+            <div className="space-y-2">
+              {summary.capitalComparison.map((r, i) => {
+                const ladder = r.ladder;
+                const cts = Object.entries(r.contracts ?? {}).filter(([,n])=>n>0);
+                const isRec = r.capital === recCap;
+                return (
+                  <div key={r.capital} className={`border rounded p-3 ${isRec ? 'border-[#d4a843]/20 bg-[#090700]' : 'border-[#0d0d0d] bg-[#030303]'}`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[11px] font-mono font-semibold ${isRec ? 'text-[#d4a843]' : 'text-[#666]'}`}>{fmtCap(r.capital)}</span>
+                        {isRec && <span className="text-[8px] text-[#d4a843]/50">★ RECOMMENDED</span>}
+                        {r.variant && <span className="text-[8px] text-[#2a2a2a] uppercase tracking-widest">{r.variant}</span>}
+                      </div>
+                      <div className="flex items-center gap-3 text-[8px] text-[#2a2a2a]">
+                        <span>{r.activeSleeves} sleeves</span>
+                        <span>OOS19 {r.oos2019CAGR != null ? fmtPct(r.oos2019CAGR) : '—'}</span>
+                        <span>Sharpe {r.Sharpe != null ? fmtNum(r.Sharpe) : '—'}</span>
+                        <AssessBadge assessment={r.assessment} />
+                      </div>
+                    </div>
+                    {/* Contracts */}
+                    <div className="flex flex-wrap gap-1.5 mb-2">
+                      {cts.map(([id, n]) => {
+                        const isAdded = ladder?.added?.includes(id);
+                        const isChanged = ladder?.changed?.find(c => c.id === id);
+                        return (
+                          <span key={id} className={`text-[9px] font-mono px-1.5 py-0.5 rounded border ${
+                            isAdded ? 'border-[#22c55e]/40 text-[#22c55e] bg-[#022202]' :
+                            isChanged ? 'border-[#d4a843]/40 text-[#d4a843] bg-[#0a0800]' :
+                            'border-[#111] text-[#333]'
+                          }`}>
+                            {id.replace('_', '-')}×{n}{isChanged ? ` (was ${isChanged.from})` : ''}
+                          </span>
+                        );
+                      })}
+                    </div>
+                    {/* Ladder changes */}
+                    {i > 0 && ladder && (ladder.added.length > 0 || ladder.removed.length > 0 || ladder.changed.length > 0) && (
+                      <div className="flex gap-4 text-[8px]">
+                        {ladder.added.length > 0 && (
+                          <span className="text-[#22c55e]/70">+ {ladder.added.join(', ')}</span>
+                        )}
+                        {ladder.removed.length > 0 && (
+                          <span className="text-[#ef4444]/50">− {ladder.removed.join(', ')}</span>
+                        )}
+                        {ladder.changed.length > 0 && (
+                          <span className="text-[#d4a843]/50">~ {ladder.changed.map(c=>`${c.id} ${c.from}→${c.to}ct`).join(', ')}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            {/* Summary stats */}
+            <div className="grid grid-cols-3 gap-2">
+              {summary.bestSmallAccount && (
+                <div className="border border-[#0d0d0d] rounded p-2.5 bg-[#030303]">
+                  <div className="text-[8px] text-[#2a2a2a] uppercase tracking-widest mb-1">Best Small Account</div>
+                  <div className="text-sm font-mono font-semibold text-[#888]">{fmtCap(summary.bestSmallAccount.capital)}</div>
+                  <div className="text-[9px] text-[#444] mt-0.5">OOS19 {fmtPct(summary.bestSmallAccount.oos2019CAGR)}</div>
+                </div>
+              )}
+              {summary.fullTradableAt && (
+                <div className="border border-[#0d0d0d] rounded p-2.5 bg-[#030303]">
+                  <div className="text-[8px] text-[#2a2a2a] uppercase tracking-widest mb-1">Full Tradable White Swan</div>
+                  <div className="text-sm font-mono font-semibold text-[#888]">{fmtCap(summary.fullTradableAt)}</div>
+                  <div className="text-[9px] text-[#333] mt-0.5">All 15 tradable sleeves active</div>
+                </div>
+              )}
+              <div className="border border-[#d4a843]/20 rounded p-2.5 bg-[#090700]">
+                <div className="text-[8px] text-[#d4a843] uppercase tracking-widest mb-1">Recommendation</div>
+                <div className="text-sm font-mono font-semibold text-[#d4a843]">{fmtCap(recCap)}</div>
+                <div className="text-[9px] text-[#444] mt-0.5">Optimal OOS CAGR + margin feasibility</div>
+              </div>
+            </div>
           </div>
         )}
 
         {/* ── Footer ──────────────────────────────────────────────────────── */}
         <div className="border-t border-[#080808] pt-4 text-[8px] text-[#111] space-y-0.5">
-          <div>WHITE SWAN FINAL {summary.version ?? 'v3'} · Historical Backtest · Real Futures Data · IBKR Real Costs · No Simulation</div>
-          <div>Serkan: {summary.serkan?.path ?? 'workspace/output/white-swan/serkan/v3/'} · {summary.serkan?.rows ?? '—'} rows · {summary.generatedAt}</div>
+          <div>WHITE SWAN FINAL {summary.version ?? 'v3'} · Historical Backtest · Real Futures Data · IBKR Real Costs · No Simulation · 9 Capital Tiers</div>
+          <div>Serkan: {summary.serkan?.path ?? 'workspace/output/white-swan/serkan/v5/'} · {summary.serkan?.finalRows ?? summary.serkan?.rows ?? '—'} rows (final) · {summary.generatedAt}</div>
           <div>IS 2008–2016 · OOS 2017–2026 · OOS19 2019–2026 · NOT financial advice</div>
         </div>
       </div>
