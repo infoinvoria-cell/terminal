@@ -40,6 +40,7 @@ interface PerfAttribution {
 interface Summary {
   version?: string; recommendedCapital: number; minimumCapital: number;
   technicalMinimum?: number; institutionalCapital?: number;
+  canonicalTotal?: number; tradableComponents?: number; blockedComponents?: number;
   components: ComponentData[];
   capitalComparison: CapLevel[];
   portfolioKPIs: PortfolioKPIs;
@@ -55,10 +56,11 @@ interface EquityData {
 }
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
-const ALL_CAPS = [7500, 10000, 12500, 15000, 17500, 20000, 25000, 50000];
+const ALL_CAPS = [10000, 12500, 15000, 20000, 25000, 30000, 40000, 50000, 75000, 100000];
 const CAP_COLORS: Record<number, string> = {
-  7500: '#374151', 10000: '#4b5563', 12500: '#6b7280', 15000: '#9ca3af',
-  17500: '#d1d5db', 20000: '#e5e7eb', 25000: '#d4a843', 50000: '#f5d78e',
+  10000: '#374151', 12500: '#4b5563', 15000: '#6b7280', 20000: '#9ca3af',
+  25000: '#d1d5db', 30000: '#e5e7eb', 40000: '#d4a843', 50000: '#f5d78e',
+  75000: '#a3956b', 100000: '#7a7050',
 };
 const STATUS_COLOR: Record<string, string> = {
   ACTIVE: '#22c55e', ROBUST: '#22c55e', ACCEPTABLE: '#3b82f6',
@@ -301,7 +303,7 @@ export function WhiteSwanFinal() {
   const capRow = summary.capitalComparison.find(r => r.capital === selectedCap);
   const components = summary.components ?? [];
   const activeComps = components.filter(c => c.status !== 'DATA_BLOCKED' && c.status !== 'REJECTED');
-  const availableCaps = summary.capitalComparison.map(r => r.capital).filter(c => ALL_CAPS.includes(c) || c === recCap);
+  const availableCaps = summary.capitalComparison.map(r => r.capital);
 
   const filteredComps = compFilter === 'ALL' ? components
     : compFilter === 'ACTIVE' ? components.filter(c => ['ACTIVE', 'ROBUST', 'ACCEPTABLE'].includes(c.status))
@@ -314,7 +316,7 @@ export function WhiteSwanFinal() {
     { id: 'weights', label: 'Weights' },
     { id: 'costs', label: 'Costs' },
     { id: 'attribution', label: 'Attribution' },
-    { id: 'components', label: '17 Components' },
+    { id: 'components', label: `${summary.canonicalTotal ?? 17} Components` },
     { id: 'capital', label: 'Capital Table' },
   ] as const;
 
@@ -333,10 +335,17 @@ export function WhiteSwanFinal() {
               <div className="text-[10px] text-[#d4a843] tracking-[0.2em] uppercase mt-0.5">Final Optimized Portfolio</div>
             </div>
             <div className="flex flex-col items-end gap-1.5">
-              <div className="inline-flex items-center gap-1.5 border border-[#1a1a1a] rounded px-2.5 py-1.5 bg-[#050505]">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#1a3a1a]" />
+              <div className="inline-flex items-center gap-2 border border-[#1a1a1a] rounded px-2.5 py-1.5 bg-[#050505]">
+                <span className="text-[8px] text-[#2a6a2a] uppercase tracking-widest">
+                  {summary.tradableComponents ?? 15} tradable
+                </span>
+                <span className="text-[#1a1a1a]">·</span>
+                <span className="text-[8px] text-[#6a2a2a] uppercase tracking-widest">
+                  {summary.blockedComponents ?? 2} blocked
+                </span>
+                <span className="text-[#1a1a1a]">·</span>
                 <span className="text-[8px] text-[#333] uppercase tracking-widest">
-                  {summary.status ?? 'Research Complete'}
+                  {summary.canonicalTotal ?? 17} canonical
                 </span>
               </div>
               <div className="text-[8px] text-[#1e1e1e]">{summary.generatedAt ?? '2026-08-15'}</div>
@@ -637,17 +646,17 @@ export function WhiteSwanFinal() {
           <div className="space-y-3">
             <div className="flex gap-2 flex-wrap items-center">
               {[
-                { id: 'ALL', label: 'All 17' },
-                { id: 'ACTIVE', label: 'Active' },
+                { id: 'ALL', label: `All ${summary.canonicalTotal ?? 17}` },
+                { id: 'ACTIVE', label: `Tradable (${summary.tradableComponents ?? 15})` },
                 { id: 'LOW', label: 'Low Weight' },
-                { id: 'BLOCKED', label: 'Blocked/Proxy' },
+                { id: 'BLOCKED', label: `Blocked (${summary.blockedComponents ?? 2})` },
               ].map(f => (
                 <button key={f.id} onClick={() => setCompFilter(f.id)}
                   className={`text-[9px] px-2 py-0.5 rounded border ${compFilter === f.id ? 'border-[#d4a843] text-[#d4a843]' : 'border-[#111] text-[#333] hover:border-[#222]'}`}>
                   {f.label}
                 </button>
               ))}
-              <span className="text-[8px] text-[#1a1a1a] ml-auto">{filteredComps.length}/17</span>
+              <span className="text-[8px] text-[#1a1a1a] ml-auto">{filteredComps.length}/{summary.canonicalTotal ?? 17}</span>
             </div>
             <div className="overflow-x-auto border border-[#0d0d0d] rounded bg-[#030303]">
               <table className="w-full text-[10px] min-w-[860px]">
@@ -734,8 +743,8 @@ export function WhiteSwanFinal() {
 
         {/* ── Footer ──────────────────────────────────────────────────────── */}
         <div className="border-t border-[#080808] pt-4 text-[8px] text-[#111] space-y-0.5">
-          <div>WHITE SWAN FINAL v2 · Historical Backtest · Real Futures Data · IBKR Real Costs · No Simulation</div>
-          <div>Serkan: {summary.serkan?.path ?? 'workspace/output/white-swan/serkan/v2/'} · {summary.serkan?.rows ?? '—'} rows · {summary.generatedAt}</div>
+          <div>WHITE SWAN FINAL {summary.version ?? 'v3'} · Historical Backtest · Real Futures Data · IBKR Real Costs · No Simulation</div>
+          <div>Serkan: {summary.serkan?.path ?? 'workspace/output/white-swan/serkan/v3/'} · {summary.serkan?.rows ?? '—'} rows · {summary.generatedAt}</div>
           <div>IS 2008–2016 · OOS 2017–2026 · OOS19 2019–2026 · NOT financial advice</div>
         </div>
       </div>
