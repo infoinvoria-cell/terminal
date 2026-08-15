@@ -441,6 +441,7 @@ for (const capital of ALL_CAPITALS) {
     calmar: kpis.calmar, maxDD_Pct: kpis.maxDD_Pct, maxDD_EUR: kpis.maxDD_EUR,
     costAnnual: kpis.annualCosts, costPerNAV: kpis.annualCostPct,
     marginPct: Math.round(mPct * 100) / 100, weightError: opt?.weightError ?? null, endNAV: kpis.endNAV,
+    dataSource: 'CONFIRMED — Historical Backtest, PB Variant, IBKR Real Costs',
   });
 }
 

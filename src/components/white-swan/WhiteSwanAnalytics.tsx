@@ -1599,7 +1599,7 @@ export function WhiteSwanAnalytics() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold font-montserrat text-[#e2ca7a]">White Swan Capital Analytics</h1>
         <p className="text-[#737373] text-sm mt-1">
-          18.5-year simulation — 15 active strategies / 17 components — RESEARCH_CANDIDATE
+          18.5-year historical backtest — 15 active strategies / 17 components — RESEARCH_CANDIDATE
         </p>
       </div>
 

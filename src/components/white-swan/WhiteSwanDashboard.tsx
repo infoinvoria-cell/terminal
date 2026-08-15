@@ -283,7 +283,20 @@ function ContractWeightMatrix({ capDataMap }: { capDataMap: Record<number, Capit
             if (!d) return null;
             const c = d.contracts as unknown as Record<string, unknown>;
             const r = (c.realized as Record<string, number>) ?? {};
-            const rMap: Record<string, number> = { '6E': r['6E'] ?? 0, DAX1H: r.DAX1H ?? 0, DAX2H: r.DAX2H ?? 0, GLD: r.GLD ?? 0 };
+            // New data: derive realized weights from contract counts × known margin rates
+            const MRATES: Record<string, number> = { '6E': 2200, DAX1H: 880, DAX2H: 0, GLD: 822 }; // FDXS shared
+            const n6E  = (c.n_6E   ?? c.eurusd_30m        ?? 0) as number;
+            const nD1  = (c.n_FDXS1 ?? c.dax_1h           ?? 0) as number;
+            const nGLD = (c.n_MGC   ?? c.gld_thursday_long ?? 0) as number;
+            const totalM = (d.margin as {total?: number})?.total ?? (n6E*2200 + nD1*880 + nGLD*822);
+            const rMap: Record<string, number> = {
+              '6E':   r['6E']   ?? (totalM > 0 ? n6E * MRATES['6E']   / totalM * 100 : 0),
+              DAX1H:  r.DAX1H   ?? (totalM > 0 ? nD1 * MRATES['DAX1H'] / totalM * 100 : 0),
+              DAX2H:  r.DAX2H   ?? (totalM > 0 ? nD1 * MRATES['DAX1H'] / totalM * 100 : 0), // shared FDXS
+              GLD:    r.GLD     ?? (totalM > 0 ? nGLD * MRATES['GLD']  / totalM * 100 : 0),
+            };
+            const marginPct = (d.margin as {pct?: number})?.pct ?? (c.marginPct as number) ?? 0;
+            const weightError = (d.kpis as {weightError?: number})?.weightError ?? (c.weightError as number) ?? 0;
             const pass = d.assessment === 'PASS';
             return (
               <tr key={cap} className={`border-b border-[#1a1a1a] ${!pass ? 'opacity-60' : ''}`}>
@@ -304,10 +317,10 @@ function ContractWeightMatrix({ capDataMap }: { capDataMap: Record<number, Capit
                   );
                 })}
                 <td className="px-2 py-1.5 text-right font-mono text-[#d4a843] border-l border-[#1a1a1a]">
-                  {((c.weightError as number) ?? 0).toFixed(3)}
+                  {weightError.toFixed(3)}
                 </td>
-                <td className={`px-2 py-1.5 text-right font-mono ${(c.marginPct as number) > 30 ? 'text-red-400' : 'text-green-400'}`}>
-                  {((c.marginPct as number) ?? 0).toFixed(1)}%
+                <td className={`px-2 py-1.5 text-right font-mono ${marginPct > 30 ? 'text-red-400' : 'text-green-400'}`}>
+                  {marginPct.toFixed(1)}%
                 </td>
               </tr>
             );
@@ -527,13 +540,13 @@ function ComponentQualityGrid({ components }: { components: Component17[] }) {
               <tr key={c.id} className="border-b border-[#181818] hover:bg-[#111]">
                 <td className="px-2 py-1.5 text-[#ccc]">{c.label}</td>
                 <td className="px-2 py-1.5 text-[#888]">{c.sleeve}</td>
-                <td className="px-2 py-1.5 text-[#d4a843] font-mono text-[10px]">{c.instrument}</td>
-                <td className="px-2 py-1.5 text-[#666] text-[10px]">{c.exchange}</td>
-                <td className="px-2 py-1.5 text-right text-[#888]">€{c.ibkrCost.toFixed(2)}</td>
-                <td className="px-2 py-1.5 text-right text-[#888]">{c.margin > 0 ? fmtEUR(c.margin, 0) : '—'}</td>
-                <td className="px-2 py-1.5 text-right text-[#888]">{c.tradesYr.toFixed(1)}</td>
-                <td className="px-2 py-1.5 text-[#666] text-[10px]">{c.wf}</td>
-                <td className="px-2 py-1.5 text-[#555] text-[9px]">{c.dataQuality}</td>
+                <td className="px-2 py-1.5 text-[#d4a843] font-mono text-[10px]">{c.instrument ?? (c as unknown as Record<string,string>).symbol ?? '—'}</td>
+                <td className="px-2 py-1.5 text-[#666] text-[10px]">{c.exchange ?? '—'}</td>
+                <td className="px-2 py-1.5 text-right text-[#888]">€{(c.ibkrCost ?? 0).toFixed(2)}</td>
+                <td className="px-2 py-1.5 text-right text-[#888]">{(c.margin ?? 0) > 0 ? fmtEUR(c.margin ?? 0, 0) : '—'}</td>
+                <td className="px-2 py-1.5 text-right text-[#888]">{(c.tradesYr ?? (c as unknown as Record<string,number>).tradesTotal ?? 0).toFixed(1)}</td>
+                <td className="px-2 py-1.5 text-[#666] text-[10px]">{c.wf ?? '—'}</td>
+                <td className="px-2 py-1.5 text-[#555] text-[9px]">{c.dataQuality ?? '—'}</td>
                 <td className="px-2 py-1.5">
                   <span className="text-[9px] font-semibold" style={{ color: STATUS_COLOR[c.status] }}>
                     {c.status}
@@ -587,21 +600,24 @@ function CapitalRecommendations({ recs }: { recs: SummaryData['recommendations']
 
 // ─── Section: Margin Usage ────────────────────────────────────────────────────
 function MarginUsage({ cap, capData }: { cap: number; capData: CapitalData }) {
-  const m = capData.margin as {
-    total: number; pct: number; freeCash: number;
-    byInstrument: Record<string, { contracts: number; perContract: number; total: number }>;
-  };
+  const m = capData.margin as { total: number; pct: number; freeCash: number; byInstrument?: Record<string, { contracts: number; perContract: number; total: number }> };
+  const c = capData.contracts as unknown as Record<string, number>;
+
+  // IBKR margin rates (EUR) from confirmed data — shared FDXS for D1H+D2H
+  const MARGIN_RATES: Record<string, number> = { '6E': 2200, 'FDXS': 880, 'MGC': 822 };
+  const n6E   = c.n_6E   ?? c.eurusd_30m        ?? 0;
+  const nFDXS = c.n_FDXS1 ?? c.dax_1h           ?? 0; // shared
+  const nMGC  = c.n_MGC   ?? c.gld_thursday_long ?? 0;
 
   const instruments = [
-    { key: '6E',   label: '6E (EURUSD)',   n: capData.contracts.n_6E,    color: '#d4a843' },
-    { key: 'FDXS1',label: 'FDXS (DAX1H)', n: capData.contracts.n_FDXS1, color: '#3b82f6' },
-    { key: 'FDXS2',label: 'FDXS (DAX2H)', n: capData.contracts.n_FDXS2, color: '#22c55e' },
-    { key: 'MGC',  label: 'MGC (Gold)',    n: capData.contracts.n_MGC,   color: '#8b5cf6' },
+    { key: '6E',   label: 'M6E (EURUSD)',  n: n6E,   perContract: MARGIN_RATES['6E'],   color: '#d4a843' },
+    { key: 'FDXS', label: 'FDXS (shared)', n: nFDXS, perContract: MARGIN_RATES['FDXS'], color: '#3b82f6' },
+    { key: 'MGC',  label: 'MGC (Gold)',    n: nMGC,  perContract: MARGIN_RATES['MGC'],  color: '#8b5cf6' },
   ];
 
   const barData = instruments.map(ins => ({
     name: ins.label,
-    margin: m.byInstrument[ins.key]?.total ?? 0,
+    margin: m.byInstrument?.[ins.key]?.total ?? ins.n * ins.perContract,
     contracts: ins.n,
     color: ins.color,
   }));
@@ -626,13 +642,12 @@ function MarginUsage({ cap, capData }: { cap: number; capData: CapitalData }) {
         </div>
         <div className="mt-3 space-y-1">
           {instruments.map(ins => {
-            const total = m.byInstrument[ins.key]?.total ?? 0;
-            const perContract = m.byInstrument[ins.key]?.perContract ?? 0;
+            const total = m.byInstrument?.[ins.key]?.total ?? ins.n * ins.perContract;
             return (
               <div key={ins.key} className="flex items-center gap-2 text-xs">
                 <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: ins.color }} />
                 <span className="text-[#888] w-28">{ins.label}</span>
-                <span className="text-[#555] text-[10px]">{ins.n}× €{perContract.toLocaleString()}</span>
+                <span className="text-[#555] text-[10px]">{ins.n}× €{ins.perContract.toLocaleString()}</span>
                 <span className="text-[#ccc] ml-auto font-mono">{fmtEUR(total, 0)}</span>
               </div>
             );
@@ -758,18 +773,20 @@ export default function WhiteSwanDashboard() {
           <div className="mt-3 flex flex-wrap gap-3 text-xs">
             <span className="text-[#555]">Contracts:</span>
             {[
-              { label: '6E', n: primaryContracts.n_6E, color: '#d4a843' },
-              { label: 'FDXS (D1H)', n: primaryContracts.n_FDXS1, color: '#3b82f6' },
-              { label: 'FDXS (D2H)', n: primaryContracts.n_FDXS2, color: '#22c55e' },
-              { label: 'MGC', n: primaryContracts.n_MGC, color: '#8b5cf6' },
+              { label: '6E/M6E', n: primaryContracts.n_6E ?? primaryContracts.eurusd_30m, color: '#d4a843' },
+              { label: 'FDXS (D1H)', n: primaryContracts.n_FDXS1 ?? primaryContracts.dax_1h, color: '#3b82f6' },
+              { label: 'FDXS (D2H)', n: primaryContracts.n_FDXS2 ?? primaryContracts.dax_2h, color: '#22c55e' },
+              { label: 'MGC', n: primaryContracts.n_MGC ?? primaryContracts.gld_thursday_long, color: '#8b5cf6' },
             ].map(ins => (
               <span key={ins.label} className="flex items-center gap-1">
-                <span className="font-bold text-sm" style={{ color: ins.color }}>{ins.n}×</span>
+                <span className="font-bold text-sm" style={{ color: ins.color }}>{ins.n ?? 0}×</span>
                 <span className="text-[#666]">{ins.label}</span>
               </span>
             ))}
             <span className="text-[#555]">·</span>
-            <span className="text-[#666]">Margin: <span className={`font-mono ${(primaryContracts.marginPct ?? 0) > 30 ? 'text-red-400' : 'text-green-400'}`}>{(primaryContracts.marginPct ?? 0).toFixed(1)}%</span></span>
+            {(() => { const mp = (primaryData?.margin as {pct?: number})?.pct ?? primaryContracts.marginPct ?? 0; return (
+            <span className="text-[#666]">Margin: <span className={`font-mono ${mp > 30 ? 'text-red-400' : 'text-green-400'}`}>{mp.toFixed(1)}%</span></span>
+            ); })()}
             <span className="text-[#555]">·</span>
             <span className="text-[#666]">Weight error: <span className="font-mono text-[#d4a843]">{(primaryContracts.weightError ?? 0).toFixed(3)}</span></span>
           </div>
