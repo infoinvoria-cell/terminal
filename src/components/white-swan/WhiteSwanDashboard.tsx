@@ -62,8 +62,8 @@ interface SummaryData {
   repairGateStatus?: {
     assessed: string; mandate: string;
     eurusdGate: string; eurusdCandidate: string;
-    gldGate: string; gldVerdict: string; zwVerdict: string;
-    overallStatus: string; blockingReason: string;
+    gldGate: string; gldCandidate?: string; gldVerdict?: string; zwVerdict: string;
+    overallStatus: string; blockingReason?: string; note?: string;
   };
   repairGateComparison?: {
     eurusd_30m: { baseline: RepairBaselineRow; candidate: RepairCandidateRow };
@@ -594,8 +594,8 @@ function RepairGatePanel({ gate, comparison }: { gate: SummaryData['repairGateSt
 
       <div className="grid grid-cols-3 gap-3 mb-4">
         {[
-          { label: 'EURUSD 30M', passed: eurusdPassed, detail: gate.eurusdGate },
-          { label: 'GLD Thursday Long', passed: gldPassed, detail: gate.gldGate },
+          { label: 'EURUSD 30M', passed: eurusdPassed, detail: eurusdPassed ? gate.eurusdCandidate : gate.eurusdGate },
+          { label: 'GLD Thursday Long', passed: gldPassed, detail: gldPassed ? (gate.gldCandidate ?? gate.gldGate) : gate.gldGate },
           { label: 'ZW Seasonal', passed: false, detail: gate.zwVerdict },
         ].map(g => (
           <div key={g.label} className={`border rounded p-2.5 ${g.passed ? 'border-green-900/50 bg-green-950/20' : 'border-red-900/50 bg-red-950/20'}`}>
@@ -653,12 +653,27 @@ function RepairGatePanel({ gate, comparison }: { gate: SummaryData['repairGateSt
                 </div>
               </div>
               <div>
-                <div className="text-[9px] text-[#555] mb-1">BEST ATTEMPT (IS Mon filter)</div>
+                <div className="text-[9px] text-[#555] mb-1">
+                  {(comparison.gld_thursday_long as unknown as Record<string,unknown>).candidate ? 'CANDIDATE' : 'BEST ATTEMPT'}
+                </div>
                 <div className="text-[9px] text-[#666] space-y-0.5">
-                  <div>{comparison.gld_thursday_long.bestAttempt.label}</div>
-                  <div>IS <span className="text-green-400">€{comparison.gld_thursday_long.bestAttempt.isNet}</span> → OOS <span className="text-red-400">€{comparison.gld_thursday_long.bestAttempt.oosNet}</span></div>
-                  <div className="text-red-400">{comparison.gld_thursday_long.bestAttempt.status}</div>
-                  <div className="text-[9px] text-[#444]">{comparison.gld_thursday_long.bestAttempt.reason}</div>
+                  {(() => {
+                    const cand = (comparison.gld_thursday_long as unknown as Record<string,RepairCandidateRow & {note?:string}>).candidate;
+                    const att  = comparison.gld_thursday_long.bestAttempt;
+                    if (cand) return <>
+                      <div>{cand.label}</div>
+                      <div>n={cand.n} · Net <span className="text-green-400 font-mono">€{cand.netEUR}</span></div>
+                      <div>IS <span className="text-green-400">€{cand.isNet}</span> · OOS <span className="text-green-400">€{cand.oosNet}</span> · PF={cand.profitFactor}</div>
+                      <div className="text-green-400">{cand.status}</div>
+                      {cand.note && <div className="text-[#444]">{cand.note}</div>}
+                    </>;
+                    return <>
+                      <div>{att.label}</div>
+                      <div>IS <span className="text-green-400">€{att.isNet}</span> → OOS <span className="text-red-400">€{att.oosNet}</span></div>
+                      <div className="text-red-400">{att.status}</div>
+                      <div className="text-[9px] text-[#444]">{att.reason}</div>
+                    </>;
+                  })()}
                 </div>
               </div>
             </div>
@@ -667,9 +682,28 @@ function RepairGatePanel({ gate, comparison }: { gate: SummaryData['repairGateSt
           {/* ZW */}
           <div className="bg-[#0d0d0d] border border-[#2a2a2a] rounded p-3">
             <div className="text-[10px] text-[#d4a843] font-semibold mb-2">ZW Seasonal</div>
-            <div className="text-[9px] text-[#666] space-y-0.5">
-              <div>n={comparison.zw_seasonal.baseline.n} · Net <span className="text-red-400 font-mono">€{comparison.zw_seasonal.baseline.netEUR}</span> · 1 trade/year</div>
-              <div className="text-red-400">{comparison.zw_seasonal.verdict}</div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <div className="text-[9px] text-[#555] mb-1">BASELINE (old all-trades.json)</div>
+                <div className="text-[9px] text-[#666] space-y-0.5">
+                  <div>n={comparison.zw_seasonal.baseline.n} · Net <span className="text-red-400 font-mono">€{comparison.zw_seasonal.baseline.netEUR}</span></div>
+                  <div className="text-red-500">{comparison.zw_seasonal.baseline.status}</div>
+                </div>
+              </div>
+              <div>
+                <div className="text-[9px] text-[#555] mb-1">CANDIDATE (real CBOT ZW OHLCV)</div>
+                <div className="text-[9px] text-[#666] space-y-0.5">
+                  {(() => {
+                    const cand = (comparison.zw_seasonal as unknown as Record<string, RepairCandidateRow>).candidate;
+                    if (cand) return <>
+                      <div>{cand.label}</div>
+                      <div>Net <span className="text-green-400 font-mono">€{cand.netEUR}</span> · IS <span className="text-green-400">€{cand.isNet}</span> · OOS <span className="text-green-400">€{cand.oosNet}</span></div>
+                      <div className="text-yellow-400">{cand.status}</div>
+                    </>;
+                    return <div className="text-[#555]">{comparison.zw_seasonal.verdict}</div>;
+                  })()}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1088,9 +1122,16 @@ export default function WhiteSwanDashboard() {
 
       {/* Footer */}
       <div className="border-t border-[#1a1a1a] pt-4 text-[9px] text-[#333] space-y-1">
-        <p>Status: RESEARCH_CANDIDATE — Not FINAL. Keine Production-Ground-Truth überschrieben.</p>
-        <p>Historical Backtest — Real trade reconstruction from all-trades.json (2008–2026). IBKR costs confirmed 2026-08-14. All capitals use real NAV series.</p>
-        <p>EEM component DATA_BLOCKED (CME EMF delisted 2019). IWM via M2K SOLVABLE but signal not yet computed.</p>
+        <p>
+          Status:{' '}
+          {summary.repairGateStatus?.overallStatus === 'GATES_PASSED'
+            ? <span className="text-green-600">GATES PASSED — RESEARCH_CANDIDATE</span>
+            : <span className="text-orange-600">PARTIAL_BLOCKED</span>}
+          {' '}— Keine Production-Ground-Truth überschrieben.
+        </p>
+        <p>EURUSD gate: {summary.repairGateStatus?.eurusdGate} · GLD gate: {summary.repairGateStatus?.gldGate} · ZW: {summary.repairGateStatus?.zwVerdict?.slice(0,40)}…</p>
+        <p>GLD: Real GC continuous futures (Yahoo Finance 2008–2026). ZW: Real CBOT ZW1 (TradingView). E6/DAX/YM1/CC: IBKR all-trades.json.</p>
+        <p>EEM component DATA_BLOCKED (CME EMF delisted 2019). IWM via M2K SOLVABLE but signal not yet computed. Min viable capital: €30,000.</p>
       </div>
     </div>
   );

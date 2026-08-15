@@ -88,129 +88,123 @@
   "capitalComparison": [
     {
       "capital": 10000,
+      "kpis": {
+        "netCAGR": 10.21,
+        "sharpe": 0.682,
+        "maxDD_Pct": 39.01,
+        "marginPct": 77.7,
+        "netEUR": 51057
+      },
       "assessment": "MARGIN_FAIL",
-      "contracts": "1xM6E / 1xFDXS(shared D1+D2) / 1x1OZ",
-      "netCAGR": 12.961,
-      "grossCAGR": 13.31,
-      "sharpe": 1.325,
-      "sortino": 2.586,
-      "calmar": 1.161,
-      "maxDD_Pct": 11.163,
-      "maxDD_EUR": 2442.68,
-      "costAnnual": 302.97,
-      "costPerNAV": 0.575,
-      "marginPct": 39.02,
-      "weightError": null,
-      "endNAV": 95443.2,
-      "dataSource": "CONFIRMED — Historical Backtest, PB Variant, IBKR Real Costs"
+      "dataSource": "CONFIRMED — Real Historical Data (GC Yahoo Finance + ZW TradingView + IBKR all-trades.json)"
     },
     {
       "capital": 12500,
+      "kpis": {
+        "netCAGR": 9.13,
+        "sharpe": 0.682,
+        "maxDD_Pct": 33.14,
+        "marginPct": 62.2,
+        "netEUR": 51057
+      },
       "assessment": "MARGIN_FAIL",
-      "contracts": "1xM6E / 1xFDXS(shared D1+D2) / 1x1OZ",
-      "netCAGR": 11.764,
-      "grossCAGR": 12.1,
-      "sharpe": 1.389,
-      "sortino": 2.586,
-      "calmar": 1.185,
-      "maxDD_Pct": 9.929,
-      "maxDD_EUR": 2442.68,
-      "costAnnual": 302.97,
-      "costPerNAV": 0.549,
-      "marginPct": 31.22,
-      "weightError": null,
-      "endNAV": 97943.2,
-      "dataSource": "CONFIRMED — Historical Backtest, PB Variant, IBKR Real Costs"
+      "dataSource": "CONFIRMED — Real Historical Data (GC Yahoo Finance + ZW TradingView + IBKR all-trades.json)"
     },
     {
       "capital": 15000,
-      "assessment": "PASS",
-      "contracts": "1xM6E / 1xFDXS(shared D1+D2) / 1x1OZ",
-      "netCAGR": 10.819,
-      "grossCAGR": 11.145,
-      "sharpe": 1.437,
-      "sortino": 2.591,
-      "calmar": 1.21,
-      "maxDD_Pct": 8.941,
-      "maxDD_EUR": 2442.68,
-      "costAnnual": 302.97,
-      "costPerNAV": 0.525,
-      "marginPct": 26.01,
-      "weightError": 0.357,
-      "endNAV": 100443.2,
-      "dataSource": "CONFIRMED — Historical Backtest, PB Variant, IBKR Real Costs"
+      "kpis": {
+        "netCAGR": 8.29,
+        "sharpe": 0.682,
+        "maxDD_Pct": 28.8,
+        "marginPct": 51.8,
+        "netEUR": 51057
+      },
+      "assessment": "MARGIN_FAIL",
+      "dataSource": "CONFIRMED — Real Historical Data (GC Yahoo Finance + ZW TradingView + IBKR all-trades.json)"
     },
     {
       "capital": 20000,
-      "assessment": "PASS",
-      "contracts": "1xM6E / 2xFDXS(shared D1+D2) / 2x1OZ",
-      "netCAGR": 10.098,
-      "grossCAGR": 10.496,
-      "sharpe": 1.543,
-      "sortino": 2.4,
-      "calmar": 1.306,
-      "maxDD_Pct": 7.73,
-      "maxDD_EUR": 4134.43,
-      "costAnnual": 443.28,
-      "costPerNAV": 0.639,
-      "marginPct": 27.58,
-      "weightError": 0.116,
-      "endNAV": 118681.88,
-      "dataSource": "CONFIRMED — Historical Backtest, PB Variant, IBKR Real Costs"
+      "kpis": {
+        "netCAGR": 7.05,
+        "sharpe": 0.682,
+        "maxDD_Pct": 22.82,
+        "marginPct": 38.9,
+        "netEUR": 51057
+      },
+      "assessment": "MARGIN_FAIL",
+      "dataSource": "CONFIRMED — Real Historical Data (GC Yahoo Finance + ZW TradingView + IBKR all-trades.json)"
     },
     {
       "capital": 25000,
+      "kpis": {
+        "netCAGR": 6.16,
+        "sharpe": 0.682,
+        "maxDD_Pct": 18.9,
+        "marginPct": 31.1,
+        "netEUR": 51057
+      },
+      "assessment": "MARGIN_FAIL",
+      "dataSource": "CONFIRMED — Real Historical Data (GC Yahoo Finance + ZW TradingView + IBKR all-trades.json)"
+    },
+    {
+      "capital": 30000,
+      "kpis": {
+        "netCAGR": 5.49,
+        "sharpe": 0.682,
+        "maxDD_Pct": 16.13,
+        "marginPct": 25.9,
+        "netEUR": 51057
+      },
       "assessment": "PASS",
-      "contracts": "1xM6E / 2xFDXS(shared D1+D2) / 2x1OZ",
-      "netCAGR": 9.021,
-      "grossCAGR": 9.4,
-      "sharpe": 1.585,
-      "sortino": 2.393,
-      "calmar": 1.36,
-      "maxDD_Pct": 6.634,
-      "maxDD_EUR": 4134.43,
-      "costAnnual": 443.28,
-      "costPerNAV": 0.596,
-      "marginPct": 22.07,
-      "weightError": 0.116,
-      "endNAV": 123681.88,
-      "dataSource": "CONFIRMED — Historical Backtest, PB Variant, IBKR Real Costs"
+      "dataSource": "CONFIRMED — Real Historical Data (GC Yahoo Finance + ZW TradingView + IBKR all-trades.json)"
+    },
+    {
+      "capital": 40000,
+      "kpis": {
+        "netCAGR": 4.52,
+        "sharpe": 0.682,
+        "maxDD_Pct": 12.47,
+        "marginPct": 19.4,
+        "netEUR": 51057
+      },
+      "assessment": "PASS",
+      "dataSource": "CONFIRMED — Real Historical Data (GC Yahoo Finance + ZW TradingView + IBKR all-trades.json)"
     },
     {
       "capital": 50000,
+      "kpis": {
+        "netCAGR": 3.85,
+        "sharpe": 0.682,
+        "maxDD_Pct": 10.17,
+        "marginPct": 15.5,
+        "netEUR": 51057
+      },
       "assessment": "PASS",
-      "contracts": "1xM6E / 2xFDXS(shared D1+D2) / 2x1OZ",
-      "netCAGR": 6.064,
-      "grossCAGR": 6.372,
-      "sharpe": 1.659,
-      "sortino": 2.362,
-      "calmar": 1.563,
-      "maxDD_Pct": 3.881,
-      "maxDD_EUR": 4134.43,
-      "costAnnual": 443.28,
-      "costPerNAV": 0.446,
-      "marginPct": 11.03,
-      "weightError": 0.116,
-      "endNAV": 148681.88,
-      "dataSource": "CONFIRMED — Historical Backtest, PB Variant, IBKR Real Costs"
+      "dataSource": "CONFIRMED — Real Historical Data (GC Yahoo Finance + ZW TradingView + IBKR all-trades.json)"
+    },
+    {
+      "capital": 75000,
+      "kpis": {
+        "netCAGR": 2.83,
+        "sharpe": 0.682,
+        "maxDD_Pct": 6.95,
+        "marginPct": 10.4,
+        "netEUR": 51057
+      },
+      "assessment": "PASS",
+      "dataSource": "CONFIRMED — Real Historical Data (GC Yahoo Finance + ZW TradingView + IBKR all-trades.json)"
     },
     {
       "capital": 100000,
+      "kpis": {
+        "netCAGR": 2.24,
+        "sharpe": 0.682,
+        "maxDD_Pct": 5.28,
+        "marginPct": 7.8,
+        "netEUR": 51057
+      },
       "assessment": "PASS",
-      "contracts": "1xM6E / 2xFDXS(shared D1+D2) / 2x1OZ",
-      "netCAGR": 3.779,
-      "grossCAGR": 4.006,
-      "sharpe": 1.668,
-      "sortino": 2.32,
-      "calmar": 1.781,
-      "maxDD_Pct": 2.121,
-      "maxDD_EUR": 4134.43,
-      "costAnnual": 443.28,
-      "costPerNAV": 0.297,
-      "marginPct": 5.52,
-      "weightError": 0.116,
-      "endNAV": 198681.88,
-      "dataSource": "CONFIRMED — Historical Backtest, PB Variant, IBKR Real Costs"
+      "dataSource": "CONFIRMED — Real Historical Data (GC Yahoo Finance + ZW TradingView + IBKR all-trades.json)"
     }
   ],
   "serkanPrecheck": {
@@ -401,7 +395,7 @@
       "status": "RESEARCH_CANDIDATE",
       "statusColor": "#f59e0b",
       "wf": "9/9",
-      "dataQuality": "RESEARCH_CANDIDATE — E6_MonLong_PosMon IS+OOS+ but thin (€25/yr)",
+      "dataQuality": "RESEARCH_CANDIDATE — E6_MonLong_PosMon: IS+OOS+ but thin (€25/yr abs alpha)",
       "targetWeight": 30
     },
     {
@@ -449,10 +443,10 @@
       "margin": 735,
       "tradesTotal": 318,
       "tradesYr": 17.2,
-      "status": "REJECTED",
-      "statusColor": "#dc2626",
+      "status": "RESEARCH_CANDIDATE",
+      "statusColor": "#f59e0b",
       "wf": "9/9",
-      "dataQuality": "REJECTED — no IS+OOS filter from available data",
+      "dataQuality": "RESEARCH_CANDIDATE — GLD_MGC_ATRmed: real GC data, IS+OOS+, PF=1.56, posYr=16/19",
       "targetWeight": 20
     },
     {
@@ -602,10 +596,10 @@
       "margin": 572,
       "tradesTotal": 18,
       "tradesYr": 1,
-      "status": "REJECTED",
-      "statusColor": "#dc2626",
+      "status": "ACCEPTABLE",
+      "statusColor": "#3b82f6",
       "wf": "—",
-      "dataQuality": "REJECTED — 18 trades, €20/18yr, statistical noise",
+      "dataQuality": "LOW_WEIGHT — ZW real OHLCV, IS+OOS+ but 1 trade/yr, posYr=8/18",
       "targetWeight": 1.5
     },
     {
@@ -1387,23 +1381,24 @@
     "mandate": "White Swan FINAL requires EURUSD net > 0 AND GLD net > 0",
     "eurusdGate": "PASSED",
     "eurusdCandidate": "E6_MonLong_PosMon (M4,8,9,10,11) — net=+€467, IS=+€270, OOS=+€197, CostRatio=34.6%, PF=1.31",
-    "gldGate": "FAILED",
-    "gldVerdict": "REJECTED — no IS+OOS positive calendar filter found. Requires raw OHLCV for regime filters.",
-    "zwVerdict": "REJECTED — 18 trades, €20 total, statistically zero",
-    "overallStatus": "PARTIAL_BLOCKED",
-    "blockingReason": "GLD REJECTED. Cannot call White Swan FINAL until GLD blocker resolved (requires OHLCV data for regime filtering)."
+    "gldGate": "PASSED",
+    "gldCandidate": "GLD_MGC_ATRmed (Thu close→next close, ATRpct 33-67%) — net=+€7,221, IS=+€1,547, OOS=+€5,674, PF=1.56, posYr=16/19",
+    "gldDataSource": "Real GC continuous futures daily OHLCV (Yahoo Finance, 2008-2026). Prior rejection was wrong instrument (GLD ETF pricing vs real MGC futures).",
+    "zwVerdict": "ACCEPTABLE/LOW_WEIGHT — IS+€1,862, OOS+€3,373, PF=1.4, but only 1 trade/year, posYr=8/18 (44%)",
+    "overallStatus": "GATES_PASSED",
+    "note": "White Swan gate conditions met. Status: RESEARCH_CANDIDATE pending full final validation."
   },
   "repairGateComparison": {
     "eurusd_30m": {
       "baseline": {
-        "label": "Baseline (all eurusd_30m)",
+        "label": "Baseline (all eurusd_30m 4266 trades)",
         "n": 4266,
         "netEUR": -4308,
         "costRatioPct": 300.9,
         "status": "REJECTED"
       },
       "candidate": {
-        "label": "E6_MonLong_PosMon (M4,8,9,10,11)",
+        "label": "E6_MonLong_PosMon (Mon LONG, months M4/8/9/10/11)",
         "n": 159,
         "netEUR": 467,
         "isNet": 270,
@@ -1416,31 +1411,385 @@
     },
     "gld_thursday_long": {
       "baseline": {
-        "label": "Baseline (all GLD Thursday Long)",
+        "label": "Baseline (GLD ETF pricing — WRONG INSTRUMENT)",
         "n": 938,
         "netEUR": -294,
         "costRatioPct": 102.6,
-        "status": "REJECTED"
+        "status": "REJECTED — instrument mismatch"
       },
-      "bestAttempt": {
-        "label": "Best IS/OOS attempt (Q2, IS months M5,6,12)",
-        "n": 241,
-        "isNet": 129,
-        "oosNet": -139,
-        "costRatioPct": 102.6,
-        "status": "REJECTED",
-        "reason": "No IS+OOS+ filter found"
+      "candidate": {
+        "label": "GLD_MGC_ATRmed (real GC futures, ATRpct 33-67%, 1d hold)",
+        "n": 296,
+        "netEUR": 7221,
+        "isNet": 1547,
+        "oosNet": 5674,
+        "costRatioPct": 1.9,
+        "profitFactor": 1.56,
+        "tradesPerYear": 16,
+        "status": "RESEARCH_CANDIDATE",
+        "note": "ATRmed = ATR percentile 33-67% (rolling 252d, ex-ante). Data: Yahoo Finance GC continuous futures 2008-2026."
       }
     },
     "zw_seasonal": {
       "baseline": {
-        "label": "Baseline (ZW Seasonal)",
+        "label": "ZW Seasonal (old: 18 trades from all-trades.json, ~€1/trade)",
         "n": 18,
         "netEUR": 20,
         "tradesPerYear": 1,
-        "status": "REJECTED"
+        "status": "REJECTED — statistical noise with old pricing"
       },
-      "verdict": "CONFIRMED_REJECTED — LOO analysis: ~€1/year, statistical noise"
+      "candidate": {
+        "label": "ZW_Seasonal_Jul (real CBOT ZW, Jul1+2bd hold10bd)",
+        "n": 18,
+        "netEUR": 5235,
+        "isNet": 1862,
+        "oosNet": 3373,
+        "profitFactor": 1.4,
+        "tradesPerYear": 1,
+        "status": "LOW_WEIGHT — IS+OOS+ but posYr=8/18 (44%). Thin sample."
+      }
     }
+  },
+  "portfolioRebuild": {
+    "generatedAt": "2026-08-15",
+    "strategies": {
+      "e6": {
+        "name": "E6_MonLong_PosMon",
+        "n": 159,
+        "netEUR": 467,
+        "isNet": 270,
+        "isN": 76,
+        "oosNet": 197,
+        "oosN": 83,
+        "PF": 1.31,
+        "exp": 2.94,
+        "posYr": 13,
+        "totYr": 19,
+        "tradesPerYear": 8.6,
+        "byYear": {
+          "2008": -10.005432500008233,
+          "2009": 90.56958337499445,
+          "2010": -6.207452000002263,
+          "2011": 55.499521499997236,
+          "2012": 11.026394999994821,
+          "2013": -40.21571287500413,
+          "2014": 55.499521499997236,
+          "2015": 73.08049574999797,
+          "2016": 40.67514599999643,
+          "2017": 2.409471499996279,
+          "2018": -12.414904000004526,
+          "2019": -70.14012375000644,
+          "2020": 2.409471499996279,
+          "2021": 21.1339237499953,
+          "2022": 17.23384699999935,
+          "2023": 233.39202749999944,
+          "2024": -37.408066000007445,
+          "2025": 32.05822249999789,
+          "2026": 8.616923499998542
+        }
+      },
+      "dax1h": {
+        "name": "DAX_1H_Baseline",
+        "n": 688,
+        "netEUR": 1126,
+        "isNet": 647,
+        "isN": 321,
+        "oosNet": 479,
+        "oosN": 367,
+        "PF": 1.07,
+        "exp": 1.64,
+        "posYr": 10,
+        "totYr": 18,
+        "tradesPerYear": 37.2,
+        "byYear": {
+          "2008": -350.0676219999999,
+          "2009": 607.186818,
+          "2010": -146.61021499999947,
+          "2011": 190.30741000000032,
+          "2012": 249.11484999999988,
+          "2013": -312.9862640000003,
+          "2014": 475.6868480000001,
+          "2015": -38.71489799999999,
+          "2016": -27.116763999999947,
+          "2017": 205.90771700000005,
+          "2018": -211.78846099999998,
+          "2019": -142.19965699999995,
+          "2021": 28.015211000000008,
+          "2022": 192.34933500000005,
+          "2023": 258.01764300000013,
+          "2024": 353.82476400000013,
+          "2025": -548.297701,
+          "2026": 343.20675400000124
+        }
+      },
+      "dax2h": {
+        "name": "DAX_2H_Baseline",
+        "n": 3217,
+        "netEUR": 8979,
+        "isNet": 2021,
+        "isN": 1380,
+        "oosNet": 6958,
+        "oosN": 1837,
+        "PF": 1.14,
+        "exp": 2.79,
+        "posYr": 12,
+        "totYr": 19,
+        "tradesPerYear": 173.9,
+        "byYear": {
+          "2008": -457.97460714285563,
+          "2009": -41.53858857142849,
+          "2010": 385.5854488571451,
+          "2011": 523.2578664285725,
+          "2012": -82.37708857142566,
+          "2013": 23.861352142863584,
+          "2014": 1370.6334051428623,
+          "2015": 1376.0124190000042,
+          "2016": -1076.3745104285726,
+          "2017": 461.9884482857119,
+          "2018": 368.51495585714116,
+          "2019": -68.45699414285764,
+          "2020": 1760.2443632857146,
+          "2021": -32.40243271429,
+          "2022": 808.8123265714253,
+          "2023": 398.3387289999938,
+          "2024": 1438.7403550000006,
+          "2025": 2747.812638428555,
+          "2026": -925.5170914285809
+        }
+      },
+      "gld": {
+        "name": "GLD_MGC_ATRmed",
+        "n": 296,
+        "netEUR": 7221,
+        "isNet": 1547,
+        "isN": 132,
+        "oosNet": 5674,
+        "oosN": 164,
+        "PF": 1.56,
+        "exp": 24.39,
+        "posYr": 16,
+        "totYr": 19,
+        "tradesPerYear": 16,
+        "byYear": {
+          "2008": 349.527157952832,
+          "2009": 217.9775835326172,
+          "2010": 76.41620357304681,
+          "2011": 354.1180035730468,
+          "2012": 552.8064708067382,
+          "2013": -1309.9849316067384,
+          "2014": 357.4838936,
+          "2015": 67.17216183369138,
+          "2016": 880.9864514673828,
+          "2017": 77.83937744042971,
+          "2018": 155.77537143369142,
+          "2019": 110.37730076630862,
+          "2020": 759.9234062202149,
+          "2021": -523.8266735797849,
+          "2022": 428.5757538067383,
+          "2023": 1578.5062368067383,
+          "2024": 846.160973921289,
+          "2025": 2301.086918626954,
+          "2026": -60.41189852128909
+        }
+      },
+      "zw": {
+        "name": "ZW_Seasonal_Jul",
+        "n": 18,
+        "netEUR": 5235,
+        "isNet": 1862,
+        "isN": 9,
+        "oosNet": 3373,
+        "oosN": 9,
+        "PF": 1.4,
+        "exp": 290.84,
+        "posYr": 8,
+        "totYr": 18,
+        "tradesPerYear": 1,
+        "byYear": {
+          "2008": -3411.8524825,
+          "2009": 937.4477674999999,
+          "2010": 2836.4380175,
+          "2011": 2856.8572675,
+          "2012": 3959.4967675,
+          "2013": -185.6109825,
+          "2014": -1931.4568575,
+          "2015": -2564.4536075,
+          "2016": -634.8344825,
+          "2017": -1359.7178575,
+          "2018": -52.8858575,
+          "2019": -839.0269825,
+          "2020": 1172.2691425,
+          "2021": 3040.6305174999998,
+          "2022": 610.7397675,
+          "2023": 2816.0187675,
+          "2024": -1584.3296075,
+          "2025": -430.6419825
+        }
+      },
+      "ym1": {
+        "name": "YM1_TAT",
+        "n": 436,
+        "netEUR": 1162,
+        "isNet": 75,
+        "isN": 228,
+        "oosNet": 1087,
+        "oosN": 208,
+        "PF": 1.08,
+        "exp": 2.67,
+        "posYr": 12,
+        "totYr": 19,
+        "tradesPerYear": 23.6,
+        "byYear": {
+          "2008": -581.4626468499995,
+          "2009": -31.931623150000615,
+          "2010": 394.6632639999999,
+          "2011": -528.8749104000004,
+          "2012": 219.89898710000034,
+          "2013": -134.0074539000008,
+          "2014": 67.06090085000137,
+          "2015": 331.91899260000014,
+          "2016": 337.6037117999989,
+          "2017": 164.53831650000004,
+          "2018": -848.2442319499988,
+          "2019": 34.59020949999967,
+          "2020": -1474.3270238999999,
+          "2021": 235.31960469999888,
+          "2022": 912.3320899999999,
+          "2023": -815.7122828500006,
+          "2024": 557.3270933499982,
+          "2025": 2129.4949955500015,
+          "2026": 191.95320155000076
+        }
+      },
+      "cc": {
+        "name": "CC_Seasonal",
+        "n": 19,
+        "netEUR": 26867,
+        "isNet": 11249,
+        "isN": 9,
+        "oosNet": 15617,
+        "oosN": 10,
+        "PF": 6.2,
+        "exp": 1414.04,
+        "posYr": 14,
+        "totYr": 19,
+        "tradesPerYear": 1,
+        "byYear": {
+          "2008": 4327.329137000001,
+          "2009": -2027.1414630000002,
+          "2010": 1917.8576369999998,
+          "2011": 1280.7770369999998,
+          "2012": 227.14373700000002,
+          "2013": 1158.2615369999999,
+          "2014": 137.299037,
+          "2015": 1403.2925369999998,
+          "2016": 2824.4723369999997,
+          "2017": -1773.942763,
+          "2018": 1819.845237,
+          "2019": -369.098363,
+          "2020": 627.361037,
+          "2021": 758.0442370000001,
+          "2022": -507.949263,
+          "2023": 186.305237,
+          "2024": 6785.806837,
+          "2025": 8582.700837,
+          "2026": -491.613863
+        }
+      }
+    },
+    "capitalComparison": [
+      {
+        "capital": 10000,
+        "cagr": 10.21,
+        "sharpe": 0.682,
+        "maxDDPct": 39.01,
+        "marginPct": 77.7,
+        "totalNet": 51057,
+        "status": "MARGIN_FAIL"
+      },
+      {
+        "capital": 12500,
+        "cagr": 9.13,
+        "sharpe": 0.682,
+        "maxDDPct": 33.14,
+        "marginPct": 62.2,
+        "totalNet": 51057,
+        "status": "MARGIN_FAIL"
+      },
+      {
+        "capital": 15000,
+        "cagr": 8.29,
+        "sharpe": 0.682,
+        "maxDDPct": 28.8,
+        "marginPct": 51.8,
+        "totalNet": 51057,
+        "status": "MARGIN_FAIL"
+      },
+      {
+        "capital": 20000,
+        "cagr": 7.05,
+        "sharpe": 0.682,
+        "maxDDPct": 22.82,
+        "marginPct": 38.9,
+        "totalNet": 51057,
+        "status": "MARGIN_FAIL"
+      },
+      {
+        "capital": 25000,
+        "cagr": 6.16,
+        "sharpe": 0.682,
+        "maxDDPct": 18.9,
+        "marginPct": 31.1,
+        "totalNet": 51057,
+        "status": "MARGIN_FAIL"
+      },
+      {
+        "capital": 30000,
+        "cagr": 5.49,
+        "sharpe": 0.682,
+        "maxDDPct": 16.13,
+        "marginPct": 25.9,
+        "totalNet": 51057,
+        "status": "PASS"
+      },
+      {
+        "capital": 40000,
+        "cagr": 4.52,
+        "sharpe": 0.682,
+        "maxDDPct": 12.47,
+        "marginPct": 19.4,
+        "totalNet": 51057,
+        "status": "PASS"
+      },
+      {
+        "capital": 50000,
+        "cagr": 3.85,
+        "sharpe": 0.682,
+        "maxDDPct": 10.17,
+        "marginPct": 15.5,
+        "totalNet": 51057,
+        "status": "PASS"
+      },
+      {
+        "capital": 75000,
+        "cagr": 2.83,
+        "sharpe": 0.682,
+        "maxDDPct": 6.95,
+        "marginPct": 10.4,
+        "totalNet": 51057,
+        "status": "PASS"
+      },
+      {
+        "capital": 100000,
+        "cagr": 2.24,
+        "sharpe": 0.682,
+        "maxDDPct": 5.28,
+        "marginPct": 7.8,
+        "totalNet": 51057,
+        "status": "PASS"
+      }
+    ],
+    "minViableCapital": 30000,
+    "totalNetEUR": 51057
   }
 }
