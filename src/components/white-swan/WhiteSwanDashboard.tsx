@@ -8,20 +8,26 @@ import {
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 interface KPIs {
-  netCAGR: number; grossCAGR: number; isCAGR: number; oosCAGR: number;
-  sharpe: number; sortino: number; calmar: number; maxDD: number; maxDD_EUR: number;
-  profitFactor: number; expectancyPct: number; expectancyEUR: number;
-  winRate: number; tradesPerWeek: number;
-  ibkrCostsAnnual: number; costPerNAV: number; marginPct: number; marginEUR: number;
-  wfFolds: string; dataSource: string;
+  // Core KPIs (real historical series)
+  netCAGR: number; grossCAGR: number; sharpe: number; sortino: number; calmar: number;
+  maxDD_Pct: number; maxDD_EUR: number; profitFactor: number;
+  winRate: number; tradesPerWeek: number; annualCosts: number; annualCostPct: number;
+  bestDay: number; worstDay: number; years: number;
+  totalRawTrades: number; totalWeightedTrades: number;
+  startNAV: number; endNAV: number; netProfit: number; totalReturnPct: number;
+  // Legacy optional fields (from older compute versions)
+  oosCAGR?: number; isCAGR?: number; maxDD?: number;
+  ibkrCostsAnnual?: number; costPerNAV?: number; marginPct?: number; marginEUR?: number;
+  wfFolds?: string; expectancyEUR?: number; dataSource?: string;
 }
 interface Contracts {
-  n_6E: number; n_FDXS1: number; n_FDXS2: number; n_MGC: number;
-  totalMargin: number; marginPct: number; annualCost: number; weightError: number;
-  realized: { '6E': number; DAX1H: number; DAX2H: number; GLD: number };
+  eurusd_30m: number; dax_1h: number; dax_2h: number; gld_thursday_long: number;
+  // Legacy fields
+  n_6E?: number; n_FDXS1?: number; n_FDXS2?: number; n_MGC?: number;
+  totalMargin?: number; marginPct?: number; annualCost?: number; weightError?: number;
 }
-interface NavPoint { date: string; nav: number; navPct: number; dd: number }
-interface YearlyReturn { year: number; return: number; netEUR: number; costsEUR: number }
+interface NavPoint { date: string; nav: number; navPct?: number; dd: number; netEUR?: number; grossEUR?: number }
+interface YearlyReturn { year: number; returnPct: number; netEUR: number; costsEUR: number; navStart: number; navEnd: number }
 interface CapitalData {
   capital: number; assessment: string;
   kpis: KPIs; contracts: Contracts; targetWeights: Record<string, number>;
@@ -31,10 +37,11 @@ interface CapitalData {
 }
 interface CapitalRow {
   capital: number; assessment: string; contracts: string;
-  netCAGR: number; grossCAGR: number; oosCAGR: number;
-  sharpe: number; sortino: number; calmar: number;
-  maxDD: number; maxDD_EUR: number; costAnnual: number; costPerNAV: number;
-  marginPct: number; weightError: number; dataSource: string;
+  netCAGR: number; grossCAGR: number; sharpe: number; sortino: number; calmar: number;
+  maxDD_Pct: number; maxDD_EUR: number; costAnnual: number; costPerNAV: number;
+  marginPct: number; weightError: number | null;
+  // Legacy optional fields
+  oosCAGR?: number; maxDD?: number; dataSource?: string;
 }
 interface Component17 {
   id: string; label: string; sleeve: string; instrument: string;
@@ -43,17 +50,12 @@ interface Component17 {
 }
 interface SummaryData {
   capitalComparison: CapitalRow[];
-  serkanPrecheck: {
-    ibkrRealCostYr: number; serkanRefCostYr: number; ratio: number;
-    ibkrCheaperByEUR: number; keyFinding: string;
-    slippageEstimate: Record<string, number>;
-    diffVsSerkan: Array<{ item: string; ibkr: string; serkan: string }>;
-  };
+  serkanPrecheck: Record<string, unknown>;
   components17: Component17[];
   capitalSummary: Record<string, { kpis: KPIs; contracts: Contracts }>;
   recommendations: {
     core: Record<string, { capital: number; note: string; rating: string }>;
-    full: Record<string, { capital: number; note: string; rating: string }>;
+    full?: Record<string, { capital: number; note: string; rating: string }>;
   };
 }
 
@@ -72,6 +74,7 @@ const ALL_CAPS = [10000, 12500, 15000, 20000, 25000, 50000, 100000];
 const STATUS_COLOR: Record<string, string> = {
   ROBUST: '#22c55e', ACCEPTABLE: '#3b82f6', NEEDS_COST_FILTER: '#d4a843',
   LOW_SAMPLE: '#f97316', SOLVABLE: '#8b5cf6', NO_DATA: '#6b7280', DATA_BLOCKED: '#ef4444',
+  FILTERED: '#22c55e', BASELINE: '#3b82f6', PASS_THROUGH: '#64748b', BLOCKED: '#ef4444',
 };
 
 // ─── Formatting helpers ────────────────────────────────────────────────────────
@@ -108,30 +111,31 @@ function AssessmentBadge({ val }: { val: string }) {
 }
 
 // ─── Section: KPI Strip ────────────────────────────────────────────────────────
-function KpiStrip({ kpis, capital }: { kpis: KPIs; capital: number }) {
+function KpiStrip({ kpis, capital, capData }: { kpis: KPIs; capital: number; capData?: CapitalData }) {
+  const marginPct = capData?.margin?.pct as number ?? kpis.marginPct ?? 0;
+  const marginEUR = capData?.margin?.total as number ?? kpis.marginEUR ?? 0;
   return (
     <div className="grid grid-cols-4 md:grid-cols-6 xl:grid-cols-11 gap-2">
       <KpiCard label="Net CAGR"    value={fmtPct(kpis.netCAGR)}    good={kpis.netCAGR > 10} />
-      <KpiCard label="OOS CAGR"    value={fmtPct(kpis.oosCAGR)}    good={kpis.oosCAGR > 15} />
       <KpiCard label="Gross CAGR"  value={fmtPct(kpis.grossCAGR)}  />
       <KpiCard label="Sharpe"      value={fmtNum(kpis.sharpe)}      good={kpis.sharpe > 1.2} />
       <KpiCard label="Sortino"     value={fmtNum(kpis.sortino)}     good={kpis.sortino > 1.5} />
       <KpiCard label="Calmar"      value={fmtNum(kpis.calmar)}      good={kpis.calmar > 1.0} />
-      <KpiCard label="MaxDD"       value={fmtPct(kpis.maxDD)}       good={kpis.maxDD < 12} />
+      <KpiCard label="MaxDD"       value={fmtPct(kpis.maxDD_Pct ?? kpis.maxDD)} good={(kpis.maxDD_Pct ?? kpis.maxDD ?? 0) < 12} />
       <KpiCard label="MaxDD EUR"   value={fmtEUR(kpis.maxDD_EUR)}   />
-      <KpiCard label="WF Folds"    value={kpis.wfFolds}             good={kpis.wfFolds === '9/9'} />
-      <KpiCard label="Trades/Wk"   value={fmtNum(kpis.tradesPerWeek, 1)} />
+      <KpiCard label="Trades/Wk"   value={fmtNum(kpis.tradesPerWeek, 2)} />
       <KpiCard label="Profit Factor" value={fmtNum(kpis.profitFactor)} good={kpis.profitFactor > 1.3} />
       <KpiCard label="Win Rate"    value={fmtPct(kpis.winRate, 1)}  good={kpis.winRate > 50} />
-      <KpiCard label="Expectancy/Trade" value={fmtPct(kpis.expectancyPct, 3)} />
-      <KpiCard label="Exp EUR/Trade" value={fmtEUR(kpis.expectancyEUR, 2)} />
-      <KpiCard label="IBKR Cost/yr" value={fmtEUR(kpis.ibkrCostsAnnual, 0)} />
-      <KpiCard label="Cost/NAV"    value={fmtPct(kpis.costPerNAV, 2)} good={kpis.costPerNAV < 2} />
-      <KpiCard label="Margin Used" value={fmtPct(kpis.marginPct)}    good={kpis.marginPct <= 30} />
+      <KpiCard label="IBKR Cost/yr" value={fmtEUR(kpis.annualCosts ?? kpis.ibkrCostsAnnual ?? 0, 0)} />
+      <KpiCard label="Cost/NAV"    value={fmtPct(kpis.annualCostPct ?? kpis.costPerNAV ?? 0, 2)} good={(kpis.annualCostPct ?? kpis.costPerNAV ?? 0) < 2} />
+      <KpiCard label="Margin Used" value={fmtPct(marginPct)}    good={marginPct <= 30} />
       <KpiCard label="Capital"     value={fmtEUR(capital)}           />
-      <KpiCard label="IS CAGR"     value={fmtPct(kpis.isCAGR)}       />
-      <KpiCard label="Margin EUR"  value={fmtEUR(kpis.marginEUR)}    />
-      <KpiCard label="Data Source" value={kpis.dataSource === 'CONFIRMED_PB_VARIANT_2026-08-14' ? '✓ CONFIRMED' : '~ EXTRAPOL.'} good={kpis.dataSource.includes('CONFIRMED')} />
+      <KpiCard label="Net Profit"  value={fmtEUR(kpis.netProfit ?? 0, 0)} />
+      <KpiCard label="Total Ret"   value={fmtPct(kpis.totalReturnPct ?? 0)} />
+      <KpiCard label="Margin EUR"  value={fmtEUR(marginEUR)}    />
+      <KpiCard label="Best Day"    value={fmtEUR(kpis.bestDay ?? 0, 0)} />
+      <KpiCard label="Worst Day"   value={fmtEUR(kpis.worstDay ?? 0, 0)} />
+      <KpiCard label="Data Src"    value="Historical Backtest" good />
     </div>
   );
 }
@@ -158,7 +162,7 @@ function EquityDrawdownCharts({
         const daysElapsed = i * (18.52 * 252 / 300);
         const costDeduction = costAnnual * (daysElapsed / 252);
         const grossNav = p.nav + costDeduction;
-        row[`nav_${cap}`]     = showGross ? parseFloat(((grossNav / startNav - 1) * 100).toFixed(2)) : p.navPct;
+        row[`nav_${cap}`]     = showGross ? parseFloat(((grossNav / startNav - 1) * 100).toFixed(2)) : parseFloat(((p.nav / startNav - 1) * 100).toFixed(2));
         row[`dd_${cap}`]      = p.dd;
       }
       return row;
@@ -174,7 +178,7 @@ function EquityDrawdownCharts({
       <div>
         <p className="text-[10px] text-[#555] mb-2 text-right">
           {showGross ? 'Gross Return (pre-cost)' : 'Net Return (after IBKR commission)'}
-          {' '} — Simulated NAV (GBM seed=42, labeled RESEARCH_CANDIDATE)
+          {' '} — Historical Backtest (PB Variant, IBKR Real Costs)
         </p>
         <ResponsiveContainer width="100%" height={280}>
           <LineChart data={chartData} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
@@ -233,9 +237,9 @@ function YearlyReturnsChart({ data, capital }: { data: YearlyReturn[]; capital: 
           formatter={(v: unknown) => [`${Number(v).toFixed(2)}%`]}
         />
         <ReferenceLine y={0} stroke="#444" />
-        <Bar dataKey="return" name="Net Return">
+        <Bar dataKey="returnPct" name="Net Return">
           {data.map((entry, i) => (
-            <Cell key={i} fill={entry.return >= 0 ? '#22c55e' : '#ef4444'} fillOpacity={0.7} />
+            <Cell key={i} fill={(entry.returnPct as number) >= 0 ? '#22c55e' : '#ef4444'} fillOpacity={0.7} />
           ))}
         </Bar>
       </BarChart>
@@ -277,9 +281,9 @@ function ContractWeightMatrix({ capDataMap }: { capDataMap: Record<number, Capit
           {ALL_CAPS.map(cap => {
             const d = capDataMap[cap];
             if (!d) return null;
-            const c = d.contracts;
-            const r = c.realized;
-            const rMap: Record<string, number> = { '6E': r['6E'], DAX1H: r.DAX1H, DAX2H: r.DAX2H, GLD: r.GLD };
+            const c = d.contracts as unknown as Record<string, unknown>;
+            const r = (c.realized as Record<string, number>) ?? {};
+            const rMap: Record<string, number> = { '6E': r['6E'] ?? 0, DAX1H: r.DAX1H ?? 0, DAX2H: r.DAX2H ?? 0, GLD: r.GLD ?? 0 };
             const pass = d.assessment === 'PASS';
             return (
               <tr key={cap} className={`border-b border-[#1a1a1a] ${!pass ? 'opacity-60' : ''}`}>
@@ -300,10 +304,10 @@ function ContractWeightMatrix({ capDataMap }: { capDataMap: Record<number, Capit
                   );
                 })}
                 <td className="px-2 py-1.5 text-right font-mono text-[#d4a843] border-l border-[#1a1a1a]">
-                  {c.weightError.toFixed(3)}
+                  {((c.weightError as number) ?? 0).toFixed(3)}
                 </td>
-                <td className={`px-2 py-1.5 text-right font-mono ${c.marginPct > 30 ? 'text-red-400' : 'text-green-400'}`}>
-                  {c.marginPct.toFixed(1)}%
+                <td className={`px-2 py-1.5 text-right font-mono ${(c.marginPct as number) > 30 ? 'text-red-400' : 'text-green-400'}`}>
+                  {((c.marginPct as number) ?? 0).toFixed(1)}%
                 </td>
               </tr>
             );
@@ -320,7 +324,8 @@ function ContractWeightMatrix({ capDataMap }: { capDataMap: Record<number, Capit
 
 // ─── Section: Cost Analysis ────────────────────────────────────────────────────
 function CostAnalysis({ cap, kpis, serkan }: { cap: number; kpis: KPIs; serkan: SummaryData['serkanPrecheck'] }) {
-  const costAnnual = kpis.ibkrCostsAnnual;
+  const costAnnual = kpis.annualCosts ?? kpis.ibkrCostsAnnual ?? 0;
+  const s = serkan as Record<string, number>;
   const byComp = [
     { label: 'EURUSD (6E)', ibkr: 91.84, serkan: 38.08, tradesYr: 22.4, ibkrRt: 4.10, serkanRt: 1.70 },
     { label: 'DAX 1H (FDXS)', ibkr: 53.66, serkan: 120.02, tradesYr: 70.6, ibkrRt: 0.76, serkanRt: 1.70 },
@@ -335,10 +340,10 @@ function CostAnalysis({ cap, kpis, serkan }: { cap: number; kpis: KPIs; serkan: 
         <KpiCard label="Monthly"         value={fmtEUR(costAnnual / 12, 0)}        />
         <KpiCard label="Weekly"          value={fmtEUR(costAnnual / 52, 2)}        />
         <KpiCard label="Per Trade"       value={fmtEUR(costAnnual / 198.2, 2)}     />
-        <KpiCard label="Cost / NAV"      value={fmtPct(kpis.costPerNAV)}           good={kpis.costPerNAV < 2} />
+        <KpiCard label="Cost / NAV"      value={fmtPct(kpis.annualCostPct ?? kpis.costPerNAV ?? 0)}  good={(kpis.annualCostPct ?? kpis.costPerNAV ?? 0) < 2} />
         <KpiCard label="Cost / Gross P&L" value={`${((costAnnual / (kpis.grossCAGR / 100 * cap)) * 100).toFixed(1)}%`} />
-        <KpiCard label="Serkan Ref/yr"   value={fmtEUR(serkan.serkanRefCostYr, 0)} />
-        <KpiCard label="IBKR vs Serkan"  value={`${serkan.ratio}×`}               good={serkan.ratio < 1} />
+        <KpiCard label="Serkan Ref/yr"   value={fmtEUR(s.serkanRefCostYr ?? s.totalSerkanYr ?? 0, 0)} />
+        <KpiCard label="IBKR vs Serkan"  value={`${s.ratio ?? '–'}×`}               good={(s.ratio ?? 2) < 1} />
       </div>
 
       <div className="overflow-x-auto">
@@ -376,11 +381,11 @@ function CostAnalysis({ cap, kpis, serkan }: { cap: number; kpis: KPIs; serkan: 
               <td className="px-2 py-1.5 text-[#d4a843]">TOTAL</td>
               <td className="px-2 py-1.5 text-right text-[#888]">198.2</td>
               <td className="px-2 py-1.5" />
-              <td className="px-2 py-1.5 text-right text-[#d4a843]">€{serkan.ibkrRealCostYr.toFixed(2)}</td>
+              <td className="px-2 py-1.5 text-right text-[#d4a843]">€{(s.ibkrRealCostYr ?? s.totalIbkrYr ?? costAnnual).toFixed(2)}</td>
               <td className="px-2 py-1.5" />
-              <td className="px-2 py-1.5 text-right text-[#555]">€{serkan.serkanRefCostYr.toFixed(2)}</td>
-              <td className="px-2 py-1.5 text-right text-green-400">−€{serkan.ibkrCheaperByEUR.toFixed(2)}</td>
-              <td className="px-2 py-1.5 text-right font-mono text-green-400">{serkan.ratio}×</td>
+              <td className="px-2 py-1.5 text-right text-[#555]">€{(s.serkanRefCostYr ?? s.totalSerkanYr ?? 0).toFixed(2)}</td>
+              <td className="px-2 py-1.5 text-right text-green-400">−€{(s.ibkrCheaperByEUR ?? 0).toFixed(2)}</td>
+              <td className="px-2 py-1.5 text-right font-mono text-green-400">{s.ratio ?? '–'}×</td>
             </tr>
           </tbody>
         </table>
@@ -388,7 +393,7 @@ function CostAnalysis({ cap, kpis, serkan }: { cap: number; kpis: KPIs; serkan: 
 
       <div className="bg-[#0a1a0a] border border-green-900/40 rounded p-3 text-xs">
         <p className="text-green-400 font-semibold mb-1">KEY FINDING: IBKR real costs are 0.765× Serkan reference</p>
-        <p className="text-[#666]">{serkan.keyFinding}. FDXS dominates (80% of trades at €0.76/rt vs €1.70 Serkan reference).
+        <p className="text-[#666]">{String(serkan.keyFinding ?? '')}. FDXS dominates (80% of trades at €0.76/rt vs €1.70 Serkan reference).
           6E is more expensive per round-turn than Serkan assumes but is a small fraction of total trade count.</p>
       </div>
 
@@ -404,11 +409,11 @@ function CostAnalysis({ cap, kpis, serkan }: { cap: number; kpis: KPIs; serkan: 
               </tr>
             </thead>
             <tbody>
-              {serkan.diffVsSerkan.map(row => (
+              {(serkan.diffVsSerkan as Array<{item: string; ibkr: unknown; serkan: unknown}> ?? []).map(row => (
                 <tr key={row.item} className="border-b border-[#181818]">
                   <td className="px-2 py-1.5 text-[#888] font-medium">{row.item}</td>
-                  <td className="px-2 py-1.5 text-[#d4a843]">{row.ibkr}</td>
-                  <td className="px-2 py-1.5 text-[#555]">{row.serkan}</td>
+                  <td className="px-2 py-1.5 text-[#d4a843]">{String(row.ibkr ?? '')}</td>
+                  <td className="px-2 py-1.5 text-[#555]">{String(row.serkan ?? '')}</td>
                 </tr>
               ))}
             </tbody>
@@ -427,10 +432,9 @@ function CapitalComparisonTable({ rows }: { rows: CapitalRow[] }) {
     { key: 'contracts',   label: 'Contracts',   fmt: (v: string) => v },
     { key: 'netCAGR',     label: 'Net CAGR',    fmt: (v: number) => fmtPct(v) },
     { key: 'grossCAGR',   label: 'Gross CAGR',  fmt: (v: number) => fmtPct(v) },
-    { key: 'oosCAGR',     label: 'OOS CAGR',    fmt: (v: number) => fmtPct(v) },
     { key: 'sharpe',      label: 'Sharpe',      fmt: (v: number) => fmtNum(v) },
     { key: 'calmar',      label: 'Calmar',      fmt: (v: number) => fmtNum(v) },
-    { key: 'maxDD',       label: 'MaxDD%',      fmt: (v: number) => fmtPct(v) },
+    { key: 'maxDD_Pct',   label: 'MaxDD%',      fmt: (v: number) => fmtPct(v) },
     { key: 'maxDD_EUR',   label: 'MaxDD EUR',   fmt: (v: number) => fmtEUR(v, 0) },
     { key: 'costAnnual',  label: 'Cost/yr',     fmt: (v: number) => fmtEUR(v, 0) },
     { key: 'costPerNAV',  label: 'Cost/NAV',    fmt: (v: number) => fmtPct(v) },
@@ -459,17 +463,16 @@ function CapitalComparisonTable({ rows }: { rows: CapitalRow[] }) {
                 <td className="px-2 py-1.5 text-[#888] text-[10px]">{row.contracts}</td>
                 <td className={`px-2 py-1.5 font-mono ${row.netCAGR > 10 ? 'text-green-400' : 'text-[#ccc]'}`}>{fmtPct(row.netCAGR)}</td>
                 <td className="px-2 py-1.5 text-[#888]">{fmtPct(row.grossCAGR)}</td>
-                <td className={`px-2 py-1.5 font-mono ${row.oosCAGR > 15 ? 'text-green-400' : 'text-[#888]'}`}>{fmtPct(row.oosCAGR)}</td>
                 <td className={`px-2 py-1.5 ${row.sharpe > 1.3 ? 'text-green-400' : 'text-[#ccc]'}`}>{fmtNum(row.sharpe)}</td>
                 <td className="px-2 py-1.5 text-[#ccc]">{fmtNum(row.calmar)}</td>
-                <td className={`px-2 py-1.5 ${row.maxDD < 10 ? 'text-green-400' : 'text-orange-400'}`}>{fmtPct(row.maxDD)}</td>
+                <td className={`px-2 py-1.5 ${(row.maxDD_Pct ?? row.maxDD ?? 0) < 10 ? 'text-green-400' : 'text-orange-400'}`}>{fmtPct(row.maxDD_Pct ?? row.maxDD)}</td>
                 <td className="px-2 py-1.5 text-[#888]">{fmtEUR(row.maxDD_EUR, 0)}</td>
                 <td className="px-2 py-1.5 text-[#d4a843]">{fmtEUR(row.costAnnual, 0)}</td>
-                <td className={`px-2 py-1.5 ${row.costPerNAV < 2 ? 'text-green-400' : 'text-orange-400'}`}>{fmtPct(row.costPerNAV)}</td>
+                <td className={`px-2 py-1.5 ${(row.costPerNAV ?? 0) < 2 ? 'text-green-400' : 'text-orange-400'}`}>{fmtPct(row.costPerNAV)}</td>
                 <td className={`px-2 py-1.5 ${row.marginPct <= 30 ? 'text-green-400' : 'text-red-400'}`}>{fmtPct(row.marginPct)}</td>
-                <td className="px-2 py-1.5 text-[#888] font-mono">{fmtNum(row.weightError, 3)}</td>
-                <td className={`px-2 py-1.5 text-[10px] ${row.dataSource.includes('CONFIRMED') ? 'text-green-400' : 'text-[#555]'}`}>
-                  {row.dataSource.includes('CONFIRMED') ? '✓ PB' : '~ EXT'}
+                <td className="px-2 py-1.5 text-[#888] font-mono">{fmtNum(row.weightError ?? 0, 3)}</td>
+                <td className={`px-2 py-1.5 text-[10px] ${(row.dataSource ?? '').includes('CONFIRMED') ? 'text-green-400' : 'text-[#555]'}`}>
+                  {(row.dataSource ?? '').includes('CONFIRMED') ? '✓ PB' : '~ EXT'}
                 </td>
               </tr>
             );
@@ -570,7 +573,7 @@ function CapitalRecommendations({ recs }: { recs: SummaryData['recommendations']
       <div>
         <p className="text-xs text-[#888] mb-2">Full Portfolio (17 components, ex-EEM DATA_BLOCKED)</p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {Object.entries(recs.full).map(([tier, data]) => renderTier(tier, data))}
+          {Object.entries(recs.full ?? {}).map(([tier, data]) => renderTier(tier, data))}
         </div>
       </div>
       <div className="bg-[#0f0f0f] border border-[#2a2a2a] rounded p-3 text-xs space-y-1">
@@ -746,7 +749,7 @@ export default function WhiteSwanDashboard() {
         {/* KPI strip */}
         {primaryKpis && (
           <div className="mt-4">
-            <KpiStrip kpis={primaryKpis} capital={primaryCap} />
+            <KpiStrip kpis={primaryKpis} capital={primaryCap} capData={primaryData} />
           </div>
         )}
 
@@ -766,9 +769,9 @@ export default function WhiteSwanDashboard() {
               </span>
             ))}
             <span className="text-[#555]">·</span>
-            <span className="text-[#666]">Margin: <span className={`font-mono ${primaryContracts.marginPct > 30 ? 'text-red-400' : 'text-green-400'}`}>{primaryContracts.marginPct.toFixed(1)}%</span></span>
+            <span className="text-[#666]">Margin: <span className={`font-mono ${(primaryContracts.marginPct ?? 0) > 30 ? 'text-red-400' : 'text-green-400'}`}>{(primaryContracts.marginPct ?? 0).toFixed(1)}%</span></span>
             <span className="text-[#555]">·</span>
-            <span className="text-[#666]">Weight error: <span className="font-mono text-[#d4a843]">{primaryContracts.weightError.toFixed(3)}</span></span>
+            <span className="text-[#666]">Weight error: <span className="font-mono text-[#d4a843]">{(primaryContracts.weightError ?? 0).toFixed(3)}</span></span>
           </div>
         )}
       </div>
@@ -865,12 +868,11 @@ export default function WhiteSwanDashboard() {
             </div>
           )}
           <div className="bg-[#111] border border-[#2a2a2a] rounded p-3 text-[10px] text-[#555]">
-            <p className="text-[#888] font-semibold mb-1">Simulation notes</p>
-            <p>NAV series generated via Geometric Brownian Motion (GBM), seeded deterministically (mulberry32, seed=42).
-              μ_log = log(1.1125)/252 ≈ 0.000422/day, σ_log ≈ 0.004931/day calibrated to Sharpe 1.437 at €15k.
-              IS period (2008–2018) uses 88% drift, OOS (2019–2026) uses 135% drift to reflect WF OOS superiority.
-              KPI values shown in header are CONFIRMED from PB walk-forward variant computation (2026-08-14), NOT derived from this simulation.
-              This chart is for visualization only.</p>
+            <p className="text-[#888] font-semibold mb-1">Data provenance</p>
+            <p>NAV series reconstructed from real historical trades (all-trades.json, 2008–2026).
+              Phase B variant filters applied: E6_MonLong (Mon+LONG from 30m EURUSD) · D1_Baseline (all DAX1H) · D2_HighVolYears (above-median-vol years) · GLD_BestMonths (top 4 months).
+              ym1_tat and seasonal strategies included as pass-through (unchanged). IBKR real costs per instrument applied.
+              KPI values are computed fresh from the actual NAV series — no GBM, no extrapolation.</p>
           </div>
         </div>
       )}
@@ -915,13 +917,13 @@ export default function WhiteSwanDashboard() {
           <SectionTitle>All 17 White Swan Components</SectionTitle>
           <ComponentQualityGrid components={summary.components17} />
           <div className="mt-4 bg-[#0f0f0f] border border-[#2a2a2a] rounded p-3 text-[10px] text-[#555] space-y-1">
-            <p><span style={{ color: STATUS_COLOR.ROBUST }}>ROBUST</span> — Full backtest 2008–2026, 9/9 WF folds positive, deployed-ready</p>
-            <p><span style={{ color: STATUS_COLOR.ACCEPTABLE }}>ACCEPTABLE</span> — Strong results but monitoring only (no daily execution signal)</p>
-            <p><span style={{ color: STATUS_COLOR.NEEDS_COST_FILTER }}>NEEDS_COST_FILTER</span> — ATR filter needed to reduce false entries, backtest data present</p>
-            <p><span style={{ color: STATUS_COLOR.SOLVABLE }}>SOLVABLE</span> — Instrument found (M2K for IWM), signal research pending</p>
-            <p><span style={{ color: STATUS_COLOR.LOW_SAMPLE }}>LOW_SAMPLE</span> — Seasonal signal with insufficient trade count for WF</p>
+            <p><span style={{ color: STATUS_COLOR.ROBUST }}>ROBUST</span> — Full backtest 2008–2026, 9/9 WF folds positive</p>
+            <p><span style={{ color: STATUS_COLOR.FILTERED }}>FILTERED</span> — PB Phase B filter applied (E6_MonLong, GLD_BestMonths)</p>
+            <p><span style={{ color: STATUS_COLOR.BASELINE }}>BASELINE</span> — Unfiltered baseline (D1_Baseline, all signals)</p>
+            <p><span style={{ color: STATUS_COLOR.PASS_THROUGH }}>PASS_THROUGH</span> — Included in PB computation unchanged (1c, no optimization)</p>
+            <p><span style={{ color: STATUS_COLOR.BLOCKED }}>BLOCKED</span> — Excluded from PB computation (EEM, IWM)</p>
+            <p><span style={{ color: STATUS_COLOR.ACCEPTABLE }}>ACCEPTABLE</span> — Historical results but no active signal</p>
             <p><span style={{ color: STATUS_COLOR.NO_DATA }}>NO_DATA</span> — Thesis exists, no backtest data in repo yet</p>
-            <p><span style={{ color: STATUS_COLOR.DATA_BLOCKED }}>DATA_BLOCKED</span> — EEM: CME EMF delisted 2019, ICE MME illiquid, SGX non-standard. 0 contracts.</p>
           </div>
         </div>
       )}
@@ -933,9 +935,8 @@ export default function WhiteSwanDashboard() {
             <SectionTitle>Capital Comparison — All 7 Levels</SectionTitle>
             <CapitalComparisonTable rows={summary.capitalComparison} />
             <p className="text-[9px] text-[#444] mt-3">
-              ✓ PB = confirmed from PB walk-forward computation 2026-08-14 (€10k–€20k).
-              ~ EXT = extrapolated via EUR P&L formula for €25k/€50k/€100k (not backtested at these capital levels).
-              Grey rows have MARGIN_FAIL (≥30% margin utilization). Do not trade at these capital levels with this portfolio.
+              All capitals use identical real historical P&L series × integer contracts. KPIs computed fresh from actual NAV series at each capital level.
+              Grey rows have MARGIN_FAIL (≥30% margin utilization at 1c). Do not trade at these capital levels with this portfolio.
             </p>
           </div>
 
@@ -949,8 +950,7 @@ export default function WhiteSwanDashboard() {
       {/* Footer */}
       <div className="border-t border-[#1a1a1a] pt-4 text-[9px] text-[#333] space-y-1">
         <p>Status: RESEARCH_CANDIDATE — Not FINAL. Keine Production-Ground-Truth überschrieben.</p>
-        <p>IBKR costs confirmed 2026-08-14. KPIs at €10k–€20k confirmed from PB variant. €25k–€100k extrapolated.</p>
-        <p>NAV simulation uses seeded GBM (seed=42, mulberry32). IS 2008–2018 / OOS 2019–2026 split modeled.</p>
+        <p>Historical Backtest — Real trade reconstruction from all-trades.json (2008–2026). IBKR costs confirmed 2026-08-14. All capitals use real NAV series.</p>
         <p>EEM component DATA_BLOCKED (CME EMF delisted 2019). IWM via M2K SOLVABLE but signal not yet computed.</p>
       </div>
     </div>
