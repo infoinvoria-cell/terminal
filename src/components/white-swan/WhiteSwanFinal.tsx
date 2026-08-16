@@ -64,6 +64,14 @@ interface EquityData {
   series: Record<string, EquityPoint[]>;
   yearlyReturns: Array<{ year: number; netEUR: number; returnPct: number }>;
 }
+interface ConcentrationTier {
+  capital: number; dax1hCt: number; dax2hCt: number; maxSimultaneousDax: number;
+  daxMarginSharePct: number; concentrationFlag: 'LOW' | 'MODERATE' | 'HIGH' | 'VERY_HIGH';
+  worstDaxOnlyDayEUR: number;
+  safetyClassification: 'TECHNICALLY_FEASIBLE' | 'TIGHT' | 'PRACTICAL' | 'COMFORTABLE';
+  allExtendedScenariosPass: boolean;
+}
+interface ConcentrationReport { tiers: ConcentrationTier[] }
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 const ALL_CAPS = [10000, 12000, 15000, 20000, 25000, 30000, 40000, 50000, 75000, 100000];
@@ -148,7 +156,9 @@ function CapSelector({
         const active = multi.includes(c);
         return (
           <button key={c} onClick={() => { onSingle(c); onToggle(c); }} disabled={fail}
-            className={`text-[10px] font-mono px-2.5 py-1 rounded border transition-colors
+            aria-label={`Select capital ${fmtCap(c)}${fail ? ' (below technical minimum)' : ''}`}
+            aria-pressed={active}
+            className={`text-[10px] font-mono px-3 py-2 min-h-[36px] rounded border transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#d4a843]
               ${fail ? 'border-[#111] text-[#1e1e1e] cursor-not-allowed line-through' :
                 active ? 'border-[#d4a843] text-[#d4a843] bg-[#1a1400]' :
                 'border-[#222] text-[#444] hover:border-[#333] hover:text-[#777]'}`}>
@@ -280,24 +290,42 @@ function VariantChip({ label, data, gold }: { label: string; data?: { capital: n
 export function WhiteSwanFinal() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [equityData, setEquityData] = useState<EquityData | null>(null);
+  const [concentration, setConcentration] = useState<ConcentrationReport | null>(null);
   const [selectedCap, setSelectedCap] = useState<number>(25000);
   const [multiCap, setMultiCap] = useState<number[]>([25000]);
   const [activeTab, setActiveTab] = useState<'overview' | 'equity' | 'weights' | 'costs' | 'components' | 'capital' | 'ladder' | 'attribution'>('overview');
   const [compFilter, setCompFilter] = useState<string>('ALL');
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/data/white-swan/final/portfolio-summary.json').then(r => r.json()).then(d => {
+    fetch('/data/white-swan/final/portfolio-summary.json').then(r => {
+      if (!r.ok) throw new Error(`portfolio-summary.json: HTTP ${r.status}`);
+      return r.json();
+    }).then(d => {
       setSummary(d);
       const rec = d.recommendedCapital ?? 25000;
       setSelectedCap(rec);
       setMultiCap([rec]);
-    }).catch(() => null);
+    }).catch(e => setLoadError(e instanceof Error ? e.message : 'Failed to load canonical portfolio data'));
     fetch('/data/white-swan/final/equity-series.json').then(r => r.json()).then(setEquityData).catch(() => null);
+    fetch('/data/white-swan/final/dax-concentration-deep-report.json').then(r => r.json()).then(setConcentration).catch(() => null);
   }, []);
 
   const toggleCap = useCallback((c: number) => {
     setMultiCap(prev => prev.includes(c) ? (prev.length > 1 ? prev.filter(x => x !== c) : prev) : [...prev, c]);
   }, []);
+
+  if (loadError) {
+    return (
+      <div className="min-h-screen bg-[#020202] flex items-center justify-center px-4">
+        <div className="max-w-md text-center border border-[#2a1010] rounded bg-[#0a0505] px-5 py-4">
+          <div className="text-[#ef4444] text-xs font-mono uppercase tracking-widest mb-2">Failed to load White Swan data</div>
+          <div className="text-[#666] text-[11px] font-mono">{loadError}</div>
+          <div className="text-[#333] text-[9px] font-mono mt-3">No fallback to stale data is shown. Reload the page or check that the canonical generator has run.</div>
+        </div>
+      </div>
+    );
+  }
 
   if (!summary) {
     return (
@@ -311,6 +339,7 @@ export function WhiteSwanFinal() {
   const techMin = summary.technicalMinimum ?? minCap;
   const recCap = summary.recommendedCapital ?? 25000;
   const capRow = summary.capitalComparison.find(r => r.capital === selectedCap);
+  const concRow = concentration?.tiers.find(t => t.capital === selectedCap);
   // v5: use per-capital components when available; fallback to top-level components
   const capComponents = capRow?.components ?? summary.components ?? [];
   const activeComps = capComponents.filter(c => !['DATA_BLOCKED', 'REJECTED', 'EXCLUDED'].includes(c.status));
@@ -392,6 +421,7 @@ export function WhiteSwanFinal() {
               <KpiCell label="Margin" value={fmtPct(capRow?.marginPct)} sub={capRow?.assessment ?? ''} />
               <KpiCell label="Sleeves" value={capRow?.activeSleeves != null ? String(capRow.activeSleeves) : '—'} />
               <KpiCell label="Validated Core" value={capRow?.corePassStr ?? '—'} gold={!!capRow?.corePass} />
+              <KpiCell label="Capital Safety" value={concRow?.safetyClassification.replace(/_/g, ' ') ?? '—'} sub={concRow ? `DAX ${concRow.concentrationFlag} concentration` : ''} dim={concRow?.safetyClassification === 'TECHNICALLY_FEASIBLE'} />
             </div>
           </div>
 
@@ -402,6 +432,20 @@ export function WhiteSwanFinal() {
             <span className="text-[#1a1a1a]">·</span>
             <span className="text-[9px] text-[#555] font-mono">DAX1H/DAX2H run on genuine EUREX FDAX1! continuous futures (production_v1, locked params, parity-validated vs DE30EUR) — real daily MTM for all five core sleeves, no exit-date lump sum.</span>
           </div>
+
+          {/* Core quality warning — do not hide a weak mandatory core sleeve */}
+          {(() => {
+            const m6e = capComponents.find(c => c.id === 'eurusd_m6e');
+            if (!m6e || m6e.netEUR > 0) return null;
+            return (
+              <div className="mt-2 border border-[#2a1010] rounded bg-[#0a0505] px-3 py-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+                <span className="text-[9px] text-[#ef4444] uppercase tracking-widest font-semibold">Core Quality Warning</span>
+                <span className="text-[9px] text-[#888] font-mono">
+                  {`EURUSD/M6E is a mandatory core sleeve with net P&L ${fmtEUR(m6e.netEUR)} over the full backtest — below the CORE quality objective (net P&L > 0). Kept for diversification, not performance. Not re-optimized during release hardening.`}
+                </span>
+              </div>
+            );
+          })()}
         </div>
 
         {/* ── Variants row ───────────────────────────────────────────────── */}
