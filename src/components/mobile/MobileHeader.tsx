@@ -31,6 +31,16 @@ function IconX() {
     </svg>
   );
 }
+// Matches desktop topbar's Bell (lucide-react "Bell") — no notification data
+// source exists on desktop either, so this stays an inert affordance there too.
+function IconBell() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+    </svg>
+  );
+}
 
 // Circular avatar — always clips to circle, shows image or initial
 function Avatar({ user, size }: { user: AppUser | null; size: number }) {
@@ -112,6 +122,12 @@ export function MobileHeader({ hidden }: { hidden: boolean }) {
         <button onClick={() => setSearchOpen(true)} aria-label="Suche"
           style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.42)", padding: 4, lineHeight: 0, WebkitTapHighlightColor: "transparent" }}>
           <IconSearch />
+        </button>
+
+        {/* Notifications — parity with desktop topbar's Bell */}
+        <button aria-label="Benachrichtigungen"
+          style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.42)", padding: 4, lineHeight: 0, WebkitTapHighlightColor: "transparent" }}>
+          <IconBell />
         </button>
 
         {/* User avatar button — clearly visible ring when open */}
