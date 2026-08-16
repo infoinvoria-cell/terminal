@@ -1,0 +1,812 @@
+{
+  "fdaxWorstDayReal": {
+    "chg": 1154,
+    "date": "2020-03-12",
+    "pct": 11.088690304602672
+  },
+  "gcWorstDayUSD": 289,
+  "worstFxMovePct": 4.63,
+  "methodologyNote": "Deterministic scenario proxies (not Monte Carlo). Scenario J uses a conservative placeholder for overnight fees pending the real IBKR rate table (see OVERNIGHT_FEE_MODEL_STATUS.md) — do not treat J as the verified overnight cost.",
+  "tiers": [
+    {
+      "capital": 10000,
+      "dax1hCt": 1,
+      "dax2hCt": 1,
+      "maxSimultaneousDax": 2,
+      "daxMarginEUR": 1760,
+      "daxMarginSharePct": 23.3,
+      "concentrationFlag": "MODERATE",
+      "worstDaxOnlyDayEUR": 2308,
+      "safetyClassification": "TIGHT",
+      "extendedStress": {
+        "A_worst_dax_day": {
+          "lossEUR": 2308,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 149,
+          "result": "PASS"
+        },
+        "B_worst_portfolio_day": {
+          "lossEUR": 3321,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -864,
+          "result": "FAIL"
+        },
+        "C_two_consecutive_dax_days": {
+          "lossEUR": 3693,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -1236,
+          "result": "FAIL"
+        },
+        "D_dax_plus_adverse_gold": {
+          "lossEUR": 5629,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -3172,
+          "result": "FAIL"
+        },
+        "E_dax_plus_adverse_fx": {
+          "lossEUR": 2657,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -200,
+          "result": "FAIL"
+        },
+        "F_margin_plus20pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 1509,
+          "endingFreeCashEUR": 948,
+          "result": "PASS"
+        },
+        "G_margin_plus50pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 3772,
+          "endingFreeCashEUR": -1314,
+          "result": "FAIL"
+        },
+        "H_transaction_cost_x2": {
+          "lossEUR": 231,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 2226,
+          "result": "PASS"
+        },
+        "I_slippage_shock_10pct": {
+          "lossEUR": 2539,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -82,
+          "result": "FAIL"
+        },
+        "J_overnight_fee_shock_proxy": {
+          "lossEUR": 15,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 2442,
+          "result": "PASS"
+        },
+        "K_simultaneous_core_stress": {
+          "lossEUR": 5978,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -3521,
+          "result": "FAIL"
+        }
+      },
+      "allExtendedScenariosPass": false
+    },
+    {
+      "capital": 12000,
+      "dax1hCt": 1,
+      "dax2hCt": 2,
+      "maxSimultaneousDax": 3,
+      "daxMarginEUR": 2640,
+      "daxMarginSharePct": 31.3,
+      "concentrationFlag": "MODERATE",
+      "worstDaxOnlyDayEUR": 3462,
+      "safetyClassification": "TIGHT",
+      "extendedStress": {
+        "A_worst_dax_day": {
+          "lossEUR": 3462,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 115,
+          "result": "PASS"
+        },
+        "B_worst_portfolio_day": {
+          "lossEUR": 3462,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 115,
+          "result": "PASS"
+        },
+        "C_two_consecutive_dax_days": {
+          "lossEUR": 5539,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -1962,
+          "result": "FAIL"
+        },
+        "D_dax_plus_adverse_gold": {
+          "lossEUR": 6783,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -3206,
+          "result": "FAIL"
+        },
+        "E_dax_plus_adverse_fx": {
+          "lossEUR": 3852,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -275,
+          "result": "FAIL"
+        },
+        "F_margin_plus20pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 1685,
+          "endingFreeCashEUR": 1892,
+          "result": "PASS"
+        },
+        "G_margin_plus50pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 4212,
+          "endingFreeCashEUR": -634,
+          "result": "FAIL"
+        },
+        "H_transaction_cost_x2": {
+          "lossEUR": 342,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 3235,
+          "result": "PASS"
+        },
+        "I_slippage_shock_10pct": {
+          "lossEUR": 3808,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -231,
+          "result": "FAIL"
+        },
+        "J_overnight_fee_shock_proxy": {
+          "lossEUR": 25,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 3552,
+          "result": "PASS"
+        },
+        "K_simultaneous_core_stress": {
+          "lossEUR": 7173,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -3596,
+          "result": "FAIL"
+        }
+      },
+      "allExtendedScenariosPass": false
+    },
+    {
+      "capital": 15000,
+      "dax1hCt": 1,
+      "dax2hCt": 3,
+      "maxSimultaneousDax": 4,
+      "daxMarginEUR": 3520,
+      "daxMarginSharePct": 34.1,
+      "concentrationFlag": "MODERATE",
+      "worstDaxOnlyDayEUR": 4616,
+      "safetyClassification": "TECHNICALLY_FEASIBLE",
+      "extendedStress": {
+        "A_worst_dax_day": {
+          "lossEUR": 4616,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 73,
+          "result": "PASS"
+        },
+        "B_worst_portfolio_day": {
+          "lossEUR": 4616,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 73,
+          "result": "PASS"
+        },
+        "C_two_consecutive_dax_days": {
+          "lossEUR": 7386,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -2697,
+          "result": "FAIL"
+        },
+        "D_dax_plus_adverse_gold": {
+          "lossEUR": 7937,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -3248,
+          "result": "FAIL"
+        },
+        "E_dax_plus_adverse_fx": {
+          "lossEUR": 5093,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -404,
+          "result": "FAIL"
+        },
+        "F_margin_plus20pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 2062,
+          "endingFreeCashEUR": 2627,
+          "result": "PASS"
+        },
+        "G_margin_plus50pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 5156,
+          "endingFreeCashEUR": -466,
+          "result": "FAIL"
+        },
+        "H_transaction_cost_x2": {
+          "lossEUR": 454,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 4235,
+          "result": "PASS"
+        },
+        "I_slippage_shock_10pct": {
+          "lossEUR": 5078,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -389,
+          "result": "FAIL"
+        },
+        "J_overnight_fee_shock_proxy": {
+          "lossEUR": 41,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 4648,
+          "result": "PASS"
+        },
+        "K_simultaneous_core_stress": {
+          "lossEUR": 8414,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -3725,
+          "result": "FAIL"
+        }
+      },
+      "allExtendedScenariosPass": false
+    },
+    {
+      "capital": 20000,
+      "dax1hCt": 1,
+      "dax2hCt": 6,
+      "maxSimultaneousDax": 7,
+      "daxMarginEUR": 6160,
+      "daxMarginSharePct": 52.7,
+      "concentrationFlag": "HIGH",
+      "worstDaxOnlyDayEUR": 8078,
+      "safetyClassification": "PRACTICAL",
+      "extendedStress": {
+        "A_worst_dax_day": {
+          "lossEUR": 8078,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 231,
+          "result": "PASS"
+        },
+        "B_worst_portfolio_day": {
+          "lossEUR": 8078,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 231,
+          "result": "PASS"
+        },
+        "C_two_consecutive_dax_days": {
+          "lossEUR": 12925,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -4616,
+          "result": "FAIL"
+        },
+        "D_dax_plus_adverse_gold": {
+          "lossEUR": 11399,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -3090,
+          "result": "FAIL"
+        },
+        "E_dax_plus_adverse_fx": {
+          "lossEUR": 8619,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -310,
+          "result": "FAIL"
+        },
+        "F_margin_plus20pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 2338,
+          "endingFreeCashEUR": 5971,
+          "result": "PASS"
+        },
+        "G_margin_plus50pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 5846,
+          "endingFreeCashEUR": 2464,
+          "result": "PASS"
+        },
+        "H_transaction_cost_x2": {
+          "lossEUR": 784,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 7525,
+          "result": "PASS"
+        },
+        "I_slippage_shock_10pct": {
+          "lossEUR": 8886,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -577,
+          "result": "FAIL"
+        },
+        "J_overnight_fee_shock_proxy": {
+          "lossEUR": 82,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 8227,
+          "result": "PASS"
+        },
+        "K_simultaneous_core_stress": {
+          "lossEUR": 11940,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -3631,
+          "result": "FAIL"
+        }
+      },
+      "allExtendedScenariosPass": false
+    },
+    {
+      "capital": 25000,
+      "dax1hCt": 1,
+      "dax2hCt": 8,
+      "maxSimultaneousDax": 9,
+      "daxMarginEUR": 7920,
+      "daxMarginSharePct": 54.8,
+      "concentrationFlag": "HIGH",
+      "worstDaxOnlyDayEUR": 10386,
+      "safetyClassification": "TIGHT",
+      "extendedStress": {
+        "A_worst_dax_day": {
+          "lossEUR": 10386,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 171,
+          "result": "PASS"
+        },
+        "B_worst_portfolio_day": {
+          "lossEUR": 10386,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 171,
+          "result": "PASS"
+        },
+        "C_two_consecutive_dax_days": {
+          "lossEUR": 16618,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -6061,
+          "result": "FAIL"
+        },
+        "D_dax_plus_adverse_gold": {
+          "lossEUR": 13707,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -3150,
+          "result": "FAIL"
+        },
+        "E_dax_plus_adverse_fx": {
+          "lossEUR": 11054,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -497,
+          "result": "FAIL"
+        },
+        "F_margin_plus20pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 2889,
+          "endingFreeCashEUR": 7668,
+          "result": "PASS"
+        },
+        "G_margin_plus50pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 7222,
+          "endingFreeCashEUR": 3336,
+          "result": "PASS"
+        },
+        "H_transaction_cost_x2": {
+          "lossEUR": 1009,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 9548,
+          "result": "PASS"
+        },
+        "I_slippage_shock_10pct": {
+          "lossEUR": 11425,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -868,
+          "result": "FAIL"
+        },
+        "J_overnight_fee_shock_proxy": {
+          "lossEUR": 130,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 10427,
+          "result": "PASS"
+        },
+        "K_simultaneous_core_stress": {
+          "lossEUR": 14375,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -3818,
+          "result": "FAIL"
+        }
+      },
+      "allExtendedScenariosPass": false
+    },
+    {
+      "capital": 30000,
+      "dax1hCt": 1,
+      "dax2hCt": 8,
+      "maxSimultaneousDax": 9,
+      "daxMarginEUR": 7920,
+      "daxMarginSharePct": 40.6,
+      "concentrationFlag": "HIGH",
+      "worstDaxOnlyDayEUR": 10386,
+      "safetyClassification": "TECHNICALLY_FEASIBLE",
+      "extendedStress": {
+        "A_worst_dax_day": {
+          "lossEUR": 10386,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 83,
+          "result": "PASS"
+        },
+        "B_worst_portfolio_day": {
+          "lossEUR": 10386,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 83,
+          "result": "PASS"
+        },
+        "C_two_consecutive_dax_days": {
+          "lossEUR": 16618,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -6149,
+          "result": "FAIL"
+        },
+        "D_dax_plus_adverse_gold": {
+          "lossEUR": 13707,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -3238,
+          "result": "FAIL"
+        },
+        "E_dax_plus_adverse_fx": {
+          "lossEUR": 11289,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -820,
+          "result": "FAIL"
+        },
+        "F_margin_plus20pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 3906,
+          "endingFreeCashEUR": 6563,
+          "result": "PASS"
+        },
+        "G_margin_plus50pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 9766,
+          "endingFreeCashEUR": 704,
+          "result": "PASS"
+        },
+        "H_transaction_cost_x2": {
+          "lossEUR": 1013,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 9456,
+          "result": "PASS"
+        },
+        "I_slippage_shock_10pct": {
+          "lossEUR": 11425,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -956,
+          "result": "FAIL"
+        },
+        "J_overnight_fee_shock_proxy": {
+          "lossEUR": 176,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 10293,
+          "result": "PASS"
+        },
+        "K_simultaneous_core_stress": {
+          "lossEUR": 14611,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -4142,
+          "result": "FAIL"
+        }
+      },
+      "allExtendedScenariosPass": false
+    },
+    {
+      "capital": 40000,
+      "dax1hCt": 1,
+      "dax2hCt": 8,
+      "maxSimultaneousDax": 9,
+      "daxMarginEUR": 7920,
+      "daxMarginSharePct": 26.8,
+      "concentrationFlag": "MODERATE",
+      "worstDaxOnlyDayEUR": 10386,
+      "safetyClassification": "TECHNICALLY_FEASIBLE",
+      "extendedStress": {
+        "A_worst_dax_day": {
+          "lossEUR": 10386,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 83,
+          "result": "PASS"
+        },
+        "B_worst_portfolio_day": {
+          "lossEUR": 10386,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 83,
+          "result": "PASS"
+        },
+        "C_two_consecutive_dax_days": {
+          "lossEUR": 16618,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -6149,
+          "result": "FAIL"
+        },
+        "D_dax_plus_adverse_gold": {
+          "lossEUR": 13707,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -3238,
+          "result": "FAIL"
+        },
+        "E_dax_plus_adverse_fx": {
+          "lossEUR": 11752,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -1283,
+          "result": "FAIL"
+        },
+        "F_margin_plus20pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 5906,
+          "endingFreeCashEUR": 4563,
+          "result": "PASS"
+        },
+        "G_margin_plus50pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 14766,
+          "endingFreeCashEUR": -4296,
+          "result": "FAIL"
+        },
+        "H_transaction_cost_x2": {
+          "lossEUR": 1028,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 9441,
+          "result": "PASS"
+        },
+        "I_slippage_shock_10pct": {
+          "lossEUR": 11425,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -956,
+          "result": "FAIL"
+        },
+        "J_overnight_fee_shock_proxy": {
+          "lossEUR": 266,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 10203,
+          "result": "PASS"
+        },
+        "K_simultaneous_core_stress": {
+          "lossEUR": 15073,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -4604,
+          "result": "FAIL"
+        }
+      },
+      "allExtendedScenariosPass": false
+    },
+    {
+      "capital": 50000,
+      "dax1hCt": 1,
+      "dax2hCt": 8,
+      "maxSimultaneousDax": 9,
+      "daxMarginEUR": 7920,
+      "daxMarginSharePct": 21.2,
+      "concentrationFlag": "MODERATE",
+      "worstDaxOnlyDayEUR": 10386,
+      "safetyClassification": "PRACTICAL",
+      "extendedStress": {
+        "A_worst_dax_day": {
+          "lossEUR": 10386,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 2303,
+          "result": "PASS"
+        },
+        "B_worst_portfolio_day": {
+          "lossEUR": 10386,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 2303,
+          "result": "PASS"
+        },
+        "C_two_consecutive_dax_days": {
+          "lossEUR": 16618,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -3929,
+          "result": "FAIL"
+        },
+        "D_dax_plus_adverse_gold": {
+          "lossEUR": 13707,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -1018,
+          "result": "FAIL"
+        },
+        "E_dax_plus_adverse_fx": {
+          "lossEUR": 12112,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 577,
+          "result": "PASS"
+        },
+        "F_margin_plus20pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 7462,
+          "endingFreeCashEUR": 5227,
+          "result": "PASS"
+        },
+        "G_margin_plus50pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 18656,
+          "endingFreeCashEUR": -5966,
+          "result": "FAIL"
+        },
+        "H_transaction_cost_x2": {
+          "lossEUR": 1040,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 11649,
+          "result": "PASS"
+        },
+        "I_slippage_shock_10pct": {
+          "lossEUR": 11425,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 1264,
+          "result": "PASS"
+        },
+        "J_overnight_fee_shock_proxy": {
+          "lossEUR": 336,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 12353,
+          "result": "PASS"
+        },
+        "K_simultaneous_core_stress": {
+          "lossEUR": 15433,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -2744,
+          "result": "FAIL"
+        }
+      },
+      "allExtendedScenariosPass": false
+    },
+    {
+      "capital": 75000,
+      "dax1hCt": 1,
+      "dax2hCt": 8,
+      "maxSimultaneousDax": 9,
+      "daxMarginEUR": 7920,
+      "daxMarginSharePct": 12.4,
+      "concentrationFlag": "LOW",
+      "worstDaxOnlyDayEUR": 10386,
+      "safetyClassification": "TIGHT",
+      "extendedStress": {
+        "A_worst_dax_day": {
+          "lossEUR": 10386,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 719,
+          "result": "PASS"
+        },
+        "B_worst_portfolio_day": {
+          "lossEUR": 26572,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -15467,
+          "result": "FAIL"
+        },
+        "C_two_consecutive_dax_days": {
+          "lossEUR": 16618,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -5513,
+          "result": "FAIL"
+        },
+        "D_dax_plus_adverse_gold": {
+          "lossEUR": 36958,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -25853,
+          "result": "FAIL"
+        },
+        "E_dax_plus_adverse_fx": {
+          "lossEUR": 13341,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -2236,
+          "result": "FAIL"
+        },
+        "F_margin_plus20pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 12779,
+          "endingFreeCashEUR": -1674,
+          "result": "FAIL"
+        },
+        "G_margin_plus50pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 31948,
+          "endingFreeCashEUR": -20842,
+          "result": "FAIL"
+        },
+        "H_transaction_cost_x2": {
+          "lossEUR": 1652,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 9453,
+          "result": "PASS"
+        },
+        "I_slippage_shock_10pct": {
+          "lossEUR": 11425,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -320,
+          "result": "FAIL"
+        },
+        "J_overnight_fee_shock_proxy": {
+          "lossEUR": 575,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 10530,
+          "result": "PASS"
+        },
+        "K_simultaneous_core_stress": {
+          "lossEUR": 39913,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -28808,
+          "result": "FAIL"
+        }
+      },
+      "allExtendedScenariosPass": false
+    },
+    {
+      "capital": 100000,
+      "dax1hCt": 1,
+      "dax2hCt": 8,
+      "maxSimultaneousDax": 9,
+      "daxMarginEUR": 7920,
+      "daxMarginSharePct": 9.9,
+      "concentrationFlag": "LOW",
+      "worstDaxOnlyDayEUR": 10386,
+      "safetyClassification": "PRACTICAL",
+      "extendedStress": {
+        "A_worst_dax_day": {
+          "lossEUR": 10386,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 9599,
+          "result": "PASS"
+        },
+        "B_worst_portfolio_day": {
+          "lossEUR": 26572,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -6587,
+          "result": "FAIL"
+        },
+        "C_two_consecutive_dax_days": {
+          "lossEUR": 16618,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 3367,
+          "result": "PASS"
+        },
+        "D_dax_plus_adverse_gold": {
+          "lossEUR": 36958,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -16973,
+          "result": "FAIL"
+        },
+        "E_dax_plus_adverse_fx": {
+          "lossEUR": 14087,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 5898,
+          "result": "PASS"
+        },
+        "F_margin_plus20pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 16003,
+          "endingFreeCashEUR": 3982,
+          "result": "PASS"
+        },
+        "G_margin_plus50pct": {
+          "lossEUR": 0,
+          "extraMarginEUR": 40008,
+          "endingFreeCashEUR": -20022,
+          "result": "FAIL"
+        },
+        "H_transaction_cost_x2": {
+          "lossEUR": 1854,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 18131,
+          "result": "PASS"
+        },
+        "I_slippage_shock_10pct": {
+          "lossEUR": 11425,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 8560,
+          "result": "PASS"
+        },
+        "J_overnight_fee_shock_proxy": {
+          "lossEUR": 720,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": 19265,
+          "result": "PASS"
+        },
+        "K_simultaneous_core_stress": {
+          "lossEUR": 40658,
+          "extraMarginEUR": 0,
+          "endingFreeCashEUR": -20673,
+          "result": "FAIL"
+        }
+      },
+      "allExtendedScenariosPass": false
+    }
+  ]
+}

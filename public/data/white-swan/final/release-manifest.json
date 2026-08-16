@@ -1,0 +1,93 @@
+{
+  "version": "v6.3.5",
+  "generated_at": "2026-08-16",
+  "git_commit": "3da789e74b25d9ef180e614b99995bdb94c3949a",
+  "capital_tiers": [
+    10000,
+    12000,
+    15000,
+    20000,
+    25000,
+    30000,
+    40000,
+    50000,
+    75000,
+    100000
+  ],
+  "canonical_data_files": [
+    "workspace/output/white-swan/v6.3/portfolio-summary.json",
+    "workspace/output/white-swan/v6.3/equity-series.json",
+    "workspace/output/white-swan/v6.3/dax-concentration-survival.json",
+    "workspace/output/white-swan/v6.3/dax-core-validation.json",
+    "public/data/white-swan/final/portfolio-summary.json",
+    "public/data/white-swan/final/equity-series.json"
+  ],
+  "serkan_files": [
+    "workspace/output/white-swan/serkan/v6.3/white_swan_100k_daily_returns.csv",
+    "workspace/output/white-swan/serkan/v6.3/white_swan_10k_daily_returns.csv",
+    "workspace/output/white-swan/serkan/v6.3/white_swan_12k_daily_returns.csv",
+    "workspace/output/white-swan/serkan/v6.3/white_swan_15k_daily_returns.csv",
+    "workspace/output/white-swan/serkan/v6.3/white_swan_20k_daily_returns.csv",
+    "workspace/output/white-swan/serkan/v6.3/white_swan_25k_daily_returns.csv",
+    "workspace/output/white-swan/serkan/v6.3/white_swan_30k_daily_returns.csv",
+    "workspace/output/white-swan/serkan/v6.3/white_swan_40k_daily_returns.csv",
+    "workspace/output/white-swan/serkan/v6.3/white_swan_50k_daily_returns.csv",
+    "workspace/output/white-swan/serkan/v6.3/white_swan_75k_daily_returns.csv",
+    "workspace/output/white-swan/serkan/v6.3/white_swan_final_daily_returns.csv"
+  ],
+  "strategy_ids": [
+    "eurusd_m6e",
+    "gld_mgc",
+    "zw_mzw",
+    "dax_1h",
+    "dax_2h",
+    "sb_seasonal",
+    "gc1_seasonal",
+    "zc_seasonal",
+    "cl1_seasonal",
+    "cc_seasonal",
+    "zs_seasonal",
+    "spy_mes",
+    "hg1_seasonal",
+    "ym1_tat"
+  ],
+  "active_sleeves": [
+    "eurusd_m6e",
+    "gld_mgc",
+    "zw_mzw",
+    "dax_1h",
+    "dax_2h",
+    "sb_seasonal",
+    "gc1_seasonal",
+    "zc_seasonal",
+    "cl1_seasonal",
+    "cc_seasonal",
+    "zs_seasonal",
+    "spy_mes",
+    "hg1_seasonal",
+    "ym1_tat"
+  ],
+  "blocked_sleeves": [
+    "zm1_seasonal",
+    "iwm_m2k",
+    "eem"
+  ],
+  "cost_model_version": "WHITE_SWAN_IBKR_COST_MODEL_V63 (IBKR Tiered pricing)",
+  "fx_model": "DAILY_ECB_SWEEP (EXR.D.USD.EUR.SP00.A via Frankfurter mirror, prior-business-day fallback)",
+  "overnight_fee_model": "STRUCTURE_CONFIRMED_RATE_UNVERIFIED — see OVERNIGHT_FEE_MODEL_STATUS.md",
+  "survival_model": "Hard pre-selection DAX stress filter (genuine worst FDAX day) + 11 extended deterministic scenarios (release-hardening pass)",
+  "oos_definition": {
+    "is": "2008-01-01 to 2016-12-31",
+    "oos": "2017-01-01+",
+    "oos2019": "2019-01-01+ (final holdout, not used in selection)"
+  },
+  "validation_checks": {
+    "core_5_5": "PASS (all 10 tiers)",
+    "all_active_sleeves_daily_mtm": "PASS (14 sleeves, zm1_seasonal excluded — no data)",
+    "dax_survival_hard_filter": "PASS (10/10 tiers)",
+    "serkan_reconciliation": "PASS (10/10 tiers, exact)",
+    "reproducibility": "PASS (3 consecutive runs, byte-identical outputs)",
+    "overnight_fee_model": "STRUCTURE_CONFIRMED_RATE_UNVERIFIED (known gap, documented, not fabricated)"
+  },
+  "build_status": "PASS"
+}

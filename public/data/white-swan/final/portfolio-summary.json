@@ -2,8 +2,8 @@
   "version": "v6.3.5",
   "generatedAt": "2026-08-16",
   "status": "IS_ONLY_SELECTION_NO_OOS_LEAKAGE",
-  "description": "v6.2: IS-only selection scoring. No OOS2019 in optimizer. Budget scan replaces hardcoded 0.82. Exit-date P&L (v6.1). DAILY_MTM_BLOCKED flagged per sleeve.",
-  "navMethodNote": "P&L booked on exit date for all strategies (v6.1 correction). Daily NAV = realized exit-date P&L accumulated. MaxDD reflects realized P&L only — intraday MTM not modeled for multi-day positions (DAILY_MTM_BLOCKED). FEASIBILITY_UNVERIFIED until real daily MTM available.",
+  "description": "v6.3.5: IS-only selection scoring, no OOS2019 leakage. CORE 5/5 (M6E, DAX1H, DAX2H, MGC, MZW) with a hard pre-selection DAX survival filter against the genuine worst historical FDAX day. Every active sleeve (core + optional) uses real daily MTM — no exit-date or entry-date lump P&L anywhere.",
+  "navMethodNote": "Daily NAV = genuine daily mark-to-market P&L accumulated per sleeve (DAX1H/DAX2H against real EUREX FDAX daily closes, M6E against the daily ECB EUR/USD path, MGC against real COMEX GC daily closes, MZW and all optional sleeves against their own real daily futures closes). Same-day trades are INTRADAY_EXACT; multi-day trades are marked day-by-day, cost split between entry and exit execution dates. MaxDD reflects this genuine daily series, not a realized-P&L approximation.",
   "oos2019LeakageStatus": "REMOVED — scorePortfolio() uses IS-only metrics. extraGreedy() sorts by IS return per margin dollar. OOS2019 computed AFTER freeze as evaluation-only.",
   "hardcoded082Status": "REMOVED — replaced with 8-point budget scan [0.60..0.88]. Optimal budget emerges from IS scoring.",
   "goldMeta": {
