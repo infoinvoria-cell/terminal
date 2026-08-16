@@ -89,6 +89,6 @@ export class CapitalifeModuleErrorBoundary extends Component<Props, State> {
       );
     }
 
-    return <div key={this.state.retryKey} className="min-h-0 flex-1 overflow-hidden">{this.props.children}</div>;
+    return <div key={this.state.retryKey} className="flex min-h-0 flex-1 flex-col overflow-hidden">{this.props.children}</div>;
   }
 }

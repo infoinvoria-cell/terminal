@@ -1007,10 +1007,10 @@ export function SentinelDashboard() {
           )}
           {micAvailable && (
             <button type="button"
-              className={`snt-pill-ico snt-pill-mic snt-pill-aligned${listening ? " snt-pill-rec" : ""}`}
+              className={`snt-pill-mic-btn snt-pill-aligned${listening ? " snt-pill-rec" : ""}`}
               onClick={toggleMic}
               title={listening ? "Aufnahme stoppen" : "Mikrofon"}>
-              {listening ? <MicOff size={14} /> : <Mic size={14} />}
+              {listening ? <MicOff size={15} /> : <Mic size={15} />}
             </button>
           )}
         </div>
@@ -1287,13 +1287,13 @@ export function SentinelDashboard() {
           pointer-events:none;z-index:-1;
         }
         .snt-hero-pill {
-          position:relative;display:flex;align-items:center;gap:0;
+          position:relative;display:flex;align-items:center;gap:6px;
           width:50%;min-height:56px;
           background:#0e0f11;
           backdrop-filter:none;
           -webkit-backdrop-filter:none;
           border:1px solid rgba(200,210,230,0.22);border-radius:28px;
-          padding:8px 10px 8px 10px;
+          padding:8px 12px 8px 18px;
           box-shadow:0 2px 16px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.05);
           transition:border-color .2s,box-shadow .2s;
         }
@@ -1328,8 +1328,16 @@ export function SentinelDashboard() {
         .snt-pill-ico:focus,.snt-pill-ico:focus-visible { outline:none;box-shadow:none; }
         .snt-pill-aligned { align-self:center;margin-bottom:0; }
         .snt-pill-send { color:rgba(255,255,255,0.55); }
-        .snt-pill-mic { color:rgba(255,255,255,0.50); }
-        .snt-pill-rec { color:#ff6b72 !important; }
+        .snt-pill-mic-btn {
+          flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+          width:36px;height:36px;border-radius:50%;
+          background:rgba(255,255,255,0.10);border:none;
+          color:rgba(255,255,255,0.75);cursor:pointer;
+          transition:background .15s,color .15s;
+        }
+        .snt-pill-mic-btn:hover { background:rgba(255,255,255,0.16);color:#ffffff; }
+        .snt-pill-mic-btn:focus,.snt-pill-mic-btn:focus-visible { outline:none;box-shadow:none; }
+        .snt-pill-rec { background:rgba(255,107,114,0.16) !important;color:#ff6b72 !important; }
         /* fullscreen overrides */
         .snt.snt-fullscreen .snt-scroll { padding:0;align-items:center; }
         .snt.snt-fullscreen .snt-chat-feed { width:100%;max-width:1180px;padding:24px 48px 140px;gap:24px; }
