@@ -34,11 +34,25 @@ function IconBellRing() {
   );
 }
 
-function IconMessageSquare() {
+// Canonical Sentinel logo mark, colored via currentColor (matches desktop sidebar's SentinelIcon)
+function IconSentinelLogo() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </svg>
+    <span
+      aria-hidden
+      style={{
+        display: "inline-block", width: 20, height: 20,
+        backgroundColor: "currentColor",
+        WebkitMaskImage: "url(/sentinel-logo.png)",
+        maskImage: "url(/sentinel-logo.png)",
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+        transform: "scale(1.3)",
+      }}
+    />
   );
 }
 
@@ -173,7 +187,7 @@ const ALL_SIDEBAR_GROUPS: NavGroupDef[] = [
     label: "Navigation",
     items: [
       { href: "/m/home",     label: "Home",     Icon: IconHome           },
-      { href: "/m/sentinel", label: "Sentinel", Icon: IconMessageSquare  },
+      { href: "/m/sentinel", label: "Sentinel", Icon: IconSentinelLogo   },
       { href: "/m/brain",    label: "Brain",    Icon: IconGitFork,        permission: "view:brain"  },
       { href: "/m/globe",    label: "Globe",    Icon: IconGlobe,          permission: "view:globe"  },
     ],
@@ -231,14 +245,14 @@ export function MobileBottomNav({ headerHidden, onToggleHeader }: Props) {
         { href: "/m/partner", label: "Partner",        Icon: IconHandshake },
         null as null,
         { href: "/m/signale", label: "Signale",        Icon: IconBellRing },
-        { href: "/m/sentinel", label: "Sentinel",      Icon: IconMessageSquare },
+        { href: "/m/sentinel", label: "Sentinel",      Icon: IconSentinelLogo },
       ]
     : [
         { href: "/m/home",      label: "Home",       Icon: IconHome          },
         { href: "/m/monitoring", label: "Monitoring", Icon: IconActivity      },
         null as null,
         { href: "/m/signale",   label: "Signale",    Icon: IconBellRing      },
-        { href: "/m/sentinel",  label: "Sentinel",   Icon: IconMessageSquare },
+        { href: "/m/sentinel",  label: "Sentinel",   Icon: IconSentinelLogo },
       ];
 
   return (
