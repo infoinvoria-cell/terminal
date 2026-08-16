@@ -995,7 +995,13 @@ export function SentinelDashboard() {
             ref={textareaRef}
             className="snt-ta"
             rows={1}
-            placeholder={listening ? "Listening…" : visibleBusy ? "Tippen erlaubt — wird nach Antwort gesendet…" : "Ask Sentinel"}
+            placeholder={
+              listening
+                ? (greetingLang === "de" ? "Ich höre zu…" : "Listening…")
+                : visibleBusy
+                  ? (greetingLang === "de" ? "Tippen erlaubt — wird nach Antwort gesendet…" : "Typing allowed — will send after the reply…")
+                  : (greetingLang === "de" ? "Frag Sentinel" : "Ask Sentinel")
+            }
             value={visibleInput}
             onChange={onTextareaChange}
             onKeyDown={onKeyDown}
