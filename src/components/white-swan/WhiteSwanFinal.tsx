@@ -348,7 +348,7 @@ export function WhiteSwanFinal() {
 
         {/* ── Header ─────────────────────────────────────────────────────── */}
         <div className="border-b border-[#0d0d0d] pb-5">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <div className="text-[8px] text-[#222] uppercase tracking-[0.4em] mb-2">
                 Capitalife Terminal · Portfolio Research {summary.version ? `· ${summary.version}` : ''}
@@ -356,8 +356,8 @@ export function WhiteSwanFinal() {
               <h1 className="text-xl font-light text-[#e0e0e0] tracking-wide">White Swan</h1>
               <div className="text-[10px] text-[#d4a843] tracking-[0.2em] uppercase mt-0.5">Final Optimized Portfolio</div>
             </div>
-            <div className="flex flex-col items-end gap-1.5">
-              <div className="inline-flex items-center gap-2 border border-[#1a1a1a] rounded px-2.5 py-1.5 bg-[#050505]">
+            <div className="flex flex-col items-start sm:items-end gap-1.5">
+              <div className="inline-flex flex-wrap items-center gap-2 border border-[#1a1a1a] rounded px-2.5 py-1.5 bg-[#050505]">
                 <span className="text-[8px] text-[#2a6a2a] uppercase tracking-widest">
                   {summary.tradableComponents ?? 15} tradable
                 </span>
@@ -374,13 +374,13 @@ export function WhiteSwanFinal() {
             </div>
           </div>
 
-          {/* Hero KPIs — dynamic by selected capital */}
-          <div className="mt-4 border border-[#0d0d0d] rounded bg-[#030303] overflow-x-auto">
+          {/* Hero KPIs — dynamic by selected capital. Wraps to 2-col grid on mobile, scrolls on desktop if needed. */}
+          <div className="mt-4 border border-[#0d0d0d] rounded bg-[#030303]">
             <div className="px-3 py-1 border-b border-[#080808] flex items-center justify-between">
               <span className="text-[8px] text-[#222] uppercase tracking-widest">{fmtCap(selectedCap)} · {capRow?.variant ?? 'RECOMMENDED'}</span>
               {capRow?.assessment && <AssessBadge assessment={capRow.assessment} />}
             </div>
-            <div className="flex min-w-max">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap">
               <KpiCell label="Rec. Capital" value={fmtCap(recCap)} sub={`tech min ${fmtCap(techMin)}`} gold />
               <KpiCell label="Net CAGR" value={fmtPct(kpis?.CAGR)} sub="full period" />
               <KpiCell label="OOS CAGR" value={fmtPct(kpis?.oosCAGR)} sub="2017–2026" />
