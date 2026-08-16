@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Check, Clock, Copy, Grid2x2, Mic, MicOff,
+  Check, ChevronDown, Clock, Copy, Grid2x2, Mic, MicOff,
   Pencil, Plus, RotateCcw, Send, SquarePen, Trash2, Volume2, VolumeX, X,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
@@ -164,8 +164,14 @@ function AurumRings({ voiceLevel = 0, speaking = false, size = 210 }: { voiceLev
         </defs>
       </svg>
       <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-        <AurumWaves voiceLevel={voiceLevel} speaking={speaking} />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/sentinel-logo.png" alt="" style={{ width: "40%", height: "40%", objectFit: "contain" }} draggable={false} />
       </div>
+      {(voiceLevel > 0.05 || speaking) && (
+        <div style={{ position: "absolute", bottom: "6%", left: 0, right: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+          <AurumWaves voiceLevel={voiceLevel} speaking={speaking} />
+        </div>
+      )}
       <style jsx>{`
         .mar-a1 { transform-box:view-box;transform-origin:50% 50%;animation:mar-cw 18s linear infinite; }
         .mar-a2 { transform-box:view-box;transform-origin:50% 50%;animation:mar-ccw 24s linear infinite; }
@@ -200,7 +206,7 @@ function MiniAurumRings() {
       </svg>
       <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/Sentinel.png" alt="" width={10} height={10} style={{ objectFit: "contain", opacity: 0.9 }} />
+        <img src="/sentinel-logo.png" alt="" width={10} height={10} style={{ objectFit: "contain", opacity: 0.9 }} />
       </div>
       <style jsx>{`
         .mni-a1 { transform-box:view-box;transform-origin:50% 50%;animation:mni-cw 18s linear infinite; }
@@ -253,7 +259,7 @@ function SentinelSpinner() {
     <div style={{ position: "relative", width: 26, height: 26, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div className="msnts-ring" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/Sentinel.png" alt="" width={16} height={16} style={{ objectFit: "contain", opacity: 0.88 }} />
+      <img src="/sentinel-logo.png" alt="" width={16} height={16} style={{ objectFit: "contain", opacity: 0.88 }} />
       <style jsx>{`
         .msnts-ring { position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(226,202,122,0.15);border-top-color:#C9A84C;animation:msnts-spin 1.2s linear infinite; }
         @keyframes msnts-spin { to { transform:rotate(360deg); } }
@@ -285,6 +291,7 @@ function SentinelMarkdown({ content }: { content: string }) {
           p:      ({ children }) => <p className="msmd-p">{children}</p>,
           strong: ({ children }) => <strong className="msmd-bold">{children}</strong>,
           em:     ({ children }) => <em className="msmd-italic">{children}</em>,
+          h1:     ({ children }) => <div className="msmd-h1">{children}</div>,
           h2:     ({ children }) => <div className="msmd-h2">{children}</div>,
           h3:     ({ children }) => <div className="msmd-h3">{children}</div>,
           ul:     ({ children }) => <ul className="msmd-ul">{children}</ul>,
@@ -298,6 +305,8 @@ function SentinelMarkdown({ content }: { content: string }) {
       </ReactMarkdown>
       <style jsx>{`
         .msmd-root { display:flex;flex-direction:column;gap:0; }
+        .msmd-h1 { font-size:15px;font-weight:700;color:#C9A84C;margin:12px 0 5px;letter-spacing:-0.01em;line-height:1.3; }
+        .msmd-h1:first-child { margin-top:0; }
         .msmd-h2 { font-size:13px;font-weight:600;color:#C9A84C;margin:10px 0 4px;line-height:1.35; }
         .msmd-h2:first-child { margin-top:0; }
         .msmd-h3 { font-size:12px;font-weight:600;color:rgba(214,184,108,0.80);margin:8px 0 3px;line-height:1.35; }
@@ -519,10 +528,12 @@ export function MobileSentinelView() {
   const [animPhase,        setAnimPhase]        = useState<"avatar" | "typing" | "done">("avatar");
   const [typedText,        setTypedText]        = useState("");
   const [historyOpen,      setHistoryOpen]      = useState(false);
+  const [voiceDropOpen,    setVoiceDropOpen]    = useState(false);
   const [kbOffset,         setKbOffset]         = useState(0);
 
   const scrollRef      = useRef<HTMLDivElement>(null);
   const textareaRef    = useRef<HTMLTextAreaElement>(null);
+  const voiceDropRef   = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const baseInputRef   = useRef("");
   const interimRef     = useRef("");
@@ -557,6 +568,14 @@ export function MobileSentinelView() {
   useEffect(() => { lsSet(FAVORITES_KEY, favorites); }, [favorites]);
   useEffect(() => { lsSet(MUTE_KEY, muted ? "1" : "0"); }, [muted]);
   useEffect(() => { lsSet("snt_voice_uri", selectedVoiceUri ?? ""); }, [selectedVoiceUri]);
+
+  useEffect(() => {
+    if (!voiceDropOpen) return;
+    const h = (e: MouseEvent | TouchEvent) => { if (voiceDropRef.current && !voiceDropRef.current.contains(e.target as Node)) setVoiceDropOpen(false); };
+    document.addEventListener("mousedown", h);
+    document.addEventListener("touchstart", h);
+    return () => { document.removeEventListener("mousedown", h); document.removeEventListener("touchstart", h); };
+  }, [voiceDropOpen]);
 
   // Opening animation
   useEffect(() => {
@@ -977,6 +996,46 @@ export function MobileSentinelView() {
               style={{ ...iconBtn({}) }}>
               {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
             </button>
+            {germanVoices.length > 0 && (
+              <div ref={voiceDropRef} style={{ position: "relative" }}>
+                <button type="button" onClick={() => setVoiceDropOpen(o => !o)} title="Stimme wählen"
+                  style={{ ...iconBtn({ active: voiceDropOpen }), opacity: muted ? 0.35 : 1 }}>
+                  <ChevronDown size={14} />
+                </button>
+                {voiceDropOpen && (
+                  <div style={{
+                    position: "absolute", bottom: "calc(100% + 6px)", left: 0,
+                    background: "linear-gradient(to bottom, #26262d, #111114)", border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: 10, padding: "6px 0", zIndex: 300,
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+                    minWidth: 210, maxHeight: 260, overflowY: "auto",
+                    fontFamily: "var(--font-text)", fontSize: 12,
+                  }}>
+                    <p style={{ padding: "4px 12px 6px", fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", margin: 0 }}>
+                      DE Stimme
+                    </p>
+                    {germanVoices.map(v => {
+                      const active = selectedVoiceUri ? v.voiceURI === selectedVoiceUri : v === pickBestGermanVoice(germanVoices, null);
+                      return (
+                        <button key={v.voiceURI} type="button"
+                          onClick={() => { setSelectedVoiceUri(v.voiceURI); setVoiceDropOpen(false); }}
+                          style={{
+                            display: "flex", alignItems: "center", gap: 8, width: "100%",
+                            padding: "8px 12px", background: "none", border: "none",
+                            color: active ? "#C9A84C" : "rgba(200,210,220,0.8)",
+                            cursor: "pointer", textAlign: "left", fontSize: 12,
+                            fontFamily: "inherit", WebkitTapHighlightColor: "transparent",
+                          }}>
+                          {active && <Check size={11} style={{ flexShrink: 0, color: "#C9A84C" }} />}
+                          {!active && <span style={{ width: 11, flexShrink: 0 }} />}
+                          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
             <button type="button" onClick={() => setHistoryOpen(true)} title="Gespeicherte Chats"
               style={{ ...iconBtn({}) }}>
               <Clock size={16} />
