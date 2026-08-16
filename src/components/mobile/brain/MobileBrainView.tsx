@@ -5,19 +5,21 @@ const GOLD = "#C9A84C";
 const CARD_BG = "#1F1F1F";
 const CARD_BORDER = "rgba(255,255,255,0.06)";
 
+// Matches the actual /api/brain-graph/status response (a lightweight health
+// check, not a data snapshot — see src/app/api/brain-graph/status/route.ts).
 type BrainStatus = {
-  brain: { nodeCount: number; linkCount: number; builtAt: string | null; exists: boolean };
-  dashboard: { nodeCount: number; linkCount: number };
-  graphifyStatus: "available" | "partial" | "missing";
-  lastUpdated: string | null;
-  vaultSizeGb: number | null;
-  changes: { title: string; status: "ok" | "partial" | "missing"; updatedAt: string | null }[];
+  available: boolean;
+  pathConfigured: boolean;
+  brainFile: boolean;
+  snapshotFile: boolean;
 };
 
-function fmtDate(iso: string | null) {
-  if (!iso) return "–";
-  return new Date(iso).toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "2-digit" });
-}
+// Matches /api/brain-graph/network (same endpoint the desktop Brain page uses).
+type BrainNetwork = {
+  nodes: { id: string }[];
+  links: { source: string; target: string }[];
+  source?: string;
+};
 
 function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
   return (
@@ -50,16 +52,29 @@ function GlobeSpinner({ size = 120 }: { size?: number }) {
   );
 }
 
+function StatusRow({ ok, label }: { ok: boolean; label: string }) {
+  const dot = ok ? "#22C55E" : "#ef4444";
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 14px", borderTop: `1px solid ${CARD_BORDER}` }}>
+      <span style={{ width: 7, height: 7, borderRadius: "50%", background: dot, flexShrink: 0, display: "inline-block" }} />
+      <div style={{ fontSize: 12.5, color: "rgba(255,255,255,0.82)", fontWeight: 500 }}>{label}</div>
+    </div>
+  );
+}
+
 export function MobileBrainView() {
-  const [data, setData] = useState<BrainStatus | null>(null);
+  const [status, setStatus] = useState<BrainStatus | null>(null);
+  const [network, setNetwork] = useState<BrainNetwork | null>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    fetch("/api/brain-graph/status").then((r) => r.json()).then((j) => setData(j as BrainStatus)).catch(() => setError(true));
+    fetch("/api/brain-graph/status").then((r) => r.json()).then((j) => setStatus(j as BrainStatus)).catch(() => setError(true));
+    fetch("/api/brain-graph/network").then((r) => r.json()).then((j) => setNetwork(j as BrainNetwork)).catch(() => null);
   }, []);
 
-  const totalNodes = (data?.brain.nodeCount ?? 0) + (data?.dashboard.nodeCount ?? 0);
-  const totalLinks = (data?.brain.linkCount ?? 0) + (data?.dashboard.linkCount ?? 0);
+  const nodeCount = network?.nodes?.length ?? 0;
+  const linkCount = network?.links?.length ?? 0;
+  const hasGraph = Array.isArray(network?.nodes) && nodeCount > 0;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
@@ -78,30 +93,16 @@ export function MobileBrainView() {
         ) : (
           <>
             <div style={{ display: "flex", gap: 10 }}>
-              <StatCard label="Knoten" value={data ? totalNodes.toLocaleString("de-DE") : "–"} sub="Nodes im Graphen" />
-              <StatCard label="Links" value={data ? totalLinks.toLocaleString("de-DE") : "–"} sub="Verbindungen" />
+              <StatCard label="Knoten" value={hasGraph ? nodeCount.toLocaleString("de-DE") : "–"} sub={network?.source ?? "Nodes im Graphen"} />
+              <StatCard label="Links" value={hasGraph ? linkCount.toLocaleString("de-DE") : "–"} sub="Verbindungen" />
             </div>
-            {data && (
-              <div style={{ display: "flex", gap: 10 }}>
-                <StatCard label="Vault" value={data.vaultSizeGb !== null ? `${data.vaultSizeGb} GB` : "–"} sub="Vault-Größe" />
-                <StatCard label="Aktualisiert" value={fmtDate(data.lastUpdated)} sub={data.graphifyStatus} />
-              </div>
-            )}
-            {data && (
+            {status && (
               <div style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 14, overflow: "hidden" }}>
                 <div style={{ padding: "12px 14px 8px", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.42)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Systemstatus</div>
-                {data.changes.map((c, i) => {
-                  const dot = c.status === "ok" ? "#22C55E" : c.status === "partial" ? GOLD : "rgba(255,255,255,0.2)";
-                  return (
-                    <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "9px 14px", borderTop: i === 0 ? "none" : `1px solid ${CARD_BORDER}` }}>
-                      <span style={{ width: 7, height: 7, borderRadius: "50%", background: dot, flexShrink: 0, marginTop: 4, display: "inline-block" }} />
-                      <div>
-                        <div style={{ fontSize: 12.5, color: "rgba(255,255,255,0.82)", fontWeight: 500 }}>{c.title}</div>
-                        {c.updatedAt && <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.32)", marginTop: 1 }}>{fmtDate(c.updatedAt)}</div>}
-                      </div>
-                    </div>
-                  );
-                })}
+                <StatusRow ok={status.pathConfigured} label="Brain-Pfad konfiguriert" />
+                <StatusRow ok={status.brainFile} label="Brain-Datei vorhanden" />
+                <StatusRow ok={status.snapshotFile} label="Snapshot vorhanden" />
+                <StatusRow ok={hasGraph} label="Graph geladen" />
               </div>
             )}
           </>
