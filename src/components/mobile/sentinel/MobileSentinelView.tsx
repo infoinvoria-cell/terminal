@@ -8,6 +8,7 @@ import {
 import ReactMarkdown from "react-markdown";
 import { useSentinelSession } from "@/components/sentinel/sentinel-session-provider";
 import { SentinelCapacityPanel } from "@/components/sentinel/SentinelCapacityPanel";
+import { SentinelBrainGlobe, BrainConnector } from "@/components/sentinel/SentinelBrainLink";
 import { lsGet, lsSet } from "@/lib/sentinel/sentinel-session-store";
 import type { ChatEntry, SourceItem } from "@/lib/sentinel/sentinel-session-store";
 
@@ -28,7 +29,8 @@ const MUTE_KEY        = "fmd_sentinel_muted";
 const FAVORITES_KEY   = "fmd_sentinel_favorites";
 const SAVED_CHATS_KEY = "fmd_sentinel_saved_chats";
 const TA_MAX_H        = 100;
-const GREETING        = "Yo was geht ab Bro, Sentinel hier...";
+const GREETING_DE      = "Yo was geht ab Bro, Sentinel hier...";
+const GREETING_EN      = "Hello Sir, how can I assist you today...";
 
 // ── Saved chat type ───────────────────────────────────────────────────────────
 
@@ -206,7 +208,7 @@ function MiniAurumRings() {
       </svg>
       <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/sentinel-logo.png" alt="" width={10} height={10} style={{ objectFit: "contain", opacity: 0.9 }} />
+        <img src="/sentinel-logo.png" alt="" width={19} height={19} style={{ objectFit: "contain", opacity: 0.95 }} />
       </div>
       <style jsx>{`
         .mni-a1 { transform-box:view-box;transform-origin:50% 50%;animation:mni-cw 18s linear infinite; }
@@ -527,6 +529,9 @@ export function MobileSentinelView() {
   const [selectedVoiceUri, setSelectedVoiceUri] = useState<string | null>(() => { try { const v = lsGet<string>("snt_voice_uri", ""); return v || null; } catch { return null; } });
   const [animPhase,        setAnimPhase]        = useState<"avatar" | "typing" | "done">("avatar");
   const [typedText,        setTypedText]        = useState("");
+  const [greetingLang,     setGreetingLang]     = useState<"de" | "en">("de");
+  const GREETING = greetingLang === "de" ? GREETING_DE : GREETING_EN;
+  const [brainActive,      setBrainActive]      = useState(false);
   const [historyOpen,      setHistoryOpen]      = useState(false);
   const [voiceDropOpen,    setVoiceDropOpen]    = useState(false);
   const [kbOffset,         setKbOffset]         = useState(0);
@@ -837,11 +842,49 @@ export function MobileSentinelView() {
         {/* ── Empty / avatar state ── */}
         {visEnt.length === 0 && !visBusy ? (
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 20px 40px", gap: 0 }}>
-            <div className="ms-enter" style={{ marginBottom: 36, flexShrink: 0 }}>
-              <AurumRings voiceLevel={listening ? effectiveVoiceLevel : 0} speaking={speaking} size={210} />
+            <div className="ms-enter" style={{ marginBottom: 20, flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <div
+                onClick={() => setBrainActive(a => !a)}
+                role="button"
+                aria-label="Brain verbinden"
+                style={{ cursor: "pointer" }}
+              >
+                <AurumRings voiceLevel={listening ? effectiveVoiceLevel : 0} speaking={speaking} size={210} />
+              </div>
+              {/* Brain globe reveal — vertical stack (mobile adaptation of Desktop's
+                  side-by-side eye+globe layout, which doesn't fit width-wise below ~430px) */}
+              <div style={{
+                height: brainActive ? 16 : 0, opacity: brainActive ? 1 : 0,
+                transition: "opacity .35s ease .05s", overflow: "hidden",
+                display: "flex", justifyContent: "center", width: 40,
+                transform: "rotate(90deg)",
+              }}>
+                <BrainConnector active={brainActive} />
+              </div>
+              <div style={{
+                marginTop: brainActive ? 4 : 0,
+                opacity: brainActive ? 1 : 0,
+                transform: brainActive ? "scale(1)" : "scale(0.9)",
+                transition: "opacity .4s ease .1s, transform .4s ease .1s, margin-top .3s ease",
+                maxHeight: brainActive ? 160 : 0,
+                overflow: "hidden",
+              }}>
+                <SentinelBrainGlobe size={130} active={brainActive} />
+              </div>
+              {brainActive && (
+                <p style={{
+                  display: "flex", alignItems: "center", gap: 5, margin: "10px 0 0",
+                  fontSize: 11, fontWeight: 300, letterSpacing: "0.03em",
+                  color: "rgba(226,202,122,0.80)", fontFamily: "var(--font-text)",
+                }}>
+                  {greetingLang === "de" ? "Brain verbunden" : "Brain connected"} <Check size={12} strokeWidth={2.5} />
+                </p>
+              )}
             </div>
-            <p style={{ fontSize: 18, color: "#ffffff", letterSpacing: "-0.01em", fontWeight: 600, textAlign: "center", margin: 0, minHeight: "1.4em" }}>
-              {listening ? "Ich höre zu…" : (animPhase === "done" ? GREETING : typedText)}
+            <p
+              onClick={() => { if (animPhase === "done" && !listening) setGreetingLang(l => (l === "de" ? "en" : "de")); }}
+              style={{ fontSize: 18, color: "#ffffff", letterSpacing: "-0.01em", fontWeight: 600, textAlign: "center", margin: 0, minHeight: "1.4em", cursor: animPhase === "done" && !listening ? "pointer" : "default" }}>
+              {listening ? (greetingLang === "de" ? "Ich höre zu…" : "Listening…") : (animPhase === "done" ? GREETING : typedText)}
               {!listening && animPhase === "typing" && <span className="ms-cursor">|</span>}
             </p>
           </div>
@@ -951,7 +994,13 @@ export function MobileSentinelView() {
             ref={textareaRef}
             rows={1}
             enterKeyHint="send"
-            placeholder={listening ? "Spricht…" : visBusy ? "Tippen möglich — wird danach gesendet…" : "Sentinel fragen…"}
+            placeholder={
+              listening
+                ? (greetingLang === "de" ? "Spricht…" : "Speaking…")
+                : visBusy
+                  ? (greetingLang === "de" ? "Tippen möglich — wird danach gesendet…" : "Typing allowed — will send after the reply…")
+                  : (greetingLang === "de" ? "Sentinel fragen…" : "Ask Sentinel")
+            }
             value={visInput}
             onChange={onTextareaChange}
             onKeyDown={onKeyDown}
