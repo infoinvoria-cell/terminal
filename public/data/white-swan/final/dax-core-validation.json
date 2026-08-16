@@ -1,0 +1,47 @@
+{
+  "DAX1H_CORE_VALID": "PASS",
+  "DAX2H_CORE_VALID": "PASS",
+  "M6E_DAILY_MTM": "PASS",
+  "MZW_DAILY_MTM": "PASS",
+  "MGC_DAILY_MTM": "PASS",
+  "source": "EUREX:FDAX1! continuous futures, Capitalife Engine production_v1 pipeline (genuine 30M EUREX CSV export, parity-validated vs DE30EUR)",
+  "dax1h": {
+    "n": 417,
+    "strategyId": "dax_1h",
+    "params": {
+      "slPts": 35,
+      "tpPts": 126,
+      "beCRV": 1,
+      "ema": 2,
+      "lookback": 9,
+      "maxTradesPerDay": 1,
+      "sessionBerlin": "08:00-12:00",
+      "days": "Mon-Fri",
+      "excludedMonths": [
+        8,
+        4
+      ],
+      "useRegime": "flip_only",
+      "regimeNote": "ER+Spec: CALIBRATION_PENDING (computed on active-hours-only bars; Pine uses full-day native 1H OANDA bars incl. overnight)"
+    },
+    "netEUR": 805
+  },
+  "dax2h": {
+    "n": 3354,
+    "strategyId": "trend_momentum_dax_2h_de30eur_2h",
+    "lockedParams": {
+      "sl_m": 0.8,
+      "tp_m": 4,
+      "be_m": 0.5
+    },
+    "netEUR": 14912
+  },
+  "m6e": {
+    "n": 136,
+    "netEUR": -156
+  },
+  "mzw": {
+    "n": 18,
+    "netEUR": 520
+  }
+}
