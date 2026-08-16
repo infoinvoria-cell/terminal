@@ -1,0 +1,130 @@
+{
+  "fdaxWorstDayReal": {
+    "chg": 1154,
+    "date": "2020-03-12",
+    "pct": 11.088690304602672
+  },
+  "allTiersPass": true,
+  "tiers": [
+    {
+      "capital": 10000,
+      "dax1hCt": 1,
+      "dax2hCt": 1,
+      "maxSimultaneousDax": 2,
+      "maxDaxDailyLossEUR": 2308,
+      "daxShareOfPortfolioVolPct": 23.3,
+      "daxShareOfPortfolioMaxDDPct": 46.2,
+      "minExcessLiquidityDuringWorstDaxDayEUR": 149,
+      "survivalPass": "PASS",
+      "coreStatus": "CORE_5/5"
+    },
+    {
+      "capital": 12000,
+      "dax1hCt": 1,
+      "dax2hCt": 2,
+      "maxSimultaneousDax": 3,
+      "maxDaxDailyLossEUR": 3462,
+      "daxShareOfPortfolioVolPct": 31.3,
+      "daxShareOfPortfolioMaxDDPct": 55.6,
+      "minExcessLiquidityDuringWorstDaxDayEUR": 115,
+      "survivalPass": "PASS",
+      "coreStatus": "CORE_5/5"
+    },
+    {
+      "capital": 15000,
+      "dax1hCt": 1,
+      "dax2hCt": 3,
+      "maxSimultaneousDax": 4,
+      "maxDaxDailyLossEUR": 4616,
+      "daxShareOfPortfolioVolPct": 34.1,
+      "daxShareOfPortfolioMaxDDPct": 61.9,
+      "minExcessLiquidityDuringWorstDaxDayEUR": 73,
+      "survivalPass": "PASS",
+      "coreStatus": "CORE_5/5"
+    },
+    {
+      "capital": 20000,
+      "dax1hCt": 1,
+      "dax2hCt": 6,
+      "maxSimultaneousDax": 7,
+      "maxDaxDailyLossEUR": 8078,
+      "daxShareOfPortfolioVolPct": 52.7,
+      "daxShareOfPortfolioMaxDDPct": 70.1,
+      "minExcessLiquidityDuringWorstDaxDayEUR": 231,
+      "survivalPass": "PASS",
+      "coreStatus": "CORE_5/5"
+    },
+    {
+      "capital": 25000,
+      "dax1hCt": 1,
+      "dax2hCt": 8,
+      "maxSimultaneousDax": 9,
+      "maxDaxDailyLossEUR": 10386,
+      "daxShareOfPortfolioVolPct": 54.8,
+      "daxShareOfPortfolioMaxDDPct": 64.2,
+      "minExcessLiquidityDuringWorstDaxDayEUR": 171,
+      "survivalPass": "PASS",
+      "coreStatus": "CORE_5/5"
+    },
+    {
+      "capital": 30000,
+      "dax1hCt": 1,
+      "dax2hCt": 8,
+      "maxSimultaneousDax": 9,
+      "maxDaxDailyLossEUR": 10386,
+      "daxShareOfPortfolioVolPct": 40.6,
+      "daxShareOfPortfolioMaxDDPct": 73.6,
+      "minExcessLiquidityDuringWorstDaxDayEUR": 83,
+      "survivalPass": "PASS",
+      "coreStatus": "CORE_5/5"
+    },
+    {
+      "capital": 40000,
+      "dax1hCt": 1,
+      "dax2hCt": 8,
+      "maxSimultaneousDax": 9,
+      "maxDaxDailyLossEUR": 10386,
+      "daxShareOfPortfolioVolPct": 26.8,
+      "daxShareOfPortfolioMaxDDPct": 73.6,
+      "minExcessLiquidityDuringWorstDaxDayEUR": 83,
+      "survivalPass": "PASS",
+      "coreStatus": "CORE_5/5"
+    },
+    {
+      "capital": 50000,
+      "dax1hCt": 1,
+      "dax2hCt": 8,
+      "maxSimultaneousDax": 9,
+      "maxDaxDailyLossEUR": 10386,
+      "daxShareOfPortfolioVolPct": 21.2,
+      "daxShareOfPortfolioMaxDDPct": 68.1,
+      "minExcessLiquidityDuringWorstDaxDayEUR": 2303,
+      "survivalPass": "PASS",
+      "coreStatus": "CORE_5/5"
+    },
+    {
+      "capital": 75000,
+      "dax1hCt": 1,
+      "dax2hCt": 8,
+      "maxSimultaneousDax": 9,
+      "maxDaxDailyLossEUR": 10386,
+      "daxShareOfPortfolioVolPct": 12.4,
+      "daxShareOfPortfolioMaxDDPct": 25.5,
+      "minExcessLiquidityDuringWorstDaxDayEUR": 719,
+      "survivalPass": "PASS",
+      "coreStatus": "CORE_5/5"
+    },
+    {
+      "capital": 100000,
+      "dax1hCt": 1,
+      "dax2hCt": 8,
+      "maxSimultaneousDax": 9,
+      "maxDaxDailyLossEUR": 10386,
+      "daxShareOfPortfolioVolPct": 9.9,
+      "daxShareOfPortfolioMaxDDPct": 25.3,
+      "minExcessLiquidityDuringWorstDaxDayEUR": 9599,
+      "survivalPass": "PASS",
+      "coreStatus": "CORE_5/5"
+    }
+  ]
+}
