@@ -435,13 +435,21 @@ function ChatHistoryPanel({ open, onClose, onLoad, onDelete }: {
   return (
     <>
       <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.5)" }} />
+      {/* bottom offset clears the floating pill bottom nav (24px gap + 62px height) plus its own safe-area inset */}
       <div style={{
-        position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 201,
-        background: "#111214", borderRadius: "16px 16px 0 0",
-        maxHeight: "70dvh", display: "flex", flexDirection: "column",
-        animation: "ms-slideup 260ms cubic-bezier(0.32,0.72,0,1) both",
+        position: "fixed", left: 0, right: 0,
+        bottom: "calc(env(safe-area-inset-bottom, 16px) + 24px + 62px + 10px)",
+        zIndex: 201,
+        background: "#111214", borderRadius: 16,
+        maxHeight: "60dvh", display: "flex", flexDirection: "column",
+        boxShadow: "0 24px 60px rgba(0,0,0,0.6)",
+        margin: "0 8px",
       }}>
-        <style jsx global>{`@keyframes ms-slideup { from { transform:translateY(100%); } to { transform:translateY(0); } }`}</style>
+        {/* No entrance animation — a transform-based slide-up was observed
+            getting stuck at its start keyframe in headless/backgrounded-tab
+            testing (browsers commonly pause CSS animations on non-visible
+            tabs), which left the sheet permanently mispositioned/invisible.
+            The panel just appears; correctness over a flourish. */}
         {/* Handle */}
         <div style={{ display: "flex", justifyContent: "center", padding: "10px 0 4px" }}>
           <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)" }} />
