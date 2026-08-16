@@ -1,0 +1,50 @@
+{
+  "status": "SHADOW_VALIDATION_2025+ — NOT INCLUDED IN CANONICAL WHITE SWAN KPI",
+  "reason": "Genuine EUREX FDAX1! intraday futures history only available 2024-10/2025-09 through 2026-08 (confirmed via live tvDatafeed pull; 40000-bar request capped by TradingView platform). OANDA DE30EUR CFD history (2008-2026) is PERMANENTLY BANNED from canonical accounting.",
+  "dataSource": "tvDatafeed (TradingView, no-login) — symbol FDAX1!, exchange EUREX, engine_futures strategy replay",
+  "instrumentEconomics": {
+    "instrument": "FDXS",
+    "costRtEUR": 0.76,
+    "note": "Same FDXS cost model as canonical (WHITE_SWAN_IBKR_COST_MODEL_V63.csv)"
+  },
+  "dax1h": {
+    "label": "DAX1H — SHADOW_VALIDATION_2025+",
+    "source": "engine_futures",
+    "tvSymbol": "EUREX:FDAX1!",
+    "dataValidity": "GENUINE_EUREX_FUTURES_SHORT_HISTORY",
+    "dateRange": {
+      "first": "2025-09-11T14:00:00",
+      "last": "2026-08-14T19:00:00"
+    },
+    "n": 26,
+    "grossPnlEUR": 1420,
+    "netPnlEUR": 1400,
+    "costRtEUR": 0.76,
+    "PF": 2.26,
+    "expectancyEUR": 53.86,
+    "Sharpe": 4.462,
+    "MaxDDPct": 3.51,
+    "MaxDDEUR": 404,
+    "canonicalStatus": "DATA_BLOCKED_CANONICAL — excluded from portfolio KPI/CAGR/Sharpe/Serkan"
+  },
+  "dax2h": {
+    "label": "DAX2H — SHADOW_VALIDATION_2025+",
+    "source": "engine_futures",
+    "tvSymbol": "EUREX:FDAX1!",
+    "dataValidity": "GENUINE_EUREX_FUTURES_SHORT_HISTORY",
+    "dateRange": {
+      "first": "2024-10-25T04:00:00",
+      "last": "2026-08-14T18:00:00"
+    },
+    "n": 549,
+    "grossPnlEUR": -17482,
+    "netPnlEUR": -17899,
+    "costRtEUR": 0.76,
+    "PF": 0.42,
+    "expectancyEUR": -32.6,
+    "Sharpe": 0.215,
+    "MaxDDPct": 178.59,
+    "MaxDDEUR": 18630,
+    "canonicalStatus": "DATA_BLOCKED_CANONICAL — excluded from portfolio KPI/CAGR/Sharpe/Serkan"
+  }
+}

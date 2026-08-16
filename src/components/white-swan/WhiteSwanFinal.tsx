@@ -64,9 +64,17 @@ interface EquityData {
   series: Record<string, EquityPoint[]>;
   yearlyReturns: Array<{ year: number; netEUR: number; returnPct: number }>;
 }
+interface DaxShadowSleeve {
+  label: string; n: number; netPnlEUR: number; PF: number; expectancyEUR: number;
+  Sharpe: number; MaxDDPct: number; dateRange?: { first: string; last: string };
+  canonicalStatus: string;
+}
+interface DaxShadowPanel {
+  status: string; reason: string; dax1h: DaxShadowSleeve; dax2h: DaxShadowSleeve;
+}
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
-const ALL_CAPS = [10000, 15000, 20000, 25000, 30000, 40000, 50000, 75000, 100000];
+const ALL_CAPS = [10000, 12000, 15000, 20000, 25000, 30000, 40000, 50000, 75000, 100000];
 const CAP_COLORS: Record<number, string> = {
   10000: '#374151', 12500: '#4b5563', 15000: '#6b7280', 20000: '#9ca3af',
   25000: '#d1d5db', 30000: '#e5e7eb', 40000: '#d4a843', 50000: '#f5d78e',
@@ -280,6 +288,7 @@ function VariantChip({ label, data, gold }: { label: string; data?: { capital: n
 export function WhiteSwanFinal() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [equityData, setEquityData] = useState<EquityData | null>(null);
+  const [daxShadow, setDaxShadow] = useState<DaxShadowPanel | null>(null);
   const [selectedCap, setSelectedCap] = useState<number>(25000);
   const [multiCap, setMultiCap] = useState<number[]>([25000]);
   const [activeTab, setActiveTab] = useState<'overview' | 'equity' | 'weights' | 'costs' | 'components' | 'capital' | 'ladder' | 'attribution'>('overview');
@@ -293,6 +302,7 @@ export function WhiteSwanFinal() {
       setMultiCap([rec]);
     }).catch(() => null);
     fetch('/data/white-swan/final/equity-series.json').then(r => r.json()).then(setEquityData).catch(() => null);
+    fetch('/data/white-swan/final/dax-shadow-panel.json').then(r => r.json()).then(setDaxShadow).catch(() => null);
   }, []);
 
   const toggleCap = useCallback((c: number) => {
@@ -391,10 +401,45 @@ export function WhiteSwanFinal() {
               <KpiCell label="Cost/NAV" value={fmtPct(kpis?.costPerNAV, 2)} sub={`${fmtEUR(kpis?.annualCostEUR)}/yr`} />
               <KpiCell label="Margin" value={fmtPct(capRow?.marginPct)} sub={capRow?.assessment ?? ''} />
               <KpiCell label="Sleeves" value={capRow?.activeSleeves != null ? String(capRow.activeSleeves) : '—'} />
-              <KpiCell label="Core 5/5" value={capRow?.corePassStr ?? '—'} gold={!!capRow?.corePass} />
+              <KpiCell label="Validated Core" value={capRow?.corePassStr ?? '—'} gold={!!capRow?.corePass} />
             </div>
           </div>
+
+          {/* Data-constrained portfolio notice */}
+          <div className="mt-3 border border-[#2a2210] rounded bg-[#0a0805] px-3 py-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span className="text-[9px] text-[#d4a843] uppercase tracking-widest font-semibold">Validated Portfolio</span>
+            <span className="text-[9px] text-[#888] font-mono">{capRow?.corePassStr ?? 'VALIDATED CORE 3/5'} — EURUSD/M6E, Gold/MGC, Wheat/MZW</span>
+            <span className="text-[#1a1a1a]">·</span>
+            <span className="text-[9px] text-[#6a4a2a] font-mono">DAX1H + DAX2H: DATA_BLOCKED_CANONICAL — genuine EUREX FDAX intraday history only available 2024/2025–2026; excluded from canonical KPI, CAGR, Sharpe, MaxDD, and Serkan returns. See shadow panel below.</span>
+          </div>
         </div>
+
+        {/* ── DAX Shadow Panel — genuine 2025+ EUREX futures, NOT canonical ─── */}
+        {daxShadow && (
+          <div className="border border-[#1a1a1a] rounded bg-[#030303] overflow-hidden">
+            <div className="px-3 py-1.5 border-b border-[#080808] flex items-center justify-between">
+              <span className="text-[8px] text-[#d4a843] uppercase tracking-widest">DAX Shadow Panel — Genuine EUREX FDAX1! (Short History)</span>
+              <span className="text-[8px] text-[#6a2a2a] uppercase tracking-widest">Not included in canonical White Swan KPI</span>
+            </div>
+            <div className="grid grid-cols-2 divide-x divide-[#0d0d0d]">
+              {[daxShadow.dax1h, daxShadow.dax2h].map((s) => (
+                <div key={s.label} className="px-3 py-2.5">
+                  <div className="text-[10px] text-[#c0c0c0] font-mono mb-1.5">{s.label}</div>
+                  <div className="grid grid-cols-3 gap-2 text-[9px]">
+                    <div><span className="text-[#333]">Trades </span><span className="text-[#999] font-mono">{s.n}</span></div>
+                    <div><span className="text-[#333]">Net </span><span className="text-[#999] font-mono">{fmtEUR(s.netPnlEUR)}</span></div>
+                    <div><span className="text-[#333]">PF </span><span className="text-[#999] font-mono">{fmtNum(s.PF)}</span></div>
+                    <div><span className="text-[#333]">Expectancy </span><span className="text-[#999] font-mono">{fmtEUR(s.expectancyEUR)}</span></div>
+                    <div><span className="text-[#333]">Sharpe </span><span className="text-[#999] font-mono">{fmtNum(s.Sharpe)}</span></div>
+                    <div><span className="text-[#333]">MaxDD </span><span className="text-[#999] font-mono">{fmtPct(s.MaxDDPct)}</span></div>
+                  </div>
+                  <div className="text-[8px] text-[#444] mt-1.5">{s.dateRange?.first?.slice(0,10)} → {s.dateRange?.last?.slice(0,10)} · SHORT HISTORY</div>
+                </div>
+              ))}
+            </div>
+            <div className="px-3 py-1.5 border-t border-[#080808] text-[8px] text-[#333]">{daxShadow.reason}</div>
+          </div>
+        )}
 
         {/* ── Variants row ───────────────────────────────────────────────── */}
         {summary.variants && (
@@ -445,7 +490,7 @@ export function WhiteSwanFinal() {
                   <KpiCell label="Sharpe" value={capRow.Sharpe != null ? fmtNum(capRow.Sharpe) : '—'} />
                   <KpiCell label="MaxDD" value={capRow.MaxDDPct != null ? fmtPct(capRow.MaxDDPct) : '—'} />
                   <KpiCell label="Margin" value={fmtPct(capRow.marginPct)} />
-                  <KpiCell label="Core 5/5" value={capRow.corePassStr ?? (capRow.feasibility ? 'YES' : 'NO')} gold={!!capRow.corePass} />
+                  <KpiCell label="Validated Core" value={capRow.corePassStr ?? (capRow.feasibility ? 'YES' : 'NO')} gold={!!capRow.corePass} />
                   <KpiCell label="PF" value={capRow.PF != null ? fmtNum(capRow.PF) : '—'} />
                 </div>
               </div>
@@ -501,9 +546,7 @@ export function WhiteSwanFinal() {
               <div>Real historical backtest · IBKR execution data 2008–2026 · No GBM · No synthetic returns</div>
               <div>GC/MGC: Yahoo Finance continuous futures · ZW: TradingView CBOT ZW1 · Others: all-trades.json</div>
               <div>IBKR real costs · Integer contracts · IS/OOS split 2017-01-01 · M6E/MZW micro substitution</div>
-              {(summary.version === 'v4' || summary.version === 'v5' || summary.version === 'v6') && (
-                <div className="text-[#1a1a1a] mt-0.5">GLD: ATR 20-80% +€5,159 OOS · EURUSD: M6E ×0.1 · ZW: MZW ×0.2 · v6: Core 5/5 enforced at all tiers · Sharpe = all-day returns</div>
-              )}
+              <div className="text-[#1a1a1a] mt-0.5">GLD: MGC daily open-position MTM · EURUSD: M6E ×0.1 · ZW: MZW gross×0.1 corrected · Validated Core 3/5 (DAX1H/DAX2H data-blocked) · Sharpe = all-day returns</div>
             </div>
           </div>
         )}
@@ -867,7 +910,7 @@ export function WhiteSwanFinal() {
 
         {/* ── Footer ──────────────────────────────────────────────────────── */}
         <div className="border-t border-[#080808] pt-4 text-[8px] text-[#111] space-y-0.5">
-          <div>WHITE SWAN FINAL {summary.version ?? 'v6'} · Core 5/5 enforced · Honest Sharpe (all-day) · Historical Backtest · IBKR Real Costs · 9 Tiers</div>
+          <div>WHITE SWAN FINAL {summary.version ?? 'v6'} · Validated Core 3/5 (M6E, MGC, MZW) · DAX1H/DAX2H shadow/data-blocked · Honest Sharpe (all-day) · Historical Backtest · IBKR Real Costs · Daily ECB FX · {summary.capitalComparison.length} Tiers</div>
           <div>Serkan: {summary.serkan?.path ?? 'workspace/output/white-swan/serkan/v5/'} · {summary.serkan?.finalRows ?? summary.serkan?.rows ?? '—'} rows (final) · {summary.generatedAt}</div>
           <div>IS 2008–2016 · OOS 2017–2026 · OOS19 2019–2026 · NOT financial advice</div>
         </div>

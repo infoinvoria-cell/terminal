@@ -225,8 +225,12 @@ const gc1_trades = allTrades
 const UNIVERSE = [
   // ── Core 5 ────────────────────────────────────────────────────────────────
   { id: 'eurusd_m6e',   label: 'EURUSD M6E Monday Long', inst: 'M6E',  margin: 259,  costRt: M6E_COST_RT_USD, core: true,  blocked: false, maxCt: 8,  trades: eu_trades },
-  { id: 'dax_1h',       label: 'DAX 1H',                  inst: 'FDXS', margin: 880,  costRt: 0.76, core: true,  blocked: false, maxCt: 8,  trades: buildFromAllTrades('dax_1h') },
-  { id: 'dax_2h',       label: 'DAX 2H',                  inst: 'FDXS', margin: 880,  costRt: 0.76, core: true,  blocked: false, maxCt: 8,  trades: buildFromAllTrades('dax_2h') },
+  // DAX1H/DAX2H: v6.3 Path B — DATA_BLOCKED_CANONICAL. Genuine EUREX FDAX1! intraday history only
+  // covers ~2025-01 to present (confirmed via live tvDatafeed pull, 40000-bar request capped at 8792 bars).
+  // OANDA CFD history (all-trades.json dax_1h/dax_2h) is PERMANENTLY BANNED from canonical KPIs.
+  // Excluded from canonical universe entirely; run separately as SHADOW_VALIDATION_2025+ panel below.
+  { id: 'dax_1h',       label: 'DAX 1H — DATA_BLOCKED_CANONICAL', inst: 'FDXS', margin: 880,  costRt: 0.76, core: false, blocked: true, maxCt: 0,  trades: [] },
+  { id: 'dax_2h',       label: 'DAX 2H — DATA_BLOCKED_CANONICAL', inst: 'FDXS', margin: 880,  costRt: 0.76, core: false, blocked: true, maxCt: 0,  trades: [] },
   { id: 'gld_mgc',      label: 'GLD/MGC ATR20-80',        inst: 'MGC',  margin: 740,  costRt: MGC_COST_RT_USD,  core: true,  blocked: false, maxCt: 8,  trades: gld_trades },
   { id: 'zw_mzw',       label: 'ZW/MZW Jul Seasonal',     inst: 'MZW',  margin: 252,  costRt: MZAG_COST_RT_USD, core: true,  blocked: false, maxCt: 8,  trades: zw_trades },
   // ── Non-core tradable ──────────────────────────────────────────────────────
@@ -405,8 +409,8 @@ function checkFeasibility(contracts, capital) {
   return {
     totalMargin: Math.round(totalMargin), marginPct: +marginPct.toFixed(1),
     assessment, feasible: totalMargin <= capital * 0.95,
-    corePass, corePassStr: corePass ? 'CORE 5/5 ✓' : 'CORE FAIL ✗',
-    survivalStatus: 'FEASIBILITY_UNVERIFIED — real daily MTM not computed for multi-day positions',
+    corePass, corePassStr: corePass ? `VALIDATED CORE ${CORE_IDS.length}/5 ✓` : `VALIDATED CORE FAIL ✗`,
+    survivalStatus: 'GOLD_REAL_DAILY_MTM — MGC uses genuine daily open-position MTM; other sleeves use exit-date realized P&L',
   };
 }
 
@@ -516,7 +520,8 @@ function optimizeTier(capital) {
 }
 
 // ─── Run all tiers ─────────────────────────────────────────────────────────────
-const CAPITALS = [10000, 15000, 20000, 25000, 30000, 40000, 50000, 75000, 100000];
+const CAPITALS = [10000, 12000, 15000, 20000, 25000, 30000, 40000, 50000, 75000, 100000];
+const VALIDATED_CORE_COUNT = CORE_IDS.length; // 3/5 in v6.3 Path B (M6E, MGC, MZW)
 
 console.log('\n=== WHITE SWAN v6.2 CLEAN — IS-ONLY SELECTION ===');
 console.log(`Core min margin: €${CORE_MIN_MARGIN} (${(CORE_MIN_MARGIN/10000*100).toFixed(1)}% of €10k)`);
@@ -536,7 +541,7 @@ for (const capital of CAPITALS) {
   const isk  = rec.isKPIs;
   const fkp  = rec.fullKPIs;
   const f    = rec.feasibility;
-  const coreFlag = f?.corePass ? '✓ CORE 5/5' : '✗ CORE FAIL';
+  const coreFlag = f?.corePass ? `VALIDATED CORE ${CORE_IDS.length}/5` : 'CORE FAIL';
   console.log(`\n€${(capital/1000).toFixed(0)}k [${rec.name}] ${coreFlag} score=${rec.score} budget=${rec.budgetPct} actual=${rec.actualMarginPct}%`);
   console.log(`  Margin: €${f?.totalMargin} = ${f?.marginPct}% ${f?.assessment}`);
   console.log(`  SELECTION (IS-only): isCAGR=${isk?.isCAGR}% isSharpe=${isk?.isSharpe} isCalmar=${isk?.isCalmar} isMaxDD=${isk?.isMaxDDPct}% isPF=${isk?.isPF}`);
@@ -571,10 +576,10 @@ const fullTradable = tierResults.find(t => {
 tierResults.sort((a,b) => a.capital - b.capital);
 
 // ─── Serkan CSVs ──────────────────────────────────────────────────────────────
-fs.mkdirSync('workspace/output/white-swan/v6.2', { recursive: true });
-fs.mkdirSync('workspace/output/white-swan/serkan/v6.2', { recursive: true });
+fs.mkdirSync('workspace/output/white-swan/v6.3', { recursive: true });
+fs.mkdirSync('workspace/output/white-swan/serkan/v6.3', { recursive: true });
 
-const SERKAN_CAPS = [10000, 15000, 20000, 25000];
+const SERKAN_CAPS = CAPITALS;
 const serkanAudit = {};
 for (const cap of SERKAN_CAPS) {
   const tier = tierResults.find(t => t.capital === cap);
@@ -582,7 +587,7 @@ for (const cap of SERKAN_CAPS) {
   const rows  = ALL_TRADING_DAYS.map(d => `${d},${((pnl[d]??0)/cap).toFixed(8)}`);
   const csv   = ['Date,Daily_Return', ...rows].join('\n');
   const fname = `white_swan_${cap/1000}k_daily_returns.csv`;
-  fs.writeFileSync(`workspace/output/white-swan/serkan/v6.2/${fname}`, csv);
+  fs.writeFileSync(`workspace/output/white-swan/serkan/v6.3/${fname}`, csv);
   const implPnL = Math.round(rows.reduce((s,r)=>s+parseFloat(r.split(',')[1]),0) * cap);
   const totalNet = tier?.recommended?.fullKPIs?.totalNetEUR ?? 0;
   serkanAudit[cap] = { rows: rows.length, impliedPnL: implPnL, totalNetEUR: totalNet, pass: Math.abs(implPnL-totalNet)<50 };
@@ -593,7 +598,7 @@ const recCap  = bestSmall?.capital ?? 25000;
 const recTier = tierResults.find(t => t.capital === recCap);
 const finalPnL= buildPnL(recTier?.recommended?.contracts ?? {});
 const finalRows= ALL_TRADING_DAYS.map(d => `${d},${((finalPnL[d]??0)/recCap).toFixed(8)}`);
-fs.writeFileSync('workspace/output/white-swan/serkan/v6.2/white_swan_final_daily_returns.csv', ['Date,Daily_Return',...finalRows].join('\n'));
+fs.writeFileSync('workspace/output/white-swan/serkan/v6.3/white_swan_final_daily_returns.csv', ['Date,Daily_Return',...finalRows].join('\n'));
 
 // ─── Equity series ────────────────────────────────────────────────────────────
 const equitySeries = {};
@@ -671,7 +676,7 @@ const capitalComparison = tierResults.map(tier => {
 const recCapData = capitalComparison.find(r => r.capital === recCap);
 
 const summary = {
-  version: 'v6.2',
+  version: 'v6.3',
   generatedAt: '2026-08-16',
   status: 'IS_ONLY_SELECTION_NO_OOS_LEAKAGE',
   description: 'v6.2: IS-only selection scoring. No OOS2019 in optimizer. Budget scan replaces hardcoded 0.82. Exit-date P&L (v6.1). DAILY_MTM_BLOCKED flagged per sleeve.',
@@ -702,7 +707,7 @@ const summary = {
   },
   capitalLadder: ladder,
   serkan: {
-    path: 'workspace/output/white-swan/serkan/v6.2/',
+    path: 'workspace/output/white-swan/serkan/v6.3/',
     navMethod: 'EXIT_DATE_REALIZED_PNL',
     mtmNote: 'Daily returns represent exit-date realized P&L / capital. Zero on non-trade days and during holds. NOT mark-to-market.',
     finalRows: finalRows.length, dateRange: ['2008-01-02','2025-12-31'],
@@ -716,9 +721,9 @@ const summary = {
   budgetScan: BUDGET_SCAN,
 };
 
-fs.writeFileSync('workspace/output/white-swan/v6.2/portfolio-summary.json', JSON.stringify(summary, null, 2));
+fs.writeFileSync('workspace/output/white-swan/v6.3/portfolio-summary.json', JSON.stringify(summary, null, 2));
 fs.writeFileSync('public/data/white-swan/final/portfolio-summary.json',     JSON.stringify(summary, null, 2));
-fs.writeFileSync('workspace/output/white-swan/v6.2/equity-series.json', JSON.stringify({ series: equitySeries, yearlyReturns }));
+fs.writeFileSync('workspace/output/white-swan/v6.3/equity-series.json', JSON.stringify({ series: equitySeries, yearlyReturns }));
 fs.writeFileSync('public/data/white-swan/final/equity-series.json',     JSON.stringify({ series: equitySeries, yearlyReturns }));
 
 // ─── GC worst-day margin stress (8×MGC at recommended capital) ───────────────
@@ -790,7 +795,7 @@ console.log('');
 console.log('SERKAN_DAILY_RETURN_VALID: EXIT_DATE_REALIZED — not genuine daily MTM; DAILY_MTM_BLOCKED per sleeve');
 console.log('MAXDD_VALID:               UNDERSTATED — based on exit-date realized P&L only, no intraday MTM');
 console.log('SHARPE_VALID:              CONDITIONAL — all 4696 trading days denominator correct; numerator uses exit-date realized P&L');
-console.log('CORE_QUALITY:              ' + (allCorePass ? 'CORE 5/5 ALL TIERS' : 'PARTIAL_FAIL'));
+console.log('CORE_QUALITY:              ' + (allCorePass ? `VALIDATED CORE ${CORE_IDS.length}/5 ALL TIERS` : 'PARTIAL_FAIL'));
 console.log('');
 console.log('SELECTION_METRICS (IS-only, used for portfolio choice):');
 tierResults.forEach(t => {
@@ -823,11 +828,93 @@ console.log('  2. MAXDD: understated (exit-date realized only, no intraday MTM f
 console.log('  3. FEASIBILITY_UNVERIFIED: margin survival not proven without true variation-margin simulation');
 console.log('  4. GLD×8 concentration: at small capitals, worst-case GC move far exceeds free cash');
 console.log('');
-console.log('WHAT IS VALIDATED IN v6.2:');
-console.log('  ✓ IS-ONLY selection — no OOS2019 influence on portfolio choice');
+console.log('WHAT IS VALIDATED IN v6.3 Path B:');
+console.log(`  ✓ IS-ONLY selection — no OOS2019 influence on portfolio choice`);
 console.log('  ✓ Budget scan replaces hardcoded 0.82');
-console.log('  ✓ Exit-date P&L (no entry-date lump-sum)');
-console.log('  ✓ Core 5/5 enforced at all tiers');
+console.log('  ✓ Exit-date P&L (no entry-date lump-sum); Gold uses genuine daily open-position MTM');
+console.log(`  ✓ VALIDATED CORE ${CORE_IDS.length}/5 (M6E, MGC, MZW) enforced at all tiers`);
 console.log('  ✓ GLD uses GC futures prices, not GLD ETF');
+console.log('  ✓ Daily ECB FX sweep — no constant EUR_PER_USD in P&L booking');
 console.log('  ✓ OOS2019 cleanly separated as post-freeze evaluation-only metric');
 console.log('  ✓ Selection/Evaluation metrics clearly separated in output JSON');
+console.log('  ✓ DAX1H/DAX2H excluded from canonical KPIs — OANDA CFD history permanently banned');
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DAX SHADOW PANEL — genuine EUREX FDAX1! futures, 2025+ only, NOT canonical
+// ═══════════════════════════════════════════════════════════════════════════
+console.log('\n\n=== DAX SHADOW PANEL (SHORT HISTORY — NOT INCLUDED IN CANONICAL WHITE SWAN KPI) ===');
+
+const FDXS_COST_RT = 0.76; // EUR round-trip, confirmed (WHITE_SWAN_IBKR_COST_MODEL_V63.csv)
+
+function shadowStats(rawEvents, label) {
+  const trades = (rawEvents.trades ?? [])
+    .filter(t => t.exitTime) // closed trades only
+    .map(t => ({
+      date: t.exitTime.slice(0, 10),
+      grossEUR: t.pnl,
+      netEUR: +(t.pnl - FDXS_COST_RT).toFixed(2),
+    }))
+    .sort((a, b) => a.date < b.date ? -1 : 1);
+
+  if (!trades.length) {
+    return { label, source: rawEvents.source, tvSymbol: rawEvents.tvSymbol, dateRange: rawEvents.dateRange, n: 0 };
+  }
+
+  const netTotal = trades.reduce((s, t) => s + t.netEUR, 0);
+  const wins = trades.filter(t => t.netEUR > 0).reduce((s, t) => s + t.netEUR, 0);
+  const loss = Math.abs(trades.filter(t => t.netEUR <= 0).reduce((s, t) => s + t.netEUR, 0));
+  const PF = loss > 0 ? +(wins / loss).toFixed(2) : (wins > 0 ? 99 : 0);
+  const expectancy = +(netTotal / trades.length).toFixed(2);
+
+  // Daily equity curve over the shadow window (per-trade dates only — sparse series)
+  const byDate = {};
+  trades.forEach(t => { byDate[t.date] = (byDate[t.date] ?? 0) + t.netEUR; });
+  const dates = Object.keys(byDate).sort();
+  let nav = 10000, peak = 10000, maxDD = 0;
+  const dailyRets = [];
+  for (const d of dates) {
+    const ret = byDate[d] / nav;
+    dailyRets.push(ret);
+    nav += byDate[d];
+    if (nav > peak) peak = nav;
+    const dd = peak - nav;
+    if (dd > maxDD) maxDD = dd;
+  }
+  const meanRet = dailyRets.reduce((s, r) => s + r, 0) / dailyRets.length;
+  const varRet = dailyRets.reduce((s, r) => s + (r - meanRet) ** 2, 0) / dailyRets.length;
+  const activeTradingDaysPerYear = 252;
+  const Sharpe = varRet > 0 ? +((meanRet * activeTradingDaysPerYear) / (Math.sqrt(varRet) * Math.sqrt(activeTradingDaysPerYear))).toFixed(3) : 0;
+  const MaxDDPct = +(maxDD / Math.max(peak, 10000) * 100).toFixed(2);
+
+  return {
+    label, source: rawEvents.source, tvSymbol: rawEvents.tvSymbol,
+    dataValidity: 'GENUINE_EUREX_FUTURES_SHORT_HISTORY',
+    dateRange: rawEvents.dateRange, n: trades.length,
+    grossPnlEUR: Math.round(trades.reduce((s, t) => s + t.grossEUR, 0)),
+    netPnlEUR: Math.round(netTotal),
+    costRtEUR: FDXS_COST_RT, PF, expectancyEUR: expectancy,
+    Sharpe, MaxDDPct, MaxDDEUR: Math.round(maxDD),
+    canonicalStatus: 'DATA_BLOCKED_CANONICAL — excluded from portfolio KPI/CAGR/Sharpe/Serkan',
+  };
+}
+
+const dax1hRaw = JSON.parse(fs.readFileSync('src/data/capitalife/monitoring-events/EUREX_FDAX1_1H_events.json', 'utf8'));
+const dax2hRaw = JSON.parse(fs.readFileSync('src/data/capitalife/monitoring-events/EUREX_FDAX1_2H_events.json', 'utf8'));
+
+const dax1hShadow = shadowStats(dax1hRaw, 'DAX1H — SHADOW_VALIDATION_2025+');
+const dax2hShadow = shadowStats(dax2hRaw, 'DAX2H — SHADOW_VALIDATION_2025+');
+
+console.log(JSON.stringify(dax1hShadow, null, 2));
+console.log(JSON.stringify(dax2hShadow, null, 2));
+
+const daxShadowPanel = {
+  status: 'SHADOW_VALIDATION_2025+ — NOT INCLUDED IN CANONICAL WHITE SWAN KPI',
+  reason: 'Genuine EUREX FDAX1! intraday futures history only available 2024-10/2025-09 through 2026-08 (confirmed via live tvDatafeed pull; 40000-bar request capped by TradingView platform). OANDA DE30EUR CFD history (2008-2026) is PERMANENTLY BANNED from canonical accounting.',
+  dataSource: 'tvDatafeed (TradingView, no-login) — symbol FDAX1!, exchange EUREX, engine_futures strategy replay',
+  instrumentEconomics: { instrument: 'FDXS', costRtEUR: FDXS_COST_RT, note: 'Same FDXS cost model as canonical (WHITE_SWAN_IBKR_COST_MODEL_V63.csv)' },
+  dax1h: dax1hShadow,
+  dax2h: dax2hShadow,
+};
+fs.writeFileSync('workspace/output/white-swan/v6.3/dax-shadow-panel.json', JSON.stringify(daxShadowPanel, null, 2));
+fs.writeFileSync('public/data/white-swan/final/dax-shadow-panel.json', JSON.stringify(daxShadowPanel, null, 2));
+console.log('\nSaved dax-shadow-panel.json');
