@@ -27,6 +27,7 @@ export function SentinelBrainGlobe({ size = 260, active = false }: { size?: numb
           selected={null}
           interactive={false}
           dotScale={0.6}
+          spinSpeed={2.2}
         />
       ) : null}
       <style jsx>{`
@@ -40,22 +41,27 @@ export function BrainConnector({ active = false }: { active?: boolean }) {
   return (
     <div className={`sbc-wrap${active ? " sbc-active" : ""}`}>
       <svg className="sbc-svg" viewBox="0 0 64 24" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <line x1="0" y1="12" x2="64" y2="12" stroke="rgba(214,184,108,0.30)" strokeWidth="1" strokeDasharray="2 4" />
-        <circle cx="0" cy="12" r="2.4" className="sbc-dot" />
+        <line x1="0" y1="12" x2="64" y2="12" stroke="rgba(190,196,206,0.45)" strokeWidth="1" />
+        <circle cx="0" cy="12" r="1.6" className="sbc-dot sbc-dot-1" />
+        <circle cx="0" cy="12" r="1.6" className="sbc-dot sbc-dot-2" />
+        <circle cx="0" cy="12" r="1.6" className="sbc-dot sbc-dot-3" />
       </svg>
       <style jsx>{`
         .sbc-wrap { position:relative;flex-shrink:0;width:100%;height:100%; }
         .sbc-svg { width:100%;height:100%;display:block; }
-        .sbc-dot { fill:#C9A84C;filter:drop-shadow(0 0 4px rgba(214,184,108,0.8));opacity:0; }
-        .sbc-active .sbc-dot { animation:sbc-travel 1.8s ease-in-out infinite; }
+        .sbc-dot { opacity:0;transform-box:fill-box;transform-origin:center; }
+        .sbc-active .sbc-dot-1 { animation:sbc-travel 1.5s linear infinite; }
+        .sbc-active .sbc-dot-2 { animation:sbc-travel 1.5s linear infinite -0.5s; }
+        .sbc-active .sbc-dot-3 { animation:sbc-travel 1.5s linear infinite -1s; }
         @keyframes sbc-travel {
-          0%   { opacity:0;   transform:translateX(0); }
-          10%  { opacity:1; }
-          90%  { opacity:1; }
-          100% { opacity:0;   transform:translateX(64px); }
+          0%   { opacity:0;    transform:translateX(0)     scale(0.5); fill:#C9A84C; filter:drop-shadow(0 0 3px rgba(214,184,108,0.9)); }
+          8%   { opacity:1; }
+          50%  { fill:#f4efe6; filter:drop-shadow(0 0 5px rgba(244,239,230,0.85)); }
+          92%  { opacity:1; }
+          100% { opacity:0;    transform:translateX(64px) scale(1.7); fill:#ffffff; filter:drop-shadow(0 0 6px rgba(255,255,255,0.95)); }
         }
         @media (prefers-reduced-motion:reduce) {
-          .sbc-dot { animation:none;opacity:0.7; }
+          .sbc-dot-1,.sbc-dot-2,.sbc-dot-3 { animation:none;opacity:0.6;fill:#C9A84C; }
         }
       `}</style>
     </div>

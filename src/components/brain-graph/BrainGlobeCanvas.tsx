@@ -41,9 +41,11 @@ type CanvasProps = {
   interactive?: boolean;
   /** Scales node radii down (e.g. 0.6) without touching the /brain page default of 1. */
   dotScale?: number;
+  /** Multiplies the per-frame rotation speed (1 = /brain page default). */
+  spinSpeed?: number;
 };
 
-export function BrainGlobeCanvas({ data, spinning, onSelect, selected, interactive = true, dotScale = 1 }: CanvasProps) {
+export function BrainGlobeCanvas({ data, spinning, onSelect, selected, interactive = true, dotScale = 1, spinSpeed = 1 }: CanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const angleRef = useRef(0);
@@ -54,9 +56,11 @@ export function BrainGlobeCanvas({ data, spinning, onSelect, selected, interacti
   const spinningRef = useRef(spinning);
   const selectedRef = useRef(selected);
   const dataRef = useRef(data);
+  const spinSpeedRef = useRef(spinSpeed);
   useEffect(() => { spinningRef.current = spinning; }, [spinning]);
   useEffect(() => { selectedRef.current = selected; }, [selected]);
   useEffect(() => { dataRef.current = data; }, [data]);
+  useEffect(() => { spinSpeedRef.current = spinSpeed; }, [spinSpeed]);
 
   const { spherePos, nodeSizeR, top5Set } = useMemo(() => {
     const n = data.nodes.length;
@@ -249,7 +253,7 @@ export function BrainGlobeCanvas({ data, spinning, onSelect, selected, interacti
       lastFrame = ts;
 
       const spinning = spinningRef.current;
-      if (spinning) angleRef.current += 0.0008;
+      if (spinning) angleRef.current += 0.0008 * spinSpeedRef.current;
 
       const selId = selectedRef.current?.id ?? null;
       if (!spinning && selId === prevSelId && canvas!.width === prevW && canvas!.height === prevH) return;

@@ -634,6 +634,7 @@ export function SentinelDashboard() {
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
   const [heroFocused, setHeroFocused] = useState(false);
+  const [brainPinned, setBrainPinned] = useState(false);
 
   // Opening animation
   const GREETING_DE = "Yo was geht ab Bro, Sentinel hier...";
@@ -898,7 +899,7 @@ export function SentinelDashboard() {
   const visibleRetryText = mounted ? retryText : null;
   const visibleHasQueued = mounted ? hasQueued : false;
   const visibleInput = mounted ? input : "";
-  const brainActive = mounted && (heroFocused || listening || visibleBusy || visibleInput.trim().length > 0);
+  const brainActive = mounted && (brainPinned || heroFocused || listening || visibleBusy || visibleInput.trim().length > 0);
 
   const panel = (
     <aside className={`snt${fullscreen ? " snt-fullscreen" : ""}`}>
@@ -910,11 +911,11 @@ export function SentinelDashboard() {
           <div className="snt-empty">
             <div className={`snt-empty-rings snt-anim-rings${fullscreen ? " snt-empty-rings-fs" : ""}`}>
               <div className={`snt-cortex${brainActive ? " snt-cortex-active" : ""}`}>
-                <div className="snt-cortex-eye" onClick={() => textareaRef.current?.focus()}>
+                <div className="snt-cortex-eye" onClick={() => setBrainPinned(p => !p)}>
                   <AurumRings voiceLevel={listening ? effectiveVoiceLevel : 0} speaking={speaking} />
                 </div>
                 <div className="snt-cortex-link"><BrainConnector active={brainActive} /></div>
-                <div className="snt-cortex-brain"><SentinelBrainGlobe size={260} active={brainActive} /></div>
+                <div className="snt-cortex-brain"><SentinelBrainGlobe size={300} active={brainActive} /></div>
               </div>
             </div>
             <p
@@ -925,6 +926,11 @@ export function SentinelDashboard() {
               {listening ? "Ich höre zu…" : (animPhase === "done" ? GREETING : typedText)}
               {!listening && animPhase === "typing" && <span className="snt-cursor">|</span>}
             </p>
+            {brainActive && (
+              <p className="snt-brain-status">
+                Brain connected <Check size={13} strokeWidth={2.5} />
+              </p>
+            )}
           </div>
         ) : (
           <div className="snt-chat-feed">
@@ -1226,15 +1232,15 @@ export function SentinelDashboard() {
           flex:1;align-self:stretch;display:flex;flex-direction:column;align-items:center;
           justify-content:center;padding:0 20px 90px;overflow:hidden;gap:0;
         }
-        .snt-empty-rings { flex:0 0 auto;display:flex;align-items:center;justify-content:center;margin-bottom:56px;transform:scale(1.45);transform-origin:center; }
-        .snt-empty-rings-fs { transform:scale(1.85);transform-origin:center;margin-bottom:90px; }
+        .snt-empty-rings { --snt-rings-scale:1.3;flex:0 0 auto;display:flex;align-items:center;justify-content:center;margin-bottom:56px;transform:scale(var(--snt-rings-scale));transform-origin:center; }
+        .snt-empty-rings-fs { --snt-rings-scale:1.5;transform:scale(var(--snt-rings-scale));transform-origin:center;margin-bottom:90px; }
         /* Fixed-width row (eye + link + brain) so the row's own box never
            needs to grow/shrink — only margin/opacity/transform animate.
            This avoids browsers stalling a width transition inside a
            shrink-to-fit flex ancestor. */
-        .snt-cortex { display:flex;align-items:center;width:644px;max-width:100%; }
+        .snt-cortex { display:flex;align-items:center;width:684px;max-width:100%; }
         .snt-cortex-eye {
-          flex:0 0 320px;cursor:pointer;margin-left:162px;
+          flex:0 0 320px;cursor:pointer;margin-left:182px;
           transition:margin-left .5s cubic-bezier(.22,.61,.36,1);
         }
         .snt-cortex-active .snt-cortex-eye { margin-left:0; }
@@ -1243,7 +1249,7 @@ export function SentinelDashboard() {
           transition:opacity .35s ease .05s;
         }
         .snt-cortex-brain {
-          flex:0 0 260px;opacity:0;transform:scale(.92);
+          flex:0 0 300px;opacity:0;transform:scale(.92);
           transition:opacity .4s ease .05s,transform .5s cubic-bezier(.22,.61,.36,1);
         }
         .snt-cortex-active .snt-cortex-link { opacity:1; }
@@ -1255,10 +1261,13 @@ export function SentinelDashboard() {
           from { transform:translateX(100%); opacity:0; }
           to   { transform:translateX(0);    opacity:1; }
         }
-        /* avatar enter animation */
+        /* avatar enter animation — opacity only. Animating transform here
+           previously fought the element's own static scale() (whichever one
+           wins depends on fill-mode/var() resolution and was unreliable), so
+           the entrance now only fades in and leaves transform alone. */
         @keyframes snt-avatar-enter {
-          from { opacity:0;transform:scale(0.8); }
-          to   { opacity:1;transform:scale(1); }
+          from { opacity:0; }
+          to   { opacity:1; }
         }
         .snt-anim-rings { animation:snt-avatar-enter 400ms cubic-bezier(0.4,0,0.2,1) both; }
         /* typewriter cursor */
@@ -1269,6 +1278,21 @@ export function SentinelDashboard() {
         }
         @keyframes snt-blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
         .snt-hero-text { font-size:22px;color:#F0F2F6;letter-spacing:-0.01em;font-weight:600;text-align:center;margin:0;min-height:1.4em;font-family:var(--font-montserrat,'Montserrat',sans-serif); }
+        .snt-brain-status {
+          display:flex;align-items:center;justify-content:center;gap:6px;
+          margin:18px 0 0;font-size:13px;font-weight:300;letter-spacing:0.03em;
+          color:rgba(226,202,122,0.80);font-family:var(--font-montserrat,'Montserrat',sans-serif);
+          animation:snt-brain-status-in .4s ease both,snt-brain-status-pulse 2.6s ease-in-out .4s infinite;
+        }
+        .snt-brain-status :global(svg) { color:rgba(226,202,122,0.90); }
+        @keyframes snt-brain-status-in {
+          from { opacity:0;transform:translateY(-2px); }
+          to   { opacity:1;transform:translateY(0); }
+        }
+        @keyframes snt-brain-status-pulse {
+          0%,100% { opacity:0.65; }
+          50%     { opacity:1; }
+        }
         /* chat feed */
         .snt-chat-feed {
           display:flex;flex-direction:column;gap:16px;
