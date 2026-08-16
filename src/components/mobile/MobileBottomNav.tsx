@@ -90,6 +90,14 @@ function IconPackage() {
   );
 }
 
+function IconSwan() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 20c4-1 6-4 6-8 0-4-2-8-4-9 2 0 5 1 6 4 1-2 3-3 5-3-1 2-1 4 0 6 2 1 3 3 3 5-3 0-5-1-6-3-1 3-4 7-10 8z" />
+    </svg>
+  );
+}
+
 function IconBriefcase() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round">
@@ -182,6 +190,7 @@ const ALL_SIDEBAR_GROUPS: NavGroupDef[] = [
   {
     label: "Portfolio",
     items: [
+      { href: "/m/white-swan",    label: "White Swan",   Icon: IconSwan       },
       { href: "/m/about",         label: "Info Panel",   Icon: IconInfo       },
       { href: "/m/manager",       label: "Portfolio Lab", Icon: IconBriefcase  },
       { href: "/m/investors-crm", label: "Investoren",   Icon: IconPieChart   },
