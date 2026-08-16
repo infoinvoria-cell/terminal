@@ -131,20 +131,26 @@ function SidebarIconButton({
   );
 }
 
-// Sentinel logo mark, rendered fully white (monochrome nav icon)
+// Sentinel logo mark as a CSS mask filled with currentColor, so it dims/brightens
+// exactly like the other nav icons (zinc-500 idle, white when the page is active).
 const SentinelIcon = (({ className }: { className?: string }) => (
   <span
     className={className}
-    style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
-  >
-    {/* eslint-disable-next-line @next/next/no-img-element */}
-    <img
-      src="/sentinel-logo.png"
-      alt=""
-      aria-hidden
-      style={{ width: "100%", height: "100%", objectFit: "contain", filter: "brightness(0) invert(1)", transform: "scale(1.3)" }}
-    />
-  </span>
+    aria-hidden
+    style={{
+      display: "inline-block",
+      backgroundColor: "currentColor",
+      WebkitMaskImage: "url(/sentinel-logo.png)",
+      maskImage: "url(/sentinel-logo.png)",
+      WebkitMaskSize: "contain",
+      maskSize: "contain",
+      WebkitMaskRepeat: "no-repeat",
+      maskRepeat: "no-repeat",
+      WebkitMaskPosition: "center",
+      maskPosition: "center",
+      transform: "scale(1.3)",
+    }}
+  />
 )) as typeof Home;
 
 function SidebarLink({

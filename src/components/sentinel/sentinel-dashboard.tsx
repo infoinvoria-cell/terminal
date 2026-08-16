@@ -10,6 +10,7 @@ import { SentinelProviderStatusBar } from "@/components/sentinel/sentinel-provid
 import { useSentinelSession } from "@/components/sentinel/sentinel-session-provider";
 import { SentinelCapacityPanel } from "@/components/sentinel/SentinelCapacityPanel";
 import { SentinelAurumLogo } from "@/components/sentinel/SentinelAurumLogo";
+import { SentinelBrainGlobe, BrainConnector } from "@/components/sentinel/SentinelBrainLink";
 import ReactMarkdown from "react-markdown";
 import { lsGet, lsSet } from "@/lib/sentinel/sentinel-session-store";
 import type { ChatEntry, SourceItem } from "@/lib/sentinel/sentinel-session-store";
@@ -632,6 +633,7 @@ export function SentinelDashboard() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  const [heroFocused, setHeroFocused] = useState(false);
 
   // Opening animation
   const GREETING_DE = "Yo was geht ab Bro, Sentinel hier...";
@@ -896,6 +898,7 @@ export function SentinelDashboard() {
   const visibleRetryText = mounted ? retryText : null;
   const visibleHasQueued = mounted ? hasQueued : false;
   const visibleInput = mounted ? input : "";
+  const brainActive = mounted && (heroFocused || listening || visibleBusy || visibleInput.trim().length > 0);
 
   const panel = (
     <aside className={`snt${fullscreen ? " snt-fullscreen" : ""}`}>
@@ -906,7 +909,13 @@ export function SentinelDashboard() {
         {visibleEntries.length === 0 && !visibleBusy ? (
           <div className="snt-empty">
             <div className={`snt-empty-rings snt-anim-rings${fullscreen ? " snt-empty-rings-fs" : ""}`}>
-              <AurumRings voiceLevel={listening ? effectiveVoiceLevel : 0} speaking={speaking} />
+              <div className={`snt-cortex${brainActive ? " snt-cortex-active" : ""}`}>
+                <div className="snt-cortex-eye" onClick={() => textareaRef.current?.focus()}>
+                  <AurumRings voiceLevel={listening ? effectiveVoiceLevel : 0} speaking={speaking} />
+                </div>
+                <div className="snt-cortex-link"><BrainConnector active={brainActive} /></div>
+                <div className="snt-cortex-brain"><SentinelBrainGlobe size={260} active={brainActive} /></div>
+              </div>
             </div>
             <p
               className="snt-hero-text"
@@ -1005,6 +1014,8 @@ export function SentinelDashboard() {
             value={visibleInput}
             onChange={onTextareaChange}
             onKeyDown={onKeyDown}
+            onFocus={() => setHeroFocused(true)}
+            onBlur={() => setHeroFocused(false)}
           />
           {visibleInput.trim() && (
             <button type="button" className="snt-pill-ico snt-pill-send snt-pill-aligned" onClick={() => void sendWithUiReset()} title={visibleBusy ? "Als Nächstes senden" : "Senden"}>
@@ -1217,6 +1228,29 @@ export function SentinelDashboard() {
         }
         .snt-empty-rings { flex:0 0 auto;display:flex;align-items:center;justify-content:center;margin-bottom:56px;transform:scale(1.45);transform-origin:center; }
         .snt-empty-rings-fs { transform:scale(1.85);transform-origin:center;margin-bottom:90px; }
+        /* Fixed-width row (eye + link + brain) so the row's own box never
+           needs to grow/shrink — only margin/opacity/transform animate.
+           This avoids browsers stalling a width transition inside a
+           shrink-to-fit flex ancestor. */
+        .snt-cortex { display:flex;align-items:center;width:644px;max-width:100%; }
+        .snt-cortex-eye {
+          flex:0 0 320px;cursor:pointer;margin-left:162px;
+          transition:margin-left .5s cubic-bezier(.22,.61,.36,1);
+        }
+        .snt-cortex-active .snt-cortex-eye { margin-left:0; }
+        .snt-cortex-link {
+          flex:0 0 64px;height:24px;opacity:0;
+          transition:opacity .35s ease .05s;
+        }
+        .snt-cortex-brain {
+          flex:0 0 260px;opacity:0;transform:scale(.92);
+          transition:opacity .4s ease .05s,transform .5s cubic-bezier(.22,.61,.36,1);
+        }
+        .snt-cortex-active .snt-cortex-link { opacity:1; }
+        .snt-cortex-active .snt-cortex-brain { opacity:1;transform:none; }
+        @media (prefers-reduced-motion:reduce) {
+          .snt-cortex-eye,.snt-cortex-link,.snt-cortex-brain { transition:none; }
+        }
         @keyframes snt-slide-in {
           from { transform:translateX(100%); opacity:0; }
           to   { transform:translateX(0);    opacity:1; }

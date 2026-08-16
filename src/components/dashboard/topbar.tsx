@@ -150,11 +150,23 @@ export function Topbar({ sectionLabel, visible }: TopbarProps) {
             aria-label="Sentinel Chat"
             title="Sentinel Chat"
           >
-            {/* Sentinel logo mark, fully white */}
-            <span style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center", width: 16, height: 16 }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/sentinel-logo.png" alt="" aria-hidden style={{ width: "100%", height: "100%", objectFit: "contain", filter: "brightness(0) invert(1)", transform: "scale(1.3)" }} />
-            </span>
+            {/* Sentinel logo mark as a CSS mask, colored via currentColor so it follows the button's idle/hover state */}
+            <span
+              aria-hidden
+              style={{
+                display: "inline-block", width: 16, height: 16,
+                backgroundColor: "currentColor",
+                WebkitMaskImage: "url(/sentinel-logo.png)",
+                maskImage: "url(/sentinel-logo.png)",
+                WebkitMaskSize: "contain",
+                maskSize: "contain",
+                WebkitMaskRepeat: "no-repeat",
+                maskRepeat: "no-repeat",
+                WebkitMaskPosition: "center",
+                maskPosition: "center",
+                transform: "scale(1.3)",
+              }}
+            />
           </button>
 
           <button
