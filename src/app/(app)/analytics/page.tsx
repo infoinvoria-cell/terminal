@@ -8,6 +8,7 @@ import { logServerFailure } from "@/lib/runtime/capitalife-errors";
 import { AnalyticsFailureGuard } from "@/components/analytics/AnalyticsFailureGuard";
 
 export const revalidate = 300;
+export const metadata = { title: "Analytics — Capitalife Terminal" };
 
 export default async function AnalyticsPage() {
   try {
