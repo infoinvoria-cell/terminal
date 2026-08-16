@@ -22,7 +22,10 @@ interface CapLevel {
   MaxDDEUR?: number | null; totalNetEUR?: number; annualCostEUR?: number; costPerNAV?: number | null;
   tradesPerWeek?: number | null; top1Conc?: number | null; top3Conc?: number | null;
   effectiveSleeves?: number | null; activeSleeves?: number; score?: number; variant?: string;
-  feasibility?: boolean; contracts?: Record<string, number>;
+  feasibility?: boolean; corePass?: boolean; corePassStr?: string;
+  stressMarginNeeded?: number | null; PF?: number | null;
+  expectancyEUR?: number | null; winRate?: number | null;
+  contracts?: Record<string, number>;
   components?: ComponentData[]; ladder?: LadderEntry | null;
 }
 interface PortfolioKPIs {
@@ -388,6 +391,7 @@ export function WhiteSwanFinal() {
               <KpiCell label="Cost/NAV" value={fmtPct(kpis?.costPerNAV, 2)} sub={`${fmtEUR(kpis?.annualCostEUR)}/yr`} />
               <KpiCell label="Margin" value={fmtPct(capRow?.marginPct)} sub={capRow?.assessment ?? ''} />
               <KpiCell label="Sleeves" value={capRow?.activeSleeves != null ? String(capRow.activeSleeves) : '—'} />
+              <KpiCell label="Core 5/5" value={capRow?.corePassStr ?? '—'} gold={!!capRow?.corePass} />
             </div>
           </div>
         </div>
@@ -441,7 +445,8 @@ export function WhiteSwanFinal() {
                   <KpiCell label="Sharpe" value={capRow.Sharpe != null ? fmtNum(capRow.Sharpe) : '—'} />
                   <KpiCell label="MaxDD" value={capRow.MaxDDPct != null ? fmtPct(capRow.MaxDDPct) : '—'} />
                   <KpiCell label="Margin" value={fmtPct(capRow.marginPct)} />
-                  <KpiCell label="Feasible" value={capRow.feasibility ? 'YES' : 'NO'} gold={!!capRow.feasibility} />
+                  <KpiCell label="Core 5/5" value={capRow.corePassStr ?? (capRow.feasibility ? 'YES' : 'NO')} gold={!!capRow.corePass} />
+                  <KpiCell label="PF" value={capRow.PF != null ? fmtNum(capRow.PF) : '—'} />
                 </div>
               </div>
             )}
@@ -496,8 +501,8 @@ export function WhiteSwanFinal() {
               <div>Real historical backtest · IBKR execution data 2008–2026 · No GBM · No synthetic returns</div>
               <div>GC/MGC: Yahoo Finance continuous futures · ZW: TradingView CBOT ZW1 · Others: all-trades.json</div>
               <div>IBKR real costs · Integer contracts · IS/OOS split 2017-01-01 · M6E/MZW micro substitution</div>
-              {(summary.version === 'v4' || summary.version === 'v5') && (
-                <div className="text-[#1a1a1a] mt-0.5">GLD: ATR 20-80% +€5,159 OOS · EURUSD: M6E ×0.1 · ZW: MZW ×0.2 · v5: independent optimizer per capital tier</div>
+              {(summary.version === 'v4' || summary.version === 'v5' || summary.version === 'v6') && (
+                <div className="text-[#1a1a1a] mt-0.5">GLD: ATR 20-80% +€5,159 OOS · EURUSD: M6E ×0.1 · ZW: MZW ×0.2 · v6: Core 5/5 enforced at all tiers · Sharpe = all-day returns</div>
               )}
             </div>
           </div>
@@ -728,7 +733,7 @@ export function WhiteSwanFinal() {
               <table className="w-full text-[10px] min-w-[1000px]">
                 <thead>
                   <tr className="border-b border-[#0d0d0d] text-[#222]">
-                    {['Capital', 'Variant', 'Sleeves', 'Margin%', 'CAGR', 'IS', 'OOS', 'OOS19', 'Sharpe', 'Calmar', 'MaxDD%', 'Cost/yr', 'Diversif.', 'Score'].map(h => (
+                    {['Capital', 'Core', 'Variant', 'Sleeves', 'Margin%', 'CAGR', 'IS', 'OOS', 'OOS19', 'Sharpe†', 'Calmar', 'MaxDD%', 'Cost/yr', 'Diversif.', 'Score'].map(h => (
                       <th key={h} className="px-2 py-2 text-left font-normal text-[8px]">{h}</th>
                     ))}
                   </tr>
@@ -742,6 +747,9 @@ export function WhiteSwanFinal() {
                         className={`border-b border-[#080808] cursor-pointer ${isRec ? 'bg-[#090700]' : isSel ? 'bg-[#050505]' : 'hover:bg-[#040404]'}`}>
                         <td className={`px-2 py-1.5 font-mono font-semibold ${isRec ? 'text-[#d4a843]' : isSel ? 'text-[#888]' : 'text-[#444]'}`}>
                           {fmtCap(r.capital)}{isRec ? ' ★' : ''}
+                        </td>
+                        <td className={`px-2 py-1.5 text-[9px] font-mono ${r.corePass ? 'text-[#22c55e]' : 'text-[#ef4444]'}`}>
+                          {r.corePass ? '5/5' : 'FAIL'}
                         </td>
                         <td className="px-2 py-1.5 text-[#333] text-[8px]">{r.variant ?? '—'}</td>
                         <td className="px-2 py-1.5 text-right text-[#555]">{r.activeSleeves ?? '—'}</td>
@@ -769,7 +777,7 @@ export function WhiteSwanFinal() {
                 </tbody>
               </table>
             </div>
-            <div className="text-[8px] text-[#111]">★ Recommended · OOS19 gold if ≥13% · Click row to select capital · Diversif = effective sleeves (1/HHI)</div>
+            <div className="text-[8px] text-[#111]">★ Recommended · OOS19 gold if ≥13% · Click row to select capital · Diversif = effective sleeves (1/HHI) · †Sharpe computed over all Mon-Fri trading days 2008-2025 (0 fill on non-trade days)</div>
           </div>
         )}
 
@@ -859,7 +867,7 @@ export function WhiteSwanFinal() {
 
         {/* ── Footer ──────────────────────────────────────────────────────── */}
         <div className="border-t border-[#080808] pt-4 text-[8px] text-[#111] space-y-0.5">
-          <div>WHITE SWAN FINAL {summary.version ?? 'v3'} · Historical Backtest · Real Futures Data · IBKR Real Costs · No Simulation · 9 Capital Tiers</div>
+          <div>WHITE SWAN FINAL {summary.version ?? 'v6'} · Core 5/5 enforced · Honest Sharpe (all-day) · Historical Backtest · IBKR Real Costs · 9 Tiers</div>
           <div>Serkan: {summary.serkan?.path ?? 'workspace/output/white-swan/serkan/v5/'} · {summary.serkan?.finalRows ?? summary.serkan?.rows ?? '—'} rows (final) · {summary.generatedAt}</div>
           <div>IS 2008–2016 · OOS 2017–2026 · OOS19 2019–2026 · NOT financial advice</div>
         </div>
