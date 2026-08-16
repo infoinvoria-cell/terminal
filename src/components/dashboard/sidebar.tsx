@@ -131,21 +131,18 @@ function SidebarIconButton({
   );
 }
 
-// MessageSquare outline with the real Sentinel logo PNG inside, made monochrome white
+// Sentinel logo mark, rendered fully white (monochrome nav icon)
 const SentinelIcon = (({ className }: { className?: string }) => (
   <span
     className={className}
     style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
   >
-    <svg viewBox="0 0 24 24" fill="none" style={{ width: "100%", height: "100%" }} aria-hidden>
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
     {/* eslint-disable-next-line @next/next/no-img-element */}
     <img
       src="/sentinel-logo.png"
       alt=""
       aria-hidden
-      style={{ position: "absolute", width: "56%", height: "56%", objectFit: "contain", filter: "brightness(0) invert(1)", top: "10%", opacity: 0.9 }}
+      style={{ width: "100%", height: "100%", objectFit: "contain", filter: "brightness(0) invert(1)", transform: "scale(1.3)" }}
     />
   </span>
 )) as typeof Home;

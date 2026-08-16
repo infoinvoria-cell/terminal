@@ -298,7 +298,7 @@ function MiniAurumRings() {
       </svg>
       <div className="maur-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/Sentinel.png" alt="" width={14} height={14} className="maur-icon" />
+        <img src="/sentinel-logo.png" alt="" width={18} height={18} className="maur-icon" />
       </div>
       <style jsx>{`
         .maur-wrap { position:relative;width:46px;height:46px;flex:0 0 46px; }
@@ -369,7 +369,7 @@ function SentinelSpinner() {
     <div className="snt-sp-wrap">
       <div className="snt-sp-ring" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/Sentinel.png" alt="" width={20} height={20} className="snt-sp-icon" />
+      <img src="/sentinel-logo.png" alt="" width={24} height={24} className="snt-sp-icon" />
       <style jsx>{`
         .snt-sp-wrap {
           position:relative;width:28px;height:28px;flex:0 0 28px;
@@ -910,7 +910,7 @@ export function SentinelDashboard() {
             </div>
             <p
               className="snt-hero-text"
-              onClick={() => { if (animPhase === "done" && !listening) setGreetingLang("en"); }}
+              onClick={() => { if (animPhase === "done" && !listening) setGreetingLang(l => (l === "de" ? "en" : "de")); }}
               style={{ cursor: animPhase === "done" && !listening ? "pointer" : "default" }}
             >
               {listening ? "Ich höre zu…" : (animPhase === "done" ? GREETING : typedText)}
@@ -924,7 +924,7 @@ export function SentinelDashboard() {
                 {entry.role === "assistant" && (
                   <div className="snt-bot-avatar" aria-hidden>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/sentinel-logo.png" alt="" style={{ width: 16, height: 18, objectFit: "contain", opacity: 0.55, filter: "brightness(0) invert(1)" }} />
+                    <img src="/sentinel-logo.png" alt="" style={{ width: 20, height: 22, objectFit: "contain", opacity: 0.85 }} />
                   </div>
                 )}
                 <div className={`snt-msg ${entry.role === "user" ? "snt-msg-u" : "snt-msg-b"}`}>

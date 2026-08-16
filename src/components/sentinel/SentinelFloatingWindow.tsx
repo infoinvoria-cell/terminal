@@ -220,7 +220,7 @@ export function SentinelFloatingWindow() {
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/Sentinel.png" alt="" width={18} height={18} style={{ opacity: 0.7, objectFit: "contain" }} />
+          <img src="/sentinel-logo.png" alt="" width={22} height={22} style={{ opacity: 0.9, objectFit: "contain" }} />
           <span style={{ fontSize: 13, fontWeight: 600, color: "#F0F2F6", fontFamily: "var(--font-montserrat,'Montserrat',sans-serif)", flex: 1 }}>
             Sentinel
           </span>
