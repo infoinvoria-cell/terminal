@@ -1,0 +1,68 @@
+{
+  "engine": "kokoro-82m",
+  "results": [
+    {
+      "voice": "bm_george",
+      "status": "PASS",
+      "first_chunk_latency_sec": 6.422,
+      "total_synth_time_sec": 6.422,
+      "audio_duration_sec": 17.1,
+      "rtf": 0.3755,
+      "sample_rate": 24000,
+      "rms": 0.05853,
+      "peak": 0.35939,
+      "silent": false,
+      "clipped": false,
+      "file_path": "C:\\Users\\joris\\Documents\\Capitalife Terminal Sentinel Voice\\scripts\\tts\\..\\..\\sentinel-voice-samples\\kokoro-george.wav",
+      "file_size_bytes": 820844
+    },
+    {
+      "voice": "bm_fable",
+      "status": "PASS",
+      "first_chunk_latency_sec": 5.282,
+      "total_synth_time_sec": 5.282,
+      "audio_duration_sec": 14.425,
+      "rtf": 0.3662,
+      "sample_rate": 24000,
+      "rms": 0.04033,
+      "peak": 0.59435,
+      "silent": false,
+      "clipped": false,
+      "file_path": "C:\\Users\\joris\\Documents\\Capitalife Terminal Sentinel Voice\\scripts\\tts\\..\\..\\sentinel-voice-samples\\kokoro-fable.wav",
+      "file_size_bytes": 692444
+    },
+    {
+      "voice": "bm_daniel",
+      "status": "PASS",
+      "first_chunk_latency_sec": 5.193,
+      "total_synth_time_sec": 5.193,
+      "audio_duration_sec": 14.3,
+      "rtf": 0.3631,
+      "sample_rate": 24000,
+      "rms": 0.06134,
+      "peak": 0.46883,
+      "silent": false,
+      "clipped": false,
+      "file_path": "C:\\Users\\joris\\Documents\\Capitalife Terminal Sentinel Voice\\scripts\\tts\\..\\..\\sentinel-voice-samples\\kokoro-daniel.wav",
+      "file_size_bytes": 686444
+    },
+    {
+      "voice": "bm_lewis",
+      "status": "PASS",
+      "first_chunk_latency_sec": 6.085,
+      "total_synth_time_sec": 6.085,
+      "audio_duration_sec": 17.475,
+      "rtf": 0.3482,
+      "sample_rate": 24000,
+      "rms": 0.04529,
+      "peak": 0.50809,
+      "silent": false,
+      "clipped": false,
+      "file_path": "C:\\Users\\joris\\Documents\\Capitalife Terminal Sentinel Voice\\scripts\\tts\\..\\..\\sentinel-voice-samples\\kokoro-lewis.wav",
+      "file_size_bytes": 838844
+    }
+  ],
+  "import_time_sec": 7.453,
+  "model_load_time_sec": 23.021,
+  "model_load_error": null
+}

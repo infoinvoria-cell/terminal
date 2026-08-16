@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sentinel Voice Lab</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0b0c0f; color: #e2e8ef; font-family: system-ui, sans-serif; padding: 32px; }
+  h1 { color: #c9a84c; font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { color: rgba(255,255,255,0.4); font-size: 13px; margin-bottom: 32px; }
+  .section { margin-bottom: 32px; }
+  .section-title { font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 12px; }
+  .lines { display: grid; gap: 8px; }
+  .line { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 12px 14px; display: grid; gap: 8px; }
+  .line-text { font-size: 13.5px; color: #e2e8ef; line-height: 1.4; }
+  .voices { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .voice-btn { background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25); border-radius: 7px; padding: 5px 12px; cursor: pointer; font-size: 12px; color: #c9a84c; font-family: inherit; display: flex; align-items: center; gap: 6px; }
+  .voice-btn:hover { background: rgba(201,168,76,0.18); }
+  .voice-btn.playing { background: rgba(201,168,76,0.25); border-color: #c9a84c; }
+  .engine-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .engine-table th { color: rgba(255,255,255,0.4); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; text-align: left; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .engine-table td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 5px; font-size: 10px; font-weight: 700; }
+  .badge-green { background: rgba(74,197,128,0.15); color: #4ac580; border: 1px solid rgba(74,197,128,0.25); }
+  .badge-yellow { background: rgba(201,168,76,0.15); color: #c9a84c; border: 1px solid rgba(201,168,76,0.25); }
+  .badge-red { background: rgba(220,80,80,0.15); color: #e05050; border: 1px solid rgba(220,80,80,0.2); }
+  .status { font-size: 12px; color: rgba(255,255,255,0.35); padding: 8px 0; }
+  #server-status { font-size: 12px; padding: 8px 12px; border-radius: 7px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); margin-bottom: 20px; display: inline-block; }
+</style>
+</head>
+<body>
+
+<h1>⚡ Sentinel Voice Lab</h1>
+<p class="subtitle">Local TTS comparison — real synthesized samples, Kokoro-82M British male voices</p>
+
+<div id="server-status">Checking TTS server...</div>
+
+<div class="section">
+  <div class="section-title">Real Generated Samples (this benchmark run)</div>
+  <div class="lines">
+    <div class="line">
+      <div class="line-text">Kokoro — George (Apache-2.0, DEFAULT)</div>
+      <audio controls src="kokoro-george.wav" style="width:100%"></audio>
+    </div>
+    <div class="line">
+      <div class="line-text">Kokoro — Fable (Apache-2.0)</div>
+      <audio controls src="kokoro-fable.wav" style="width:100%"></audio>
+    </div>
+    <div class="line">
+      <div class="line-text">Kokoro — Daniel (Apache-2.0)</div>
+      <audio controls src="kokoro-daniel.wav" style="width:100%"></audio>
+    </div>
+    <div class="line">
+      <div class="line-text">Kokoro — Lewis (Apache-2.0)</div>
+      <audio controls src="kokoro-lewis.wav" style="width:100%"></audio>
+    </div>
+    <div class="line">
+      <div class="line-text">Piper — en_GB Alan (MIT engine, voice license UNCLEAR — benchmark only, clipped at default gain)</div>
+      <audio controls src="piper-alan.wav" style="width:100%"></audio>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Finance Test Lines</div>
+  <div class="lines" id="lines-container">
+    <!-- Lines injected by JS -->
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Engine Comparison</div>
+  <table class="engine-table">
+    <thead>
+      <tr>
+        <th>Engine</th><th>Voice</th><th>Quality</th><th>British</th><th>Latency</th><th>License</th><th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Kokoro-82M</td><td>bm_george</td><td>Excellent</td><td>★★★★★</td><td>~0.5s</td>
+        <td><span class="badge badge-green">Apache-2.0</span></td>
+        <td><span class="badge badge-green">DEFAULT</span></td>
+      </tr>
+      <tr>
+        <td>Kokoro-82M</td><td>bm_fable</td><td>Excellent</td><td>★★★★★</td><td>~0.5s</td>
+        <td><span class="badge badge-green">Apache-2.0</span></td>
+        <td><span class="badge badge-yellow">Alt</span></td>
+      </tr>
+      <tr>
+        <td>Kokoro-82M</td><td>bm_daniel</td><td>Very Good</td><td>★★★★☆</td><td>~0.5s</td>
+        <td><span class="badge badge-green">Apache-2.0</span></td>
+        <td><span class="badge badge-yellow">Alt</span></td>
+      </tr>
+      <tr>
+        <td>Kokoro-82M</td><td>bm_lewis</td><td>Very Good</td><td>★★★★☆</td><td>~0.5s</td>
+        <td><span class="badge badge-green">Apache-2.0</span></td>
+        <td><span class="badge badge-yellow">Alt</span></td>
+      </tr>
+      <tr>
+        <td>MeloTTS</td><td>EN-BR</td><td>Moderate</td><td>★★★☆☆</td><td>~0.8s</td>
+        <td><span class="badge badge-green">MIT</span></td>
+        <td><span class="badge badge-red">Not selected</span></td>
+      </tr>
+      <tr>
+        <td>Piper</td><td>en_GB</td><td>Good</td><td>★★★★☆</td><td>~0.3s</td>
+        <td><span class="badge badge-yellow">MIT/varies</span></td>
+        <td><span class="badge badge-red">Lic unclear</span></td>
+      </tr>
+      <tr>
+        <td>Browser</td><td>en-GB sys</td><td>Variable</td><td>Variable</td><td>~0s</td>
+        <td><span class="badge badge-yellow">System</span></td>
+        <td><span class="badge badge-yellow">Fallback</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+const LINES = [
+  "Good evening. Markets are broadly stable, but volatility is beginning to rise.",
+  "The DAX remains the primary risk contributor. Gold is currently providing useful diversification.",
+  "White Swan is operating normally. The fifteen-thousand-euro practical profile retains a substantial stress-liquidity reserve.",
+  "EUR slash USD is trading near one point one eight. No immediate action is required.",
+  "Sentinel detected an unusual change in cross-asset correlation. I recommend reviewing the risk panel.",
+];
+
+const VOICES = [
+  { id: "bm_george", label: "George" },
+  { id: "bm_fable",  label: "Fable" },
+  { id: "bm_daniel", label: "Daniel" },
+  { id: "bm_lewis",  label: "Lewis" },
+];
+
+let currentAudio = null;
+let currentBtn = null;
+
+async function checkServer() {
+  const el = document.getElementById("server-status");
+  try {
+    const r = await fetch("http://localhost:5050/health");
+    const d = await r.json();
+    el.innerHTML = d.model_loaded
+      ? `🟢 TTS Server online — Kokoro loaded (${d.cache_entries} cached)`
+      : `🟡 TTS Server online — model loading...`;
+    el.style.color = "#4ac580";
+  } catch {
+    el.innerHTML = "🔴 TTS Server offline — start with: python scripts/tts/sentinel-tts-server.py";
+    el.style.color = "#e05050";
+  }
+}
+
+async function playVoice(text, voiceId, btn) {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  if (currentBtn) { currentBtn.classList.remove("playing"); currentBtn.textContent = currentBtn.dataset.label; }
+  if (currentBtn === btn) { currentBtn = null; return; }
+
+  btn.classList.add("playing");
+  btn.textContent = "▶ Loading...";
+  currentBtn = btn;
+
+  try {
+    const r = await fetch("http://localhost:5050/synthesize", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ text, voice: voiceId, speed: 1.0 }),
+    });
+    if (!r.ok) throw new Error("Synthesis failed");
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    currentAudio = new Audio(url);
+    btn.textContent = "◼ Playing...";
+    currentAudio.onended = () => {
+      URL.revokeObjectURL(url);
+      btn.classList.remove("playing");
+      btn.textContent = btn.dataset.label;
+      currentAudio = null;
+      currentBtn = null;
+    };
+    currentAudio.play();
+  } catch(e) {
+    btn.classList.remove("playing");
+    btn.textContent = btn.dataset.label;
+    alert("TTS server unavailable. Start: python scripts/tts/sentinel-tts-server.py");
+    currentBtn = null;
+  }
+}
+
+function renderLines() {
+  const c = document.getElementById("lines-container");
+  LINES.forEach((line, i) => {
+    const div = document.createElement("div");
+    div.className = "line";
+    const txt = document.createElement("div");
+    txt.className = "line-text";
+    txt.textContent = `${i+1}. ${line}`;
+    const voices = document.createElement("div");
+    voices.className = "voices";
+    VOICES.forEach(v => {
+      const btn = document.createElement("button");
+      btn.className = "voice-btn";
+      btn.textContent = `▶ ${v.label}`;
+      btn.dataset.label = `▶ ${v.label}`;
+      btn.onclick = () => playVoice(line, v.id, btn);
+      voices.appendChild(btn);
+    });
+    div.appendChild(txt);
+    div.appendChild(voices);
+    c.appendChild(div);
+  });
+}
+
+checkServer();
+setInterval(checkServer, 15000);
+renderLines();
+</script>
+</body>
+</html>

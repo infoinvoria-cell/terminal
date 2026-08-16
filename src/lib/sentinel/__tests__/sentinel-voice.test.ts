@@ -103,6 +103,23 @@ describe("extractSpokenBrief", () => {
     const codeOnly = "```typescript\nconst x = 1;\n```";
     expect(() => extractSpokenBrief(codeOnly)).not.toThrow();
   });
+
+  it("drops heading text instead of gluing it onto the next sentence", () => {
+    const brief = extractSpokenBrief("## Research Summary\nFindings show no robust edge.");
+    expect(brief).not.toMatch(/^Research Summary/);
+    expect(brief).toContain("Findings show no robust edge.");
+  });
+
+  it("does not mangle multi-underscore identifiers", () => {
+    const brief = extractSpokenBrief("Verdict: NO_ROBUST_EDGE_FOUND. Family A is rejected.");
+    expect(brief).toContain("NO_ROBUST_EDGE_FOUND");
+  });
+
+  it("still strips single-underscore italic phrases", () => {
+    const brief = extractSpokenBrief("Markets are _quite_ stable today.");
+    expect(brief).not.toContain("_quite_");
+    expect(brief).toContain("quite");
+  });
 });
 
 // ── normalizePronunciation ───────────────────────────────────────────────────

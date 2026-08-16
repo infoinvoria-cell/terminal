@@ -123,6 +123,7 @@ profile_jeroen.png
 /CAPITALIFE_ICON.png
 *.htm
 *.html
+!sentinel-voice-samples/voice-lab.html
 *.statement.pdf
 **/tradingview-session*
 **/*credentials*
@@ -167,6 +168,11 @@ data/historical/intraday/
 # MT5 connector — local Python venv and runtime snapshots
 .venv-mt5/
 .runtime/
+
+# TTS local dev — Python venvs and downloaded third-party voice model weights
+# (piper-alan license is unclear per SENTINEL_VOICE_BENCHMARK.md — benchmark-only, never committed)
+.venv-tts/
+.piper-voices/
 
 # Dev/QA debug artifacts — browser screenshots, playwright captures, codex artifacts
 .playwright-mcp/

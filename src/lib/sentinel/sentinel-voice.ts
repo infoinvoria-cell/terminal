@@ -180,13 +180,15 @@ function stripMarkdown(text: string): string {
     .replace(/`[^`]*`/g, "")              // inline code
     .replace(/!\[.*?\]\(.*?\)/g, "")      // images
     .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // links → text only
-    .replace(/^#{1,6}\s+/gm, "")          // headings
+    .replace(/^#{1,6}\s+.*$/gm, "")       // headings — drop the whole title line, not just the marker
     .replace(/^\s*[-*+]\s+/gm, "")        // bullets
     .replace(/^\s*\d+\.\s+/gm, "")        // numbered lists
     .replace(/^\s*[|].*$/gm, "")          // table rows
     .replace(/^\s*[-|:]+\s*$/gm, "")      // table separators
     .replace(/\*{1,3}([^*]+)\*{1,3}/g, "$1") // bold/italic
-    .replace(/_{1,3}([^_]+)_{1,3}/g, "$1")   // underscores
+    // underscore italic/bold: only strip single-underscore-delimited *phrases* bounded by
+    // whitespace/punctuation, so identifiers like NO_ROBUST_EDGE_FOUND are left intact
+    .replace(/(?<![\w_])_([^_\n]+)_(?![\w_])/g, "$1")
     .replace(/~~([^~]+)~~/g, "$1")        // strikethrough
     .replace(/^>\s*/gm, "")              // blockquotes
     .replace(/https?:\/\/\S+/g, "")       // URLs

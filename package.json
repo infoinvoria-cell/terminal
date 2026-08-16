@@ -47,6 +47,7 @@
     "d3-dsv": "^3.0.1",
     "d3-force": "^3.0.0",
     "lightweight-charts": "^5.2.0",
+    "kokoro-js": "^1.2.1",
     "lucide-react": "^1.8.0",
     "maplibre-gl": "^6.0.0",
     "next": "16.2.4",

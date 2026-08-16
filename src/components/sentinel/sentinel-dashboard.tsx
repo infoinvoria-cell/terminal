@@ -1015,6 +1015,11 @@ export function SentinelDashboard() {
           {/* Rechts: audio + provider */}
           <div style={{ display:"flex", alignItems:"center", gap:2 }}>
             {/* Voice status indicator */}
+            {voice.status === "model_loading" && (
+              <span style={{ fontSize:10, color:"#C9A84C", fontWeight:700, letterSpacing:"0.08em", marginRight:2, animation:"snt-pulse 1s ease-in-out infinite" }}>
+                LOADING
+              </span>
+            )}
             {voice.status === "generating" && (
               <span style={{ fontSize:10, color:"#C9A84C", fontWeight:700, letterSpacing:"0.08em", marginRight:2, animation:"snt-pulse 1s ease-in-out infinite" }}>
                 GEN
