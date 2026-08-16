@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 import dynamic from "next/dynamic";
 import { TrackRecordStatusStrip } from "@/components/dashboard/track-record-status-strip";
 import { deserializeTrades, compoundGains } from "@/lib/trades-analytics";
@@ -100,6 +101,56 @@ function TopKpi({ label, value, neg, isAum }: TopKpiItem) {
         {displayValue}
       </p>
     </div>
+  );
+}
+
+// ── White Swan shortcut card — real canonical data, links into /m/white-swan ──
+function WhiteSwanShortcut() {
+  const [status, setStatus] = useState<{ CAGR: number; assessment: string; pass: boolean; capital: number } | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/white-swan-final?type=summary")
+      .then(r => r.json())
+      .then((d: { capitalLevels: Record<string, { capitalAssessment: string; finalRecommendation: { scaledNetCAGR: number } | null }> }) => {
+        if (!d.capitalLevels) { setFailed(true); return; }
+        const caps = Object.keys(d.capitalLevels).map(Number).sort((a, b) => a - b);
+        const capital = caps.find(c => d.capitalLevels[String(c)].capitalAssessment === "PASS") ?? caps[0];
+        const level = d.capitalLevels[String(capital)];
+        setStatus({
+          CAGR: level.finalRecommendation?.scaledNetCAGR ?? 0,
+          assessment: level.capitalAssessment.replace(/_/g, " "),
+          pass: level.capitalAssessment === "PASS",
+          capital,
+        });
+      })
+      .catch(() => setFailed(true));
+  }, []);
+
+  return (
+    <Link
+      href="/m/white-swan"
+      style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
+        background: "linear-gradient(135deg, rgba(201,168,76,0.12), rgba(201,168,76,0.02))",
+        border: "1px solid rgba(201,168,76,0.28)", borderRadius: 12,
+        padding: "11px 14px", textDecoration: "none", WebkitTapHighlightColor: "transparent",
+      }}
+    >
+      <div style={{ minWidth: 0 }}>
+        <p style={{ margin: 0, fontSize: 9, fontWeight: 700, color: "#C9A84C", textTransform: "uppercase", letterSpacing: "0.06em", fontFamily: "var(--font-text)" }}>
+          White Swan
+        </p>
+        <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "rgba(255,255,255,0.6)", fontFamily: "var(--font-text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {failed ? "Nicht erreichbar" : status ? status.assessment : "wird geladen…"}
+        </p>
+      </div>
+      {status && status.pass && (
+        <span style={{ flexShrink: 0, fontSize: 15, fontWeight: 700, color: "#C9A84C", fontFamily: "var(--font-numbers)" }}>
+          {status.CAGR >= 0 ? "+" : ""}{status.CAGR.toFixed(1)}%
+        </span>
+      )}
+    </Link>
   );
 }
 
@@ -274,6 +325,11 @@ export function MobileHomeView({
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 5 }}>
           {topKpis.map(k => <TopKpi key={k.label} {...k} />)}
         </div>
+      </div>
+
+      {/* ── White Swan shortcut ─────────────────────────────── */}
+      <div style={{ flexShrink: 0, padding: "0 14px 16px" }}>
+        <WhiteSwanShortcut />
       </div>
 
       {/* ── 4 tab buttons ──────────────────────────────────── */}
