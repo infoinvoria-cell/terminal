@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Check, ChevronDown, Clock, Copy, Grid2x2, Mic, MicOff,
-  Pencil, Plus, RotateCcw, Send, SquarePen, Trash2, Volume2, VolumeX, X,
+  Pause, Pencil, Play, Plus, RotateCcw, Send, Square, SquarePen, Trash2, Volume2, VolumeX, X,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useSentinelSession } from "@/components/sentinel/sentinel-session-provider";
@@ -11,6 +11,8 @@ import { SentinelCapacityPanel } from "@/components/sentinel/SentinelCapacityPan
 import { SentinelBrainGlobe, BrainConnector } from "@/components/sentinel/SentinelBrainLink";
 import { lsGet, lsSet } from "@/lib/sentinel/sentinel-session-store";
 import type { ChatEntry, SourceItem } from "@/lib/sentinel/sentinel-session-store";
+import { useSentinelVoice } from "@/hooks/use-sentinel-voice";
+import { SENTINEL_VOICES } from "@/lib/sentinel/sentinel-voice";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -25,7 +27,6 @@ type SentinelFavoritePrompt = {
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const MUTE_KEY        = "fmd_sentinel_muted";
 const FAVORITES_KEY   = "fmd_sentinel_favorites";
 const SAVED_CHATS_KEY = "fmd_sentinel_saved_chats";
 const TA_MAX_H        = 100;
@@ -51,7 +52,7 @@ const DEFAULT_FAVORITES: SentinelFavoritePrompt[] = [
   { id: "d7", title: "Performance Report", category: "trades",    prompt: "Performance Kennzahlen aus dem Performance Report.",              createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
 ];
 
-// ── Speech helpers ───────────────────────────────────────────────────────────
+// ── Speech Recognition helpers (microphone input) ────────────────────────────
 
 type SpeechRecognitionLike = {
   lang: string; continuous: boolean; interimResults: boolean;
@@ -65,25 +66,6 @@ function getSpeechRecognition(): (new () => SpeechRecognitionLike) | null {
   if (typeof window === "undefined") return null;
   const w = window as unknown as Record<string, unknown>;
   return (w["SpeechRecognition"] || w["webkitSpeechRecognition"] || null) as (new () => SpeechRecognitionLike) | null;
-}
-
-function getGermanVoices(): SpeechSynthesisVoice[] {
-  if (typeof window === "undefined" || !window.speechSynthesis) return [];
-  return window.speechSynthesis.getVoices().filter(v => /de(-|_)/i.test(v.lang));
-}
-
-function pickBestGermanVoice(voices: SpeechSynthesisVoice[], preferredUri?: string | null): SpeechSynthesisVoice | null {
-  if (!voices.length) return null;
-  if (preferredUri) { const pref = voices.find(v => v.voiceURI === preferredUri); if (pref) return pref; }
-  const priority = [
-    (v: SpeechSynthesisVoice) => /neural/i.test(v.name) && /de[-_]/i.test(v.lang),
-    (v: SpeechSynthesisVoice) => /microsoft\s+stefan/i.test(v.name),
-    (v: SpeechSynthesisVoice) => /microsoft\s+hedda/i.test(v.name),
-    (v: SpeechSynthesisVoice) => /microsoft/i.test(v.name) && /de[-_]/i.test(v.lang),
-    (v: SpeechSynthesisVoice) => /google/i.test(v.name) && /de[-_]/i.test(v.lang),
-  ];
-  for (const test of priority) { const hit = voices.find(test); if (hit) return hit; }
-  return voices[0];
 }
 
 // ── Aurum Waves ───────────────────────────────────────────────────────────────
@@ -520,20 +502,16 @@ export function MobileSentinelView() {
   });
   const [listening,        setListening]        = useState(false);
   const [voiceLevel,       setVoiceLevel]       = useState(0);
-  const [muted,            setMuted]            = useState<boolean>(() => { try { return lsGet<string>(MUTE_KEY, "0") === "1"; } catch { return false; } });
+  const voice = useSentinelVoice();
   const [mounted,          setMounted]          = useState(false);
   const [userScrolledUp,   setUserScrolledUp]   = useState(false);
   const [micAvailable,     setMicAvailable]     = useState(false);
-  const [speaking,         setSpeaking]         = useState(false);
-  const [germanVoices,     setGermanVoices]     = useState<SpeechSynthesisVoice[]>([]);
-  const [selectedVoiceUri, setSelectedVoiceUri] = useState<string | null>(() => { try { const v = lsGet<string>("snt_voice_uri", ""); return v || null; } catch { return null; } });
   const [animPhase,        setAnimPhase]        = useState<"avatar" | "typing" | "done">("avatar");
   const [typedText,        setTypedText]        = useState("");
   const [greetingLang,     setGreetingLang]     = useState<"de" | "en">("de");
   const GREETING = greetingLang === "de" ? GREETING_DE : GREETING_EN;
   const [brainActive,      setBrainActive]      = useState(false);
   const [historyOpen,      setHistoryOpen]      = useState(false);
-  const [voiceDropOpen,    setVoiceDropOpen]    = useState(false);
   const [kbOffset,         setKbOffset]         = useState(0);
 
   const scrollRef      = useRef<HTMLDivElement>(null);
@@ -562,25 +540,18 @@ export function MobileSentinelView() {
 
   useEffect(() => {
     setMounted(true);
-    if (typeof window !== "undefined" && window.speechSynthesis) {
-      const load = () => { const v = getGermanVoices(); if (v.length) setGermanVoices(v); };
-      load();
-      window.speechSynthesis.onvoiceschanged = load;
-    }
     try { setMicAvailable(Boolean(getSpeechRecognition())); } catch { setMicAvailable(false); }
   }, []);
 
   useEffect(() => { lsSet(FAVORITES_KEY, favorites); }, [favorites]);
-  useEffect(() => { lsSet(MUTE_KEY, muted ? "1" : "0"); }, [muted]);
-  useEffect(() => { lsSet("snt_voice_uri", selectedVoiceUri ?? ""); }, [selectedVoiceUri]);
 
   useEffect(() => {
-    if (!voiceDropOpen) return;
-    const h = (e: MouseEvent | TouchEvent) => { if (voiceDropRef.current && !voiceDropRef.current.contains(e.target as Node)) setVoiceDropOpen(false); };
+    if (!voice.voiceDropOpen) return;
+    const h = (e: MouseEvent | TouchEvent) => { if (voiceDropRef.current && !voiceDropRef.current.contains(e.target as Node)) voice.setVoiceDropOpen(false); };
     document.addEventListener("mousedown", h);
     document.addEventListener("touchstart", h);
     return () => { document.removeEventListener("mousedown", h); document.removeEventListener("touchstart", h); };
-  }, [voiceDropOpen]);
+  }, [voice]);
 
   // Opening animation
   useEffect(() => {
@@ -619,20 +590,16 @@ export function MobileSentinelView() {
     setUserScrolledUp(el.scrollHeight - el.scrollTop - el.clientHeight > 100);
   }, []);
 
-  const speak = useCallback((text: string) => {
-    if (muted || typeof window === "undefined" || !window.speechSynthesis || !text) return;
-    try {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = "de-DE"; u.rate = 0.95; u.pitch = 0.9;
-      const voice = pickBestGermanVoice(getGermanVoices(), selectedVoiceUri);
-      if (voice) u.voice = voice;
-      u.onstart = () => setSpeaking(true);
-      u.onend   = () => setSpeaking(false);
-      u.onerror = () => setSpeaking(false);
-      window.speechSynthesis.speak(u);
-    } catch { /* ignore */ }
-  }, [muted, selectedVoiceUri]);
+  // Auto-speak spoken brief when Sentinel answer completes
+  const prevBusyRef = useRef(false);
+  useEffect(() => {
+    if (prevBusyRef.current && !busy && voice.autoSpeak) {
+      const last = entries.findLast(e => e.role === "assistant");
+      if (last?.content) voice.speakBrief(last.content);
+    }
+    prevBusyRef.current = busy;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [busy]);
 
   const stopVoiceAnalysis = useCallback(() => {
     cancelAnimationFrame(animFrameRef.current);
@@ -849,7 +816,7 @@ export function MobileSentinelView() {
                 aria-label="Brain verbinden"
                 style={{ cursor: "pointer" }}
               >
-                <AurumRings voiceLevel={listening ? effectiveVoiceLevel : 0} speaking={speaking} size={210} />
+                <AurumRings voiceLevel={listening ? effectiveVoiceLevel : 0} speaking={voice.status === "speaking"} size={210} />
               </div>
               {/* Brain globe reveal — vertical stack (mobile adaptation of Desktop's
                   side-by-side eye+globe layout, which doesn't fit width-wise below ~430px) */}
@@ -1041,50 +1008,82 @@ export function MobileSentinelView() {
               style={{ ...iconBtn({}) }}>
               <SquarePen size={16} />
             </button>
-            <button type="button" onClick={() => setMuted(m => !m)} title={muted ? "Stimme an" : "Stimme aus"}
+            {/* Mute toggle */}
+            <button type="button" onClick={() => voice.setMuted(!voice.muted)} title={voice.muted ? "Voice on" : "Voice off"}
               style={{ ...iconBtn({}) }}>
-              {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+              {voice.muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
             </button>
-            {germanVoices.length > 0 && (
-              <div ref={voiceDropRef} style={{ position: "relative" }}>
-                <button type="button" onClick={() => setVoiceDropOpen(o => !o)} title="Stimme wählen"
-                  style={{ ...iconBtn({ active: voiceDropOpen }), opacity: muted ? 0.35 : 1 }}>
-                  <ChevronDown size={14} />
-                </button>
-                {voiceDropOpen && (
-                  <div style={{
-                    position: "absolute", bottom: "calc(100% + 6px)", left: 0,
-                    background: "linear-gradient(to bottom, #26262d, #111114)", border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: 10, padding: "6px 0", zIndex: 300,
-                    boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
-                    minWidth: 210, maxHeight: 260, overflowY: "auto",
-                    fontFamily: "var(--font-text)", fontSize: 12,
-                  }}>
-                    <p style={{ padding: "4px 12px 6px", fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", margin: 0 }}>
-                      DE Stimme
-                    </p>
-                    {germanVoices.map(v => {
-                      const active = selectedVoiceUri ? v.voiceURI === selectedVoiceUri : v === pickBestGermanVoice(germanVoices, null);
-                      return (
-                        <button key={v.voiceURI} type="button"
-                          onClick={() => { setSelectedVoiceUri(v.voiceURI); setVoiceDropOpen(false); }}
-                          style={{
-                            display: "flex", alignItems: "center", gap: 8, width: "100%",
-                            padding: "8px 12px", background: "none", border: "none",
-                            color: active ? "#C9A84C" : "rgba(200,210,220,0.8)",
-                            cursor: "pointer", textAlign: "left", fontSize: 12,
-                            fontFamily: "inherit", WebkitTapHighlightColor: "transparent",
-                          }}>
-                          {active && <Check size={11} style={{ flexShrink: 0, color: "#C9A84C" }} />}
-                          {!active && <span style={{ width: 11, flexShrink: 0 }} />}
-                          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.name}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
+            {/* Pause / Resume / Stop while TTS is active */}
+            {(voice.status === "speaking" || voice.status === "paused") && (
+              <>
+                {voice.status === "speaking" && (
+                  <button type="button" onClick={voice.pause} title="Pause" style={{ ...iconBtn({}) }}>
+                    <Pause size={14} />
+                  </button>
                 )}
-              </div>
+                {voice.status === "paused" && (
+                  <button type="button" onClick={voice.resume} title="Resume" style={{ ...iconBtn({}) }}>
+                    <Play size={14} />
+                  </button>
+                )}
+                <button type="button" onClick={voice.stop} title="Stop" style={{ ...iconBtn({}) }}>
+                  <Square size={14} />
+                </button>
+              </>
             )}
+            {/* Replay */}
+            {voice.status === "idle" && (
+              <button type="button" onClick={voice.replay} title="Replay" style={{ ...iconBtn({}), opacity: 0.5 }}>
+                <RotateCcw size={14} />
+              </button>
+            )}
+            {/* Voice selector */}
+            <div ref={voiceDropRef} style={{ position: "relative" }}>
+              <button type="button" onClick={() => voice.setVoiceDropOpen(!voice.voiceDropOpen)} title="Select voice"
+                style={{ ...iconBtn({ active: voice.voiceDropOpen }), opacity: voice.muted ? 0.35 : 1 }}>
+                <ChevronDown size={14} />
+              </button>
+              {voice.voiceDropOpen && (
+                <div style={{
+                  position: "absolute", bottom: "calc(100% + 6px)", left: 0,
+                  background: "linear-gradient(to bottom, #26262d, #111114)", border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: 10, padding: "6px 0", zIndex: 300,
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+                  minWidth: 200, maxHeight: 260, overflowY: "auto",
+                  fontFamily: "var(--font-text)", fontSize: 12,
+                }}>
+                  <p style={{ padding: "4px 12px 6px", fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", margin: 0 }}>
+                    SENTINEL VOICE
+                  </p>
+                  {SENTINEL_VOICES.map(v => {
+                    const isActive = v.id === voice.voiceId;
+                    const isOffline = v.engine === "kokoro" && !voice.localTTSAvailable;
+                    return (
+                      <button key={v.id} type="button"
+                        onClick={() => { voice.setVoiceId(v.id); voice.setVoiceDropOpen(false); }}
+                        style={{
+                          display: "flex", alignItems: "center", gap: 8, width: "100%",
+                          padding: "8px 12px", background: "none", border: "none",
+                          color: isActive ? "#C9A84C" : "rgba(200,210,220,0.8)",
+                          cursor: "pointer", textAlign: "left", fontSize: 12,
+                          fontFamily: "inherit", WebkitTapHighlightColor: "transparent",
+                          opacity: isOffline ? 0.45 : 1,
+                        }}>
+                        {isActive && <Check size={11} style={{ flexShrink: 0, color: "#C9A84C" }} />}
+                        {!isActive && <span style={{ width: 11, flexShrink: 0 }} />}
+                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.label}</span>
+                        {isOffline && <span style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", marginLeft: "auto" }}>offline</span>}
+                      </button>
+                    );
+                  })}
+                  {!voice.localTTSAvailable && (
+                    <p style={{ padding: "6px 12px 4px", fontSize: 10, color: "rgba(255,200,80,0.55)", margin: 0 }}>
+                      Start local TTS for Kokoro voices
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
             <button type="button" onClick={() => setHistoryOpen(true)} title="Gespeicherte Chats"
               style={{ ...iconBtn({}) }}>
               <Clock size={16} />

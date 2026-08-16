@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Check, ChevronDown, ChevronRight, Clock, Copy, Grid2x2, Mic, MicOff,
-  Pencil, Plus, RotateCcw, Send, SquarePen, Trash2, Volume2, VolumeX, X,
+  Pause, Pencil, Play, Plus, RotateCcw, Send, SquarePen, Square, Trash2, Volume2, VolumeX, X,
 } from "lucide-react";
 import { createPortal } from "react-dom";
 import { SentinelProviderStatusBar } from "@/components/sentinel/sentinel-provider-status";
@@ -14,6 +14,8 @@ import { SentinelBrainGlobe, BrainConnector } from "@/components/sentinel/Sentin
 import ReactMarkdown from "react-markdown";
 import { lsGet, lsSet } from "@/lib/sentinel/sentinel-session-store";
 import type { ChatEntry, SourceItem } from "@/lib/sentinel/sentinel-session-store";
+import { useSentinelVoice } from "@/hooks/use-sentinel-voice";
+import { SENTINEL_VOICES } from "@/lib/sentinel/sentinel-voice";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -28,7 +30,7 @@ type SentinelFavoritePrompt = {
 
 // ── Constants ───────────────────────────────────────────────────────────────
 
-const MUTE_KEY = "fmd_sentinel_muted";
+// Voice persistence is handled by useSentinelVoice / sentinel-voice.ts
 const FAVORITES_KEY = "fmd_sentinel_favorites";
 const FULLSCREEN_KEY = "fmd_sentinel_fullscreen";
 const TA_MAX_H = 130; // ~5 lines
@@ -45,7 +47,7 @@ const DEFAULT_FAVORITES: SentinelFavoritePrompt[] = [
 
 // ── localStorage helpers ─────────────────────────────────────────────────────
 
-// ── Speech helpers ───────────────────────────────────────────────────────────
+// ── Speech Recognition helpers (microphone input) ────────────────────────────
 
 type SpeechRecognitionLike = {
   lang: string; continuous: boolean; interimResults: boolean;
@@ -59,32 +61,6 @@ function getSpeechRecognition(): (new () => SpeechRecognitionLike) | null {
   if (typeof window === "undefined") return null;
   const w = window as unknown as Record<string, unknown>;
   return (w["SpeechRecognition"] || w["webkitSpeechRecognition"] || null) as (new () => SpeechRecognitionLike) | null;
-}
-
-function getGermanVoices(): SpeechSynthesisVoice[] {
-  if (typeof window === "undefined" || !window.speechSynthesis) return [];
-  return window.speechSynthesis.getVoices().filter(v => /de(-|_)/i.test(v.lang));
-}
-
-function pickBestGermanVoice(voices: SpeechSynthesisVoice[], preferredUri?: string | null): SpeechSynthesisVoice | null {
-  if (!voices.length) return null;
-  if (preferredUri) {
-    const pref = voices.find(v => v.voiceURI === preferredUri);
-    if (pref) return pref;
-  }
-  // Priority: Neural de-DE > Microsoft Stefan/Hedda > any de-DE
-  const priority = [
-    (v: SpeechSynthesisVoice) => /neural/i.test(v.name) && /de[-_]/i.test(v.lang),
-    (v: SpeechSynthesisVoice) => /microsoft\s+stefan/i.test(v.name),
-    (v: SpeechSynthesisVoice) => /microsoft\s+hedda/i.test(v.name),
-    (v: SpeechSynthesisVoice) => /microsoft/i.test(v.name) && /de[-_]/i.test(v.lang),
-    (v: SpeechSynthesisVoice) => /google/i.test(v.name) && /de[-_]/i.test(v.lang),
-  ];
-  for (const test of priority) {
-    const hit = voices.find(test);
-    if (hit) return hit;
-  }
-  return voices[0];
 }
 
 // ── Aurum Logo Animation (sequential reveal, left → right, 7.2s loop) ────────
@@ -620,15 +596,11 @@ export function SentinelDashboard() {
   });
   const [listening, setListening] = useState(false);
   const [voiceLevel, setVoiceLevel] = useState(0);
-  const [muted, setMuted] = useState<boolean>(() => { try { return lsGet<string>(MUTE_KEY, "0") === "1"; } catch { return false; } });
+  const voice = useSentinelVoice();
   const [fullscreen, setFullscreen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [userScrolledUp, setUserScrolledUp] = useState(false);
   const [micAvailable, setMicAvailable] = useState(false);
-  const [speaking, setSpeaking] = useState(false);
-  const [germanVoices, setGermanVoices] = useState<SpeechSynthesisVoice[]>([]);
-  const [selectedVoiceUri, setSelectedVoiceUri] = useState<string | null>(() => { try { const v = lsGet<string>("snt_voice_uri", ""); return v || null; } catch { return null; } });
-  const [voiceDropOpen, setVoiceDropOpen] = useState(false);
   const voiceDropRef = useRef<HTMLDivElement>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [renamingId, setRenamingId] = useState<string | null>(null);
@@ -657,24 +629,17 @@ export function SentinelDashboard() {
   useEffect(() => {
     setMounted(true);
     try { setFullscreen(lsGet<string>(FULLSCREEN_KEY, "0") === "1"); } catch { /* ignore */ }
-    if (typeof window !== "undefined" && window.speechSynthesis) {
-      const load = () => { const v = getGermanVoices(); if (v.length) setGermanVoices(v); };
-      load();
-      window.speechSynthesis.onvoiceschanged = load;
-    }
     try { setMicAvailable(Boolean(getSpeechRecognition())); } catch { setMicAvailable(false); }
   }, []);
 
   useEffect(() => { lsSet(FAVORITES_KEY, favorites); }, [favorites]);
-  useEffect(() => { lsSet(MUTE_KEY, muted ? "1" : "0"); }, [muted]);
   useEffect(() => { if (mounted) lsSet(FULLSCREEN_KEY, fullscreen ? "1" : "0"); }, [fullscreen, mounted]);
-  useEffect(() => { lsSet("snt_voice_uri", selectedVoiceUri ?? ""); }, [selectedVoiceUri]);
   useEffect(() => {
-    if (!voiceDropOpen) return;
-    const h = (e: MouseEvent) => { if (!voiceDropRef.current?.contains(e.target as Node)) setVoiceDropOpen(false); };
+    if (!voice.voiceDropOpen) return;
+    const h = (e: MouseEvent) => { if (!voiceDropRef.current?.contains(e.target as Node)) voice.setVoiceDropOpen(false); };
     window.addEventListener("mousedown", h);
     return () => window.removeEventListener("mousedown", h);
-  }, [voiceDropOpen]);
+  }, [voice]);
 
   // Opening animation — only in empty state
   useEffect(() => {
@@ -727,21 +692,16 @@ export function SentinelDashboard() {
     setUserScrolledUp(distFromBottom > 120);
   }, []);
 
-  const speak = useCallback((text: string) => {
-    if (muted || typeof window === "undefined" || !window.speechSynthesis || !text) return;
-    try {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = "de-DE"; u.rate = 0.95; u.pitch = 0.9;
-      const voices = getGermanVoices();
-      const voice = pickBestGermanVoice(voices, selectedVoiceUri);
-      if (voice) u.voice = voice;
-      u.onstart = () => setSpeaking(true);
-      u.onend = () => setSpeaking(false);
-      u.onerror = () => setSpeaking(false);
-      window.speechSynthesis.speak(u);
-    } catch { /* ignore */ }
-  }, [muted, selectedVoiceUri]);
+  // Auto-speak spoken brief when Sentinel answer completes
+  const prevBusyRef = useRef(false);
+  useEffect(() => {
+    if (prevBusyRef.current && !busy && voice.autoSpeak) {
+      const last = entries.findLast(e => e.role === "assistant");
+      if (last?.content) voice.speakBrief(last.content);
+    }
+    prevBusyRef.current = busy;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [busy]);
 
   const stopVoiceAnalysis = useCallback(() => {
     cancelAnimationFrame(animFrameRef.current);
@@ -912,7 +872,7 @@ export function SentinelDashboard() {
             <div className={`snt-empty-rings snt-anim-rings${fullscreen ? " snt-empty-rings-fs" : ""}`}>
               <div className={`snt-cortex${brainActive ? " snt-cortex-active" : ""}`}>
                 <div className="snt-cortex-eye" onClick={() => setBrainPinned(p => !p)}>
-                  <AurumRings voiceLevel={listening ? effectiveVoiceLevel : 0} speaking={speaking} />
+                  <AurumRings voiceLevel={listening ? effectiveVoiceLevel : 0} speaking={voice.status === "speaking"} />
                 </div>
                 <div className="snt-cortex-link"><BrainConnector active={brainActive} /></div>
                 <div className="snt-cortex-brain"><SentinelBrainGlobe size={300} active={brainActive} /></div>
@@ -1054,57 +1014,99 @@ export function SentinelDashboard() {
           </div>
           {/* Rechts: audio + provider */}
           <div style={{ display:"flex", alignItems:"center", gap:2 }}>
-            <button type="button" className="snt-pill-ico" onClick={() => setMuted(m => !m)} title={muted ? "Stimme an" : "Stimme aus"}>
-              {muted ? <VolumeX size={15} /> : <Volume2 size={15} />}
-            </button>
-            {germanVoices.length > 0 && (
-              <div ref={voiceDropRef} style={{ position:"relative" }}>
-                <button
-                  type="button"
-                  className="snt-pill-ico"
-                  style={{ opacity: muted ? 0.35 : 1 }}
-                  onClick={() => setVoiceDropOpen(o => !o)}
-                  title="Stimme wählen"
-                >
-                  <ChevronDown size={13} />
-                </button>
-                {voiceDropOpen && (
-                  <div style={{
-                    position:"absolute", bottom:"calc(100% + 6px)", left:0,
-                    background:"linear-gradient(to bottom, #26262d, #111114)", border:"1px solid rgba(255,255,255,0.055)",
-                    borderRadius:10, padding:"6px 0", zIndex:300,
-                    boxShadow:"0 8px 32px rgba(0,0,0,0.6)",
-                    minWidth:220, maxHeight:280, overflowY:"auto",
-                    fontFamily:"var(--font-text)", fontSize:12,
-                  }}>
-                    <p style={{ padding:"4px 12px 6px", fontSize:10, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:"rgba(255,255,255,0.35)", margin:0 }}>
-                      DE Stimme
-                    </p>
-                    {germanVoices.map(v => {
-                      const active = selectedVoiceUri ? v.voiceURI === selectedVoiceUri : v === pickBestGermanVoice(germanVoices, null);
-                      return (
-                        <button
-                          key={v.voiceURI}
-                          type="button"
-                          onClick={() => { setSelectedVoiceUri(v.voiceURI); setVoiceDropOpen(false); }}
-                          style={{
-                            display:"flex", alignItems:"center", gap:8, width:"100%",
-                            padding:"6px 12px", background:"none", border:"none",
-                            color: active ? "#C9A84C" : "rgba(200,210,220,0.8)",
-                            cursor:"pointer", textAlign:"left", fontSize:12,
-                            fontFamily:"inherit",
-                          }}
-                        >
-                          {active && <Check size={11} style={{ flexShrink:0, color:"#C9A84C" }} />}
-                          {!active && <span style={{ width:11, flexShrink:0 }} />}
-                          <span style={{ overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{v.name}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+            {/* Voice status indicator */}
+            {voice.status === "generating" && (
+              <span style={{ fontSize:10, color:"#C9A84C", fontWeight:700, letterSpacing:"0.08em", marginRight:2, animation:"snt-pulse 1s ease-in-out infinite" }}>
+                GEN
+              </span>
             )}
+            {voice.status === "speaking" && (
+              <span style={{ fontSize:10, color:"#C9A84C", fontWeight:700, letterSpacing:"0.08em", marginRight:2, animation:"snt-pulse 1s ease-in-out infinite" }}>
+                ▶
+              </span>
+            )}
+            {/* Mute toggle */}
+            <button type="button" className="snt-pill-ico" onClick={() => voice.setMuted(!voice.muted)} title={voice.muted ? "Voice on" : "Voice off"}>
+              {voice.muted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+            </button>
+            {/* Pause / Resume / Stop controls while speaking */}
+            {(voice.status === "speaking" || voice.status === "paused") && (
+              <>
+                {voice.status === "speaking" && (
+                  <button type="button" className="snt-pill-ico" onClick={voice.pause} title="Pause">
+                    <Pause size={13} />
+                  </button>
+                )}
+                {voice.status === "paused" && (
+                  <button type="button" className="snt-pill-ico" onClick={voice.resume} title="Resume">
+                    <Play size={13} />
+                  </button>
+                )}
+                <button type="button" className="snt-pill-ico" onClick={voice.stop} title="Stop">
+                  <Square size={13} />
+                </button>
+              </>
+            )}
+            {/* Replay last brief */}
+            {voice.status === "idle" && (
+              <button type="button" className="snt-pill-ico" onClick={voice.replay} title="Replay" style={{ opacity:0.55 }}>
+                <RotateCcw size={13} />
+              </button>
+            )}
+            {/* Voice selector */}
+            <div ref={voiceDropRef} style={{ position:"relative" }}>
+              <button
+                type="button"
+                className="snt-pill-ico"
+                style={{ opacity: voice.muted ? 0.35 : 1 }}
+                onClick={() => voice.setVoiceDropOpen(!voice.voiceDropOpen)}
+                title="Select voice"
+              >
+                <ChevronDown size={13} />
+              </button>
+              {voice.voiceDropOpen && (
+                <div style={{
+                  position:"absolute", bottom:"calc(100% + 6px)", right:0,
+                  background:"linear-gradient(to bottom, #26262d, #111114)", border:"1px solid rgba(255,255,255,0.055)",
+                  borderRadius:10, padding:"6px 0", zIndex:300,
+                  boxShadow:"0 8px 32px rgba(0,0,0,0.6)",
+                  minWidth:200, maxHeight:280, overflowY:"auto",
+                  fontFamily:"var(--font-text)", fontSize:12,
+                }}>
+                  <p style={{ padding:"4px 12px 6px", fontSize:10, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:"rgba(255,255,255,0.35)", margin:0 }}>
+                    SENTINEL VOICE
+                  </p>
+                  {SENTINEL_VOICES.map(v => {
+                    const isActive = v.id === voice.voiceId;
+                    const isOffline = v.engine === "kokoro" && !voice.localTTSAvailable;
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        onClick={() => { voice.setVoiceId(v.id); voice.setVoiceDropOpen(false); }}
+                        style={{
+                          display:"flex", alignItems:"center", gap:8, width:"100%",
+                          padding:"6px 12px", background:"none", border:"none",
+                          color: isActive ? "#C9A84C" : "rgba(200,210,220,0.8)",
+                          cursor:"pointer", textAlign:"left", fontSize:12,
+                          fontFamily:"inherit", opacity: isOffline ? 0.45 : 1,
+                        }}
+                      >
+                        {isActive && <Check size={11} style={{ flexShrink:0, color:"#C9A84C" }} />}
+                        {!isActive && <span style={{ width:11, flexShrink:0 }} />}
+                        <span style={{ overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{v.label}</span>
+                        {isOffline && <span style={{ fontSize:9, color:"rgba(255,255,255,0.3)", marginLeft:"auto" }}>offline</span>}
+                      </button>
+                    );
+                  })}
+                  {!voice.localTTSAvailable && (
+                    <p style={{ padding:"6px 12px 4px", fontSize:10, color:"rgba(255,200,80,0.55)", margin:0 }}>
+                      Start TTS server for local voices
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
             {visibleEntries.length > 0 && (
               <button type="button" className="snt-pill-ico" onClick={clearHistory} title="Verlauf löschen">
                 <Trash2 size={15} />
