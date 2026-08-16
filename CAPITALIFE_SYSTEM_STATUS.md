@@ -324,9 +324,13 @@ External Providers:
 
 2. **Playwright-Scraper als OHLC-Quelle:** `.playwright-mcp/` enthält 60+ CSV-Dateien die über TradingView-Scraping erzeugt werden. Fragil, TOS-grenzwertig, nicht production-grade für tägliche Datenversorgung.
 
-3. **Brain Write-Back fehlt:** Terminal kann Brain nur lesen. Kein Feedback-Loop: Research-Ergebnisse, Backtest-Outputs, Signal-Events werden nicht automatisch ins Brain geschrieben.
+3. **Brain Write-Back fehlt** — TEILWEISE WIDERLEGT (2026-08-16, verifiziert): Direktes Filesystem-Schreiben in den Vault plus `npm run brain:refresh -- --run-graphify` funktioniert nachweislich (neue Markdown-Datei angelegt, Changelog-Eintrag geschrieben, Graph-Rebuild ausgeführt). Es gibt aber **keinen strukturierten AI-Proposal/Validierungs-Pfad** — jeder Schreibzugriff ist direktes Filesystem-Schreiben ohne Gatekeeper. Ausserdem: der verdrahtete Graphify-Rebuild (`graphify extract --code-only` bzw. `graphify update`) ist ein reiner AST-Pass und indexiert Markdown-lastige Ordner wie `07_Technology` (~150 Dateien) **nicht** — echte Semantik-Indexierung von Markdown läuft laut Graphify-CLI nur über den LLM-gestützten `/graphify`-Skill-Befehl, der hier nicht verdrahtet ist. Details: [[Capitalife Contradiction Register]] im Brain-Vault (`20_Audits/`).
 
 4. **Kein Vector-RAG:** Graphify ist ein Keyword/Graph-Index über Markdown. Keine Embeddings, kein semantisches Retrieval. Sentinel-RAG ist dadurch auf exakte oder nahe Begriffe beschränkt.
+
+11. **Monitoring-Endpoints hart auf 503 gestubbt, auch lokal:** `/api/monitoring/agri-final-status` und `/api/monitoring/wave1-group/[group]` geben unbedingt `503 "unavailable in cloud preview"` zurück — verifiziert per Live-Request gegen lokalen Dev-Server auf der `/manager`-Seite (Portfolio Lab), nicht nur im Cloud-Preview-Kontext. Entweder bewusst dauerhaft deaktiviert (dann ist die Meldung irreführend) oder fehlende Environment-Gate-Bedingung. Nicht selbst geändert, da die Routen in den Monitoring-Datenpfad hineinreichen, der White-Swan-Seiten speist.
+
+12. **AI-Onboarding-Workflow teilweise nicht ausführbar:** [[AI Read First]] im Brain-Vault verlangt `npm run brain:sync`, `brain:validate`, `brain:graphify`, `brain:agent-context` — keines dieser Scripts existiert im Terminal-Repo (nur `brain:refresh`). Verifiziert 2026-08-16.
 
 5. **Static JSON als Wahrheitsquelle:** Kritische Daten (WS KPIs, strategy evidence) liegen als committed JSON in `src/data/capitalife/`. Kein automatischer Rebuild-Trigger; manuelle Script-Ausführung erforderlich.
 
