@@ -12,6 +12,7 @@ export function desktopToMobile(p: string): string {
   if (p.startsWith("/sentinel")) return "/m/sentinel";
   if (p.startsWith("/signal")) return "/m/signale";
   if (p.startsWith("/brain")) return "/m/brain";
+  if (p.startsWith("/white-swan")) return "/m/white-swan";
   if (p.startsWith("/settings")) return "/m/settings";
   return "/m/home";
 }
@@ -22,6 +23,7 @@ export function mobileToDesktop(p: string): string {
   if (p.startsWith("/m/sentinel")) return "/sentinel";
   if (p.startsWith("/m/signale")) return "/signal";
   if (p.startsWith("/m/brain")) return "/brain";
+  if (p.startsWith("/m/white-swan")) return "/white-swan/final";
   if (p.startsWith("/m/settings")) return "/settings";
   return "/";
 }

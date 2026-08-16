@@ -8,7 +8,6 @@ const PREF_KEY = "fmd_settings_preferred_provider";
 
 type ProviderStatus = { id: string; label: string; configured: boolean; usable: boolean; message: string; model: string | null; active: boolean };
 type SentinelStatus = { activeProvider: string | null; providers: ProviderStatus[] };
-type AppInfo = { version: string; branch: string; nextVersion: string; nodeVersion: string; commits: { hash: string; message: string; date: string }[] };
 
 function ProviderCard({ p, isActive, isPreferred, onSet }: { p: ProviderStatus; isActive: boolean; isPreferred: boolean; onSet: (id: string) => void }) {
   const statusColor = p.usable ? "#22C55E" : p.configured ? GOLD : "rgba(255,255,255,0.2)";
@@ -38,14 +37,12 @@ function ProviderCard({ p, isActive, isPreferred, onSet }: { p: ProviderStatus; 
 
 export function MobileSettingsView() {
   const [status, setStatus] = useState<SentinelStatus | null>(null);
-  const [info, setInfo] = useState<AppInfo | null>(null);
   const [preferred, setPreferred] = useState<string | null>(null);
   const [err, setErr] = useState(false);
 
   useEffect(() => {
     try { setPreferred(localStorage.getItem(PREF_KEY)); } catch { /* ignore */ }
     fetch("/api/sentinel/status").then((r) => r.json()).then((j) => setStatus(j as SentinelStatus)).catch(() => setErr(true));
-    fetch("/api/settings/info").then((r) => r.json()).then((j) => setInfo(j as AppInfo)).catch(() => { /* non-critical */ });
   }, []);
 
   const onSet = (id: string) => {
@@ -81,36 +78,6 @@ export function MobileSettingsView() {
           )}
         </section>
 
-        {info && (
-          <section>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.42)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>App-Info</div>
-            <div style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 14, overflow: "hidden" }}>
-              {([["Version", `v${info.version}`], ["Next.js", info.nextVersion], ["Node", info.nodeVersion], ["Branch", info.branch]] as [string, string][]).map(([k, v], i) => (
-                <div key={k} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", borderTop: i === 0 ? "none" : `1px solid ${CARD_BORDER}` }}>
-                  <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.45)" }}>{k}</span>
-                  <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.82)", fontWeight: 600 }}>{v}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {info && info.commits.length > 0 && (
-          <section>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.42)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Letzte Commits</div>
-            <div style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 14, overflow: "hidden" }}>
-              {info.commits.slice(0, 5).map((c, i) => (
-                <div key={c.hash} style={{ padding: "9px 14px", borderTop: i === 0 ? "none" : `1px solid ${CARD_BORDER}` }}>
-                  <div style={{ display: "flex", gap: 8, alignItems: "baseline" }}>
-                    <code style={{ fontSize: 10, color: GOLD, fontFamily: "monospace", flexShrink: 0 }}>{c.hash}</code>
-                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.message}</span>
-                  </div>
-                  <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.28)", marginTop: 2 }}>{c.date}</div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
       </div>
     </div>
   );
