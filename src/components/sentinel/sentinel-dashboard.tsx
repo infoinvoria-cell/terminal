@@ -1169,7 +1169,7 @@ export function SentinelDashboard() {
 
       <style jsx>{`
         .snt {
-          position:relative;display:flex;flex-direction:column;height:100%;min-height:0;width:100%;
+          position:relative;display:flex;flex-direction:column;flex:1;min-height:0;width:100%;
           background:transparent;color:#e2e6ed;font-size:13px;
           font-family:var(--font-text);
         }
