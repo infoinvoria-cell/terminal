@@ -95,7 +95,7 @@ export function CoreInvestOverview({ equityCurve }: { equityCurve: EquityPoint[]
                     <CartesianGrid strokeDasharray="2 2" stroke={GRID} vertical={false} />
                     <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#555' }} axisLine={{ stroke: AXIS }} tickLine={false} minTickGap={80} />
                     <YAxis tick={{ fontSize: 9, fill: '#555' }} axisLine={false} tickLine={false} width={40} />
-                    <Tooltip formatter={(v: number) => [v.toFixed(1), 'NAV Index']} contentStyle={{ background: '#0a0a0a', border: '1px solid #222', fontSize: 11, fontFamily: 'monospace' }} />
+                    <Tooltip formatter={(v: unknown) => [Number(v ?? 0).toFixed(1), 'NAV Index'] as [string, string]} contentStyle={{ background: '#0a0a0a', border: '1px solid #222', fontSize: 11, fontFamily: 'monospace' }} />
                     <Area type="monotone" dataKey="navIndex" stroke="#c0c0c0" fill="#c0c0c0" fillOpacity={0.06} strokeWidth={1.3} />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -111,7 +111,7 @@ export function CoreInvestOverview({ equityCurve }: { equityCurve: EquityPoint[]
                     <CartesianGrid strokeDasharray="2 2" stroke={GRID} vertical={false} />
                     <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#555' }} axisLine={{ stroke: AXIS }} tickLine={false} minTickGap={80} />
                     <YAxis tickFormatter={(v) => `${v}%`} tick={{ fontSize: 9, fill: '#555' }} axisLine={false} tickLine={false} width={36} />
-                    <Tooltip formatter={(v: number) => [`${v.toFixed(2)}%`, 'Drawdown']} contentStyle={{ background: '#0a0a0a', border: '1px solid #222', fontSize: 11, fontFamily: 'monospace' }} />
+                    <Tooltip formatter={(v: unknown) => [`${Number(v ?? 0).toFixed(2)}%`, 'Drawdown'] as [string, string]} contentStyle={{ background: '#0a0a0a', border: '1px solid #222', fontSize: 11, fontFamily: 'monospace' }} />
                     <Area type="monotone" dataKey="drawdownPct" stroke={GOLD} fill={GOLD} fillOpacity={0.10} strokeWidth={1.3} />
                   </AreaChart>
                 </ResponsiveContainer>
