@@ -653,6 +653,7 @@ export function SentinelDashboard() {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const animFrameRef = useRef<number>(0);
+  const spokenEntryCountRef = useRef(0);
 
   useEffect(() => {
     setMounted(true);
@@ -742,6 +743,18 @@ export function SentinelDashboard() {
       window.speechSynthesis.speak(u);
     } catch { /* ignore */ }
   }, [muted, selectedVoiceUri]);
+
+  // Speak the newest assistant reply once it has fully arrived (not on regenerate re-render, not twice).
+  // A shrinking entries array (regenerate trims history before resending) resets the watermark
+  // so the follow-up answer is still spoken.
+  useEffect(() => {
+    if (entries.length < spokenEntryCountRef.current) spokenEntryCountRef.current = entries.length;
+    if (busy || muted) return;
+    if (entries.length <= spokenEntryCountRef.current) return;
+    const last = entries[entries.length - 1];
+    spokenEntryCountRef.current = entries.length;
+    if (last?.role === "assistant" && last.content) speak(last.content);
+  }, [entries, busy, muted, speak]);
 
   const stopVoiceAnalysis = useCallback(() => {
     cancelAnimationFrame(animFrameRef.current);
@@ -1054,7 +1067,21 @@ export function SentinelDashboard() {
           </div>
           {/* Rechts: audio + provider */}
           <div style={{ display:"flex", alignItems:"center", gap:2 }}>
-            <button type="button" className="snt-pill-ico" onClick={() => setMuted(m => !m)} title={muted ? "Stimme an" : "Stimme aus"}>
+            <button
+              type="button"
+              className="snt-pill-ico"
+              onClick={() => {
+                setMuted((m) => {
+                  const next = !m;
+                  if (next && typeof window !== "undefined" && window.speechSynthesis) {
+                    window.speechSynthesis.cancel();
+                    setSpeaking(false);
+                  }
+                  return next;
+                });
+              }}
+              title={muted ? "Stimme an" : "Stimme aus (stoppt Wiedergabe)"}
+            >
               {muted ? <VolumeX size={15} /> : <Volume2 size={15} />}
             </button>
             {germanVoices.length > 0 && (
