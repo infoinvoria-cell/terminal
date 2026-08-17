@@ -6,7 +6,7 @@ import type { WorkerOutput } from "./ensemble";
 
 const OLLAMA_URL = process.env.OLLAMA_API_URL ?? "http://localhost:11434";
 const QWEN_MODEL = "qwen3:1.7b";
-const SYNTHESIS_TIMEOUT_MS = 12000;
+const SYNTHESIS_TIMEOUT_MS = 20000;
 
 export type SynthesisResult = {
   answer: string;

@@ -1,31 +1,42 @@
-// Tests for provider-aware context budget trimming and 413 retry logic.
+// Tests for provider-aware context budget trimming and rate-limit separation.
+// Key invariant: contextWindow (model capacity) ≠ tokensPerMinute (account rate limit).
 import { describe, it, expect } from "vitest";
-import { getContextWindow, getMaxOutputTokens, estimateTokens } from "../providers/model-capabilities";
+import { getContextWindow, getMaxOutputTokens, getSafePromptBudget, getTokensPerMinute, estimateTokens } from "../providers/model-capabilities";
 import { getFreeEnsembleProviders } from "../connect/ensemble";
 
-describe("provider-aware context budget", () => {
-  it("groq llama-3.3-70b-versatile has large context window", () => {
-    const ctxWindow = getContextWindow("groq", "llama-3.3-70b-versatile");
-    expect(ctxWindow).toBeGreaterThanOrEqual(128000);
+describe("provider-aware context budget — contextWindow vs TPM", () => {
+  it("groq compound has 131072 contextWindow (API-verified, NOT the 8K TPM limit)", () => {
+    const ctxWindow = getContextWindow("groq", "groq/compound");
+    expect(ctxWindow).toBe(131072);
   });
 
-  it("groq compound (actual model on this account) has 8K context window", () => {
+  it("groq openai/gpt-oss-120b has 131072 contextWindow (API-verified)", () => {
     const ctxWindow = getContextWindow("groq", "openai/gpt-oss-120b");
-    expect(ctxWindow).toBe(8000);
+    expect(ctxWindow).toBe(131072);
   });
 
-  it("groq compound safe budget leaves room for budgeted Brain context (3000 tokens)", () => {
-    const ctxWindow = getContextWindow("groq", "openai/gpt-oss-120b");
-    const reservedOutput = Math.min(getMaxOutputTokens("groq", "openai/gpt-oss-120b"), 1024);
-    const safeInput = ctxWindow - reservedOutput - 300 - 400;
-    // SENTINEL_SYSTEM_PROMPT ≈ 249 tokens + budgeted Brain ≈ 3000 tokens + user ≈ 50 = 3299
-    // Safe input must be >= 3299 so the system message fits without trimming
-    expect(safeInput).toBeGreaterThan(3200);
+  it("groq compound tokensPerMinute = 8000 (account rate limit, separate from contextWindow)", () => {
+    const tpm = getTokensPerMinute("groq", "groq/compound");
+    expect(tpm).toBe(8000);
   });
 
-  it("mistral small has at least 32K context", () => {
+  it("groq compound safePromptBudgetTokens < contextWindow (conservative operational budget from TPM)", () => {
+    const promptBudget = getSafePromptBudget("groq", "groq/compound");
+    const ctxWindow = getContextWindow("groq", "groq/compound");
+    expect(promptBudget).toBeLessThan(ctxWindow);
+    expect(promptBudget).toBeGreaterThan(3000); // must fit budgeted Brain context + system + user
+  });
+
+  it("mistral small has at least 32K contextWindow", () => {
     const ctxWindow = getContextWindow("mistral", "mistral-small-latest");
     expect(ctxWindow).toBeGreaterThanOrEqual(32000);
+  });
+
+  it("mistral does not have a TPM rate-limit override (no safePromptBudgetTokens)", () => {
+    const promptBudget = getSafePromptBudget("mistral", "mistral-small-latest");
+    const ctxWindow = getContextWindow("mistral", "mistral-small-latest");
+    // Without explicit safePromptBudgetTokens, getSafePromptBudget falls back to contextWindow
+    expect(promptBudget).toBe(ctxWindow);
   });
 
   it("estimateTokens is non-zero for non-empty text", () => {
@@ -33,18 +44,17 @@ describe("provider-aware context budget", () => {
     expect(tokens).toBeGreaterThan(0);
   });
 
-  it("safe input budget for groq llama is large enough for Brain context", () => {
-    const ctxWindow = getContextWindow("groq", "llama-3.3-70b-versatile");
-    const reservedOutput = Math.min(getMaxOutputTokens("groq", "llama-3.3-70b-versatile"), 1024);
-    const safeInput = ctxWindow - reservedOutput - 300 - 400; // overhead + margin
-    // Brain context is 3000 tokens; with system + user should fit
-    expect(safeInput).toBeGreaterThan(8000);
+  it("groq compound safe trim budget leaves room for budgeted Brain + system + user (≈3300 tokens)", () => {
+    const promptBudget = getSafePromptBudget("groq", "groq/compound");
+    const reservedOutput = Math.min(getMaxOutputTokens("groq", "groq/compound"), 1024);
+    const maxInput = promptBudget - reservedOutput - 300 - 400; // overhead + margin
+    // budgeted Brain (3000) + SENTINEL_SYSTEM_PROMPT (249) + user question (50) ≈ 3299 tokens
+    expect(maxInput).toBeGreaterThan(3300);
   });
 
-  it("groq compound-mini with tiny context still returns a safe input budget", () => {
-    // Even a small context window should produce a non-negative safe budget
-    const ctxWindow = getContextWindow("groq", "groq/compound") || 8000;
-    expect(ctxWindow).toBeGreaterThan(0);
+  it("groq llama-3.3-70b-versatile has large contextWindow in registry (future-proofing)", () => {
+    const ctxWindow = getContextWindow("groq", "llama-3.3-70b-versatile");
+    expect(ctxWindow).toBeGreaterThanOrEqual(128000);
   });
 });
 
@@ -52,12 +62,11 @@ describe("free firewall — ensemble providers all FREE", () => {
   it("all free ensemble providers are classified FREE", () => {
     const free = getFreeEnsembleProviders();
     expect(free.length).toBeGreaterThan(0);
-    // No PAID or UNKNOWN providers should appear here
     expect(free).not.toContain("anthropic");
     expect(free).not.toContain("openai");
   });
 
-  it("groq llama-3.3-70b-versatile is in free provider set", () => {
+  it("groq is in free provider set", () => {
     const free = getFreeEnsembleProviders();
     expect(free).toContain("groq");
   });

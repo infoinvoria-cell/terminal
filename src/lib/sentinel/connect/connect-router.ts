@@ -120,38 +120,42 @@ export async function connectChat(req: ConnectRequest): Promise<ConnectResult> {
     } catch { /* Graphify unavailable */ }
   }
 
-  // Post-Brain outbound gate: re-classify privacy after Brain injection.
-  // Brain context (STATIC_CONTEXT) may contain Capitalife-private terms.
-  // Escalate only — never downgrade privacy level after Brain injection.
+  // Build externalMessages: Brain is LOCAL ONLY — strip it from system message before any outbound check.
+  // External providers (Groq, Mistral, etc.) receive base SENTINEL_SYSTEM_PROMPT + user question only.
+  // Brain vault data (which may contain sensitive local paths/data) NEVER leaves this machine.
+  // User content is sanitized per privacy level (removes account numbers, emails, etc.).
+  const externalMessages = messages.map((m) => {
+    const lastUserIdx = messages.findLastIndex((x) => x.role === "user");
+    const isLastUser = m.role === "user" && messages.indexOf(m) === lastUserIdx;
+    if (isLastUser) return { ...m, content: getTextForProvider(privacy, m.content) };
+    if (m.role === "system" && brainUsed) {
+      // Strip Brain section — Brain markers added by injectBrainContext() start with \n\n## CAPITALIFE
+      const brainStart = m.content.search(/\n\n(?:##|###)\s*CAPITALIFE/);
+      const clean = brainStart > 0 ? m.content.slice(0, brainStart).trimEnd() : m.content;
+      return { ...m, content: clean };
+    }
+    return m;
+  });
+
+  // Post-Brain outbound gate: re-classify privacy on what will actually be sent externally.
+  // Checks externalMessages only (Brain already stripped), never the full local messages.
+  // Escalate only — never downgrade. Route override to LOCAL_ONLY only when outbound content is unsafe.
   let postBrainPrivacy: PrivacyClassification = privacy;
   if (brainUsed && privacy.level !== "LOCAL_ONLY") {
-    const systemContent = messages
+    const externalSystemContent = externalMessages
       .filter((m) => m.role === "system")
       .map((m) => m.content)
       .join(" ");
-    const reClassified = classifyPrivacy(systemContent);
+    const reClassified = classifyPrivacy(externalSystemContent);
     if (reClassified.level === "LOCAL_ONLY") {
       postBrainPrivacy = reClassified;
-      route = "LOCAL_ONLY"; // credential pattern in Brain content — block external
+      route = "LOCAL_ONLY"; // base system prompt still contains a credential — block external
     } else if (reClassified.level === "REMOTE_REDACTED" && privacy.level === "REMOTE_SAFE") {
       postBrainPrivacy = reClassified;
     }
   }
 
   const effectivePrivacy = postBrainPrivacy;
-
-  // Prepare messages for external use: sanitize user + system messages when needed.
-  const externalMessages = effectivePrivacy.level !== "REMOTE_SAFE"
-    ? messages.map((m) => {
-        const lastUserIdx = messages.findLastIndex((x) => x.role === "user");
-        const isLastUser = m.role === "user" && messages.indexOf(m) === lastUserIdx;
-        if (isLastUser) return { ...m, content: getTextForProvider(effectivePrivacy, m.content) };
-        if (m.role === "system" && brainUsed) {
-          return { ...m, content: getTextForProvider(effectivePrivacy, m.content) };
-        }
-        return m;
-      })
-    : messages;
 
   // Build outbound context for debugging (never returned to client)
   const _outboundCtx = buildOutboundContext(messages, effectivePrivacy, {

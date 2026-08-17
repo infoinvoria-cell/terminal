@@ -4,7 +4,7 @@
 // Context budget: each worker's messages are trimmed to fit the model's safe input window.
 import { ask } from "../providers/provider-router";
 import { getBillingClass } from "./billing-registry";
-import { getContextWindow, getMaxOutputTokens, estimateTokens } from "../providers/model-capabilities";
+import { getSafePromptBudget, getMaxOutputTokens, estimateTokens } from "../providers/model-capabilities";
 import { synthesizeWorkerOutputs } from "./qwen-synthesizer";
 import type { ChatMessage, SentinelProviderId } from "../providers/types";
 import type { WorkerRecord } from "./connect-run";
@@ -64,11 +64,16 @@ const ENSEMBLE_DEFAULT_MODELS: Partial<Record<SentinelProviderId, string>> = {
 const SYSTEM_OVERHEAD_TOKENS = 300;
 const SAFETY_MARGIN_TOKENS = 400;
 
-/** Trim messages to fit a provider/model's safe input budget. Never removes last user message or system safety. */
+/**
+ * Trim messages to fit within the provider/model's safe prompt budget.
+ * Uses getSafePromptBudget() — for models with a known TPM rate limit (e.g. Groq compound),
+ * this is the TPM-derived safePromptBudgetTokens, NOT the full contextWindow.
+ * contextWindow and TPM are separate: trimming uses the operational budget only.
+ */
 function trimToContextBudget(messages: ChatMessage[], provider: string, model: string): ChatMessage[] {
-  const ctxWindow = getContextWindow(provider, model);
+  const promptBudget = getSafePromptBudget(provider, model);
   const reservedOutput = Math.min(getMaxOutputTokens(provider, model), 1024);
-  const maxInputTokens = ctxWindow - reservedOutput - SYSTEM_OVERHEAD_TOKENS - SAFETY_MARGIN_TOKENS;
+  const maxInputTokens = promptBudget - reservedOutput - SYSTEM_OVERHEAD_TOKENS - SAFETY_MARGIN_TOKENS;
 
   const currentTokens = estimateTokens(JSON.stringify(messages));
   if (currentTokens <= maxInputTokens) return messages;
