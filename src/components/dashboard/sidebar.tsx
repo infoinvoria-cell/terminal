@@ -405,7 +405,12 @@ export function Sidebar() {
 
   useEffect(() => {
     setMounted(true);
-    for (const route of NAV_ROUTES) router.prefetch(route);
+    // Stagger prefetch to avoid overwhelming the dev server with 20 simultaneous compilations
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    NAV_ROUTES.forEach((route, i) => {
+      timers.push(setTimeout(() => router.prefetch(route), i * 150));
+    });
+    return () => timers.forEach(clearTimeout);
   }, [router]);
 
   useEffect(() => {

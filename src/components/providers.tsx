@@ -15,16 +15,20 @@ const LAST_PAGE_KEY = "fmd_last_page";
 // Fire once on app mount: ping Flask, auto-start if offline (local dev only).
 function FlaskAutoStart() {
   useEffect(() => {
-    fetch("/api/start-services")
-      .then((r) => r.json() as Promise<{ ok: boolean }>)
-      .then((d) => {
-        if (!d.ok) {
+    // Delay so shell renders before any background service probing starts
+    const t = setTimeout(() => {
+      fetch("/api/start-services")
+        .then((r) => r.json() as Promise<{ ok: boolean }>)
+        .then((d) => {
+          if (!d.ok) {
+            fetch("/api/start-services", { method: "POST" }).catch(() => null);
+          }
+        })
+        .catch(() => {
           fetch("/api/start-services", { method: "POST" }).catch(() => null);
-        }
-      })
-      .catch(() => {
-        fetch("/api/start-services", { method: "POST" }).catch(() => null);
-      });
+        });
+    }, 4000);
+    return () => clearTimeout(t);
   }, []);
   return null;
 }
