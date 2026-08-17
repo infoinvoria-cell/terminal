@@ -1,0 +1,198 @@
+{
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-08-17T16:35:14.519Z",
+  "mode": "SHADOW_OBSERVATION_ONLY",
+  "positionMultiplier": 1,
+  "observations": [
+    {
+      "componentId": "zc_seasonal",
+      "commodity": "CORN",
+      "provider": "USDA NASS",
+      "dataset": "Crop Progress and Condition",
+      "variable": "good_plus_excellent_condition_deviation",
+      "regionIds": [
+        "us_corn_belt"
+      ],
+      "observationTimestamp": "2026-08-09T00:00:00.000Z",
+      "publicationTimestamp": "2026-08-10T20:00:00.000Z",
+      "earliestKnownTimestamp": "2026-08-10T20:00:00.000Z",
+      "retrievalTimestamp": "2026-08-17T16:35:14.519Z",
+      "processingVersion": "NASS-CROP-PROGRESS-prog3226-2026-08-10",
+      "revisionStatus": "INITIAL",
+      "rawInputs": {
+        "currentGoodExcellentPct": 61,
+        "priorYearGoodExcellentPct": 72,
+        "acreageCoveragePct": 91
+      },
+      "normalizedInputs": {
+        "conditionDeviationPct": -11
+      },
+      "score": -55,
+      "confidence": 0.91,
+      "status": "AVAILABLE",
+      "freshnessHours": 208.58736638888888,
+      "staleAfterHours": 336,
+      "accessClass": "FREE",
+      "sourceUrl": "https://www.nass.usda.gov/Publications/Todays_Reports/reports/prog3226.txt"
+    },
+    {
+      "componentId": "zs_seasonal",
+      "commodity": "SOY",
+      "provider": "USDA NASS",
+      "dataset": "Crop Progress and Condition",
+      "variable": "good_plus_excellent_condition_deviation",
+      "regionIds": [
+        "us_soy_production"
+      ],
+      "observationTimestamp": "2026-08-09T00:00:00.000Z",
+      "publicationTimestamp": "2026-08-10T20:00:00.000Z",
+      "earliestKnownTimestamp": "2026-08-10T20:00:00.000Z",
+      "retrievalTimestamp": "2026-08-17T16:35:14.519Z",
+      "processingVersion": "NASS-CROP-PROGRESS-prog3226-2026-08-10",
+      "revisionStatus": "INITIAL",
+      "rawInputs": {
+        "currentGoodExcellentPct": 62,
+        "priorYearGoodExcellentPct": 68,
+        "acreageCoveragePct": 96
+      },
+      "normalizedInputs": {
+        "conditionDeviationPct": -6
+      },
+      "score": -30,
+      "confidence": 0.96,
+      "status": "AVAILABLE",
+      "freshnessHours": 208.58736638888888,
+      "staleAfterHours": 336,
+      "accessClass": "FREE",
+      "sourceUrl": "https://www.nass.usda.gov/Publications/Todays_Reports/reports/prog3226.txt"
+    },
+    {
+      "componentId": "zc_seasonal",
+      "commodity": "CORN",
+      "provider": "NOAA STAR",
+      "dataset": "Blended Vegetation Health Product",
+      "variable": "VHI",
+      "regionIds": [
+        "us_corn_belt"
+      ],
+      "observationTimestamp": "2026-W32",
+      "publicationTimestamp": null,
+      "earliestKnownTimestamp": "2026-W32",
+      "retrievalTimestamp": "2026-08-17T16:35:14.519Z",
+      "processingVersion": "NOAA-STAR-Blended-VHP-GC_current-weekly-4km",
+      "revisionStatus": "UNKNOWN",
+      "rawInputs": {
+        "states": 8,
+        "currentMeanVhi": 50.215,
+        "priorYearMeanVhi": 65.104,
+        "year": 2026,
+        "week": 32
+      },
+      "normalizedInputs": {
+        "vhiDeviation": -14.889
+      },
+      "score": -29.777500000000003,
+      "confidence": 1,
+      "state": "CONTRADICTORY",
+      "status": "AVAILABLE",
+      "freshnessHours": null,
+      "staleAfterHours": 336,
+      "accessClass": "FREE_NO_ACCOUNT",
+      "sourceUrl": "https://www.star.nesdis.noaa.gov/smcd/emb/vci/VH/get_TS_admin.php"
+    },
+    {
+      "componentId": "zs_seasonal",
+      "commodity": "SOY",
+      "provider": "NOAA STAR",
+      "dataset": "Blended Vegetation Health Product",
+      "variable": "VHI",
+      "regionIds": [
+        "us_soy_production"
+      ],
+      "observationTimestamp": "2026-W32",
+      "publicationTimestamp": null,
+      "earliestKnownTimestamp": "2026-W32",
+      "retrievalTimestamp": "2026-08-17T16:35:14.519Z",
+      "processingVersion": "NOAA-STAR-Blended-VHP-GC_current-weekly-4km",
+      "revisionStatus": "UNKNOWN",
+      "rawInputs": {
+        "states": 8,
+        "currentMeanVhi": 52.385,
+        "priorYearMeanVhi": 66.961,
+        "year": 2026,
+        "week": 32
+      },
+      "normalizedInputs": {
+        "vhiDeviation": -14.576
+      },
+      "score": -29.152499999999975,
+      "confidence": 1,
+      "state": "CONTRADICTORY",
+      "status": "AVAILABLE",
+      "freshnessHours": null,
+      "staleAfterHours": 336,
+      "accessClass": "FREE_NO_ACCOUNT",
+      "sourceUrl": "https://www.star.nesdis.noaa.gov/smcd/emb/vci/VH/get_TS_admin.php"
+    },
+    {
+      "componentId": "zw_mzw",
+      "commodity": "WHEAT",
+      "provider": "NOAA STAR",
+      "dataset": "Blended Vegetation Health Product",
+      "variable": "VHI",
+      "regionIds": [
+        "us_wheat_production"
+      ],
+      "observationTimestamp": "2026-W32",
+      "publicationTimestamp": null,
+      "earliestKnownTimestamp": "2026-W32",
+      "retrievalTimestamp": "2026-08-17T16:35:14.519Z",
+      "processingVersion": "NOAA-STAR-Blended-VHP-GC_current-weekly-4km",
+      "revisionStatus": "UNKNOWN",
+      "rawInputs": {
+        "states": 5,
+        "currentMeanVhi": 48.708,
+        "priorYearMeanVhi": 72.848,
+        "year": 2026,
+        "week": 32
+      },
+      "normalizedInputs": {
+        "vhiDeviation": -24.14
+      },
+      "score": -48.28,
+      "confidence": 1,
+      "state": "CONTRADICTORY",
+      "status": "AVAILABLE",
+      "freshnessHours": null,
+      "staleAfterHours": 336,
+      "accessClass": "FREE_NO_ACCOUNT",
+      "sourceUrl": "https://www.star.nesdis.noaa.gov/smcd/emb/vci/VH/get_TS_admin.php"
+    },
+    {
+      "componentId": "cl1_seasonal",
+      "commodity": "CRUDE",
+      "provider": "Global Fishing Watch / AIS candidate",
+      "dataset": "Vessel presence / maritime activity proxy",
+      "variable": "maritime_activity_proxy",
+      "regionIds": [
+        "gulf_mexico_oil_flow"
+      ],
+      "observationTimestamp": null,
+      "publicationTimestamp": null,
+      "earliestKnownTimestamp": null,
+      "retrievalTimestamp": "2026-08-17T16:35:14.519Z",
+      "processingVersion": "V1-provider-not-configured",
+      "revisionStatus": "UNKNOWN",
+      "rawInputs": {},
+      "normalizedInputs": {},
+      "score": null,
+      "confidence": 0,
+      "status": "UNAVAILABLE",
+      "freshnessHours": null,
+      "staleAfterHours": 72,
+      "accessClass": "FREE_ACCOUNT",
+      "sourceUrl": "https://globalfishingwatch.org/datasets-and-code/",
+      "error": "No authenticated vessel-activity feed configured; no maritime score asserted."
+    }
+  ]
+}

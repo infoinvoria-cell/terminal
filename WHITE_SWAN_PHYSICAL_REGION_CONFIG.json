@@ -1,0 +1,11 @@
+{
+  "corn": [
+    { "id": "us_corn_belt", "name": "US Corn Belt", "bbox": [-104.1, 36.9, -80.0, 49.4], "commodity": "CORN", "economicRationale": "USDA selected-state corn condition covers the main US production footprint.", "source": "USDA NASS Crop Progress" }
+  ],
+  "soy": [
+    { "id": "us_soy_production", "name": "US Soybean Production States", "bbox": [-106.7, 29.5, -75.0, 49.4], "commodity": "SOY", "economicRationale": "USDA selected-state soybean condition covers 96% of prior-year acreage in the report.", "source": "USDA NASS Crop Progress" }
+  ],
+  "crude": [
+    { "id": "gulf_mexico_oil_flow", "name": "US Gulf oil-flow corridor", "bbox": [-98.0, 18.0, -80.0, 31.5], "commodity": "CRUDE", "economicRationale": "Candidate future vessel-activity corridor; no activity value is asserted in V1.", "source": "Future AIS provider" }
+  ]
+}

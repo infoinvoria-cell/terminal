@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "PHASE2_HISTORICAL_BLOCKED",
+  "rulesFile": "WHITE_SWAN_PHYSICAL_PHASE2_RULES.md",
+  "shadowOnly": true,
+  "components": [
+    { "componentId": "zc_seasonal", "commodity": "CORN", "original": "NOT_REBUILT", "physicalShadow": "NOT_REBUILT", "classification": "BLOCKED", "tradesAffected": null, "tradesScaled095": null, "tradesScaled090": null, "goodTradesReduced": null, "badTradesReduced": null, "netEffect": null, "reason": "No auditable historical NOAA/USDA point-in-time archive aligned to current v7 daily decisions." },
+    { "componentId": "zs_seasonal", "commodity": "SOY", "original": "NOT_REBUILT", "physicalShadow": "NOT_REBUILT", "classification": "BLOCKED", "tradesAffected": null, "tradesScaled095": null, "tradesScaled090": null, "goodTradesReduced": null, "badTradesReduced": null, "netEffect": null, "reason": "No auditable historical NOAA/USDA point-in-time archive aligned to current v7 daily decisions." },
+    { "componentId": "zw_mzw", "commodity": "WHEAT", "original": "NOT_REBUILT", "physicalShadow": "NOT_REBUILT", "classification": "BLOCKED", "tradesAffected": null, "tradesScaled095": null, "tradesScaled090": null, "goodTradesReduced": null, "badTradesReduced": null, "netEffect": null, "reason": "No auditable historical NOAA point-in-time archive aligned to current v7 daily decisions." }
+  ]
+}

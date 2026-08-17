@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "PHASE2_HISTORICAL_BLOCKED",
+  "shadowOnly": true,
+  "currentV7Source": "public/data/white-swan/final/equity-series.json",
+  "tiers": [
+    { "capitalEUR": 10000, "classification": "BLOCKED" },
+    { "capitalEUR": 15000, "classification": "BLOCKED" },
+    { "capitalEUR": 25000, "classification": "BLOCKED" },
+    { "capitalEUR": 50000, "classification": "BLOCKED" },
+    { "capitalEUR": 100000, "classification": "BLOCKED" }
+  ],
+  "bestPhysicalModifier": "NONE_PROPOSED",
+  "reason": "Integer-contract portfolio shadow cannot be honestly compared without point-in-time physical histories and current v7 trade-decision alignment."
+}

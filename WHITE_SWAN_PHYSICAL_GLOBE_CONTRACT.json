@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0.0",
+  "mode": "SHADOW_OBSERVATION_ONLY",
+  "canonicalPositionMultiplier": 1,
+  "readOnly": true,
+  "components": [
+    { "releaseComponentId": "zc_seasonal", "registryComponentId": "zc1_sea", "commodity": "CORN", "satelliteProvider": "NOAA STAR", "regionId": "us_corn_belt", "latLonBbox": [-104.1, 36.9, -80.0, 49.4], "polygon": null, "timestampField": "observationTimestamp", "freshnessField": "freshnessHours", "sourceField": "sourceUrl" },
+    { "releaseComponentId": "zs_seasonal", "registryComponentId": "zs1_sea", "commodity": "SOY", "satelliteProvider": "NOAA STAR", "regionId": "us_soy_production", "latLonBbox": [-106.7, 29.5, -75.0, 49.4], "polygon": null, "timestampField": "observationTimestamp", "freshnessField": "freshnessHours", "sourceField": "sourceUrl" },
+    { "releaseComponentId": "zw_mzw", "registryComponentId": "zw1_sea", "commodity": "WHEAT", "satelliteProvider": "NOAA STAR", "regionId": "us_wheat_production", "latLonBbox": [-112.0, 25.0, -94.0, 49.4], "polygon": null, "timestampField": "observationTimestamp", "freshnessField": "freshnessHours", "sourceField": "sourceUrl" },
+    { "releaseComponentId": "cl1_seasonal", "registryComponentId": "cl1_sea", "commodity": "CRUDE", "satelliteProvider": null, "regionId": "gulf_mexico_oil_flow", "latLonBbox": [-98.0, 18.0, -80.0, 31.5], "polygon": null, "timestampField": "observationTimestamp", "freshnessField": "freshnessHours", "sourceField": "sourceUrl" }
+  ],
+  "executionGuarantees": { "tradesChanged": 0, "positionsChanged": 0, "pnlChanged": 0, "marginChanged": 0 }
+}
