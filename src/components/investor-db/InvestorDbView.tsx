@@ -239,14 +239,16 @@ type ColKey = keyof Omit<InvestorRow, "id" | "created_at" | "verfuegbar_ab" | "t
 type Col = { key: ColKey; label: string; w: number; sortable?: boolean };
 
 const COLS: Col[] = [
-  { key:"name",          label:"NAME",        w:190, sortable:true },
-  { key:"rolle",         label:"ROLLE",       w:165 },
-  { key:"unternehmen",   label:"UNTERNEHMEN", w:210, sortable:true },
-  { key:"typ",           label:"TYP",         w:118, sortable:true },
-  { key:"email",         label:"E-MAIL",      w:215 },
-  { key:"linkedin",      label:"LINKEDIN",    w:78  },
-  { key:"kontaktquelle", label:"QUELLE",      w:108 },
-  { key:"score",         label:"SCORE",       w:92,  sortable:true },
+  { key:"unternehmen",   label:"UNTERNEHMEN", w:200, sortable:true },
+  { key:"typ",           label:"TYP",         w:128, sortable:true },
+  { key:"ort",           label:"ORT",         w:120 },
+  { key:"name",          label:"KONTAKT",     w:160, sortable:true },
+  { key:"rolle",         label:"ROLLE",       w:155 },
+  { key:"email",         label:"E-MAIL",      w:210 },
+  { key:"linkedin",      label:"LI",          w:36  },
+  { key:"website",       label:"WEB",         w:36  },
+  { key:"kontaktquelle", label:"QUELLE",      w:110 },
+  { key:"score",         label:"SCORE",       w:100, sortable:true },
   { key:"status",        label:"STATUS",      w:108, sortable:true },
 ];
 
@@ -659,7 +661,28 @@ export function InvestorDbView() {
 
     if (key === "unternehmen") {
       if (!val) return null;
-      return <span style={{ fontSize:12, fontFamily:T, color:"rgba(255,255,255,0.8)", display:"block", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{val as string}</span>;
+      const label = <span style={{ fontSize:12, fontFamily:T, color: row.website ? "rgba(147,197,253,0.85)" : "rgba(255,255,255,0.8)", display:"block", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{val as string}</span>;
+      if (row.website) {
+        const href = row.website.startsWith("http") ? row.website : `https://${row.website}`;
+        return <a href={href} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} title={row.website} style={{ display:"block", overflow:"hidden", textDecoration:"none", width:"100%" }}>{label}</a>;
+      }
+      return label;
+    }
+
+    if (key === "ort") {
+      if (!val) return null;
+      return <span style={{ fontSize:11, fontFamily:T, color:"rgba(255,255,255,0.45)", display:"block", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{val as string}</span>;
+    }
+
+    if (key === "website") {
+      if (!row.website) return null;
+      const href = row.website.startsWith("http") ? row.website : `https://${row.website}`;
+      return (
+        <a href={href} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} title={row.website}
+          style={{ display:"flex", alignItems:"center", justifyContent:"center", width:22, height:22, borderRadius:3, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.08)", color:"rgba(255,255,255,0.4)", fontSize:10, textDecoration:"none" }}>
+          ↗
+        </a>
+      );
     }
 
     if (key === "rolle") {
