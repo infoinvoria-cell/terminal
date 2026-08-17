@@ -1,3 +1,9 @@
+/*
+ * DEPRECATED — this file has wrong gold value (#e2ca7a vs canonical #C9A84C / #D6B24A)
+ * and no confirmed consumers. Do not use --dash-* vars in new components.
+ * Use COLORS / GRADIENTS from src/lib/design-tokens.ts instead.
+ * @see CAPITALIFE_DESIGN_SKILL.md
+ */
 /* Design tokens — imported from globals.css */
 :root {
   --dash-bg: #0c0d10;

@@ -1,7 +1,13 @@
 ﻿/**
- * Capitalife Terminal — Design System
- * Single source of truth for fonts, colors, spacing, radius.
- * Use DS.* constants and the shared KpiCard / StatusBadge components.
+ * Capitalife Terminal — Design System (DS object + legacy components)
+ *
+ * DS object: use freely — values are canonical.
+ * KpiCard: prefer MetricCard from src/components/ui/primitives.tsx for new work.
+ *          This KpiCard is kept for backward compatibility.
+ * StatusBadge: use sparingly — badges are exceptional (see Design Skill §22).
+ * SectionLabel: prefer SectionHeader from src/components/ui/primitives.tsx.
+ *
+ * @see CAPITALIFE_DESIGN_SKILL.md
  */
 
 export const DS = {
@@ -40,13 +46,15 @@ export function KpiCard({
 }) {
   return (
     <div style={{
-      background:   DS.colors.surface,
-      border:       `1px solid ${DS.colors.border}`,
-      borderRadius: DS.radius.md,
-      padding:      '10px 14px',
+      // Canonical KPI gradient (matches kpi-card.tsx and design-tokens.ts)
+      background:   'linear-gradient(to bottom, #26262d, #111114)',
+      border:       '1px solid rgba(255,255,255,0.055)',
+      borderRadius: DS.radius.lg, // 14px — canonical KPI radius
+      padding:      '11px 14px 12px',
       display:      'flex',
       flexDirection: 'column',
-      gap:          6,
+      justifyContent: 'space-between',
+      minHeight:    84,
     }}>
       <div style={{
         fontFamily:    DS.fonts.text,

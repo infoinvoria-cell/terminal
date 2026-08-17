@@ -1,6 +1,22 @@
 /**
- * Capitalife Design System — single source of truth for all visual tokens.
- * Import from here instead of hardcoding colours, radii or sizes in components.
+ * @deprecated This file has divergent/stale values and MUST NOT be used for new work.
+ *
+ * Divergences vs canonical:
+ *  - gold: #D8C16B / #F7E29D (canonical: #C9A84C / #D6B24A)
+ *  - kpi.radius: 20px (canonical: 14px)
+ *  - kpi.minHeight: 132px (but canonical value is from live kpi-card.tsx — 132px is correct there)
+ *  - radius.card: 18px (canonical: 10px chart, 14px KPI)
+ *  - accent.blue: defined (blue is not part of Capitalife design language)
+ *
+ * USE INSTEAD:
+ *  - src/lib/design-tokens.ts  — canonical code-level tokens
+ *  - src/components/ui/design-system.tsx  — DS object (gold: #C9A84C correct here)
+ *  - src/components/ui/primitives.tsx  — canonical shared components
+ *
+ * The candle.* chart config in this file remains referenced by MonitoringChart.
+ * Do not delete the candle config until that reference is updated.
+ *
+ * @see CAPITALIFE_DESIGN_SKILL.md
  */
 
 // ── Palette ───────────────────────────────────────────────────────────────────
