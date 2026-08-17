@@ -226,7 +226,7 @@ function MiniAurumRings() {
 function SourcesToggle({ sources, confidence }: { sources: SourceItem[]; confidence?: string }) {
   const [open, setOpen] = useState(false);
   if (!sources.length) return null;
-  const confColor = confidence === "high" ? "#C9A84C" : confidence === "medium" ? "rgba(255,255,255,0.55)" : "#ff6b72";
+  const confColor = confidence === "high" ? "#C9A84C" : confidence === "medium" ? "rgba(255,255,255,0.55)" : "rgba(201,168,76,0.70)";
   return (
     <div style={{ marginTop: 4 }}>
       <button type="button" onClick={() => setOpen(o => !o)}
@@ -345,7 +345,7 @@ function MessageActions({ content, onRegenerate, regenDisabled }: { content: str
         <circle cx="130" cy="130" r="74"  stroke="rgba(214,184,108,0.80)" strokeWidth="12" strokeDasharray="90 365" strokeLinecap="round" transform="rotate(200 130 130)" />
       </svg>
       <button type="button" onClick={handleCopy} title={copied ? "Kopiert" : "Kopieren"}
-        style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 26, height: 26, background: "none", border: `1px solid ${copied ? "rgba(100,200,140,0.22)" : "rgba(255,255,255,0.06)"}`, borderRadius: 6, color: copied ? "rgba(100,200,140,0.82)" : "rgba(155,165,180,0.45)", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
+        style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 26, height: 26, background: "none", border: `1px solid ${copied ? "rgba(201,168,76,0.30)" : "rgba(255,255,255,0.06)"}`, borderRadius: 6, color: copied ? "rgba(201,168,76,0.85)" : "rgba(155,165,180,0.45)", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
         {copied ? <Check size={12} /> : <Copy size={12} />}
       </button>
       <button type="button" onClick={onRegenerate} disabled={regenDisabled} title="Neu generieren"
@@ -489,7 +489,7 @@ function ChatHistoryPanel({ open, onClose, onLoad, onDelete }: {
                   </div>
                 </button>
                 <button type="button" onClick={() => handleDelete(chat.id)}
-                  style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, background: "none", border: "none", borderRadius: "50%", color: "rgba(255,107,114,0.55)", cursor: "pointer", flexShrink: 0, WebkitTapHighlightColor: "transparent" }}>
+                  style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, background: "none", border: "none", borderRadius: "50%", color: "rgba(255,255,255,0.40)", cursor: "pointer", flexShrink: 0, WebkitTapHighlightColor: "transparent" }}>
                   <Trash2 size={15} />
                 </button>
               </div>
@@ -546,6 +546,7 @@ export function MobileSentinelView() {
   const analyserRef    = useRef<AnalyserNode | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const animFrameRef   = useRef<number>(0);
+  const spokenEntryCountRef = useRef(0);
 
   // iOS keyboard: lift input bar above keyboard using visualViewport
   useEffect(() => {
@@ -633,6 +634,18 @@ export function MobileSentinelView() {
       window.speechSynthesis.speak(u);
     } catch { /* ignore */ }
   }, [muted, selectedVoiceUri]);
+
+  // Speak the newest assistant reply once it has fully arrived (not on regenerate re-render, not twice).
+  // A shrinking entries array (regenerate trims history before resending) resets the watermark
+  // so the follow-up answer is still spoken.
+  useEffect(() => {
+    if (entries.length < spokenEntryCountRef.current) spokenEntryCountRef.current = entries.length;
+    if (busy || muted) return;
+    if (entries.length <= spokenEntryCountRef.current) return;
+    const last = entries[entries.length - 1];
+    spokenEntryCountRef.current = entries.length;
+    if (last?.role === "assistant" && last.content) speak(last.content);
+  }, [entries, busy, muted, speak]);
 
   const stopVoiceAnalysis = useCallback(() => {
     cancelAnimationFrame(animFrameRef.current);
@@ -804,7 +817,7 @@ export function MobileSentinelView() {
     width: 32, height: 32, borderRadius: "50%",
     background: props.active ? "rgba(255,255,255,0.06)" : "none",
     border: "none",
-    color: props.danger ? "#ff6b72" : props.active ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.50)",
+    color: props.danger ? "#C9A84C" : props.active ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.50)",
     cursor: "pointer" as const, flexShrink: 0 as const, alignSelf: "center" as const,
     WebkitTapHighlightColor: "transparent" as const,
   });
@@ -938,10 +951,10 @@ export function MobileSentinelView() {
             {/* Error */}
             {visError && (
               <div style={{ display: "flex", flexDirection: "column", gap: 5, padding: "4px 3px" }}>
-                <span style={{ fontSize: 12, color: "#ff6b72", lineHeight: 1.4, fontWeight: 600 }}>{visError}</span>
+                <span style={{ fontSize: 12, color: "rgba(201,168,76,0.85)", lineHeight: 1.4, fontWeight: 600 }}>{visError}</span>
                 {visRetry && (
                   <button type="button" onClick={() => void sendWithReset(visRetry ?? undefined)}
-                    style={{ alignSelf: "flex-start", background: "rgba(255,107,114,0.10)", border: "1px solid rgba(255,107,114,0.30)", color: "#ff9ba0", fontSize: 11, padding: "5px 12px", borderRadius: 6, cursor: "pointer", fontFamily: "inherit", fontWeight: 600, WebkitTapHighlightColor: "transparent" }}>
+                    style={{ alignSelf: "flex-start", background: "rgba(201,168,76,0.10)", border: "1px solid rgba(201,168,76,0.30)", color: "rgba(201,168,76,0.90)", fontSize: 11, padding: "5px 12px", borderRadius: 6, cursor: "pointer", fontFamily: "inherit", fontWeight: 600, WebkitTapHighlightColor: "transparent" }}>
                     Erneut versuchen
                   </button>
                 )}
@@ -1041,8 +1054,21 @@ export function MobileSentinelView() {
               style={{ ...iconBtn({}) }}>
               <SquarePen size={16} />
             </button>
-            <button type="button" onClick={() => setMuted(m => !m)} title={muted ? "Stimme an" : "Stimme aus"}
-              style={{ ...iconBtn({}) }}>
+            <button
+              type="button"
+              onClick={() => {
+                setMuted((m) => {
+                  const next = !m;
+                  if (next && typeof window !== "undefined" && window.speechSynthesis) {
+                    window.speechSynthesis.cancel();
+                    setSpeaking(false);
+                  }
+                  return next;
+                });
+              }}
+              title={muted ? "Stimme an" : "Stimme aus (stoppt Wiedergabe)"}
+              style={{ ...iconBtn({}) }}
+            >
               {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
             </button>
             {germanVoices.length > 0 && (
