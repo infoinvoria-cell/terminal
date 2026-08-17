@@ -6,15 +6,16 @@
 //   - parallel ensemble / critic modes
 //   - ConnectRun provenance tracking
 import { routeLocally } from "./local-router";
-import { classifyPrivacy, canSendToRemote } from "./privacy-classifier";
+import { classifyPrivacy, canSendToRemote, getTextForProvider } from "./privacy-classifier";
 import { runEnsemble, runReasonerPlusCritic } from "./ensemble";
 import { generateRunId, persistRun } from "./connect-run";
-import { getCapalifeContextBudgeted, getBrainCacheStatus } from "../capitalife-context";
+import { getCapalifeContextBudgeted } from "../capitalife-context";
 import { getGraphContext } from "../graphify-retrieval";
 import { ask, stream as providerStream } from "../providers/provider-router";
+import { buildOutboundContext } from "./outbound-inspector";
 import type { ChatMessage, SentinelProviderId } from "../providers/types";
-import type { WorkerRecord, ConnectRun } from "./connect-run";
-import type { PrivacyLevel } from "./privacy-classifier";
+import type { WorkerRecord, ConnectRun, TokenAccountingType } from "./connect-run";
+import type { PrivacyLevel, PrivacyClassification } from "./privacy-classifier";
 import type { ConnectRoutingMode, ConnectMode } from "./connect-types";
 
 export type { ConnectRoutingMode, ConnectMode };
@@ -112,17 +113,45 @@ export async function connectChat(req: ConnectRequest): Promise<ConnectResult> {
     } catch { /* Graphify unavailable */ }
   }
 
-  // Prepare messages for external use (redaction if needed)
-  const externalMessages = privacy.level === "REMOTE_REDACTED"
-    ? messages.map((m, i) => {
+  // Post-Brain outbound gate: re-classify privacy after Brain injection.
+  // Brain context (STATIC_CONTEXT) may contain Capitalife-private terms.
+  // Escalate only — never downgrade privacy level after Brain injection.
+  let postBrainPrivacy: PrivacyClassification = privacy;
+  if (brainUsed && privacy.level !== "LOCAL_ONLY") {
+    const systemContent = messages
+      .filter((m) => m.role === "system")
+      .map((m) => m.content)
+      .join(" ");
+    const reClassified = classifyPrivacy(systemContent);
+    if (reClassified.level === "LOCAL_ONLY") {
+      postBrainPrivacy = reClassified;
+      route = "LOCAL_ONLY"; // credential pattern in Brain content — block external
+    } else if (reClassified.level === "REMOTE_REDACTED" && privacy.level === "REMOTE_SAFE") {
+      postBrainPrivacy = reClassified;
+    }
+  }
+
+  const effectivePrivacy = postBrainPrivacy;
+
+  // Prepare messages for external use: sanitize user + system messages when needed.
+  const externalMessages = effectivePrivacy.level !== "REMOTE_SAFE"
+    ? messages.map((m) => {
         const lastUserIdx = messages.findLastIndex((x) => x.role === "user");
-        if (i === lastUserIdx) {
-          const sanitized = privacy.sanitizedText ?? m.content;
-          return { ...m, content: sanitized };
+        const isLastUser = m.role === "user" && messages.indexOf(m) === lastUserIdx;
+        if (isLastUser) return { ...m, content: getTextForProvider(effectivePrivacy, m.content) };
+        if (m.role === "system" && brainUsed) {
+          return { ...m, content: getTextForProvider(effectivePrivacy, m.content) };
         }
         return m;
       })
     : messages;
+
+  // Build outbound context for debugging (never returned to client)
+  const _outboundCtx = buildOutboundContext(messages, effectivePrivacy, {
+    brainInjected: brainUsed,
+    brainChars: brainUsed ? (messages.find((m) => m.role === "system")?.content.length ?? 0) : 0,
+    graphifyInjected: graphifyUsed,
+  });
 
   const workers: WorkerRecord[] = [];
   let agreements: string[] = [];
@@ -171,6 +200,7 @@ export async function connectChat(req: ConnectRequest): Promise<ConnectResult> {
         role: "primary",
         inputTokens: Math.ceil((result.tokensUsed ?? 0) * 0.7),
         outputTokens: Math.ceil((result.tokensUsed ?? 0) * 0.3),
+        tokenAccounting: "ESTIMATED" as const,
         latencyMs: Date.now() - start,
         success: true,
       });
@@ -191,12 +221,14 @@ export async function connectChat(req: ConnectRequest): Promise<ConnectResult> {
   }
 
   const latencyMs = Date.now() - start;
+  const tokenAccountingType: TokenAccountingType = "ESTIMATED";
 
   const run: ConnectRun = {
     id: runId,
     timestamp: new Date().toISOString(),
     requestPreview: lastUser.slice(0, 80),
     privacyLevel: privacy.level,
+    postBrainPrivacyLevel: postBrainPrivacy.level,
     route,
     brainSources,
     graphifyHit: graphifyUsed,
@@ -204,6 +236,7 @@ export async function connectChat(req: ConnectRequest): Promise<ConnectResult> {
     synthesisProvider: provider === "ensemble" ? "local-heuristic" : provider as SentinelProviderId,
     totalInputTokens: Math.ceil(totalTokens * 0.7),
     totalOutputTokens: Math.ceil(totalTokens * 0.3),
+    tokenAccounting: tokenAccountingType,
     totalLatencyMs: latencyMs,
     status: fallbackUsed ? "fallback" : "success",
   };

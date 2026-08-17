@@ -6,12 +6,15 @@ import type { PrivacyLevel } from "./privacy-classifier";
 import type { SentinelProviderId } from "../providers/types";
 import type { ConnectRoutingMode } from "./connect-router";
 
+export type TokenAccountingType = "OBSERVED" | "ESTIMATED";
+
 export type WorkerRecord = {
   provider: SentinelProviderId;
   model: string;
   role: "primary" | "analyst" | "skeptic" | "critic" | "synthesizer";
   inputTokens: number;
   outputTokens: number;
+  tokenAccounting: TokenAccountingType; // OBSERVED = provider-reported; ESTIMATED = 70/30 split
   latencyMs: number;
   success: boolean;
   error?: string;
@@ -22,6 +25,7 @@ export type ConnectRun = {
   timestamp: string;
   requestPreview: string; // first 80 chars of request, never raw private data
   privacyLevel: PrivacyLevel;
+  postBrainPrivacyLevel?: PrivacyLevel; // re-classified after Brain injection
   route: ConnectRoutingMode;
   brainSources: string[]; // file labels used from Brain
   graphifyHit: boolean;
@@ -29,6 +33,7 @@ export type ConnectRun = {
   synthesisProvider: SentinelProviderId | "local-heuristic" | null;
   totalInputTokens: number;
   totalOutputTokens: number;
+  tokenAccounting: TokenAccountingType;
   totalLatencyMs: number;
   status: "success" | "partial" | "failed" | "fallback";
   fallbackReason?: string;

@@ -1,6 +1,8 @@
 // Parallel ensemble: runs multiple providers concurrently with distinct roles,
 // then consolidates their outputs into one Sentinel answer.
+// Free Firewall: only FREE-classified models are eligible for ensemble slots in auto mode.
 import { ask } from "../providers/provider-router";
+import { getBillingClass } from "./billing-registry";
 import type { ChatMessage, SentinelProviderId } from "../providers/types";
 import type { WorkerRecord } from "./connect-run";
 
@@ -38,7 +40,23 @@ const ROLE_SUFFIXES: Record<WorkerRole, string> = {
   synthesizer: "\n\n[Deine Rolle: Synthesizer — fasse die wichtigsten Punkte prägnant zusammen.]",
 };
 
-const ENSEMBLE_PROVIDERS: SentinelProviderId[] = ["groq", "cerebras", "gemini", "mistral", "cohere", "openrouter"];
+// Configured providers only — gemini/openrouter excluded (API keys not configured).
+// Cerebras is FREE-classified; circuit breaker handles 402 quota errors transparently.
+const ENSEMBLE_PROVIDERS: SentinelProviderId[] = ["groq", "mistral", "cohere", "cerebras"];
+
+const ENSEMBLE_DEFAULT_MODELS: Partial<Record<SentinelProviderId, string>> = {
+  groq: "groq/compound",
+  mistral: "mistral-small-latest",
+  cohere: "command-r-plus-08-2024",
+  cerebras: "gemma-4-31b",
+};
+
+function getFreeEnsembleProviders(): SentinelProviderId[] {
+  return ENSEMBLE_PROVIDERS.filter((p) => {
+    const model = ENSEMBLE_DEFAULT_MODELS[p] ?? "";
+    return getBillingClass(p, model) === "FREE";
+  });
+}
 
 function pickWorkers(count: 2 | 3 | 4): WorkerAssignment[] {
   const roles: WorkerRole[] = count === 2
@@ -47,8 +65,11 @@ function pickWorkers(count: 2 | 3 | 4): WorkerAssignment[] {
     ? ["analyst", "skeptic", "critic"]
     : ["analyst", "skeptic", "critic", "synthesizer"];
 
+  const freeProviders = getFreeEnsembleProviders();
+  if (freeProviders.length === 0) freeProviders.push("groq" as SentinelProviderId);
+
   return roles.map((role, i) => ({
-    provider: ENSEMBLE_PROVIDERS[i % ENSEMBLE_PROVIDERS.length]!,
+    provider: freeProviders[i % freeProviders.length]!,
     role,
     systemSuffix: ROLE_SUFFIXES[role],
   }));
@@ -187,6 +208,7 @@ export async function runEnsemble(
       : "synthesizer",
     inputTokens: Math.ceil(r.tokensUsed * 0.7),
     outputTokens: Math.ceil(r.tokensUsed * 0.3),
+    tokenAccounting: "ESTIMATED" as const, // provider returns total; 70/30 split is estimation
     latencyMs: r.latencyMs,
     success: r.success,
     error: r.error,
