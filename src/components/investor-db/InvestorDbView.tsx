@@ -239,17 +239,17 @@ type ColKey = keyof Omit<InvestorRow, "id" | "created_at" | "verfuegbar_ab" | "t
 type Col = { key: ColKey; label: string; w: number; sortable?: boolean };
 
 const COLS: Col[] = [
-  { key:"unternehmen",   label:"UNTERNEHMEN", w:200, sortable:true },
-  { key:"typ",           label:"TYP",         w:128, sortable:true },
-  { key:"ort",           label:"ORT",         w:120 },
-  { key:"name",          label:"KONTAKT",     w:160, sortable:true },
-  { key:"rolle",         label:"ROLLE",       w:155 },
-  { key:"email",         label:"E-MAIL",      w:210 },
-  { key:"linkedin",      label:"LI",          w:36  },
-  { key:"website",       label:"WEB",         w:36  },
-  { key:"kontaktquelle", label:"QUELLE",      w:110 },
-  { key:"score",         label:"SCORE",       w:100, sortable:true },
-  { key:"status",        label:"STATUS",      w:108, sortable:true },
+  { key:"unternehmen",   label:"UNTERNEHMEN", w:196, sortable:true },
+  { key:"typ",           label:"TYP",         w:124, sortable:true },
+  { key:"ort",           label:"ORT",         w:112 },
+  { key:"name",          label:"KONTAKT",     w:152, sortable:true },
+  { key:"rolle",         label:"ROLLE",       w:148 },
+  { key:"email",         label:"E-MAIL",      w:200 },
+  { key:"linkedin",      label:"LI",          w:32  },
+  { key:"website",       label:"WEB",         w:32  },
+  { key:"kontaktquelle", label:"QUELLE",      w:104 },
+  { key:"score",         label:"SCORE",       w:90,  sortable:true },
+  { key:"status",        label:"STATUS",      w:100, sortable:true },
 ];
 
 const NUM_W  = 44;
@@ -632,7 +632,14 @@ export function InvestorDbView() {
     if (key === "status")        return <Badge label={val as string|null} map={STATUS_COLOR} />;
     if (key === "typ")           return <Badge label={val as string|null} map={TYP_COLOR} />;
     if (key === "kontaktquelle") return <SourceBadge quelle={val as string|null} sourceUrl={row.source_url} />;
-    if (key === "score")         return <StarRow score={row.score} />;
+    if (key === "score") {
+      const tip = row.score === 5 ? "★★★★★ Verifiziert — direkte E-Mail, LinkedIn & Website bestätigt"
+                : row.score === 4 ? "★★★★☆ Gut — E-Mail oder LinkedIn vorhanden, Profil vollständig"
+                : row.score === 3 ? "★★★☆☆ Mittel — Firma bekannt, Kontakt teilweise verifiziert"
+                : row.score === 2 ? "★★☆☆☆ Schwach — wenige verifizierte Angaben"
+                :                   "★☆☆☆☆ Minimal — nur Firmenname, kein direkter Kontakt";
+      return <span title={tip}><StarRow score={row.score} /></span>;
+    }
 
     if (key === "linkedin") {
       if (!val) return null;
@@ -656,7 +663,14 @@ export function InvestorDbView() {
 
     if (key === "name") {
       if (!val) return <span style={{ fontSize:11, fontFamily:T, color:"rgba(255,255,255,0.18)", fontStyle:"italic" }}>—</span>;
-      return <span style={{ fontSize:12, fontFamily:T, color:"rgba(255,255,255,0.88)", display:"block", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{val as string}</span>;
+      const parts: string[] = [];
+      if (row.rolle)        parts.push(row.rolle);
+      if (row.unternehmen)  parts.push(row.unternehmen);
+      if (row.kapitalrahmen) parts.push(`Ticket: ${row.kapitalrahmen}`);
+      if (row.ort)          parts.push(row.ort);
+      if (row.email)        parts.push(row.email);
+      const tip = parts.join(" · ");
+      return <span title={tip} style={{ fontSize:12, fontFamily:T, color:"rgba(255,255,255,0.88)", display:"block", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", cursor:"default" }}>{val as string}</span>;
     }
 
     if (key === "unternehmen") {
