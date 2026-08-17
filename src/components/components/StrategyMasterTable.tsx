@@ -21,7 +21,6 @@ import {
   getWhiteSwanResolvedExpiry,
   type WhiteSwanAccountPreset,
   WHITE_SWAN_ACCOUNT_MATRIX,
-  WHITE_SWAN_ACCOUNT_PRESETS,
   WHITE_SWAN_COMPONENT_KPIS,
   WHITE_SWAN_PORTFOLIO_TRUTH,
   activeWhiteSwanComponents,
@@ -105,8 +104,6 @@ const CI_KPIS = [
 
 const ACTIVE_WS_COMPONENTS_BY_ID = new Map(activeWhiteSwanComponents.map((component) => [component.id, component]));
 const ACTIVE_WS_COMPONENT_IDS = new Set(activeWhiteSwanComponents.map((component) => component.id));
-const WHITE_SWAN_TRUTH_NOTE = `Aktiv ${WHITE_SWAN_PORTFOLIO_TRUTH.activeWhiteSwanStrategies} · Σ ${WHITE_SWAN_PORTFOLIO_TRUTH.activeWeightSumPct?.toFixed(2)}% · Watch ${WHITE_SWAN_PORTFOLIO_TRUTH.watchRows} · Research ${WHITE_SWAN_PORTFOLIO_TRUTH.researchRows} · Reserve ${WHITE_SWAN_PORTFOLIO_TRUTH.cashMarginReservePct}%`;
-
 // ── unified display row ───────────────────────────────────────────────────────
 interface DisplayRow {
   id: string; section: Portfolio;
@@ -1222,7 +1219,6 @@ export default function StrategyMasterTable() {
   ];
   const sections = portfolio === "ws" ? wsSecs : ciSecs;
   const kpis     = portfolio === "ws" ? WS_KPIS : CI_KPIS;
-  const wsAccountTruth = WHITE_SWAN_ACCOUNT_MATRIX[wsAccountSize];
   const LIVE_EXTRA = 3;
   let rowNum = 0;
 
@@ -1260,73 +1256,6 @@ export default function StrategyMasterTable() {
           {kpis.map(k => <HKpi key={k.label} label={k.label} value={k.value} />)}
         </div>
       </div>
-      {portfolio === "ws" && (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 12, flexShrink: 0, flexWrap: "wrap" as const }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" as const }}>
-            <span style={{
-              fontFamily: FONT_UI, fontSize: 10, fontWeight: 600,
-              color: GOLD, letterSpacing: ".04em",
-              background: "rgba(214,178,74,0.10)", border: "1px solid rgba(214,178,74,0.24)",
-              borderRadius: 6, padding: "2px 8px", whiteSpace: "nowrap" as const,
-            }}>
-              Canonical Truth
-            </span>
-            <span style={{ fontFamily: FONT_UI, fontSize: 10, color: MUTED }}>
-              {WHITE_SWAN_TRUTH_NOTE}
-            </span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const, justifyContent: "flex-end" }}>
-            <div style={{ display: "flex", gap: 5 }}>
-              {WHITE_SWAN_ACCOUNT_PRESETS.map((accountSize) => (
-                <button
-                  key={accountSize}
-                  type="button"
-                  onClick={() => {
-                    setWsAccountSize(accountSize);
-                    setExpId(null);
-                  }}
-                  className={`rc-pill ${wsAccountSize === accountSize ? "rc-active" : "rc-inactive"}`}
-                  style={{
-                    fontFamily: FONT_UI,
-                    fontSize: 10,
-                    fontWeight: wsAccountSize === accountSize ? 700 : 500,
-                    padding: "5px 12px",
-                    color: wsAccountSize === accountSize ? "#F3F3F4" : "#6a6e7a",
-                    letterSpacing: ".06em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {accountSize >= 1000 ? `${accountSize / 1000}k` : accountSize}
-                </button>
-              ))}
-            </div>
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const }}>
-              {[
-                { label: "Ready", value: wsAccountTruth.counts.liveReady },
-                { label: "Approx", value: wsAccountTruth.counts.liveReadyApproximate },
-                { label: "Granular", value: wsAccountTruth.counts.notGranularEnough },
-                { label: "Margin", value: wsAccountTruth.counts.marginBlocked },
-                { label: "Pending", value: wsAccountTruth.counts.dataPending + wsAccountTruth.counts.permissionPending + wsAccountTruth.counts.brokerUnavailable + wsAccountTruth.counts.noFaithfulMapping },
-              ].map((item) => (
-                <span
-                  key={item.label}
-                  style={{
-                    fontFamily: FONT_UI,
-                    fontSize: 10,
-                    color: item.value > 0 && item.label !== "Ready" ? GOLD : MUTED,
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    borderRadius: 999,
-                    padding: "4px 8px",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {item.label} {item.value}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
       {portfolio === "ci" && (
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12, flexShrink: 0 }}>
           <span style={{
@@ -1351,22 +1280,38 @@ export default function StrategyMasterTable() {
               onClick={() => { setSection(s.key); setExpId(null); }} />
           ))}
         </div>
-        <button
-          onClick={() => setLiveCols(v => !v)}
-          title={liveCols ? `${portfolio === "ci" ? "Daten" : "Live"} ausblenden` : `${portfolio === "ci" ? "Daten" : "Live"} einblenden`}
-          style={{
-            display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
-            fontFamily: FONT_UI, fontSize: 10, fontWeight: 700,
-            letterSpacing: ".06em", textTransform: "uppercase" as const,
-            padding: "4px 10px", borderRadius: 8, cursor: "pointer",
-            background: liveCols ? CARD : "transparent",
-            border: liveCols ? "1px solid rgba(255,255,255,0.28)" : `1px solid ${RBORD}`,
-            color: liveCols ? "#F3F3F4" : "#6a6e7a", transition: "all .15s",
-          }}>
-          <LayoutGrid size={11} />
-          {portfolio === "ci" ? "Daten" : "Live"}
-          {liveCols && <LiveTimer secs={liveTimer} max={LIVE_INTERVAL} />}
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          {/* OVERVIEW — navigates to the canonical product page */}
+          <Link
+            href={portfolio === "ws" ? "/white-swan" : "/core-invest"}
+            style={{
+              display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
+              fontFamily: FONT_UI, fontSize: 10, fontWeight: 700,
+              letterSpacing: ".06em", textTransform: "uppercase" as const,
+              padding: "4px 10px", borderRadius: 8, cursor: "pointer",
+              background: "transparent", border: `1px solid ${RBORD}`,
+              color: "#6a6e7a", transition: "all .15s", textDecoration: "none",
+            }}
+          >
+            Overview
+          </Link>
+          <button
+            onClick={() => setLiveCols(v => !v)}
+            title={liveCols ? `${portfolio === "ci" ? "Daten" : "Live"} ausblenden` : `${portfolio === "ci" ? "Daten" : "Live"} einblenden`}
+            style={{
+              display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
+              fontFamily: FONT_UI, fontSize: 10, fontWeight: 700,
+              letterSpacing: ".06em", textTransform: "uppercase" as const,
+              padding: "4px 10px", borderRadius: 8, cursor: "pointer",
+              background: liveCols ? CARD : "transparent",
+              border: liveCols ? "1px solid rgba(255,255,255,0.28)" : `1px solid ${RBORD}`,
+              color: liveCols ? "#F3F3F4" : "#6a6e7a", transition: "all .15s",
+            }}>
+            <LayoutGrid size={11} />
+            {portfolio === "ci" ? "Daten" : "Live"}
+            {liveCols && <LiveTimer secs={liveTimer} max={LIVE_INTERVAL} />}
+          </button>
+        </div>
       </div>
 
       {/* table */}
