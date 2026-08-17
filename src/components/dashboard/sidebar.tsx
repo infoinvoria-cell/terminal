@@ -44,29 +44,32 @@ import { CapalifeLogoAnim } from "@/components/ui/capitalife-logo-anim";
 const COLLAPSED_W = 72;
 const EXPANDED_W = 232;
 const ICON_PL = "pl-[18px]";
-const NAV_ROUTES = [
-  "/sentinel",
+// Priority routes prefetched eagerly on mount (user's most-travelled paths)
+const PRIORITY_ROUTES = [
+  "/",
+  "/white-swan",
+  "/analytics",
   "/brain",
+  "/sentinel",
+] as const;
+
+// Secondary routes prefetched during idle time only
+const SECONDARY_ROUTES = [
   "/globe",
+  "/monitoring",
   "/engine",
   "/signal",
   "/signals",
-  "/monitoring",
-  "/analytics",
   "/komponenten",
-  "/komponenten/seasonality",
   "/about",
-  "/about/inno",
   "/manager",
   "/investors",
-  "/onboarding",
-  "/investor-db",
-  "/vermittler",
-  "/partner",
   "/settings",
   "/referenzen",
-  "/preview-workspace",
 ] as const;
+
+// Keep NAV_ROUTES for any legacy consumers
+const NAV_ROUTES = [...PRIORITY_ROUTES, ...SECONDARY_ROUTES] as const;
 
 function NavLabel({ label, expanded }: { label: string; expanded: boolean }) {
   return (
@@ -405,11 +408,26 @@ export function Sidebar() {
 
   useEffect(() => {
     setMounted(true);
-    // Stagger prefetch to avoid overwhelming the dev server with 20 simultaneous compilations
+
+    // Eagerly prefetch the 5 priority routes (user's most-travelled paths), staggered
     const timers: ReturnType<typeof setTimeout>[] = [];
-    NAV_ROUTES.forEach((route, i) => {
-      timers.push(setTimeout(() => router.prefetch(route), i * 150));
+    PRIORITY_ROUTES.forEach((route, i) => {
+      timers.push(setTimeout(() => router.prefetch(route), i * 200));
     });
+
+    // Secondary routes: defer until browser is idle to avoid competing with first render
+    if (typeof requestIdleCallback !== "undefined") {
+      const handle = requestIdleCallback(() => {
+        SECONDARY_ROUTES.forEach((route, i) => {
+          timers.push(setTimeout(() => router.prefetch(route), i * 300));
+        });
+      }, { timeout: 8000 });
+      return () => {
+        cancelIdleCallback(handle);
+        timers.forEach(clearTimeout);
+      };
+    }
+
     return () => timers.forEach(clearTimeout);
   }, [router]);
 

@@ -1,15 +1,17 @@
 "use client";
 
 /**
- * Capitalife Design Reference — Internal Only
+ * Capitalife Design Reference — INTERNAL / DEVELOPMENT ONLY
  *
  * Demonstrates canonical primitives, tokens, and visual language.
  * Used as the golden reference for agent visual QA.
  * All values are synthetic — no real portfolio data.
  *
- * Route: /design-reference (not linked from sidebar nav)
+ * Route: /design-reference — not linked from sidebar, not for public use.
+ * Protected: renders a 404-equivalent in production (NODE_ENV !== "development").
  */
 
+import { notFound } from "next/navigation";
 import { MetricCard, SectionHeader, DataTable } from "@/components/ui/primitives";
 import { COLORS, GRADIENTS, CHART_CARD_STYLE, HEADER_SPAN_STYLE, RADIUS, BORDER_STANDARD, PILL_CSS, FONTS } from "@/lib/design-tokens";
 import { useState } from "react";
@@ -46,6 +48,11 @@ const CHART_TABS = ["Equity", "Drawdown", "Bars"] as const;
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function DesignReferencePage() {
+  // Block in production — this is a dev/QA tool, never a public product route
+  if (process.env.NODE_ENV !== "development") {
+    notFound();
+  }
+
   const [activeTab, setActiveTab] = useState<(typeof CHART_TABS)[number]>("Equity");
 
   return (
