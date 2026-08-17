@@ -1,4 +1,4 @@
-export const runtime = "nodejs";
+﻿export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
 import { queryGraph, getGraphStats } from "@/lib/sentinel/graphify-retrieval";
 import path from "path";
@@ -16,19 +16,42 @@ function readBrainFile(relPath: string): string | null {
   }
 }
 
-const BRAIN_SEARCH_FILES = [
-  "09_AI/AI_PROJECT_BRAIN_CURRENT.md",
-  "00_Index/Open Issues.md",
-  "00_Index/Next Actions.md",
-  "00_Index/Changelog.md",
-  "09_AI/Live_Track_Record.md",
-];
+// Cache: list of .md files in vault, refreshed every 5 minutes
+let vaultFileCache: string[] | null = null;
+let vaultFileCacheAt = 0;
+const VAULT_CACHE_TTL = 5 * 60 * 1000;
+
+function getVaultMarkdownFiles(brainPath: string): string[] {
+  const now = Date.now();
+  if (vaultFileCache && now - vaultFileCacheAt < VAULT_CACHE_TTL) return vaultFileCache;
+  const files: string[] = [];
+  const walk = (dir: string) => {
+    let entries: fs.Dirent[];
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const e of entries) {
+      if (e.name.startsWith(".")) continue;
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) { walk(full); }
+      else if (e.isFile() && e.name.endsWith(".md")) {
+        files.push(path.relative(brainPath, full).replace(/\\/g, "/"));
+      }
+    }
+  };
+  walk(brainPath);
+  vaultFileCache = files;
+  vaultFileCacheAt = now;
+  return files;
+}
 
 function searchBrainFiles(query: string, maxResults = 5): { file: string; snippet: string; score: number }[] {
+  const brainPath = process.env.CAPITALIFE_BRAIN_PATH?.trim();
+  if (!brainPath) return [];
   const terms = query.toLowerCase().split(/\s+/).filter((t) => t.length > 2);
+  if (!terms.length) return [];
   const results: { file: string; snippet: string; score: number }[] = [];
 
-  for (const relPath of BRAIN_SEARCH_FILES) {
+  const relPaths = getVaultMarkdownFiles(brainPath);
+  for (const relPath of relPaths) {
     const content = readBrainFile(relPath);
     if (!content) continue;
 

@@ -6,25 +6,7 @@ const CARD_BG = "#1F1F1F";
 const CARD_BORDER = "rgba(255,255,255,0.06)";
 const MUTED = "rgba(255,255,255,0.42)";
 
-type BrainStatus = {
-  available: boolean;
-  pathConfigured: boolean;
-  brainFile: boolean;
-  snapshotFile: boolean;
-};
-
-type BrainNetwork = {
-  nodes: { id: string }[];
-  links: { source: string; target: string }[];
-  source?: string;
-};
-
-type SearchResult = {
-  query: string;
-  graph: { nodeCount: number; summary: string; tokenEstimate: number };
-  brain: { resultCount: number; results: { file: string; snippet: string; score: number }[] };
-  brainAvailable?: boolean;
-};
+import type { MobileBrainStatus, MobileBrainSearchResult } from "@/lib/mobile/types";
 
 function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
   return (
@@ -92,23 +74,24 @@ function FileTag({ file }: { file: string }) {
 }
 
 export function MobileBrainView() {
-  const [status, setStatus]   = useState<BrainStatus | null>(null);
-  const [network, setNetwork] = useState<BrainNetwork | null>(null);
+  const [status, setStatus]   = useState<MobileBrainStatus | null>(null);
   const [error, setError]     = useState(false);
   const [query, setQuery]     = useState("");
   const [searching, setSearching] = useState(false);
-  const [results, setResults] = useState<SearchResult | null>(null);
+  const [results, setResults] = useState<MobileBrainSearchResult | null>(null);
   const [searchErr, setSearchErr] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    fetch("/api/brain-graph/status").then(r => r.json()).then(j => setStatus(j as BrainStatus)).catch(() => setError(true));
-    fetch("/api/brain-graph/network").then(r => r.json()).then(j => setNetwork(j as BrainNetwork)).catch(() => null);
+    fetch("/api/mobile/brain/status")
+      .then(r => r.json())
+      .then(j => setStatus(j as MobileBrainStatus))
+      .catch(() => setError(true));
   }, []);
 
-  const nodeCount = network?.nodes?.length ?? 0;
-  const linkCount = network?.links?.length ?? 0;
-  const hasGraph  = Array.isArray(network?.nodes) && nodeCount > 0;
+  const nodeCount = status?.nodeCount ?? 0;
+  const linkCount = status?.linkCount ?? 0;
+  const hasGraph  = nodeCount > 0;
 
   function onQueryChange(q: string) {
     setQuery(q);
@@ -118,8 +101,8 @@ export function MobileBrainView() {
       setSearching(true);
       setSearchErr(false);
       try {
-        const r = await fetch(`/api/brain-graph/search?q=${encodeURIComponent(q.trim())}`);
-        const j = await r.json() as SearchResult;
+        const r = await fetch(`/api/mobile/brain/search?q=${encodeURIComponent(q.trim())}`);
+        const j = await r.json() as MobileBrainSearchResult;
         setResults(j);
       } catch {
         setSearchErr(true);
@@ -189,23 +172,18 @@ export function MobileBrainView() {
             )}
             {results && !searchErr && (
               <>
-                {/* Graph hit count */}
+                {/* Hit count */}
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
                   <span style={{ fontSize: 11, color: MUTED, fontWeight: 600 }}>
-                    {results.graph.nodeCount} Graph-Knoten · {results.brain.resultCount} Brain-Treffer
+                    {results.resultCount} Brain-Treffer
                   </span>
-                  {results.graph.summary && (
-                    <span style={{ fontSize: 10.5, color: "rgba(255,255,255,0.25)" }}>
-                      ~{results.graph.tokenEstimate} Tokens
-                    </span>
-                  )}
                 </div>
 
                 {/* Brain file snippets */}
-                {results.brain.results.length === 0 && results.graph.nodeCount === 0 && (
+                {results.results.length === 0 && (
                   <p style={{ fontSize: 13, color: MUTED, margin: 0 }}>Keine Treffer für „{results.query}"</p>
                 )}
-                {results.brain.results.map((r, i) => (
+                {results.results.map((r, i) => (
                   <div key={i} style={{
                     background: CARD_BG,
                     border: `1px solid ${CARD_BORDER}`,
@@ -246,16 +224,15 @@ export function MobileBrainView() {
             ) : (
               <>
                 <div style={{ display: "flex", gap: 10 }}>
-                  <StatCard label="Knoten" value={hasGraph ? nodeCount.toLocaleString("de-DE") : "–"} sub={network?.source ?? "Nodes im Graphen"} />
+                  <StatCard label="Knoten" value={hasGraph ? nodeCount.toLocaleString("de-DE") : "–"} sub="Nodes im Graphen" />
                   <StatCard label="Links"  value={hasGraph ? linkCount.toLocaleString("de-DE") : "–"} sub="Verbindungen" />
                 </div>
                 {status && (
                   <div style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 14, overflow: "hidden" }}>
                     <div style={{ padding: "12px 14px 8px", fontSize: 11, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: "0.05em" }}>Systemstatus</div>
-                    <StatusRow ok={status.pathConfigured} label="Brain-Pfad konfiguriert" />
-                    <StatusRow ok={status.brainFile}      label="Brain-Datei vorhanden" />
-                    <StatusRow ok={status.snapshotFile}   label="Snapshot vorhanden" />
-                    <StatusRow ok={hasGraph}              label="Graph geladen" />
+                    <StatusRow ok={status.pathConfigured}                    label="Brain-Pfad konfiguriert" />
+                    <StatusRow ok={status.graphifyStatus === "available"}    label="Graphify Index" />
+                    <StatusRow ok={hasGraph}                                 label="Graph geladen" />
                   </div>
                 )}
               </>

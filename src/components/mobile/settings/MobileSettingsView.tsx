@@ -10,7 +10,7 @@ const PREF_KEY = "fmd_settings_preferred_provider";
 type ProviderStatus = { id: string; label: string; configured: boolean; usable: boolean; message: string; model: string | null; active: boolean };
 type SentinelStatus = { activeProvider: string | null; providers: ProviderStatus[] };
 
-type BrainStatus = { available: boolean; pathConfigured: boolean; brainFile: boolean; snapshotFile: boolean };
+import type { MobileBrainStatus } from "@/lib/mobile/types";
 
 type SysCheck = { label: string; ok: boolean | null; detail?: string };
 
@@ -64,7 +64,7 @@ export function MobileSettingsView() {
   const [status, setStatus]   = useState<SentinelStatus | null>(null);
   const [preferred, setPreferred] = useState<string | null>(null);
   const [provErr, setProvErr] = useState(false);
-  const [brain, setBrain]     = useState<BrainStatus | null>(null);
+  const [brain, setBrain]     = useState<MobileBrainStatus | null>(null);
   const [wsOk, setWsOk]       = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -74,9 +74,9 @@ export function MobileSettingsView() {
       .then(r => r.json()).then(j => setStatus(j as SentinelStatus))
       .catch(() => setProvErr(true));
 
-    fetch("/api/brain-graph/status")
-      .then(r => r.json()).then(j => setBrain(j as BrainStatus))
-      .catch(() => setBrain({ available: false, pathConfigured: false, brainFile: false, snapshotFile: false }));
+    fetch("/api/mobile/brain/status")
+      .then(r => r.json()).then(j => setBrain(j as MobileBrainStatus))
+      .catch(() => setBrain({ available: false, pathConfigured: false, nodeCount: null, linkCount: null, lastUpdated: null, graphifyStatus: "missing" }));
 
     fetch("/api/white-swan-final?type=summary")
       .then(r => { setWsOk(r.ok); })
@@ -94,8 +94,8 @@ export function MobileSettingsView() {
   const systemChecks: SysCheck[] = [
     { label: "White Swan Daten",    ok: wsOk,                   detail: wsOk ? "summary.json geladen" : wsOk === false ? "API nicht erreichbar" : undefined },
     { label: "Brain-Pfad",          ok: brain?.pathConfigured ?? null, detail: brain?.pathConfigured ? "konfiguriert" : brain ? "nicht konfiguriert" : undefined },
-    { label: "Brain-Datei",         ok: brain?.brainFile ?? null },
-    { label: "Graphify Snapshot",   ok: brain?.snapshotFile ?? null },
+    { label: "Brain Index",         ok: brain ? brain.nodeCount !== null && brain.nodeCount > 0 : null, detail: brain?.nodeCount != null ? `${brain.nodeCount} Knoten` : undefined },
+    { label: "Graphify Status",     ok: brain ? brain.graphifyStatus === "available" : null, detail: brain?.graphifyStatus },
     { label: "Sentinel Provider",   ok: status ? usable.length > 0 : null, detail: status ? `${usable.length} bereit` : undefined },
     { label: "App Health",          ok: true,                    detail: "Next.js erreichbar" },
   ];
