@@ -1,0 +1,62 @@
+{
+  "snapshotAt": "2026-08-17T09:24:34.198Z",
+  "docCount": 7,
+  "documents": [
+    {
+      "id": "ai-read-first",
+      "title": "AI Project Brain",
+      "category": "system",
+      "updatedAt": "2026-08-03T19:13:23.718Z",
+      "snapshotAt": "2026-08-17T09:24:34.198Z",
+      "stale": true
+    },
+    {
+      "id": "capitalife-system-status",
+      "title": "Capitalife System Status",
+      "category": "system",
+      "updatedAt": "2026-08-16T21:34:30.999Z",
+      "snapshotAt": "2026-08-17T09:24:34.198Z",
+      "stale": false
+    },
+    {
+      "id": "white-swan-status",
+      "title": "White Swan Portfolio",
+      "category": "strategy",
+      "updatedAt": "2026-07-30T12:43:42.826Z",
+      "snapshotAt": "2026-08-17T09:24:34.198Z",
+      "stale": true
+    },
+    {
+      "id": "sentinel-status",
+      "title": "Sentinel Multi-Provider Router",
+      "category": "system",
+      "updatedAt": "2026-08-16T20:11:47.852Z",
+      "snapshotAt": "2026-08-17T09:24:34.198Z",
+      "stale": false
+    },
+    {
+      "id": "nautilus-status",
+      "title": "NautilusTrader IBKR Sidecar",
+      "category": "execution",
+      "updatedAt": "2026-08-16T20:26:30.150Z",
+      "snapshotAt": "2026-08-17T09:24:34.198Z",
+      "stale": false
+    },
+    {
+      "id": "strategy-tester-status",
+      "title": "Strategy Tester",
+      "category": "research",
+      "updatedAt": "2026-08-03T19:13:23.718Z",
+      "snapshotAt": "2026-08-17T09:24:34.198Z",
+      "stale": true
+    },
+    {
+      "id": "mobile-platform-status",
+      "title": "Mobile Data Platform Status",
+      "category": "mobile",
+      "updatedAt": "2026-08-16T21:34:30.999Z",
+      "snapshotAt": "2026-08-17T09:24:34.198Z",
+      "stale": false
+    }
+  ]
+}

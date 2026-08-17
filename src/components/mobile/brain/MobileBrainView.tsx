@@ -191,7 +191,7 @@ export function MobileBrainView() {
                     padding: "12px 14px",
                     marginBottom: 8,
                   }}>
-                    <FileTag file={r.file} />
+                    <FileTag file={r.title ?? r.id} />
                     <pre style={{
                       margin: "8px 0 0",
                       fontSize: 11.5,
@@ -224,8 +224,8 @@ export function MobileBrainView() {
             ) : (
               <>
                 <div style={{ display: "flex", gap: 10 }}>
-                  <StatCard label="Knoten" value={hasGraph ? nodeCount.toLocaleString("de-DE") : "–"} sub="Nodes im Graphen" />
-                  <StatCard label="Links"  value={hasGraph ? linkCount.toLocaleString("de-DE") : "–"} sub="Verbindungen" />
+                  <StatCard label="Graph-Knoten" value={hasGraph ? nodeCount.toLocaleString("de-DE") : "–"} sub="Graphify AST-Graph" />
+                  <StatCard label="Graph-Links"  value={hasGraph ? linkCount.toLocaleString("de-DE") : "–"} sub="Verbindungen" />
                 </div>
                 {status && (
                   <div style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 14, overflow: "hidden" }}>

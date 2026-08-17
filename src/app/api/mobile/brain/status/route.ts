@@ -10,6 +10,21 @@ export async function GET(): Promise<NextResponse<MobileBrainStatus>> {
   const brainPath = process.env.CAPITALIFE_BRAIN_PATH?.trim() || null;
 
   if (!brainPath) {
+    // No vault — check if projection is available (Vercel scenario)
+    let projectionAvailable = false;
+    let projectionDocCount = 0;
+    let projectionSnapshotAt: string | null = null;
+    const projManifestPath = path.join(process.cwd(), "public", "data", "mobile-brain", "manifest.json");
+    if (fs.existsSync(projManifestPath)) {
+      try {
+        const proj = JSON.parse(fs.readFileSync(projManifestPath, "utf-8")) as {
+          docCount?: number; snapshotAt?: string;
+        };
+        projectionAvailable = (proj.docCount ?? 0) > 0;
+        projectionDocCount = proj.docCount ?? 0;
+        projectionSnapshotAt = proj.snapshotAt ?? null;
+      } catch { /* ignore */ }
+    }
     return NextResponse.json({
       available: false,
       pathConfigured: false,
@@ -17,6 +32,9 @@ export async function GET(): Promise<NextResponse<MobileBrainStatus>> {
       linkCount: null,
       lastUpdated: null,
       graphifyStatus: "missing",
+      projectionAvailable,
+      projectionDocCount,
+      projectionSnapshotAt,
     });
   }
 
@@ -40,6 +58,22 @@ export async function GET(): Promise<NextResponse<MobileBrainStatus>> {
     graphifyStatus = "partial";
   }
 
+  // Surface projection info (available on Vercel and locally)
+  let projectionAvailable = false;
+  let projectionDocCount = 0;
+  let projectionSnapshotAt: string | null = null;
+  const projManifestPath = path.join(process.cwd(), "public", "data", "mobile-brain", "manifest.json");
+  if (fs.existsSync(projManifestPath)) {
+    try {
+      const proj = JSON.parse(fs.readFileSync(projManifestPath, "utf-8")) as {
+        docCount?: number; snapshotAt?: string;
+      };
+      projectionAvailable = (proj.docCount ?? 0) > 0;
+      projectionDocCount = proj.docCount ?? 0;
+      projectionSnapshotAt = proj.snapshotAt ?? null;
+    } catch { /* ignore */ }
+  }
+
   return NextResponse.json({
     available: graphifyStatus === "available",
     pathConfigured: true,
@@ -47,5 +81,8 @@ export async function GET(): Promise<NextResponse<MobileBrainStatus>> {
     linkCount,
     lastUpdated,
     graphifyStatus,
+    projectionAvailable,
+    projectionDocCount,
+    projectionSnapshotAt,
   });
 }

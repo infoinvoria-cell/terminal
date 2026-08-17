@@ -70,7 +70,7 @@ const TOOLS: ToolDef[] = [
     label: "Strategy Tester",
     sub: "Backtest & Walk-Forward-Ergebnisse",
     Icon: IconFlask,
-    href: "/m/signale",
+    href: "/m/tester",
     mobile: true,
     status: "active",
   },
@@ -79,7 +79,7 @@ const TOOLS: ToolDef[] = [
     label: "Seasonality",
     sub: "Saisonale Muster & Kalender-Anomalien",
     Icon: IconCalendar,
-    href: "/m/signale",
+    href: "/m/seasonality",
     mobile: true,
     status: "active",
   },
@@ -97,7 +97,7 @@ const TOOLS: ToolDef[] = [
     label: "MVA — Multi-Variate",
     sub: "Korrelationsmatrix & Factor-Exposition",
     Icon: IconTarget,
-    href: "/m/analytics",
+    href: "/m/mva",
     mobile: true,
     status: "active",
   },
@@ -115,8 +115,11 @@ const TOOLS: ToolDef[] = [
 // ── Summary stat from White Swan ────────────────────────────────────────────────
 type WsSummary = { capitalLevels?: Record<string, { finalRecommendation?: { oosCAGR?: number; sharpe?: number } }> };
 
+// Use €15 000 tier to match the White Swan page default selection
+const WS_CANONICAL_TIER = 15000;
+
 export function MobileResearchView() {
-  const [wsStat, setWsStat] = useState<{ cagr: number; sharpe: number } | null>(null);
+  const [wsStat, setWsStat] = useState<{ cagr: number; sharpe: number; tierK: number } | null>(null);
 
   useEffect(() => {
     fetch("/api/white-swan-final?type=summary")
@@ -124,10 +127,12 @@ export function MobileResearchView() {
       .then((j: WsSummary) => {
         const levels = j.capitalLevels;
         if (!levels) return;
-        const first = Object.values(levels)[0];
-        const rec = first?.finalRecommendation;
+        // Prefer €15k tier (canonical), fall back to first available
+        const entry = levels[WS_CANONICAL_TIER] ?? Object.values(levels)[0];
+        const tierKey = levels[WS_CANONICAL_TIER] ? WS_CANONICAL_TIER : Number(Object.keys(levels)[0]);
+        const rec = entry?.finalRecommendation;
         if (rec?.oosCAGR != null && rec?.sharpe != null) {
-          setWsStat({ cagr: rec.oosCAGR, sharpe: rec.sharpe });
+          setWsStat({ cagr: rec.oosCAGR, sharpe: rec.sharpe, tierK: Math.round(tierKey / 1000) });
         }
       })
       .catch(() => {});
@@ -148,7 +153,7 @@ export function MobileResearchView() {
           <div style={{ background: `linear-gradient(135deg, ${GOLD}14 0%, transparent 80%)`, border: `1px solid ${GOLD}30`, borderRadius: 16, padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <p style={{ margin: 0, fontSize: 10, fontWeight: 700, color: GOLD, textTransform: "uppercase", letterSpacing: "0.06em", fontFamily: "var(--font-text)" }}>White Swan · Aktiv</p>
-              <p style={{ margin: "2px 0 0", fontSize: 11, color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-text)" }}>v6.3.5 · OOS validiert</p>
+              <p style={{ margin: "2px 0 0", fontSize: 11, color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-text)" }}>v6.3.5 · OOS validiert · €{wsStat.tierK}k-Tier</p>
             </div>
             <div style={{ display: "flex", gap: 16 }}>
               <div style={{ textAlign: "right" }}>

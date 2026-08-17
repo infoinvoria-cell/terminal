@@ -28,6 +28,9 @@ export function mobileToDesktop(p: string): string {
   if (p.startsWith("/m/white-swan")) return "/white-swan";
   if (p.startsWith("/m/settings")) return "/settings";
   if (p.startsWith("/m/execution")) return "/execution";
+  if (p.startsWith("/m/tester")) return "/research";
+  if (p.startsWith("/m/seasonality")) return "/research";
+  if (p.startsWith("/m/mva")) return "/research";
   if (p.startsWith("/m/research")) return "/research";
   return "/";
 }
