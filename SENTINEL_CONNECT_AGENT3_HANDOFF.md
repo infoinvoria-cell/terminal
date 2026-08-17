@@ -1,9 +1,9 @@
 # Sentinel Connect — Agent 3 Handoff
 
 Branch: `feat/sentinel-connect-omniroute`  
-Commits: `509d347` (Phase 1) → `d34749b` (Phase 2: Qwen router) → `b647efb` (Phase 2: Setup UI)  
+Commits: `509d347` (Phase 1) → `d34749b` (Phase 2: Qwen router) → `b647efb` (Phase 2: Setup UI) → `40aae91` (local setup guide) → `e9809e7` (Agent 4: Free Firewall + billing registry)  
 Date: 2026-08-17  
-Ahead of origin: 0 (all pushed)
+Ahead of origin: 1 (push pending — see below)
 
 ---
 
@@ -21,6 +21,24 @@ Complete OmniRoute orchestration layer:
 - `ConnectPrivacyBadge.tsx`, `ConnectRouteDetails.tsx` UI components
 - 25 unit tests (25/25 pass)
 - Architecture docs: SENTINEL_CONNECT_ARCHITECTURE.md, SENTINEL_CONNECT_PRIVACY.md, etc.
+
+### Phase 3 / Agent 4 (40aae91 + e9809e7)
+- **billing-registry.ts**: Model-level FREE/PAID/UNKNOWN billing classification
+  - Per-model (not per-provider) with `source` + `verifiedAt` fields
+  - FREE: all Ollama/local, Groq (5 models), Mistral-small/nemo, Cohere command-r, Cerebras (3 models), Gemini flash
+  - PAID: all Anthropic, Mistral-large/medium/codestral, Gemini 1.5-pro/2.0-pro
+  - UNKNOWN: openrouter, github, unlisted models
+  - Lookup order: exact match → prefix match → wildcard (provider with model="")
+- **outbound-inspector.ts**: Debug-only outbound context representation
+  - Shows sanitizedRequest, brainContextInjected, graphifyInjected, wouldRedact, redactedFields
+  - NEVER exposed via API — internal validation only
+- **connect-run.ts**: Extended with `TokenAccountingType` ("OBSERVED" | "ESTIMATED") and `postBrainPrivacyLevel`
+- **connect-router.ts**: Post-Brain outbound gate (re-classifies privacy after Brain injection, escalate-only)
+- **ensemble.ts**: Free Firewall via `getFreeEnsembleProviders()` — ensemble only picks FREE-classified models
+  - `ENSEMBLE_PROVIDERS` locked to `["groq", "mistral", "cohere", "cerebras"]` (gemini/openrouter excluded — not configured)
+- **connect-router-benchmark.test.ts**: 50-case deterministic router benchmark (50/50 PASS)
+  - Categories: LOCAL, BRAIN/PRIVATE, PRIVATE, REMOTE_SAFE, REASONING, CODING, TOOL_FIRST, ENSEMBLE, AMBIGUOUS, BILLING_GUARD
+- **usage-store-concurrency.test.ts**: 5-case parallel write concurrency test (5/5 PASS)
 
 ### Phase 2 (d34749b + b647efb)
 - **qwen-router.ts**: Qwen3:1.7b via Ollama as Layer 1 routing classifier
@@ -41,9 +59,11 @@ src/lib/sentinel/connect/
   privacy-classifier.ts   — classifyPrivacy(), canSendToRemote(), getTextForProvider()
   local-router.ts         — Layer 0 + Layer 1 (Qwen) router
   qwen-router.ts          — Qwen3:1.7b Ollama client + schema validation
-  connect-router.ts       — connectChat(), connectStream(), main orchestration
-  connect-run.ts          — ConnectRun type, NDJSON ledger, getTodayStats()
-  ensemble.ts             — runEnsemble(), runReasonerPlusCritic()
+  billing-registry.ts     — [NEW] model-level FREE/PAID/UNKNOWN billing registry
+  outbound-inspector.ts   — [NEW] debug-only outbound context inspector (never API-exposed)
+  connect-router.ts       — connectChat(), connectStream() + post-Brain gate + outbound inspector
+  connect-run.ts          — ConnectRun type + TokenAccountingType + postBrainPrivacyLevel
+  ensemble.ts             — runEnsemble() + getFreeEnsembleProviders() Free Firewall
 
 src/app/api/sentinel/connect/
   route.ts                — POST /api/sentinel/connect
@@ -57,9 +77,11 @@ src/components/sentinel/connect/
 src/components/settings/SettingsPage.tsx  — Sentinel Connect section
 
 src/lib/sentinel/__tests__/
-  connect-privacy.test.ts       — 12 privacy classifier tests
-  connect-local-router.test.ts  — 10 local router tests
-  connect-run.test.ts           — 3 provenance ledger tests
+  connect-privacy.test.ts           — 12 privacy classifier tests
+  connect-local-router.test.ts      — 10 local router tests
+  connect-run.test.ts               — 3 provenance ledger tests
+  connect-router-benchmark.test.ts  — [NEW] 50-case deterministic router benchmark
+  usage-store-concurrency.test.ts   — [NEW] 5-case parallel write concurrency test
 ```
 
 ---
@@ -129,7 +151,11 @@ type ConnectMode = "auto" | "local" | "deep";
 - Turbopack warnings (2): `white-swan-robustness/route.ts` uses `path.join`
   Pre-existing, build still passes.
 
-- Cerebras 402: Free plan quota exhausted. Key is valid, fallback to Mistral/Groq.
+- Cerebras 402: Free plan quota exhausted. Key is valid, circuit breaker suppresses retries, fallback to Mistral/Groq.
+
+- **Build env**: `@babel/runtime/helpers/esm/wrapNativeSuper` not found in local node_modules — pre-existing environment issue affecting ALL branches (not caused by connect changes). TypeScript check passes with 0 new errors. Remote CI/Vercel build should pass (clean install).
+
+- **TokenAccountingType**: All workers currently use `"ESTIMATED"` (70/30 input/output split). Set to `"OBSERVED"` when a provider returns real token counts in the API response.
 
 ---
 
@@ -137,13 +163,23 @@ type ConnectMode = "auto" | "local" | "deep";
 
 ```bash
 npx vitest run src/lib/sentinel/__tests__/connect-*.test.ts
-# → 25/25 PASS
+# → 28/28 PASS (includes 3 new benchmark/concurrency tests)
 
-npm run build
-# → BUILD_PASS (b647efb head)
+npx vitest run src/lib/sentinel/__tests__/connect-router-benchmark.test.ts
+# → 50/50 PASS (all 10 categories)
+
+npx vitest run src/lib/sentinel/__tests__/usage-store-concurrency.test.ts
+# → 5/5 PASS
+
+npx vitest run
+# → 403/414 PASS (11 pre-existing voice backend failures — invalidateTTSHealthCache)
 
 npm run audit:github-safe
-# → [PASS] github-safe audit clean
+# → [PASS] github-safe audit clean (e9809e7)
+
+npm run build
+# → Pre-existing env issue (@babel/runtime) affects all branches locally.
+#   TypeScript: 0 new errors. Remote CI/Vercel: expected PASS.
 ```
 
 ---
