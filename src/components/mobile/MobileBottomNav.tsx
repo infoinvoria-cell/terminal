@@ -155,6 +155,14 @@ function IconSettings() {
   );
 }
 
+function IconShield() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+  );
+}
+
 function IconPanelTop() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round">
@@ -197,6 +205,7 @@ const ALL_SIDEBAR_GROUPS: NavGroupDef[] = [
     items: [
       { href: "/m/signale",       label: "Signale",     Icon: IconBellRing   },
       { href: "/m/research",      label: "Research",    Icon: IconChartColumn                                 },
+      { href: "/m/execution",     label: "Execution",   Icon: IconShield                                      },
       { href: "/m/monitoring",    label: "Monitoring",  Icon: IconActivity,   permission: "view:monitoring"   },
       { href: "/m/analytics",     label: "Analytics",   Icon: IconChartColumn, permission: "view:analytics"   },
       { href: "/m/komponenten",   label: "Komponenten", Icon: IconPackage,    permission: "view:komponenten"  },
