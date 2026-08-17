@@ -142,12 +142,124 @@ function LangOption({ value, label, current, onSelect }: { value: string; label:
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 
+// ── Connect Setup types ───────────────────────────────────────────────────────
+
+type ConnectProvider = {
+  id: string; label: string; configured: boolean; healthy: boolean;
+  reason: string; model: string | null; quotaBlocked: boolean;
+  requestsToday: number; blockedUntil: string | null;
+};
+type ConnectProvidersPayload = {
+  providers: ConnectProvider[];
+  brain: { available: boolean; cacheAgeMs: number; cacheValid: boolean };
+  graphify: { available: boolean; nodeCount: number; linkCount: number };
+  todayStats: { totalRuns: number; localRuns: number; remoteRuns: number; ensembleRuns: number };
+};
+
+function ConnectStatusDot({ configured, healthy, quotaBlocked }: { configured: boolean; healthy: boolean; quotaBlocked: boolean }) {
+  const color = !configured ? "#C9A84C" : quotaBlocked ? "#ff7b86" : healthy ? "#5dd39e" : "#ff7b86";
+  return <span className="st-dot" style={{ background: color }} />;
+}
+
+function ConnectSetupSection({ data }: { data: ConnectProvidersPayload | null }) {
+  if (!data) return <div className="st-loading">Connect-Status wird geladen…</div>;
+
+  const { providers, brain, graphify, todayStats } = data;
+  const configured = providers.filter((p) => p.configured);
+  const healthy = providers.filter((p) => p.healthy);
+
+  return (
+    <>
+      <p className="st-desc">
+        Sentinel Connect — lokaler Qwen-Layer 1 Router (Ollama) + Multi-Provider Orchestration.
+        Konfiguration via <code className="st-code">.env.local</code>. Alle Keys sind server-only.
+      </p>
+
+      {/* Stats row */}
+      <div className="st-connect-stats">
+        <div className="st-connect-stat">
+          <span className="st-connect-stat-val">{configured.length}</span>
+          <span className="st-connect-stat-key">konfiguriert</span>
+        </div>
+        <div className="st-connect-stat">
+          <span className="st-connect-stat-val">{healthy.length}</span>
+          <span className="st-connect-stat-key">bereit</span>
+        </div>
+        <div className="st-connect-stat">
+          <span className="st-connect-stat-val">{todayStats?.totalRuns ?? 0}</span>
+          <span className="st-connect-stat-key">runs heute</span>
+        </div>
+        <div className="st-connect-stat">
+          <span className="st-connect-stat-val">{todayStats?.localRuns ?? 0}</span>
+          <span className="st-connect-stat-key">lokal</span>
+        </div>
+      </div>
+
+      {/* Provider grid */}
+      <div className="st-connect-provider-grid">
+        {providers.map((p) => (
+          <div key={p.id} className={`st-connect-provider${p.healthy ? " st-connect-provider-ready" : ""}`}>
+            <div className="st-provider-head">
+              <ConnectStatusDot configured={p.configured} healthy={p.healthy} quotaBlocked={p.quotaBlocked} />
+              <span className="st-provider-label">{p.label}</span>
+              <span className="st-provider-status">
+                {!p.configured ? "key missing" : p.quotaBlocked ? "quota blocked" : p.healthy ? "ready" : p.reason}
+              </span>
+            </div>
+            {p.model && (
+              <div className="st-provider-row">
+                <span className="st-key">Modell</span>
+                <span className="st-val" style={{ fontFamily: "monospace", fontSize: 10 }}>{p.model}</span>
+              </div>
+            )}
+            {p.requestsToday > 0 && (
+              <div className="st-provider-row">
+                <span className="st-key">Heute</span>
+                <span className="st-val">{p.requestsToday} req</span>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Brain + Graphify */}
+      <div className="st-connect-infra">
+        <div className="st-connect-infra-row">
+          <span className="st-dot" style={{ background: brain.available ? "#5dd39e" : "#ff7b86" }} />
+          <span className="st-key">Brain</span>
+          <span className="st-val">{brain.available ? (brain.cacheValid ? "Cache gültig" : "Cache abgelaufen") : "nicht verfügbar"}</span>
+        </div>
+        <div className="st-connect-infra-row">
+          <span className="st-dot" style={{ background: graphify.available ? "#5dd39e" : "#C9A84C" }} />
+          <span className="st-key">Graphify</span>
+          <span className="st-val">{graphify.available ? `${graphify.nodeCount} nodes, ${graphify.linkCount} links` : "kein Index"}</span>
+        </div>
+      </div>
+
+      <div className="st-envhint">
+        <span className="st-envhint-title">Connect .env.local Keys</span>
+        <pre className="st-pre">{[
+          "GROQ_API_KEY=...",
+          "MISTRAL_API_KEY=...",
+          "COHERE_API_KEY=...",
+          "CEREBRAS_API_KEY=...",
+          "OLLAMA_API_URL=http://localhost:11434  # Qwen Layer 1",
+          "# SENTINEL_ALLOW_PAID_API=true         # paid inference (off by default)",
+        ].join("\n")}</pre>
+      </div>
+    </>
+  );
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+
 export function SettingsPage() {
   const [mounted, setMounted] = useState(false);
   const [status, setStatus] = useState<SentinelStatusPayload | null>(null);
   const [info, setInfo] = useState<InfoPayload | null>(null);
   const [lang, setLangState] = useState("de");
   const [preferred, setPreferredState] = useState("");
+  const [connectData, setConnectData] = useState<ConnectProvidersPayload | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -155,6 +267,7 @@ export function SettingsPage() {
     setPreferredState(lsGet(PREF_PROVIDER_KEY, ""));
     fetch("/api/sentinel/status").then((r) => r.json()).then(setStatus).catch(() => null);
     fetch("/api/settings/info").then((r) => r.json()).then(setInfo).catch(() => null);
+    fetch("/api/sentinel/connect/providers").then((r) => r.json()).then(setConnectData).catch(() => null);
   }, []);
 
   const setLang = (v: string) => { setLangState(v); lsSet(LANG_KEY, v); };
@@ -207,6 +320,15 @@ export function SettingsPage() {
                     ].join("\n")}</pre>
                   </div>
                 </>
+              )}
+            </Section>
+
+            {/* ── Sentinel Connect ── */}
+            <Section title="Sentinel Connect">
+              {!mounted ? (
+                <div className="st-loading">Connect-Status wird geladen…</div>
+              ) : (
+                <ConnectSetupSection data={connectData} />
               )}
             </Section>
 
@@ -409,6 +531,27 @@ export function SettingsPage() {
         }
         .st-chip-gold { background: rgba(214,184,108,0.12); color: #C9A84C; border: 1px solid rgba(214,184,108,0.25); }
         .st-chip-dim  { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.1); }
+        /* Connect Setup */
+        .st-connect-stats {
+          display: flex; gap: 16px; flex-wrap: wrap;
+        }
+        .st-connect-stat {
+          display: flex; flex-direction: column; align-items: center;
+          background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 8px; padding: 10px 18px; min-width: 70px;
+        }
+        .st-connect-stat-val { font-size: 22px; font-weight: 700; color: #e8eaed; line-height: 1; }
+        .st-connect-stat-key { font-size: 9.5px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+        .st-connect-provider-grid {
+          display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;
+        }
+        .st-connect-provider {
+          background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px;
+        }
+        .st-connect-provider-ready { border-color: rgba(93,211,158,0.15); }
+        .st-connect-infra { display: flex; flex-direction: column; gap: 8px; }
+        .st-connect-infra-row { display: flex; align-items: center; gap: 8px; }
       `}</style>
     </>
   );

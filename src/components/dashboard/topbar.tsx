@@ -4,22 +4,148 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { BadgeCheck, Bell, Check, Layers, LogOut, Search, X } from "lucide-react";
+import {
+  BadgeCheck, Bell, Check, Layers, LogOut, Search, X,
+  LayoutDashboard, BarChart2, Activity, Bot, Network,
+  Zap, FlaskConical, TrendingUp, Calendar, ScanLine,
+  Shield, Cpu, Settings as SettingsIcon, Component,
+} from "lucide-react";
 import { useHomeDashboard } from "@/context/home-dashboard-context";
 
 const EXPANDED_H = 72;
 
-const PAGES = [
-  { label: "Home", sub: "Dashboard Overview", href: "/" },
-  { label: "Analytics", sub: "Charts, Backtest, Track Record", href: "/analytics" },
-  { label: "Monitoring", sub: "Strategy Monitor, Signals", href: "/monitoring" },
-  { label: "Sentinel", sub: "AI Assistant", href: "/sentinel" },
-  { label: "Brain Graph", sub: "Obsidian Vault Graph", href: "/brain" },
-  { label: "Signale", sub: "Live Signal Feed", href: "/signal" },
-  { label: "Komponenten", sub: "UI Component Library", href: "/komponenten" },
-  { label: "Portfolio Lab", sub: "Capital Scenario Engine", href: "/manager" },
-  { label: "Settings", sub: "Preferences & Config", href: "/settings" },
+type NavEntry = {
+  label: string;
+  category: string;
+  href: string;
+  icon: React.ReactNode;
+  aliases?: string[];
+};
+
+const NAV_INDEX: NavEntry[] = [
+  {
+    label: "Home",
+    category: "Dashboard",
+    href: "/",
+    icon: <LayoutDashboard className="h-3.5 w-3.5" />,
+    aliases: ["overview", "start"],
+  },
+  {
+    label: "White Swan",
+    category: "Portfolio Strategy",
+    href: "/white-swan",
+    icon: <Shield className="h-3.5 w-3.5" />,
+    aliases: ["white", "swan", "portfolio", "v7", "v7.0", "whiteswan", "ws"],
+  },
+  {
+    label: "Analytics",
+    category: "Performance & Track Record",
+    href: "/analytics",
+    icon: <BarChart2 className="h-3.5 w-3.5" />,
+    aliases: ["charts", "backtest", "performance", "track record"],
+  },
+  {
+    label: "Monitoring",
+    category: "Markets & Signals",
+    href: "/monitoring",
+    icon: <Activity className="h-3.5 w-3.5" />,
+    aliases: ["markets", "live", "signals", "monitor"],
+  },
+  {
+    label: "Sentinel",
+    category: "AI Assistant",
+    href: "/sentinel",
+    icon: <Bot className="h-3.5 w-3.5" />,
+    aliases: ["ai", "chat", "assistant"],
+  },
+  {
+    label: "Brain",
+    category: "Knowledge Graph",
+    href: "/brain",
+    icon: <Network className="h-3.5 w-3.5" />,
+    aliases: ["knowledge", "vault", "graph", "obsidian"],
+  },
+  {
+    label: "Research",
+    category: "Strategy Research Hub",
+    href: "/research",
+    icon: <FlaskConical className="h-3.5 w-3.5" />,
+    aliases: ["lab", "research hub"],
+  },
+  {
+    label: "Strategy Tester",
+    category: "Research",
+    href: "/research",
+    icon: <TrendingUp className="h-3.5 w-3.5" />,
+    aliases: ["tester", "walk-forward", "wf", "backtest engine", "strategy"],
+  },
+  {
+    label: "Seasonality",
+    category: "Research",
+    href: "/research",
+    icon: <Calendar className="h-3.5 w-3.5" />,
+    aliases: ["seasonal", "calendar", "weekday", "month"],
+  },
+  {
+    label: "MVA",
+    category: "Research · Local Only",
+    href: "/research",
+    icon: <ScanLine className="h-3.5 w-3.5" />,
+    aliases: ["mva", "factor", "exposure", "multi-factor"],
+  },
+  {
+    label: "Signals",
+    category: "Live Signal Feed",
+    href: "/signal",
+    icon: <Zap className="h-3.5 w-3.5" />,
+    aliases: ["signale", "feed", "live signal"],
+  },
+  {
+    label: "Execution",
+    category: "Read-Only — Disabled",
+    href: "/execution",
+    icon: <Cpu className="h-3.5 w-3.5" />,
+    aliases: ["broker", "ibkr", "orders", "trade"],
+  },
+  {
+    label: "System Health",
+    category: "Status & Diagnostics",
+    href: "/system-health",
+    icon: <Activity className="h-3.5 w-3.5" />,
+    aliases: ["health", "status", "diagnostics", "system"],
+  },
+  {
+    label: "Portfolio Lab",
+    category: "Capital Scenario Engine",
+    href: "/manager",
+    icon: <LayoutDashboard className="h-3.5 w-3.5" />,
+    aliases: ["manager", "capital", "scenario"],
+  },
+  {
+    label: "Settings",
+    category: "Preferences & Config",
+    href: "/settings",
+    icon: <SettingsIcon className="h-3.5 w-3.5" />,
+    aliases: ["preferences", "config"],
+  },
+  {
+    label: "Komponenten",
+    category: "UI Component Library",
+    href: "/komponenten",
+    icon: <Component className="h-3.5 w-3.5" />,
+    aliases: ["components", "ui", "library"],
+  },
 ];
+
+function matchNav(q: string): NavEntry[] {
+  const lower = q.toLowerCase().trim();
+  if (!lower) return NAV_INDEX;
+  return NAV_INDEX.filter((e) => {
+    if (e.label.toLowerCase().includes(lower)) return true;
+    if (e.category.toLowerCase().includes(lower)) return true;
+    return e.aliases?.some((a) => a.toLowerCase().includes(lower));
+  });
+}
 
 type TopbarProps = {
   sectionLabel: string;
@@ -32,6 +158,7 @@ export function Topbar({ sectionLabel, visible }: TopbarProps) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const [dropdownPos, setDropdownPos] = useState<{ top: number; right: number } | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -49,13 +176,27 @@ export function Topbar({ sectionLabel, visible }: TopbarProps) {
     return () => window.removeEventListener("mousedown", onOutside);
   }, [profileOpen, searchOpen]);
 
-  const filteredPages = query.trim()
-    ? PAGES.filter(
-        (p) =>
-          p.label.toLowerCase().includes(query.toLowerCase()) ||
-          p.sub.toLowerCase().includes(query.toLowerCase()),
-      )
-    : PAGES;
+  const filteredPages = query.trim() ? matchNav(query) : NAV_INDEX;
+
+  function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (!searchOpen) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.min(i + 1, filteredPages.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.max(i - 1, 0));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const target = filteredPages[activeIndex] ?? filteredPages[0];
+      if (target) { router.push(target.href); setSearchOpen(false); setQuery(""); setActiveIndex(-1); }
+    } else if (e.key === "Escape") {
+      setSearchOpen(false);
+      setQuery("");
+      setActiveIndex(-1);
+      inputRef.current?.blur();
+    }
+  }
 
   const h = visible ? EXPANDED_H : 0;
 
@@ -90,8 +231,9 @@ export function Topbar({ sectionLabel, visible }: TopbarProps) {
               <input
                 ref={inputRef}
                 value={query}
-                onChange={(e) => { setQuery(e.target.value); setSearchOpen(true); }}
+                onChange={(e) => { setQuery(e.target.value); setSearchOpen(true); setActiveIndex(-1); }}
                 onFocus={() => setSearchOpen(true)}
+                onKeyDown={handleSearchKeyDown}
                 placeholder="Search…"
                 className="flex-1 bg-transparent text-[13px] text-white outline-none placeholder:text-zinc-500 [font-family:var(--font-text),sans-serif]"
               />
@@ -109,23 +251,27 @@ export function Topbar({ sectionLabel, visible }: TopbarProps) {
             {searchOpen && (
               <div className="absolute left-0 top-[calc(100%+6px)] z-50 w-[300px] rounded-xl border border-white/[0.08] bg-[#121316] p-1.5 shadow-[0_16px_42px_-12px_rgba(0,0,0,0.75)]">
                 {filteredPages.length === 0 ? (
-                  <p className="px-3 py-2 text-[12px] text-zinc-500 [font-family:var(--font-text),sans-serif]">
-                    Keine Ergebnisse
+                  <p className="px-3 py-2.5 text-[12px] text-zinc-500 [font-family:var(--font-text),sans-serif]">
+                    No results
                   </p>
                 ) : (
-                  filteredPages.map((page) => (
+                  filteredPages.map((page, i) => (
                     <button
-                      key={page.href}
+                      key={`${page.href}-${page.label}`}
                       type="button"
-                      onClick={() => { router.push(page.href); setSearchOpen(false); setQuery(""); }}
-                      className="flex w-full flex-col gap-0.5 rounded-lg px-3 py-2 text-left transition-colors hover:bg-white/[0.04]"
+                      onClick={() => { router.push(page.href); setSearchOpen(false); setQuery(""); setActiveIndex(-1); }}
+                      onMouseEnter={() => setActiveIndex(i)}
+                      className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-colors ${i === activeIndex ? "bg-white/[0.06]" : "hover:bg-white/[0.04]"}`}
                     >
-                      <span className="text-[13px] font-semibold text-white [font-family:var(--font-text),sans-serif]">
-                        {page.label}
-                      </span>
-                      <span className="text-[11px] text-zinc-500 [font-family:var(--font-text),sans-serif]">
-                        {page.sub}
-                      </span>
+                      <span className="shrink-0 text-zinc-500">{page.icon}</span>
+                      <div className="min-w-0 flex-1">
+                        <span className="block truncate text-[13px] font-semibold text-white [font-family:var(--font-text),sans-serif]">
+                          {page.label}
+                        </span>
+                        <span className="block truncate text-[10.5px] text-zinc-500 [font-family:var(--font-text),sans-serif]">
+                          {page.category}
+                        </span>
+                      </div>
                     </button>
                   ))
                 )}
