@@ -1,7 +1,7 @@
-import { WhiteSwanAnalytics } from '@/components/white-swan/WhiteSwanAnalytics';
+import { WhiteSwanFinal } from '@/components/white-swan/WhiteSwanFinal';
 
-export const metadata = { title: 'White Swan Analytics — Capitalife Terminal' };
+export const metadata = { title: 'White Swan v7.0 — Capitalife Terminal' };
 
 export default function WhiteSwanPage() {
-  return <WhiteSwanAnalytics />;
+  return <WhiteSwanFinal />;
 }

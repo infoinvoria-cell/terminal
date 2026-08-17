@@ -67,7 +67,14 @@ export function calcScore(inv: InvestorCrm): number {
 }
 
 export function toStars(score: number): number {
-  return Math.max(1, Math.min(5, Math.ceil(score / 20)));
+  // CSV score IS already the star count (1–5) — batch-writer stores stars, not raw 0-100
+  if (score >= 1 && score <= 5) return Math.round(score);
+  // Legacy path for raw 0–100 input
+  if (score >= 80) return 5;
+  if (score >= 65) return 4;
+  if (score >= 45) return 3;
+  if (score >= 25) return 2;
+  return 1;
 }
 
 // ── CSV parser (robust quoted-field state machine) ────────────────────────────
@@ -86,8 +93,9 @@ function parseCsvLine(line: string): string[] {
   return result;
 }
 
-// Maps CSV columns → Supabase column names
-function parseCsv(text: string): Omit<InvestorCrm, "id" | "created_at">[] {
+// Maps CSV columns → Supabase column names (plus _csvScore for star display)
+type ParsedRow = Omit<InvestorCrm, "id" | "created_at"> & { _csvScore: number | null };
+function parseCsv(text: string): ParsedRow[] {
   const lines = text.trim().split(/\r?\n/);
   if (lines.length < 2) return [];
   const rawHeaders = parseCsvLine(lines[0]).map(h => h.trim().replace(/"/g, ""));
@@ -105,6 +113,7 @@ function parseCsv(text: string): Omit<InvestorCrm, "id" | "created_at">[] {
 
     // Firm-only record: name === company → contact unknown
     const resolvedName = (rawName && rawName !== rawFirma) ? rawName : "";
+    const rawScore = parseInt(get(v, "score") ?? "", 10);
 
     return {
       name:             resolvedName,
@@ -126,6 +135,7 @@ function parseCsv(text: string): Omit<InvestorCrm, "id" | "created_at">[] {
       website:          get(v, "website"),
       source_url:       get(v, "source_url"),
       research_status:  "NEEDS_CONTACT",
+      _csvScore:        isNaN(rawScore) ? null : rawScore,
     };
   }).filter(r => r.name.length > 0 || !!r.unternehmen);
 
@@ -195,10 +205,14 @@ function Badge({ label, map }: { label:string|null; map:Record<string,{bg:string
 
 function StarRow({ score }: { score: number }) {
   const filled = toStars(score);
+  const starColor = filled === 5 ? "#D4AF37"
+                  : filled === 4 ? "#b8942a"
+                  : filled === 3 ? "rgba(255,255,255,0.32)"
+                  : "rgba(255,255,255,0.15)";
   return (
-    <span style={{ display:"inline-flex", gap:1, alignItems:"center" }}>
+    <span style={{ display:"inline-flex", gap:1, alignItems:"center" }} title={`${filled} von 5 Sternen`}>
       {Array.from({ length: 5 }, (_, i) => (
-        <span key={i} style={{ color: i < filled ? "#D4AF37" : "rgba(255,255,255,0.12)", fontSize:11, lineHeight:1 }}>★</span>
+        <span key={i} style={{ color: i < filled ? starColor : "rgba(255,255,255,0.07)", fontSize:11, lineHeight:1 }}>★</span>
       ))}
     </span>
   );
@@ -544,12 +558,13 @@ export function InvestorDbView() {
       if (!csvRes.ok) throw new Error("investors_real.csv nicht gefunden");
       const csvText = await csvRes.text();
       const parsed = parseCsv(csvText);
-      setRows(parsed.map((r, i) => ({
-        ...r,
-        id: `csv-${i}`,
-        created_at: null,
-        score: calcScore(r as InvestorCrm),
-      } as InvestorRow)));
+      setRows(parsed.map((r, i) => {
+        const csvStars = r._csvScore;
+        const score = (csvStars != null && csvStars >= 1 && csvStars <= 5)
+          ? csvStars
+          : toStars(calcScore(r as unknown as InvestorCrm));
+        return { ...r, id: `csv-${i}`, created_at: null, score } as InvestorRow;
+      }));
     } catch (e) {
       setLoadErr(String(e));
     }

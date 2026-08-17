@@ -14,6 +14,8 @@ let device: "webgpu" | "wasm" | null = null;
 async function loadModel() {
   const t0 = performance.now();
   try {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error — kokoro-js has no bundled types; loaded only at runtime in browser workers
     const { KokoroTTS } = await import("kokoro-js");
     const hasWebGPU = typeof navigator !== "undefined" && "gpu" in navigator;
     device = hasWebGPU ? "webgpu" : "wasm";
