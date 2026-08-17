@@ -196,6 +196,7 @@ const ALL_SIDEBAR_GROUPS: NavGroupDef[] = [
     label: "Tools",
     items: [
       { href: "/m/signale",       label: "Signale",     Icon: IconBellRing   },
+      { href: "/m/research",      label: "Research",    Icon: IconChartColumn                                 },
       { href: "/m/monitoring",    label: "Monitoring",  Icon: IconActivity,   permission: "view:monitoring"   },
       { href: "/m/analytics",     label: "Analytics",   Icon: IconChartColumn, permission: "view:analytics"   },
       { href: "/m/komponenten",   label: "Komponenten", Icon: IconPackage,    permission: "view:komponenten"  },
