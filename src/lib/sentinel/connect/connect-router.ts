@@ -198,9 +198,9 @@ export async function connectChat(req: ConnectRequest): Promise<ConnectResult> {
         provider: result.provider,
         model: result.model,
         role: "primary",
-        inputTokens: Math.ceil((result.tokensUsed ?? 0) * 0.7),
-        outputTokens: Math.ceil((result.tokensUsed ?? 0) * 0.3),
-        tokenAccounting: "ESTIMATED" as const,
+        inputTokens: result.hasRealCounts && result.inputTokens !== undefined ? result.inputTokens : Math.ceil((result.tokensUsed ?? 0) * 0.7),
+        outputTokens: result.hasRealCounts && result.outputTokens !== undefined ? result.outputTokens : Math.ceil((result.tokensUsed ?? 0) * 0.3),
+        tokenAccounting: result.hasRealCounts ? ("OBSERVED" as const) : ("ESTIMATED" as const),
         latencyMs: Date.now() - start,
         success: true,
       });
@@ -221,7 +221,10 @@ export async function connectChat(req: ConnectRequest): Promise<ConnectResult> {
   }
 
   const latencyMs = Date.now() - start;
-  const tokenAccountingType: TokenAccountingType = "ESTIMATED";
+  const allObserved = workers.length > 0 && workers.every((w) => w.tokenAccounting === "OBSERVED");
+  const tokenAccountingType: TokenAccountingType = allObserved ? "OBSERVED" : "ESTIMATED";
+  const totalIn = allObserved ? workers.reduce((s, w) => s + (w.inputTokens ?? 0), 0) : Math.ceil(totalTokens * 0.7);
+  const totalOut = allObserved ? workers.reduce((s, w) => s + (w.outputTokens ?? 0), 0) : Math.ceil(totalTokens * 0.3);
 
   const run: ConnectRun = {
     id: runId,
@@ -234,8 +237,8 @@ export async function connectChat(req: ConnectRequest): Promise<ConnectResult> {
     graphifyHit: graphifyUsed,
     workers,
     synthesisProvider: provider === "ensemble" ? "local-heuristic" : provider as SentinelProviderId,
-    totalInputTokens: Math.ceil(totalTokens * 0.7),
-    totalOutputTokens: Math.ceil(totalTokens * 0.3),
+    totalInputTokens: totalIn,
+    totalOutputTokens: totalOut,
     tokenAccounting: tokenAccountingType,
     totalLatencyMs: latencyMs,
     status: fallbackUsed ? "fallback" : "success",

@@ -56,6 +56,13 @@ const GRAPHIFY_PATTERNS = [
   /code.{0,30}(structure|struktur|aufbau)/i,
   /component.{0,30}(uses?|benutzt|referenced)/i,
   /how\s+is.{0,30}implemented/i,
+  // Module / dependency topology
+  /which\s+modules?.{0,40}(connect|link|bridge|import|use)/i,
+  /welche\s+module.{0,40}(verbind|nutzen|importi)/i,
+  /dependenc(y|ies)\s+between/i,
+  /show\s+dependenc/i,
+  /where\s+is.{0,30}defined/i,
+  /module.{0,30}(topology|graph|map|tree)/i,
 ];
 
 function detectComplexity(msg: string): LocalRouterDecision["complexity"] {

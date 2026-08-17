@@ -25,6 +25,10 @@ export type ChatResult = {
   provider: SentinelProviderId;
   fallbackUsed?: boolean;
   tokensUsed?: number;
+  /** Set when provider returns real per-direction counts (not estimated). */
+  inputTokens?: number;
+  outputTokens?: number;
+  hasRealCounts?: boolean;
 };
 
 export type ProviderHealth = {

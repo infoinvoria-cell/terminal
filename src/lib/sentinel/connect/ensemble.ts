@@ -20,6 +20,9 @@ export type WorkerOutput = {
   answer: string;
   model: string;
   tokensUsed: number;
+  inputTokens?: number;
+  outputTokens?: number;
+  hasRealCounts?: boolean;
   latencyMs: number;
   success: boolean;
   error?: string;
@@ -98,6 +101,9 @@ async function runWorker(
       answer: result.answer,
       model: result.model,
       tokensUsed: result.tokensUsed ?? 0,
+      inputTokens: result.inputTokens,
+      outputTokens: result.outputTokens,
+      hasRealCounts: result.hasRealCounts,
       latencyMs: Date.now() - start,
       success: true,
     };
@@ -206,9 +212,9 @@ export async function runEnsemble(
       : r.role === "skeptic" ? "skeptic"
       : r.role === "critic" ? "critic"
       : "synthesizer",
-    inputTokens: Math.ceil(r.tokensUsed * 0.7),
-    outputTokens: Math.ceil(r.tokensUsed * 0.3),
-    tokenAccounting: "ESTIMATED" as const, // provider returns total; 70/30 split is estimation
+    inputTokens: r.hasRealCounts && r.inputTokens !== undefined ? r.inputTokens : Math.ceil(r.tokensUsed * 0.7),
+    outputTokens: r.hasRealCounts && r.outputTokens !== undefined ? r.outputTokens : Math.ceil(r.tokensUsed * 0.3),
+    tokenAccounting: r.hasRealCounts ? ("OBSERVED" as const) : ("ESTIMATED" as const),
     latencyMs: r.latencyMs,
     success: r.success,
     error: r.error,

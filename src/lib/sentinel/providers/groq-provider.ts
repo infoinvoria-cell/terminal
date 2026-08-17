@@ -136,11 +136,14 @@ export const groqProvider: SentinelProvider = {
 
     const data = await response.json() as {
       choices?: { message?: { content?: string } }[];
-      usage?: { total_tokens?: number };
+      usage?: { total_tokens?: number; prompt_tokens?: number; completion_tokens?: number };
     };
     const answer = data.choices?.[0]?.message?.content?.trim() ?? "";
     if (!answer) throw new Error("Groq returned empty answer");
-    return { answer, model, provider: "groq", tokensUsed: data.usage?.total_tokens };
+    const inTok = data.usage?.prompt_tokens;
+    const outTok = data.usage?.completion_tokens;
+    const hasRealCounts = inTok !== undefined && outTok !== undefined;
+    return { answer, model, provider: "groq", tokensUsed: data.usage?.total_tokens, ...(hasRealCounts ? { inputTokens: inTok, outputTokens: outTok, hasRealCounts: true } : {}) };
   },
 
   async streamMessage({ messages, signal }: SentinelChatArgs & { signal?: AbortSignal }): Promise<ReadableStream<Uint8Array>> {

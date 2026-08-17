@@ -41,6 +41,31 @@ describe("local router", () => {
     expect(r.requiresGraphify).toBe(true);
   });
 
+  it("graphify: module connection topology question", async () => {
+    const r = await routeLocally("Which modules connect Sentinel to Brain?");
+    expect(r.requiresGraphify).toBe(true);
+  });
+
+  it("graphify: dependency topology English", async () => {
+    const r = await routeLocally("Show dependencies between Mobile Brain and its API routes");
+    expect(r.requiresGraphify).toBe(true);
+  });
+
+  it("graphify: where is X defined", async () => {
+    const r = await routeLocally("Where is connectChat defined?");
+    expect(r.requiresGraphify).toBe(true);
+  });
+
+  it("graphify: NOT triggered for generic finance question", async () => {
+    const r = await routeLocally("What is CAGR?");
+    expect(r.requiresGraphify).toBe(false);
+  });
+
+  it("graphify: NOT triggered for summarize architecture question", async () => {
+    const r = await routeLocally("Summarize the White Swan portfolio strategy");
+    expect(r.requiresGraphify).toBe(false);
+  });
+
   it("returns latency measurement", async () => {
     const r = await routeLocally("What is CAGR?");
     expect(r.latencyMs).toBeGreaterThanOrEqual(0);

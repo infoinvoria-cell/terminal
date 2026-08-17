@@ -87,7 +87,7 @@ export const cohereProvider: SentinelProvider = {
       setLastContextUsage({ providerId: "cohere", modelId: model, inputTokensUsed: inTok, contextWindowTokens: COHERE_CONTEXT_WINDOW, reservedOutputTokens: null, measuredAtUtc: new Date().toISOString(), status: "measured" });
     } catch { /* best-effort */ }
 
-    return { answer, model, provider: "cohere", tokensUsed: inTok + outTok };
+    return { answer, model, provider: "cohere", tokensUsed: inTok + outTok, inputTokens: inTok, outputTokens: outTok, hasRealCounts: true };
   },
 
   async streamMessage({ messages, signal }: SentinelChatArgs & { signal?: AbortSignal }): Promise<ReadableStream<Uint8Array>> {
