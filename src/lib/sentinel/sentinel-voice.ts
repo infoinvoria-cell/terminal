@@ -208,31 +208,82 @@ function truncateToWords(text: string, maxWords: number): string {
   return truncated + ".";
 }
 
-function extractFirstSentences(text: string, maxWords: number): string {
-  // Split on sentence-ending punctuation
-  const sentenceRe = /[^.!?]+[.!?]+/g;
-  const sentences: string[] = [];
-  let words = 0;
-  let match: RegExpExecArray | null;
+/** Target range for a natural-sounding brief; MAX_SPOKEN_WORDS below remains the hard cap. */
+const TARGET_MIN_WORDS = 20;
+const TARGET_MAX_WORDS = 45;
 
+/**
+ * Sentences that read like a human executive briefing tend to state a
+ * conclusion, a risk/change, or a required action — these keywords bubble
+ * such sentences to the front of the brief instead of picking whatever
+ * happens to come first in the document (often a dangling table label).
+ */
+const PRIORITY_KEYWORDS = /\b(remains?|status|risk|alert|recommend|action|required|limit|verdict|conclusion|no immediate|increased|decreased|passes|fails|rejected|approved)\b/i;
+
+function splitSentences(text: string): string[] {
+  const sentenceRe = /[^.!?]+[.!?]+/g;
+  const out: string[] = [];
+  let match: RegExpExecArray | null;
   while ((match = sentenceRe.exec(text)) !== null) {
     const s = match[0].trim();
-    if (!s) continue;
-    const w = s.split(/\s+/).length;
-    if (words + w > maxWords && sentences.length > 0) break;
-    sentences.push(s);
+    if (s) out.push(s);
+  }
+  return out;
+}
+
+/**
+ * Drops sentences that are structurally not spoken prose:
+ *   - a dangling label ending in ":" with nothing meaningful after it
+ *     (typically what's left once a table/list that followed a heading was stripped)
+ *   - fragments shorter than 3 words (list/table remnants)
+ */
+function isSpeakableSentence(s: string): boolean {
+  const trimmed = s.trim();
+  if (trimmed.length < 3) return false;
+  const wordCount = trimmed.split(/\s+/).filter(Boolean).length;
+  if (wordCount < 2) return false;
+  if (/:\s*$/.test(trimmed.replace(/[.!?]+$/, ""))) return false; // "...currently holds:"
+  return true;
+}
+
+/**
+ * Picks the sentences that best form a short executive brief: prioritizes
+ * conclusion/risk/action sentences (keeping their original relative order),
+ * then fills any remaining budget with the next sentences in document order.
+ * Falls back to plain truncation if nothing survives the speakable filter.
+ */
+function pickBriefSentences(text: string, maxWords: number): string {
+  const candidates = splitSentences(text).filter(isSpeakableSentence);
+  if (!candidates.length) return truncateToWords(text, maxWords);
+
+  const priority = candidates.filter(s => PRIORITY_KEYWORDS.test(s));
+  const rest = candidates.filter(s => !PRIORITY_KEYWORDS.test(s));
+  const ordered = [...priority, ...rest.slice(0, Math.max(0, 3 - priority.length))];
+
+  // Re-sort the chosen set back into original document order for coherence.
+  const chosenSet = new Set(ordered);
+  const inDocOrder = candidates.filter(s => chosenSet.has(s));
+
+  const picked: string[] = [];
+  let words = 0;
+  for (const s of inDocOrder) {
+    const w = s.split(/\s+/).filter(Boolean).length;
+    if (words > 0 && words + w > maxWords) break;
+    picked.push(s);
     words += w;
-    if (words >= maxWords) break;
+    if (words >= TARGET_MIN_WORDS && picked.length >= 2 && words + 8 > TARGET_MAX_WORDS) break;
   }
 
-  if (!sentences.length) return truncateToWords(text, maxWords);
-  return sentences.join(" ");
+  if (!picked.length) return truncateToWords(candidates[0], maxWords);
+  return picked.join(" ");
 }
 
 /**
  * Extracts a short spoken brief from a full Sentinel answer.
- * Never exceeds MAX_SPOKEN_WORDS words (~20 seconds of speech).
- * Strips all Markdown, tables, code, URLs.
+ * Never exceeds MAX_SPOKEN_WORDS words (~20 seconds of speech), targets
+ * TARGET_MIN_WORDS-TARGET_MAX_WORDS for a natural executive-briefing length.
+ * Strips all Markdown, tables, code, URLs, and drops non-speakable fragments
+ * (dangling table labels, bare list remnants) instead of reading them aloud.
  */
 export function extractSpokenBrief(fullAnswer: string): string {
   if (!fullAnswer?.trim()) return "";
@@ -240,7 +291,7 @@ export function extractSpokenBrief(fullAnswer: string): string {
   const clean = stripMarkdown(fullAnswer);
   if (!clean) return "";
 
-  const brief = extractFirstSentences(clean, MAX_SPOKEN_WORDS);
+  const brief = pickBriefSentences(clean, MAX_SPOKEN_WORDS);
   const normalized = normalizePronunciation(brief);
 
   // Final word count guard
@@ -333,6 +384,16 @@ export async function synthesizeKokoro(
   }
 }
 
+// ── Language detection ────────────────────────────────────────────────────────
+
+const DE_MARKERS = /[äöüÄÖÜß]|\b(und|ist|nicht|auch|aber|mit|für|auf|von|zu|das|die|der|ein|eine|einen|dem|den|des|bei|nach|vor|über|unter|zwischen|durch|gegen|ohne|werden|wurde|werden|haben|hatte|sein|war|sind|waren|ich|wir|Sie|Ihr|Ihre|Ihren)\b/;
+
+/** Simple heuristic: returns "de" if the text looks like German, "en" otherwise. */
+export function detectLanguage(text: string): "de" | "en" {
+  // Umlauts or ß are a near-certain indicator; otherwise look for German keywords
+  return DE_MARKERS.test(text) ? "de" : "en";
+}
+
 // ── Browser TTS fallback ─────────────────────────────────────────────────────
 
 function getBritishVoice(): SpeechSynthesisVoice | null {
@@ -353,22 +414,46 @@ function getBritishVoice(): SpeechSynthesisVoice | null {
   return voices[0] ?? null;
 }
 
+function getGermanVoice(): SpeechSynthesisVoice | null {
+  if (typeof window === "undefined" || !window.speechSynthesis) return null;
+  const voices = window.speechSynthesis.getVoices();
+  const priority = [
+    (v: SpeechSynthesisVoice) => /de[-_]DE/i.test(v.lang) && /neural/i.test(v.name),
+    (v: SpeechSynthesisVoice) => /de[-_]DE/i.test(v.lang) && /microsoft/i.test(v.name),
+    (v: SpeechSynthesisVoice) => /de[-_]DE/i.test(v.lang),
+    (v: SpeechSynthesisVoice) => /de/i.test(v.lang),
+  ];
+  for (const test of priority) {
+    const v = voices.find(test);
+    if (v) return v;
+  }
+  return null;
+}
+
 let _browserUtterance: SpeechSynthesisUtterance | null = null;
 
 export function speakBrowser(
   text: string,
   speed: number,
   onStart: () => void,
-  onEnd: () => void
+  onEnd: () => void,
+  lang: "en" | "de" = "en"
 ): void {
   if (typeof window === "undefined" || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   _browserUtterance = new SpeechSynthesisUtterance(text);
-  _browserUtterance.lang = "en-GB";
+  if (lang === "de") {
+    _browserUtterance.lang = "de-DE";
+    _browserUtterance.pitch = 1.0;
+    const voice = getGermanVoice();
+    if (voice) _browserUtterance.voice = voice;
+  } else {
+    _browserUtterance.lang = "en-GB";
+    _browserUtterance.pitch = 0.95;
+    const voice = getBritishVoice();
+    if (voice) _browserUtterance.voice = voice;
+  }
   _browserUtterance.rate = speed;
-  _browserUtterance.pitch = 0.95;
-  const voice = getBritishVoice();
-  if (voice) _browserUtterance.voice = voice;
   _browserUtterance.onstart = onStart;
   _browserUtterance.onend = onEnd;
   _browserUtterance.onerror = onEnd;

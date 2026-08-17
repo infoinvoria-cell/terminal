@@ -26,6 +26,7 @@ import {
   loadAutoSpeak,
   saveAutoSpeak,
   extractSpokenBrief,
+  detectLanguage,
   checkLocalTTSHealth,
   synthesizeKokoro,
   speakBrowser,
@@ -143,14 +144,15 @@ export function useSentinelVoice(): SentinelVoiceState {
     setStatus("speaking");
   }, []);
 
-  const speakViaBrowserFallback = useCallback((brief: string) => {
+  const speakViaBrowserFallback = useCallback((brief: string, lang: "en" | "de" = "en") => {
     setBackend("browser-speech");
     setStatus("speaking");
     speakBrowser(
       brief,
       speed,
       () => setStatus("speaking"),
-      () => setStatus("idle")
+      () => setStatus("idle"),
+      lang
     );
   }, [speed]);
 
@@ -167,6 +169,13 @@ export function useSentinelVoice(): SentinelVoiceState {
 
     stop(); // a new answer always cancels any audio still playing from a previous one
     lastBriefRef.current = brief;
+
+    // German text: always use system speech (no Kokoro on non-English)
+    const lang = detectLanguage(brief);
+    if (lang === "de") {
+      speakViaBrowserFallback(brief, "de");
+      return;
+    }
 
     const voice = SENTINEL_VOICES.find(v => v.id === voiceId) ?? SENTINEL_VOICES[0];
     const kokoroVoiceName = voiceId.replace("kokoro:", "");
