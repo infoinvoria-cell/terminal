@@ -7,11 +7,14 @@ const MUTED    = "rgba(255,255,255,0.42)";
 const RED      = "#ef4444";
 const GOLD     = "#C9A84C";
 
+import type { MobileExecutionStatus } from "@/lib/mobile/types";
+
 type ForwardLoggerResponse = {
   available: boolean;
   openTrades?: Record<string, string>[];
   activeSignals?: Record<string, string>[];
 };
+
 
 function ShieldIcon() {
   return (
@@ -40,9 +43,14 @@ function StatusRow({ label, ok, detail }: { label: string; ok: boolean | null; d
 
 export function MobileExecutionView() {
   const [forwardData, setForwardData] = useState<ForwardLoggerResponse | null>(null);
+  const [_execStatus, setExecStatus]  = useState<MobileExecutionStatus | null>(null);
   const [fetching, setFetching]       = useState(true);
 
   useEffect(() => {
+    fetch("/api/mobile/execution")
+      .then(r => r.json())
+      .then(j => setExecStatus(j as MobileExecutionStatus))
+      .catch(() => null);
     fetch("/api/monitoring/forward-logger")
       .then(r => r.json())
       .then(j => setForwardData(j as ForwardLoggerResponse))
