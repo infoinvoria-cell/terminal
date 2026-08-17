@@ -182,6 +182,66 @@ function Btn({ label, active, onClick }: { label: string; active: boolean; onCli
   );
 }
 
+// ── System status strip ───────────────────────────────────────────────────────
+type SysStatus = { sentinel: "ok" | "partial" | "unavailable"; brain: "ok" | "local" | "unavailable" };
+
+function useSystemStatus(): SysStatus {
+  const [s, setS] = useState<SysStatus>({ sentinel: "unavailable", brain: "unavailable" });
+  useEffect(() => {
+    // Sentinel provider check
+    fetch("/api/sentinel/status")
+      .then(r => r.json())
+      .then((j: { providers?: { usable: boolean; configured?: boolean }[] }) => {
+        const hasUsable = j.providers?.some(p => p.usable) ?? false;
+        const hasPartial = j.providers?.some(p => p.configured && !p.usable) ?? false;
+        setS(prev => ({ ...prev, sentinel: hasUsable ? "ok" : hasPartial ? "partial" : "unavailable" }));
+      })
+      .catch(() => {});
+    // Brain path check
+    fetch("/api/brain-graph/status")
+      .then(r => r.json())
+      .then((j: { pathConfigured?: boolean; available?: boolean }) => {
+        setS(prev => ({
+          ...prev,
+          brain: j.available ? "ok" : j.pathConfigured ? "local" : "unavailable",
+        }));
+      })
+      .catch(() => {});
+  }, []);
+  return s;
+}
+
+const STATUS_COLORS: Record<string, string> = { ok: "#22C55E", partial: "#C9A84C", local: "#C9A84C", unavailable: "#374151" };
+const STATUS_LABELS: Record<string, string> = {
+  sentinel_ok: "Sentinel bereit", sentinel_partial: "Sentinel konfiguriert", sentinel_unavailable: "Kein AI",
+  brain_ok: "Brain verbunden", brain_local: "Brain lokal", brain_unavailable: "Kein Brain",
+};
+
+function SystemStatusStrip({ status }: { status: SysStatus }) {
+  const chips: { key: string; label: string; color: string }[] = [
+    { key: "ws",       label: "White Swan aktiv",                   color: "#22C55E"                             },
+    { key: "sentinel", label: STATUS_LABELS[`sentinel_${status.sentinel}`]!, color: STATUS_COLORS[status.sentinel]! },
+    { key: "brain",    label: STATUS_LABELS[`brain_${status.brain}`]!,       color: STATUS_COLORS[status.brain]!    },
+  ];
+  return (
+    <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 6, marginBottom: 2 }}>
+      {chips.map(c => (
+        <span key={c.key} style={{
+          display: "inline-flex", alignItems: "center", gap: 4,
+          fontSize: 9.5, fontWeight: 700, color: "rgba(255,255,255,0.65)",
+          fontFamily: "var(--font-text)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: 999, padding: "3px 8px",
+          letterSpacing: "0.02em",
+        }}>
+          <span style={{ width: 5, height: 5, borderRadius: "50%", background: c.color, flexShrink: 0 }} />
+          {c.label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 // ── Monthly stats ─────────────────────────────────────────────────────────────
 function useMonthlyStats(trades: SerializedTrade[]) {
   return useMemo(() => {
@@ -233,7 +293,8 @@ export function MobileHomeView({
   const [lastBar,  setLastBar]  = useState<TimeFrame>("1M");
   const [lastTbl,  setLastTbl]  = useState<TimeFrame>("1M");
 
-  const stats = useMonthlyStats(trades);
+  const stats  = useMonthlyStats(trades);
+  const sysStatus = useSystemStatus();
   const fmt   = (n: number) => `${n >= 0 ? "+" : ""}${n.toFixed(1)}%`;
 
   const secCards = [
@@ -267,6 +328,7 @@ export function MobileHomeView({
       <div style={{ flexShrink: 0, padding: "12px 14px 10px" }}>
         <p style={{ margin: "0 0 1px", fontSize: 9, fontWeight: 600, color: MUTED, fontFamily: "var(--font-text)", textTransform: "uppercase", letterSpacing: "0.07em" }}>HOME</p>
         <h1 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#fafafa", fontFamily: "var(--font-text)", letterSpacing: "-0.01em" }}>Portfolio</h1>
+        <SystemStatusStrip status={sysStatus} />
       </div>
 
       {/* ── 4 top KPI cards (1×4) — Risk Adj. AuM | Total Return | Max DD | Annualized ── */}
