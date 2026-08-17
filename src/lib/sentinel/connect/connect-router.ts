@@ -11,7 +11,7 @@ import { runEnsemble, runReasonerPlusCritic } from "./ensemble";
 import { generateRunId, persistRun } from "./connect-run";
 import { getCapalifeContextBudgeted } from "../capitalife-context";
 import { getGraphContext } from "../graphify-retrieval";
-import { ask, stream as providerStream } from "../providers/provider-router";
+import { ask, stream as providerStream, SENTINEL_SYSTEM_PROMPT } from "../providers/provider-router";
 import { buildOutboundContext } from "./outbound-inspector";
 import type { ChatMessage, SentinelProviderId } from "../providers/types";
 import type { WorkerRecord, ConnectRun, TokenAccountingType } from "./connect-run";
@@ -89,6 +89,13 @@ export async function connectChat(req: ConnectRequest): Promise<ConnectResult> {
   let graphifyUsed = false;
   const brainSources: string[] = [];
 
+  // Ensure a system message exists before Brain injection.
+  // injectBrainContext() is a no-op without one; withSystemPrompt() in ask() would otherwise
+  // inject the full (unbudgeted) Brain context — causing Groq 413 (8K TPM exceeded).
+  if (!messages.some((m) => m.role === "system")) {
+    messages = [{ role: "system", content: SENTINEL_SYSTEM_PROMPT }, ...messages];
+  }
+
   if (decision.requiresBrain || route !== "LOCAL_ONLY") {
     try {
       const brainContext = getCapalifeContextBudgeted(3000);
@@ -161,6 +168,9 @@ export async function connectChat(req: ConnectRequest): Promise<ConnectResult> {
   let model = "local";
   let totalTokens = 0;
   let fallbackUsed = false;
+  let synthesisBackend: "qwen" | "heuristic" = "heuristic";
+  let synthesisModel = "none";
+  let synthesisLatencyMs = 0;
 
   try {
     if (route === "PARALLEL_ENSEMBLE" && canSendToRemote(privacy)) {
@@ -173,6 +183,9 @@ export async function connectChat(req: ConnectRequest): Promise<ConnectResult> {
       workers.push(...ensemble.workerRecords);
       totalTokens = ensemble.outputs.reduce((s, o) => s + o.tokensUsed, 0);
       model = ensemble.outputs.map((o) => o.provider).join("+");
+      synthesisBackend = ensemble.synthesisResult.backend;
+      synthesisModel = ensemble.synthesisResult.model;
+      synthesisLatencyMs = ensemble.synthesisResult.latencyMs;
 
     } else if (route === "REASONER_PLUS_CRITIC" && canSendToRemote(privacy)) {
       const ensemble = await runReasonerPlusCritic(externalMessages, req.signal);
@@ -183,6 +196,9 @@ export async function connectChat(req: ConnectRequest): Promise<ConnectResult> {
       workers.push(...ensemble.workerRecords);
       totalTokens = ensemble.outputs.reduce((s, o) => s + o.tokensUsed, 0);
       model = ensemble.outputs.map((o) => o.provider).join("+");
+      synthesisBackend = ensemble.synthesisResult.backend;
+      synthesisModel = ensemble.synthesisResult.model;
+      synthesisLatencyMs = ensemble.synthesisResult.latencyMs;
 
     } else {
       const useMessages = privacy.level === "LOCAL_ONLY" ? messages : externalMessages;
@@ -236,7 +252,10 @@ export async function connectChat(req: ConnectRequest): Promise<ConnectResult> {
     brainSources,
     graphifyHit: graphifyUsed,
     workers,
-    synthesisProvider: provider === "ensemble" ? "local-heuristic" : provider as SentinelProviderId,
+    synthesisProvider: provider === "ensemble" ? (synthesisBackend === "qwen" ? "local" : "local-heuristic") : provider as SentinelProviderId,
+    synthesisBackend,
+    synthesisModel,
+    synthesisLatencyMs,
     totalInputTokens: totalIn,
     totalOutputTokens: totalOut,
     tokenAccounting: tokenAccountingType,
@@ -275,6 +294,10 @@ export async function connectStream(req: ConnectRequest): Promise<ConnectStreamR
 
   let messages = [...req.messages];
   let brainUsed = false;
+
+  if (!messages.some((m) => m.role === "system")) {
+    messages = [{ role: "system", content: SENTINEL_SYSTEM_PROMPT }, ...messages];
+  }
 
   if (decision.requiresBrain || route !== "LOCAL_ONLY") {
     try {

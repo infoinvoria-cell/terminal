@@ -4,7 +4,8 @@ import { getSentinelEnvConfig } from "./provider-status";
 import { makeOpenAISSEStream, throwProviderHttpError } from "@/lib/sentinel/usage/streaming";
 import { classifyTask } from "@/lib/sentinel/routing/task-classifier";
 
-// Groq model lineup 2025: groq/compound, groq/compound-mini, openai/gpt-oss-120b, qwen/qwen3.6-27b
+// Groq model lineup 2025: groq/compound (openai/gpt-oss-120b, 8K TPM), groq/compound-mini, openai/gpt-oss-20b
+// Context budget trimmer in ensemble.ts trims to 8K window before calling this provider.
 const DEFAULT_MODEL = "groq/compound";
 const GROQ_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
 const GROQ_MODELS_ENDPOINT = "https://api.groq.com/openai/v1/models";
@@ -61,6 +62,8 @@ function selectGroqModel(task: string, availableModels: string[]): string {
 
   let selected: string | null = null;
 
+  // Context budget trimming happens in ensemble.ts before this provider is called.
+  // All compound models share 8K TPM limit — trimmer ensures messages fit.
   switch (sentinelTask) {
     case "simple_dashboard_lookup":
     case "simple_chat":

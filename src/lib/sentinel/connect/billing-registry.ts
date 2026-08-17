@@ -26,6 +26,8 @@ const BILLING_REGISTRY: ModelBillingRecord[] = [
   { provider: "ollama",  model: "",                    billingClass: "FREE",    source: "provider_docs", verifiedAt: "2026-08-17", notes: "local Ollama, no cost" },
 
   // ── Groq ───────────────────────────────────────────────────────────────────
+  { provider: "groq",    model: "llama-3.3-70b-versatile", billingClass: "FREE", source: "provider_docs", verifiedAt: "2026-08-17", notes: "Groq free tier, 128K ctx" },
+  { provider: "groq",    model: "llama-3.1-8b-instant",   billingClass: "FREE", source: "provider_docs", verifiedAt: "2026-08-17", notes: "Groq free tier, 128K ctx" },
   { provider: "groq",    model: "groq/compound",       billingClass: "FREE",    source: "provider_docs", verifiedAt: "2026-08-17" },
   { provider: "groq",    model: "groq/compound-mini",  billingClass: "FREE",    source: "provider_docs", verifiedAt: "2026-08-17" },
   { provider: "groq",    model: "openai/gpt-oss-20b",  billingClass: "FREE",    source: "provider_docs", verifiedAt: "2026-08-17", notes: "Groq-hosted OSS model" },

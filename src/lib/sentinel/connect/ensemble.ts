@@ -1,15 +1,20 @@
 // Parallel ensemble: runs multiple providers concurrently with distinct roles,
-// then consolidates their outputs into one Sentinel answer.
+// then consolidates their outputs into one Sentinel answer via Qwen (primary) or heuristic (fallback).
 // Free Firewall: only FREE-classified models are eligible for ensemble slots in auto mode.
+// Context budget: each worker's messages are trimmed to fit the model's safe input window.
 import { ask } from "../providers/provider-router";
 import { getBillingClass } from "./billing-registry";
+import { getContextWindow, getMaxOutputTokens, estimateTokens } from "../providers/model-capabilities";
+import { synthesizeWorkerOutputs } from "./qwen-synthesizer";
 import type { ChatMessage, SentinelProviderId } from "../providers/types";
 import type { WorkerRecord } from "./connect-run";
+import type { SynthesisResult } from "./qwen-synthesizer";
 
 export type WorkerRole = "analyst" | "skeptic" | "critic" | "synthesizer";
 
 export type WorkerAssignment = {
   provider: SentinelProviderId;
+  model: string;
   role: WorkerRole;
   systemSuffix: string;
 };
@@ -33,6 +38,7 @@ export type EnsembleResult = {
   agreements: string[];
   disagreements: string[];
   synthesized: string;
+  synthesisResult: SynthesisResult;
   workerRecords: WorkerRecord[];
 };
 
@@ -43,18 +49,65 @@ const ROLE_SUFFIXES: Record<WorkerRole, string> = {
   synthesizer: "\n\n[Deine Rolle: Synthesizer — fasse die wichtigsten Punkte prägnant zusammen.]",
 };
 
-// Configured providers only — gemini/openrouter excluded (API keys not configured).
-// Cerebras is FREE-classified; circuit breaker handles 402 quota errors transparently.
+// Groq compound (openai/gpt-oss-120b): 8K TPM — registered in MODEL_REGISTRY so budget trimmer uses correct window.
+// Context trimmer will reduce Brain context to fit within safe input budget before calling the provider.
 const ENSEMBLE_PROVIDERS: SentinelProviderId[] = ["groq", "mistral", "cohere", "cerebras"];
 
 const ENSEMBLE_DEFAULT_MODELS: Partial<Record<SentinelProviderId, string>> = {
-  groq: "groq/compound",
+  groq: "openai/gpt-oss-120b",   // actual model served by Groq on this account (compound alias)
   mistral: "mistral-small-latest",
   cohere: "command-r-plus-08-2024",
   cerebras: "gemma-4-31b",
 };
 
-function getFreeEnsembleProviders(): SentinelProviderId[] {
+// System overhead reserved on top of output tokens (prompt structure, formatting)
+const SYSTEM_OVERHEAD_TOKENS = 300;
+const SAFETY_MARGIN_TOKENS = 400;
+
+/** Trim messages to fit a provider/model's safe input budget. Never removes last user message or system safety. */
+function trimToContextBudget(messages: ChatMessage[], provider: string, model: string): ChatMessage[] {
+  const ctxWindow = getContextWindow(provider, model);
+  const reservedOutput = Math.min(getMaxOutputTokens(provider, model), 1024);
+  const maxInputTokens = ctxWindow - reservedOutput - SYSTEM_OVERHEAD_TOKENS - SAFETY_MARGIN_TOKENS;
+
+  const currentTokens = estimateTokens(JSON.stringify(messages));
+  if (currentTokens <= maxInputTokens) return messages;
+
+  const overage = currentTokens - maxInputTokens;
+
+  // Strategy: shorten system message Brain context first (it's the largest injected block).
+  // The Brain context was appended with \n\n at the end of the system message.
+  // We trim that section proportionally, keeping base system prompt intact.
+  const result = messages.map((m) => {
+    if (m.role !== "system") return m;
+
+    const brainMarker = m.content.lastIndexOf("\n\n###");
+    if (brainMarker === -1) return m;
+
+    const baseSystem = m.content.slice(0, brainMarker);
+    const brainSection = m.content.slice(brainMarker);
+    const brainTokens = estimateTokens(brainSection);
+    if (brainTokens <= overage * 1.2) {
+      // Drop entire Brain section
+      return { ...m, content: baseSystem + "\n\n[Brain context omitted — context budget]" };
+    }
+    // Trim Brain section to fit
+    const keepChars = Math.max(200, brainSection.length - Math.ceil(overage * 3.5 * 1.2));
+    return { ...m, content: baseSystem + brainSection.slice(0, keepChars) + "\n...[trimmed]" };
+  });
+
+  // If still over after system trim, drop oldest history (keep system + last 2 turns)
+  const trimmedTokens = estimateTokens(JSON.stringify(result));
+  if (trimmedTokens > maxInputTokens) {
+    const system = result.filter((m) => m.role === "system");
+    const nonSystem = result.filter((m) => m.role !== "system");
+    const keep = nonSystem.slice(-2); // keep last user+assistant pair
+    return [...system, ...keep];
+  }
+  return result;
+}
+
+export function getFreeEnsembleProviders(): SentinelProviderId[] {
   return ENSEMBLE_PROVIDERS.filter((p) => {
     const model = ENSEMBLE_DEFAULT_MODELS[p] ?? "";
     return getBillingClass(p, model) === "FREE";
@@ -71,11 +124,11 @@ function pickWorkers(count: 2 | 3 | 4): WorkerAssignment[] {
   const freeProviders = getFreeEnsembleProviders();
   if (freeProviders.length === 0) freeProviders.push("groq" as SentinelProviderId);
 
-  return roles.map((role, i) => ({
-    provider: freeProviders[i % freeProviders.length]!,
-    role,
-    systemSuffix: ROLE_SUFFIXES[role],
-  }));
+  return roles.map((role, i) => {
+    const provider = freeProviders[i % freeProviders.length]!;
+    const model = ENSEMBLE_DEFAULT_MODELS[provider] ?? "auto";
+    return { provider, model, role, systemSuffix: ROLE_SUFFIXES[role] };
+  });
 }
 
 async function runWorker(
@@ -84,14 +137,18 @@ async function runWorker(
   signal?: AbortSignal,
 ): Promise<WorkerOutput> {
   const start = Date.now();
-  const augmentedMessages: ChatMessage[] = messages.map((m, i) =>
-    i === messages.length - 1 && m.role === "user"
+
+  // Trim to context budget before calling provider
+  const budgetedMessages = trimToContextBudget(messages, assignment.provider, assignment.model);
+
+  const augmentedMessages: ChatMessage[] = budgetedMessages.map((m, i) =>
+    i === budgetedMessages.length - 1 && m.role === "user"
       ? { ...m, content: m.content + assignment.systemSuffix }
       : m,
   );
 
-  try {
-    const result = await ask(augmentedMessages, {
+  async function attempt(msgs: ChatMessage[]): Promise<WorkerOutput> {
+    const result = await ask(msgs, {
       requestedProvider: assignment.provider,
       signal,
     });
@@ -107,17 +164,31 @@ async function runWorker(
       latencyMs: Date.now() - start,
       success: true,
     };
+  }
+
+  try {
+    return await attempt(augmentedMessages);
   } catch (error) {
-    return {
-      provider: assignment.provider,
-      role: assignment.role,
-      answer: "",
-      model: "unknown",
-      tokensUsed: 0,
-      latencyMs: Date.now() - start,
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
-    };
+    const msg = error instanceof Error ? error.message : String(error);
+    // 413 one-time retry: trim context to ~60% of original and retry once
+    if (msg.includes("413")) {
+      try {
+        const hardTrimmed = budgetedMessages.map((m) => {
+          if (m.role !== "system") return m;
+          return { ...m, content: m.content.slice(0, Math.ceil(m.content.length * 0.6)) + "\n...[retry trim]" };
+        });
+        const reAugmented: ChatMessage[] = hardTrimmed.map((m, i) =>
+          i === hardTrimmed.length - 1 && m.role === "user"
+            ? { ...m, content: m.content + assignment.systemSuffix }
+            : m,
+        );
+        return await attempt(reAugmented);
+      } catch (retryError) {
+        const retryMsg = retryError instanceof Error ? retryError.message : String(retryError);
+        return { provider: assignment.provider, role: assignment.role, answer: "", model: "unknown", tokensUsed: 0, latencyMs: Date.now() - start, success: false, error: `413-retry-failed: ${retryMsg}` };
+      }
+    }
+    return { provider: assignment.provider, role: assignment.role, answer: "", model: "unknown", tokensUsed: 0, latencyMs: Date.now() - start, success: false, error: msg };
   }
 }
 
@@ -125,11 +196,9 @@ function extractAgreements(outputs: WorkerOutput[]): { agreements: string[]; dis
   const successful = outputs.filter((o) => o.success);
   if (successful.length < 2) return { agreements: [], disagreements: [] };
 
-  // Very simple heuristic: find short phrases (≤5 words) that appear in ≥2 answers
   const agreements: string[] = [];
   const disagreements: string[] = [];
 
-  // Look for numerical conflicts
   const numbers = successful.map((o) => {
     const matches = o.answer.match(/\b\d+[\.,]?\d*\s*%/g) ?? [];
     return new Set<string>(matches);
@@ -144,55 +213,16 @@ function extractAgreements(outputs: WorkerOutput[]): { agreements: string[]; dis
     }
   }
 
-  // Analyst vs skeptic role comparison
   const analyst = successful.find((o) => o.role === "analyst");
   const skeptic = successful.find((o) => o.role === "skeptic");
   if (analyst && skeptic) {
-    const analystPos = /positiv|gut|stark|stark|excellent|good|improves?/i.test(analyst.answer);
+    const analystPos = /positiv|gut|stark|excellent|good|improves?/i.test(analyst.answer);
     const skepticNeg = /risiko|risk|aber|however|jedoch|caveat|concern/i.test(skeptic.answer);
     if (analystPos && skepticNeg) disagreements.push("Analyst positive / Skeptic cautionary");
     if (!analystPos && !skepticNeg) agreements.push("Both neutral/negative on the question");
   }
 
   return { agreements, disagreements };
-}
-
-function synthesizeLocal(outputs: WorkerOutput[]): string {
-  const successful = outputs.filter((o) => o.success);
-  if (successful.length === 0) return "Keine Worker-Antwort verfügbar.";
-  if (successful.length === 1) return successful[0]!.answer;
-
-  // Find the most substantive answer (longest successful) and use it as base,
-  // then append unique critical points from other workers.
-  const sorted = [...successful].sort((a, b) => b.answer.length - a.answer.length);
-  const primary = sorted[0]!;
-  const others = sorted.slice(1);
-
-  const criticalPoints: string[] = [];
-  const critic = others.find((o) => o.role === "critic");
-  if (critic) {
-    // Extract sentences containing risk/error/concern words from critic
-    const sentences = critic.answer.split(/[.!?]\s+/);
-    for (const s of sentences) {
-      if (/risiko|fehler|problem|falsch|incorrect|error|concern|jedoch|aber\s+(?!auch)/i.test(s) && s.length > 20) {
-        criticalPoints.push(s.trim());
-      }
-    }
-  }
-
-  const skeptic = others.find((o) => o.role === "skeptic");
-  if (skeptic && criticalPoints.length === 0) {
-    const sentences = skeptic.answer.split(/[.!?]\s+/);
-    for (const s of sentences) {
-      if (/risiko|caveat|aber|jedoch|however|concern/i.test(s) && s.length > 20) {
-        criticalPoints.push(s.trim());
-      }
-    }
-  }
-
-  if (criticalPoints.length === 0) return primary.answer;
-
-  return `${primary.answer}\n\n**Kritische Punkte:**\n${criticalPoints.map((p) => `- ${p}`).join("\n")}`;
 }
 
 export async function runEnsemble(
@@ -203,7 +233,9 @@ export async function runEnsemble(
   const workers = pickWorkers(count);
   const results = await Promise.all(workers.map((w) => runWorker(w, messages, signal)));
   const { agreements, disagreements } = extractAgreements(results);
-  const synthesized = synthesizeLocal(results);
+
+  const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
+  const synthResult = await synthesizeWorkerOutputs(results, lastUser);
 
   const workerRecords: WorkerRecord[] = results.map((r) => ({
     provider: r.provider,
@@ -220,7 +252,7 @@ export async function runEnsemble(
     error: r.error,
   }));
 
-  return { outputs: results, agreements, disagreements, synthesized, workerRecords };
+  return { outputs: results, agreements, disagreements, synthesized: synthResult.answer, synthesisResult: synthResult, workerRecords };
 }
 
 export async function runReasonerPlusCritic(

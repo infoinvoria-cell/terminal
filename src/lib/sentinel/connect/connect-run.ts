@@ -31,6 +31,9 @@ export type ConnectRun = {
   graphifyHit: boolean;
   workers: WorkerRecord[];
   synthesisProvider: SentinelProviderId | "local-heuristic" | null;
+  synthesisBackend?: "qwen" | "heuristic";
+  synthesisModel?: string;
+  synthesisLatencyMs?: number;
   totalInputTokens: number;
   totalOutputTokens: number;
   tokenAccounting: TokenAccountingType;

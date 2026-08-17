@@ -22,7 +22,7 @@ import { openrouterProvider } from "./openrouter-provider";
 import { buildProviderStatus, getBrainContextStatus, getSentinelEnvConfig } from "./provider-status";
 import type { ChatMessage, ChatResult, ProviderStatus, SentinelProvider, SentinelProviderId, SentinelRouterMode } from "./types";
 
-const SENTINEL_SYSTEM_PROMPT = `Du bist Sentinel — KI-Assistent im Capitalife Terminal von Jeroen.
+export const SENTINEL_SYSTEM_PROMPT = `Du bist Sentinel — KI-Assistent im Capitalife Terminal von Jeroen.
 
 Persönlichkeit:
 - Locker, direkt, casual — wie ein smarter Kumpel
