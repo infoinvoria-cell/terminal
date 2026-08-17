@@ -1,10 +1,12 @@
-// Local router: fast heuristic-based intent/complexity classification.
-// When Ollama is running with a Qwen model, optionally uses it for ambiguous cases.
-// Falls back to deterministic heuristics when local model is unavailable.
+// Local router: Layer 0 (deterministic heuristic) + Layer 1 (Qwen3 classifier).
+// Layer 0 handles obvious LOCAL_ONLY, credentials, and tool-first cases (<5ms).
+// Layer 1 (Qwen3:1.7b via Ollama) classifies ambiguous cases (~1-2s warm).
+// Falls back to Layer 0 heuristic when Qwen is offline, slow, or returns invalid JSON.
 import { classifyTask } from "../routing/task-classifier";
 import { detectToolFirstOpportunity } from "../routing/tool-first-detector";
 import { queryGraph } from "../graphify-retrieval";
 import type { ConnectRoutingMode } from "./connect-types";
+import { qwenRoute } from "./qwen-router";
 
 export type LocalRouterDecision = {
   intent: string;
@@ -91,25 +93,85 @@ function estimateTokens(msg: string, requiresBrain: boolean, complexity: string)
   return inputWords * 1.3 + brainOverhead + outputTokens;
 }
 
+// Layer 0: decide immediately if the case is obviously LOCAL_ONLY (no Qwen needed).
+function isObviousLocalOnly(
+  toolFirst: ReturnType<typeof detectToolFirstOpportunity>,
+  userMessage: string,
+): boolean {
+  if (toolFirst.shouldUseTool) return true;
+  const wordCount = userMessage.trim().split(/\s+/).length;
+  if (wordCount < 4) return true;
+  const CRED_PATTERNS = [
+    /api[_\s-]?key|secret|password|passwort|token\b|bearer\b/i,
+    /sk-[a-z0-9]{10,}/i,
+    /[A-Z0-9]{20,}/,
+    /\/[a-z]+\/[a-z]+\/|C:\\|D:\\/i,
+    /\b(ib|broker|tws|ibkr)\b.*\b(login|auth|cred)/i,
+  ];
+  return CRED_PATTERNS.some((p) => p.test(userMessage));
+}
+
 export async function routeLocally(userMessage: string, forceLocal = false): Promise<LocalRouterDecision> {
   const start = Date.now();
   const toolFirst = detectToolFirstOpportunity(userMessage);
-  const task = classifyTask(userMessage);
-  const requiresBrain = BRAIN_PATTERNS.some((p) => p.test(userMessage));
   const requiresTools = toolFirst.shouldUseTool;
   const requiresGraphify = GRAPHIFY_PATTERNS.some((p) => p.test(userMessage));
-  const complexity = forceLocal ? "simple" : detectComplexity(userMessage);
-  const suggestedMode = forceLocal ? "LOCAL_ONLY" : selectMode(complexity, requiresBrain, requiresTools);
-  const parallelism = modeParallelism(suggestedMode);
-  const synthesisMode =
-    parallelism > 1 ? "local" :
-    suggestedMode === "LOCAL_ONLY" ? "single" : "single";
 
-  // Quick Graphify pre-fetch for code structure questions (codebase-related only)
+  // Layer 0: obvious cases decided without Qwen
+  if (forceLocal || isObviousLocalOnly(toolFirst, userMessage)) {
+    const task = classifyTask(userMessage);
+    const requiresBrain = BRAIN_PATTERNS.some((p) => p.test(userMessage));
+    const complexity = forceLocal ? "simple" : detectComplexity(userMessage);
+    if (requiresGraphify) {
+      try { queryGraph({ query: userMessage, maxNodes: 5 }); } catch { /* non-blocking */ }
+    }
+    return {
+      intent: task,
+      complexity,
+      requiresBrain,
+      requiresTools,
+      requiresGraphify,
+      suggestedMode: "LOCAL_ONLY",
+      parallelism: 1,
+      synthesisMode: "single",
+      estimatedTokens: estimateTokens(userMessage, requiresBrain, complexity),
+      latencyMs: Date.now() - start,
+      source: "heuristic",
+    };
+  }
+
+  // Layer 1: try Qwen for intent classification
+  const qwen = await qwenRoute(userMessage);
+  if (qwen) {
+    const requiresBrain = qwen.brain_required || BRAIN_PATTERNS.some((p) => p.test(userMessage));
+    const parallelism = modeParallelism(qwen.routing_mode);
+    if (requiresGraphify) {
+      try { queryGraph({ query: userMessage, maxNodes: 5 }); } catch { /* non-blocking */ }
+    }
+    return {
+      intent: qwen.intent,
+      complexity: qwen.complexity,
+      requiresBrain,
+      requiresTools: qwen.tools_required || requiresTools,
+      requiresGraphify,
+      suggestedMode: qwen.routing_mode,
+      parallelism,
+      synthesisMode: parallelism > 1 ? "local" : "single",
+      estimatedTokens: estimateTokens(userMessage, requiresBrain, qwen.complexity),
+      latencyMs: Date.now() - start,
+      source: "qwen",
+    };
+  }
+
+  // Layer 0 fallback: heuristic
+  const task = classifyTask(userMessage);
+  const requiresBrain = BRAIN_PATTERNS.some((p) => p.test(userMessage));
+  const complexity = detectComplexity(userMessage);
+  const suggestedMode = selectMode(complexity, requiresBrain, requiresTools);
+  const parallelism = modeParallelism(suggestedMode);
   if (requiresGraphify) {
     try { queryGraph({ query: userMessage, maxNodes: 5 }); } catch { /* non-blocking */ }
   }
-
   return {
     intent: task,
     complexity,
@@ -118,7 +180,7 @@ export async function routeLocally(userMessage: string, forceLocal = false): Pro
     requiresGraphify,
     suggestedMode,
     parallelism,
-    synthesisMode,
+    synthesisMode: parallelism > 1 ? "local" : "single",
     estimatedTokens: estimateTokens(userMessage, requiresBrain, complexity),
     latencyMs: Date.now() - start,
     source: "heuristic",

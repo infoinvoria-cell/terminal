@@ -2,7 +2,8 @@ import type { ChatResult, ProviderHealth, SentinelChatArgs, SentinelProvider } f
 import { calculateOutputBudget, estimateTokens } from "./model-capabilities";
 import { makeOpenAISSEStream, throwProviderHttpError } from "@/lib/sentinel/usage/streaming";
 
-const DEFAULT_MODEL = "llama-3.3-70b";
+// Cerebras model lineup 2025: gemma-4-31b (free), gpt-oss-120b, zai-glm-4.7
+const DEFAULT_MODEL = "gemma-4-31b";
 const CEREBRAS_ENDPOINT = "https://api.cerebras.ai/v1/chat/completions";
 
 function getApiKey(): string | null {

@@ -4,7 +4,8 @@ import { getSentinelEnvConfig } from "./provider-status";
 import { makeOpenAISSEStream, throwProviderHttpError } from "@/lib/sentinel/usage/streaming";
 import { classifyTask } from "@/lib/sentinel/routing/task-classifier";
 
-const DEFAULT_MODEL = "llama-3.3-70b-versatile";
+// Groq model lineup 2025: groq/compound, groq/compound-mini, openai/gpt-oss-120b, qwen/qwen3.6-27b
+const DEFAULT_MODEL = "groq/compound";
 const GROQ_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
 const GROQ_MODELS_ENDPOINT = "https://api.groq.com/openai/v1/models";
 
@@ -63,34 +64,24 @@ function selectGroqModel(task: string, availableModels: string[]): string {
   switch (sentinelTask) {
     case "simple_dashboard_lookup":
     case "simple_chat":
-      selected = findModel("llama-3.1-8b-instant", "llama3-8b", "gemma2-9b");
+      selected = findModel("groq/compound-mini", "openai/gpt-oss-20b", "groq/compound");
       break;
     case "coding":
     case "code_review":
     case "structured_output":
-      selected = findModel(
-        "qwen-qwq-32b",
-        "llama-3.3-70b-versatile",
-        "deepseek-r1-distill-llama-70b"
-      );
+      selected = findModel("qwen/qwen3.6-27b", "openai/gpt-oss-120b", "groq/compound");
       break;
     case "reasoning":
     case "financial_analysis":
-      selected = findModel(
-        "deepseek-r1-distill-llama-70b",
-        "llama-3.3-70b-versatile"
-      );
+      selected = findModel("openai/gpt-oss-120b", "qwen/qwen3.6-27b", "groq/compound");
       break;
     case "long_context":
     case "summarization":
     case "brain_rag":
-      selected = findModel(
-        "llama-3.3-70b-versatile",
-        "llama-3.1-70b-versatile"
-      );
+      selected = findModel("openai/gpt-oss-120b", "groq/compound", "openai/gpt-oss-20b");
       break;
     default:
-      selected = findModel("llama-3.3-70b-versatile");
+      selected = findModel("groq/compound", "openai/gpt-oss-20b");
       break;
   }
 
