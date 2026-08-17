@@ -1,13 +1,18 @@
-﻿"use client";
+"use client";
 import { useEffect, useState } from "react";
 
 const GOLD = "#C9A84C";
 const CARD_BG = "#1F1F1F";
 const CARD_BORDER = "rgba(255,255,255,0.06)";
+const MUTED = "rgba(255,255,255,0.42)";
 const PREF_KEY = "fmd_settings_preferred_provider";
 
 type ProviderStatus = { id: string; label: string; configured: boolean; usable: boolean; message: string; model: string | null; active: boolean };
 type SentinelStatus = { activeProvider: string | null; providers: ProviderStatus[] };
+
+type BrainStatus = { available: boolean; pathConfigured: boolean; brainFile: boolean; snapshotFile: boolean };
+
+type SysCheck = { label: string; ok: boolean | null; detail?: string };
 
 function ProviderCard({ p, isActive, isPreferred, onSet }: { p: ProviderStatus; isActive: boolean; isPreferred: boolean; onSet: (id: string) => void }) {
   const statusColor = p.usable ? "#22C55E" : p.configured ? GOLD : "rgba(255,255,255,0.2)";
@@ -28,21 +33,54 @@ function ProviderCard({ p, isActive, isPreferred, onSet }: { p: ProviderStatus; 
             {p.usable ? "bereit" : p.configured ? "konfiguriert" : "fehlt"}
           </span>
         </div>
-        {p.model && <div style={{ fontSize: 11, color: "rgba(255,255,255,0.38)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.model}</div>}
+        {p.model && <div style={{ fontSize: 11, color: MUTED, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.model}</div>}
         {p.message && !p.usable && <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.3)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.message}</div>}
       </div>
     </div>
   );
 }
 
+function HealthRow({ check }: { check: SysCheck }) {
+  const dot = check.ok === true ? "#22C55E" : check.ok === false ? "#ef4444" : "#374151";
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderTop: `1px solid ${CARD_BORDER}` }}>
+      <span style={{ width: 7, height: 7, borderRadius: "50%", background: dot, flexShrink: 0, display: "inline-block" }} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.82)", fontWeight: 500 }}>{check.label}</span>
+        {check.detail && <span style={{ fontSize: 10.5, color: MUTED, marginLeft: 6 }}>{check.detail}</span>}
+      </div>
+      <span style={{ fontSize: 10, fontWeight: 700, color: dot, letterSpacing: "0.04em" }}>
+        {check.ok === true ? "OK" : check.ok === false ? "FEHLT" : "—"}
+      </span>
+    </div>
+  );
+}
+
+function SectionLabel({ label }: { label: string }) {
+  return <div style={{ fontSize: 11, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>{label}</div>;
+}
+
 export function MobileSettingsView() {
-  const [status, setStatus] = useState<SentinelStatus | null>(null);
+  const [status, setStatus]   = useState<SentinelStatus | null>(null);
   const [preferred, setPreferred] = useState<string | null>(null);
-  const [err, setErr] = useState(false);
+  const [provErr, setProvErr] = useState(false);
+  const [brain, setBrain]     = useState<BrainStatus | null>(null);
+  const [wsOk, setWsOk]       = useState<boolean | null>(null);
 
   useEffect(() => {
     try { setPreferred(localStorage.getItem(PREF_KEY)); } catch { /* ignore */ }
-    fetch("/api/sentinel/status").then((r) => r.json()).then((j) => setStatus(j as SentinelStatus)).catch(() => setErr(true));
+
+    fetch("/api/sentinel/status")
+      .then(r => r.json()).then(j => setStatus(j as SentinelStatus))
+      .catch(() => setProvErr(true));
+
+    fetch("/api/brain-graph/status")
+      .then(r => r.json()).then(j => setBrain(j as BrainStatus))
+      .catch(() => setBrain({ available: false, pathConfigured: false, brainFile: false, snapshotFile: false }));
+
+    fetch("/api/white-swan-final?type=summary")
+      .then(r => { setWsOk(r.ok); })
+      .catch(() => setWsOk(false));
   }, []);
 
   const onSet = (id: string) => {
@@ -50,34 +88,64 @@ export function MobileSettingsView() {
     try { localStorage.setItem(PREF_KEY, id); } catch { /* ignore */ }
   };
 
-  const usable = status?.providers.filter((p) => p.usable) ?? [];
-  const others = status?.providers.filter((p) => !p.usable) ?? [];
+  const usable = status?.providers.filter(p => p.usable) ?? [];
+  const others = status?.providers.filter(p => !p.usable) ?? [];
+
+  const systemChecks: SysCheck[] = [
+    { label: "White Swan Daten",    ok: wsOk,                   detail: wsOk ? "summary.json geladen" : wsOk === false ? "API nicht erreichbar" : undefined },
+    { label: "Brain-Pfad",          ok: brain?.pathConfigured ?? null, detail: brain?.pathConfigured ? "konfiguriert" : brain ? "nicht konfiguriert" : undefined },
+    { label: "Brain-Datei",         ok: brain?.brainFile ?? null },
+    { label: "Graphify Snapshot",   ok: brain?.snapshotFile ?? null },
+    { label: "Sentinel Provider",   ok: status ? usable.length > 0 : null, detail: status ? `${usable.length} bereit` : undefined },
+    { label: "App Health",          ok: true,                    detail: "Next.js erreichbar" },
+  ];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
       <header style={{ position: "sticky", top: 0, zIndex: 20, padding: "16px 16px 12px", background: "linear-gradient(#0c0d10 68%, rgba(12,13,16,0))" }}>
         <h1 style={{ margin: 0, fontSize: 19, fontWeight: 700, color: "#fafafa", fontFamily: "var(--font-text), sans-serif" }}>Einstellungen</h1>
-        <p style={{ margin: "2px 0 0", fontSize: 11, color: "rgba(255,255,255,0.42)", fontWeight: 600 }}>Provider & Präferenzen</p>
+        <p style={{ margin: "2px 0 0", fontSize: 11, color: MUTED, fontWeight: 600 }}>System & Provider</p>
       </header>
 
-      <div style={{ padding: "4px 16px 32px", display: "flex", flexDirection: "column", gap: 24 }}>
+      <div style={{ padding: "4px 16px 120px", display: "flex", flexDirection: "column", gap: 24 }}>
+
+        {/* System Health */}
         <section>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.42)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Sentinel Provider</div>
-          {err ? (
+          <SectionLabel label="System Health" />
+          <div style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 14, overflow: "hidden" }}>
+            {systemChecks.map((c, i) => <HealthRow key={i} check={c} />)}
+          </div>
+        </section>
+
+        {/* Sentinel Providers */}
+        <section>
+          <SectionLabel label="Sentinel Provider" />
+          {provErr ? (
             <div style={{ fontSize: 13, color: "rgba(255,255,255,0.35)", textAlign: "center", paddingTop: 12 }}>Provider-Status nicht erreichbar</div>
           ) : !status ? (
             <div style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", textAlign: "center", paddingTop: 12 }}>Lädt…</div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {usable.map((p) => <ProviderCard key={p.id} p={p} isActive={p.id === status.activeProvider} isPreferred={p.id === preferred} onSet={onSet} />)}
+              {usable.map(p => <ProviderCard key={p.id} p={p} isActive={p.id === status.activeProvider} isPreferred={p.id === preferred} onSet={onSet} />)}
               {others.length > 0 && usable.length > 0 && (
                 <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.25)", padding: "4px 0 2px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Nicht verfügbar</div>
               )}
-              {others.map((p) => <ProviderCard key={p.id} p={p} isActive={false} isPreferred={false} onSet={onSet} />)}
+              {others.map(p => <ProviderCard key={p.id} p={p} isActive={false} isPreferred={false} onSet={onSet} />)}
             </div>
           )}
         </section>
 
+        {/* Info */}
+        <section>
+          <SectionLabel label="App Info" />
+          <div style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 14, padding: "12px 14px" }}>
+            <div style={{ fontSize: 12, color: MUTED, lineHeight: 1.7 }}>
+              <div>Capitalife Terminal · Mobile</div>
+              <div>Execution: <span style={{ color: "#ef4444" }}>DEAKTIVIERT</span></div>
+              <div>Modus: Read-only Vorschau</div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );
