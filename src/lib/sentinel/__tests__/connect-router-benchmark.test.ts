@@ -188,9 +188,36 @@ describe("BILLING_GUARD — credential + path must never reach REMOTE_SAFE (5 ca
   });
   it("case 50: Windows path sanitized or blocked", () => {
     const r = classifyPrivacy("load C:\\Users\\joris\\brain\\analysis.json and parse it");
-    if (r.level !== "LOCAL_ONLY") {
-      const sanitized = r.sanitizedText ?? "";
-      expect(sanitized).toMatch(/\[LOCAL_PATH\]|\[BRAIN_PATH\]/);
-    }
+    expect(r.level).toBe("LOCAL_ONLY");
+    expect(canSendToRemote(r)).toBe(false);
+  });
+});
+
+// ─── PATH ACCEPTANCE — local filesystem paths always LOCAL_ONLY (5 cases) ────
+describe("PATH ACCEPTANCE — local filesystem paths always LOCAL_ONLY (5 cases)", () => {
+  it("case 51: C:\\... Capitalife path", () => {
+    const r = classifyPrivacy("read C:\\Users\\joris\\Documents\\Capitalife\\strategy.json");
+    expect(r.level).toBe("LOCAL_ONLY");
+    expect(canSendToRemote(r)).toBe(false);
+  });
+  it("case 52: C:\\private\\accounts.csv", () => {
+    const r = classifyPrivacy("analyze C:\\private\\accounts.csv");
+    expect(r.level).toBe("LOCAL_ONLY");
+    expect(canSendToRemote(r)).toBe(false);
+  });
+  it("case 53: Unix /home/user/private/... path", () => {
+    const r = classifyPrivacy("load /home/user/private/accounts.json");
+    expect(r.level).toBe("LOCAL_ONLY");
+    expect(canSendToRemote(r)).toBe(false);
+  });
+  it("case 54: relative ./private/account-data.json path", () => {
+    const r = classifyPrivacy("parse ./private/account-data.json");
+    expect(r.level).toBe("LOCAL_ONLY");
+    expect(canSendToRemote(r)).toBe(false);
+  });
+  it("case 55: UNC \\\\server\\private\\... path", () => {
+    const r = classifyPrivacy("access \\\\server\\private\\data\\reports.xlsx");
+    expect(r.level).toBe("LOCAL_ONLY");
+    expect(canSendToRemote(r)).toBe(false);
   });
 });

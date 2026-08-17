@@ -24,6 +24,11 @@ const LOCAL_ONLY_PATTERNS: { pattern: RegExp; reason: string }[] = [
   { pattern: /myfxbook.{0,20}(token|session|login)/i, reason: "Myfxbook credential" },
   { pattern: /roboforex.{0,20}(account|password|login)/i, reason: "broker credential" },
   { pattern: /wallet.{0,20}address|private.{0,10}wallet/i, reason: "crypto wallet" },
+  // Local filesystem paths — no g flag: .test() must not share lastIndex state across calls.
+  { pattern: /[A-Za-z]:[/\\][\w/\\. -]{4,}/, reason: "local filesystem path (Windows absolute)" },
+  { pattern: /\/(?:home|Users|root|var|etc|private|opt)\/[\w/\\. -]{3,}/, reason: "local filesystem path (Unix absolute)" },
+  { pattern: /\\\\[\w.-]{2,}\\[\w/\\. -]{3,}/, reason: "UNC network path" },
+  { pattern: /\.\/(?:private|accounts?|credentials?|secrets?|vault|data)[/\\][\w/\\. -]*/i, reason: "relative private path" },
 ];
 
 // Patterns for Capitalife-sensitive content that must be redacted before going external
