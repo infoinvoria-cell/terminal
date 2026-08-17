@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.1.0",
+  "mode": "SHADOW_OBSERVATION_ONLY",
+  "requiredObservationFields": [
+    "componentId", "commodity", "provider", "dataset", "variable", "regionIds",
+    "observationTimestamp", "publicationTimestamp", "earliestKnownTimestamp",
+    "retrievalTimestamp", "processingVersion", "revisionStatus", "rawInputs",
+    "normalizedInputs", "score", "confidence", "status", "freshnessHours",
+    "staleAfterHours", "accessClass", "sourceUrl", "state"
+  ],
+  "appendOnly": true,
+  "futurePublicationRule": "reject",
+  "missingDataRule": "status=UNAVAILABLE and original strategy behavior",
+  "canonicalPositionMultiplier": 1
+}

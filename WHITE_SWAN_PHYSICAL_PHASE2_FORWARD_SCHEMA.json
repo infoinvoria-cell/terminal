@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0.0",
+  "mode": "SHADOW_ONLY",
+  "appendOnly": true,
+  "requiredFields": [
+    "observationTimestamp", "publicationTimestamp", "earliestTradableDate",
+    "componentId", "physicalScore", "physicalState", "originalDecision",
+    "hypotheticalMultiplier", "subsequentComponentPnl", "counterfactualPnl",
+    "source", "freshnessHours"
+  ],
+  "multiplierDomain": [1, 0.95, 0.9],
+  "canonicalMultiplier": 1,
+  "futurePublicationRule": "reject_observation_before_earliest_tradable_date",
+  "missingDataRule": "retain_original_decision_and_multiplier_1"
+}

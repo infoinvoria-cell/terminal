@@ -1,0 +1,14 @@
+{
+  "corn": [
+    { "id": "us_corn_belt", "name": "US Corn Belt", "bbox": [-104.1, 36.9, -80.0, 49.4], "commodity": "CORN", "rationale": "USDA selected-state corn condition covers the main US production footprint.", "source": "USDA NASS Crop Progress" }
+  ],
+  "soy": [
+    { "id": "us_soy_production", "name": "US Soybean Production States", "bbox": [-106.7, 29.5, -75.0, 49.4], "commodity": "SOY", "rationale": "USDA selected-state soybean condition covers 96% of the prior-year acreage in the report.", "source": "USDA NASS Crop Progress" }
+  ],
+  "wheat": [
+    { "id": "us_wheat_production", "name": "US Wheat production states", "bbox": [-112.0, 25.0, -94.0, 49.4], "commodity": "WHEAT", "rationale": "NOAA STAR crop-specific VHI is aggregated across representative Great Plains and Northern Plains production states.", "source": "NOAA STAR Blended VHP" }
+  ],
+  "crude": [
+    { "id": "gulf_mexico_oil_flow", "name": "US Gulf oil-flow corridor", "bbox": [-98.0, 18.0, -80.0, 31.5], "commodity": "CRUDE", "rationale": "Candidate corridor for future vessel-presence/activity proxy; no activity value is asserted in V1.", "source": "Future AIS provider" }
+  ]
+}

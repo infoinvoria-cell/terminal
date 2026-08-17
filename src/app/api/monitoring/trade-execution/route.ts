@@ -1,8 +1,9 @@
-import { createHash } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
 import type { ExecutionBrokerSpec, TradeDirection } from "@/lib/trading/types";
+import { getTradingSafetyState, type TradingSafetyState } from "@/lib/server/trade-execution-safety";
+import { buildTradeExecutionIntentId } from "@/lib/server/trade-execution-intent";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,15 +27,6 @@ type TradeExecutionPayload = {
   quantity?: unknown;
   brokerSpec?: unknown;
   status?: unknown;
-};
-
-type TradingSafetyState = {
-  globalTradingDisabled: boolean;
-  paperTradingEnabled: boolean;
-  liveTradingEnabled: boolean;
-  manualTicketEnabled: boolean;
-  paperOrderSubmissionAllowed: boolean;
-  liveOrderSubmissionAllowed: boolean;
 };
 
 type TradeExecutionCatalog = {
@@ -78,31 +70,6 @@ function getIntentStorePath(): string {
   return process.env.TRADE_EXECUTION_INTENT_STORE_PATH
     ? path.resolve(process.env.TRADE_EXECUTION_INTENT_STORE_PATH)
     : path.join(process.cwd(), ".runtime", "monitoring", "trade_execution_intents.json");
-}
-
-function parseBooleanEnv(name: string, fallback: boolean): boolean {
-  const raw = process.env[name];
-  if (raw == null) return fallback;
-  const value = raw.trim().toLowerCase();
-  if (["1", "true", "yes", "on"].includes(value)) return true;
-  if (["0", "false", "no", "off"].includes(value)) return false;
-  return fallback;
-}
-
-export function getTradingSafetyState(): TradingSafetyState {
-  const globalTradingDisabled = parseBooleanEnv("GLOBAL_TRADING_DISABLED", true);
-  const paperTradingEnabled = parseBooleanEnv("PAPER_TRADING_ENABLED", false);
-  const liveTradingEnabled = parseBooleanEnv("LIVE_TRADING_ENABLED", false);
-  const manualTicketEnabled = parseBooleanEnv("MANUAL_TICKET_ENABLED", true);
-
-  return {
-    globalTradingDisabled,
-    paperTradingEnabled,
-    liveTradingEnabled,
-    manualTicketEnabled,
-    paperOrderSubmissionAllowed: !globalTradingDisabled && paperTradingEnabled,
-    liveOrderSubmissionAllowed: !globalTradingDisabled && liveTradingEnabled,
-  };
 }
 
 function toFiniteOrNull(value: unknown): number | null {
@@ -213,27 +180,7 @@ function normalizeTradeExecutionPayload(body: TradeExecutionPayload): Normalized
   };
 }
 
-export function buildTradeExecutionIntentId(input: NormalizedTradeExecutionRequest): string {
-  const digest = createHash("sha256")
-    .update(JSON.stringify({
-      mode: input.mode,
-      asset: input.asset,
-      strategyId: input.strategyId,
-      direction: input.direction,
-      entry: input.entry,
-      stopLoss: input.stopLoss,
-      takeProfit: input.takeProfit,
-      riskUsd: input.riskUsd,
-      quantity: input.quantity,
-      routeSymbol: input.brokerSpec?.routeSymbol ?? null,
-      status: input.status,
-    }))
-    .digest("hex");
-
-  return `te_${digest.slice(0, 20)}`;
-}
-
-export function validateTradeExecutionRequest(
+function validateTradeExecutionRequest(
   input: NormalizedTradeExecutionRequest,
   safety: TradingSafetyState,
   catalog: TradeExecutionCatalog,

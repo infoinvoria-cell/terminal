@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0.0",
+  "readOnly": true,
+  "shadowOnly": true,
+  "positionMultiplier": 1,
+  "items": [
+    { "commodity": "CORN", "componentId": "zc_seasonal", "physicalScore": -55, "physicalState": "CONTRADICTORY", "shadowMultiplier": 0.95, "actualMultiplier": 1.0, "source": "USDA NASS + NOAA STAR VHI", "timestamp": "2026-08-17" },
+    { "commodity": "SOY", "componentId": "zs_seasonal", "physicalScore": -30, "physicalState": "CONTRADICTORY", "shadowMultiplier": 1.0, "actualMultiplier": 1.0, "source": "USDA NASS + NOAA STAR VHI", "timestamp": "2026-08-17" },
+    { "commodity": "WHEAT", "componentId": "zw_mzw", "physicalScore": -48.28, "physicalState": "CONTRADICTORY", "shadowMultiplier": 1.0, "actualMultiplier": 1.0, "source": "NOAA STAR VHI", "timestamp": "2026-W32" }
+  ]
+}

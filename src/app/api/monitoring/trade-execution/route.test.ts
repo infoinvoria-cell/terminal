@@ -2,7 +2,9 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { GET, POST, buildTradeExecutionIntentId, getTradingSafetyState } from "./route";
+import { GET, POST } from "./route";
+import { getTradingSafetyState } from "@/lib/server/trade-execution-safety";
+import { buildTradeExecutionIntentId } from "@/lib/server/trade-execution-intent";
 
 const ORIGINAL_ENV = {
   GLOBAL_TRADING_DISABLED: process.env.GLOBAL_TRADING_DISABLED,
