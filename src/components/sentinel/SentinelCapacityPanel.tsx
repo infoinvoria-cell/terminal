@@ -90,11 +90,8 @@ const C = {
   muted: "rgba(255,255,255,0.50)",
   dim: "rgba(255,255,255,0.30)",
   track: "rgba(255,255,255,0.07)",
-  // NO green / NO red — final palette: black/white/grey/muted-gold only
-  active: "#e8edf5",      // READY / ACTIVE → white
-  selected: "#C9A84C",    // SELECTED / IMPORTANT → muted gold
-  inactive: "rgba(255,255,255,0.30)", // INACTIVE → grey
-  warning: "rgba(201,168,76,0.70)",   // WARNING / FAILURE → dim gold
+  green: "#4ade80",
+  red: "#ef4444",
 };
 
 // ── Formatting ────────────────────────────────────────────────────────────────
@@ -156,8 +153,8 @@ function shortModelName(id: string): string {
 }
 
 function dotColor(status: string): string {
-  if (status === "ready") return C.active;
-  if (status === "rate_limited" || status === "quota_exhausted") return C.warning;
+  if (status === "ready") return C.green;
+  if (status === "rate_limited" || status === "quota_exhausted") return C.red;
   return "rgba(255,255,255,0.18)";
 }
 
@@ -276,7 +273,7 @@ function SystemReadySection({ capacity }: { capacity: CapacityData | null }) {
   const ollamaOnline = capacity.ollamaOnline ?? false;
   const localAgentCount = capacity.activeLocalAgentCount ?? 0;
 
-  const dotCol = status === "healthy" ? C.active : status === "degraded" ? C.warning : C.dim;
+  const dotCol = status === "healthy" ? "#4ade80" : status === "degraded" ? "#f59e0b" : "#ef4444";
   const statusLabel = status === "healthy" ? "Alle Systeme bereit" : status === "degraded" ? "Teilweise verfügbar" : "Keine Provider";
 
   const configuredProviders = (capacity.providers ?? []).filter(p => p.configured);
@@ -296,10 +293,10 @@ function SystemReadySection({ capacity }: { capacity: CapacityData | null }) {
         {/* Free-only badge */}
         <div style={{
           display: "flex", alignItems: "center", gap: 4,
-          background: "rgba(201,168,76,0.08)", border: `1px solid rgba(201,168,76,0.22)`,
+          background: "rgba(74,222,128,0.10)", border: "1px solid rgba(74,222,128,0.22)",
           borderRadius: 4, padding: "2px 7px",
         }}>
-          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: C.gold }}>
+          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#4ade80" }}>
             Free Only ✓
           </span>
         </div>
@@ -310,7 +307,7 @@ function SystemReadySection({ capacity }: { capacity: CapacityData | null }) {
         {configuredProviders.map(p => {
           const isBlocked = p.blocked;
           const isReady = p.status === "ready" && !isBlocked;
-          const col = isBlocked ? C.warning : isReady ? C.active : C.dim;
+          const col = isBlocked ? "#ef4444" : isReady ? "#4ade80" : C.dim;
           return (
             <div key={p.providerId} style={{
               display: "flex", alignItems: "center", gap: 4,
@@ -331,7 +328,7 @@ function SystemReadySection({ capacity }: { capacity: CapacityData | null }) {
         <span style={{ fontSize: 10, color: C.muted }}>
           {ready}/{total} bereit{blocked > 0 ? ` · ${blocked} blockiert` : ""}
         </span>
-        <span style={{ fontSize: 10, color: ollamaOnline ? C.white : C.dim }}>
+        <span style={{ fontSize: 10, color: ollamaOnline ? "#4ade80" : C.dim }}>
           {ollamaOnline
             ? `Ollama · ${localAgentCount} Agent${localAgentCount !== 1 ? "s" : ""} aktiv`
             : "Ollama offline"}
@@ -378,7 +375,7 @@ function LocalAgentsSection({ capacity }: { capacity: CapacityData | null }) {
                     <div style={{ fontSize: 11, fontWeight: 700, color: C.gold }}>{a.name}</div>
                     <div style={{ fontSize: 10, color: C.muted, marginTop: 1 }}>{a.availableModel}</div>
                   </div>
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.active, marginTop: 4, flexShrink: 0 }} />
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", marginTop: 4, flexShrink: 0 }} />
                 </div>
               ))}
             </div>

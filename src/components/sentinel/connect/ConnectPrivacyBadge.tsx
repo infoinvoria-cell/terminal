@@ -14,9 +14,9 @@ const LABELS: Record<PrivacyLevel, string> = {
 };
 
 const COLORS: Record<PrivacyLevel, string> = {
-  LOCAL_ONLY: "bg-white/8 text-white/80 border-white/15",       // LOCAL → white (most secure)
-  REMOTE_REDACTED: "bg-[#C9A84C]/10 text-[#C9A84C] border-[#C9A84C]/25", // SANITIZED → gold (note-worthy)
-  REMOTE_SAFE: "bg-white/5 text-white/50 border-white/10",      // REMOTE → dim white (neutral)
+  LOCAL_ONLY: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+  REMOTE_REDACTED: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+  REMOTE_SAFE: "bg-sky-500/15 text-sky-400 border-sky-500/30",
 };
 
 export function ConnectPrivacyBadge({ level, className = "" }: Props) {

@@ -62,8 +62,8 @@ function providerLabel(id: string): string {
 
 function ringColor(fraction: number | null): string {
   if (fraction == null) return "rgba(255,255,255,0.18)";
-  if (fraction >= 0.9) return "rgba(201,168,76,0.90)"; // near-limit → bright gold (no red)
-  if (fraction >= 0.7) return "rgba(201,168,76,0.65)"; // approaching → dim gold (no amber)
+  if (fraction >= 0.9) return "#ef4444";
+  if (fraction >= 0.7) return "#f59e0b";
   return "#C9A84C";
 }
 
