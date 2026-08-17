@@ -182,6 +182,158 @@ function Btn({ label, active, onClick }: { label: string; active: boolean; onCli
   );
 }
 
+// ── Monthly table helper ──────────────────────────────────────────────────────
+type MonthRow = { key: string; label: string; gainPct: number; cumulative: number };
+
+function buildMonthlyTable(trades: SerializedTrade[]): MonthRow[] {
+  if (!trades.length) return [];
+  const rows = deserializeTrades(trades);
+  const map  = new Map<string, number[]>();
+  for (const r of rows) {
+    const key = `${r.date.getFullYear()}-${String(r.date.getMonth() + 1).padStart(2, "0")}`;
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(r.gainPct);
+  }
+  const sorted = [...map.entries()].sort(([a], [b]) => b.localeCompare(a));
+  let equity = 100;
+  const withCum: MonthRow[] = [];
+  for (const [key, gains] of [...map.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+    const g = compoundGains(gains);
+    equity *= 1 + g / 100;
+    withCum.push({ key, label: key, gainPct: g, cumulative: equity - 100 });
+  }
+  withCum.sort((a, b) => b.key.localeCompare(a.key));
+  const monthNames = ["","Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
+  return withCum.map(r => {
+    const [y, m] = r.key.split("-");
+    return { ...r, label: `${monthNames[parseInt(m!)] ?? m} ${y}` };
+  });
+}
+
+// ── Risk tab ──────────────────────────────────────────────────────────────────
+function RiskTab({ kpis, stats, trades }: { kpis: DashboardKpis; stats: ReturnType<typeof useMonthlyStats>; trades: SerializedTrade[] }) {
+  const fmt = (n: number) => `${n >= 0 ? "+" : ""}${n.toFixed(2)}%`;
+  const rows = deserializeTrades(trades);
+  const stdDev = useMemo(() => {
+    if (rows.length < 2) return null;
+    const mean = rows.reduce((a, r) => a + r.gainPct, 0) / rows.length;
+    const sq = rows.reduce((a, r) => a + (r.gainPct - mean) ** 2, 0);
+    return Math.sqrt(sq / (rows.length - 1));
+  }, [rows]);
+
+  const riskCards = [
+    { label: "Max Drawdown",  value: `-${kpis.maxDrawdownPct.toFixed(2)}%`, neg: true  },
+    { label: "Win Rate",      value: stats ? `${((stats.pos / stats.total) * 100).toFixed(0)}%` : "—" },
+    { label: "Best Month",   value: stats ? fmt(stats.best)  : "—",         pos: true  },
+    { label: "Worst Month",  value: stats ? fmt(stats.worst) : "—",         neg: true  },
+    { label: "Calmar",        value: stats?.calmar != null ? stats.calmar.toFixed(2) : "—" },
+    { label: "Pos. Months",  value: stats ? `${stats.pos}/${stats.total}` : "—" },
+    { label: "Volatility",   value: stdDev != null ? `${stdDev.toFixed(2)}%` : "—" },
+    { label: "Trade Count",  value: trades.length > 0 ? trades.length.toLocaleString("de-DE") : "—" },
+  ];
+
+  return (
+    <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "0 14px 120px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 5, marginBottom: 14 }}>
+        {riskCards.map(c => (
+          <div key={c.label} style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 10, boxShadow: CARD_SHADOW, padding: "8px 9px 10px" }}>
+            <p style={{ margin: 0, fontSize: 7.5, fontWeight: 600, color: MUTED, fontFamily: "var(--font-text)", textTransform: "uppercase", letterSpacing: "0.01em", lineHeight: 1.3 }}>{c.label}</p>
+            <p style={{ margin: "4px 0 0", fontSize: 13, fontWeight: 700, lineHeight: 1, letterSpacing: "-0.02em", fontFamily: "var(--font-numbers)", color: c.neg ? "rgba(239,68,68,0.9)" : c.pos ? "#22C55E" : "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.value}</p>
+          </div>
+        ))}
+      </div>
+      <p style={{ fontSize: 10, color: MUTED, fontFamily: "var(--font-text)", margin: "0 0 2px" }}>Basis: Trades-Log seit Aufzeichnung · Tägliche Perioden</p>
+    </div>
+  );
+}
+
+// ── Trades tab ────────────────────────────────────────────────────────────────
+function TradesTab({ trades }: { trades: SerializedTrade[] }) {
+  const monthly = useMemo(() => buildMonthlyTable(trades), [trades]);
+
+  if (!monthly.length) {
+    return (
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ color: MUTED, fontSize: 13, fontFamily: "var(--font-text)" }}>Keine Trade-Daten</p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "0 14px 120px" }}>
+      <div style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 12, overflow: "hidden" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 64px 72px", padding: "7px 12px", borderBottom: `1px solid ${CARD_BORDER}` }}>
+          {["Monat", "Return", "Kum."].map(h => (
+            <span key={h} style={{ fontSize: 9, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "var(--font-text)", textAlign: h === "Monat" ? "left" : "right" as const }}>{h}</span>
+          ))}
+        </div>
+        {monthly.map(r => (
+          <div key={r.key} style={{ display: "grid", gridTemplateColumns: "1fr 64px 72px", padding: "8px 12px", borderBottom: `1px solid rgba(255,255,255,0.03)` }}>
+            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", fontFamily: "var(--font-text)", fontWeight: 500 }}>{r.label}</span>
+            <span style={{ fontSize: 12, fontFamily: "var(--font-numbers)", fontWeight: 700, textAlign: "right", color: r.gainPct >= 0 ? "#22C55E" : "rgba(239,68,68,0.9)", fontVariantNumeric: "tabular-nums" }}>
+              {r.gainPct >= 0 ? "+" : ""}{r.gainPct.toFixed(2)}%
+            </span>
+            <span style={{ fontSize: 12, fontFamily: "var(--font-numbers)", fontWeight: 600, textAlign: "right", color: r.cumulative >= 0 ? "rgba(201,168,76,0.9)" : "rgba(239,68,68,0.7)", fontVariantNumeric: "tabular-nums" }}>
+              {r.cumulative >= 0 ? "+" : ""}{r.cumulative.toFixed(1)}%
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Quant tab ─────────────────────────────────────────────────────────────────
+function QuantTab({ kpis, capalifeData }: { kpis: DashboardKpis; capalifeData: CapalifeData }) {
+  const annualRows = useMemo(() => {
+    const ann = capalifeData.whiteSwanAnnualReturns as unknown as Record<string, number>;
+    if (!ann || typeof ann !== "object") return [];
+    return Object.entries(ann)
+      .filter(([, v]) => typeof v === "number")
+      .sort(([a], [b]) => b.localeCompare(a))
+      .slice(0, 8);
+  }, [capalifeData.whiteSwanAnnualReturns]);
+
+  const compositionCards = [
+    { label: "Assets",       value: kpis.assetsCount > 0 ? String(kpis.assetsCount) : "35" },
+    { label: "Strategies",   value: kpis.strategiesCount > 0 ? String(kpis.strategiesCount) : "56" },
+    { label: "Sleeves",      value: "5" },
+    { label: "Approaches",   value: "10" },
+  ];
+
+  return (
+    <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "0 14px 120px" }}>
+      {/* Composition */}
+      <p style={{ margin: "0 0 8px", fontSize: 11, fontWeight: 600, color: "#c8cad0", fontFamily: "var(--font-text)" }}>Zusammensetzung</p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 5, marginBottom: 16 }}>
+        {compositionCards.map(c => (
+          <div key={c.label} style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 10, boxShadow: CARD_SHADOW, padding: "8px 9px 10px" }}>
+            <p style={{ margin: 0, fontSize: 7.5, fontWeight: 600, color: MUTED, fontFamily: "var(--font-text)", textTransform: "uppercase", letterSpacing: "0.01em" }}>{c.label}</p>
+            <p style={{ margin: "4px 0 0", fontSize: 18, fontWeight: 700, lineHeight: 1, fontFamily: "var(--font-numbers)", color: "#C9A84C" }}>{c.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* White Swan annual returns */}
+      {annualRows.length > 0 && (
+        <>
+          <p style={{ margin: "0 0 8px", fontSize: 11, fontWeight: 600, color: "#c8cad0", fontFamily: "var(--font-text)" }}>White Swan — Jahresrenditen</p>
+          <div style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 12, overflow: "hidden" }}>
+            {annualRows.map(([year, ret]) => (
+              <div key={year} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 14px", borderBottom: `1px solid rgba(255,255,255,0.03)` }}>
+                <span style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-text)", fontWeight: 500 }}>{year}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, fontFamily: "var(--font-numbers)", color: Number(ret) >= 0 ? "#22C55E" : "rgba(239,68,68,0.9)", fontVariantNumeric: "tabular-nums" }}>
+                  {Number(ret) >= 0 ? "+" : ""}{Number(ret).toFixed(2)}%
+                </span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ── System status strip ───────────────────────────────────────────────────────
 type SysStatus = { sentinel: "ok" | "partial" | "unavailable"; brain: "ok" | "local" | "unavailable" };
 
@@ -275,7 +427,7 @@ function useMonthlyStats(trades: SerializedTrade[]) {
 // ── Main view ─────────────────────────────────────────────────────────────────
 export function MobileHomeView({
   topKpis,
-  kpis: _kpis,
+  kpis,
   trades,
   capalifeData,
   trackRecordOverview,
@@ -385,12 +537,12 @@ export function MobileHomeView({
             </div>
           </div>
         </>
+      ) : tab === "risk" ? (
+        <RiskTab kpis={kpis} stats={stats} trades={trades} />
+      ) : tab === "trades" ? (
+        <TradesTab trades={trades} />
       ) : (
-        <div style={{ flex: 1, minHeight: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <p style={{ color: MUTED, fontFamily: "var(--font-text)", fontSize: 12 }}>
-            {tab.charAt(0).toUpperCase() + tab.slice(1)} — demnächst verfügbar
-          </p>
-        </div>
+        <QuantTab kpis={kpis} capalifeData={capalifeData} />
       )}
     </div>
   );
