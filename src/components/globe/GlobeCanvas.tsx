@@ -22,6 +22,8 @@ import type {
   PolicyRateCountryEntry,
   ShipTrackingItem,
 } from "@/lib/globe/globe-types";
+import type { PhysicalRegionOverlay } from "@/lib/globe/physical-intelligence";
+import { filterGlobeLabels } from "@/lib/globe/label-policy";
 
 const DEFAULT_CAMERA: GlobeCameraState = {
   lat: 50,
@@ -69,6 +71,8 @@ type Props = {
   onCityMarkerClick?: (markerId: string) => void;
   onEventClick?: (event: { name: string; lat: number; lng: number; type: string }) => void;
   highlightedAssetIds?: string[];
+  physicalRegions?: PhysicalRegionOverlay[];
+  physicalIntelEnabled?: boolean;
   geoFocusTarget?: { lat: number; lng: number; altitude: number } | null;
   onGeoFocusHandled?: () => void;
   satelliteMode?: boolean;
@@ -336,6 +340,8 @@ function GlobeCanvasComponent({
   onGeoFocusHandled,
   onEventClick,
   highlightedAssetIds,
+  physicalRegions = [],
+  physicalIntelEnabled = false,
   satelliteMode = false,
   onGlobeClick,
 }: Props) {
@@ -352,6 +358,7 @@ function GlobeCanvasComponent({
   const [worldFeatures, setWorldFeatures] = useState<any[]>([]);
   const [rings, setRings] = useState<Array<{ lat: number; lng: number; color: string }>>([]);
   const [size, setSize] = useState({ width: 0, height: 0 });
+  const [worldState, setWorldState] = useState<"loading" | "ready" | "error">("loading");
   const [hoveredPointId, setHoveredPointId] = useState("");
   const [activeEvent, setActiveEvent] = useState<GeoEventItem | null>(null);
   // Connection routes drawn from a clicked marker to the nearest financial hubs.
@@ -573,6 +580,36 @@ function GlobeCanvasComponent({
         });
       }
     }
+    if (physicalIntelEnabled) {
+      for (const row of physicalRegions) {
+        const [west, south, east, north] = row.bbox;
+        const score = Number(row.score);
+        out.push({
+          id: `physical-region:${row.id}`,
+          assetId: "",
+          assetIds: [],
+          isCluster: false,
+          name: row.label,
+          shortName: row.commodity,
+          category: "Physical Intelligence",
+          country: "United States",
+          locationLabel: row.label,
+          icon: "PI",
+          color: score <= -50 ? "#c9a84c" : "#d4d4d8",
+          lat: (south + north) / 2,
+          lng: (west + east) / 2,
+          label: `${row.label} ${score == null || !Number.isFinite(score) ? "—" : score.toFixed(1)}`,
+          clusterCount: 1,
+          aiScore: 50,
+          macroSensitivity: `${row.source} · ${row.updatedAt}`,
+          kind: "region",
+          regionId: row.id,
+          regionScore: Number.isFinite(score) ? score / 100 : 0,
+          regionBias: row.state,
+          regionLabel: `${row.commodity} · ${row.state} · ${row.source} · USDA ${row.officialScore == null ? "—" : row.officialScore.toFixed(1)} · VHI ${row.vhiScore == null ? "—" : row.vhiScore.toFixed(1)} · ${row.updatedAt}`,
+        });
+      }
+    }
     return out;
   }, [
     detailLevel,
@@ -582,6 +619,8 @@ function GlobeCanvasComponent({
     overlayState.globalRiskLayer,
     overlayState.regionalAssetHighlight,
     regionHighlight,
+    physicalIntelEnabled,
+    physicalRegions,
   ]);
 
   const crossEndpointMarkers = useMemo<MarkerPoint[]>(() => {
@@ -893,28 +932,14 @@ function GlobeCanvasComponent({
   }, [detailLevel]);
 
   const htmlLabelData = useMemo(() => {
-    if (detailLevel === 1) {
-      // Very zoomed out: only selected asset + clusters. No individual labels (clutter).
-      return pointData.filter((d: any) => d.assetId === selectedAssetId || d.isCluster);
-    }
-    if (detailLevel === 2) {
-      // Medium zoom: selected + clusters + cross-pair endpoints + overlay points (events/ships/regions).
-      // City labels only for major hubs (weight >= 0.6).
-      const majorCities = cityLabels.filter((c: any) => Number(c.aiScore ?? 0) >= 0.6);
-      return [...pointData.filter((d: any) =>
-        d.assetId === selectedAssetId ||
-        d.isCluster ||
-        d.isCrossEndpoint ||
-        d.kind === "event" ||
-        d.kind === "ship" ||
-        d.kind === "commodity" ||
-        d.kind === "region" ||
-        d.kind === "signal"
-      ), ...majorCities];
-    }
-    // Level 3 (zoomed in): everything
-    return [...pointData, ...cityLabels];
-  }, [detailLevel, pointData, selectedAssetId, cityLabels]);
+    const candidates = [...pointData, ...(satelliteMode ? [] : detailLevel >= 2 ? cityLabels.filter((c: any) => Number(c.aiScore ?? 0) >= 0.6) : [])];
+    return filterGlobeLabels(candidates, {
+      selectedAssetId,
+      detailLevel: detailLevel as 1 | 2 | 3,
+      satelliteMode,
+      physicalIntelEnabled,
+    });
+  }, [detailLevel, pointData, selectedAssetId, cityLabels, satelliteMode, physicalIntelEnabled]);
 
   const crossArcs = useMemo(
     () =>
@@ -968,7 +993,18 @@ function GlobeCanvasComponent({
   }, []);
 
   useEffect(() => {
-    loadWorldFeatures().then((rows) => setWorldFeatures(rows));
+    let mounted = true;
+    setWorldState("loading");
+    loadWorldFeatures()
+      .then((rows) => {
+        if (!mounted) return;
+        setWorldFeatures(rows);
+        setWorldState(rows.length > 0 ? "ready" : "error");
+      })
+      .catch(() => {
+        if (mounted) setWorldState("error");
+      });
+    return () => { mounted = false; };
   }, []);
 
   useEffect(() => {
@@ -1499,7 +1535,7 @@ function GlobeCanvasComponent({
         className="globe-stage absolute inset-0 z-[3] pointer-events-auto"
         style={{ filter: `drop-shadow(0 0 10px ${goldThemeEnabled ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.08)"})` }}
       >
-        <Globe
+        {worldState === "ready" && size.width > 0 && size.height > 0 && <Globe
           ref={globeRef}
           animateIn={false}
           waitForGlobeReady={false}
@@ -1507,7 +1543,7 @@ function GlobeCanvasComponent({
           width={size.width}
           height={size.height}
           globeImageUrl={satelliteMode
-            ? "https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
+            ? "/api/globe/earth-texture"
             : OCEAN_TEXTURE}
           backgroundColor="rgba(0,0,0,0)"
           showAtmosphere
@@ -1579,6 +1615,15 @@ function GlobeCanvasComponent({
               `;
             }
             if (d.kind === "region") {
+              if (d.category === "Physical Intelligence") {
+                return `
+                  <div style="padding:6px 8px;background:${themeUiBg};border:1px solid rgba(201,168,76,0.62);border-radius:8px;font-size:11px;color:${themeUiText};">
+                    <div style="font-weight:700;margin-bottom:2px;">PI ${String(d.name || "Region")}</div>
+                    <div>${String(d.regionLabel || "Physical observation")}</div>
+                    <div style="color:${themeUiSubText};">Observation-only · canonical multiplier 1.00x</div>
+                  </div>
+                `;
+              }
               return `
                 <div style="padding:6px 8px;background:${themeUiBg};border:1px solid ${themeUiBorder};border-radius:8px;font-size:11px;color:${themeUiText};">
                   <div style="font-weight:700;margin-bottom:2px;">RG ${String(d.name || "Region")}</div>
@@ -1967,9 +2012,9 @@ function GlobeCanvasComponent({
           arcColor={() => ["rgba(190,190,190,0.45)", "rgba(140,140,140,0.18)"]}
           arcStroke={(d: any) => (d.kind === "overlay" ? 0.18 : 0.22)}
           arcAltitude={(d: any) => Number(d.altitude ?? 0.22)}
-          arcDashLength={1}
-          arcDashGap={0}
-          arcDashAnimateTime={0}
+          arcDashLength={0.28}
+          arcDashGap={0.72}
+          arcDashAnimateTime={(d: any) => Number(d.animationSpeed ?? (d.kind === "overlay" ? 6200 : 0))}
           arcLabel={(d: any) => String(d.label || "")}
           ringsData={ringsData}
           ringColor={(d: { color: string }) => d.color || themePrimarySoft}
@@ -1989,8 +2034,18 @@ function GlobeCanvasComponent({
             const name = countryNameOf(feat);
             return name ? `<span style="font:600 10px/1.4 sans-serif;color:#c8c8c8;text-shadow:0 1px 6px #000">${name}</span>` : "";
           }}
-        />
+        />}
       </div>
+      {worldState !== "ready" && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#070608]/80 text-center">
+          <div className="rounded-lg border border-white/10 bg-black/70 px-5 py-4 shadow-2xl">
+            <div className="text-[10px] uppercase tracking-[0.24em] text-neutral-400">
+              {worldState === "loading" ? "Loading geographic data" : "Globe data unavailable"}
+            </div>
+            {worldState === "error" && <button type="button" className="mt-3 rounded border border-white/20 px-3 py-1 text-[11px] text-neutral-200" onClick={() => window.location.reload()}>Retry</button>}
+          </div>
+        </div>
+      )}
 
       {activeEvent ? (
         <div className="absolute left-2 top-[78px] z-20 max-w-[260px] rounded-md border border-neutral-600/55 bg-[rgba(10,10,12,0.88)] p-2 text-[10px] text-neutral-100 shadow-[0_8px_30px_rgba(0,0,0,0.35)]">

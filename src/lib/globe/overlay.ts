@@ -243,15 +243,16 @@ export function volatilityTint(volScore: number): string {
 
 export async function loadWorldFeatures(): Promise<GeoFeature[]> {
   if (!worldFeaturesPromise) {
-    worldFeaturesPromise = fetch("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
+    worldFeaturesPromise = fetch("/api/globe/world")
       .then((res) => {
-        if (!res.ok) {
-          throw new Error(`world geojson ${res.status}`);
-        }
-        return res.json();
+        if (!res.ok) throw new Error(`local world geojson ${res.status}`);
+        return res.json() as Promise<{ features?: GeoFeature[] }>;
       })
-      .then((payload: { features?: GeoFeature[] }) => payload.features ?? [])
-      .catch(() => []);
+      .then((payload) => {
+        const features = payload.features ?? [];
+        if (features.length === 0) throw new Error("local world geojson is empty");
+        return features;
+      });
   }
   return worldFeaturesPromise;
 }

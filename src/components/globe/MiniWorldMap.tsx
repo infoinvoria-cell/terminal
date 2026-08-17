@@ -14,6 +14,7 @@ import type {
   OverlayRouteItem,
   ShipTrackingItem,
 } from "@/lib/globe/globe-types";
+import type { PhysicalRegionOverlay } from "@/lib/globe/physical-intelligence";
 
 type GeoFeature = {
   properties?: Record<string, unknown>;
@@ -42,6 +43,7 @@ type Props = {
   assetUsage: Record<string, number>;
   newsHeatmapScores?: Record<string, number>;
   newsHeatmapActive?: boolean;
+  physicalRegions?: PhysicalRegionOverlay[];
   focusLat?: number;
   focusLng?: number;
   onSelectPoint: (point: MarkerPoint) => void;
@@ -313,6 +315,7 @@ export function MiniWorldMap({
   assetUsage,
   newsHeatmapScores = {},
   newsHeatmapActive = false,
+  physicalRegions = [],
   focusLat,
   focusLng,
   onSelectPoint,
@@ -814,6 +817,30 @@ export function MiniWorldMap({
             />
           ))}
         </g>
+        {physicalRegions.length > 0 && (
+          <g pointerEvents="none">
+            {physicalRegions.map((region) => {
+              const [west, south, east, north] = region.bbox;
+              const topLeft = project(west, north);
+              const bottomRight = project(east, south);
+              const severe = Number(region.score) <= -50;
+              return (
+                <rect
+                  key={`physical-${region.id}`}
+                  x={topLeft.x}
+                  y={topLeft.y}
+                  width={Math.max(2, bottomRight.x - topLeft.x)}
+                  height={Math.max(2, bottomRight.y - topLeft.y)}
+                  fill={severe ? "rgba(201,168,76,0.12)" : "rgba(220,220,228,0.06)"}
+                  stroke={severe ? "rgba(201,168,76,0.92)" : "rgba(220,220,228,0.72)"}
+                  strokeWidth={1}
+                  strokeDasharray="4 3"
+                  vectorEffect="non-scaling-stroke"
+                />
+              );
+            })}
+          </g>
+        )}
         {typeof focusLat === "number" && typeof focusLng === "number" && Number.isFinite(focusLat) && Number.isFinite(focusLng) ? (() => {
           const { x, y } = project(focusLng, focusLat);
           return (
@@ -854,6 +881,19 @@ export function MiniWorldMap({
       </svg>
 
       <div className="absolute inset-0 z-20">
+        {physicalRegions.map((region) => {
+          const [west, south, east, north] = region.bbox;
+          const center = project((west + east) / 2, (south + north) / 2);
+          return (
+            <div
+              key={`physical-label-${region.id}`}
+              className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded border px-1.5 py-1 text-[8px] font-semibold uppercase tracking-[0.06em]"
+              style={{ left: `${(center.x / MAP_WIDTH) * 100}%`, top: `${(center.y / MAP_HEIGHT) * 100}%`, color: "#dedede", borderColor: Number(region.score) <= -50 ? "rgba(201,168,76,0.66)" : "rgba(220,220,228,0.35)", background: "rgba(8,8,10,0.76)" }}
+            >
+              {region.label} · {region.score == null ? "—" : Number(region.score).toFixed(1)}
+            </div>
+          );
+        })}
         {renderMarkers.map(({ point, leftPct, topPct }) => {
           const isSelected = point.kind !== "event" && point.kind !== "ship" && point.kind !== "commodity" && point.kind !== "region" && point.assetId === selectedAssetId;
           const title = point.kind === "event"

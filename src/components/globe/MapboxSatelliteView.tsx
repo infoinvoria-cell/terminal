@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { GeoEventItem, MarkerPoint, OverlayRouteItem, ShipTrackingItem } from "@/lib/globe/globe-types";
+import type { PhysicalRegionOverlay } from "@/lib/globe/physical-intelligence";
 import { WORLD_PORTS } from "@/data/globe/world-ports";
 
 // ── Static landmark data ────────────────────────────────────────────────────
@@ -92,6 +93,7 @@ export interface MapboxSatelliteViewProps {
   ships?: ShipTrackingItem[];
   overlayRoutes?: OverlayRouteItem[];
   markers?: MarkerPoint[];
+  physicalRegions?: PhysicalRegionOverlay[];
   showPorts?: boolean;
   showAirports?: boolean;
   showMilitary?: boolean;
@@ -108,6 +110,7 @@ export function MapboxSatelliteView({
   ships = [],
   overlayRoutes = [],
   markers = [],
+  physicalRegions = [],
   showPorts = true,
   showAirports = true,
   showMilitary = true,
@@ -121,6 +124,8 @@ export function MapboxSatelliteView({
 
   const [zoom, setZoom] = useState(initialZoom);
   const [mapReady, setMapReady] = useState(false);
+  const [mapState, setMapState] = useState<"loading" | "ready" | "error">("loading");
+  const [retryNonce, setRetryNonce] = useState(0);
 
   // ── Initialize map — only once the container has a real (non-zero) size ────
   // MapLibre never fires "load" if the container is 0×0 at construction (no
@@ -174,8 +179,12 @@ export function MapboxSatelliteView({
         // Globe projection at low zoom (MapLibre v5+); ignored if unsupported.
         try { (map as maplibregl.Map & { setProjection?: (p: unknown) => void }).setProjection?.({ type: "globe" }); } catch { /* flat fallback */ }
         setMapReady(true);
+        setMapState("ready");
       };
       map.on("load", markReady);
+      map.on("error", () => {
+        setMapState((current) => current === "ready" ? current : "error");
+      });
       // Fallback: if the style is already loaded, don't wait for "load".
       if (map.isStyleLoaded()) markReady();
 
@@ -210,7 +219,7 @@ export function MapboxSatelliteView({
       mapRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [retryNonce]);
 
   // ── Helper: create styled HTML marker ───────────────────────────────────
   const createMarkerEl = useCallback((emoji: string, color: string, size = 24) => {
@@ -338,7 +347,7 @@ export function MapboxSatelliteView({
   // ── Overlay routes as line layers ─────────────────────────────────────────
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !mapReady || overlayRoutes.length === 0) return;
+    if (!map || !mapReady) return;
 
     const SOURCE = "clf-routes";
     const data: GeoJSON.FeatureCollection = {
@@ -351,7 +360,16 @@ export function MapboxSatelliteView({
     };
 
     const existing = map.getSource(SOURCE) as maplibregl.GeoJSONSource | undefined;
-    if (existing) { existing.setData(data); return; }
+    if (existing) {
+      existing.setData(data);
+      if (overlayRoutes.length === 0) {
+        if (map.getLayer("clf-routes-line")) map.removeLayer("clf-routes-line");
+        if (map.getSource(SOURCE)) map.removeSource(SOURCE);
+      }
+      return;
+    }
+
+    if (overlayRoutes.length === 0) return;
 
     map.addSource(SOURCE, { type: "geojson", data });
     map.addLayer({
@@ -362,9 +380,76 @@ export function MapboxSatelliteView({
     });
   }, [mapReady, overlayRoutes]);
 
+  // Physical intelligence is shown as a bounded observation region, never as
+  // a fabricated point. Keep the layer lifecycle explicit so mode switches
+  // cannot leave stale polygons behind.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapReady) return;
+
+    const SOURCE = "clf-physical-regions";
+    const FILL = "clf-physical-regions-fill";
+    const LINE = "clf-physical-regions-line";
+    const data: GeoJSON.FeatureCollection = {
+      type: "FeatureCollection",
+      features: physicalRegions.map((region) => {
+        const [west, south, east, north] = region.bbox;
+        return {
+          type: "Feature" as const,
+          properties: {
+            id: region.id,
+            label: region.label,
+            score: region.score,
+            color: region.score !== null && region.score <= -50 ? "#b59a62" : "#a9adb4",
+          },
+          geometry: {
+            type: "Polygon" as const,
+            coordinates: [[[west, south], [east, south], [east, north], [west, north], [west, south]]],
+          },
+        };
+      }),
+    };
+
+    const existing = map.getSource(SOURCE) as maplibregl.GeoJSONSource | undefined;
+    if (existing) {
+      existing.setData(data);
+      if (physicalRegions.length === 0) {
+        if (map.getLayer(LINE)) map.removeLayer(LINE);
+        if (map.getLayer(FILL)) map.removeLayer(FILL);
+        if (map.getSource(SOURCE)) map.removeSource(SOURCE);
+      }
+      return;
+    }
+    if (physicalRegions.length === 0) return;
+
+    map.addSource(SOURCE, { type: "geojson", data });
+    map.addLayer({
+      id: FILL,
+      type: "fill",
+      source: SOURCE,
+      paint: { "fill-color": ["get", "color"], "fill-opacity": 0.12 },
+    });
+    map.addLayer({
+      id: LINE,
+      type: "line",
+      source: SOURCE,
+      paint: { "line-color": ["get", "color"], "line-width": 1.2, "line-opacity": 0.8, "line-dasharray": [2, 2] },
+    });
+  }, [mapReady, physicalRegions]);
+
   return (
     <div style={{ position: "relative", height: "100%", width: "100%", background: "#06070a" }}>
       <div ref={containerRef} style={{ height: "100%", width: "100%" }} />
+      {mapState !== "ready" && (
+        <div style={{ position: "absolute", inset: 0, zIndex: 20, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(7,6,8,0.84)", textAlign: "center" }}>
+          <div style={{ border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.72)", borderRadius: 8, padding: "16px 20px" }}>
+            <div style={{ fontSize: 10, letterSpacing: "0.24em", textTransform: "uppercase", color: "rgba(255,255,255,0.58)" }}>
+              {mapState === "loading" ? "Loading satellite data" : "Satellite data unavailable"}
+            </div>
+            {mapState === "error" && <button type="button" onClick={() => { setMapReady(false); setMapState("loading"); setRetryNonce((value) => value + 1); }} style={{ marginTop: 12, border: "1px solid rgba(255,255,255,0.2)", borderRadius: 4, padding: "4px 12px", fontSize: 11, color: "#e5e5e5" }}>Retry</button>}
+          </div>
+        </div>
+      )}
 
       {/* Zoom indicator */}
       <div style={{

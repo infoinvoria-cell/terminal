@@ -39,6 +39,8 @@ import { ChartAssetOverlay } from "@/components/shared/ChartAssetOverlay";
 import { CapalifeChart } from "@/components/ui/capitalife-chart";
 import type { MonitoringChartData } from "@/components/monitoring/MonitoringChart";
 import { buildDisplayMarkers } from "@/lib/globe/markers";
+import { buildPhysicalRegions, getPhysicalIntelligence, type PhysicalIntelResponse, type PhysicalRegionOverlay } from "@/lib/globe/physical-intelligence";
+import { GLOBE_OVERLAY_CONTROL_KEYS } from "@/lib/globe/layer-registry";
 import { DEFAULT_GLOBE_STATE, hasPersistedGlobeState, loadInitialGlobeState, persistGlobeState } from "@/lib/globe/state";
 import type {
   AssetRegionHighlightResponse,
@@ -519,7 +521,7 @@ const OVERLAY_EMOJI: Record<string, string> = {
   newsHeatmap: "📰",
 };
 const OVERLAY_LABELS: Record<string, string> = {
-  liveSignals: "Live Signale",
+  liveSignals: "Signals",
   locations: "Standorte",
   assets: "Assets",
   earthquakes: "Earthquakes",
@@ -558,12 +560,31 @@ type GlobeOverlayControlProps = {
   overlayState: import("@/lib/globe/globe-types").OverlayToggleState;
   overlayLoadingState: Partial<Record<keyof import("@/lib/globe/globe-types").OverlayToggleState, boolean>>;
   onToggleOverlay: (key: keyof import("@/lib/globe/globe-types").OverlayToggleState) => void;
+  physicalIntelEnabled: boolean;
+  physicalRegions: PhysicalRegionOverlay[];
+  onTogglePhysicalIntel: () => void;
 };
-function GlobeOverlayControl({ overlayState, overlayLoadingState, onToggleOverlay }: GlobeOverlayControlProps) {
-  const keys = Object.keys(OVERLAY_LABELS) as Array<keyof import("@/lib/globe/globe-types").OverlayToggleState>;
+function GlobeOverlayControl({ overlayState, overlayLoadingState, onToggleOverlay, physicalIntelEnabled, physicalRegions, onTogglePhysicalIntel }: GlobeOverlayControlProps) {
+  const keys = GLOBE_OVERLAY_CONTROL_KEYS;
   return (
-    <div className="no-scrollbar h-full overflow-y-auto p-2">
-      <div className="grid gap-1.5" style={{ gridTemplateColumns: "1fr 1fr" }}>
+    <div className="h-full overflow-hidden p-1.5">
+      <div className="grid gap-1" style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}>
+        <button
+          type="button"
+          onClick={onTogglePhysicalIntel}
+          aria-pressed={physicalIntelEnabled}
+          title="NOAA STAR VHI + USDA NASS physical observations; shadow-only"
+          className="flex min-w-0 items-center gap-1 rounded-[7px] px-1.5 py-1.5 text-left transition"
+          style={physicalIntelEnabled
+            ? { background: "linear-gradient(to bottom, #26262d, #111114)", border: "1px solid rgba(200,168,76,0.7)" }
+            : { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.055)" }}
+        >
+          <span style={{ fontSize: 13, lineHeight: 1, flexShrink: 0, opacity: physicalIntelEnabled ? 1 : 0.55 }}>◌</span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-[9px] font-semibold leading-snug" style={{ color: physicalIntelEnabled ? "#f3f3f4" : "#6a6e7a" }}>Physical Intel</span>
+            <span className="block truncate text-[8px] text-white/30">{physicalRegions.length ? "REAL · SHADOW" : "UNAVAILABLE"}</span>
+          </span>
+        </button>
         {keys.map((key) => {
           const active = Boolean(overlayState[key]);
           const loading = Boolean(overlayLoadingState?.[key]);
@@ -574,16 +595,16 @@ function GlobeOverlayControl({ overlayState, overlayLoadingState, onToggleOverla
               onClick={() => onToggleOverlay(key)}
               aria-pressed={active}
               title={OVERLAY_DESC[key] ?? OVERLAY_LABELS[key] ?? key}
-              className="flex items-center gap-2 rounded-[10px] px-2.5 py-2 text-left transition"
+              className="flex min-w-0 items-center gap-1 rounded-[7px] px-1.5 py-1.5 text-left transition"
               style={active
                 ? { background: "linear-gradient(to bottom, #26262d, #111114)", border: "1px solid rgba(255,255,255,0.28)" }
                 : { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.055)" }}
             >
-              <span style={{ fontSize: 15, lineHeight: 1, flexShrink: 0, opacity: active ? 1 : 0.45 }}>
+              <span style={{ fontSize: 13, lineHeight: 1, flexShrink: 0, opacity: active ? 1 : 0.45 }}>
                 {OVERLAY_EMOJI[key] ?? "◦"}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-[10px] font-semibold leading-snug"
+                <span className="block truncate text-[9px] font-semibold leading-snug"
                   style={{ color: active ? "#F3F3F4" : "#6a6e7a" }}>
                   {OVERLAY_LABELS[key] ?? key}{loading ? " …" : ""}
                 </span>
@@ -659,6 +680,8 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   const [globeChartData, setGlobeChartData] = useState<MonitoringChartData | null>(null);
   const [enabledAssets, setEnabledAssets] = useState<string[]>(initialPersisted.enabledAssets ?? []);
   const [overlayState, setOverlayState] = useState<OverlayToggleState>(initialOverlayState);
+  const [physicalSnapshot, setPhysicalSnapshot] = useState<PhysicalIntelResponse | null>(null);
+  const [physicalIntelEnabled, setPhysicalIntelEnabled] = useState(false);
   const [selectedOverlay, setSelectedOverlay] = useState<OverlayMode>(initialOverlay);
   const [camera, setCamera] = useState(initialPersisted.camera ?? DEFAULT_GLOBE_STATE.camera);
   const [markerZoomLevel, setMarkerZoomLevel] = useState<number>(() => {
@@ -796,6 +819,16 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
     }
     return {};
   });
+
+  useEffect(() => {
+    let mounted = true;
+    getPhysicalIntelligence()
+      .then((snapshot) => { if (mounted) setPhysicalSnapshot(snapshot); })
+      .catch(() => { if (mounted) setPhysicalSnapshot(null); });
+    return () => { mounted = false; };
+  }, []);
+
+  const physicalRegions = useMemo(() => buildPhysicalRegions(physicalSnapshot), [physicalSnapshot]);
 
   const markAssetUsage = useCallback((assetId: string) => {
     const key = String(assetId || "").trim().toLowerCase();
@@ -2083,6 +2116,17 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
     },
     [markers, overlayState.assets, overlayState.locations, EXCHANGE_MARKERS, signalMarkers, cityMarkers, portMarkers],
   );
+  const satelliteMarkers = useMemo(
+    () => visibleMarkers.filter((marker) => marker.assetId === selectedAssetId),
+    [selectedAssetId, visibleMarkers],
+  );
+  const satelliteGeoEvents = useMemo(
+    () => geoEvents.filter((event) => {
+      const severity = String(event.severity || "").toLowerCase();
+      return severity === "high" || severity === "critical";
+    }),
+    [geoEvents],
+  );
   const activeShipTracking = useMemo(
     () => (overlayState.shipTracking ? shipTracking : []),
     [overlayState.shipTracking, shipTracking],
@@ -2633,6 +2677,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
 
   // Shared Analytics-style card styles — Referenz design tokens
   const CARD = "flex min-h-0 flex-col overflow-hidden rounded-[10px] border shadow-[0_18px_45px_rgba(0,0,0,0.50)]";
+  const BOTTOM_PANEL_HEIGHT = 220;
   const CARD_BORDER = { borderColor: "rgba(255,255,255,0.055)", background: "linear-gradient(to bottom, #191a1f, #0d0e12)" };
   const CARD_HEADER = "shrink-0 border-b border-white/[0.06] px-4 py-2.5";
   const CARD_LABEL = "text-[11px] font-bold tracking-[0.04em] text-[#f5f7fa] uppercase";
@@ -2667,6 +2712,8 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
     goldThemeEnabled,
     globePrices,
     newsHeatmapScores,
+    physicalRegions: physicalIntelEnabled ? physicalRegions : [],
+    physicalIntelEnabled,
     onCameraChange,
     onSelectAsset: onGlobeSelectAsset,
     onFocusHandled,
@@ -2710,6 +2757,12 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
             borderBottom: "1px solid rgba(255,255,255,0.05)",
           }}
         >
+          <button
+            type="button"
+            onClick={() => setPhysicalIntelEnabled((value) => !value)}
+            aria-pressed={physicalIntelEnabled}
+            style={{ flexShrink: 0, padding: "5px 10px", borderRadius: 20, border: physicalIntelEnabled ? "1px solid rgba(201,168,76,0.7)" : "1px solid rgba(255,255,255,0.08)", background: physicalIntelEnabled ? "rgba(201,168,76,0.12)" : "rgba(255,255,255,0.03)", cursor: "pointer", whiteSpace: "nowrap", color: physicalIntelEnabled ? "#dedede" : "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 600 }}
+          >◌ Physical Intel</button>
           {overlayKeys.map((key) => {
             const active = Boolean(overlayState[key]);
             const loading = Boolean(overlayLoadingState?.[key]);
@@ -2754,13 +2807,14 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                 initialLat={Number(camera?.lat ?? 30)}
                 initialLng={Number(camera?.lng ?? 20)}
                 initialZoom={2}
-                geoEvents={geoEvents}
+                geoEvents={satelliteGeoEvents}
                 ships={activeShipTracking}
                 overlayRoutes={activeRouteOverlays}
-                markers={visibleMarkers}
-                showPorts
-                showAirports
-                showMilitary
+                markers={satelliteMarkers}
+                physicalRegions={physicalIntelEnabled ? physicalRegions : []}
+                showPorts={false}
+                showAirports={false}
+                showMilitary={false}
                 showShips={overlayState.shipTracking}
                 showEvents={overlayState.earthquakes || overlayState.conflicts || overlayState.wildfires}
               />
@@ -2887,6 +2941,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
             assetUsage={assetUsage}
             newsHeatmapScores={newsHeatmapScores}
             newsHeatmapActive={overlayState.newsHeatmap}
+            physicalRegions={physicalIntelEnabled ? physicalRegions : []}
             focusLat={Number(camera?.lat)}
             focusLng={Number(camera?.lng)}
             onSelectPoint={onSelectPointFromMiniMap}
@@ -3020,10 +3075,10 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   return (
     <div className="relative h-full w-full overflow-hidden bg-[#0B0C0F] text-white">
       <div
-        className="grid h-full w-full p-3"
+        className="grid h-full min-h-0 w-full overflow-hidden p-3"
         style={mobileMode
           ? { gridTemplateColumns: "100%", gridTemplateRows: "100%", gap: 0, padding: 0 }
-          : { gridTemplateColumns: "2fr 5fr 3fr", gridTemplateRows: "100%", gap: 12, padding: "12px 12px 12px 12px" }}
+          : { gridTemplateColumns: "minmax(250px, 2fr) minmax(520px, 5fr) minmax(320px, 3fr)", gridTemplateRows: "minmax(0, 1fr)", gap: 12, padding: "12px" }}
       >
 
         {/* ── LEFT: Watchlist + Overlay Control ── */}
@@ -3055,7 +3110,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
             </div>
           </div>
           {/* Overlay Control card — remaining */}
-          <div className={CARD} style={{ ...CARD_BORDER, flex: "1 1 0" }}>
+          <div className={CARD} style={{ ...CARD_BORDER, flex: `0 0 ${BOTTOM_PANEL_HEIGHT}px` }}>
             <div className={CARD_HEADER}>
               <span className={CARD_LABEL}>Overlay Control</span>
             </div>
@@ -3064,6 +3119,9 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                 overlayState={overlayState}
                 overlayLoadingState={overlayLoadingState}
                 onToggleOverlay={onToggleOverlay}
+                physicalIntelEnabled={physicalIntelEnabled}
+                physicalRegions={physicalRegions}
+                onTogglePhysicalIntel={() => setPhysicalIntelEnabled((value) => !value)}
               />
             </div>
           </div>
@@ -3199,13 +3257,14 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                     initialLat={Number(camera?.lat ?? 30)}
                     initialLng={Number(camera?.lng ?? 20)}
                     initialZoom={2}
-                    geoEvents={geoEvents}
+                    geoEvents={satelliteGeoEvents}
                     ships={activeShipTracking}
                     overlayRoutes={activeRouteOverlays}
-                    markers={visibleMarkers}
-                    showPorts
-                    showAirports
-                    showMilitary
+                    markers={satelliteMarkers}
+                    physicalRegions={physicalIntelEnabled ? physicalRegions : []}
+                    showPorts={false}
+                    showAirports={false}
+                    showMilitary={false}
                     showShips={overlayState.shipTracking}
                     showEvents={overlayState.earthquakes || overlayState.conflicts || overlayState.wildfires}
                   />
@@ -3312,6 +3371,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
               assetUsage={assetUsage}
               newsHeatmapScores={newsHeatmapScores}
               newsHeatmapActive={overlayState.newsHeatmap}
+              physicalRegions={physicalIntelEnabled ? physicalRegions : []}
               focusLat={Number(camera?.lat)}
               focusLng={Number(camera?.lng)}
               onSelectPoint={onSelectPointFromMiniMap}
@@ -3321,8 +3381,8 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
 
         {/* ── RIGHT: Asset News (30%) → Global News (flex) → Chart (30%) ── */}
         <div className="flex min-h-0 flex-col gap-3 overflow-hidden" style={mobileMode ? { display: "none" } : { paddingRight: 4 }}>
-          {/* Asset News card — 180px fixed */}
-          <div className={CARD} style={{ ...CARD_BORDER, flex: "0 0 180px" }}>
+          {/* Asset and Global News share equal height; only their bodies scroll. */}
+          <div className={CARD} style={{ ...CARD_BORDER, flex: "1 1 0", minHeight: 0 }}>
             <div className="shrink-0 flex items-center gap-2 border-b border-white/[0.06] px-3 py-2">
               <span className={CARD_LABEL}>{selectedAsset?.name ?? "Asset"} News</span>
               <div className="ml-auto flex items-center gap-0.5">
@@ -3357,8 +3417,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
               />
             </div>
           </div>
-          {/* Global News card — flex remaining */}
-          <div className={CARD} style={{ ...CARD_BORDER, flex: "1 1 0", minHeight: 100 }}>
+          <div className={CARD} style={{ ...CARD_BORDER, flex: "1 1 0", minHeight: 0 }}>
             <div className="shrink-0 flex items-center gap-2 border-b border-white/[0.06] px-3 py-2">
               <span className={CARD_LABEL}>Global News</span>
               <div className="ml-auto flex items-center gap-0.5">
@@ -3393,7 +3452,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
             </div>
           </div>
           {/* Chart card — fixed ~2D-map height */}
-          <div className={CARD} style={{ ...CARD_BORDER, flex: "0 0 220px" }}>
+          <div className={CARD} style={{ ...CARD_BORDER, flex: `0 0 ${BOTTOM_PANEL_HEIGHT}px` }}>
             <div className="min-h-0 flex-1" style={{ position: "relative", overflow: "hidden" }}>
               <CapalifeChart
                 key={selectedAsset?.symbol ?? "globe-chart"}

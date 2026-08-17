@@ -1,0 +1,25 @@
+{
+  "artifact": "capitalife-globe-v2-data-source-registry",
+  "generatedAt": "2026-08-17",
+  "scope": "Globe page overlays and map surfaces",
+  "executionPolicy": "read-only; no live orders; no quant multiplier changes",
+  "sources": [
+    { "overlay": "assets", "provider": "Capitalife internal API", "endpoint": "/api/assets", "freshness": "1h cache", "auth": "none-local", "cost": "free/internal", "fallback": "cached response", "status": "LOCAL" },
+    { "overlay": "global_news", "provider": "Capitalife news adapter", "endpoint": "/api/news/global", "freshness": "10m cache", "auth": "none-local", "cost": "provider-dependent", "fallback": "empty feed with status", "status": "OPTIONAL" },
+    { "overlay": "asset_news", "provider": "Capitalife news adapter", "endpoint": "/api/news/asset/:assetId", "freshness": "10m cache", "auth": "none-local", "cost": "provider-dependent", "fallback": "empty feed with status", "status": "OPTIONAL" },
+    { "overlay": "conflicts", "provider": "Capitalife event adapter", "endpoint": "/api/events/conflicts", "freshness": "1h cache", "auth": "none-local", "cost": "provider-dependent", "fallback": "empty event layer", "status": "OPTIONAL" },
+    { "overlay": "wildfires", "provider": "Capitalife event adapter", "endpoint": "/api/events/wildfires", "freshness": "30m cache", "auth": "none-local", "cost": "provider-dependent", "fallback": "empty event layer", "status": "OPTIONAL" },
+    { "overlay": "earthquakes", "provider": "Capitalife event adapter", "endpoint": "/api/events/earthquakes", "freshness": "10m cache", "auth": "none-local", "cost": "provider-dependent", "fallback": "empty event layer", "status": "OPTIONAL" },
+    { "overlay": "ship_tracking", "provider": "AIS adapter", "endpoint": "/api/overlay/ships", "freshness": "5m cache", "auth": "none-local", "cost": "provider-dependent", "fallback": "empty ship layer", "status": "OPTIONAL" },
+    { "overlay": "oil_routes", "provider": "Capitalife route adapter", "endpoint": "/api/overlay/oil_routes", "freshness": "3h cache", "auth": "none-local", "cost": "provider-dependent", "fallback": "empty route layer", "status": "OPTIONAL" },
+    { "overlay": "container_traffic", "provider": "Capitalife route adapter", "endpoint": "/api/overlay/container_routes", "freshness": "3h cache", "auth": "none-local", "cost": "provider-dependent", "fallback": "empty route layer", "status": "OPTIONAL" },
+    { "overlay": "commodity_regions", "provider": "Capitalife commodity adapter", "endpoint": "/api/overlay/commodity_regions", "freshness": "24h cache", "auth": "none-local", "cost": "provider-dependent", "fallback": "empty region layer", "status": "OPTIONAL" },
+    { "overlay": "global_risk", "provider": "Capitalife risk adapter", "endpoint": "/api/overlay/global_risk", "freshness": "3h cache", "auth": "none-local", "cost": "internal", "fallback": "empty risk layer", "status": "OPTIONAL" },
+    { "overlay": "global_liquidity", "provider": "Capitalife liquidity adapter", "endpoint": "/api/overlay/global_liquidity", "freshness": "1h cache", "auth": "none-local", "cost": "internal", "fallback": "empty liquidity layer", "status": "OPTIONAL" },
+    { "overlay": "shipping_disruptions", "provider": "Capitalife disruption adapter", "endpoint": "/api/overlay/shipping_disruptions", "freshness": "10m cache", "auth": "none-local", "cost": "provider-dependent", "fallback": "empty disruption layer", "status": "OPTIONAL" },
+    { "overlay": "commodity_stress", "provider": "Capitalife commodity stress adapter", "endpoint": "/api/overlay/commodity_stress", "freshness": "2h cache", "auth": "none-local", "cost": "internal", "fallback": "empty stress layer", "status": "OPTIONAL" },
+    { "overlay": "physical_intelligence", "provider": "USDA + NOAA shadow adapter", "endpoint": "/api/white-swan/physical-intelligence", "freshness": "6h cache; source freshness retained", "auth": "none-local", "cost": "free/no-account source path", "fallback": "null; button shows unavailable", "status": "SHADOW_OBSERVATION_ONLY" },
+    { "overlay": "satellite", "provider": "Esri World Imagery", "endpoint": "server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", "freshness": "provider tile cache", "auth": "none", "cost": "free tile access with attribution", "fallback": "satellite unavailable overlay", "status": "AVAILABLE_WITH_ATTRIBUTION" },
+    { "overlay": "world_geometry", "provider": "Capitalife local API", "endpoint": "/api/globe/world", "freshness": "local cache", "auth": "none-local", "cost": "internal", "fallback": "error state", "status": "LOCAL" }
+  ]
+}
