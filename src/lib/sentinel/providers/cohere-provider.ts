@@ -129,8 +129,12 @@ export const cohereProvider: SentinelProvider = {
             for (const line of lines) {
               const trimmed = line.trim();
               if (!trimmed) continue;
+              // Cohere v2 streaming uses SSE format: each line is prefixed with "data: "
+              if (!trimmed.startsWith("data: ")) continue;
+              const jsonStr = trimmed.slice(6).trim();
+              if (jsonStr === "[DONE]") { controller.close(); return; }
               try {
-                const json = JSON.parse(trimmed) as {
+                const json = JSON.parse(jsonStr) as {
                   type?: string;
                   delta?: { message?: { content?: { type?: string; text?: string } } };
                   usage?: { tokens?: { input_tokens?: number; output_tokens?: number } };
