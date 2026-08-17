@@ -6,6 +6,7 @@ import { ask } from "../providers/provider-router";
 import { getBillingClass } from "./billing-registry";
 import { getSafePromptBudget, getMaxOutputTokens, estimateTokens } from "../providers/model-capabilities";
 import { synthesizeWorkerOutputs } from "./qwen-synthesizer";
+import { reserveCapacity, reconcileUsage } from "./provider-rate-guard";
 import type { ChatMessage, SentinelProviderId } from "../providers/types";
 import type { WorkerRecord } from "./connect-run";
 import type { SynthesisResult } from "./qwen-synthesizer";
@@ -152,11 +153,33 @@ async function runWorker(
       : m,
   );
 
+  // TPM aggregate rate-limit guard — synchronous reservation, atomic across concurrent workers.
+  // reserveCapacity() has no await, so all concurrent workers in Promise.all() reserve before any
+  // HTTP call is made. This prevents two workers from both assuming the full remaining TPM budget.
+  const estimatedInput = estimateTokens(JSON.stringify(augmentedMessages));
+  const estimatedOutput = Math.min(getMaxOutputTokens(assignment.provider, assignment.model), 1024);
+  const hasCapacity = reserveCapacity(assignment.provider, estimatedInput, estimatedOutput);
+
+  if (!hasCapacity) {
+    return {
+      provider: assignment.provider,
+      role: assignment.role,
+      answer: "",
+      model: assignment.model,
+      tokensUsed: 0,
+      latencyMs: Date.now() - start,
+      success: false,
+      error: `rate-limit-guard: estimated ${estimatedInput + estimatedOutput} tokens would exceed ${assignment.provider} TPM budget for this minute`,
+    };
+  }
+
   async function attempt(msgs: ChatMessage[]): Promise<WorkerOutput> {
     const result = await ask(msgs, {
       requestedProvider: assignment.provider,
       signal,
     });
+    // Reconcile: replace the reserved estimate with actual observed token counts
+    reconcileUsage(assignment.provider, estimatedInput + estimatedOutput, result.inputTokens, result.outputTokens);
     return {
       provider: assignment.provider,
       role: assignment.role,

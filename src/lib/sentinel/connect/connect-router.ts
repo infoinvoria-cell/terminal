@@ -54,6 +54,17 @@ export type ConnectStreamResult = {
   brainUsed: boolean;
 };
 
+/**
+ * Strip Brain section from a system message before sending externally.
+ * Brain markers are injected by injectBrainContext() as `\n\n## CAPITALIFE...` or `\n\n### CAPITALIFE...`.
+ * This function removes everything from that marker onwards, leaving only the base SENTINEL_SYSTEM_PROMPT.
+ * Exported for deterministic unit testing of the Brain outbound privacy guarantee.
+ */
+export function stripBrainFromSystemMessage(systemContent: string): string {
+  const brainStart = systemContent.search(/\n\n(?:##|###)\s*CAPITALIFE/);
+  return brainStart > 0 ? systemContent.slice(0, brainStart).trimEnd() : systemContent;
+}
+
 function injectBrainContext(messages: ChatMessage[], brainContext: string): ChatMessage[] {
   if (!messages.some((m) => m.role === "system")) return messages;
   return messages.map((m) => {
