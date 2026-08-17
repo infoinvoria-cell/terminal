@@ -83,7 +83,7 @@ export function ConnectRouteDetails({
               <span className="text-foreground/30">Workers:</span>
               {workers.map((w, i) => (
                 <div key={i} className="ml-2 flex gap-2">
-                  <span className={w.success ? "text-emerald-400/60" : "text-red-400/60"}>
+                  <span className={w.success ? "text-foreground/70" : "text-foreground/40"}>
                     {w.success ? "✓" : "✗"}
                   </span>
                   <span>{w.provider}</span>
@@ -96,7 +96,7 @@ export function ConnectRouteDetails({
           {agreements.length > 0 && (
             <div>
               <span className="text-foreground/30">Agreements:</span>
-              {agreements.map((a, i) => <div key={i} className="ml-2 text-emerald-400/50">✓ {a}</div>)}
+              {agreements.map((a, i) => <div key={i} className="ml-2 text-foreground/50">✓ {a}</div>)}
             </div>
           )}
           {disagreements.length > 0 && (
