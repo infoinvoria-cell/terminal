@@ -202,96 +202,53 @@ export function SentinelSessionProvider({ children, userId }: { children: React.
     const historyMessages = nextEntries.slice(-MAX_HISTORY).map((entry) => ({ role: entry.role, content: entry.content }));
 
     try {
-      const res = await fetch("/api/sentinel/chat", {
+      // Use the Connect endpoint — privacy-first routing with Brain, ensemble, and provenance tracking.
+      // Non-streaming JSON: Connect orchestrates internally (Brain, Qwen, ensemble) then returns a full answer.
+      const res = await fetch("/api/sentinel/connect", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: historyMessages, stream: true }),
+        body: JSON.stringify({ messages: historyMessages }),
         signal: controller.signal,
       });
 
-      const contentType = res.headers.get("content-type") ?? "";
-      const providerUsed = res.headers.get("x-sentinel-provider") as SentinelStatusPayload["activeProvider"];
-      const tokensUsedHeader = res.headers.get("x-sentinel-tokens-used");
+      setSending(false);
+
+      if (!res.ok) {
+        let errMsg = "Sentinel Connect nicht verfügbar.";
+        try {
+          const errData = await res.json() as { error?: string };
+          if (errData.error) errMsg = errData.error;
+        } catch { /* ignore */ }
+        const failedEntries = [...nextEntries, { role: "assistant", content: errMsg, meta: { sources: [] } } satisfies ChatEntry];
+        entriesRef.current = failedEntries;
+        setEntries(failedEntries);
+        setError(errMsg);
+        setRetryText(text);
+        setCurrentRun((previous) => ({ ...previous, status: "failed", error: errMsg, updatedAt: nowIso() }));
+        return;
+      }
+
+      const data = await res.json() as {
+        answer: string;
+        provider: string;
+        route?: string;
+        brainUsed?: boolean;
+        fallbackUsed?: boolean;
+        error?: string;
+      };
+
+      const answer = data.answer?.trim() || "Sentinel hat keine Antwort gesendet.";
+      const providerUsed = data.provider as SentinelStatusPayload["activeProvider"] | undefined;
 
       if (providerUsed) {
         setCurrentRun((previous) => ({ ...previous, provider: providerUsed, updatedAt: nowIso() }));
         setStatus((previous) => previous ? { ...previous, activeProvider: providerUsed } : previous);
       }
 
-      if (tokensUsedHeader && providerUsed) {
-        const tokens = parseInt(tokensUsedHeader, 10);
-        if (!isNaN(tokens) && tokens > 0) {
-          void fetch("/api/sentinel/token-usage", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ provider: providerUsed, tokens }),
-          }).catch(() => { /* ignore */ });
-        }
-      }
-
-      if (!res.ok || contentType.includes("application/json")) {
-        setSending(false);
-        let data: { offline?: boolean; autoStartFailed?: boolean; detail?: string } = {};
-        try {
-          data = await res.json() as typeof data;
-        } catch {
-          // ignore
-        }
-        const message = data.detail?.trim()
-          ? data.detail
-          : data.autoStartFailed
-            ? "Sentinel konnte Ollama nicht automatisch starten.\nBitte prüfen Sie, ob Ollama installiert ist und ausgeführt werden kann.\nErwartet: http://localhost:11434"
-            : "Sentinel ist offline. Bitte Ollama starten.\nErwartet: http://localhost:11434";
-        const failedEntries = [...nextEntries, { role: "assistant", content: message, meta: { sources: [] } } satisfies ChatEntry];
-        entriesRef.current = failedEntries;
-        setEntries(failedEntries);
-        setError(message);
-        setRetryText(text);
-        setCurrentRun((previous) => ({ ...previous, status: "failed", error: message, updatedAt: nowIso() }));
-        return;
-      }
-
-      const reader = res.body?.getReader();
-      if (!reader) throw new Error("Sentinel stream missing");
-
-      const decoder = new TextDecoder();
-      let fullContent = "";
-      let entryAdded = false;
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        fullContent += chunk;
-
-        if (!entryAdded) {
-          setSending(false);
-          setStreamStarted(true);
-          const withAssistant = [...entriesRef.current, { role: "assistant", content: fullContent, meta: { sources: [] } } satisfies ChatEntry];
-          entriesRef.current = withAssistant;
-          setEntries(withAssistant);
-          entryAdded = true;
-        } else {
-          setEntries((previous) => {
-            const updated = [...previous];
-            const last = updated.length - 1;
-            if (updated[last]?.role === "assistant") {
-              updated[last] = { ...updated[last], content: fullContent };
-            }
-            entriesRef.current = updated;
-            return updated;
-          });
-        }
-
-        setCurrentRun((previous) => ({ ...previous, status: "streaming", updatedAt: nowIso() }));
-      }
-
-      if (!entryAdded) {
-        const fallbackContent = fullContent || "Sentinel hat keine Antwort gesendet.";
-        const finalEntries = [...entriesRef.current, { role: "assistant", content: fallbackContent, meta: { sources: [] } } satisfies ChatEntry];
-        entriesRef.current = finalEntries;
-        setEntries(finalEntries);
-      }
+      setStreamStarted(true);
+      const withAssistant = [...entriesRef.current, { role: "assistant", content: answer, meta: { sources: [] } } satisfies ChatEntry];
+      entriesRef.current = withAssistant;
+      setEntries(withAssistant);
 
       setCurrentRun((previous) => ({ ...previous, status: "completed", error: null, updatedAt: nowIso() }));
       setError(null);
