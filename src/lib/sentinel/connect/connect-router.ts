@@ -11,6 +11,7 @@ import { runEnsemble, runReasonerPlusCritic } from "./ensemble";
 import { generateRunId, persistRun } from "./connect-run";
 import { getCapalifeContextBudgeted } from "../capitalife-context";
 import { getGraphContext } from "../graphify-retrieval";
+import { dispatchReadOnlyTool } from "../tools/tool-router";
 import { ask, stream as providerStream, SENTINEL_SYSTEM_PROMPT } from "../providers/provider-router";
 import { buildOutboundContext } from "./outbound-inspector";
 import type { ChatMessage, SentinelProviderId } from "../providers/types";
@@ -37,6 +38,8 @@ export type ConnectResult = {
   route: ConnectRoutingMode;
   brainUsed: boolean;
   graphifyUsed: boolean;
+  toolUsed: string | null;
+  toolSource: string | null;
   workers: WorkerRecord[];
   agreements: string[];
   disagreements: string[];
@@ -168,6 +171,37 @@ export async function connectChat(req: ConnectRequest): Promise<ConnectResult> {
 
   const effectivePrivacy = postBrainPrivacy;
 
+  // 3b. Bounded, single-shot, read-only product-tool dispatch.
+  // Server decides deterministically from the user's own text (keyword match) —
+  // the model is never given a function-calling surface, so there is no tool
+  // name or permission for a hostile prompt to hijack. Executes at most one
+  // tool per request; no loop, no recursion.
+  //
+  // Appended AFTER the privacy/redaction pipeline (not before, like Graphify)
+  // because getTextForProvider() returns a pre-computed REMOTE_REDACTED
+  // sanitizedText that ignores later edits to the raw message content —
+  // injecting earlier would silently vanish for any redacted request. The
+  // tool's own output is already sanitized (no absolute paths/secrets — see
+  // tool-router.ts), so appending it post-redaction is safe and doesn't
+  // require touching the redaction logic itself.
+  let toolUsed: string | null = null;
+  let toolSource: string | null = null;
+  try {
+    const toolResult = dispatchReadOnlyTool(lastUser);
+    if (toolResult) {
+      toolUsed = toolResult.toolId;
+      toolSource = toolResult.source;
+      const localIdx = messages.findLastIndex((m) => m.role === "user");
+      if (localIdx >= 0) {
+        messages[localIdx] = { ...messages[localIdx]!, content: `${messages[localIdx]!.content}\n\n${toolResult.resultText}` };
+      }
+      const externalIdx = externalMessages.findLastIndex((m) => m.role === "user");
+      if (externalIdx >= 0) {
+        externalMessages[externalIdx] = { ...externalMessages[externalIdx]!, content: `${externalMessages[externalIdx]!.content}\n\n${toolResult.resultText}` };
+      }
+    }
+  } catch { /* tool execution failure — continue without; chat must stay alive */ }
+
   // Build outbound context for debugging (never returned to client)
   const _outboundCtx = buildOutboundContext(messages, effectivePrivacy, {
     brainInjected: brainUsed,
@@ -288,6 +322,8 @@ export async function connectChat(req: ConnectRequest): Promise<ConnectResult> {
     route,
     brainUsed,
     graphifyUsed,
+    toolUsed,
+    toolSource,
     workers,
     agreements,
     disagreements,

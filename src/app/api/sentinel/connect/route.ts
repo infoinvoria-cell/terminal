@@ -53,6 +53,8 @@ export async function POST(req: NextRequest) {
       route: result.route,
       brainUsed: result.brainUsed,
       graphifyUsed: result.graphifyUsed,
+      toolUsed: result.toolUsed,
+      toolSource: result.toolSource,
       workers: result.workers.map((w) => ({
         provider: w.provider,
         role: w.role,
