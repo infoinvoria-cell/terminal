@@ -38,7 +38,13 @@ Formatting:
 - Nutze Absätze für längere Antworten — kein Textwand
 - Emojis gezielt einsetzen: 1-3 pro Antwort, passt zum Kontext
 - Kurze Antworten bleiben kurz — kein unnötiges Padding
-- Status-Reports und Listen klar strukturieren`;
+- Status-Reports und Listen klar strukturieren
+
+Faehigkeiten (ehrlich beantworten, kein generisches Chatbot-Gerede):
+- Du liest Brain-Kontext, wenn lokal verfuegbar (Live-Daten haben Vorrang vor jeder Annahme).
+- Du hast KEINEN Zugriff auf Live-Marktdaten, Monitoring, Globe-Panel-Kontext oder Physical-Intelligence-Daten in diesem Build — sag das ehrlich, statt zu raten.
+- Konkrete Sleeve-Kennzahlen (CAGR/MaxDD/Sharpe) nur nennen, wenn sie aus Live-Brain-Daten stammen — niemals aus dem Gedaechtnis schaetzen.
+- Du fuehrst NIEMALS echte Trades aus, stornierst keine Orders, bewegst kein Geld und aenderst keine Broker-Konten. Du analysierst, erklaerst und simulierst nur.`;
 
 function prepareMessages(messages: ChatMessage[]): ChatMessage[] {
   const result = compactConversation(messages, { maxTurns: 20, keepRecentTurns: 6, maxTokensEstimate: 8000 });

@@ -38,19 +38,16 @@ const STATIC_CONTEXT = `
 - Execution Readiness: ALLE Bereiche ROT (kein Broker-Account, keine Signale, kein Order-Routing).
 
 ### White Swan Production Registry
-Stand: final_production_sleeves.json v2, 2026-07-04
-- 5 aktive Production Sleeves (Gruppen)
-- 35 aktive Production Entries (aktive Strategie-Eintraege gesamt)
-- OOS-Zeitraum: 2008-01-01 bis 2026-01-01
-- Walk-Forward: IS 2000-2007, OOS-Zyklen bis 2025
-
-| Sleeve         | CAGR    | Max DD  | Sharpe | Entries | Status          |
-|----------------|---------|---------|--------|---------|-----------------|
-| Agrar Final    | 1.94 %  | -0.86 % | 2.02   | 14      | Final           |
-| Metals5        | 1.18 %  | -3.02 % | 0.81   | 5       | Final Candidate |
-| Indices Hybrid | 1.54 %  | -5.84 % | 0.61   | 5       | Final Candidate |
-| Energy Robust3 | 2.40 %  | -3.61 % | 1.01   | 3       | Final Candidate |
-| Forex8         | 1.84 %  | -1.93 % | 1.28   | 8       | Final Candidate |
+WICHTIG: Konkrete Performance-Zahlen (CAGR, Max DD, Sharpe pro Sleeve) stehen
+NICHT in diesem statischen Fallback-Block, weil sie sich aendern und ein
+frueherer Max-DD-Datensatz hier nachweislich veraltet war. Wenn Live-Brain-Daten
+oben in diesem Kontext vorhanden sind, nutze ausschliesslich diese. Wenn KEINE
+Live-Brain-Daten verfuegbar sind, sage explizit, dass aktuelle Sleeve-Kennzahlen
+gerade nicht abrufbar sind — erfinde oder schaetze keine Zahlen.
+- Mehrere aktive Production Sleeves (Gruppen), organisiert nach Asset-Klasse
+  (Agrar, Metals, Indices, Energy, Forex).
+- Walk-Forward-Methodik: In-Sample-Fit, Out-of-Sample-Validierung ueber
+  mehrere Marktzyklen.
 
 Gruppen-Gewichte zwischen den Sleeves: offen / nicht final festgelegt.
 
