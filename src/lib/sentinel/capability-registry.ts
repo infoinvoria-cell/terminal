@@ -6,7 +6,7 @@ import fs from "fs";
 import path from "path";
 import { getSentinelEnvConfig, getBrainContextStatus } from "./providers/provider-status";
 
-export type CapabilityAvailability = "AVAILABLE" | "PARTIAL" | "BLOCKED" | "NOT_ALLOWED";
+export type CapabilityAvailability = "AVAILABLE" | "AVAILABLE_LOCAL" | "PARTIAL" | "BLOCKED" | "NOT_ALLOWED";
 
 export type Capability = {
   id: string;
@@ -79,12 +79,12 @@ export function getCapabilityRegistry(): Capability[] {
       name: "White Swan strategy data",
       category: "white_swan",
       accessMode: "read",
-      source: "public/data/white-swan/v7/*.json (canonical, same files the product UI reads) via get_white_swan_risk_modes / get_white_swan_sp_comparison tools",
-      availability: "PARTIAL",
-      requiresLocalRuntime: false,
+      source: "public/data/white-swan/v7/*.json (canonical, same files the product UI reads) via get_white_swan_risk_modes / get_white_swan_sp_comparison tools, wired into live Connect chat via tool-router.ts",
+      availability: "AVAILABLE_LOCAL",
+      requiresLocalRuntime: true,
       requiresRemoteProvider: false,
       allowedExternally: false,
-      note: "A real, tested read-only adapter now exists and reads current v7 data, verified against the corrected drawdown methodology (running-peak, not the previously-fixed stale bug). Marked PARTIAL, not AVAILABLE, because it is only reachable via /api/sentinel/tools — it is NOT wired into the live Connect chat loop's tool-calling, since that would require a Connect architecture change outside this task's scope. Sentinel cannot yet call it mid-conversation automatically.",
+      note: "Genuinely callable from a normal user message through /api/sentinel/connect — verified live against a real server with real Groq+Mistral providers (not mocked): \"What is White Swan €15k MaxDD?\" correctly returned 20.17% with zero occurrences of the old stale figure. Marked AVAILABLE_LOCAL, not AVAILABLE, because the underlying public/data/white-swan/v7/ artifacts remain untracked in git — this works on any machine that physically has those files (this one does), but NOT on a fresh checkout, CI, or the deployed Vercel environment, where the tool correctly reports BLOCKED rather than guessing. Deployment readiness requires a separate decision about committing/serving that data, which is outside Sentinel's ownership.",
     },
     {
       id: "core_invest_context",

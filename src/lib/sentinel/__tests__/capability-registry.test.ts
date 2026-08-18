@@ -37,11 +37,12 @@ describe("capability registry — honesty checks", () => {
     expect(summary).not.toMatch(/api[_-]?key/i);
   });
 
-  it("white_swan_context capability describes a real adapter, not a hardcoded/live-chat claim", () => {
+  it("white_swan_context is AVAILABLE_LOCAL — live-chat wired, but not deployment-proven", () => {
     const caps = getCapabilityRegistry();
     const ws = caps.find((c) => c.id === "white_swan_context");
-    expect(ws?.availability).toBe("PARTIAL");
-    expect(ws?.note).toMatch(/not.*wired.*into.*live.*connect/i);
+    expect(ws?.availability).toBe("AVAILABLE_LOCAL");
+    expect(ws?.note).toMatch(/verified live/i);
+    expect(ws?.note).toMatch(/untracked in git/i);
   });
 });
 
