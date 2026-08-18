@@ -131,6 +131,34 @@ function getProviderScarcityRatio(providerId: string): number {
   }
 }
 
+// Proactive load-balancing: without this, ties always favor the single
+// highest PROVIDER_QUALITY_WEIGHT candidate (Groq), so it would carry ~100%
+// of normal traffic every day until its quota score visibly degrades past
+// 50% used — reactive, not proactive, distribution. This applies a small
+// penalty proportional to a provider's share of TODAY's free-provider
+// request volume, so an already-loaded provider yields ties to a
+// less-loaded sibling before either one is anywhere near exhausted.
+// Bounded to +/-0.15 so it can nudge ties but never override a genuine
+// quality/capability/quota difference.
+const LOAD_BALANCE_WEIGHT = 0.15;
+
+function getLoadBalancingPenalty(providerId: string, allCandidateIds: string[]): number {
+  try {
+    const counts = allCandidateIds.map((id) => ({ id, count: getDailyRequests(id) }));
+    const total = counts.reduce((s, c) => s + c.count, 0);
+    if (total <= 0) return 0; // no traffic yet today — no basis to penalize anyone
+    const mine = counts.find((c) => c.id === providerId)?.count ?? 0;
+    const fairShare = 1 / allCandidateIds.length;
+    const actualShare = mine / total;
+    // Only penalize carrying MORE than a fair share; never reward carrying less
+    // (avoids inventing a bonus for a provider that simply hasn't been tried yet).
+    const excess = Math.max(0, actualShare - fairShare);
+    return excess * LOAD_BALANCE_WEIGHT;
+  } catch {
+    return 0;
+  }
+}
+
 function getProviderQuotaScore(providerId: string): number {
   const ratio = getProviderScarcityRatio(providerId);
   // Map scarcity ratio to routing score penalty
@@ -361,10 +389,18 @@ function buildScoredProviderOrder(
   }
 
   // Score all providers
-  const scored = providers
+  const baseScored = providers
     .filter((p) => providerAllowed(p.id, config))
     .map((p) => ({ id: p.id, score: scoreProvider(p.id, p, profile, userMessage) }))
-    .filter((p) => p.score > 0)
+    .filter((p) => p.score > 0);
+
+  // Proactive load balancing: nudge ties away from whichever eligible
+  // candidate is already carrying more than its fair share of today's
+  // requests, instead of always deterministically picking the single
+  // highest quality-weight provider until it visibly runs low on quota.
+  const candidateIds = baseScored.map((p) => p.id);
+  const scored = baseScored
+    .map((p) => ({ id: p.id, score: p.score - getLoadBalancingPenalty(p.id, candidateIds) }))
     .sort((a, b) => b.score - a.score);
 
   return scored.map((p) => p.id);
