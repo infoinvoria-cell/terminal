@@ -202,6 +202,14 @@ export async function checkLocalTTSHealth(): Promise<boolean> {
   return _localTTSAvailable ?? false;
 }
 
+// Forces the next checkLocalTTSHealth() call to re-probe instead of serving
+// the 30s cached result — useful right after the user starts/reconnects a
+// local Kokoro sidecar, and for test isolation (each test gets a fresh check).
+export function invalidateTTSHealthCache(): void {
+  _localTTSAvailable = null;
+  _healthCheckTs = 0;
+}
+
 // ── Audio cache ────────────────────────────────────────────────────────────────
 
 interface CacheEntry { blob: Blob; ts: number; }

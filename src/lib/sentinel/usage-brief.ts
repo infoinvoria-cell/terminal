@@ -7,6 +7,7 @@ import { getProviderStatuses } from "@/lib/sentinel/sentinel-router";
 import { getUsageSummaryForRange } from "@/lib/sentinel/store/usage-store";
 import { getLastContextUsage } from "@/lib/sentinel/store/context-store";
 import { getDedupedRequestCount } from "@/lib/sentinel/connect/request-dedupe";
+import { getCapabilityRegistry, type CapabilityAvailability } from "@/lib/sentinel/capability-registry";
 
 export type SentinelCapacityStatus = "healthy" | "degraded" | "offline";
 
@@ -28,6 +29,14 @@ export type SentinelUsageSummary = {
   // because this build does not yet compute one honestly (see Slice 3
   // commit notes) — omit rather than fabricate.
   providerCallsAvoided: number; // == deduped in-flight requests
+  // Slice-5 addition — compact, read-only capability summary Globe can
+  // consume without pulling the full registry. Sourced live from
+  // capability-registry.ts on every call, never hardcoded.
+  capabilities: {
+    whiteSwan: CapabilityAvailability;
+    coreInvest: CapabilityAvailability;
+    physicalIntelligence: CapabilityAvailability;
+  };
 };
 
 function todayUtc(): string {
@@ -72,5 +81,14 @@ export async function getSentinelUsageSummary(): Promise<SentinelUsageSummary> {
     monthTokens: month.inputTokens + month.outputTokens,
     capacityStatus,
     providerCallsAvoided: getDedupedRequestCount(),
+    capabilities: (() => {
+      const caps = getCapabilityRegistry();
+      const find = (id: string) => caps.find((c) => c.id === id)?.availability ?? "BLOCKED";
+      return {
+        whiteSwan: find("white_swan_context"),
+        coreInvest: find("core_invest_context"),
+        physicalIntelligence: find("physical_intelligence_context"),
+      };
+    })(),
   };
 }

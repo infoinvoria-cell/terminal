@@ -18,6 +18,17 @@ describe("Sentinel usage-brief — collaboration contract for other surfaces (e.
     expect(summary).toHaveProperty("providerCallsAvoided");
     expect(typeof summary.providerCallsAvoided).toBe("number");
     expect(summary.providerCallsAvoided).toBeGreaterThanOrEqual(0);
+    expect(summary).toHaveProperty("capabilities");
+    expect(summary.capabilities).toHaveProperty("whiteSwan");
+    expect(summary.capabilities).toHaveProperty("coreInvest");
+    expect(summary.capabilities).toHaveProperty("physicalIntelligence");
+  });
+
+  it("capabilities reflect the live registry, not hardcoded copy", async () => {
+    const summary = await getSentinelUsageSummary();
+    expect(["AVAILABLE", "AVAILABLE_LOCAL", "PARTIAL", "BLOCKED", "NOT_ALLOWED"]).toContain(summary.capabilities.whiteSwan);
+    expect(["AVAILABLE", "AVAILABLE_LOCAL", "PARTIAL", "BLOCKED", "NOT_ALLOWED"]).toContain(summary.capabilities.coreInvest);
+    expect(["AVAILABLE", "AVAILABLE_LOCAL", "PARTIAL", "BLOCKED", "NOT_ALLOWED"]).toContain(summary.capabilities.physicalIntelligence);
   });
 
   it("freeOnly is always true — not a client-controllable flag in the payload shape", async () => {

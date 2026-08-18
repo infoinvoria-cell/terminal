@@ -126,9 +126,38 @@ export function getPhysicalIntelligenceKnownCommodities(): string[] {
   return [...new Set(file.observations.map((o) => o.commodity))];
 }
 
+export type DataSourceState = "AVAILABLE_LOCAL" | "MISSING" | "CONFLICT" | "STALE";
+
 // Reports whether the underlying data directory is reachable — a distinct,
-// honest question from "is there an observation for X". Used to build the
-// data-packaging status this slice's report requires.
+// honest question from "is there an observation for X". Deployment-safety
+// abstraction: callers get a state enum + a repo-relative structural label
+// only (never an absolute filesystem path), so if this data's storage
+// location changes later (e.g. moved under public/), only this function's
+// internals need to change — every caller keeps working against the enum.
+export function getPhysicalIntelligenceDataSourceState(): { state: DataSourceState; sourceLabel: string; detail: string } {
+  const filePath = path.join(/* turbopackIgnore: true */ PHYSICAL_INTEL_DIR, CANONICAL_FILE);
+  const sourceLabel = "physical-intelligence-forward-v2";
+
+  if (!fs.existsSync(filePath)) {
+    return { state: "MISSING", sourceLabel, detail: "Canonical forward-observation artifact not found on this runtime." };
+  }
+
+  const file = readForwardFile();
+  if (!file) {
+    return { state: "MISSING", sourceLabel, detail: "File exists but could not be parsed as valid JSON." };
+  }
+
+  const ageMs = Date.now() - new Date(file.generatedAt).getTime();
+  const STALE_AFTER_MS = 7 * 24 * 60 * 60 * 1000; // 7 days — conservative, this is daily-refresh research data
+  if (Number.isFinite(ageMs) && ageMs > STALE_AFTER_MS) {
+    return { state: "STALE", sourceLabel, detail: `Data generated ${Math.round(ageMs / 86_400_000)} days ago, beyond the 7-day freshness assumption for this source.` };
+  }
+
+  return { state: "AVAILABLE_LOCAL", sourceLabel, detail: `Reachable on this runtime, generated ${file.generatedAt}.` };
+}
+
+// @deprecated superseded by getPhysicalIntelligenceDataSourceState(); kept
+// only until any remaining caller is confirmed migrated.
 export function getPhysicalIntelligenceDataPackagingStatus(): { localFileExists: boolean; path: string } {
   const filePath = path.join(/* turbopackIgnore: true */ PHYSICAL_INTEL_DIR, CANONICAL_FILE);
   return { localFileExists: fs.existsSync(filePath), path: `data/white-swan/physical-intelligence/forward/${CANONICAL_FILE}` };
