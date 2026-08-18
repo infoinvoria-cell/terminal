@@ -103,7 +103,7 @@ function dispatchWhiteSwan(userText: string): ToolInvocation {
 }
 
 function dispatchCoreInvest(userText: string): ToolInvocation {
-  const wantsReadiness = /live\s*ready|would.*trade|broker|execut/i.test(userText);
+  const wantsReadiness = /live\s*ready|live\s*bereit|bereit.*live|would.*trade|w[üu]rde.*trad|broker|execut|handelsbereit/i.test(userText);
   if (wantsReadiness) {
     const result = getCoreInvestLiveReadiness();
     const source = sanitizeSourceLabel(result.source);

@@ -63,6 +63,14 @@ describe("Tool selection — only relevant domain(s) load", () => {
     expect(sent).toMatch(/wouldTradeToday=NO/);
   });
 
+  it("German 'live bereit' phrasing also dispatches the readiness tool, not the metrics tool (regression: found live during final acceptance testing)", async () => {
+    const result = await connectChat({ messages: [{ role: "user", content: "Ist Core Invest aktuell live bereit?" }] });
+    expect(result.toolUsed).toBe("get_core_invest_live_readiness");
+    const sent = sentUserContent(result.answer);
+    expect(sent).toMatch(/RESEARCH_ONLY/);
+    expect(sent).toMatch(/wouldTradeToday=NO/);
+  });
+
   it("a Corn question does not load White Swan or Core Invest data", async () => {
     const result = await connectChat({ messages: [{ role: "user", content: "What is the current Corn physical state?" }] });
     expect(result.toolUsed).toBe("get_physical_intelligence");
