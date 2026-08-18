@@ -5,11 +5,22 @@ describe("capability registry — honesty checks", () => {
   it("never claims AVAILABLE for a source with no wired code path", () => {
     const caps = getCapabilityRegistry();
     const unwired = caps.filter((c) =>
-      ["globe_context", "monitoring_context", "market_data", "physical_intelligence_context"].includes(c.id)
+      ["globe_context", "monitoring_context", "market_data"].includes(c.id)
     );
     for (const c of unwired) {
       expect(c.availability).not.toBe("AVAILABLE");
+      expect(c.availability).not.toBe("AVAILABLE_LOCAL");
     }
+  });
+
+  it("core_invest_context and physical_intelligence_context are AVAILABLE_LOCAL now that Slice 4 wired them, but never plain AVAILABLE (deployment not proven)", () => {
+    const caps = getCapabilityRegistry();
+    const coreInvest = caps.find((c) => c.id === "core_invest_context");
+    const physical = caps.find((c) => c.id === "physical_intelligence_context");
+    expect(coreInvest?.availability).toBe("AVAILABLE_LOCAL");
+    expect(physical?.availability).toBe("AVAILABLE_LOCAL");
+    expect(coreInvest?.note).toMatch(/RESEARCH_ONLY/);
+    expect(physical?.note).toMatch(/SHADOW_OBSERVATION/);
   });
 
   it("live order authority is NO", () => {
