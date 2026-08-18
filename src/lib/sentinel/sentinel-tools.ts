@@ -54,10 +54,36 @@ const getGraphStatsTool: SentinelTool = {
   },
 };
 
+const getWhiteSwanRiskModesTool: SentinelTool = {
+  name: "get_white_swan_risk_modes",
+  description: "Returns real, current White Swan v7 risk-mode metrics (CAGR/OOS CAGR/Sharpe/MaxDD/Calmar/PF) for a given capital tier, read from public/data/white-swan/v7. Never hardcoded.",
+  inputSchema: { type: "object", properties: { tierCapital: { type: "number" } }, required: ["tierCapital"] },
+  handler: async (input) => {
+    const { getWhiteSwanRiskModesForTier } = await import("./tools/white-swan-tool");
+    const tierCapital = (input as { tierCapital?: number })?.tierCapital;
+    if (typeof tierCapital !== "number") return { status: "BLOCKED", failureReason: "tierCapital (number) is required" };
+    return getWhiteSwanRiskModesForTier(tierCapital);
+  },
+};
+
+const getWhiteSwanSpComparisonTool: SentinelTool = {
+  name: "get_white_swan_sp_comparison",
+  description: "Returns the real White Swan v7 vs S&P 500 running-peak MaxDD comparison for a given capital tier.",
+  inputSchema: { type: "object", properties: { tierCapital: { type: "number" } }, required: ["tierCapital"] },
+  handler: async (input) => {
+    const { getWhiteSwanSpComparison } = await import("./tools/white-swan-tool");
+    const tierCapital = (input as { tierCapital?: number })?.tierCapital;
+    if (typeof tierCapital !== "number") return { status: "BLOCKED", failureReason: "tierCapital (number) is required" };
+    return getWhiteSwanSpComparison(tierCapital);
+  },
+};
+
 export const SENTINEL_TOOLS: SentinelTool[] = [
   readCurrentDatetimeTool,
   getBrainStatusTool,
   getGraphStatsTool,
+  getWhiteSwanRiskModesTool,
+  getWhiteSwanSpComparisonTool,
 ];
 
 export async function executeTool(

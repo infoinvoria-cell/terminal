@@ -37,11 +37,11 @@ describe("capability registry — honesty checks", () => {
     expect(summary).not.toMatch(/api[_-]?key/i);
   });
 
-  it("white_swan_context capability explicitly warns against hardcoded numbers", () => {
+  it("white_swan_context capability describes a real adapter, not a hardcoded/live-chat claim", () => {
     const caps = getCapabilityRegistry();
     const ws = caps.find((c) => c.id === "white_swan_context");
-    expect(ws?.note.toLowerCase()).toContain("not");
-    expect(ws?.note).toMatch(/hardcod|unavailable/i);
+    expect(ws?.availability).toBe("PARTIAL");
+    expect(ws?.note).toMatch(/not.*wired.*into.*live.*connect/i);
   });
 });
 
