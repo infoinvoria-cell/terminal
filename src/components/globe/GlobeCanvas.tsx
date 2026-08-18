@@ -26,9 +26,9 @@ import type { PhysicalRegionOverlay } from "@/lib/globe/physical-intelligence";
 import { filterGlobeLabels } from "@/lib/globe/label-policy";
 
 const DEFAULT_CAMERA: GlobeCameraState = {
-  lat: 50,
-  lng: 10,
-  altitude: 1.95,
+  lat: 38,
+  lng: -32,
+  altitude: 1.78,
 };
 const MAX_ALTITUDE = 3.1;
 const MIN_ALTITUDE = 0.06;
@@ -70,6 +70,7 @@ type Props = {
   onCountryClick?: (countryName: string, lat: number, lng: number) => void;
   onCityMarkerClick?: (markerId: string) => void;
   onEventClick?: (event: { name: string; lat: number; lng: number; type: string }) => void;
+  onSelectPhysicalRegion?: (regionId: string) => void;
   highlightedAssetIds?: string[];
   physicalRegions?: PhysicalRegionOverlay[];
   physicalIntelEnabled?: boolean;
@@ -339,6 +340,7 @@ function GlobeCanvasComponent({
   geoFocusTarget,
   onGeoFocusHandled,
   onEventClick,
+  onSelectPhysicalRegion,
   highlightedAssetIds,
   physicalRegions = [],
   physicalIntelEnabled = false,
@@ -497,7 +499,7 @@ function GlobeCanvasComponent({
           country: row.name,
           locationLabel: row.name,
           icon,
-          color: riskScoreColor(tone, detailLevel === 2 ? 0.42 : 0.48),
+          color: tone < -0.08 ? withAlpha("#a9adb4", detailLevel === 2 ? 0.42 : 0.48) : withAlpha("#c9a84c", detailLevel === 2 ? 0.42 : 0.48),
           lat: Number(row.lat),
           lng: Number(row.lng),
           label,
@@ -531,7 +533,7 @@ function GlobeCanvasComponent({
           country: row.name,
           locationLabel: row.name,
           icon,
-          color: liquidityScoreColor(tone, detailLevel === 2 ? 0.42 : 0.48),
+          color: tone < -0.08 ? withAlpha("#a9adb4", detailLevel === 2 ? 0.42 : 0.48) : withAlpha("#c9a84c", detailLevel === 2 ? 0.42 : 0.48),
           lat: Number(row.lat),
           lng: Number(row.lng),
           label,
@@ -564,7 +566,7 @@ function GlobeCanvasComponent({
           country: row.name,
           locationLabel: row.name,
           icon: "AR",
-          color: regionBiasColor(bias, detailLevel === 2 ? 0.44 : 0.5),
+          color: bias === "neutral" ? withAlpha("#cbd5e1", detailLevel === 2 ? 0.44 : 0.5) : withAlpha("#c9a84c", detailLevel === 2 ? 0.44 : 0.5),
           lat: Number(row.lat),
           lng: Number(row.lng),
           label,
@@ -700,7 +702,7 @@ function GlobeCanvasComponent({
         locationLabel: String(ev.location || ""),
         icon: eventIcon(ev.type),
         iconUrl: undefined,
-        color: String(ev.color || "#ff9800"),
+        color: "#c9a84c",
         lat: Number(ev.lat),
         lng: Number(ev.lng),
         label: String(ev.label || `${ev.type} - ${ev.location}`),
@@ -745,7 +747,7 @@ function GlobeCanvasComponent({
         locationLabel: list.length > 1 ? "Clustered events" : String(list[0]?.location || ""),
         icon: list.length > 1 ? `${list.length}` : eventIcon(String(list[0]?.type || "")),
         iconUrl: undefined,
-        color: list.length > 1 ? "#ff9800" : String(list[0]?.color || "#ff9800"),
+        color: "#c9a84c",
         lat,
         lng,
         label: list.length > 1 ? `${list.length} events` : `${String(list[0]?.type || "")} ${String(list[0]?.severity || "")}`,
@@ -910,9 +912,9 @@ function GlobeCanvasComponent({
     for (const e of geoEvents ?? []) {
       if (String(e.type) !== "earthquake") continue;
       const col = String(e.color || "");
-      // M>=6 quakes → expanding hazard ring (red for M>=7, orange for M6-7)
-      if (col === "#FF3333") out.push({ lat: Number(e.lat), lng: Number(e.lng), color: "rgba(255,51,51,0.75)" });
-      else if (col === "#f97316") out.push({ lat: Number(e.lat), lng: Number(e.lng), color: "rgba(249,115,22,0.6)" });
+      // M>=6 quakes → expanding muted-gold/grey hazard ring.
+      if (col === "#FF3333") out.push({ lat: Number(e.lat), lng: Number(e.lng), color: "rgba(201,168,76,0.75)" });
+      else if (col === "#f97316") out.push({ lat: Number(e.lat), lng: Number(e.lng), color: "rgba(169,173,180,0.6)" });
     }
     return out;
   }, [geoEvents]);
@@ -1209,6 +1211,8 @@ function GlobeCanvasComponent({
     }
 
     const from = globe.pointOfView?.() ?? DEFAULT_CAMERA;
+    const reducedMotion = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const effectiveDuration = reducedMotion ? 0 : Math.min(800, Math.max(400, durationMs));
     const start = performance.now();
     const origin = {
       lat: Number(from.lat ?? DEFAULT_CAMERA.lat),
@@ -1217,7 +1221,7 @@ function GlobeCanvasComponent({
     };
 
     const run = (now: number) => {
-      const t = Math.min(1, (now - start) / durationMs);
+      const t = effectiveDuration === 0 ? 1 : Math.min(1, (now - start) / effectiveDuration);
       const k = easeInOutCubic(t);
       globe.pointOfView?.(
         {
@@ -1407,6 +1411,9 @@ function GlobeCanvasComponent({
       }
       if (point.kind === "region") {
         setActiveEvent(null);
+        if (point.category === "Physical Intelligence" && point.regionId) {
+          onSelectPhysicalRegion?.(String(point.regionId));
+        }
         tweenCamera(
           {
             lat: Number(point.lat),
@@ -1457,7 +1464,7 @@ function GlobeCanvasComponent({
         1400,
       );
     },
-    [crossPairPath, detailLevel, onSelectAsset, themePrimaryHex, tweenCamera, buildConnectionArcs],
+    [crossPairPath, detailLevel, onSelectAsset, onSelectPhysicalRegion, themePrimaryHex, tweenCamera, buildConnectionArcs],
   );
 
   const legend = useMemo(() => {
@@ -1542,6 +1549,7 @@ function GlobeCanvasComponent({
           rendererConfig={rendererConfig as any}
           width={size.width}
           height={size.height}
+          globeRelSize={1.08}
           globeImageUrl={satelliteMode
             ? "/api/globe/earth-texture"
             : OCEAN_TEXTURE}
@@ -1713,7 +1721,7 @@ function GlobeCanvasComponent({
               icon.style.fontWeight = "700";
               // Conflict intensity → pulse speed (high severity pulses faster)
               if (String(d.eventType || "") === "conflict") {
-                icon.style.color = String(d.color || "#FF3333");
+                icon.style.color = "#d7c27a";
               }
               el.appendChild(icon);
               if (detailLevel >= 2) {
@@ -1773,12 +1781,7 @@ function GlobeCanvasComponent({
               const icon = document.createElement("span");
               icon.innerText = "RG";
               icon.style.fontSize = "10px";
-              icon.style.color =
-                d.regionBias === "bearish" || d.regionBias === "risk_off" || d.regionBias === "tightening"
-                  ? "#ff7a86"
-                  : d.regionBias === "bullish" || d.regionBias === "risk_on" || d.regionBias === "high_liquidity"
-                    ? "#68ff72"
-                    : "#cbd5e1";
+              icon.style.color = d.regionBias === "neutral" ? "#cbd5e1" : "#d7c27a";
               icon.style.fontWeight = "700";
               el.appendChild(icon);
               if (detailLevel >= 2) {
@@ -1887,10 +1890,10 @@ function GlobeCanvasComponent({
               priceEl.style.whiteSpace = "nowrap";
               const dir = priceDir[String(d.assetId ?? "")];
               if (dir === "up") {
-                priceEl.style.color = "#39ff64";
+                priceEl.style.color = "#d7c27a";
                 priceEl.style.animation = "clfPriceFlashUp 1.2s ease-out";
               } else if (dir === "down") {
-                priceEl.style.color = "#FF3333";
+                priceEl.style.color = "#d7c27a";
                 priceEl.style.animation = "clfPriceFlashDown 1.2s ease-out";
               } else {
                 priceEl.style.color = themeUiMuted;

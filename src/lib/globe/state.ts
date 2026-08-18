@@ -2,17 +2,20 @@ import type { PersistedGlobeState } from "@/lib/globe/globe-types";
 
 const STORAGE_KEY = "clf_globe_state_v1";
 
-export const EUROPE_DEFAULT_CAMERA = {
-  lat: 50,
-  lng: 10,
+export const ATLANTIC_DEFAULT_CAMERA = {
+  lat: 38,
+  lng: -32,
   altitude: 1.78,
 } as const;
+
+// Kept as a compatibility alias for existing persisted-state consumers.
+export const EUROPE_DEFAULT_CAMERA = ATLANTIC_DEFAULT_CAMERA;
 
 export const DEFAULT_GLOBE_STATE: PersistedGlobeState = {
   selectedAssetId: "",
   enabledAssets: [],
   selectedOverlay: "none",
-  camera: { ...EUROPE_DEFAULT_CAMERA },
+  camera: { ...ATLANTIC_DEFAULT_CAMERA },
 };
 
 function encodeState(state: PersistedGlobeState): string {
@@ -67,11 +70,11 @@ function sanitizeState(input: Partial<PersistedGlobeState> | null | undefined): 
         : "none";
 
   const camera = {
-    lat: Number.isFinite(Number(input?.camera?.lat)) ? Number(input?.camera?.lat) : EUROPE_DEFAULT_CAMERA.lat,
-    lng: Number.isFinite(Number(input?.camera?.lng)) ? Number(input?.camera?.lng) : EUROPE_DEFAULT_CAMERA.lng,
+    lat: Number.isFinite(Number(input?.camera?.lat)) ? Number(input?.camera?.lat) : ATLANTIC_DEFAULT_CAMERA.lat,
+    lng: Number.isFinite(Number(input?.camera?.lng)) ? Number(input?.camera?.lng) : ATLANTIC_DEFAULT_CAMERA.lng,
     altitude: Number.isFinite(Number(input?.camera?.altitude))
       ? Number(input?.camera?.altitude)
-      : EUROPE_DEFAULT_CAMERA.altitude,
+      : ATLANTIC_DEFAULT_CAMERA.altitude,
   };
 
   return {

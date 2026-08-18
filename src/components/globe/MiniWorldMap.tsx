@@ -44,6 +44,7 @@ type Props = {
   newsHeatmapScores?: Record<string, number>;
   newsHeatmapActive?: boolean;
   physicalRegions?: PhysicalRegionOverlay[];
+  onSelectPhysicalRegion?: (regionId: string) => void;
   focusLat?: number;
   focusLng?: number;
   onSelectPoint: (point: MarkerPoint) => void;
@@ -316,6 +317,7 @@ export function MiniWorldMap({
   newsHeatmapScores = {},
   newsHeatmapActive = false,
   physicalRegions = [],
+  onSelectPhysicalRegion,
   focusLat,
   focusLng,
   onSelectPoint,
@@ -885,13 +887,16 @@ export function MiniWorldMap({
           const [west, south, east, north] = region.bbox;
           const center = project((west + east) / 2, (south + north) / 2);
           return (
-            <div
+            <button
               key={`physical-label-${region.id}`}
-              className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded border px-1.5 py-1 text-[8px] font-semibold uppercase tracking-[0.06em]"
+              type="button"
+              onClick={() => onSelectPhysicalRegion?.(region.id)}
+              aria-label={`Select Physical Intelligence region ${region.label}`}
+              className="absolute -translate-x-1/2 -translate-y-1/2 rounded border px-1.5 py-1 text-[8px] font-semibold uppercase tracking-[0.06em] transition hover:brightness-125"
               style={{ left: `${(center.x / MAP_WIDTH) * 100}%`, top: `${(center.y / MAP_HEIGHT) * 100}%`, color: "#dedede", borderColor: Number(region.score) <= -50 ? "rgba(201,168,76,0.66)" : "rgba(220,220,228,0.35)", background: "rgba(8,8,10,0.76)" }}
             >
               {region.label} · {region.score == null ? "—" : Number(region.score).toFixed(1)}
-            </div>
+            </button>
           );
         })}
         {renderMarkers.map(({ point, leftPct, topPct }) => {

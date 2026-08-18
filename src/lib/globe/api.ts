@@ -76,6 +76,7 @@ const MARKET_CACHE_MS = 40 * 60 * 1000;
 const NEWS_CACHE_MS = 10 * 60 * 1000;
 const VALUATION_CACHE_MS = 40 * 60 * 1000;
 const SEASONALITY_CACHE_MS = 10 * 365 * 24 * 60 * 60 * 1000;
+const FETCH_TIMEOUT_MS = 12_000;
 
 export type ApiLoadingSnapshot = {
   active: boolean;
@@ -230,14 +231,18 @@ async function fetchJson<T>(url: string, ttlMs: number, options?: FetchJsonOptio
   const endLoading = beginLoading(url);
   const request = (async () => {
     let res: Response;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     try {
-      res = await fetch(url);
+      res = await fetch(url, { signal: controller.signal });
     } catch (err) {
       logApiFetchFailed(url, err, { phase: "network" });
       if (!required && fallback !== undefined) {
         return fallback;
       }
       throw err;
+    } finally {
+      clearTimeout(timeoutId);
     }
     if (res == null) {
       const err = new Error("No response");

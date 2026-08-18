@@ -41,6 +41,7 @@ import type { MonitoringChartData } from "@/components/monitoring/MonitoringChar
 import { buildDisplayMarkers } from "@/lib/globe/markers";
 import { buildPhysicalRegions, getPhysicalIntelligence, type PhysicalIntelResponse, type PhysicalRegionOverlay } from "@/lib/globe/physical-intelligence";
 import { GLOBE_OVERLAY_CONTROL_KEYS } from "@/lib/globe/layer-registry";
+import { isPhysicalNews, rankAssetNews, rankGlobalNews } from "@/lib/globe/news-policy";
 import { DEFAULT_GLOBE_STATE, hasPersistedGlobeState, loadInitialGlobeState, persistGlobeState } from "@/lib/globe/state";
 import type {
   AssetRegionHighlightResponse,
@@ -52,6 +53,7 @@ import type {
   GeoEventItem,
   GlobalLiquidityRegionItem,
   GlobalRiskRegionItem,
+  GlobeCameraState,
   MarkerPoint,
   NewsItem,
   OverlayMode,
@@ -127,6 +129,7 @@ const VALUATION_CACHE_MS = 40 * 60 * 1000;
 const SEASONALITY_CACHE_MS = 10 * 365 * 24 * 60 * 60 * 1000;
 const SHELL_REFRESH_MS = 40 * 60 * 1000;
 const CHART_REFRESH_MS = 5 * 60 * 1000;
+const SIDE_GRID_ROWS = "minmax(0, 1fr) minmax(0, 1fr) 220px";
 const GLOBE_MARKER_UPDATE_MS = 30 * 1000;
 const GLOBE_TIMER_TICK_MS = 30 * 1000;
 const OVERLAY_ACTIVATION_PRIORITY: Array<keyof OverlayToggleState> = [
@@ -403,7 +406,7 @@ const NEWS_MEDIUM_RE = /\b(oil|gold|dollar|euro|yen|trade|supply|demand|yield|tr
 const NEWS_MACRO_RE = /\b(inflation|cpi|ppi|gdp|unemployment|fed|ecb|boj|rate|yield|recession|debt ceiling|fiscal|monetary|central bank|treasury|fomc)\b/i;
 const NEWS_MARKET_RE = /\b(nasdaq|s&p|dow|equit|stocks?|earnings|ipo|dividend|buyback|market cap|rally|selloff|correction|bull|bear)\b/i;
 
-type NewsFilter = "all" | "breaking" | "markets" | "macro";
+type NewsFilter = "all" | "markets" | "macro" | "physical";
 type NewsSort = "score" | "newest";
 
 function newsAssetIcon(title: string, description?: string): string {
@@ -434,9 +437,9 @@ function GlobeNewsColumn({ items, filter, sort, onFilterChange: _onFilterChange,
     if (filter !== "all") {
       list = list.filter((item) => {
         const text = `${item.title ?? ""} ${item.description ?? ""}`;
-        if (filter === "breaking") return newsScore(item.title ?? "", item.description) >= 8;
         if (filter === "macro") return NEWS_MACRO_RE.test(text);
         if (filter === "markets") return NEWS_MARKET_RE.test(text);
+        if (filter === "physical") return isPhysicalNews(item);
         return true;
       });
     }
@@ -682,6 +685,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   const [overlayState, setOverlayState] = useState<OverlayToggleState>(initialOverlayState);
   const [physicalSnapshot, setPhysicalSnapshot] = useState<PhysicalIntelResponse | null>(null);
   const [physicalIntelEnabled, setPhysicalIntelEnabled] = useState(false);
+  const [selectedPhysicalRegionId, setSelectedPhysicalRegionId] = useState<string | null>(null);
   const [selectedOverlay, setSelectedOverlay] = useState<OverlayMode>(initialOverlay);
   const [camera, setCamera] = useState(initialPersisted.camera ?? DEFAULT_GLOBE_STATE.camera);
   const [markerZoomLevel, setMarkerZoomLevel] = useState<number>(() => {
@@ -829,6 +833,10 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   }, []);
 
   const physicalRegions = useMemo(() => buildPhysicalRegions(physicalSnapshot), [physicalSnapshot]);
+  const selectedPhysicalRegion = useMemo(
+    () => physicalIntelEnabled ? physicalRegions.find((region) => region.id === selectedPhysicalRegionId) ?? null : null,
+    [physicalIntelEnabled, physicalRegions, selectedPhysicalRegionId],
+  );
 
   const markAssetUsage = useCallback((assetId: string) => {
     const key = String(assetId || "").trim().toLowerCase();
@@ -902,7 +910,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
     }
     return GlobeApi.getGlobalNews()
       .then((res) => {
-        const items = res.items ?? [];
+        const items = rankGlobalNews(res.items ?? []);
         setGlobalNews(items);
         globalNewsCacheRef.current = {
           items,
@@ -995,7 +1003,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
             : (cached?.seasonality ?? null);
         const nextAssetNews =
           newsRes.status === "fulfilled"
-            ? (newsRes.value.items ?? [])
+            ? rankAssetNews(newsRes.value.items ?? [], selectedMeta)
             : (cached?.assetNews ?? []);
         const nextSignalDetail =
           signalRes.status === "fulfilled" && signalRes.value
@@ -1945,10 +1953,10 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
   }, [selectedAssetId, timeseries?.aiScore?.total]);
 
   const autoRotateEnabled = globeRotateMode !== "off";
-  const autoRotateSpeed = globeRotateMode === "normal" ? 0.7 : 0.35;
+  const autoRotateSpeed = globeRotateMode === "normal" ? 0.28 : 0.14;
   const effectiveAutoRotateEnabled = autoRotateEnabled || visualLoopEnabled;
   const effectiveAutoRotateSpeed = visualLoopEnabled
-    ? Math.max(autoRotateSpeed, 0.8)
+    ? Math.max(autoRotateSpeed, 0.28)
     : autoRotateSpeed;
 
   const markers = useMemo(
@@ -2016,7 +2024,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
       const asset = bySymbol.get(String(sig.symbol).toUpperCase());
       if (!asset) continue;
       const dir = sig.direction.toUpperCase();
-      const color = !sig.inPosition ? "#FFFFFF" : dir === "SHORT" ? "#FF3333" : "#c8c8c8";
+      const color = !sig.inPosition ? "#FFFFFF" : "#d7c27a";
       const price = globePrices[asset.id];
       const priceStr = typeof price === "number" && Number.isFinite(price)
         ? (price >= 1000 ? price.toLocaleString("en-US", { maximumFractionDigits: 0 }) : price.toFixed(2))
@@ -2512,6 +2520,17 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
     }
     setFocusLocation({ lat: Number(point.lat), lng: Number(point.lng) });
   }, [activateSection, markAssetUsage]);
+  const onSelectPhysicalRegion = useCallback((regionId: string) => {
+    setSelectedPhysicalRegionId(regionId);
+    const region = physicalRegions.find((item) => item.id === regionId);
+    if (region) setFocusLocation({ lat: (region.bbox[1] + region.bbox[3]) / 2, lng: (region.bbox[0] + region.bbox[2]) / 2 });
+  }, [physicalRegions]);
+  const togglePhysicalIntel = useCallback(() => {
+    setPhysicalIntelEnabled((enabled) => {
+      if (enabled) setSelectedPhysicalRegionId(null);
+      return !enabled;
+    });
+  }, []);
 
   const onSharedTimeRangeChange = useCallback((next: SharedTimeRange | null) => {
     if (!next) return;
@@ -2677,7 +2696,6 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
 
   // Shared Analytics-style card styles — Referenz design tokens
   const CARD = "flex min-h-0 flex-col overflow-hidden rounded-[10px] border shadow-[0_18px_45px_rgba(0,0,0,0.50)]";
-  const BOTTOM_PANEL_HEIGHT = 220;
   const CARD_BORDER = { borderColor: "rgba(255,255,255,0.055)", background: "linear-gradient(to bottom, #191a1f, #0d0e12)" };
   const CARD_HEADER = "shrink-0 border-b border-white/[0.06] px-4 py-2.5";
   const CARD_LABEL = "text-[11px] font-bold tracking-[0.04em] text-[#f5f7fa] uppercase";
@@ -2714,6 +2732,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
     newsHeatmapScores,
     physicalRegions: physicalIntelEnabled ? physicalRegions : [],
     physicalIntelEnabled,
+    onSelectPhysicalRegion,
     onCameraChange,
     onSelectAsset: onGlobeSelectAsset,
     onFocusHandled,
@@ -2942,6 +2961,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
             newsHeatmapScores={newsHeatmapScores}
             newsHeatmapActive={overlayState.newsHeatmap}
             physicalRegions={physicalIntelEnabled ? physicalRegions : []}
+            onSelectPhysicalRegion={onSelectPhysicalRegion}
             focusLat={Number(camera?.lat)}
             focusLng={Number(camera?.lng)}
             onSelectPoint={onSelectPointFromMiniMap}
@@ -3082,9 +3102,9 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
       >
 
         {/* ── LEFT: Watchlist + Overlay Control ── */}
-        <div className="flex min-h-0 flex-col gap-3 overflow-hidden" style={mobileMode ? { display: "none" } : undefined}>
-          {/* Watchlist card — 65% */}
-          <div className={CARD} style={{ ...CARD_BORDER, flex: "0 0 65%" }}>
+        <div className="grid min-h-0 gap-3 overflow-hidden" style={mobileMode ? { display: "none" } : { gridTemplateRows: SIDE_GRID_ROWS }}>
+          {/* Watchlist spans rows 1–2 unless Sentinel is open. */}
+          <div className={`${CARD} h-full`} style={{ ...CARD_BORDER, gridRow: showSentinel ? "1" : "1 / span 2" }}>
             <div className="min-h-0 flex-1 overflow-hidden">
               <SettingsPanel
                 assets={assets}
@@ -3109,19 +3129,39 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
               />
             </div>
           </div>
-          {/* Overlay Control card — remaining */}
-          <div className={CARD} style={{ ...CARD_BORDER, flex: `0 0 ${BOTTOM_PANEL_HEIGHT}px` }}>
-            <div className={CARD_HEADER}>
-              <span className={CARD_LABEL}>Overlay Control</span>
+          {showSentinel && (
+            <div className={`${CARD} h-full`} style={CARD_BORDER}>
+              <GlobeSentinelChat
+                geoEvents={geoEvents}
+                overlayState={overlayState}
+                assets={assets}
+                enabledAssets={enabledAssets}
+                prices={globePrices}
+                selectedAsset={selectedAsset}
+                physicalRegion={selectedPhysicalRegion}
+                news={assetNews}
+                camera={camera}
+                onClose={() => setShowSentinel(false)}
+              />
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto">
+          )}
+          {/* Overlay Control is row 3 and mirrors the chart exactly. */}
+          <div className={`${CARD} h-full`} style={{ ...CARD_BORDER, gridRow: "3" }}>
+            <div className={`${CARD_HEADER} flex items-center`}>
+              <span className={CARD_LABEL}>Overlay Control</span>
+              <button type="button" onClick={() => setShowSentinel((value) => !value)} aria-pressed={showSentinel} title="Open Sentinel Globe Context" className="ml-auto flex items-center gap-1 rounded border border-white/10 px-1.5 py-1 text-[8px] font-semibold uppercase tracking-[0.08em] text-white/55 transition hover:border-[#c9a84c]/60 hover:text-[#d7c27a]" style={showSentinel ? { borderColor: "rgba(201,168,76,0.65)", color: "#d7c27a" } : undefined}>
+                <img src="/sentinel-logo.png" alt="" width={12} height={12} className="object-contain" />
+                Sentinel
+              </button>
+            </div>
+            <div className="min-h-0 flex-1 overflow-hidden">
               <GlobeOverlayControl
                 overlayState={overlayState}
                 overlayLoadingState={overlayLoadingState}
                 onToggleOverlay={onToggleOverlay}
                 physicalIntelEnabled={physicalIntelEnabled}
                 physicalRegions={physicalRegions}
-                onTogglePhysicalIntel={() => setPhysicalIntelEnabled((value) => !value)}
+                onTogglePhysicalIntel={togglePhysicalIntel}
               />
             </div>
           </div>
@@ -3288,16 +3328,6 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
                     todayIso={todayIso}
                   />
                 )}
-                {showSentinel && (
-                  <GlobeSentinelChat
-                    geoEvents={geoEvents}
-                    overlayState={overlayState}
-                    assets={assets}
-                    enabledAssets={enabledAssets}
-                    prices={globePrices}
-                    onClose={() => setShowSentinel(false)}
-                  />
-                )}
                 <GlobePatternAlerts
                   patterns={combinedAlerts}
                   onFocus={onPatternFocus}
@@ -3372,6 +3402,7 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
               newsHeatmapScores={newsHeatmapScores}
               newsHeatmapActive={overlayState.newsHeatmap}
               physicalRegions={physicalIntelEnabled ? physicalRegions : []}
+              onSelectPhysicalRegion={onSelectPhysicalRegion}
               focusLat={Number(camera?.lat)}
               focusLng={Number(camera?.lng)}
               onSelectPoint={onSelectPointFromMiniMap}
@@ -3379,21 +3410,21 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
           </div>
         </div>
 
-        {/* ── RIGHT: Asset News (30%) → Global News (flex) → Chart (30%) ── */}
-        <div className="flex min-h-0 flex-col gap-3 overflow-hidden" style={mobileMode ? { display: "none" } : { paddingRight: 4 }}>
-          {/* Asset and Global News share equal height; only their bodies scroll. */}
-          <div className={CARD} style={{ ...CARD_BORDER, flex: "1 1 0", minHeight: 0 }}>
+        {/* ── RIGHT: three deterministic rows mirrored against the left ── */}
+        <div className="grid min-h-0 gap-3 overflow-hidden" style={mobileMode ? { display: "none" } : { gridTemplateRows: SIDE_GRID_ROWS, paddingRight: 4 }}>
+          {/* Asset News — row 1 */}
+          <div className={`${CARD} h-full`} style={CARD_BORDER}>
             <div className="shrink-0 flex items-center gap-2 border-b border-white/[0.06] px-3 py-2">
               <span className={CARD_LABEL}>{selectedAsset?.name ?? "Asset"} News</span>
               <div className="ml-auto flex items-center gap-0.5">
-                {(["all", "breaking", "markets", "macro"] as NewsFilter[]).map((f) => (
+                {(["all", "markets", "macro", "physical"] as NewsFilter[]).map((f) => (
                   <button key={f} type="button" onClick={() => setAssetNewsFilter(f)}
                     className="shrink-0 rounded-full px-2 py-[2px] text-[8px] font-semibold transition"
                     style={assetNewsFilter === f
                       ? { background: "linear-gradient(to bottom, #26262d, #111114)", border: "1px solid rgba(255,255,255,0.28)", color: "#F3F3F4" }
                       : { background: "transparent", border: "1px solid rgba(255,255,255,0.06)", color: "#6a6e7a" }}
                   >
-                    {f === "all" ? "All" : f === "breaking" ? "🔴" : f === "markets" ? "📊" : "🌍"}
+                    {f === "all" ? "All" : f === "markets" ? "Markets" : f === "macro" ? "Macro" : "Physical"}
                   </button>
                 ))}
                 <button type="button" onClick={() => setAssetNewsSort(s => s === "score" ? "newest" : "score")}
@@ -3417,18 +3448,19 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
               />
             </div>
           </div>
-          <div className={CARD} style={{ ...CARD_BORDER, flex: "1 1 0", minHeight: 0 }}>
+          {/* Global News — row 2 */}
+          <div className={`${CARD} h-full`} style={CARD_BORDER}>
             <div className="shrink-0 flex items-center gap-2 border-b border-white/[0.06] px-3 py-2">
               <span className={CARD_LABEL}>Global News</span>
               <div className="ml-auto flex items-center gap-0.5">
-                {(["all", "breaking", "markets", "macro"] as NewsFilter[]).map((f) => (
+                {(["all", "markets", "macro", "physical"] as NewsFilter[]).map((f) => (
                   <button key={f} type="button" onClick={() => setGlobalNewsFilter(f)}
                     className="shrink-0 rounded-full px-2 py-[2px] text-[8px] font-semibold transition"
                     style={globalNewsFilter === f
                       ? { background: "linear-gradient(to bottom, #26262d, #111114)", border: "1px solid rgba(255,255,255,0.28)", color: "#F3F3F4" }
                       : { background: "transparent", border: "1px solid rgba(255,255,255,0.06)", color: "#6a6e7a" }}
                   >
-                    {f === "all" ? "All" : f === "breaking" ? "🔴" : f === "markets" ? "📊" : "🌍"}
+                    {f === "all" ? "All" : f === "markets" ? "Markets" : f === "macro" ? "Macro" : "Physical"}
                   </button>
                 ))}
                 <button type="button" onClick={() => setGlobalNewsSort(s => s === "score" ? "newest" : "score")}
@@ -3451,8 +3483,8 @@ export function GlobeApp({ mobileMode = false }: { mobileMode?: boolean } = {}) 
               />
             </div>
           </div>
-          {/* Chart card — fixed ~2D-map height */}
-          <div className={CARD} style={{ ...CARD_BORDER, flex: `0 0 ${BOTTOM_PANEL_HEIGHT}px` }}>
+          {/* Chart — row 3, exact height match with Overlay Control. */}
+          <div className={`${CARD} h-full`} style={CARD_BORDER}>
             <div className="min-h-0 flex-1" style={{ position: "relative", overflow: "hidden" }}>
               <CapalifeChart
                 key={selectedAsset?.symbol ?? "globe-chart"}
