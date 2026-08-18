@@ -6,6 +6,7 @@
 import { getProviderStatuses } from "@/lib/sentinel/sentinel-router";
 import { getUsageSummaryForRange } from "@/lib/sentinel/store/usage-store";
 import { getLastContextUsage } from "@/lib/sentinel/store/context-store";
+import { getDedupedRequestCount } from "@/lib/sentinel/connect/request-dedupe";
 
 export type SentinelCapacityStatus = "healthy" | "degraded" | "offline";
 
@@ -21,6 +22,12 @@ export type SentinelUsageSummary = {
   weekTokens: number;
   monthTokens: number;
   capacityStatus: SentinelCapacityStatus;
+  // Slice-3 additions — process-lifetime counters (reset on server restart,
+  // acceptable per this slice's scope). All EXACT counts, never estimates
+  // dressed up as measured; there is no "estimatedTokensAvoided" field here
+  // because this build does not yet compute one honestly (see Slice 3
+  // commit notes) — omit rather than fabricate.
+  providerCallsAvoided: number; // == deduped in-flight requests
 };
 
 function todayUtc(): string {
@@ -64,5 +71,6 @@ export async function getSentinelUsageSummary(): Promise<SentinelUsageSummary> {
     weekTokens: week.inputTokens + week.outputTokens,
     monthTokens: month.inputTokens + month.outputTokens,
     capacityStatus,
+    providerCallsAvoided: getDedupedRequestCount(),
   };
 }

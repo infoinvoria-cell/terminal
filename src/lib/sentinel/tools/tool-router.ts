@@ -11,6 +11,7 @@ export type ToolInvocation = {
   resultText: string;
   source: string;
   status: "AVAILABLE" | "BLOCKED" | "CONFLICT";
+  deterministicAnswer: string | null;
 };
 
 const WHITE_SWAN_KEYWORDS = /white\s*swan|maxdd|max\s*dd|drawdown|sharpe|calmar|risk\s*mode/i;
@@ -60,6 +61,7 @@ export function dispatchReadOnlyTool(userText: string): ToolInvocation | null {
         toolId: "get_white_swan_sp_comparison",
         status: "BLOCKED",
         source,
+        deterministicAnswer: null,
         resultText: `[White Swan S&P comparison for €${tier}: UNAVAILABLE — ${result.failureReason ?? "current data not reachable"}. Do not state a specific figure; say it is currently unavailable.]`,
       };
     }
@@ -68,6 +70,12 @@ export function dispatchReadOnlyTool(userText: string): ToolInvocation | null {
       toolId: "get_white_swan_sp_comparison",
       status: "AVAILABLE",
       source,
+      deterministicAnswer:
+        `White Swan v7 (€${tier} Tier, 1.0x) — MaxDD: **${c.whiteSwanMaxDD}%**\n` +
+        `S&P 500 (same window, running-peak) — MaxDD: **${c.spMaxDD}%**\n` +
+        `Outperforms: ${c.outperforms ? "Ja" : "Nein"}\n` +
+        `Methodik: ${result.maxDDMethodology}\n` +
+        `Quelle: ${source}`,
       resultText:
         `[White Swan v7 vs S&P 500 comparison, tier €${tier}, source: ${source} — ` +
         `White Swan MaxDD ${c.whiteSwanMaxDD}%, S&P 500 MaxDD ${c.spMaxDD}%, outperforms=${c.outperforms}. ` +
@@ -82,6 +90,7 @@ export function dispatchReadOnlyTool(userText: string): ToolInvocation | null {
       toolId: "get_white_swan_risk_modes",
       status: "BLOCKED",
       source,
+      deterministicAnswer: null,
       resultText:
         `[White Swan risk-mode data for €${tier}: UNAVAILABLE — ${result.failureReason ?? "current data not reachable"}. ` +
         `Do not state a specific MaxDD/CAGR/Sharpe figure from memory; say current figures are currently unavailable. ` +
@@ -91,10 +100,16 @@ export function dispatchReadOnlyTool(userText: string): ToolInvocation | null {
   const modesText = result.tierData.modes
     .map((m) => `${m.id}: CAGR ${m.cagr}%, OOS CAGR ${m.oosCagr}%, Sharpe ${m.sharpe}, MaxDD ${m.maxDDPct}%, Calmar ${m.calmar}, PF ${m.pf}, Margin ${m.marginPct}%, status ${m.status}`)
     .join(" | ");
+  const deterministicLines = result.tierData.modes
+    .map((m) => `${m.id}: MaxDD **${m.maxDDPct}%** · CAGR ${m.cagr}% · OOS CAGR ${m.oosCagr}% · Sharpe ${m.sharpe} · Calmar ${m.calmar} · PF ${m.pf} · Margin ${m.marginPct}% · ${m.status}`)
+    .join("\n");
   return {
     toolId: "get_white_swan_risk_modes",
     status: "AVAILABLE",
     source,
+    deterministicAnswer:
+      `White Swan v7 — €${tier} Tier\n${deterministicLines}\n\n` +
+      `Methodik: ${result.maxDDMethodology}\nQuelle: ${source}`,
     resultText:
       `[White Swan v7 real current data, tier €${tier}, source: ${source} — ${modesText}. ` +
       `Methodology: ${result.maxDDMethodology}]`,

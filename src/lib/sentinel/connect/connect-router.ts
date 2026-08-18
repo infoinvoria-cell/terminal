@@ -186,11 +186,13 @@ export async function connectChat(req: ConnectRequest): Promise<ConnectResult> {
   // require touching the redaction logic itself.
   let toolUsed: string | null = null;
   let toolSource: string | null = null;
+  let toolDeterministicAnswer: string | null = null;
   try {
     const toolResult = dispatchReadOnlyTool(lastUser);
     if (toolResult) {
       toolUsed = toolResult.toolId;
       toolSource = toolResult.source;
+      toolDeterministicAnswer = toolResult.deterministicAnswer;
       const localIdx = messages.findLastIndex((m) => m.role === "user");
       if (localIdx >= 0) {
         messages[localIdx] = { ...messages[localIdx]!, content: `${messages[localIdx]!.content}\n\n${toolResult.resultText}` };
@@ -279,9 +281,22 @@ export async function connectChat(req: ConnectRequest): Promise<ConnectResult> {
       fallbackUsed = true;
       route = "FALLBACK_CHAIN";
     } catch {
-      answer = "Sentinel Connect: Kein Provider verfügbar. Bitte prüfe Netzwerk und API-Keys.";
-      fallbackUsed = true;
-      route = "FALLBACK_CHAIN";
+      // Last resort, before giving up entirely: if a deterministic read-only
+      // tool already resolved an exact current fact for this question (e.g.
+      // White Swan MaxDD), present it directly — no LLM required, no risk of
+      // fabricated reasoning. Only for unambiguous tool-backed facts; complex/
+      // reasoning questions still correctly get the capacity-unavailable message.
+      if (toolDeterministicAnswer) {
+        answer = `[Free-Kapazität aktuell erschöpft — direkte Live-Daten-Antwort ohne KI-Synthese]\n\n${toolDeterministicAnswer}`;
+        provider = "local";
+        model = "deterministic-tool-fallback";
+        fallbackUsed = true;
+        route = "FALLBACK_CHAIN";
+      } else {
+        answer = "Sentinel Connect: Kein Provider verfügbar. Bitte prüfe Netzwerk und API-Keys.";
+        fallbackUsed = true;
+        route = "FALLBACK_CHAIN";
+      }
     }
   }
 

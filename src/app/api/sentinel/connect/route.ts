@@ -3,6 +3,7 @@
 // parallel ensemble, and ConnectRun provenance tracking.
 import { NextRequest, NextResponse } from "next/server";
 import { connectChat, connectStream } from "@/lib/sentinel/connect/connect-router";
+import { withRequestDedupe } from "@/lib/sentinel/connect/request-dedupe";
 import type { ChatMessage } from "@/lib/sentinel/providers/types";
 import type { ConnectMode } from "@/lib/sentinel/connect/connect-router";
 
@@ -43,7 +44,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const result = await connectChat({ messages, mode, signal });
+    // Single-turn requests (no prior conversation) are safely poolable across
+    // simultaneous identical callers — see request-dedupe.ts for the exact
+    // eligibility gate. Multi-turn/session requests always execute independently.
+    const result = await withRequestDedupe({ messages, mode, signal }, () => connectChat({ messages, mode, signal }));
     return NextResponse.json({
       answer: result.answer,
       provider: result.provider,
